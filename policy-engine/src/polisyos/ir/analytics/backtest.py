@@ -32,7 +32,7 @@ class OutcomeComparison(BaseModel):
     y_true: float
     absolute_error: float = Field(ge=0.0)
     relative_error: float | None = Field(default=None, ge=0.0)
-    within_ci: bool = False
+    within_ci: bool | None = None
     ci_lower: float | None = None
     ci_upper: float | None = None
 
@@ -92,15 +92,57 @@ class BacktestScenario(BaseModel):
     mae: float | None = Field(default=None, ge=0.0)
     mape: float | None = Field(default=None, ge=0.0)
     coverage_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    requested_count: int = Field(default=0, ge=0)
+    compared_count: int = Field(default=0, ge=0)
+    missing_count: int = Field(default=0, ge=0)
+    invalid_count: int = Field(default=0, ge=0)
+    missing_cells: list[tuple[str, int]] = Field(default_factory=list)
+    invalid_cells: list[tuple[str, int]] = Field(default_factory=list)
+    interval_requested_count: int = Field(default=0, ge=0)
+    interval_available_count: int = Field(default=0, ge=0)
+    interval_evaluated_count: int = Field(default=0, ge=0)
+    interval_hit_count: int = Field(default=0, ge=0)
+    interval_availability: float | None = Field(default=None, ge=0.0, le=1.0)
+    interval_hit_rate: float | None = Field(default=None, ge=0.0, le=1.0)
+    nominal_confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
+    interval_type: str | None = Field(default=None, min_length=1)
+    squared_error_sum: float | None = Field(default=None, ge=0.0)
+    absolute_error_sum: float | None = Field(default=None, ge=0.0)
+    percentage_error_sum: float | None = Field(default=None, ge=0.0)
+    percentage_error_count: int = Field(default=0, ge=0)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _validate_metrics(self) -> BacktestScenario:
+        if self.requested_count > 0:
+            counted = self.compared_count + self.missing_count + self.invalid_count
+            if counted != self.requested_count:
+                raise ValueError(
+                    "requested_count must equal compared_count + missing_count + invalid_count"
+                )
+            if len(self.missing_cells) != self.missing_count:
+                raise ValueError("missing_cells must match missing_count")
+            if len(self.invalid_cells) != self.invalid_count:
+                raise ValueError("invalid_cells must match invalid_count")
+        if self.interval_available_count > self.interval_requested_count:
+            raise ValueError("interval_available_count cannot exceed interval_requested_count")
+        if self.interval_evaluated_count > self.interval_available_count:
+            raise ValueError("interval_evaluated_count cannot exceed interval_available_count")
+        if self.interval_hit_count > self.interval_evaluated_count:
+            raise ValueError("interval_hit_count cannot exceed interval_evaluated_count")
+        if self.percentage_error_count == 0 and self.percentage_error_sum not in (None, 0.0):
+            raise ValueError("percentage_error_sum requires percentage_error_count")
         for value, name in (
             (self.rmse, "rmse"),
             (self.mae, "mae"),
             (self.mape, "mape"),
             (self.coverage_probability, "coverage_probability"),
+            (self.interval_availability, "interval_availability"),
+            (self.interval_hit_rate, "interval_hit_rate"),
+            (self.nominal_confidence_level, "nominal_confidence_level"),
+            (self.squared_error_sum, "squared_error_sum"),
+            (self.absolute_error_sum, "absolute_error_sum"),
+            (self.percentage_error_sum, "percentage_error_sum"),
         ):
             if value is not None and not math.isfinite(value):
                 raise ValueError(f"{name} must be finite")
@@ -128,12 +170,14 @@ class BacktestReport(BaseModel):
     scenarios: list[BacktestScenario] = Field(default_factory=list)
 
     overall_rmse: float | None = Field(default=None, ge=0.0)
+    overall_macro_rmse: float | None = Field(default=None, ge=0.0)
     overall_mae: float | None = Field(default=None, ge=0.0)
     overall_mape: float | None = Field(default=None, ge=0.0)
     overall_coverage_probability: float | None = Field(default=None, ge=0.0, le=1.0)
     overall_r_squared: float | None = None
     n_scenarios: int = Field(default=0, ge=0)
     n_metrics_evaluated: int = Field(default=0, ge=0)
+    aggregation_policy: str | None = Field(default=None, min_length=1)
 
     detected_biases: list[SystematicBias] = Field(default_factory=list)
     overall_bias_direction: BiasDirection = BiasDirection.NEUTRAL
@@ -158,6 +202,7 @@ class BacktestReport(BaseModel):
             raise ValueError("n_scenarios must match scenarios length")
         for value, name in (
             (self.overall_rmse, "overall_rmse"),
+            (self.overall_macro_rmse, "overall_macro_rmse"),
             (self.overall_mae, "overall_mae"),
             (self.overall_mape, "overall_mape"),
             (self.overall_coverage_probability, "overall_coverage_probability"),

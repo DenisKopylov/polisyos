@@ -149,6 +149,7 @@ class BacktestOrchestrator:
             intervention_date=plan.intervention_date,
             data_source=plan.historical_data_ref or plan.historical_data_path or "",
             metadata={
+                **plan.metadata,
                 "prediction_source_requested": plan.prediction_source.value,
                 "prediction_source_effective": prediction_payload.get(
                     "prediction_mode_effective",
@@ -501,12 +502,99 @@ class BacktestOrchestrator:
         prediction_mode_effective: str | None,
         degraded_reasons: list[str],
     ) -> BacktestReport:
+        def sufficient_statistics(
+            scenario: BacktestScenario,
+        ) -> tuple[float, float, float, int, int]:
+            if scenario.squared_error_sum is not None:
+                squared_error_sum = float(scenario.squared_error_sum)
+                absolute_error_sum = float(scenario.absolute_error_sum or 0.0)
+                percentage_error_sum = float(scenario.percentage_error_sum or 0.0)
+                compared_count = (
+                    scenario.compared_count
+                    if scenario.requested_count > 0
+                    else len(scenario.outcome_comparisons)
+                )
+                percentage_error_count = scenario.percentage_error_count
+                return (
+                    squared_error_sum,
+                    absolute_error_sum,
+                    percentage_error_sum,
+                    compared_count,
+                    percentage_error_count,
+                )
+
+            squared_error_sum = sum(
+                comparison.absolute_error**2
+                for comparison in scenario.outcome_comparisons
+            )
+            absolute_error_sum = sum(
+                comparison.absolute_error for comparison in scenario.outcome_comparisons
+            )
+            percentage_errors = [
+                comparison.relative_error * 100.0
+                for comparison in scenario.outcome_comparisons
+                if comparison.relative_error is not None
+            ]
+            return (
+                float(squared_error_sum),
+                float(absolute_error_sum),
+                float(sum(percentage_errors)),
+                len(scenario.outcome_comparisons),
+                len(percentage_errors),
+            )
+
+        scenario_statistics = [sufficient_statistics(item) for item in scenarios]
+        total_squared_error = sum(item[0] for item in scenario_statistics)
+        total_absolute_error = sum(item[1] for item in scenario_statistics)
+        total_percentage_error = sum(item[2] for item in scenario_statistics)
+        total_compared = sum(item[3] for item in scenario_statistics)
+        total_percentage_count = sum(item[4] for item in scenario_statistics)
+
         rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
         mae_values = [item.mae for item in scenarios if item.mae is not None]
         mape_values = [item.mape for item in scenarios if item.mape is not None]
         coverage_values = [
             item.coverage_probability for item in scenarios if item.coverage_probability is not None
         ]
+
+        if total_compared > 0:
+            overall_rmse = float(np.sqrt(total_squared_error / total_compared))
+            overall_mae = float(total_absolute_error / total_compared)
+        else:
+            overall_rmse = float(np.mean(rmse_values)) if rmse_values else None
+            overall_mae = float(np.mean(mae_values)) if mae_values else None
+        overall_mape = (
+            float(total_percentage_error / total_percentage_count)
+            if total_percentage_count > 0
+            else (float(np.mean(mape_values)) if mape_values else None)
+        )
+        interval_evaluated = sum(item.interval_evaluated_count for item in scenarios)
+        interval_hits = sum(item.interval_hit_count for item in scenarios)
+        overall_coverage = (
+            float(interval_hits / interval_evaluated)
+            if interval_evaluated > 0
+            else (float(np.mean(coverage_values)) if coverage_values else None)
+        )
+        macro_rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
+        overall_macro_rmse = (
+            float(np.mean(macro_rmse_values)) if macro_rmse_values else None
+        )
+        interval_contracts = [
+            {
+                "scenario_id": item.scenario_id,
+                "nominal_confidence_level": item.nominal_confidence_level,
+                "interval_type": item.interval_type,
+                "interval_requested_count": item.interval_requested_count,
+                "interval_available_count": item.interval_available_count,
+                "interval_evaluated_count": item.interval_evaluated_count,
+                "interval_hit_count": item.interval_hit_count,
+            }
+            for item in scenarios
+            if item.nominal_confidence_level is not None or item.interval_type is not None
+        ]
+        metadata_payload = dict(metadata)
+        if interval_contracts:
+            metadata_payload["interval_contracts"] = interval_contracts
 
         biases = self._detect_systematic_biases(scenarios)
         degraded = bool(degraded_reasons)
@@ -521,14 +609,16 @@ class BacktestOrchestrator:
             schema_version="1.0",
             report_id=report_id,
             scenarios=scenarios,
-            overall_rmse=float(np.mean(rmse_values)) if rmse_values else None,
-            overall_mae=float(np.mean(mae_values)) if mae_values else None,
-            overall_mape=float(np.mean(mape_values)) if mape_values else None,
-            overall_coverage_probability=float(np.mean(coverage_values))
-            if coverage_values
-            else None,
+            overall_rmse=overall_rmse,
+            overall_macro_rmse=overall_macro_rmse,
+            overall_mae=overall_mae,
+            overall_mape=overall_mape,
+            overall_coverage_probability=overall_coverage,
             n_scenarios=len(scenarios),
-            n_metrics_evaluated=sum(len(item.outcome_comparisons) for item in scenarios),
+            n_metrics_evaluated=total_compared,
+            aggregation_policy=(
+                "micro_rmse_with_explicit_equal_scenario_macro" if scenarios else None
+            ),
             detected_biases=biases,
             overall_bias_direction=self._aggregate_bias_direction(biases),
             prediction_mode_requested=prediction_mode_requested,
@@ -538,7 +628,7 @@ class BacktestOrchestrator:
             trust_eligible=trust_eligible,
             trust_score=trust_score,
             trust_grade=trust_grade,
-            metadata=metadata,
+            metadata=metadata_payload,
         )
 
     def _detect_systematic_biases(self, scenarios: list[BacktestScenario]) -> list[SystematicBias]:

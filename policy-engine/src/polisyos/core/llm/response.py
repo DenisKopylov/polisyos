@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
@@ -17,6 +18,9 @@ class LLMResponseData:
     provider: str | None = None
     model: str | None = None
     cost_usd: float | None = None
+    cache_hit: bool = False
+    usage_origin: str = "provider"
+    request_id: str | None = None
 
     @property
     def total_tokens(self) -> int:
@@ -26,11 +30,13 @@ class LLMResponseData:
 def extract_llm_response_data(response: Any) -> LLMResponseData:
     """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
     content = response.content if hasattr(response, "content") else str(response)
+    cache_hit, usage_origin = _extract_cache_provenance(response)
     prompt_tokens = 0
     completion_tokens = 0
     provider: str | None = None
     model: str | None = None
     cost_usd: float | None = None
+    request_id: str | None = None
 
     try:
         usage = getattr(response, "usage", None)
@@ -51,9 +57,11 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
             completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
         provider = _as_str(getattr(response, "provider", None))
         model = _as_str(getattr(response, "model", None))
+        request_id = _as_str(getattr(response, "request_id", None))
         if isinstance(response, dict):
             provider = provider or _as_str(response.get("provider"))
             model = model or _as_str(response.get("model"))
+            request_id = request_id or _as_str(response.get("request_id"))
             if cost_usd is None:
                 cost_usd = _extract_cost_usd(
                     usage=response.get("usage"),
@@ -65,6 +73,7 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
         provider = None
         model = None
         cost_usd = None
+        request_id = None
 
     return LLMResponseData(
         content=content,
@@ -73,7 +82,32 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
         provider=provider,
         model=model,
         cost_usd=cost_usd,
+        cache_hit=cache_hit,
+        usage_origin=usage_origin,
+        request_id=request_id,
     )
+
+
+def _extract_cache_provenance(response: Any) -> tuple[bool, str]:
+    """Read cache provenance without changing provider response semantics."""
+
+    raw: Any
+    if isinstance(response, Mapping):
+        raw = response.get("raw")
+        if raw is None:
+            raw = response
+    else:
+        raw = getattr(response, "raw", None)
+    if not isinstance(raw, Mapping):
+        return False, "provider"
+    marker = raw.get("_polisyos_cache")
+    if not isinstance(marker, Mapping):
+        return False, "provider"
+    cache_hit = marker.get("status") == "hit"
+    origin = marker.get("usage_origin")
+    if not isinstance(origin, str) or not origin.strip():
+        origin = "provider"
+    return cache_hit, origin.strip()
 
 
 def _as_float(value: Any) -> float | None:

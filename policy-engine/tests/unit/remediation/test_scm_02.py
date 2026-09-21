@@ -255,6 +255,58 @@ def test_attribution_uses_a_distinct_observational_baseline() -> None:
     assert result.result_std == pytest.approx(0.0)
 
 
+def test_attribution_observational_comparator_requires_natural_root_evidence() -> None:
+    """A natural comparator cannot gate on an undeclared treatment-root law."""
+    complete_scm = _linear_chain(noise_std=0.0, coefficient=3.0)
+    scm_without_treatment_root = complete_scm.model_copy(
+        update={"mechanisms": [complete_scm.mechanisms[1]]}
+    )
+
+    def _run_contrast(comparator: dict[str, object]) -> dict[str, object]:
+        return GCMQuery.pure_step(
+            SCMQueryData(
+                scm_spec=scm_without_treatment_root,
+                query={
+                    "query_type": "attribution",
+                    "treatment_variable": "X",
+                    "treatment_value": 2.0,
+                    "outcome_variable": "Y",
+                    "contrast": {
+                        "target": {"type": "atomic", "value": 2.0},
+                        "comparator": comparator,
+                    },
+                    "n_samples": 64,
+                },
+            ),
+            params={
+                "__seed__": 117,
+                "enable_dowhy_comparison": False,
+                "allow_declared_root_hypothesis": True,
+            },
+        )
+
+    observational_output = _run_contrast({"kind": "observational"})
+    observational_result = CausalQueryResult.model_validate(
+        observational_output["query_result"]
+    )
+    assert observational_result.metadata["declared_root_hypothesis"] == ["X"]
+    assert observational_output["envelope"].gate_eligible is False
+    assert any(
+        "declared root hypothesis" in warning
+        for warning in observational_output["warnings"]
+    )
+
+    explicit_output = _run_contrast(
+        {
+            "kind": "interventional",
+            "intervention": {"type": "atomic", "value": 0.0},
+        }
+    )
+    explicit_result = CausalQueryResult.model_validate(explicit_output["query_result"])
+    assert explicit_result.metadata["declared_root_hypothesis"] == []
+    assert explicit_output["envelope"].gate_eligible is True
+
+
 def test_twin_partial_gaussian_abduction_reuses_conditioned_noise() -> None:
     """Twin worlds share draws from U|Y=2 instead of a fixed imputed residual."""
     payload = TwinNetworkQueryData(

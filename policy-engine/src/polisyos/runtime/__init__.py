@@ -1,8 +1,9 @@
 """Expose replay/runtime contracts without importing heavy implementations eagerly.
 
 `polisyos.runtime` is the package-level facade for replay planning and
-verification APIs. Exports are resolved lazily from `polisyos.runtime.replay`
-to keep import-time side effects predictable for CLI tools and libraries.
+verification APIs. Exports are resolved lazily from the Scientist-owned
+deterministic replay implementation to keep import-time side effects
+predictable for CLI tools and libraries.
 
 The symbols listed in `__all__` are the stable replay surface for callers.
 """
@@ -13,7 +14,7 @@ import importlib
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from .replay import (
+    from polisyos.scientist.replay.deterministic import (
         CompletenessLevel,
         CompletenessReport,
         ReplayPlan,
@@ -40,16 +41,40 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "CompletenessLevel": ("polisyos.runtime.replay", "CompletenessLevel"),
-    "CompletenessReport": ("polisyos.runtime.replay", "CompletenessReport"),
-    "ReplayPlan": ("polisyos.runtime.replay", "ReplayPlan"),
-    "ReplayStrategy": ("polisyos.runtime.replay", "ReplayStrategy"),
-    "VerificationConfig": ("polisyos.runtime.replay", "VerificationConfig"),
-    "VerificationMode": ("polisyos.runtime.replay", "VerificationMode"),
-    "VerificationResult": ("polisyos.runtime.replay", "VerificationResult"),
-    "build_replay_plan": ("polisyos.runtime.replay", "build_replay_plan"),
-    "completeness_check": ("polisyos.runtime.replay", "completeness_check"),
-    "verify_replay": ("polisyos.runtime.replay", "verify_replay"),
+    "CompletenessLevel": (
+        "polisyos.scientist.replay.deterministic",
+        "CompletenessLevel",
+    ),
+    "CompletenessReport": (
+        "polisyos.scientist.replay.deterministic",
+        "CompletenessReport",
+    ),
+    "ReplayPlan": ("polisyos.scientist.replay.deterministic", "ReplayPlan"),
+    "ReplayStrategy": (
+        "polisyos.scientist.replay.deterministic",
+        "ReplayStrategy",
+    ),
+    "VerificationConfig": (
+        "polisyos.scientist.replay.deterministic",
+        "VerificationConfig",
+    ),
+    "VerificationMode": (
+        "polisyos.scientist.replay.deterministic",
+        "VerificationMode",
+    ),
+    "VerificationResult": (
+        "polisyos.scientist.replay.deterministic",
+        "VerificationResult",
+    ),
+    "build_replay_plan": (
+        "polisyos.scientist.replay.deterministic",
+        "build_replay_plan",
+    ),
+    "completeness_check": (
+        "polisyos.scientist.replay.deterministic",
+        "completeness_check",
+    ),
+    "verify_replay": ("polisyos.scientist.replay.deterministic", "verify_replay"),
 }
 
 

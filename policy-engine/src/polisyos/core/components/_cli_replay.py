@@ -22,12 +22,14 @@ __all__ = [
 
 
 def _cmd_replay(args: Any) -> int:
-    runtime_replay = importlib.import_module("polisyos.runtime.replay")
-    normalize_artifact_id = runtime_replay.normalize_artifact_id
-    completeness_check = runtime_replay.completeness_check
-    VerificationConfig = runtime_replay.VerificationConfig
-    VerificationMode = runtime_replay.VerificationMode
-    ReplayStrategy = runtime_replay.ReplayStrategy
+    scientist_replay = importlib.import_module(
+        "polisyos.scientist.replay.deterministic"
+    )
+    normalize_artifact_id = scientist_replay.normalize_artifact_id
+    completeness_check = scientist_replay.completeness_check
+    VerificationConfig = scientist_replay.VerificationConfig
+    VerificationMode = scientist_replay.VerificationMode
+    ReplayStrategy = scientist_replay.ReplayStrategy
 
     if args.check_only and args.export:
         print("ERROR: --check-only and --export cannot be used together", file=sys.stderr)

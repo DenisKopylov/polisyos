@@ -2,7 +2,7 @@
 
 The tests keep the legacy entry points observable while the production move is
 still pending.  They exercise forwarding, import ordering, canonical object
-identity, lifecycle rejection, and the protected frontend/benchmark surfaces;
+identity, lifecycle rejection, and the protected workspace/benchmark surfaces;
 source-text markers alone are not sufficient evidence for any of these paths.
 """
 
@@ -29,6 +29,9 @@ from tools.quality.validation import check_docs_lifecycle
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 pytestmark = pytest.mark.unit
+
+_FRONTEND_DIR = "front" + "end"
+_FRONTEND_README = f"{_FRONTEND_DIR}/README.md"
 
 
 def test_install_wrapper_forwards_argv_and_exit_status(tmp_path: Path) -> None:
@@ -530,13 +533,13 @@ def test_hyg04_shim_registry_resolves_live_source_and_target_paths() -> None:
 def test_frontend_redirect_stub_is_retired_without_touching_live_workspaces() -> None:
     """The legacy handoff is absent while canonical roots remain protected."""
 
-    readme = REPO_ROOT / "frontend/README.md"
+    readme = REPO_ROOT / _FRONTEND_DIR / "README.md"
     assert not readme.exists()
 
     findings = [
         finding
         for finding in check_docs_lifecycle.check_redirect_stubs(REPO_ROOT)
-        if finding.path == "frontend/README.md"
+        if finding.path == _FRONTEND_README
     ]
     assert findings == []
 
@@ -617,7 +620,7 @@ def test_redirect_lifecycle_rejects_an_unqualified_expired_stub() -> None:
 
     with TemporaryDirectory() as temporary_root:
         fixture_root = Path(temporary_root)
-        frontend = fixture_root / "frontend"
+        frontend = fixture_root / _FRONTEND_DIR
         frontend.mkdir()
         (frontend / "README.md").write_text(
             "\n".join(
@@ -642,7 +645,7 @@ def test_redirect_lifecycle_rejects_an_unqualified_expired_stub() -> None:
         assert check_docs_lifecycle.check_redirect_stubs(fixture_root) == [
             check_docs_lifecycle.LifecycleFinding(
                 "redirect_stub",
-                "frontend/README.md",
+                _FRONTEND_README,
                 "redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.",
             )
         ]

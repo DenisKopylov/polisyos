@@ -31,7 +31,7 @@ def _source_metadata(
     metadata = ConnectorMetadataSpec(
         connector_id=short_id,
         version="1.0.0",
-        namespace="fed02-test",
+        namespace="fed02.test",
         source_name=f"Source {short_id}",
         source_organization="PolicyOS test",
         trust_level=trust_level,
@@ -171,10 +171,10 @@ def test_union_summary_has_one_bounded_collector_and_exact_conflict_count() -> N
     try:
         result, merge_log = composer.compose(
             sources=[
-                (source_a, _source_metadata("source-a")),
+                (source_a, _source_metadata("source_a")),
                 (
                     source_b,
-                    _source_metadata("source-b", trust_level=TrustLevel.MEDIUM),
+                    _source_metadata("source_b", trust_level=TrustLevel.MEDIUM),
                 ),
             ],
             strategy=request.strategy,

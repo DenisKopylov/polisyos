@@ -104,7 +104,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
 | `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
-| `polisyos.ddm` | `internal` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
+| `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
 ## `polisyos.common`
@@ -5325,7 +5325,7 @@ to_validation_report
 
 - Classification: `internal`
 - Supported entrypoints: `polisyos.ddm`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Facade policy: expected `eager_exports`, observed `lazy_facade`
 - Owner: `team-scientist`
 - README: `src/polisyos/ddm/README.md`
 - Reference doc: `docs/reference/public-surface.md`
@@ -5336,12 +5336,12 @@ to_validation_report
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ddm` | `src/polisyos/ddm/__init__.py` | `eager_exports` | 17 |
+| `polisyos.ddm` | `src/polisyos/ddm/__init__.py` | `lazy_facade` | 17 |
 
 #### `polisyos.ddm`
 
 - Source: `src/polisyos/ddm/__init__.py`
-- Facade: `eager_exports`
+- Facade: `lazy_facade`
 - Summary: Drift-and-Degradation Monitor for Phase 5 Problem 15.7.
 
 <details><summary>Entrypoint exports (17)</summary>

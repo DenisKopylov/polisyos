@@ -18,7 +18,7 @@ from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceMetadata
-from polisyos.scholar.types import EnrichmentReportV1, EnrichResultV1
+from polisyos.scholar.types import EnrichResultV1, EnrichmentReportV1
 
 
 SOURCE_URL = "https://agency.gov/reports/employment"

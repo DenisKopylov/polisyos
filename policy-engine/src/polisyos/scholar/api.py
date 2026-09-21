@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.async_tools import run_coro_sync
@@ -18,7 +18,7 @@ from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Mapping
+    from collections.abc import Awaitable, Callable
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.artifacts.store import FileSystemCAS

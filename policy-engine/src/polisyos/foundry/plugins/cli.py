@@ -127,7 +127,7 @@ def cmd_train(args) -> None:
 
     _write(f"Training for {args.n_episodes} episodes...")
 
-    result = sim.train(n_episodes=args.n_episodes)
+    result = sim.train(n_episodes=args.n_episodes, output_dir=args.output)
 
     if result.status != "trained" or result.reason is not None:
         reason = result.reason
@@ -140,10 +140,14 @@ def cmd_train(args) -> None:
         return
 
     _write("\nTraining complete!")
-    _write(f"  Final loss: {result.loss_history[-1]:.4f}")
+    if result.loss_history:
+        _write(f"  PPO loss: {result.loss_history[-1]:.4f}")
+    if result.artifact is not None:
+        _write(f"  Artifact: {result.artifact.artifact_id}")
 
     args.output.mkdir(parents=True, exist_ok=True)
-    result.plot_losses(str(args.output / "training_loss.png"))
+    if result.loss_history:
+        result.plot_losses(str(args.output / "training_loss.png"))
 
 
 def cmd_analyze(args) -> None:

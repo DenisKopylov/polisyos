@@ -3,27 +3,30 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
-from polisyos.foundry.agent_sim.executor import PureExecutor
-from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
+from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
 from polisyos.foundry.agent_sim.training import TrainingConfig
 from polisyos.foundry.plugins.composite import (
     CompositeExecutor,
     CompositeObjective,
-    CompositeReward,
     CompositeState,
     CompositeStateConfig,
     CrossDomainInteraction,
 )
 from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry, get_registry
 from polisyos.foundry.plugins.discovery import auto_register_plugins
+from polisyos.foundry.plugins.training_adapter import (
+    EconomicsTrainingAdapter,
+    TrainingBridgeError,
+)
 
 
 @dataclass
@@ -61,6 +64,7 @@ class PolisySimulator:
         self._state: CompositeState | None = None
         self._executor: CompositeExecutor | None = None
         self._agent_policy: ActorCritic | None = None
+        self._training_config: TrainingConfig | None = None
 
     def add_domain(
         self,
@@ -120,6 +124,8 @@ class PolisySimulator:
 
         self._state = CompositeState.create(config, self.registry)
         self._executor = CompositeExecutor(list(self.domains.keys()), self.registry)
+        self._agent_policy = None
+        self._training_config = None
 
         return self
 
@@ -130,9 +136,38 @@ class PolisySimulator:
         collect_trajectory: bool = True,
     ) -> SimulationResult:
         if self._state is None:
-            self.initialize(seed or 42)
+            self.initialize(seed if seed is not None else 42)
 
-        rng = jax.random.PRNGKey(seed or 42)
+        actual_seed = seed if seed is not None else 42
+        adapter = self._training_adapter()
+        if self._agent_policy is not None and adapter is not None:
+            config = self._training_config or TrainingConfig(
+                n_episodes=1,
+                steps_per_episode=1,
+            )
+            final_state, trajectory = adapter.run(
+                self._agent_policy,
+                config,
+                seed=actual_seed,
+                state=self._state,
+                n_steps=n_steps,
+            )
+            if not collect_trajectory:
+                trajectory = None
+            if self.objectives:
+                objective = CompositeObjective(self.objectives, self.registry)
+                objective_values = objective.evaluate(final_state)
+            else:
+                objective_values = {}
+            self._state = final_state
+            return SimulationResult(
+                final_state=final_state,
+                trajectory=trajectory,
+                objectives=objective_values,
+                n_steps=n_steps,
+            )
+
+        rng = jax.random.PRNGKey(actual_seed)
 
         if collect_trajectory:
             final_state, trajectory = self._executor.run(self._state, n_steps, rng)
@@ -164,11 +199,14 @@ class PolisySimulator:
         n_episodes: int = 100,
         training_config: TrainingConfig | None = None,
         seed: int = 42,
+        output_dir: Path | None = None,
     ) -> TrainingResult:
         if self._state is None:
             self.initialize(seed)
 
-        if not self._has_compatible_training_execution_adapter():
+        adapter = self._training_adapter()
+        if adapter is None:
+            assessment = EconomicsTrainingAdapter.assess(self._state, self._executor)
             assert self._state is not None
             return TrainingResult(
                 trained_policy=None,
@@ -176,30 +214,18 @@ class PolisySimulator:
                 final_state=self._state,
                 status="bridge_pending",
                 reason=TrainingCapabilityReason(
-                    code="training_execution_adapter_missing",
+                    code=(
+                        assessment.code
+                        if assessment is not None
+                        else "training_execution_adapter_missing"
+                    ),
                     status="bridge_pending",
                     message=(
-                        "PolisySimulator has no compatible PureExecutor with "
-                        "TemporalConsumptionMechanism; training bridge is pending."
+                        assessment.message
+                        if assessment is not None
+                        else "Training bridge is pending."
                     ),
                 ),
-            )
-
-        first_domain = list(self.domains.keys())[0]
-        plugin = self.registry.get(first_domain)
-        obs_builder = plugin.get_observation_builder()
-        if obs_builder is None:
-            raise RuntimeError("Observation builder is required for training")
-
-        sample_obs = obs_builder(self._state.get_domain(first_domain))
-        obs_dim = sample_obs.shape[-1]
-
-        if self._agent_policy is None:
-            self._agent_policy = ActorCritic(
-                jax.random.PRNGKey(seed),
-                obs_dim=obs_dim,
-                hidden_dims=(64, 64),
-                action_dim=1,
             )
 
         if training_config is None:
@@ -207,45 +233,54 @@ class PolisySimulator:
                 n_episodes=n_episodes,
                 learning_rate=3e-4,
             )
-        n_episodes = training_config.n_episodes
-        steps_per_episode = training_config.steps_per_episode
+        obs_dim = adapter.observation_dim(training_config)
 
-        reward = CompositeReward(
-            dict.fromkeys(self.domains.keys(), 1.0),
-            self.registry,
-        )
-
-        rng = jax.random.PRNGKey(seed)
-        loss_history: list[float] = []
-
-        for _ in range(n_episodes):
-            rng, subkey = jax.random.split(rng)
-            prev_state = self._state
-            result = self.run(
-                n_steps=steps_per_episode,
-                seed=int(subkey[0]),
-                collect_trajectory=False,
+        policy = self._agent_policy
+        if policy is None:
+            policy = ActorCritic(
+                jax.random.PRNGKey(seed),
+                obs_dim=obs_dim,
+                hidden_dims=(64, 64),
+                action_dim=1,
             )
 
-            rewards = reward.compute(prev_state, result.final_state)
-            loss_history.append(float(rewards.get("total", 0.0)))
+        try:
+            outcome = adapter.train(
+                policy,
+                training_config,
+                seed=seed,
+                output_dir=output_dir,
+            )
+        except TrainingBridgeError as exc:
+            assert self._state is not None
+            return TrainingResult(
+                trained_policy=None,
+                loss_history=[],
+                final_state=self._state,
+                status="bridge_pending",
+                reason=TrainingCapabilityReason(
+                    code=exc.code,
+                    status="bridge_pending",
+                    message=str(exc),
+                ),
+            )
 
-            self._state = result.final_state
+        self._agent_policy = outcome.trained_policy
+        self._training_config = replace(training_config)
+        self._state = outcome.final_state
 
         return TrainingResult(
-            trained_policy=self._agent_policy,
-            loss_history=loss_history,
-            final_state=self._state,
+            trained_policy=outcome.trained_policy,
+            loss_history=outcome.loss_history,
+            final_state=outcome.final_state,
+            artifact=outcome.artifact,
+            artifact_refs=outcome.artifact_refs,
         )
 
-    def _has_compatible_training_execution_adapter(self) -> bool:
-        """Return whether the current executor satisfies the trainer contract."""
+    def _training_adapter(self) -> EconomicsTrainingAdapter | None:
+        """Return the checked bridge for the current composite profile."""
 
-        executor = self._executor
-        return isinstance(executor, PureExecutor) and any(
-            isinstance(mechanism, TemporalConsumptionMechanism)
-            for mechanism in executor.mechanisms
-        )
+        return EconomicsTrainingAdapter.from_composite(self._state, self._executor)
 
     def get_state(self) -> CompositeState:
         if self._state is None:
@@ -330,7 +365,7 @@ class SimulationResult:
 class TrainingCapabilityReason:
     """Typed reason for a training capability that remains unavailable."""
 
-    code: Literal["training_execution_adapter_missing"]
+    code: str
     status: Literal["bridge_pending"]
     message: str
 
@@ -344,6 +379,8 @@ class TrainingResult:
     final_state: CompositeState
     status: Literal["trained", "bridge_pending"] = "trained"
     reason: TrainingCapabilityReason | None = None
+    artifact: AgentPolicyArtifact[ActorCritic] | None = None
+    artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
 
     def plot_losses(self, save_path: str | None = None):
         from polisyos.foundry.agent_sim.visualization import TrainingVisualizer

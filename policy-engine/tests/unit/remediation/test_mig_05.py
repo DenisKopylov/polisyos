@@ -418,3 +418,21 @@ def test_real_ir_callback_remains_registered_with_its_ir_owner() -> None:
 
     assert migrated["schema_version"] == "1.0"
     assert migrated["policy_spec"]["policy_id"] == "ps_mig05"
+
+
+def test_shared_engine_annotations_resolve_for_runtime_introspection() -> None:
+    from typing import get_origin, get_type_hints
+
+    from polisyos.common.migrations._engine import (
+        LinearMigrationProfile,
+        run_linear_migration,
+    )
+
+    profile_hints = get_type_hints(LinearMigrationProfile)
+    runner_hints = get_type_hints(run_linear_migration)
+
+    callable_fields = ("prepare", "no_op", "edge_target", "apply_step")
+    assert set(callable_fields) <= profile_hints.keys()
+    assert all(get_origin(profile_hints[field]) is Callable for field in callable_fields)
+    assert get_origin(runner_hints["edge_lookup"]) is Callable
+    assert "profile" in runner_hints

@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
+from collections import abc as _collections_abc
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING
 
+import polisyos.berl.adapters.protocol as _adapter_protocol
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 
-if TYPE_CHECKING:
-    from collections.abc import Mapping
-
-    from polisyos.berl.adapters.protocol import ExplanationContext, RawExplanation, ScalarModel
+Mapping = _collections_abc.Mapping
+ExplanationContext = _adapter_protocol.ExplanationContext
+RawExplanation = _adapter_protocol.RawExplanation
+ScalarModel = _adapter_protocol.ScalarModel
 
 
 @dataclass(frozen=True, slots=True)

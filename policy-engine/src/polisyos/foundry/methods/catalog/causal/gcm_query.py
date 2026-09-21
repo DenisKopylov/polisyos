@@ -160,11 +160,19 @@ def _polynomial_predict(
         degree = int(params.get("poly_degree", 0))
         if degree < 1:
             return None
-        value = float(raw_coefficients.get("__intercept__", 0.0))
+        required_keys = {"__intercept__"}
+        required_keys.update(
+            f"{parent}^{power}"
+            for parent in mechanism.parents
+            for power in range(1, degree + 1)
+        )
+        if not required_keys.issubset(raw_coefficients):
+            return None
+        value = float(raw_coefficients["__intercept__"])
         for parent in mechanism.parents:
             parent_value = float(parent_values[parent])
             for power in range(1, degree + 1):
-                value += float(raw_coefficients.get(f"{parent}^{power}", 0.0)) * (
+                value += float(raw_coefficients[f"{parent}^{power}"]) * (
                     parent_value**power
                 )
     except (KeyError, TypeError, ValueError, OverflowError):
@@ -979,6 +987,8 @@ class GCMQuery:
         confidence_level = float(params.get("confidence_level", 0.95))
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
+        warnings: list[str] = []
+        started_at = time.perf_counter()
         allow_declared_hypothesis = params.get("allow_declared_root_hypothesis", False) is True
         missing_root_nodes = _required_missing_root_nodes(scm_spec, query)
         if missing_root_nodes and not allow_declared_hypothesis:
@@ -993,9 +1003,6 @@ class GCMQuery:
                 "declared root hypothesis used for missing node(s): "
                 f"{missing_root_nodes}; result is limited and not gate eligible",
             )
-
-        warnings: list[str] = []
-        started_at = time.perf_counter()
 
         if query.query_type is QueryType.ATTRIBUTION:
             intervention = _effective_intervention(query)

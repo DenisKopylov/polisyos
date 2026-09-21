@@ -13,6 +13,7 @@ import pytest
 from polisyos.data_forge.domains.academic.batch.embedder import (
     build_hnsw_index as build_academic_hnsw_index,
 )
+from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.embedder import (
     build_hnsw_index as build_catalog_hnsw_index,
@@ -21,7 +22,6 @@ from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.batch.publish import run_publish
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
-from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
 
 
 class _FakeSentenceTransformer:
@@ -67,7 +67,8 @@ def _prepare_db(path: Path, rows: list[tuple[str, str, str]]) -> None:
     con = duckdb.connect(str(path))
     try:
         con.execute("CREATE TABLE ac_works (id VARCHAR, title VARCHAR, abstract VARCHAR)")
-        con.executemany("INSERT INTO ac_works VALUES (?, ?, ?)", rows)
+        if rows:
+            con.executemany("INSERT INTO ac_works VALUES (?, ?, ?)", rows)
         con.execute("CHECKPOINT")
     finally:
         con.close()
@@ -88,6 +89,7 @@ def test_nonempty_build_publishes_one_complete_selected_generation(
     _install_fake_sentence_transformer(monkeypatch)
     db_path = tmp_path / "academic.duckdb"
     index_dir = tmp_path / "academic"
+    index_dir.mkdir()
     _prepare_db(db_path, [("a-2", "Second", "b"), ("a-1", "First", "a")])
 
     assert build_academic_hnsw_index(
@@ -121,6 +123,7 @@ def test_failed_generation_keeps_previous_selection_and_generation_intact(
     _install_fake_sentence_transformer(monkeypatch)
     db_path = tmp_path / "academic.duckdb"
     index_dir = tmp_path / "academic"
+    index_dir.mkdir()
     _prepare_db(db_path, [("a-1", "First", "a")])
     build_academic_hnsw_index(
         db_path=db_path,
@@ -178,6 +181,7 @@ def test_empty_build_selects_typed_empty_generation_without_reusing_old_files(
     populated_db = tmp_path / "populated.duckdb"
     empty_db = tmp_path / "empty.duckdb"
     index_dir = tmp_path / "academic"
+    index_dir.mkdir()
     _prepare_db(populated_db, [("a-1", "First", "a")])
     _prepare_db(empty_db, [])
     build_academic_hnsw_index(
@@ -214,6 +218,7 @@ def test_model_revision_selects_new_generation_and_keeps_id_vector_binding(
     _install_fake_sentence_transformer(monkeypatch)
     db_path = tmp_path / "academic.duckdb"
     index_dir = tmp_path / "academic"
+    index_dir.mkdir()
     _prepare_db(db_path, [("a-2", "Second", "b"), ("a-1", "First", "a")])
 
     build_academic_hnsw_index(
@@ -256,6 +261,8 @@ def test_row_permutation_preserves_id_vector_binding(
     second_db = tmp_path / "second.duckdb"
     first_dir = tmp_path / "first"
     second_dir = tmp_path / "second"
+    first_dir.mkdir()
+    second_dir.mkdir()
     rows = [("a-1", "First", "a"), ("a-2", "Second", "b")]
     _prepare_db(first_db, rows)
     _prepare_db(second_db, list(reversed(rows)))
@@ -294,6 +301,7 @@ def test_reader_fails_closed_when_selected_generation_member_is_missing(
     _install_fake_sentence_transformer(monkeypatch)
     db_path = tmp_path / "academic.duckdb"
     index_dir = tmp_path / "academic"
+    index_dir.mkdir()
     _prepare_db(db_path, [("a-1", "First", "a")])
     build_academic_hnsw_index(
         db_path=db_path,
@@ -384,6 +392,7 @@ def test_catalog_reader_and_publish_manifest_bind_to_selected_inventory(
     registry_path = tmp_path / "registry.yaml"
     _write_catalog_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot", registry_path=registry_path)
+    config.index_dir.mkdir(parents=True, exist_ok=True)
     build_graph(
         records=iter(
             [

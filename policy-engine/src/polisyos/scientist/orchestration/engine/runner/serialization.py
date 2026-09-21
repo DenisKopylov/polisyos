@@ -58,6 +58,7 @@ _WIRE_TYPE_KEY = "_type"
 _WIRE_DECIMAL = "decimal"
 _WIRE_BYTES = "bytes"
 _WIRE_MODEL = "model"
+_WIRE_MAPPING = "mapping"
 _WIRE_DATE = "date"
 _WIRE_DATETIME = "datetime"
 
@@ -122,6 +123,16 @@ def _wire_depth(depth: int) -> None:
         raise TypeError(f"Wire serialization depth exceeds {_WIRE_MAX_DEPTH}")
 
 
+def _escape_wire_mapping(payload: dict[str, Any]) -> dict[str, Any]:
+    """Escape a user mapping whose reserved tag key is ordinary data."""
+    if _WIRE_TYPE_KEY not in payload:
+        return payload
+    return {
+        _WIRE_TYPE_KEY: _WIRE_MAPPING,
+        "entries": [[key, value] for key, value in payload.items()],
+    }
+
+
 def _wire_model_payload(
     value: BaseModel,
     *,
@@ -148,7 +159,7 @@ def _wire_model_payload(
                 raise TypeError(f"Wire model extra keys must be str, got {type(key).__name__}")
             if key not in payload:
                 payload[key] = _encode_wire_value(item, depth=depth + 1, seen=seen)
-    return payload
+    return _escape_wire_mapping(payload)
 
 
 def _encode_wire_value(
@@ -192,7 +203,7 @@ def _encode_wire_value(
             raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
         model_type = type(value)
         fqn = f"{model_type.__module__}.{model_type.__qualname__}"
-        if fqn not in _wire_model_types():
+        if _wire_model_types().get(fqn) is not model_type:
             raise TypeError(f"Unsupported model on runner wire: {fqn}")
         seen.add(value_id)
         try:
@@ -218,7 +229,7 @@ def _encode_wire_value(
                 if not isinstance(key, str):
                     raise TypeError(f"Wire mapping keys must be str, got {type(key).__name__}")
                 encoded[key] = _encode_wire_value(item, depth=depth + 1, seen=seen)
-            return encoded
+            return _escape_wire_mapping(encoded)
         finally:
             seen.remove(value_id)
 
@@ -296,6 +307,24 @@ def _decode_wire_tag(value: Mapping[str, Any], *, depth: int) -> Any:
         except (TypeError, ValueError, ValidationError) as exc:
             raise DeserializationError(f"Invalid {fqn} wire value: {exc}") from exc
 
+    if kind == _WIRE_MAPPING:
+        if set(value) != {_WIRE_TYPE_KEY, "entries"}:
+            raise DeserializationError("Malformed mapping wire tag")
+        entries = value["entries"]
+        if not isinstance(entries, list):
+            raise DeserializationError("Malformed mapping wire entries")
+        decoded: dict[str, Any] = {}
+        for entry in entries:
+            if (
+                not isinstance(entry, list)
+                or len(entry) != 2
+                or not isinstance(entry[0], str)
+                or entry[0] in decoded
+            ):
+                raise DeserializationError("Malformed mapping wire entry")
+            decoded[entry[0]] = _decode_wire_value(entry[1], depth=depth + 1)
+        return decoded
+
     raise DeserializationError(f"Unsupported runner wire type tag: {kind!r}")
 
 
@@ -321,6 +350,14 @@ def _decode_wire_value(value: Any, *, depth: int = 0) -> Any:
             decoded[key] = _decode_wire_value(item, depth=depth + 1)
         return decoded
     raise DeserializationError(f"Unsupported decoded wire value: {type(value).__name__}")
+
+
+def _validate_state_finite_decimals(state: Any) -> Any:
+    """Reject non-finite Decimal values admitted by legacy JSON strings."""
+    for name, budget in state.budgets.items():
+        if not isinstance(budget, Decimal) or not budget.is_finite():
+            raise DeserializationError(f"Non-finite Decimal budget is not supported: {name}")
+    return state
 
 
 # ---------------------------------------------------------------------------
@@ -388,7 +425,9 @@ def deserialize_state(data: bytes) -> Any:
         # Detect version-1 payload
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        return ExperimentState.model_validate(_decode_wire_value(_loads(data)))
+        return _validate_state_finite_decimals(
+            ExperimentState.model_validate(_decode_wire_value(_loads(data)))
+        )
     except DeserializationError:
         raise
     except _SERIALIZATION_ERRORS as exc:
@@ -446,7 +485,9 @@ def deserialize_state_safe(data: bytes) -> Any:
 
     json_bytes = _unwrap_safe(data)
     try:
-        return ExperimentState.model_validate(_decode_wire_value(_loads(json_bytes)))
+        return _validate_state_finite_decimals(
+            ExperimentState.model_validate(_decode_wire_value(_loads(json_bytes)))
+        )
     except _SERIALIZATION_ERRORS as exc:
         raise DeserializationError(f"Failed to deserialize state: {exc}") from exc
 

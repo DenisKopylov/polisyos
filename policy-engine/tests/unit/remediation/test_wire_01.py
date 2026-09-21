@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     NodeOutputDisposition,
@@ -125,6 +128,32 @@ def test_typed_state_round_trip_preserves_decimal_and_bytes(
     _assert_typed_state(restored)
 
 
+def test_nested_user_mapping_with_reserved_type_key_is_escaped(_wire_backend: str) -> None:
+    tag_like_decimal = {"_type": "decimal", "value": "12.3400"}
+    tag_like_bytes = {"_type": "bytes", "encoding": "base64", "data": "AA=="}
+    state = ExperimentState(
+        run_id="wire-01-tag-like-mapping",
+        params={"decimal": tag_like_decimal, "nested": {"bytes": tag_like_bytes}},
+    )
+
+    restored = deserialize_state(serialize_state(state))
+
+    assert restored.params["decimal"] == tag_like_decimal
+    assert restored.params["nested"] == {"bytes": tag_like_bytes}
+
+
+@pytest.mark.parametrize("raw_value", ("NaN", "Infinity", "-Infinity"))
+def test_legacy_decimal_budget_strings_reject_non_finite_values(
+    _wire_backend: str, raw_value: str
+) -> None:
+    payload = json.dumps(
+        {"run_id": "wire-01-legacy-non-finite", "budgets": {"compute": raw_value}}
+    ).encode()
+
+    with pytest.raises(DeserializationError, match="Non-finite Decimal budget"):
+        deserialize_state(payload)
+
+
 @pytest.mark.parametrize("value", (float("nan"), float("inf"), float("-inf")))
 @pytest.mark.parametrize("wire_kind", ("plain", "safe", "outcome"))
 def test_nested_non_finite_values_are_rejected(
@@ -192,3 +221,54 @@ def test_real_artifact_ref_and_output_aware_outcome_round_trip(_wire_backend: st
     assert restored.output_dispositions[0].artifact_ref == ref
     assert restored.supporting_artifacts["actual_source"] == ref
     _assert_typed_state(restored.state)
+
+
+def test_artifact_ref_and_artifact_id_tags_are_compatible(_wire_backend: str) -> None:
+    ref = _artifact_ref()
+    state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
+
+    payload = serialize_state(state)
+    encoded = serialization_module._loads(payload)
+    encoded_ref = encoded["inputs"]["input"]
+
+    assert encoded_ref["_type"] == "model"
+    assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"
+    assert encoded_ref["qualname"] == "ArtifactRef"
+    encoded_id = encoded_ref["value"]["artifact_id"]
+    assert encoded_id["_type"] == "model"
+    assert encoded_id["module"] == "polisyos.core.artifacts.ids"
+    assert encoded_id["qualname"] == "ArtifactID"
+
+    restored = deserialize_state(payload)
+    assert type(restored.inputs["input"]) is ArtifactRef
+    assert type(restored.inputs["input"].artifact_id) is ArtifactID
+
+
+def test_naive_datetime_tag_normalizes_to_utc(_wire_backend: str) -> None:
+    blocker = SkippedNodeBlocker(
+        node_id="wire-01-node",
+        node_kind="causal",
+        reason="missing evidence",
+        missing_input="evidence",
+        owner="wire-owner",
+        phase="wire",
+        downstream_impact="blocks publication",
+        allowed_profile="research",
+        closeout_blocking_policy="block",
+        scorecard_blocking_policy="block",
+        approval_blocking_policy="block",
+        public_export_blocking_policy="block",
+        generated_at=datetime(2026, 9, 21, 12, 34, 56),
+    )
+    outcome = NodeOutcome(
+        status="skip",
+        state=ExperimentState(run_id="wire-01-naive-datetime"),
+        skip_blocker=blocker,
+    )
+
+    restored = deserialize_outcome(serialize_outcome(outcome))
+
+    assert restored.skip_blocker is not None
+    assert restored.skip_blocker.generated_at == datetime(
+        2026, 9, 21, 12, 34, 56, tzinfo=UTC
+    )

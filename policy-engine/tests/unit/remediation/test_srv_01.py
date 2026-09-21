@@ -56,12 +56,14 @@ class _Generator:
 def _build_adapter(
     *,
     max_iterations: int = 4,
+    enable_stage_a: bool = True,
 ) -> tuple[LegacySearchServiceAdapter, _Generator]:
     generator = _Generator()
     controller = SearchController(
         config=SearchConfig(
             stopping=MaxIterations(max_iterations),
             objective=CompositeObjective([_Objective()]),
+            enable_stage_a=enable_stage_a,
         ),
         candidate_generator=generator,
         stage_a_evaluator=lambda candidate, context: (0.0, True),
@@ -199,6 +201,23 @@ def test_ask_tell_stage_a_rejection_does_not_count_stage_b() -> None:
     assert result.history_length == 1
     assert adapter.controller._run_state.stage_a_evaluations == 1
     assert adapter.controller._run_state.stage_b_evaluations == 0
+
+
+def test_ask_tell_disabled_stage_a_keeps_stage_b_counting() -> None:
+    adapter, _ = _build_adapter(enable_stage_a=False)
+    proposal = adapter.ask(goal=None, search_space=None, context={})[0]
+
+    result = adapter.tell(
+        proposal.candidate_id,
+        EvaluationBundle(
+            objective_value=1.0,
+            is_promising=True,
+        ),
+    )
+
+    assert result.history_length == 1
+    assert adapter.controller._run_state.stage_a_evaluations == 0
+    assert adapter.controller._run_state.stage_b_evaluations == 1
 
 
 def test_unknown_and_duplicate_candidate_ids_do_not_create_history() -> None:

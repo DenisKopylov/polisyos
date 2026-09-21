@@ -282,6 +282,19 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.causal_queries",
         "CausalInterventionSpec",
     ),
+    "CausalAttributionSpec": (
+        "polisyos.ir.analytics.causal_queries",
+        "CausalAttributionSpec",
+    ),
+    "CausalContrastRegime": (
+        "polisyos.ir.analytics.causal_queries",
+        "CausalContrastRegime",
+    ),
+    "CausalContrastSpec": (
+        "polisyos.ir.analytics.causal_queries",
+        "CausalContrastSpec",
+    ),
+    "CausalRegime": ("polisyos.ir.analytics.causal_queries", "CausalRegime"),
     "CausalMethod": ("polisyos.ir.analytics.causal", "CausalMethod"),
     "CausalModelEnsemble": (
         "polisyos.ir.analytics.causal_ensemble",

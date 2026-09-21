@@ -93,8 +93,8 @@ class InterventionSpec(BaseModel):
         return self
 
 
-class CausalContrastRegime(BaseModel):
-    """Describe one attribution arm without conflating observation and intervention."""
+class CausalRegime(BaseModel):
+    """Describe an attribution comparator without conflating observation and intervention."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -102,7 +102,7 @@ class CausalContrastRegime(BaseModel):
     intervention: InterventionSpec | None = None
 
     @model_validator(mode="after")
-    def _validate_regime(self) -> CausalContrastRegime:
+    def _validate_regime(self) -> CausalRegime:
         if self.kind == "interventional" and self.intervention is None:
             raise ValueError("intervention is required for an interventional regime")
         if self.kind == "observational" and self.intervention is not None:
@@ -110,19 +110,40 @@ class CausalContrastRegime(BaseModel):
         return self
 
 
-class CausalAttributionSpec(BaseModel):
-    """Typed target/comparator arms for an attribution query."""
+class CausalContrastSpec(BaseModel):
+    """Typed target/comparator arms for an attribution query.
+
+    The target is deliberately an :class:`InterventionSpec`, making an
+    interventional target impossible to confuse with an observational regime.
+    The comparator remains a tagged regime because observational and explicit
+    interventional baselines have materially different semantics.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    target: CausalContrastRegime
-    comparator: CausalContrastRegime
+    target: InterventionSpec
+    comparator: CausalRegime
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reject_observational_target(cls, value: Any) -> Any:
+        if isinstance(value, Mapping):
+            target = value.get("target")
+            if isinstance(target, Mapping) and target.get("kind") == "observational":
+                raise ValueError("target regime must be interventional")
+        return value
 
     @model_validator(mode="after")
-    def _validate_target(self) -> CausalAttributionSpec:
-        if self.target.kind != "interventional":
-            raise ValueError("target regime must be interventional")
+    def _validate_target(self) -> CausalContrastSpec:
+        if self.target.type is InterventionType.ATOMIC and self.target.value is None:
+            raise ValueError("target intervention value is required")
         return self
+
+
+# Compatibility names used by early E02 callers.  They intentionally resolve
+# to the canonical typed contract rather than retaining a second wire shape.
+CausalContrastRegime = CausalRegime
+CausalAttributionSpec = CausalContrastSpec
 
 
 class CausalQuery(BaseModel):
@@ -137,7 +158,7 @@ class CausalQuery(BaseModel):
     condition: dict[str, float] = Field(default_factory=dict)
     n_samples: int = Field(default=1000, ge=1)
     intervention_spec: InterventionSpec | None = None
-    contrast: CausalAttributionSpec | None = None
+    contrast: CausalContrastSpec | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -147,7 +168,7 @@ class CausalQuery(BaseModel):
             return value
         payload = dict(value)
         query_type = payload.get("query_type")
-        if query_type not in {QueryType.ATTRIBUTION, QueryType.ATTRIBUTION.value}:
+        if query_type != QueryType.ATTRIBUTION and query_type != QueryType.ATTRIBUTION.value:
             return payload
         if payload.get("contrast") is not None:
             return payload
@@ -159,10 +180,7 @@ class CausalQuery(BaseModel):
                 "value": payload.get("treatment_value"),
             }
         payload["contrast"] = {
-            "target": {
-                "kind": "interventional",
-                "intervention": legacy_intervention,
-            },
+            "target": legacy_intervention,
             "comparator": {"kind": "observational"},
         }
         return payload
@@ -217,14 +235,17 @@ class CausalQuery(BaseModel):
         if self.query_type is QueryType.ATTRIBUTION:
             if self.contrast is None:
                 raise ValueError("attribution queries require a target/comparator contrast")
-            target_intervention = self.contrast.target.intervention
+            target_intervention = self.contrast.target
+            if self.intervention_spec is not None and self.intervention_spec != target_intervention:
+                raise ValueError("intervention_spec conflicts with the explicit attribution target")
             if (
                 self.treatment_value is not None
-                and target_intervention is not None
-                and target_intervention.type is InterventionType.ATOMIC
-                and target_intervention.value is not None
-                and not math.isclose(
-                    float(self.treatment_value), float(target_intervention.value), rel_tol=0.0
+                and (
+                    target_intervention.type is not InterventionType.ATOMIC
+                    or target_intervention.value is None
+                    or not math.isclose(
+                        float(self.treatment_value), float(target_intervention.value), rel_tol=0.0
+                    )
                 )
             ):
                 raise ValueError("treatment_value must match the attribution target intervention")
@@ -250,13 +271,16 @@ class CausalQuery(BaseModel):
             return float(self.intervention_spec.value)
         if (
             self.contrast is not None
-            and self.contrast.target.intervention is not None
-            and self.contrast.target.intervention.value is not None
+            and self.contrast.target.value is not None
         ):
-            return float(self.contrast.target.intervention.value)
+            return float(self.contrast.target.value)
         if self.treatment_value is not None:
             return float(self.treatment_value)
         return None
+
+
+_CAUSAL_QUERY_RESULT_SCHEMA_VERSION = "1.1"
+_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION = "1.0"
 
 
 class CausalQueryResult(BaseModel):
@@ -264,7 +288,7 @@ class CausalQueryResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     query: CausalQuery
     result_mean: float
     result_std: float = Field(ge=0.0)
@@ -272,6 +296,21 @@ class CausalQueryResult(BaseModel):
     result_distribution: list[float] | None = None
     computation_time_seconds: float = Field(default=0.0, ge=0.0)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_schema(cls, value: Any) -> Any:
+        """Normalize legacy payload versions while retaining source provenance."""
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        source_version = str(payload.get("schema_version") or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION)
+        if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
+            metadata = dict(payload.get("metadata") or {})
+            metadata.setdefault("source_schema_version", source_version)
+            payload["metadata"] = metadata
+            payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
+        return payload
 
     @field_validator("result_mean", "result_std", "computation_time_seconds", mode="before")
     @classmethod
@@ -314,6 +353,18 @@ class CausalQueryResult(BaseModel):
             raise ValueError("result_ci lower cannot exceed upper")
         if not (lo <= self.result_mean <= hi):
             raise ValueError("result_mean must lie inside result_ci")
+        if self.query.contrast is not None:
+            metadata = dict(self.metadata)
+            target_payload = self.query.contrast.target.model_dump(mode="json")
+            comparator_payload = self.query.contrast.comparator.model_dump(mode="json")
+            for key, expected in (
+                ("contrast_target", target_payload),
+                ("contrast_comparator", comparator_payload),
+            ):
+                if key in metadata and metadata[key] != expected:
+                    raise ValueError(f"{key} metadata conflicts with query contrast")
+                metadata[key] = expected
+            return self.model_copy(update={"metadata": metadata})
         return self
 
     def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
@@ -354,15 +405,26 @@ def persist_causal_query_result(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_query_result",
-    schema_version: str = "1.0",
+    schema_version: str | None = None,
 ) -> CausalQueryResultRef:
     """Persist a causal query result and return a typed artifact reference."""
+    resolved_schema_version = schema_version or result.schema_version
+    if resolved_schema_version != result.schema_version:
+        raise ValueError(
+            "causal query result payload and CAS schema versions must match: "
+            f"payload={result.schema_version}, requested={resolved_schema_version}"
+        )
+    if resolved_schema_version != _CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
+        raise ValueError(
+            "new causal query results must use schema version "
+            f"{_CAUSAL_QUERY_RESULT_SCHEMA_VERSION}"
+        )
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
         kind="ir.causal_query_result",
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=resolved_schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -373,15 +435,44 @@ def load_causal_query_result(
     store: ArtifactStore,
     ref: CausalQueryResultRef,
 ) -> CausalQueryResult:
-    """Load causal query result."""
+    """Load a causal query result with CAS/payload version reconciliation."""
     payload = get_json_artifact(store, ref.artifact_id)
-    return CausalQueryResult.model_validate(payload)
+    manifest = store.get_manifest(ref.artifact_id)
+    schema = getattr(manifest, "artifact_schema", None)
+    payload_version = payload.get("schema_version") if isinstance(payload, Mapping) else None
+    manifest_version = getattr(schema, "version", None)
+    if manifest_version is not None and payload_version not in (None, manifest_version):
+        raise ValueError(
+            "causal query result payload/CAS schema version mismatch: "
+            f"payload={payload_version}, manifest={manifest_version}"
+        )
+    source_version = str(manifest_version or payload_version or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION)
+    if source_version not in {
+        _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+        _CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+    }:
+        raise ValueError(f"unsupported causal query result schema version: {source_version}")
+    if not isinstance(payload, Mapping):
+        raise TypeError("causal query result payload must be a mapping")
+    normalized_payload = dict(payload)
+    normalized_payload["schema_version"] = source_version
+    if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
+        metadata = dict(normalized_payload.get("metadata") or {})
+        metadata.setdefault("source_schema_version", source_version)
+        if schema is not None:
+            metadata.setdefault("source_schema_name", str(getattr(schema, "name", "")))
+        normalized_payload["metadata"] = metadata
+    return CausalQueryResult.model_validate(normalized_payload)
 
 
 __all__ = [
+    "CausalAttributionSpec",
     "CausalInterventionSpec",
+    "CausalContrastRegime",
+    "CausalContrastSpec",
     "CausalQuery",
     "CausalQueryResult",
+    "CausalRegime",
     "InterventionSpec",
     "InterventionType",
     "QueryType",

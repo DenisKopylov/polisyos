@@ -906,11 +906,20 @@ _INTERVENTION_UNSET = object()
 def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     if query.intervention_spec is not None:
         return query.intervention_spec
+    if query.query_type is QueryType.ATTRIBUTION and query.contrast is not None:
+        return query.contrast.target
     if query.query_type in {QueryType.INTERVENTIONAL, QueryType.COUNTERFACTUAL}:
         return InterventionSpec(type=InterventionType.ATOMIC, value=query.treatment_value)
     if query.query_type is QueryType.ATTRIBUTION and query.treatment_value is not None:
         return InterventionSpec(type=InterventionType.ATOMIC, value=query.treatment_value)
     return None
+
+
+def _attribution_comparator(query: CausalQuery) -> InterventionSpec | None:
+    """Return the explicit comparator intervention, or natural observation."""
+    if query.contrast is None or query.contrast.comparator.kind == "observational":
+        return None
+    return query.contrast.comparator.intervention
 
 
 def _required_missing_root_nodes(
@@ -1345,7 +1354,7 @@ class GCMQuery:
                 n_samples=query.n_samples,
                 rng=rng,
                 warnings=warnings,
-                intervention_override=None,
+                intervention_override=_attribution_comparator(query),
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
                 return_diagnostic=True,

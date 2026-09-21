@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData, TwinNetworkQueryData
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import (
-    CausalAttributionSpec,
-    CausalContrastRegime,
+    CausalContrastSpec,
+    CausalRegime,
     CausalQuery,
     CausalQueryResult,
     InterventionSpec,
@@ -30,6 +33,17 @@ from polisyos.ir.analytics.structural_causal_model import (
     MechanismSource,
     NodeMechanism,
     StructuralCausalModelSpec,
+    persist_structural_causal_model_spec,
+)
+from polisyos.scientist.compute.job_spec import JobKey, JobResult
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
+from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_QUERY_RESULT_REF,
+    ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
 
 
@@ -83,6 +97,14 @@ def _run_query(scm_spec: StructuralCausalModelSpec, query: dict[str, object]) ->
         payload,
         params={"__seed__": 117, "enable_dowhy_comparison": False},
     )
+
+
+def _build_execution_context(tmp_path: Path, *, run_id: str) -> ExecutionContext:
+    """Build the real node context used by producer/consumer witnesses."""
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
+    return ExecutionContext(store=store, run=run, logger=logging.getLogger(f"test.{run_id}"))
 
 
 def _empirical_root_chain() -> StructuralCausalModelSpec:
@@ -304,17 +326,17 @@ def test_contrast_regime_requires_a_matching_intervention_payload() -> None:
     """Regime tags must agree with the typed intervention payload."""
     atomic = InterventionSpec(type=InterventionType.ATOMIC, value=0.0)
     with pytest.raises(ValueError, match="intervention is required"):
-        CausalContrastRegime(kind="interventional")
+        CausalRegime(kind="interventional")
     with pytest.raises(ValueError, match="must not carry an intervention"):
-        CausalContrastRegime(kind="observational", intervention=atomic)
+        CausalRegime(kind="observational", intervention=atomic)
 
 
 def test_attribution_target_must_be_interventional() -> None:
     """An attribution target cannot silently become an observational contrast."""
     with pytest.raises(ValueError, match="target regime must be interventional"):
-        CausalAttributionSpec(
-            target=CausalContrastRegime(kind="observational"),
-            comparator=CausalContrastRegime(kind="observational"),
+        CausalContrastSpec(
+            target={"kind": "observational"},
+            comparator=CausalRegime(kind="observational"),
         )
 
 
@@ -328,9 +350,8 @@ def test_legacy_attribution_is_normalized_to_explicit_observational_comparator()
     )
 
     assert query.contrast is not None
-    assert query.contrast.target.kind == "interventional"
-    assert query.contrast.target.intervention is not None
-    assert query.contrast.target.intervention.value == pytest.approx(2.0)
+    assert query.contrast.target.type is InterventionType.ATOMIC
+    assert query.contrast.target.value == pytest.approx(2.0)
     assert query.contrast.comparator.kind == "observational"
     assert query.contrast.comparator.intervention is None
 
@@ -342,12 +363,9 @@ def test_attribution_contrast_roundtrip_preserves_both_arms() -> None:
         treatment_variable="X",
         treatment_value=2.0,
         outcome_variable="Y",
-        contrast=CausalAttributionSpec(
-            target=CausalContrastRegime(
-                kind="interventional",
-                intervention=InterventionSpec(type=InterventionType.ATOMIC, value=2.0),
-            ),
-            comparator=CausalContrastRegime(
+        contrast=CausalContrastSpec(
+            target=InterventionSpec(type=InterventionType.ATOMIC, value=2.0),
+            comparator=CausalRegime(
                 kind="interventional",
                 intervention=InterventionSpec(type=InterventionType.ATOMIC, value=0.0),
             ),
@@ -358,6 +376,7 @@ def test_attribution_contrast_roundtrip_preserves_both_arms() -> None:
 
     assert restored.contrast == query.contrast
     assert restored.contrast is not None
+    assert restored.contrast.target.value == pytest.approx(2.0)
     assert restored.contrast.comparator.intervention is not None
     assert restored.contrast.comparator.intervention.value == pytest.approx(0.0)
 
@@ -387,7 +406,7 @@ def test_explicit_do_zero_is_not_observational_attribution_baseline() -> None:
 
     result = CausalQueryResult.model_validate(output["query_result"])
     assert result.result_mean == pytest.approx(6.0)
-    assert result.metadata["contrast_target"]["kind"] == "interventional"
+    assert result.metadata["contrast_target"]["type"] == "atomic"
     assert result.metadata["contrast_comparator"]["intervention"]["value"] == pytest.approx(0.0)
     assert output["envelope"].metadata["contrast_comparator"]["kind"] == "interventional"
 
@@ -431,3 +450,134 @@ def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: 
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.version == "1.1"
     assert store.get_bytes(current_ref.artifact_id)
+
+
+def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real query node carries both arms through producer persistence."""
+    ctx = _build_execution_context(tmp_path, run_id="R_scm02_producer")
+    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+
+    def _fake_run_job(*args: object, **kwargs: object) -> JobResult:
+        del args
+        method_state = kwargs["method_state"]
+        query = method_state.query
+        result = CausalQueryResult(
+            query=query,
+            result_mean=6.0,
+            result_std=0.0,
+            result_ci=(6.0, 6.0),
+            result_distribution=[6.0],
+        )
+        return JobResult(
+            job_key=JobKey(value="job:test:scm02-producer"),
+            final_state={
+                "query_result": result.model_dump(mode="json"),
+                "envelope": result.to_uncertainty_envelope().model_dump(mode="json"),
+            },
+            issues=[],
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.ensure_causal_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.run_job",
+        _fake_run_job,
+    )
+
+    state = ExperimentState(
+        run_id="R_scm02_producer",
+        params={
+            "causal_query": {
+                "query_type": "attribution",
+                "treatment_variable": "X",
+                "treatment_value": 2.0,
+                "outcome_variable": "Y",
+                "contrast": {
+                    "target": {"type": "atomic", "value": 2.0},
+                    "comparator": {"kind": "observational"},
+                },
+                "n_samples": 64,
+            },
+            "structural_causal_model_ref": scm_ref.model_dump(mode="json"),
+        },
+    )
+
+    outcome = RunCausalQueriesNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    result_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF]
+    manifest = ctx.store.get_manifest(result_ref.artifact_id)
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == "1.1"
+    loaded = load_causal_query_result(ctx.store, CausalQueryResultRef.model_validate(result_ref))
+    assert loaded.query.contrast is not None
+    assert loaded.query.contrast.comparator.kind == "observational"
+    assert loaded.metadata["contrast_target"]["value"] == pytest.approx(2.0)
+
+
+def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
+    tmp_path: Path,
+) -> None:
+    """A mixed-member target/comparator set fails before ensemble aggregation."""
+    ctx = _build_execution_context(tmp_path, run_id="R_scm02_mixed_ensemble")
+    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    target = InterventionSpec(type=InterventionType.ATOMIC, value=2.0)
+    observational = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+        contrast=CausalContrastSpec(
+            target=target,
+            comparator=CausalRegime(kind="observational"),
+        ),
+    )
+    explicit_zero = observational.model_copy(
+        update={
+            "contrast": CausalContrastSpec(
+                target=target,
+                comparator=CausalRegime(
+                    kind="interventional",
+                    intervention=InterventionSpec(type=InterventionType.ATOMIC, value=0.0),
+                ),
+            )
+        }
+    )
+    result_refs = [
+        persist_causal_query_result(
+            ctx.store,
+            CausalQueryResult(
+                query=query,
+                result_mean=6.0,
+                result_std=0.0,
+                result_ci=(6.0, 6.0),
+                result_distribution=[6.0],
+            ),
+        )
+        for query in (observational, explicit_zero)
+    ]
+    state = ExperimentState(
+        run_id="R_scm02_mixed_ensemble",
+        params={
+            "causal_ensemble_enabled": True,
+            "causal_ensemble_members": [
+                {
+                    "structural_causal_model_spec_ref": scm_ref.model_dump(mode="json"),
+                    "causal_query_result_ref": ref.model_dump(mode="json"),
+                }
+                for ref in result_refs
+            ],
+        },
+    )
+
+    outcome = RunCausalEnsembleNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "mismatched canonical" in outcome.error.message
+    assert ARTIFACT_CAUSAL_ENSEMBLE_REF not in outcome.state.artifacts_index

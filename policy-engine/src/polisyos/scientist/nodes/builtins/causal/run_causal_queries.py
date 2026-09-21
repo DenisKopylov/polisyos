@@ -275,6 +275,7 @@ class RunCausalQueriesNode:
             ctx.store,
             query_result,
             inputs=input_refs,
+            schema_version=query_result.schema_version,
         )
 
         envelope_payload = output.get("envelope")

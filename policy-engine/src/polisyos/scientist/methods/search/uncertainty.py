@@ -133,25 +133,6 @@ class UncertaintyEnvelope(BaseModel):
             )
         return cls(uncertainties=payload)
 
-    @classmethod
-    def current(
-        cls,
-        envelopes: Iterable[UncertaintyEnvelope],
-    ) -> UncertaintyEnvelope:
-        """Return the latest envelope for one already-bound evaluation scope.
-
-        ``merge_max`` is intentionally retained for the conservative historical
-        view.  A funnel ticket evaluates one candidate under one submitted
-        context, so its ordered stage results also provide the existing seam
-        for the current same-scope view.  This method does not infer or create
-        a new scope contract; callers must keep independent tickets separate.
-        """
-
-        envelope_list = list(envelopes)
-        if not envelope_list:
-            return cls.unknown()
-        return envelope_list[-1]
-
     def with_update(
         self,
         uncertainty_type: UncertaintyType,

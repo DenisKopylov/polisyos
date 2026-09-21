@@ -587,7 +587,7 @@ class FunnelOrchestrator:
         if final_result is not None:
             # Keep the existing historical max on FunnelOutcome while making
             # the latest same-ticket/same-context estimate explicit to readers.
-            current_uncertainty = UncertaintyEnvelope.current(envelopes)
+            current_uncertainty = final_result.uncertainty_envelope
             feedback = dict(final_result.feedback or {})
             feedback["uncertainty_current"] = current_uncertainty.model_dump(mode="json")
             feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")

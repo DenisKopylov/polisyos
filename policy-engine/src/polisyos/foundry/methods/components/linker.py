@@ -11,14 +11,14 @@ from dataclasses import dataclass, replace
 from uuid import UUID
 
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
+from polisyos.foundry.methods.components.slot_schema import (
+    SemanticCompatibilityError,
+    is_semantically_compatible,
+)
 from polisyos.foundry.methods.exceptions import (
     ShapeMismatchError,
     SlotConnectionError,
     UnitMismatchError,
-)
-from polisyos.foundry.methods.components.slot_schema import (
-    SemanticCompatibilityError,
-    is_semantically_compatible,
 )
 from polisyos.foundry.methods.types.checker import (
     IncompatibilityReason,

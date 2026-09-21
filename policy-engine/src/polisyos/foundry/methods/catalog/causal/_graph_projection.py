@@ -9,10 +9,12 @@ def pag_to_dag_projection(
     graph: CausalGraphModel,
 ) -> tuple[CausalGraphModel, list[str]]:
     """
-    Project PAG/CPDAG uncertainty into a DAG approximation for DAG-only consumers.
+    Project the supported part of a PAG/CPDAG into a DAG for DAG-only consumers.
 
     - X <-> Y becomes U_n -> X and U_n -> Y.
-    - Uncertain endpoints (circle) are oriented as tail->arrow and flagged in metadata.
+    - A stored X <- Y edge is canonicalized to Y -> X without changing its marks.
+    - Unresolved endpoints are rejected instead of being assigned an arbitrary DAG
+      direction. Callers must retain the partial graph or use a partial-graph consumer.
     """
     if graph.graph_type is GraphType.DAG and all(
         edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW for edge in graph.edges
@@ -24,7 +26,7 @@ def pag_to_dag_projection(
     used_nodes = set(graph.nodes)
     projection_stats = {
         "bidirected_replaced": 0,
-        "uncertain_oriented": 0,
+        "reversed_normalized": 0,
     }
 
     def _next_latent_name() -> str:
@@ -75,23 +77,35 @@ def pag_to_dag_projection(
             )
             continue
 
-        is_fully_oriented = edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW
-        if is_fully_oriented:
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.TAIL:
+            projection_stats["reversed_normalized"] += 1
+            new_edges.append(
+                edge.model_copy(
+                    update={
+                        "src": edge.dst,
+                        "dst": edge.src,
+                        "mark_src": EdgeMark.TAIL,
+                        "mark_dst": EdgeMark.ARROW,
+                        "metadata": {
+                            **dict(edge.metadata),
+                            "orientation_normalized": True,
+                            "original_src": edge.src,
+                            "original_dst": edge.dst,
+                            "original_marks": [edge.mark_src.value, edge.mark_dst.value],
+                        },
+                    }
+                )
+            )
+            continue
+
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
             new_edges.append(edge)
             continue
 
-        projection_stats["uncertain_oriented"] += 1
-        new_edges.append(
-            edge.model_copy(
-                update={
-                    "mark_src": EdgeMark.TAIL,
-                    "mark_dst": EdgeMark.ARROW,
-                    "metadata": {
-                        **dict(edge.metadata),
-                        "orientation_uncertain": True,
-                    },
-                }
-            )
+        raise ValueError(
+            "cannot project unresolved partial orientation into a DAG: "
+            f"{edge.src!r} {edge.mark_src.value}-{edge.mark_dst.value} {edge.dst!r}; "
+            "retain the PAG/CPDAG or use a partial-graph consumer"
         )
 
     graph_metadata = {
@@ -102,13 +116,16 @@ def pag_to_dag_projection(
             **projection_stats,
         },
     }
-    projected = graph.model_copy(
-        update={
-            "graph_type": GraphType.DAG,
-            "nodes": list(graph.nodes) + latent_vars,
-            "edges": new_edges,
-            "metadata": graph_metadata,
-        }
+    projected = CausalGraphModel(
+        schema_version=graph.schema_version,
+        graph_type=GraphType.DAG,
+        nodes=list(graph.nodes) + latent_vars,
+        edges=new_edges,
+        discovery_method=graph.discovery_method,
+        skg_version_id=graph.skg_version_id,
+        pag_identification_policy=graph.pag_identification_policy,
+        id_confidence_under_pag=None,
+        metadata=graph_metadata,
     )
     return projected, latent_vars
 

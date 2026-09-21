@@ -57,6 +57,11 @@ class CachedAdjacency:
         circle_edges: list[tuple[str, str]] = []
 
         for edge in graph.edges:
+            # ADMG primitives are static; compact temporal relations belong to
+            # a temporal consumer and must not become contemporaneous ancestry,
+            # district, or cycle edges by accident.
+            if edge.lag not in (None, 0):
+                continue
             if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
                 fwd[edge.src].append(edge.dst)
                 rev[edge.dst].append(edge.src)
@@ -140,7 +145,7 @@ def extract_directed_edges(graph: CausalGraphModel) -> frozenset[tuple[str, str]
     """Return all directed edges as frozenset of (src, dst) pairs.
 
     A directed edge has mark_src=TAIL, mark_dst=ARROW.
-    Lagged edges (edge.lag is not None and edge.lag > 0) are included.
+    Positive-lag edges are excluded because this helper is the static ADMG view.
     """
     return _get_cached_adjacency(graph).directed_edges
 
@@ -807,6 +812,8 @@ def condense_graph(
     condensed_edges: list[CausalEdge] = []
 
     for edge in graph.edges:
+        if edge.lag not in (None, 0):
+            continue
         src_comp = node_to_comp[edge.src]
         dst_comp = node_to_comp[edge.dst]
         src_label = comp_to_label[src_comp]

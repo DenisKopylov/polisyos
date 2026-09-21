@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from math import isfinite
 from typing import Any, Literal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -13,6 +15,109 @@ from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
 )
+
+FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
+
+
+def statistical_uncertainty_from_ci_width(
+    simulation_results: dict[str, Any],
+    *,
+    source: str,
+    quantification_method: str,
+    recommended_action: str | None = None,
+) -> UncertaintyEstimate:
+    """Build a statistical estimate without laundering missing CI data.
+
+    A missing, malformed, non-finite, or negative confidence-interval width is
+    unassessed uncertainty.  A finite zero width remains a measured zero-width
+    interval, including when the effect itself is zero.
+    """
+
+    bootstrap = simulation_results.get("bootstrap")
+    if not isinstance(bootstrap, Mapping) or "ci_width" not in bootstrap:
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; confidence-interval width missing",
+            quantification_method="ci_width_missing",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+
+    raw_width = bootstrap.get("ci_width")
+    if raw_width is None or isinstance(raw_width, bool):
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; confidence-interval width invalid",
+            quantification_method="ci_width_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    try:
+        ci_width = float(raw_width)
+    except (TypeError, ValueError, OverflowError):
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; confidence-interval width invalid",
+            quantification_method="ci_width_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    if not isfinite(ci_width) or ci_width < 0.0:
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; confidence-interval width invalid",
+            quantification_method="ci_width_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+
+    if "ate" not in simulation_results:
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; effect scale invalid",
+            quantification_method="effect_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    raw_effect = simulation_results["ate"]
+    if raw_effect is None or isinstance(raw_effect, bool):
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; effect scale invalid",
+            quantification_method="effect_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    try:
+        effect = abs(float(raw_effect))
+    except (TypeError, ValueError, OverflowError):
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; effect scale invalid",
+            quantification_method="effect_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    if not isfinite(effect):
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; effect scale invalid",
+            quantification_method="effect_invalid",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+
+    if effect == 0.0:
+        level = 0.0 if ci_width == 0.0 else 1.0
+    else:
+        level = min(1.0, ci_width / (2.0 * effect))
+    return UncertaintyEstimate(
+        level=level,
+        source=source,
+        quantification_method=quantification_method,
+        is_reducible=True,
+        recommended_action=recommended_action,
+    )
 
 # ---------------------------------------------------------------------------
 # §8.5 — CheapSignalVector

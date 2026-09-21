@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import threading
+import time
 from collections.abc import Mapping
 from typing import Any, NamedTuple
 
@@ -34,6 +35,12 @@ class ScalarState(NamedTuple):
 class ChainState(NamedTuple):
     values: jnp.ndarray
     total: jnp.ndarray
+    result: jnp.ndarray
+
+
+class UnknownShapeState(NamedTuple):
+    values: jnp.ndarray
+    unknown: jnp.ndarray
     result: jnp.ndarray
 
 
@@ -182,7 +189,6 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
     registry.register(method)
 
     cache = CompilationCache()
-    compiler = MethodCompiler(registry=registry, cache=cache)
     first_compile_returned = threading.Event()
     release_compile = threading.Event()
     first_put_entered = threading.Event()
@@ -229,13 +235,15 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
         assert first_compile_returned.wait(timeout=2)
         follower = executor.submit(compile_one)
 
-        deadline = threading.Event()
-        while True:
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
             with compiler._inflight_lock:
                 in_flight = tuple(compiler._inflight.values())
             if in_flight:
                 break
-            assert not deadline.wait(timeout=0.001)
+            time.sleep(0.001)
+        else:
+            pytest.fail("follower did not join the in-flight compilation")
 
         release_compile.set()
         assert first_put_entered.wait(timeout=2)
@@ -266,11 +274,16 @@ def test_single_flight_error_releases_all_followers(scalar_slots):
     registry = MethodRegistry.get_instance()
     registry.register(method)
     calls = 0
+    failure_started = threading.Event()
+    release_failure = threading.Event()
 
     class FailingCompiler(MethodCompiler):
         def _compile_method(self, *args, **kwargs):
             nonlocal calls
             calls += 1
+            if calls == 1:
+                failure_started.set()
+                assert release_failure.wait(timeout=2)
             raise RuntimeError("controlled compile failure")
 
     compiler = FailingCompiler(registry=registry, cache=CompilationCache())
@@ -285,7 +298,12 @@ def test_single_flight_error_releases_all_followers(scalar_slots):
         )
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        futures = [executor.submit(compile_one) for _ in range(3)]
+        leader = executor.submit(compile_one)
+        assert failure_started.wait(timeout=2)
+        followers = [executor.submit(compile_one) for _ in range(2)]
+        time.sleep(0.05)
+        release_failure.set()
+        futures = [leader, *followers]
         errors = [future.exception(timeout=2) for future in futures]
 
     assert calls == 1
@@ -349,3 +367,53 @@ def test_chain_shape_inference_uses_declared_shapes_without_pure_step(scalar_slo
     assert calls == {"sum": 1, "result": 1}
     assert float(output.result) == 0.5
 
+
+def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots):
+    del scalar_slots
+    unit = Unit("value", "unit")
+    values_slot = SlotSpec("values", SlotType.VECTOR, unit, shape=("n",))
+    unknown_slot = SlotSpec("unknown", SlotType.VECTOR, unit, shape=(None,))
+    result_slot = SlotSpec("result", SlotType.SCALAR, unit, shape=())
+    calls = {"producer": 0, "consumer": 0}
+
+    def producer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:
+        calls["producer"] += 1
+        return state._replace(unknown=state.values[: int(params.get("count", 1))])
+
+    def consumer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:
+        calls["consumer"] += 1
+        return state._replace(result=jnp.sum(state.unknown))
+
+    producer_method = _method(
+        name="data_dependent",
+        namespace="jit01",
+        input_slots=frozenset({values_slot}),
+        output_slots=frozenset({unknown_slot}),
+        pure_step=producer,
+    )
+    consumer_method = _method(
+        name="consume_unknown",
+        namespace="jit01",
+        input_slots=frozenset({unknown_slot}),
+        output_slots=frozenset({result_slot}),
+        pure_step=consumer,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(producer_method)
+    registry.register(consumer_method)
+
+    composer = MethodComposer(registry=registry)
+    producer_node = composer.add("jit01.data_dependent@1.0.0")
+    consumer_node = composer.add("jit01.consume_unknown@1.0.0")
+    composer.connect(producer_node, consumer_node)
+    chain = composer.build()
+    sample_state = UnknownShapeState(
+        values=jnp.ones((5,)),
+        unknown=jnp.ones((5,)),
+        result=jnp.asarray(0.0),
+    )
+
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    with pytest.raises(CompilationError, match="data-dependent"):
+        compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)
+    assert calls == {"producer": 0, "consumer": 0}

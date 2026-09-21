@@ -13,7 +13,7 @@ import threading
 import time
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any, Protocol, TypeVar
 
@@ -46,6 +46,7 @@ __all__ = [
 
 StateT = TypeVar("StateT")
 CompiledStepFn = Callable[[Any, Mapping[str, Any]], Any]
+KernelStepFn = Callable[[Any, tuple[Any, ...], Mapping[str, Any]], Any]
 
 
 class FoundryMethodProtocol(Protocol):
@@ -63,6 +64,14 @@ class FoundryMethodProtocol(Protocol):
 
 
 @dataclass(frozen=True, slots=True)
+class _CompiledKernel:
+    """Immutable compiled core shared by handles with different defaults."""
+
+    step_core: KernelStepFn
+    dynamic_names: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class CompiledMethod:
     """
     A compiled method ready for execution.
@@ -75,6 +84,7 @@ class CompiledMethod:
     dynamic_defaults: Mapping[str, Any]
     lowered_hlo: str | None = None
     compile_time_ms: float = 0.0
+    _kernel: _CompiledKernel | None = field(default=None, repr=False, compare=False)
 
     def __call__(self, state: Any, params: Mapping[str, Any]) -> Any:
         return self.step_fn(state, params)
@@ -325,10 +335,97 @@ def _resolve_params(
     return static_params, dynamic_defaults, tuple(dynamic_names)
 
 
+def _values_equal(left: Any, right: Any) -> bool:
+    """Compare scalar, array, and nested dynamic values without array truthiness."""
+    if isinstance(left, Mapping) or isinstance(right, Mapping):
+        if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+            return False
+        if left.keys() != right.keys():
+            return False
+        return all(_values_equal(left[key], right[key]) for key in left)
+    if isinstance(left, (list, tuple)) or isinstance(right, (list, tuple)):
+        if not isinstance(left, (list, tuple)) or not isinstance(right, (list, tuple)):
+            return False
+        return len(left) == len(right) and all(
+            _values_equal(left_item, right_item) for left_item, right_item in zip(left, right)
+        )
+    try:
+        return bool(np.array_equal(np.asarray(left), np.asarray(right)))
+    except (TypeError, ValueError):
+        try:
+            return bool(left == right)
+        except (TypeError, ValueError):
+            return left is right
+
+
+def _dynamic_defaults_equal(
+    left: Mapping[str, Any],
+    right: Mapping[str, Any],
+) -> bool:
+    """Return whether two dynamic bindings are semantically equivalent."""
+    if left.keys() != right.keys():
+        return False
+    return all(_values_equal(left[name], right[name]) for name in left)
+
+
+def _bind_compiled_method(
+    compiled: CompiledMethod,
+    dynamic_defaults: Mapping[str, Any],
+) -> CompiledMethod:
+    """Bind current dynamic defaults to a shared immutable compiled kernel."""
+    kernel = compiled._kernel
+    if kernel is None:
+        return compiled
+
+    dynamic_name_set = set(kernel.dynamic_names)
+    static_name_set = compiled.signature.static_param_names
+    bound_defaults = MappingProxyType(dict(dynamic_defaults))
+
+    def step_fn(state: Any, params: Mapping[str, Any] | None = None) -> Any:
+        overrides = params or {}
+        if overrides:
+            unknown = set(overrides.keys()) - dynamic_name_set - _RUNTIME_PARAM_NAMES
+            if unknown:
+                static_overlap = unknown & static_name_set
+                if static_overlap:
+                    raise ParameterValidationError(
+                        param_name=",".join(sorted(static_overlap)),
+                        value=list(static_overlap),
+                        reason="Static parameters require recompilation",
+                    )
+                raise ParameterValidationError(
+                    param_name=",".join(sorted(unknown)),
+                    value=list(unknown),
+                    reason="Unknown dynamic parameters",
+                )
+        merged = dict(bound_defaults)
+        merged.update({name: overrides[name] for name in kernel.dynamic_names if name in overrides})
+        runtime_params = {
+            name: overrides[name] for name in _RUNTIME_PARAM_NAMES if name in overrides
+        }
+        dynamic_values = tuple(
+            _normalize_dynamic_value(merged[name]) for name in kernel.dynamic_names
+        )
+        return kernel.step_core(state, dynamic_values, runtime_params)
+
+    return CompiledMethod(
+        method_fqn=compiled.method_fqn,
+        signature=compiled.signature,
+        specialization=compiled.specialization,
+        step_fn=step_fn,
+        dynamic_defaults=bound_defaults,
+        lowered_hlo=compiled.lowered_hlo,
+        compile_time_ms=compiled.compile_time_ms,
+        _kernel=kernel,
+    )
+
+
 @dataclass(slots=True)
 class _InFlight:
     event: threading.Event
-    error: Exception | None = None
+    error: BaseException | None = None
+    result: CompiledMethod | None = None
+    invalidated: bool = False
 
 
 class MethodCompiler:
@@ -399,7 +496,9 @@ class MethodCompiler:
 
             cached = self._cache.get(spec, token=token)
             if cached is not None:
-                return cached
+                if _dynamic_defaults_equal(cached.dynamic_defaults, dynamic_defaults):
+                    return cached
+                return _bind_compiled_method(cached, dynamic_defaults)
 
             flight_key = f"{token.generation}:{spec.cache_key}"
             with self._inflight_lock:
@@ -413,11 +512,20 @@ class MethodCompiler:
 
             if not leader:
                 flight.event.wait()
-                cached = self._cache.get(spec, token=token)
-                if cached is not None:
-                    return cached
                 if flight.error is not None:
-                    raise CompilationError(sig.fqn, str(flight.error))
+                    if isinstance(flight.error, Exception):
+                        raise CompilationError(sig.fqn, str(flight.error))
+                    raise flight.error
+                if flight.result is not None:
+                    if _dynamic_defaults_equal(flight.result.dynamic_defaults, dynamic_defaults):
+                        return flight.result
+                    return _bind_compiled_method(flight.result, dynamic_defaults)
+                if not flight.invalidated:
+                    cached = self._cache.get(spec, token=token)
+                    if cached is not None:
+                        if _dynamic_defaults_equal(cached.dynamic_defaults, dynamic_defaults):
+                            return cached
+                        return _bind_compiled_method(cached, dynamic_defaults)
                 attempts += 1
                 if attempts >= 3:
                     raise CompilationError(
@@ -428,7 +536,7 @@ class MethodCompiler:
 
             start_time = time.monotonic()
             try:
-                compiled_step = self._compile_method(
+                kernel = self._compile_method(
                     method_class=method_class,
                     signature=sig,
                     specialization=spec,
@@ -440,27 +548,39 @@ class MethodCompiler:
                     vmap_axis=vmap_axis,
                     donate_argnums=donate_argnums,
                 )
-            except Exception as exc:
-                flight.error = exc
-                raise CompilationError(sig.fqn, str(exc)) from exc
-            finally:
+                compile_time_ms = (time.monotonic() - start_time) * 1000
+                template = CompiledMethod(
+                    method_fqn=sig.fqn,
+                    signature=sig,
+                    specialization=spec,
+                    step_fn=lambda state, params: kernel.step_core(state, (), params),
+                    dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
+                    lowered_hlo=None,
+                    compile_time_ms=compile_time_ms,
+                    _kernel=kernel,
+                )
+                compiled = _bind_compiled_method(template, dynamic_defaults)
+                published = self._cache.put(spec, compiled, token=token)
+                if published and self._cache.current_token() != token:
+                    published = False
+            except BaseException as exc:
                 with self._inflight_lock:
+                    flight.error = exc
                     self._inflight.pop(flight_key, None)
                     flight.event.set()
+                if isinstance(exc, Exception):
+                    raise CompilationError(sig.fqn, str(exc)) from exc
+                raise
 
-            compile_time_ms = (time.monotonic() - start_time) * 1000
+            with self._inflight_lock:
+                if published:
+                    flight.result = compiled
+                else:
+                    flight.invalidated = True
+                self._inflight.pop(flight_key, None)
+                flight.event.set()
 
-            compiled = CompiledMethod(
-                method_fqn=sig.fqn,
-                signature=sig,
-                specialization=spec,
-                step_fn=compiled_step,
-                dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
-                lowered_hlo=None,
-                compile_time_ms=compile_time_ms,
-            )
-
-            if self._cache.put(spec, compiled, token=token):
+            if published:
                 return compiled
 
             attempts += 1
@@ -482,42 +602,12 @@ class MethodCompiler:
         capture_hlo: bool,
         vmap_axis: int | None,
         donate_argnums: tuple[int, ...],
-    ) -> CompiledStepFn:
+    ) -> _CompiledKernel:
         """
         Internal compilation logic.
         """
+        del dynamic_defaults
         pure_step = method_class.pure_step
-        dynamic_name_set = set(dynamic_names)
-        static_name_set = signature.static_param_names
-
-        def pack_dynamic_params(
-            overrides: Mapping[str, Any] | None,
-        ) -> tuple[tuple[Any, ...], dict[str, Any]]:
-            overrides = overrides or {}
-            if overrides:
-                unknown = set(overrides.keys()) - dynamic_name_set - _RUNTIME_PARAM_NAMES
-                if unknown:
-                    static_overlap = unknown & static_name_set
-                    if static_overlap:
-                        raise ParameterValidationError(
-                            param_name=",".join(sorted(static_overlap)),
-                            value=list(static_overlap),
-                            reason="Static parameters require recompilation",
-                        )
-                    raise ParameterValidationError(
-                        param_name=",".join(sorted(unknown)),
-                        value=list(unknown),
-                        reason="Unknown dynamic parameters",
-                    )
-            merged = dict(dynamic_defaults)
-            merged.update({name: overrides[name] for name in dynamic_names if name in overrides})
-            runtime_params = {
-                name: overrides[name] for name in _RUNTIME_PARAM_NAMES if name in overrides
-            }
-            return (
-                tuple(_normalize_dynamic_value(merged[name]) for name in dynamic_names),
-                runtime_params,
-            )
 
         @functools.wraps(pure_step)
         def step_with_statics(
@@ -543,16 +633,12 @@ class MethodCompiler:
         else:
             step_core = step_with_statics
 
-        def step_fn(state: Any, params: Mapping[str, Any] | None = None) -> Any:
-            dynamic_values, runtime_params = pack_dynamic_params(params)
-            return step_core(state, dynamic_values, runtime_params)
-
         if capture_hlo:
             # Placeholder for optional HLO capture.
             # Requires sample inputs/state to lower; not performed here.
             pass
 
-        return step_fn
+        return _CompiledKernel(step_core=step_core, dynamic_names=dynamic_names)
 
     def compile_chain(
         self,
@@ -571,14 +657,32 @@ class MethodCompiler:
             raise TypeError(f"Expected CompiledMethodChain, got {type(chain)}")
 
         compiled_methods: list[tuple[MethodNode, CompiledMethod]] = []
-        current_state = sample_state
+        if infer_shapes:
+            shape_values: dict[str, Any] = {}
+            for node_id in chain.execution_order:
+                shape_values.update(
+                    self._infer_input_shapes(chain.get_signature(node_id), sample_state)
+                )
+        else:
+            shape_values = sample_state
+        unresolved_outputs: set[str] = set()
 
         for node_id in chain.execution_order:
             node = chain.get_node(node_id)
             sig = chain.get_signature(node_id)
-            method_class = self._registry.get(sig.fqn)
 
-            input_shapes = self._infer_input_shapes(sig, current_state)
+            input_shapes = self._infer_input_shapes(sig, shape_values)
+            missing_shapes = [
+                slot.name
+                for slot in sig.input_slots
+                if slot.name in unresolved_outputs and slot.name not in input_shapes
+            ]
+            if missing_shapes:
+                raise CompilationError(
+                    sig.fqn,
+                    "shape inference unavailable for data-dependent output(s): "
+                    + ", ".join(sorted(missing_shapes)),
+                )
 
             params = dict(node.static_params)
             params.update(node.params)
@@ -592,13 +696,12 @@ class MethodCompiler:
             compiled_methods.append((node, compiled))
 
             if infer_shapes:
-                try:
-                    current_state = method_class.pure_step(current_state, params)
-                except Exception as exc:
-                    raise CompilationError(
-                        sig.fqn,
-                        f"shape inference failed: {exc}",
-                    ) from exc
+                unresolved_outputs = self._update_output_shapes(
+                    sig,
+                    input_shapes,
+                    shape_values,
+                    unresolved_outputs,
+                )
 
         return CompiledChainExecutor(
             chain=chain,
@@ -609,11 +712,15 @@ class MethodCompiler:
         self,
         sig: MethodSignature,
         state: Any,
-    ) -> dict[str, jnp.ndarray]:
-        result: dict[str, jnp.ndarray] = {}
+    ) -> dict[str, Any]:
+        result: dict[str, Any] = {}
         for slot in sig.input_slots:
             slot_name = slot.name
-            if hasattr(state, slot_name):
+            if isinstance(state, Mapping) and slot_name in state:
+                arr = state[slot_name]
+                if hasattr(arr, "shape"):
+                    result[slot_name] = arr
+            elif hasattr(state, slot_name):
                 arr = getattr(state, slot_name)
                 if hasattr(arr, "shape"):
                     result[slot_name] = arr
@@ -625,6 +732,82 @@ class MethodCompiler:
                 except (KeyError, TypeError):
                     pass
         return result
+
+    def _update_output_shapes(
+        self,
+        sig: MethodSignature,
+        input_shapes: Mapping[str, Any],
+        shape_values: Mapping[str, Any] | dict[str, Any],
+        unresolved_outputs: set[str],
+    ) -> set[str]:
+        """Propagate declared output shapes without executing a method body."""
+        dimensions: dict[str, int] = {}
+        for slot in sig.input_slots:
+            arr = input_shapes.get(slot.name)
+            if arr is None or not hasattr(arr, "shape") or len(slot.shape) != len(arr.shape):
+                continue
+            for expression, size in zip(slot.shape, arr.shape):
+                if isinstance(expression, int):
+                    if expression != int(size):
+                        raise CompilationError(
+                            sig.fqn,
+                            f"input shape mismatch for {slot.name}: expected "
+                            f"{expression}, got {size}",
+                        )
+                    continue
+                name = getattr(
+                    expression,
+                    "name",
+                    expression if isinstance(expression, str) else None,
+                )
+                if name is None:
+                    continue
+                prior = dimensions.get(name)
+                if prior is not None and prior != int(size):
+                    raise CompilationError(
+                        sig.fqn,
+                        f"symbolic dimension {name!r} is inconsistent",
+                    )
+                dimensions[name] = int(size)
+
+        next_unresolved = set(unresolved_outputs)
+        for slot in sig.output_slots:
+            output_shape: list[int] = []
+            known = True
+            for expression in slot.shape:
+                if isinstance(expression, int):
+                    output_shape.append(expression)
+                    continue
+                name = getattr(
+                    expression,
+                    "name",
+                    expression if isinstance(expression, str) else None,
+                )
+                if name is None or name not in dimensions:
+                    known = False
+                    break
+                output_shape.append(dimensions[name])
+            if not known:
+                next_unresolved.add(slot.name)
+                if isinstance(shape_values, dict):
+                    shape_values.pop(slot.name, None)
+                continue
+
+            existing = shape_values.get(slot.name)
+            dtype = getattr(existing, "dtype", None)
+            if dtype is None:
+                dtype = next(
+                    (
+                        getattr(arr, "dtype", None)
+                        for arr in input_shapes.values()
+                        if hasattr(arr, "dtype")
+                    ),
+                    np.float32,
+                )
+            if isinstance(shape_values, dict):
+                shape_values[slot.name] = np.empty(tuple(output_shape), dtype=dtype)
+            next_unresolved.discard(slot.name)
+        return next_unresolved
 
     def warmup(
         self,

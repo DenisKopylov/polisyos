@@ -793,20 +793,18 @@ class BacktestOrchestrator:
         biases: list[SystematicBias] = []
         degraded_reasons: list[str] = []
         for metric, errors in errors_by_metric.items():
-            if len(errors) < 3:
-                continue
             arr = np.asarray(errors, dtype=float)
             mean = float(np.mean(arr))
             test_result = self._two_sided_ttest(arr)
-            if test_result.status == "unavailable":
-                assert test_result.reason is not None
-                degraded_reasons.append(
-                    f"bias_statistical_test_unavailable:{metric}:{test_result.reason}"
-                )
 
             if test_result.p_value is None:
                 if abs(mean) <= 1e-12:
                     continue
+                assert test_result.reason is not None
+                degraded_reasons.append(
+                    f"bias_statistical_test_{test_result.status}:{metric}:"
+                    f"{test_result.reason}"
+                )
                 biases.append(
                     SystematicBias(
                         bias_type="directional",

@@ -126,15 +126,16 @@ class UrlFetchCache:
             )
             artifact_id = str(ref.artifact_id)
 
-        if artifact_id is not None and previous is not None:
-            if (
-                previous.artifact_id is not None
-                and previous.artifact_id != artifact_id
-                and result.lineage_parent_artifact_id is None
-            ):
-                result.lineage_parent_artifact_id = previous.artifact_id
-                if result.refresh_reason is None:
-                    result.refresh_reason = "cache-refresh"
+        if (
+            artifact_id is not None
+            and previous is not None
+            and previous.artifact_id is not None
+            and previous.artifact_id != artifact_id
+            and result.lineage_parent_artifact_id is None
+        ):
+            result.lineage_parent_artifact_id = previous.artifact_id
+            if result.refresh_reason is None:
+                result.refresh_reason = "cache-refresh"
         if raw_bytes is not None:
             result.byte_size = len(raw_bytes)
         result.artifact_id = artifact_id

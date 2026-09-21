@@ -18,7 +18,7 @@ from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceMetadata
-from polisyos.scholar.types import EnrichResultV1, EnrichmentReportV1
+from polisyos.scholar.types import EnrichmentReportV1, EnrichResultV1
 
 
 SOURCE_URL = "https://agency.gov/reports/employment"
@@ -74,7 +74,7 @@ class _FakeOpener:
         self._body = body
 
     def open(self, request: object, timeout: float) -> _FakeResponse:
-        assert getattr(request, "full_url") == SOURCE_URL
+        assert request.full_url == SOURCE_URL
         assert timeout == 2
         return _FakeResponse(self._body)
 

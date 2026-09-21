@@ -12,8 +12,8 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
-from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.errors import ScholarAcquireError
+from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
 
@@ -357,15 +357,17 @@ def _source_spec_from_snapshot(
             or getattr(cached_record, "redirect_chain", [])
         ),
     }
-    for field in (
+    for metadata_field in (
         "etag",
         "last_modified",
         "lineage_parent_artifact_id",
         "refresh_reason",
     ):
-        value = getattr(source, field, None) or getattr(cached_record, field, None)
+        value = getattr(source, metadata_field, None) or getattr(
+            cached_record, metadata_field, None
+        )
         if value is not None:
-            props[field] = str(value)
+            props[metadata_field] = str(value)
     props = {key: value for key, value in props.items() if value != ""}
 
     source_license = getattr(source, "license", None)

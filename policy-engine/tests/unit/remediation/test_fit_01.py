@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import threading
 import time
+from contextlib import suppress
 from copy import deepcopy
 from dataclasses import replace
 from types import SimpleNamespace
@@ -34,7 +35,7 @@ pytestmark = pytest.mark.unit
 
 def _inputs() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return a deterministic small input set for cache-key witnesses."""
-    X = np.asarray(
+    covariates = np.asarray(
         [
             [-1.0, 0.0],
             [-0.5, 1.0],
@@ -47,7 +48,7 @@ def _inputs() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     )
     treatment = np.asarray([0.0, 1.0, 0.0, 1.0, 0.0, 1.0], dtype=float)
     outcome = np.asarray([0.0, 1.5, 0.5, 2.0, 1.0, 2.5], dtype=float)
-    return X, treatment, outcome
+    return covariates, treatment, outcome
 
 
 def _contract(**changes: Any) -> tmle_core.ATENuisanceContract:
@@ -63,13 +64,13 @@ def _contract(**changes: Any) -> tmle_core.ATENuisanceContract:
 
 
 def _synthetic_bundle(
-    X: np.ndarray,
+    covariates: np.ndarray,
     treatment: np.ndarray,
     outcome: np.ndarray,
     contract: tmle_core.ATENuisanceContract,
 ) -> tmle_core.ATENuisanceBundle:
     """Create a fit-like bundle without invoking a model backend."""
-    del X, treatment, outcome
+    del covariates, treatment, outcome
     scaler = SimpleNamespace(mean=0.0, scale=1.0, applied=False)
     return tmle_core.ATENuisanceBundle(
         propensity=np.asarray([0.25, 0.50, 0.75, 0.25, 0.50, 0.75], dtype=float),
@@ -88,7 +89,7 @@ def _synthetic_bundle(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def isolated_shared_cache(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep each witness independent of process-global cache state."""
     monkeypatch.setattr(tmle_core, "_SHARED_NUISANCE_CACHE", {})
@@ -100,17 +101,17 @@ def test_diagnostic_contract_change_reuses_fit_and_rebinds_current_diagnostics(
     isolated_shared_cache: None,
 ) -> None:
     """B54: threshold/mode changes reuse fit bytes but refresh diagnostics."""
-    X, treatment, outcome = _inputs()
+    covariates, treatment, outcome = _inputs()
     calls: list[tmle_core.ATENuisanceContract] = []
 
     def fake_uncached(
-        fit_X: np.ndarray,
+        fit_covariates: np.ndarray,
         fit_treatment: np.ndarray,
         fit_outcome: np.ndarray,
         contract: tmle_core.ATENuisanceContract,
     ) -> tmle_core.ATENuisanceBundle:
         calls.append(contract)
-        return _synthetic_bundle(fit_X, fit_treatment, fit_outcome, contract)
+        return _synthetic_bundle(fit_covariates, fit_treatment, fit_outcome, contract)
 
     monkeypatch.setattr(tmle_core, "_fit_crossfit_nuisance_bundle_uncached", fake_uncached)
 
@@ -120,8 +121,12 @@ def test_diagnostic_contract_change_reuses_fit_and_rebinds_current_diagnostics(
         min_effective_sample_size=100.0,
         coverage_guard="off",
     )
-    cold = tmle_core.fit_crossfit_nuisance_bundle(X, treatment, outcome, cold_contract)
-    warm = tmle_core.fit_crossfit_nuisance_bundle(X, treatment, outcome, warm_contract)
+    cold = tmle_core.fit_crossfit_nuisance_bundle(
+        covariates, treatment, outcome, cold_contract
+    )
+    warm = tmle_core.fit_crossfit_nuisance_bundle(
+        covariates, treatment, outcome, warm_contract
+    )
 
     assert len(calls) == 1
     assert warm is not cold
@@ -139,40 +144,40 @@ def test_cached_fit_isolation_prevents_one_consumer_mutating_the_next_hit(
     isolated_shared_cache: None,
 ) -> None:
     """B54: arrays and nested metadata are owned by one returned hit."""
-    X, treatment, outcome = _inputs()
+    covariates, treatment, outcome = _inputs()
     contract = _contract()
 
     monkeypatch.setattr(
         tmle_core,
         "_fit_crossfit_nuisance_bundle_uncached",
-        lambda fit_X, fit_treatment, fit_outcome, fit_contract: _synthetic_bundle(
-            fit_X,
-            fit_treatment,
-            fit_outcome,
-            fit_contract,
+        lambda covariates, treatment, outcome, contract: _synthetic_bundle(
+            covariates,
+            treatment,
+            outcome,
+            contract,
         ),
     )
 
-    first = tmle_core.fit_crossfit_nuisance_bundle(X, treatment, outcome, contract)
+    first = tmle_core.fit_crossfit_nuisance_bundle(
+        covariates, treatment, outcome, contract
+    )
     expected_propensity = first.propensity.copy()
     expected_manifest = deepcopy(first.split_manifest)
 
-    try:
+    # A read-only fit core is an accepted implementation of the boundary.
+    with suppress(ValueError):
         first.propensity[0] = 0.99
-    except ValueError:
-        # A read-only fit core is an accepted implementation of the boundary.
-        pass
-    try:
-        first.split_manifest[0]["folds"].append({"fold": 99})
-    except (AttributeError, TypeError):
-        # A deeply immutable metadata projection is also a valid boundary.
-        pass
-    try:
-        first.calibration_modes.append("consumer-mutation")
-    except (AttributeError, TypeError):
-        pass
 
-    second = tmle_core.fit_crossfit_nuisance_bundle(X, treatment, outcome, contract)
+    # A deeply immutable metadata projection is also a valid boundary.
+    with suppress(AttributeError, TypeError):
+        first.split_manifest[0]["folds"].append({"fold": 99})
+
+    with suppress(AttributeError, TypeError):
+        first.calibration_modes.append("consumer-mutation")
+
+    second = tmle_core.fit_crossfit_nuisance_bundle(
+        covariates, treatment, outcome, contract
+    )
 
     assert second is not first
     assert np.array_equal(second.propensity, expected_propensity)
@@ -192,33 +197,35 @@ def test_changed_data_or_seed_requires_a_new_fit(
     changed_dimension: str,
 ) -> None:
     """B54 positive control: scientific inputs never reuse an old fit core."""
-    X, treatment, outcome = _inputs()
+    covariates, treatment, outcome = _inputs()
     calls: list[tuple[np.ndarray, int]] = []
 
     def fake_uncached(
-        fit_X: np.ndarray,
+        fit_covariates: np.ndarray,
         fit_treatment: np.ndarray,
         fit_outcome: np.ndarray,
         contract: tmle_core.ATENuisanceContract,
     ) -> tmle_core.ATENuisanceBundle:
         del fit_treatment, fit_outcome
-        calls.append((fit_X.copy(), contract.random_seed))
-        return _synthetic_bundle(fit_X, treatment, outcome, contract)
+        calls.append((fit_covariates.copy(), contract.random_seed))
+        return _synthetic_bundle(fit_covariates, treatment, outcome, contract)
 
     monkeypatch.setattr(tmle_core, "_fit_crossfit_nuisance_bundle_uncached", fake_uncached)
     contract = _contract()
-    tmle_core.fit_crossfit_nuisance_bundle(X, treatment, outcome, contract)
+    tmle_core.fit_crossfit_nuisance_bundle(
+        covariates, treatment, outcome, contract
+    )
 
     if changed_dimension == "data":
-        changed_X = X.copy()
-        changed_X[0, 0] += 1.0
+        changed_covariates = covariates.copy()
+        changed_covariates[0, 0] += 1.0
         changed_contract = contract
     else:
-        changed_X = X
+        changed_covariates = covariates
         changed_contract = replace(contract, random_seed=contract.random_seed + 1)
 
     tmle_core.fit_crossfit_nuisance_bundle(
-        changed_X,
+        changed_covariates,
         treatment,
         outcome,
         changed_contract,
@@ -232,7 +239,7 @@ def test_explicit_cap_one_preserves_all_fold_repeat_seeds_without_model_training
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """B56: worker cap changes execution, not the scientific cross-fit plan."""
-    X = np.arange(24, dtype=float).reshape(12, 2)
+    covariates = np.arange(24, dtype=float).reshape(12, 2)
     treatment = np.asarray([0.0, 1.0] * 6, dtype=float)
     outcome = np.linspace(0.0, 1.0, 12)
     contract = tmle_core.ATENuisanceContract(
@@ -277,9 +284,11 @@ def test_explicit_cap_one_preserves_all_fold_repeat_seeds_without_model_training
 
     monkeypatch.setattr(tmle_core, "_fit_crossfit_fold", fake_fold)
 
-    capped = tmle_core._fit_crossfit_nuisance_bundle_uncached(X, treatment, outcome, contract)
+    capped = tmle_core._fit_crossfit_nuisance_bundle_uncached(
+        covariates, treatment, outcome, contract
+    )
     serial = tmle_core._fit_crossfit_nuisance_bundle_uncached(
-        X,
+        covariates,
         treatment,
         outcome,
         replace(contract, parallel_folds=False),
@@ -300,7 +309,7 @@ def test_explicit_cap_one_preserves_all_fold_repeat_seeds_without_model_training
 @pytest.mark.slow
 def test_native_fit_preserves_all_folds_repeats_and_seeds() -> None:
     """Future N/C seam: one bounded real fit keeps the complete study plan."""
-    X, treatment, outcome = _inputs()
+    covariates, treatment, outcome = _inputs()
     contract = tmle_core.ATENuisanceContract(
         propensity_backend="logistic_regression",
         outcome_backend="linear_regression",
@@ -315,7 +324,7 @@ def test_native_fit_preserves_all_folds_repeats_and_seeds() -> None:
     )
 
     bundle = tmle_core.fit_crossfit_nuisance_bundle(
-        X,
+        covariates,
         treatment,
         outcome,
         contract,

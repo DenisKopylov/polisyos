@@ -7,7 +7,15 @@ import pytest
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-from polisyos.ir.analytics.causal_queries import CausalQueryResult
+from polisyos.ir.analytics.causal_queries import (
+    CausalAttributionSpec,
+    CausalContrastRegime,
+    CausalQuery,
+    CausalQueryResult,
+    InterventionSpec,
+    InterventionType,
+    QueryType,
+)
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     MechanismSource,
@@ -113,3 +121,59 @@ def test_attribution_uses_a_distinct_observational_baseline() -> None:
     result = CausalQueryResult.model_validate(output["query_result"])
     assert result.result_mean == pytest.approx(6.0)
     assert result.result_std == pytest.approx(0.0)
+
+
+def test_contrast_regime_requires_a_matching_intervention_payload() -> None:
+    atomic = InterventionSpec(type=InterventionType.ATOMIC, value=0.0)
+
+    with pytest.raises(ValueError, match="intervention is required"):
+        CausalContrastRegime(kind="interventional")
+    with pytest.raises(ValueError, match="must not carry an intervention"):
+        CausalContrastRegime(kind="observational", intervention=atomic)
+
+
+def test_attribution_target_must_be_interventional() -> None:
+    with pytest.raises(ValueError, match="target regime must be interventional"):
+        CausalAttributionSpec(
+            target=CausalContrastRegime(kind="observational"),
+            comparator=CausalContrastRegime(kind="observational"),
+        )
+
+
+def test_legacy_attribution_is_normalized_to_explicit_observational_comparator() -> None:
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+    )
+
+    assert query.contrast is not None
+    assert query.contrast.target.kind == "interventional"
+    assert query.contrast.target.intervention is not None
+    assert query.contrast.target.intervention.value == pytest.approx(2.0)
+    assert query.contrast.comparator.kind == "observational"
+    assert query.contrast.comparator.intervention is None
+
+
+def test_attribution_contrast_serialization_roundtrip_preserves_both_sides() -> None:
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+        contrast=CausalAttributionSpec(
+            target=CausalContrastRegime(
+                kind="interventional",
+                intervention=InterventionSpec(type=InterventionType.ATOMIC, value=2.0),
+            ),
+            comparator=CausalContrastRegime(
+                kind="interventional",
+                intervention=InterventionSpec(type=InterventionType.ATOMIC, value=0.0),
+            ),
+        ),
+    )
+
+    restored = CausalQuery.model_validate(query.model_dump(mode="json"))
+
+    assert restored.contrast == query.contrast

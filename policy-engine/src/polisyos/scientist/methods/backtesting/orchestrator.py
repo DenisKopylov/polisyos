@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -137,6 +137,22 @@ class BacktestOrchestrator:
         ]
         y_pred = prediction_payload["predictions"]
         intervals = prediction_payload.get("intervals")
+        scenario_metadata = {
+            **plan.metadata,
+            "prediction_source_requested": plan.prediction_source.value,
+            "prediction_source_effective": prediction_payload.get(
+                "prediction_mode_effective",
+                plan.prediction_source.value,
+            ),
+            "degraded": bool(prediction_payload.get("degraded", False)),
+        }
+        if "interval_type" in prediction_payload:
+            scenario_metadata["interval_type"] = prediction_payload["interval_type"]
+        if "interval_metadata_source" in prediction_payload:
+            scenario_metadata["interval_metadata_source"] = prediction_payload[
+                "interval_metadata_source"
+            ]
+        confidence_level = prediction_payload.get("confidence_level", plan.confidence_level)
 
         scenario = self._evaluator.evaluate(
             scenario_id=plan.plan_id,
@@ -144,19 +160,11 @@ class BacktestOrchestrator:
             y_pred=y_pred,
             y_true=plan.ground_truth_outcomes,
             intervals=intervals,
-            confidence_level=plan.confidence_level,
+            confidence_level=confidence_level,
             jurisdiction=plan.jurisdiction,
             intervention_date=plan.intervention_date,
             data_source=plan.historical_data_ref or plan.historical_data_path or "",
-            metadata={
-                **plan.metadata,
-                "prediction_source_requested": plan.prediction_source.value,
-                "prediction_source_effective": prediction_payload.get(
-                    "prediction_mode_effective",
-                    plan.prediction_source.value,
-                ),
-                "degraded": bool(prediction_payload.get("degraded", False)),
-            },
+            metadata=scenario_metadata,
         )
         return (
             scenario,
@@ -298,7 +306,9 @@ class BacktestOrchestrator:
             except Exception as exc:
                 warnings.append(f"failed to parse scientist metrics output: {exc}")
 
-        intervals = self._extract_intervals_from_simulation_result(artifacts, plan)
+        intervals, interval_metadata, interval_degraded_reasons = (
+            self._extract_intervals_from_simulation_result(artifacts, plan)
+        )
         if set(predictions) != set(plan.target_metrics):
             reason = "scientist_predictions_missing"
             warnings.append("scientist predictions missing; using naive fallback")
@@ -308,34 +318,39 @@ class BacktestOrchestrator:
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
             return naive
-        return {
+        result = {
             "predictions": predictions,
             "intervals": intervals,
-            "warnings": warnings,
+            "warnings": warnings + list(interval_degraded_reasons),
             "prediction_mode_effective": PredictionSource.SCIENTIST.value,
-            "degraded": False,
-            "degraded_reasons": [],
+            "degraded": bool(interval_degraded_reasons),
+            "degraded_reasons": list(interval_degraded_reasons),
         }
+        result.update(interval_metadata)
+        return result
 
     def _extract_intervals_from_simulation_result(
         self,
         artifacts: dict[str, Any],
         plan: HistoricalValidationPlan,
-    ) -> dict[str, list[tuple[float, float]]]:
+    ) -> tuple[dict[str, list[tuple[float, float]]], dict[str, Any], tuple[str, ...]]:
         sim_ref_payload = artifacts.get("simulation_result_ref")
         if not isinstance(sim_ref_payload, dict) or not sim_ref_payload.get("artifact_id"):
-            return {}
+            return {}, {}, ()
 
         try:
             sim_id = ArtifactID.model_validate(sim_ref_payload["artifact_id"])
             sim_payload = from_canonical_bytes(self._store.get_bytes(sim_id))
         except Exception:
-            return {}
+            return {}, {}, ()
         envelopes = sim_payload.get("uncertainty_envelopes")
         if not isinstance(envelopes, dict):
-            return {}
+            return {}, {}, ()
 
         intervals: dict[str, list[tuple[float, float]]] = {}
+        envelope_metadata: list[tuple[float | None, str | None]] = []
+        legacy_metadata_seen = False
+        metadata_errors: list[str] = []
         for metric in plan.target_metrics:
             ref_payload = envelopes.get(metric)
             if not isinstance(ref_payload, dict) or not ref_payload.get("artifact_id"):
@@ -343,6 +358,13 @@ class BacktestOrchestrator:
             try:
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
                 env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
+                metadata_declared, confidence_level, interval_type = (
+                    self._resolve_persisted_interval_metadata(env_payload)
+                )
+                if metadata_declared:
+                    envelope_metadata.append((confidence_level, interval_type))
+                else:
+                    legacy_metadata_seen = True
                 horizon = len(plan.ground_truth_outcomes.get(metric, []))
                 ci = env_payload.get("confidence_intervals", env_payload.get("confidence_interval"))
                 if isinstance(ci, (list, tuple)) and ci and isinstance(ci[0], (list, tuple)):
@@ -364,8 +386,51 @@ class BacktestOrchestrator:
                     if parsed_interval is not None:
                         intervals[metric] = [parsed_interval] * horizon
             except (TypeError, ValueError, KeyError):
+                if isinstance(ref_payload, dict) and ref_payload.get("artifact_id"):
+                    metadata_errors.append("uncertainty_envelope_metadata_invalid")
                 continue
-        return intervals
+        if metadata_errors:
+            intervals = {}
+        if envelope_metadata and legacy_metadata_seen:
+            metadata_errors.append("uncertainty_envelope_metadata_incomplete")
+        if len(set(envelope_metadata)) > 1:
+            metadata_errors.append("uncertainty_envelope_metadata_incompatible")
+
+        interval_metadata: dict[str, Any] = {}
+        if envelope_metadata and not metadata_errors:
+            confidence_level, interval_type = envelope_metadata[0]
+            interval_metadata = {
+                "confidence_level": confidence_level,
+                "interval_type": interval_type,
+                "interval_metadata_source": "persisted_envelope",
+            }
+        elif legacy_metadata_seen and not envelope_metadata:
+            # Legacy CAS envelopes predate persisted interval identity. Keep
+            # the plan's configured level (the package default is 0.95), but
+            # expose that the evaluator could not verify it from the envelope.
+            interval_metadata["interval_metadata_source"] = "legacy_plan_default"
+        return intervals, interval_metadata, tuple(dict.fromkeys(metadata_errors))
+
+    @staticmethod
+    def _resolve_persisted_interval_metadata(
+        payload: Mapping[str, Any],
+    ) -> tuple[bool, float | None, str | None]:
+        """Read persisted interval identity without substituting the plan contract."""
+        metadata_keys = {"confidence_level", "interval_semantics", "interval_type"}
+        if not metadata_keys.intersection(payload):
+            return False, None, None
+
+        confidence_level: float | None = None
+        if "confidence_level" in payload and payload["confidence_level"] is not None:
+            confidence_level = float(payload["confidence_level"])
+            if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
+                raise ValueError("uncertainty_envelope_confidence_level_invalid")
+
+        raw_interval_type = payload.get("interval_semantics", payload.get("interval_type"))
+        interval_type = None if raw_interval_type is None else str(raw_interval_type)
+        if interval_type is not None and not interval_type:
+            raise ValueError("uncertainty_envelope_interval_semantics_invalid")
+        return True, confidence_level, interval_type
 
     def _is_constant_forecast(
         self,

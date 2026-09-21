@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
 
-from polisyos.berl.adapters.protocol import ExplanationContext, RawExplanation, ScalarModel
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.berl.adapters.protocol import ExplanationContext, RawExplanation, ScalarModel
 
 
 @dataclass(frozen=True, slots=True)

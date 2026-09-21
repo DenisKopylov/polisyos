@@ -154,6 +154,24 @@ def test_legacy_decimal_budget_strings_reject_non_finite_values(
         deserialize_state(payload)
 
 
+@pytest.mark.parametrize("raw_value", ("NaN", "Infinity"))
+def test_legacy_outcome_budget_strings_reject_non_finite_values(
+    _wire_backend: str, raw_value: str
+) -> None:
+    payload = json.dumps(
+        {
+            "status": "ok",
+            "state": {
+                "run_id": "wire-01-legacy-outcome-non-finite",
+                "budgets": {"compute": raw_value},
+            },
+        }
+    ).encode()
+
+    with pytest.raises(DeserializationError, match="Non-finite Decimal budget"):
+        deserialize_outcome(payload)
+
+
 @pytest.mark.parametrize("value", (float("nan"), float("inf"), float("-inf")))
 @pytest.mark.parametrize("wire_kind", ("plain", "safe", "outcome"))
 def test_nested_non_finite_values_are_rejected(

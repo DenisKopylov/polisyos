@@ -352,12 +352,40 @@ def _decode_wire_value(value: Any, *, depth: int = 0) -> Any:
     raise DeserializationError(f"Unsupported decoded wire value: {type(value).__name__}")
 
 
-def _validate_state_finite_decimals(state: Any) -> Any:
-    """Reject non-finite Decimal values admitted by legacy JSON strings."""
-    for name, budget in state.budgets.items():
-        if not isinstance(budget, Decimal) or not budget.is_finite():
+def _validate_state_budget_payload(payload: Mapping[str, Any]) -> None:
+    """Reject non-finite legacy budget strings before Pydantic coercion."""
+    budgets = payload.get("budgets")
+    if not isinstance(budgets, Mapping):
+        return
+    for name, budget in budgets.items():
+        if isinstance(budget, str):
+            try:
+                budget = Decimal(budget)
+            except (InvalidOperation, ValueError):
+                continue
+        if isinstance(budget, Decimal) and not budget.is_finite():
             raise DeserializationError(f"Non-finite Decimal budget is not supported: {name}")
-    return state
+
+
+def _validate_decoded_state(value: Any) -> Any:
+    """Validate every decoded state payload, including states inside outcomes."""
+    if isinstance(value, Mapping):
+        if "run_id" in value and "budgets" in value:
+            _validate_state_budget_payload(value)
+        nested_state = value.get("state")
+        if nested_state is not None:
+            _validate_decoded_state(nested_state)
+        return value
+
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    if isinstance(value, ExperimentState):
+        for name, budget in value.budgets.items():
+            if not budget.is_finite():
+                raise DeserializationError(
+                    f"Non-finite Decimal budget is not supported: {name}"
+                )
+    return value
 
 
 # ---------------------------------------------------------------------------
@@ -425,9 +453,8 @@ def deserialize_state(data: bytes) -> Any:
         # Detect version-1 payload
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        return _validate_state_finite_decimals(
-            ExperimentState.model_validate(_decode_wire_value(_loads(data)))
-        )
+        decoded = _validate_decoded_state(_decode_wire_value(_loads(data)))
+        return ExperimentState.model_validate(decoded)
     except DeserializationError:
         raise
     except _SERIALIZATION_ERRORS as exc:
@@ -447,7 +474,8 @@ def deserialize_outcome(data: bytes) -> Any:
         data = _coerce_wire_bytes(data)
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        return decode_node_outcome(_decode_wire_value(_loads(data)))
+        decoded = _validate_decoded_state(_decode_wire_value(_loads(data)))
+        return decode_node_outcome(decoded)
     except DeserializationError:
         raise
     except _SERIALIZATION_ERRORS as exc:
@@ -485,9 +513,8 @@ def deserialize_state_safe(data: bytes) -> Any:
 
     json_bytes = _unwrap_safe(data)
     try:
-        return _validate_state_finite_decimals(
-            ExperimentState.model_validate(_decode_wire_value(_loads(json_bytes)))
-        )
+        decoded = _validate_decoded_state(_decode_wire_value(_loads(json_bytes)))
+        return ExperimentState.model_validate(decoded)
     except _SERIALIZATION_ERRORS as exc:
         raise DeserializationError(f"Failed to deserialize state: {exc}") from exc
 

@@ -285,7 +285,7 @@ def test_parallel_tier_supports_async_only_legacy_checkpoint_hook() -> None:
 
     assert result.report.status == "ok"
     assert [call["alias"] for call in hook.node_calls] == ["left", "right"]
-    assert [call["completed_nodes"] for call in hook.node_calls] == [["left"], ["right"]]
+    assert [call["completed_nodes"] for call in hook.node_calls] == [["left"], ["left", "right"]]
     assert [call["cache_entry_ref"] for call in hook.node_calls] == [_ref("7"), _ref("8")]
     checkpoint_entries = [
         entry for entry in audit.entries if entry["action"] == "CHECKPOINT_CREATED"

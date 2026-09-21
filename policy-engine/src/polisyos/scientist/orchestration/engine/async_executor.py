@@ -1162,12 +1162,14 @@ class AsyncWorkflowExecutor:
             return state
 
         # Legacy node-level hooks retain the former per-success callback contract.
+        legacy_completed = list(completed_nodes_before_tier)
         for successful_alias in aliases:
+            legacy_completed.append(successful_alias)
             state = await self._handle_checkpoint(
                 state,
                 successful_alias,
                 node_ids[successful_alias],
-                [*completed_nodes_before_tier, successful_alias],
+                list(legacy_completed),
                 workflow,
                 workflow_fingerprint,
                 cache_entry_ref=cache_entry_refs_by_alias.get(successful_alias),

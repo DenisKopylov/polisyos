@@ -46,16 +46,16 @@ cover the dashboard's full control-plane surface.
 
 ## Common Commands
 
-- `pnpm --filter @polisyos/runtime-reference-shell run lint`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run lint`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run format:check`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run format:check`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run typecheck`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run typecheck`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run check:architecture`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run check:architecture`
   `smoke-tested 2026-04-23`
 
 - `cd apps/runtime-reference-shell && python3 -m http.server 4173`
@@ -67,16 +67,16 @@ cover the dashboard's full control-plane surface.
 
 ## Test And Verification
 
-- `pnpm --filter @polisyos/runtime-reference-shell run lint`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run lint`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run format:check`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run format:check`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run typecheck`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run typecheck`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-reference-shell run check:architecture`
+- `corepack pnpm --filter @polisyos/runtime-reference-shell run check:architecture`
   `smoke-tested 2026-04-23`
 
 - `curl -I http://127.0.0.1:4173/index.html`

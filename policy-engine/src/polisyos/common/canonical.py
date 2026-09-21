@@ -91,7 +91,7 @@ def _canonicalize_mapping(
 ) -> dict[str, Any]:
     if "_type" in obj:
         kind = obj.get("_type")
-        if kind not in canonical_types:
+        if not isinstance(kind, str) or kind not in canonical_types:
             _raise_violation(violation_type, f"Unknown canonical _type: {kind!r}")
 
     out: dict[str, Any] = {}
@@ -260,7 +260,7 @@ def from_canonical_obj(
     if isinstance(obj, Mapping):
         if "_type" in obj:
             kind = obj.get("_type")
-            if kind not in canonical_types:
+            if not isinstance(kind, str) or kind not in canonical_types:
                 _raise_violation(violation_type, f"Unknown canonical _type: {kind!r}")
             if kind == "datetime":
                 return _parse_datetime(obj["iso_utc"])

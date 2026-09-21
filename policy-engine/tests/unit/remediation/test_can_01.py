@@ -50,6 +50,11 @@ _CORE_EXTRA_TAGS = [
     ),
 ]
 
+_NON_STRING_TYPE_TAGS = [
+    {"_type": [], "value": "list-tag"},
+    {"_type": {}, "value": "object-tag"},
+]
+
 
 @pytest.mark.parametrize(
     "module",
@@ -98,6 +103,46 @@ def test_malformed_unknown_tag_and_depth_errors_keep_canon_boundary(module: Modu
         module.to_canonical_bytes({"outer": {"inner": 1}}, module.CanonSpec(max_depth=1))
     with pytest.raises(module.CanonViolation, match="max_depth=1"):
         module.from_canonical_bytes(b'{"outer":{"inner":1}}', max_depth=1)
+
+
+@pytest.mark.parametrize(
+    ("module", "expected_fqn"),
+    [
+        pytest.param(
+            core_canon,
+            "polisyos.core.canon.canon_json.CanonViolation",
+            id="core",
+        ),
+        pytest.param(
+            ir_canon,
+            "polisyos.ir.model_layer.canon.CanonViolation",
+            id="ir",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "payload",
+    _NON_STRING_TYPE_TAGS,
+    ids=("list-type", "object-type"),
+)
+def test_non_string_type_tags_keep_facade_exception_identity(
+    module: ModuleType,
+    expected_fqn: str,
+    payload: dict[str, object],
+) -> None:
+    """Malformed tag kinds fail with the owning facade's exact exception."""
+
+    with pytest.raises(module.CanonViolation, match="Unknown canonical _type") as encode_error:
+        module.to_canonical_bytes(payload)
+    with pytest.raises(module.CanonViolation, match="Unknown canonical _type") as object_error:
+        module.from_canonical_obj(payload)
+    with pytest.raises(module.CanonViolation, match="Unknown canonical _type") as bytes_error:
+        module.from_canonical_bytes(json.dumps(payload).encode("utf-8"))
+
+    for error in (encode_error, object_error, bytes_error):
+        assert type(error.value) is module.CanonViolation
+        observed_fqn = f"{type(error.value).__module__}.{type(error.value).__qualname__}"
+        assert observed_fqn == expected_fqn
 
 
 @pytest.mark.parametrize(("payload", "expected"), _CORE_EXTRA_TAGS)

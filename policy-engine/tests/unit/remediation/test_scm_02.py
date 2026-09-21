@@ -40,6 +40,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     persist_structural_causal_model_spec,
 )
+from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -568,6 +569,178 @@ def test_raw_legacy_result_rejects_self_attested_provenance_without_cas() -> Non
 
     with pytest.raises(ValueError, match="provenance|manifest"):
         CausalQueryResult.model_validate(legacy_payload)
+
+
+def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Path) -> None:
+    """Raw DTOs stay unbound while CAS reconciliation rejects v1.1 claims."""
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+    )
+    result = CausalQueryResult(
+        query=query,
+        result_mean=6.0,
+        result_std=0.0,
+        result_ci=(6.0, 6.0),
+    )
+    raw_legacy_payload = result.model_dump(mode="json")
+    raw_legacy_payload["schema_version"] = "1.0"
+    unbound = CausalQueryResult.model_validate(raw_legacy_payload)
+    assert unbound.schema_version == "1.1"
+    assert "source_schema_version" not in unbound.metadata
+
+    claimed_legacy_payload = dict(raw_legacy_payload)
+    claimed_legacy_payload["metadata"] = {
+        "source_schema_version": "1.0",
+        "source_schema_name": "plausible.but.unbound",
+    }
+    with pytest.raises(ValueError, match="provenance|manifest"):
+        CausalQueryResult.model_validate(claimed_legacy_payload)
+
+    store = FileSystemCAS(tmp_path / "cas")
+    v11_payload = result.model_dump(mode="json")
+    v11_payload["metadata"] = {
+        "source_schema_version": "9.9",
+        "source_schema_name": "attacker.claimed.schema",
+    }
+    v11_ref = store.put_json(
+        v11_payload,
+        PutOptions(
+            kind="ir.causal_query_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.causal_query_result", version="1.1"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    typed_v11_ref = CausalQueryResultRef.model_validate(v11_ref.model_dump(mode="json"))
+    with pytest.raises(ValueError, match="provenance|manifest"):
+        load_causal_query_result(store, typed_v11_ref)
+
+
+def test_causal_query_producer_reconciles_envelope_with_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persisted envelope arms/status are derived from the typed result, not output text."""
+    ctx = _build_execution_context(tmp_path, run_id="R_scm02_envelope_reconcile")
+    scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+
+    def _fake_run_job(*args: object, **kwargs: object) -> JobResult:
+        del args
+        method_state = kwargs["method_state"]
+        query = method_state.query
+        result = CausalQueryResult(
+            query=query,
+            result_mean=6.0,
+            result_std=0.0,
+            result_ci=(6.0, 6.0),
+            result_distribution=[6.0],
+        )
+        mismatched_envelope = result.to_uncertainty_envelope().model_dump(mode="json")
+        mismatched_envelope["gate_eligible"] = False
+        mismatched_envelope["metadata"]["contrast_comparator"] = {
+            "kind": "interventional",
+            "intervention": {"type": "atomic", "value": 0.0},
+        }
+        return JobResult(
+            job_key=JobKey(value="job:test:scm02-envelope-reconcile"),
+            final_state={
+                "query_result": result.model_dump(mode="json"),
+                "envelope": mismatched_envelope,
+            },
+            issues=[],
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.ensure_causal_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.run_causal_queries.run_job",
+        _fake_run_job,
+    )
+
+    state = ExperimentState(
+        run_id="R_scm02_envelope_reconcile",
+        params={
+            "causal_query": {
+                "query_type": "attribution",
+                "treatment_variable": "X",
+                "treatment_value": 2.0,
+                "outcome_variable": "Y",
+                "contrast": {
+                    "target": {"type": "atomic", "value": 2.0},
+                    "comparator": {"kind": "observational"},
+                },
+                "n_samples": 64,
+            },
+            "structural_causal_model_ref": scm_ref.model_dump(mode="json"),
+        },
+    )
+
+    outcome = RunCausalQueriesNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    envelope_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF]
+    persisted = load_uncertainty_envelope(ctx.store, envelope_ref)
+    assert persisted.gate_eligible is True
+    assert persisted.metadata["contrast_comparator"]["kind"] == "observational"
+
+
+def test_attribution_comparator_is_typed_and_legacy_atomic_value_is_preserved() -> None:
+    """Comparator omissions fail closed while legacy target mapping remains compatible."""
+    base_payload = {
+        "query_type": "attribution",
+        "treatment_variable": "X",
+        "treatment_value": 2.0,
+        "outcome_variable": "Y",
+        "contrast": {
+            "target": {"type": "atomic", "value": 2.0},
+        },
+    }
+    with pytest.raises(ValueError, match="value is required"):
+        CausalQuery.model_validate(
+            {
+                **base_payload,
+                "contrast": {
+                    **base_payload["contrast"],
+                    "comparator": {
+                        "kind": "interventional",
+                        "intervention": {"type": "atomic"},
+                    },
+                },
+            }
+        )
+    with pytest.raises(ValueError, match="distribution is required"):
+        CausalQuery.model_validate(
+            {
+                **base_payload,
+                "contrast": {
+                    **base_payload["contrast"],
+                    "comparator": {
+                        "kind": "interventional",
+                        "intervention": {"type": "stochastic"},
+                    },
+                },
+            }
+        )
+
+    legacy = CausalQuery.model_validate(
+        {
+            "query_type": "attribution",
+            "treatment_variable": "X",
+            "treatment_value": 2.0,
+            "outcome_variable": "Y",
+            "intervention_spec": {"type": "atomic"},
+        }
+    )
+    assert legacy.intervention_spec is not None
+    assert legacy.intervention_spec.value == pytest.approx(2.0)
+    assert legacy.contrast is not None
+    assert legacy.contrast.target.value == pytest.approx(2.0)
+    assert legacy.contrast.comparator.kind == "observational"
 
 
 def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(

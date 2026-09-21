@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Callable, Mapping, Sequence
-from contextlib import nullcontext
+from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
@@ -384,6 +384,31 @@ def _inspect_bundle_fidelity(bundle: StaticBundle) -> dict[str, Any]:
         "avg_temperature": avg_temperature,
         "temperature_samples": temperatures,
     }
+
+
+def _calibration_span_context(
+    tracer: Any | None,
+    attributes: Mapping[str, Any],
+    *,
+    start_index: int,
+) -> AbstractContextManager[Any]:
+    """Create the observability context for one optimization start.
+
+    OpenTelemetry context managers are commonly single-entry objects.  The
+    multi-start loop therefore calls this factory for every start instead of
+    retaining one context manager and entering it repeatedly.  The no-op path
+    follows the same factory contract so telemetry configuration does not
+    alter restart semantics.
+    """
+    if tracer is None:
+        return nullcontext()
+    return tracer.start_as_current_span(
+        "calibration.run",
+        attributes={
+            **attributes,
+            "calibration.start_index": start_index,
+        },
+    )
 
 
 class Calibrator:
@@ -777,19 +802,12 @@ class Calibrator:
             enabled=hpc_enabled,
         )
         tracer = get_tracer() if hpc_enabled else None
-        span_cm = (
-            tracer.start_as_current_span(
-                "calibration.run",
-                attributes={
-                    "calibration.optimizer": optimizer_name,
-                    "calibration.max_steps": cfg.max_steps,
-                    "calibration.learning_rate": cfg.learning_rate,
-                    "calibration.early_stop_patience": cfg.early_stop_patience,
-                },
-            )
-            if tracer is not None
-            else nullcontext()
-        )
+        span_attributes = {
+            "calibration.optimizer": optimizer_name,
+            "calibration.max_steps": cfg.max_steps,
+            "calibration.learning_rate": cfg.learning_rate,
+            "calibration.early_stop_patience": cfg.early_stop_patience,
+        }
 
         def _expand_group_values(values: Sequence[jnp.ndarray]) -> list[Any]:
             expanded = list(base_values)
@@ -1146,7 +1164,11 @@ class Calibrator:
             early_stop_triggered = False
             grad_failure = False
 
-            with span_cm as span:
+            with _calibration_span_context(
+                tracer,
+                span_attributes,
+                start_index=_start_idx,
+            ) as span:
                 for step in range(cfg.max_steps):
                     step_idx = jnp.array(step, dtype=jnp.int32)
                     step_start = time.perf_counter() if hpc_enabled else None

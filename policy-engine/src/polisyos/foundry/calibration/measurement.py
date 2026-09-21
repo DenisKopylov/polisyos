@@ -203,6 +203,63 @@ def _target_id(record: ObservationRecord) -> str:
     )
 
 
+_SOURCE_CONFIDENCE_PRIORITY = {
+    "exploratory": 0,
+    "validated": 1,
+    "core": 2,
+}
+
+
+def _observation_selection_key(record: ObservationRecord) -> tuple[object, ...]:
+    """Rank duplicate observations without using technical lineage IDs.
+
+    Authority and quality signals precede source identity.  The source
+    identity fields are content-based deterministic tie-breakers; an
+    ``observation_id`` is deliberately not part of this key.
+    """
+    return (
+        _SOURCE_CONFIDENCE_PRIORITY[record.source_confidence_tier.value],
+        int(not record.measurement_bias_flag),
+        int(not record.censoring_mask),
+        int(not record.shock_mask),
+        float(record.coverage_estimate),
+        float(record.trust_weight),
+        -int(record.lag_days_estimate),
+        record.source_id,
+        record.source_version,
+        record.unit,
+        record.schema_regime_id,
+        record.regime_id,
+    )
+
+
+def _select_observation_for_period(
+    records: Sequence[ObservationRecord],
+    *,
+    target_id: str,
+    period_start: date,
+) -> ObservationRecord:
+    """Choose one duplicate by declared authority/content, or fail closed."""
+    ranked = sorted(records, key=_observation_selection_key, reverse=True)
+    winner = ranked[0]
+    winner_key = _observation_selection_key(winner)
+    tied = [
+        record for record in ranked if _observation_selection_key(record) == winner_key
+    ]
+    if len(tied) > 1:
+        winner_payload = winner.model_dump(exclude={"observation_id"})
+        if any(
+            record.model_dump(exclude={"observation_id"}) != winner_payload
+            for record in tied[1:]
+        ):
+            raise ValueError(
+                "Ambiguous observations for target "
+                f"'{target_id}' at period '{period_start.isoformat()}': "
+                "authority/content tie requires explicit aggregation"
+            )
+    return winner
+
+
 class CalibrationTargetBundleCompiler:
     """Compile observation panels into Foundry calibration target bundles."""
 
@@ -224,15 +281,12 @@ class CalibrationTargetBundleCompiler:
 
     def compile(self, panel: ObservationPanel) -> CalibrationTargetBundle:
         """Materialize one aligned JAX-backed target bundle from an IR panel."""
-        sorted_records = sorted(
-            panel.records, key=lambda item: (item.period_start, item.observation_id)
-        )
-        full_axis = tuple(sorted({record.period_start for record in sorted_records}))
+        full_axis = tuple(sorted({record.period_start for record in panel.records}))
         axis_index = {value: idx for idx, value in enumerate(full_axis)}
         grouped: dict[str, list[ObservationRecord]] = defaultdict(list)
         split_plan = self._splitter.plan_for_panel(panel)
 
-        for record in sorted_records:
+        for record in panel.records:
             grouped[_target_id(record)].append(record)
 
         targets: list[MeasurementAwareTarget] = []
@@ -250,7 +304,18 @@ class CalibrationTargetBundleCompiler:
         time_grain: dict[str, TimeFrequency] = {}
 
         for target_id, records in grouped.items():
-            first = records[0]
+            records_by_period: dict[date, list[ObservationRecord]] = defaultdict(list)
+            for record in records:
+                records_by_period[record.period_start].append(record)
+            selected_records = tuple(
+                _select_observation_for_period(
+                    period_records,
+                    target_id=target_id,
+                    period_start=period_start,
+                )
+                for period_start, period_records in sorted(records_by_period.items())
+            )
+            first = selected_records[0]
             values = [0.0] * len(full_axis)
             trust = [0.0] * len(full_axis)
             coverage = [0.0] * len(full_axis)
@@ -264,7 +329,7 @@ class CalibrationTargetBundleCompiler:
             split_labels = [split_plan.label_for_period(point, point).value for point in full_axis]
             routed_modes = [first.identification_mode] * len(full_axis)
 
-            for record in records:
+            for record in selected_records:
                 idx = axis_index[record.period_start]
                 route = self._identification_router.route_record(record)
                 values[idx] = float(record.observed_value)

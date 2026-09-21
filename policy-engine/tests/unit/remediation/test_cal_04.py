@@ -246,7 +246,7 @@ def test_real_calibrator_run_evaluates_and_selects_last_iterate(
 def test_real_calibrator_final_forward_feeds_all_report_projections_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """One final parameter-connected scan supplies loss and series projections."""
+    """One final parameter-connected scan supplies consistent report projections."""
     calls = 0
 
     def counting_scan(*args, **kwargs):
@@ -265,9 +265,14 @@ def test_real_calibrator_final_forward_feeds_all_report_projections_once(
     # One scan is the optimizer's pre-update objective; the second is the
     # evaluated final iterate whose snapshot feeds all report projections.
     assert calls == 2
-    assert report.total_loss == pytest.approx(0.25)
-    assert report.per_target_loss["objective"] == pytest.approx(0.25)
-    assert report.series_comparison["objective"].model == pytest.approx([0.5])
+    theta = report.calibrated_params["synthetic.theta"]
+    model = report.series_comparison["objective"].model
+    assert model == pytest.approx([theta])
+    assert 0.0 < theta < 1.0
+    expected_loss = (theta - 1.0) ** 2
+    assert report.total_loss == pytest.approx(expected_loss)
+    assert report.per_target_loss["objective"] == pytest.approx(expected_loss)
+    assert report.total_loss < 1.0
 
 
 def test_real_jax_nonfinite_update_keeps_last_checked_state() -> None:

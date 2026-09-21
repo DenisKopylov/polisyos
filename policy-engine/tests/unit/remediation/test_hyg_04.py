@@ -12,7 +12,6 @@ import ast
 import builtins
 import json
 import os
-import re
 import runpy
 import subprocess
 import sys
@@ -528,16 +527,11 @@ def test_hyg04_shim_registry_resolves_live_source_and_target_paths() -> None:
         assert (REPO_ROOT / target_path).is_file()
 
 
-def test_frontend_redirect_reaches_live_workspaces_and_protected_surfaces() -> None:
-    """Redirect links resolve while real app/package and benchmark roots remain."""
+def test_frontend_redirect_stub_is_retired_without_touching_live_workspaces() -> None:
+    """The legacy handoff is absent while canonical roots remain protected."""
 
     readme = REPO_ROOT / "frontend/README.md"
-    links = re.findall(r"\]\(([^)]+)\)", readme.read_text(encoding="utf-8"))
-    relative_links = [link for link in links if not re.match(r"^[a-z]+://", link)]
-
-    assert relative_links
-    for link in relative_links:
-        assert (readme.parent / link).resolve().exists(), link
+    assert not readme.exists()
 
     findings = [
         finding

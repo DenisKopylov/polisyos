@@ -60,6 +60,7 @@ def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) ->
         input_fingerprint=_stage_input_fingerprint(config, "embed"),
         outputs=[config.index_dir / "embedding_generation.json"],
     )
+    assert _should_skip_stage(config, "embed")
 
     selector = json.loads(
         (config.index_dir / "embedding_generation.json").read_text(encoding="utf-8")

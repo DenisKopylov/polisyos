@@ -90,12 +90,14 @@ def test_same_scope_refinement_is_current_while_history_keeps_unknown_risk() -> 
     historical_unknown = UncertaintyEnvelope.unknown(source="deterministic gate")
     refined = _envelope(statistical=0.1, model=0.8)
 
-    outcome = FunnelOrchestrator(
+    orchestrator = FunnelOrchestrator(
         [
             _stage(0, _stage_result(0, historical_unknown)),
             _stage(4, _stage_result(4, refined)),
         ]
-    ).evaluate({"candidate_id": "fun-03"}, {"domain": "same-scope"})
+    )
+    ticket = orchestrator.submit({"candidate_id": "fun-03"}, {"domain": "same-scope"})
+    outcome = orchestrator.advance(ticket, policy="full")
 
     assert outcome.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL].level == 1.0
     current = outcome.final_result
@@ -279,8 +281,15 @@ def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch
     candidate_ref = _artifact_ref("a")
     evidence_ref = _artifact_ref("b")
     state = ExperimentState(run_id="fun-03-owner-run")
-    bundle = MagicMock()
-    bundle.candidate_ref = candidate_ref
+    class _EvidenceBundle:
+        def __init__(self, bound_candidate_ref: ArtifactRef) -> None:
+            self.candidate_ref = bound_candidate_ref
+            self.compatible_runs: list[str] = []
+
+        def assert_compatible_with_run(self, run_id: str) -> None:
+            self.compatible_runs.append(run_id)
+
+    bundle = _EvidenceBundle(candidate_ref)
     monkeypatch.setattr(runtime, "load_promotion_evidence_bundle", lambda _store, _ref: bundle)
     context = {
         "funnel_degradation_mode": "normal",
@@ -302,7 +311,7 @@ def test_production_owner_recheck_requires_explicit_write_permission(monkeypatch
         candidate_ref,
         {**context, "promotion_write_allowed": True},
     ) is True
-    bundle.assert_compatible_with_run.assert_called_once_with(state.run_id)
+    assert bundle.compatible_runs == [state.run_id]
 
 
 def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker() -> None:
@@ -312,9 +321,10 @@ def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker()
         calls.append("runner")
         return {"decision": "complete"}
 
-    outcome = FunnelOrchestrator(
+    orchestrator = FunnelOrchestrator(
         [Level6PromotionStage(promotion_runner=runner)]
-    ).evaluate(
+    )
+    ticket = orchestrator.submit(
         {"candidate_id": "fun-03"},
         {
             "funnel_degradation_mode": "no_promotion",
@@ -325,6 +335,7 @@ def test_orchestrator_honors_persisted_no_promotion_projection_without_tracker()
             },
         },
     )
+    outcome = orchestrator.advance(ticket, policy="full")
 
     assert calls == []
     assert outcome.degradation_mode == "no_promotion"

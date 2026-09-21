@@ -12,20 +12,16 @@ from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.lex import NormImpactAnalyzer as RootNormImpactAnalyzer
 from polisyos.lex.simulator import NormImpactAnalyzer as SimulatorNormImpactAnalyzer
 from polisyos.lex.simulator.cli import render_impact_markdown
-from polisyos.lex.simulator.diff import (
-    FieldDelta as SimulatorFieldDelta,
-    NormChange as SimulatorNormChange,
-    NormChangeType as SimulatorNormChangeType,
-    NormDiff as SimulatorNormDiff,
-    diff_norm_packs as simulator_diff_norm_packs,
-)
+from polisyos.lex.simulator.diff import FieldDelta as SimulatorFieldDelta
+from polisyos.lex.simulator.diff import NormChange as SimulatorNormChange
+from polisyos.lex.simulator.diff import NormChangeType as SimulatorNormChangeType
+from polisyos.lex.simulator.diff import NormDiff as SimulatorNormDiff
+from polisyos.lex.simulator.diff import diff_norm_packs as simulator_diff_norm_packs
 from polisyos.lex.simulator.engine import NormImpactAnalyzer as SimulatorEngineNormImpactAnalyzer
-from polisyos.lex.simulator.report import (
-    AffectedKPI as SimulatorAffectedKPI,
-    ComplianceDelta as SimulatorComplianceDelta,
-    ComplianceTransition as SimulatorComplianceTransition,
-    NormImpactReport as SimulatorNormImpactReport,
-)
+from polisyos.lex.simulator.report import AffectedKPI as SimulatorAffectedKPI
+from polisyos.lex.simulator.report import ComplianceDelta as SimulatorComplianceDelta
+from polisyos.lex.simulator.report import ComplianceTransition as SimulatorComplianceTransition
+from polisyos.lex.simulator.report import NormImpactReport as SimulatorNormImpactReport
 from polisyos.runtime.quality.authority import authority_surface_decision
 
 

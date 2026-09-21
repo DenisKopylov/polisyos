@@ -370,7 +370,22 @@ def _checked_interaction_orders(
         if trajectory.run_level == "joint" and len(trajectory.atom_ids) >= 3
     ]
     if not joints:
-        return (1,) if individuals else ()
+        checked: list[int] = [1] if individuals else []
+        pairwise_atoms = tuple(
+            sorted({atom_id for pair in pairwise for atom_id in pair})
+        )
+        complete_pairwise = (
+            len(pairwise_atoms) >= 2
+            and set(pairwise_atoms).issubset(individuals)
+            and {
+                tuple(sorted(pair))
+                for pair in pairwise
+            }
+            == set(itertools.combinations(pairwise_atoms, 2))
+        )
+        if complete_pairwise:
+            checked.append(2)
+        return tuple(checked)
     joint = max(joints, key=lambda trajectory: len(trajectory.atom_ids))
     atom_ids = tuple(joint.atom_ids)
     checked: list[int] = [1] if set(atom_ids).issubset(individuals) else []
@@ -387,6 +402,16 @@ def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
     return tuple(int(request.seed) + index for index in range(int(request.replications)))
 
 
+def _effective_evidence_state(
+    request: JointSimulationRequest,
+) -> tuple[dict[str, float], Literal["explicit_evidence_state", "legacy_baseline_state_compat"]]:
+    """Resolve the exact NCM input and preserve whether compatibility fallback applied."""
+
+    if request.evidence_state is None:
+        return request.baseline_state, "legacy_baseline_state_compat"
+    return request.evidence_state, "explicit_evidence_state"
+
+
 def _physical_run_ref(
     request: JointSimulationRequest,
     plan: EnginePlan,
@@ -395,6 +420,7 @@ def _physical_run_ref(
 ) -> str:
     """Content-bind the physical run specification used by role reuse."""
 
+    evidence_state, evidence_source = _effective_evidence_state(request)
     runtime_refs = {
         name: str(getattr(plan, name))
         for name in ("program_graph_ref", "exec_plan_ref", "program_base_ref")
@@ -411,7 +437,8 @@ def _physical_run_ref(
         "seed": int(request.seed),
         "replications": int(request.replications),
         "replication_seeds": list(_replication_seeds(request)),
-        "evidence_state": _json_ready(request.evidence_state),
+        "evidence_state": _json_ready(evidence_state),
+        "evidence_source": evidence_source,
         "plan": plan.model_dump(mode="json"),
         "runtime_refs": runtime_refs,
         "atoms": [
@@ -1331,11 +1358,7 @@ class JointSimulationHorizonController:
             replication_seed: int,
         ) -> SimulationTrajectory:
             intervention = _ncm_intervention(subset, plan)
-            evidence_state = (
-                request.baseline_state
-                if request.evidence_state is None
-                else request.evidence_state
-            )
+            evidence_state, _ = _effective_evidence_state(request)
             evidence = {
                 _engine_variable(variable, plan): float(value)
                 for variable, value in evidence_state.items()

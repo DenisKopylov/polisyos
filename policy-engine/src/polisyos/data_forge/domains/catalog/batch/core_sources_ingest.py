@@ -1,17 +1,18 @@
-"""Stage 0b: ingest transportability sources into registry/alignment/observation tables.
+"""Compatibility facade for the canonical ``core_sources.api`` entrypoint.
 
-Compatibility facade for the implementation split under ``core_sources``.
+The implementation modules own their dependencies.  This module keeps an
+explicit, bounded set of historical bindings for callers and test seams; it
+does not copy facade globals into implementation modules.
 """
 
 from __future__ import annotations
 
 import inspect
+from contextlib import contextmanager
 from functools import wraps
 from types import ModuleType
-from typing import Any, Callable
+from typing import Any, Iterator
 
-from polisyos.common.async_tools import run_coro_sync
-from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CatalogTransportDataset,
     CoreSourcesIngestStats,
@@ -36,149 +37,148 @@ from polisyos.data_forge.domains.catalog.batch.core_sources import (
     writers as _writers,
 )
 
-logger = get_logger(__name__)
 
-_IMPLEMENTATION_MODULES: tuple[ModuleType, ...] = (
-    _writers,
-    _validators,
-    _loaders,
-    _registry,
-    _transformers,
-    _api,
+# Only names still used by the compatibility window are exported.  Every
+# entry names its owning leaf; no module-global census or broadcast is used.
+_BINDINGS: dict[str, tuple[ModuleType, str]] = {}
+for _module, _names in (
+    (_writers, """
+        _ConnectorSessionCache _capability_snapshot_cache_key _format_duckdb_memory_limit
+        _hydrate_support_sketch_dimension_orders _hydrate_work_package_dimension_orders
+        _infer_ilo_dimension_order _insert_generic_observations _legacy_ingest_observations
+        _support_sketch_id _upsert_legacy_registry_datasets _upsert_seed_alignments
+    """.split()),
+    (_validators, """
+        _append_shard_result _build_observation_shards _chunked_observation_requests
+        _load_observation_checkpoint_state _record_shard_result _split_shard_for_retry_async
+        _store_shard_result _year_windows
+    """.split()),
+    (_loaders, """
+        _bulk_country_values _existing_observation_ids _fetch_remote_bulk_rows
+        _filter_rows_by_series_constraints _iter_eurostat_bulk_records
+        _iter_ilo_bulk_records _iter_uis_bulk_records _load_wvs_bulk_rows
+        _merge_observation_stats _records_from_payload _seed_alignments_path _wvs_bulk_csv_path
+    """.split()),
+    (_registry, """
+        _build_catalog_alignments _build_catalog_observation_plans _build_support_sketches
+        _build_observation_shards_from_sketches _ensure_registry_tables
+        _limit_observation_plans _load_catalog_transport_datasets
+        _resolve_catalog_update_frequency _upsert_catalog_alignments
+    """.split()),
+    (_transformers, """
+        _as_float _as_int _canonicalize_observation_request_filters
+        _eurostat_filters_for_country _filters_to_tuple _normalize_observation_row
+        _observation_id _observation_payload_row_limit _rewrite_sdmx_requests_with_dimension_key
+        _shard_countries _to_iso3
+    """.split()),
+    (_api, """
+        _fetch_observation_rows
+        _ingest_catalog_observations _ingest_catalog_observations_parallel
+        _run_core_sources_ingest_async _resolve_profile_config _resolve_source_execution_policy
+        _TRANSPORT_SOURCES _OBSERVATION_INSERT_BATCH_SIZE _DEFAULT_OBSERVATION_YEAR_WINDOW
+    """.split()),
+):
+    _BINDINGS.update({name: (_module, name) for name in _names})
+
+# Selected imported names are part of the historical test seam as well.
+for _name in (
+    "asyncio",
+    "run_coro_sync",
+    "AsyncFetchLease",
+    "ConnectionConfig",
+    "DatasetCapabilitySnapshot",
+    "FetchRequest",
+    "SourceExecutionPolicy",
+):
+    _BINDINGS.setdefault(_name, (_api, _name))
+
+_COMPATIBILITY_CALLS = frozenset(
+    {
+        "_bulk_country_values",
+        "_fetch_observation_rows",
+        "_ingest_catalog_observations",
+        "_insert_generic_observations",
+        "_load_wvs_bulk_rows",
+        "_run_core_sources_ingest_async",
+        "_wvs_bulk_csv_path",
+    }
+)
+_LOCAL_NAMES = frozenset(
+    {"run_core_sources_ingest", "run_core_sources_ingest_async", "_sync_implementation_globals"}
 )
 
-# The translated leaf group is no longer a recipient of arbitrary facade
-# globals.  These are the existing compatibility seams that may still be
-# overridden by facade-level monkeypatches while each leaf resolves its
-# canonical owner when no override is present.
-__TARGET_LEAF_COMPATIBILITY_NAMES: dict[ModuleType, frozenset[str]] = {
-    _loaders: frozenset(
-        {
-            "_as_float",
-            "_as_int",
-            "_country_to_numeric",
-            "_execute_source_fetch",
-            "_extract_year",
-            "_filters_to_tuple",
-            "_load_json_dict",
-            "_normalize_country_code",
-            "_normalize_observation_row",
-            "_shard_countries",
-            "_to_iso3",
-            "_wvs_bulk_csv_path",
-        }
-    ),
-    _validators: frozenset(
-        {
-            "_build_observation_shards_from_sketches",
-            "_build_support_sketches",
-            "_canonicalize_observation_request_filters",
-            "_eurostat_filters_for_countries",
-            "_execute_source_fetch",
-            "_filters_to_tuple",
-            "_is_explicit_unsupported_error",
-            "_load_json_dict",
-            "_observation_frequency_rank",
-            "_planner_error_status_code",
-            "_policy_attr",
-            "_policy_bool_attr",
-            "_policy_int_attr",
-            "_records_from_payload",
-            "_resolve_source_execution_policy",
-            "_sdmx_filters_for_countries",
-            "_strip_geo_filters",
-            "_to_iso3",
-        }
-    ),
-    _writers: frozenset(
-        {
-            "_ensure_observation_index_compatibility",
-            "_ensure_observation_provenance_columns",
-            "_existing_observation_ids",
-            "_iter_chunked_values",
-            "_load_wvs_bulk_duckdb",
-            "_load_wvs_bulk_rows",
-            "_merge_observation_stats",
-            "_normalize_observation_row",
-            "_observation_id",
-            "_records_from_payload",
-            "_resolve_profile_config",
-            "_upsert_catalog_alignments",
-            "_wvs_legacy_indicators",
-        }
-    ),
-}
-_DELEGATES: dict[str, Callable[..., Any]] = {}
-_INTERNAL_NAMES = {
-    "Any",
-    "Callable",
-    "ModuleType",
-    "_DELEGATES",
-    "_IMPLEMENTATION_MODULES",
-    "_INTERNAL_NAMES",
-    "_make_delegate",
-    "_sync_implementation_globals",
-    "inspect",
-    "wraps",
-}
 
-
-def _sync_implementation_globals() -> None:
-    public_state = {
-        name: value
-        for name, value in globals().items()
-        if name not in _INTERNAL_NAMES and not name.startswith("__")
-    }
-    for module in _IMPLEMENTATION_MODULES:
-        allowed = __TARGET_LEAF_COMPATIBILITY_NAMES.get(module)
-        if allowed is None:
-            module.__dict__.update(public_state)
+@contextmanager
+def _temporary_compatibility_overrides() -> Iterator[None]:
+    """Apply only explicitly supported facade overrides for one call."""
+    applied: list[tuple[ModuleType, str, Any]] = []
+    for name, (module, owner_name) in _BINDINGS.items():
+        if name in _LOCAL_NAMES or name not in globals():
             continue
-        module.__dict__.update(
-            {name: public_state[name] for name in allowed if name in public_state}
-        )
+        replacement = globals()[name]
+        current = getattr(module, owner_name, None)
+        if replacement is current:
+            continue
+        applied.append((module, owner_name, current))
+        setattr(module, owner_name, replacement)
+    try:
+        yield
+    finally:
+        for module, owner_name, current in reversed(applied):
+            if current is None:
+                delattr(module, owner_name)
+            else:
+                setattr(module, owner_name, current)
 
 
-def _make_delegate(name: str, target: Callable[..., Any]) -> Callable[..., Any]:
+def _compatibility_delegate(name: str, target: Any) -> Any:
+    """Return a bounded delegate that scopes supported monkeypatch seams."""
+    if not callable(target):
+        return target
     if inspect.iscoroutinefunction(target):
 
         @wraps(target)
         async def _async_delegate(*args: Any, **kwargs: Any) -> Any:
-            _sync_implementation_globals()
-            return await target(*args, **kwargs)
+            with _temporary_compatibility_overrides():
+                return await target(*args, **kwargs)
 
-        _async_delegate.__module__ = __name__
         return _async_delegate
 
     @wraps(target)
     def _delegate(*args: Any, **kwargs: Any) -> Any:
-        _sync_implementation_globals()
-        return target(*args, **kwargs)
+        with _temporary_compatibility_overrides():
+            return target(*args, **kwargs)
 
-    _delegate.__module__ = __name__
     return _delegate
 
 
-for _module in _IMPLEMENTATION_MODULES:
-    for _name, _value in vars(_module).items():
-        if _name.startswith("__") or _name in _INTERNAL_NAMES:
-            continue
-        if inspect.isfunction(_value):
-            _DELEGATES[_name] = _value
-            globals()[_name] = _make_delegate(_name, _value)
-        else:
-            globals()[_name] = _value
+def __getattr__(name: str) -> Any:
+    """Resolve an explicit compatibility binding from its owning leaf."""
+    binding = _BINDINGS.get(name)
+    if binding is None:
+        raise AttributeError(name)
+    module, owner_name = binding
+    target = getattr(module, owner_name)
+    if name in _COMPATIBILITY_CALLS:
+        return _compatibility_delegate(name, target)
+    return target
 
 
-def run_core_sources_ingest(config: Any) -> CoreSourcesIngestStats:
-    """Run the core-source ingest stage from synchronous callers."""
-    return run_coro_sync(run_core_sources_ingest_async(config))
+def _sync_implementation_globals() -> None:
+    """Retained as a no-op compatibility hook; no globals are broadcast."""
 
 
 async def run_core_sources_ingest_async(config: Any) -> CoreSourcesIngestStats:
-    """Run the core-source ingest stage and publish its manifest."""
-    _sync_implementation_globals()
-    return await _DELEGATES["run_core_sources_ingest_async"](config)
+    """Run the canonical API while honoring bounded legacy test seams."""
+    with _temporary_compatibility_overrides():
+        return await _api.run_core_sources_ingest_async(config)
+
+
+def run_core_sources_ingest(config: Any) -> CoreSourcesIngestStats:
+    """Run the canonical API from synchronous callers."""
+    from polisyos.common.async_tools import run_coro_sync
+
+    return run_coro_sync(run_core_sources_ingest_async(config))
 
 
 __all__ = ["CoreSourcesIngestStats", "run_core_sources_ingest"]

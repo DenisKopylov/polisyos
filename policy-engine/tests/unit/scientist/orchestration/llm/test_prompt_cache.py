@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import time
 
 import pytest
@@ -36,14 +37,16 @@ def _frozen_snapshot_metadata(
     *,
     tenant: str = "tenant-a",
     scope: str = "policy-a",
-    content_hash: str = "sha256:" + "a" * 64,
+    content: bytes = b"frozen evidence bytes",
 ) -> dict[str, object]:
     """Return the explicit immutable-snapshot permission used by B67 tests."""
 
+    content_hash = "sha256:" + hashlib.sha256(content).hexdigest()
     return {
         "cache_reuse": {
             "snapshot": {
                 "ref": "artifact://evidence/policy-a",
+                "content": content,
                 "content_hash": content_hash,
                 "version": "snapshot-v1",
                 "immutable": True,

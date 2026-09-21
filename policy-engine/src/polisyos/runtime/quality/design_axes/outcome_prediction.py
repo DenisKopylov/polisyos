@@ -651,6 +651,8 @@ def _apply_system_effect_requirements(payload: dict[str, object]) -> None:
 
 
 def _derive_forecast_tier(payload: Mapping[str, object]) -> ForecastAuthorityDisposition:
+    if payload.get("forecast_tier") == "blocked":
+        return "blocked"
     base_origin = str(payload.get("s5_base_origin", ""))
     support_label = str(payload.get("s5_support_label", ""))
     if base_origin == "equilibrium_contested" or support_label == "equilibrium_contested":

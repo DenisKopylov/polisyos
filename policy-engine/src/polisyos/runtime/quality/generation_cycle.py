@@ -5360,17 +5360,19 @@ def _build_s10_forecast_inputs(
     false_clear_counts: Mapping[str, int],
     calibration_evidence: Mapping[str, object] | None = None,
 ) -> Mapping[str, Any]:
-    from datetime import UTC, datetime
-
     from polisyos.runtime.quality.design_axes.outcome_prediction import (
         build_forecast_calibration_record,
         build_forecast_support,
     )
 
-    now = datetime(2026, 6, 2, tzinfo=UTC)
     outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
     report = _method_report(method_result)
     evidence = dict(calibration_evidence or {})
+    temporal_roles = _bound_s10_temporal_roles(evidence)
+    calibration_bound = calibration_status is not None and temporal_roles is not None
+    effective_forecast_tier = forecast_tier
+    if calibration_status is not None and not calibration_bound:
+        effective_forecast_tier = "blocked"
     report_ref = gy_content_hash(
         {
             "method_fqn": selected_method_fqn,
@@ -5383,11 +5385,13 @@ def _build_s10_forecast_inputs(
     authority = _s10_value_authority_boundary()
     calibration_ref = (
         f"s10://n8/{report_ref.removeprefix('sha256:')}/calibration"
-        if calibration_status is not None
+        if calibration_bound
         else None
     )
     calibration = None
-    if calibration_status is not None:
+    if calibration_bound:
+        if temporal_roles is None:  # pragma: no cover - guarded above.
+            raise ValueError("s10_calibration_temporal_roles_unbound")
         calibration = build_forecast_calibration_record(
             calibration_id=f"n8.calibration.{report_ref.removeprefix('sha256:')[:16]}",
             calibration_ref=calibration_ref,
@@ -5400,20 +5404,20 @@ def _build_s10_forecast_inputs(
             evaluation_design_ref=f"eval://{selected_method_fqn}",
             credible_evaluation_evidence_ref=f"evidence://{report_ref}",
             counterfactual_credibility=str(
-                evidence.get("counterfactual_credibility") or "credible"
+                evidence.get("counterfactual_credibility") or "insufficient_history"
             ),
-            prediction_time=now,
-            observation_time=now,
-            policy_effective_time=now,
-            data_valid_time=now,
-            calibration_window_start=now,
-            calibration_window_end=now,
+            prediction_time=temporal_roles["prediction_time"],
+            observation_time=temporal_roles["observation_time"],
+            policy_effective_time=temporal_roles["policy_effective_time"],
+            data_valid_time=temporal_roles["data_valid_time"],
+            calibration_window_start=temporal_roles["calibration_window_start"],
+            calibration_window_end=temporal_roles["calibration_window_end"],
             metric_name="observable_subset_calibration",
             denominator=int(evidence.get("denominator") or 0),
             numerator=int(evidence.get("numerator") or 0),
             pass_rate=float(evidence.get("pass_rate") or 0.0),
             calibration_threshold_ref="repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
-            floor_passed=bool(evidence.get("floor_passed", calibration_status == "pass")),
+            floor_passed=bool(evidence.get("floor_passed", False)),
             calibration_status=calibration_status,
             interval_coverage_metric=evidence.get("interval_coverage_metric"),
             calibration_error_metric=evidence.get("calibration_error_metric"),
@@ -5426,12 +5430,12 @@ def _build_s10_forecast_inputs(
         )
     support_base_origin = (
         "simulation_only"
-        if forecast_tier == "simulation_only_advisory"
+        if effective_forecast_tier == "simulation_only_advisory"
         else "validated_local_model"
     )
     support_label = (
         "simulation_only_system_effect"
-        if forecast_tier == "simulation_only_advisory"
+        if effective_forecast_tier == "simulation_only_advisory"
         else "validated_local_dynamic_model"
     )
     support = build_forecast_support(
@@ -5453,7 +5457,11 @@ def _build_s10_forecast_inputs(
         s5_base_origin=support_base_origin,
         s5_claim_scope="system_effect",
         s6_firewall_status_refs=[f"s6://{_candidate_id(candidate)}"],
-        s6_limitation_refs=[],
+        s6_limitation_refs=(
+            []
+            if calibration_status is None or calibration_bound
+            else ["s10://calibration/fail-closed/insufficient-history"]
+        ),
         s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
         s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
         source_contract_ref=f"source-contract://{world_record.world_model_record_id}/panel",
@@ -5464,10 +5472,15 @@ def _build_s10_forecast_inputs(
         strategic_response_caveat_refs=[],
         outcome_distribution_refs=[f"distribution://{report_ref}"],
         welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
-        forecast_tier=forecast_tier,
+        forecast_tier=effective_forecast_tier,
         forecast_authority_disposition_reason=str(
             evidence.get("forecast_authority_disposition_reason")
-            or "S10 owner forecast over Foundry method output"
+            or (
+                "S10 estimator diagnostics retained; empirical calibration evidence is "
+                "not established."
+                if calibration_status is not None and not calibration_bound
+                else "S10 owner forecast over Foundry method output"
+            )
         ),
         method_family="foundry_causal",
         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
@@ -5521,14 +5534,14 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
     if report is None:
         false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] = 1
         return {
-            "forecast_tier": "observable_calibrated",
+            "forecast_tier": "blocked",
             "calibration_status": "blocked",
-            "denominator": 1,
+            "denominator": 0,
             "numerator": 0,
             "pass_rate": 0.0,
             "floor_passed": False,
-            "interval_coverage_metric": 0.0,
-            "calibration_error_metric": 1.0,
+            "interval_coverage_metric": None,
+            "calibration_error_metric": None,
             "counterfactual_credibility": "missing_report",
             "false_clear_counts": false_clear_counts,
             "forecast_authority_disposition_reason": (
@@ -5566,36 +5579,87 @@ def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, ob
     if not credible:
         false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] = 1
     interval_width = 0.0
-    interval_coverage = 0.0
     relative_uncertainty = 1.0
+    nominal_confidence_level = _object_get(report, "confidence_level")
     if finite_interval and isinstance(interval, Sequence):
         lower = float(interval[0])
         upper = float(interval[1])
         interval_width = abs(upper - lower)
         scale = max(abs(float(point or 0.0)), 1.0)
         relative_uncertainty = interval_width / scale
-        interval_coverage = float(_object_get(report, "confidence_level") or 0.95)
-    denominator = sample_size
-    numerator = sample_size if credible else 0
+    # A finite estimator report describes the estimate's shape only.  It does
+    # not contain held-out predicted/observed outcomes or an independently
+    # bound calibration evaluation, so it cannot supply the calibration
+    # numerator/denominator or promote a nominal CI level to empirical
+    # coverage.  FRC-02 owns the real measurement bridge.
+    denominator = 0
+    numerator = 0
     return {
-        "forecast_tier": "observable_calibrated",
-        "calibration_status": "pass" if credible else "limit",
+        "forecast_tier": "blocked",
+        "calibration_status": "limit",
         "denominator": denominator,
         "numerator": numerator,
-        "pass_rate": numerator / denominator,
-        "floor_passed": credible,
-        "interval_coverage_metric": interval_coverage,
-        "calibration_error_metric": min(relative_uncertainty, 1.0),
-        "counterfactual_credibility": "credible" if credible else "limited",
+        "pass_rate": 0.0,
+        "floor_passed": False,
+        "interval_coverage_metric": None,
+        "calibration_error_metric": None,
+        "counterfactual_credibility": "insufficient_history",
         "false_clear_counts": false_clear_counts,
+        "estimator_shape_diagnostics": {
+            "finite_point": finite_point,
+            "finite_interval": finite_interval,
+            "finite_standard_error": finite_se,
+            "diagnostics_pass": diagnostics_pass,
+            "sample_size": sample_size,
+            "n_treated": treated,
+            "n_control": control,
+            "pre_periods": pre_periods,
+            "post_periods": post_periods,
+            "nominal_confidence_level": nominal_confidence_level,
+            "relative_interval_width": min(relative_uncertainty, 1.0),
+        },
         "ci_width": interval_width,
         "standard_error": float(standard_error) if _is_finite_number(standard_error) else None,
         "forecast_authority_disposition_reason": (
-            "S10 owner forecast support derived from Foundry CausalEffectReport "
+            "S10 estimator-shape diagnostics derived from Foundry CausalEffectReport; "
+            "empirical calibration evidence remains unestablished "
             f"(finite_ci={finite_interval}, diagnostics_pass={diagnostics_pass}, "
             f"sample_size={sample_size}, ci_width={interval_width:.6g})."
         ),
     }
+
+
+_S10_TEMPORAL_ROLE_KEYS: tuple[str, ...] = (
+    "prediction_time",
+    "observation_time",
+    "policy_effective_time",
+    "data_valid_time",
+    "calibration_window_start",
+    "calibration_window_end",
+)
+
+
+def _bound_s10_temporal_roles(
+    evidence: Mapping[str, object],
+) -> dict[str, datetime] | None:
+    """Return all aware S10 temporal roles only when evidence binds each one."""
+
+    roles: dict[str, datetime] = {}
+    for key in _S10_TEMPORAL_ROLE_KEYS:
+        raw = evidence.get(key)
+        if isinstance(raw, datetime):
+            parsed = raw
+        elif isinstance(raw, str) and raw.strip():
+            try:
+                parsed = datetime.fromisoformat(raw.strip().replace("Z", "+00:00"))
+            except ValueError:
+                return None
+        else:
+            return None
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            return None
+        roles[key] = parsed.astimezone(UTC)
+    return roles
 
 
 def _is_finite_number(value: object) -> bool:

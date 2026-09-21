@@ -87,6 +87,7 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
             "treatment_variable": "T",
             "outcome_variable": "Y",
             "n_samples": 128,
+            "intervention_spec": {"type": "shifted", "shift": 0.0},
         }
     )
     _, by_node = _simulate_samples(

@@ -87,20 +87,19 @@ def _run_isolated(code: str) -> subprocess.CompletedProcess[str]:
 def test_runtime_root_replay_exports_bind_directly_and_stay_lazy() -> None:
     """The ten-symbol Runtime facade must resolve Scientist without loading the shim."""
     result = _run_isolated(
-        """
+        f"""
 import importlib
 import sys
 
 runtime = importlib.import_module('polisyos.runtime')
 canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
-expected = %r
+expected = {ROOT_EXPORTS!r}
 assert tuple(runtime.__all__) == expected
 assert 'polisyos.runtime.replay' not in sys.modules
 for name in expected:
     assert getattr(runtime, name) is getattr(canonical, name), name
 assert 'polisyos.runtime.replay' not in sys.modules
-"""
-        % (ROOT_EXPORTS,),
+""",
     )
     assert result.returncode == 0, f"stdout={result.stdout}\nstderr={result.stderr}"
 
@@ -120,7 +119,7 @@ def test_runtime_unknown_replay_symbol_fails_closed() -> None:
     runtime = importlib.import_module("polisyos.runtime")
 
     with pytest.raises(AttributeError, match="no attribute"):
-        getattr(runtime, "REP_01_UNKNOWN_REPLAY_SYMBOL")
+        assert runtime.REP_01_UNKNOWN_REPLAY_SYMBOL
 
 
 def test_core_replay_cli_keeps_delayed_import_on_direct_scientist_owner(

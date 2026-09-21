@@ -23,6 +23,7 @@ from polisyos.data_forge.domains.ukraine.resources import free_disk_gib, total_r
 
 PartAGateRunner = Callable[[ServerConfig, Path | None], PartAGateManifest]
 BootstrapScriptRenderer = Callable[[ServerConfig, BuildRootConfig], str]
+ServerCapabilityProbe = Callable[[ServerConfig], ServerCapabilityManifest]
 
 
 class LocalExecutionBlockedError(RuntimeError):
@@ -159,11 +160,9 @@ def run_part_a_gate(
     fallback for existing callers and characterization tests.
     """
 
+    if repo_root is None or not is_repository_checkout(repo_root):
+        return _unavailable_part_a_gate(repo_root)
     assert_server_execution_allowed(config)
-    if repo_root is None:
-        return _unavailable_part_a_gate(repo_root)
-    if repo_root.exists() and not is_repository_checkout(repo_root):
-        return _unavailable_part_a_gate(repo_root)
     if runner is not None:
         return runner(config, repo_root)
     command = [
@@ -207,6 +206,7 @@ __all__ = [
     "LocalExecutionBlockedError",
     "BootstrapScriptRenderer",
     "PartAGateRunner",
+    "ServerCapabilityProbe",
     "assert_server_execution_allowed",
     "build_bootstrap_script",
     "is_repository_checkout",

@@ -42,6 +42,7 @@ from polisyos.data_forge.domains.ukraine.resources import (
 from polisyos.data_forge.domains.ukraine.server import (
     BootstrapScriptRenderer,
     PartAGateRunner,
+    ServerCapabilityProbe,
     assert_server_execution_allowed,
     build_bootstrap_script,
     probe_local_server_capabilities,
@@ -113,6 +114,7 @@ class UkraineDataOrchestrator:
         adapter_registry: dict[str, Any] | None = None,
         part_a_gate_runner: PartAGateRunner | None = None,
         bootstrap_script_renderer: BootstrapScriptRenderer | None = None,
+        server_capability_probe: ServerCapabilityProbe | None = None,
     ) -> None:
         if repo_root is not None and workspace_root is not None and repo_root != workspace_root:
             raise ValueError("repo_root and workspace_root must refer to the same path")
@@ -125,6 +127,7 @@ class UkraineDataOrchestrator:
         self.source_ctx = SourceExecutionContext(self.config.build_root)
         self.part_a_gate_runner = part_a_gate_runner
         self.bootstrap_script_renderer = bootstrap_script_renderer
+        self.server_capability_probe = server_capability_probe
 
     def ensure_layout(self) -> None:
         build_root = self.config.build_root
@@ -160,7 +163,8 @@ class UkraineDataOrchestrator:
 
     def write_server_capability_manifest(self) -> Path:
         self.ensure_layout()
-        payload = probe_local_server_capabilities(self.config.server)
+        probe = self.server_capability_probe or probe_local_server_capabilities
+        payload = probe(self.config.server)
         return write_manifest(self.config.build_root.capability_manifest_path, payload)
 
     def _write_server_env_file(self) -> Path:

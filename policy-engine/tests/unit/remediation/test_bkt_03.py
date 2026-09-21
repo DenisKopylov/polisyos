@@ -1,8 +1,4 @@
-"""Test-first witnesses for the BKT-03 honest bias/statistics contract.
-
-These tests deliberately describe the missing B172/B173 behavior at the
-public backtesting seam.  This branch owns no production remediation.
-"""
+"""Behavioral regression tests for the BKT-03 honest bias/statistics contract."""
 
 from __future__ import annotations
 
@@ -57,7 +53,39 @@ def test_constant_nonzero_residual_keeps_descriptive_bias_without_significance(
     assert bias.magnitude == pytest.approx(10.0)
     assert bias.p_value is None
     assert bias.statistical_test != "one-sample t-test H0(mean_error=0)"
+    assert bias.metadata["test_status"] == "not_computable"
+    assert bias.metadata["test_reason"] == "zero_variance"
     assert report.overall_bias_direction is not BiasDirection.NEUTRAL
+    assert report.degraded is True
+    assert report.degraded_reasons
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.trust_grade is None
+
+
+def test_small_nonzero_residual_keeps_descriptive_bias_and_degrades_trust(
+    tmp_path: Path,
+) -> None:
+    """A nonzero small sample is descriptive, not evidence of no bias."""
+    report = _run_provided_report(
+        tmp_path,
+        predictions=[0.5, 1.5],
+        truths=[0.0, 0.0],
+    )
+
+    assert report.overall_mae == pytest.approx(1.0)
+    assert report.detected_biases
+    bias = report.detected_biases[0]
+    assert bias.affected_metrics == ["metric"]
+    assert bias.magnitude == pytest.approx(1.0)
+    assert bias.p_value is None
+    assert bias.metadata["test_status"] == "not_computable"
+    assert bias.metadata["test_reason"] == "insufficient_observations"
+    assert any("insufficient_observations" in reason for reason in report.degraded_reasons)
+    assert report.degraded is True
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.trust_grade is None
 
 
 def test_zero_residual_is_a_separate_no_bias_control(tmp_path: Path) -> None:

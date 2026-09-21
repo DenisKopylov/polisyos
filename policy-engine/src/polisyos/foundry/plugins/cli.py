@@ -129,6 +129,16 @@ def cmd_train(args) -> None:
 
     result = sim.train(n_episodes=args.n_episodes)
 
+    if result.status != "trained" or result.reason is not None:
+        reason = result.reason
+        reason_code = reason.code if reason is not None else "training_execution_adapter_missing"
+        _write("\nTraining bridge pending.")
+        _write(f"  Status: {result.status}")
+        _write(f"  Reason: {reason_code}")
+        if reason is not None:
+            _write(f"  Detail: {reason.message}")
+        return
+
     _write("\nTraining complete!")
     _write(f"  Final loss: {result.loss_history[-1]:.4f}")
 

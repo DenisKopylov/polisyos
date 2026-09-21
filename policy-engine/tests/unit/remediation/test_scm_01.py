@@ -51,8 +51,8 @@ def _fit(
 def test_observed_roots_are_carried_into_query_without_normal_default(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    treatment = np.array([0.0, 0.0, 1.0, 1.0])
-    root = np.array([99.0, 101.0, 99.0, 101.0])
+    treatment = np.array([0.0, 0.0, 1.0, 1.0, 2.0, 2.0])
+    root = np.array([99.0, 101.0, 99.0, 102.0, 99.0, 100.0])
     outcome = 3.0 * treatment + 2.0 * root
     spec = _fit(
         _graph(("T", "Y"), ("Z", "Y"), nodes=["T", "Z", "Y"]),
@@ -64,7 +64,31 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
     mechanisms = {mechanism.variable: mechanism for mechanism in spec.mechanisms}
     assert mechanisms["T"].family is MechanismFamily.EMPIRICAL
     assert mechanisms["Z"].family is MechanismFamily.EMPIRICAL
-    assert mechanisms["Z"].family_params["observed_samples"] == [99.0, 101.0, 99.0, 101.0]
+    assert mechanisms["Z"].family_params["observed_samples"] == [
+        99.0,
+        101.0,
+        99.0,
+        102.0,
+        99.0,
+        100.0,
+    ]
+
+    broken_root = mechanisms["Z"].model_copy(
+        update={
+            "family_params": {
+                **mechanisms["Z"].family_params,
+                "observed_samples": [99.0],
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="share one row count"):
+        StructuralCausalModelSpec(
+            graph=spec.graph,
+            mechanisms=[mechanism for mechanism in spec.mechanisms if mechanism.variable != "Z"]
+            + [broken_root],
+            fitted=True,
+            fit_method="gcm",
+        )
 
     query = SCMQueryData(
         scm_spec=spec,
@@ -98,9 +122,17 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         warnings=[],
         intervention_override=None,
     )
-    assert set(zip(by_node["T"], by_node["Z"], strict=True)).issubset(
-        {(0.0, 99.0), (0.0, 101.0), (1.0, 99.0), (1.0, 101.0)}
-    )
+    observed_pairs = set(zip(by_node["T"], by_node["Z"], strict=True))
+    allowed_pairs = {
+        (0.0, 99.0),
+        (0.0, 101.0),
+        (1.0, 99.0),
+        (1.0, 102.0),
+        (2.0, 99.0),
+        (2.0, 100.0),
+    }
+    assert observed_pairs.issubset(allowed_pairs)
+    assert (0.0, 102.0) not in observed_pairs
 
 
 def test_missing_root_is_declared_hypothesis_instead_of_fitted_law() -> None:
@@ -122,23 +154,28 @@ def test_missing_root_is_declared_hypothesis_instead_of_fitted_law() -> None:
         fit_method="gcm",
     )
 
+    missing_query = SCMQueryData(
+        scm_spec=spec,
+        query={
+            "query_type": "interventional",
+            "treatment_variable": "X",
+            "treatment_value": 1.0,
+            "outcome_variable": "Y",
+            "n_samples": 16,
+        },
+    )
+    with pytest.raises(ValueError, match="allow_declared_root_hypothesis"):
+        GCMQuery.pure_step(missing_query, params={"__seed__": 3})
+
     result = GCMQuery.pure_step(
-        SCMQueryData(
-            scm_spec=spec,
-            query={
-                "query_type": "interventional",
-                "treatment_variable": "X",
-                "treatment_value": 1.0,
-                "outcome_variable": "Y",
-                "n_samples": 16,
-            },
-        ),
-        params={"__seed__": 3},
+        missing_query,
+        params={"__seed__": 3, "allow_declared_root_hypothesis": True},
     )
     assert any(
         "missing mechanism" in warning and "declared hypothesis" in warning
         for warning in result["warnings"]
     )
+    assert result["envelope"].gate_eligible is False
 
 
 def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_linear() -> None:
@@ -270,3 +307,32 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
     twin_result = result["twin_network_result"]
     assert twin_result.ite_mean == pytest.approx(3.0, abs=1e-9)
     assert twin_result.ite_std == pytest.approx(0.0, abs=1e-9)
+
+    invalid_polynomial = spec.mechanisms[1].model_copy(
+        update={
+            "family_params": {
+                "fit_mode": "additive_noise_poly",
+                "poly_degree": 2,
+                "poly_coefficients": {"__intercept__": 0.0},
+                "noise_std": 0.25,
+            }
+        }
+    )
+    invalid_spec = StructuralCausalModelSpec(
+        graph=spec.graph,
+        mechanisms=[spec.mechanisms[0], invalid_polynomial],
+        fitted=True,
+        fit_method="gcm",
+    )
+    with pytest.raises(ValueError, match="invalid additive_noise polynomial payload"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=invalid_spec,
+                treatment_variable="X",
+                outcome_variable="Y",
+                factual_treatment_value=1.0,
+                counterfactual_treatment_value=2.0,
+                n_samples=32,
+            ),
+            params={"__seed__": 23},
+        )

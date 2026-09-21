@@ -192,13 +192,19 @@ def _validate_directory_export(target: Path) -> set[Path]:
             raise ValueError(f"Owned export member is missing: {member}")
         if previous_bindings[member] != _member_digest(path):
             raise ValueError(f"Owned export member changed: {member}")
-    foreign_files = [
-        path
-        for path in target.rglob("*")
-        if path.is_file() and path not in owned_paths and path != marker
+    owned_entries = owned_paths | {marker}
+    for owned_path in tuple(owned_paths):
+        parent = owned_path.parent
+        while parent != target:
+            owned_entries.add(parent)
+            parent = parent.parent
+    foreign_entries = [
+        path for path in target.rglob("*") if path not in owned_entries
     ]
-    if foreign_files:
-        raise ValueError("Refusing to remove unowned files from an export directory")
+    if foreign_entries:
+        raise ValueError(
+            "Refusing to remove unowned files or entries from an export directory"
+        )
     return owned_paths | {marker}
 
 

@@ -22,6 +22,7 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
         sys.path.insert(0, _path)
 
 import polisyos.scientist.replay.deterministic as scientist_replay  # noqa: E402
+runtime_replay = scientist_replay
 from benchmarks.advanced.manifests import (  # noqa: E402
     ManifestBundle,
     ManifestCase,

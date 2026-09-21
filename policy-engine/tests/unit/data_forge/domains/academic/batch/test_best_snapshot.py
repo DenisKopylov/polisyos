@@ -116,8 +116,49 @@ def test_runtime_gate_rejects_stale_flat_embeddings_after_empty_selection(tmp_pa
         legacy_embeddings_path=component_dir / "ac_work_embeddings.npz",
         legacy_index_path=component_dir / "ac_work_index.hnsw",
     )
+    for relative_path in {
+        *best_snapshot._REQUIRED_RUNTIME_FILES,
+        *best_snapshot._REQUIRED_EVIDENCE_FILES,
+    }:
+        path = component_dir / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
 
-    assert best_snapshot._embedding_runtime_complete(component_dir) is False
+    candidate_metrics = {
+        "scholar_query_coverage_ratio": 1.0,
+        "parameter_supported_ratio": 1.0,
+        "causal_supported_plus_mixed_ratio": 1.0,
+        "non_default_transport_evidence_ratio": 1.0,
+        "global_canonical_resolution_rate_pct": 100.0,
+        "runtime_demanded_canonical_resolution_rate_pct": 100.0,
+    }
+    comparison = {
+        "candidate": {
+            "component_dir": str(component_dir),
+            "benchmark_metrics": candidate_metrics,
+            "qc_metrics": candidate_metrics,
+            "family_edge_count": 16000,
+            "review_queue_count": 0,
+            "scenario_statuses": {},
+        },
+        "original_current": {
+            "benchmark_metrics": {},
+            "qc_metrics": {},
+            "family_edge_count": 15945,
+            "review_queue_count": 0,
+            "scenario_statuses": {},
+        },
+    }
+
+    report = best_snapshot._evaluate_promotion(
+        candidate_comparison=comparison,
+        functional_checks={"passed": True},
+        manifest_consistency={"passed": True},
+        promote_on_pass=True,
+    )
+
+    assert report["promoted"] is False
+    assert report["gates"]["runtime_files_complete"] is False
 
 
 def test_snapshot_clone_preserves_claim_constraints_and_defaults(tmp_path: Path) -> None:

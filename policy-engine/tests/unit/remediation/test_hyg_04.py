@@ -15,6 +15,7 @@ import re
 import runpy
 import subprocess
 import sys
+from tempfile import TemporaryDirectory
 import tomllib
 import types
 from pathlib import Path
@@ -256,35 +257,37 @@ def test_frontend_redirect_reaches_live_workspaces_and_protected_surfaces() -> N
         assert (REPO_ROOT / protected).is_dir(), protected
 
 
-def test_redirect_lifecycle_rejects_an_unqualified_expired_stub(tmp_path: Path) -> None:
+def test_redirect_lifecycle_rejects_an_unqualified_expired_stub() -> None:
     """An expired redirect cannot be retired or prolonged without an ADR."""
 
-    frontend = tmp_path / "frontend"
-    frontend.mkdir()
-    (frontend / "README.md").write_text(
-        "\n".join(
-            (
-                "---",
-                "redirect_stub: true",
-                "owner: team-frontend",
-                "target_path: apps; packages/runtime-api-client",
-                "reason: compatibility handoff",
-                "created_date: 2026-01-01",
-                "sunset_date: 2026-05-01",
-                "removal_gate: uv run python tools/quality/validation/check_docs_lifecycle.py",
-                "---",
-                "",
-                "Use the canonical workspaces.",
+    with TemporaryDirectory() as temporary_root:
+        fixture_root = Path(temporary_root)
+        frontend = fixture_root / "frontend"
+        frontend.mkdir()
+        (frontend / "README.md").write_text(
+            "\n".join(
+                (
+                    "---",
+                    "redirect_stub: true",
+                    "owner: team-frontend",
+                    "target_path: apps; packages/runtime-api-client",
+                    "reason: compatibility handoff",
+                    "created_date: 2026-01-01",
+                    "sunset_date: 2026-05-01",
+                    "removal_gate: uv run python tools/quality/validation/check_docs_lifecycle.py",
+                    "---",
+                    "",
+                    "Use the canonical workspaces.",
+                )
             )
+            + "\n",
+            encoding="utf-8",
         )
-        + "\n",
-        encoding="utf-8",
-    )
 
-    assert check_docs_lifecycle.check_redirect_stubs(tmp_path) == [
-        check_docs_lifecycle.LifecycleFinding(
-            "redirect_stub",
-            "frontend/README.md",
-            "redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.",
-        )
-    ]
+        assert check_docs_lifecycle.check_redirect_stubs(fixture_root) == [
+            check_docs_lifecycle.LifecycleFinding(
+                "redirect_stub",
+                "frontend/README.md",
+                "redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.",
+            )
+        ]

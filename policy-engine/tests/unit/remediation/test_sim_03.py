@@ -181,7 +181,7 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
     def triple_only(state: Any, params: Any) -> dict[str, Any]:
         del params
         query = state["ncm_query_data"]
-        value = 1.0 if len(query.interventions) == 3 else 0.0
+        value = 1.0 if len(query.interventions[0]) == 3 else 0.0
         return {
             "counterfactual_result": {
                 "world_summaries": [

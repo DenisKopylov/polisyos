@@ -3604,6 +3604,38 @@ class GenerationCycleController:
         )
         return self._promotion_port(admitted_batch=admitted_batch, problem=problem)
 
+    def _schedule_candidate_for_execution(
+        self,
+        *,
+        candidate_id: str,
+        proxy_score: float,
+        voi_estimate: float,
+        budget_state: BudgetState,
+    ) -> SchedulingDecision:
+        """Ask the existing VOI owner whether the next stage may spend budget."""
+
+        stage_result = _StageResult(
+            cheap_signal=_CheapSignal(
+                expected_value_proxy=max(float(proxy_score), 0.0),
+                expected_information_gain=max(float(voi_estimate), 0.0),
+            ),
+            feedback={},
+        )
+        return self._voi_scheduler.prioritize(
+            [
+                _VOIDecisionTicket(
+                    candidate_hash=candidate_id,
+                    current_level=2,
+                    next_level=3,
+                    last_result=stage_result,
+                    stage_results={2: stage_result},
+                    context={},
+                )
+            ],
+            budget_state,
+            ParetoSnapshot(),
+        )[0]
+
     def decide_next_action(
         self,
         *,
@@ -3625,27 +3657,12 @@ class GenerationCycleController:
                 next_action="blocked",
                 reason="unsupported_terminal",
             )
-        stage_result = _StageResult(
-            cheap_signal=_CheapSignal(
-                expected_value_proxy=max(float(proxy_score), 0.0),
-                expected_information_gain=max(float(voi_estimate), 0.0),
-            ),
-            feedback={},
+        decision = self._schedule_candidate_for_execution(
+            candidate_id=candidate_id,
+            proxy_score=proxy_score,
+            voi_estimate=voi_estimate,
+            budget_state=budget_state,
         )
-        decision = self._voi_scheduler.prioritize(
-            [
-                _VOIDecisionTicket(
-                    candidate_hash=candidate_id,
-                    current_level=2,
-                    next_level=3,
-                    last_result=stage_result,
-                    stage_results={2: stage_result},
-                    context={},
-                )
-            ],
-            budget_state,
-            ParetoSnapshot(),
-        )[0]
         if prior_terminal_kind in {
             SearchTerminalKind.ACQUISITION_REQUIRED.value,
             SearchTerminalKind.HUMAN_DECISION_REQUIRED.value,
@@ -4184,11 +4201,17 @@ class GenerationCycleController:
                     adversarial_validation_status=adversarial_status,
                 )
             )
-        selected_id = _candidate_id(state["selected_candidate"])
+        selected = _grounded_candidate_for_evaluation(
+            candidates=state["candidates"],
+            grounding_by_candidate=grounding_by_candidate,
+            rankings=state["rankings"],
+            fallback=state["selected_candidate"],
+        )
         return {
             **state,
             "grounding_by_candidate": grounding_by_candidate,
-            "selected_grounding": grounding_by_candidate[selected_id],
+            "selected_candidate": selected,
+            "selected_grounding": grounding_by_candidate[_candidate_id(selected)],
             "candidate_summaries": tuple(summaries),
         }
 
@@ -4196,6 +4219,39 @@ class GenerationCycleController:
         candidate = state["selected_candidate"]
         problem = state["problem"]
         cycle_index = int(state["cycle_index"])
+        candidate_id = _candidate_id(candidate)
+        proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
+        schedule = self._schedule_candidate_for_execution(
+            candidate_id=candidate_id,
+            proxy_score=proxy_score,
+            voi_estimate=voi_estimate,
+            budget_state=state["budget_state"],
+        )
+        if schedule.recommended_action != "advance":
+            reason = schedule.reason
+            simulation = SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(reason,),
+                diagnostics={
+                    "port": "N6",
+                    "reason": reason,
+                    "scheduler_action": schedule.recommended_action,
+                    "scheduler_priority": schedule.priority,
+                },
+            )
+            value = ValuePortObservation(
+                status="value_blocked",
+                candidate_id=candidate_id,
+                authority_blockers=(reason,),
+                reason=f"N6 VOI scheduler blocked the next stage: {reason}.",
+            )
+            return {
+                **state,
+                "simulation": simulation,
+                "value_port": value,
+                "execution_schedule": schedule,
+            }
         simulation = self._simulation_port(
             candidate=candidate,
             problem=problem,
@@ -4208,7 +4264,12 @@ class GenerationCycleController:
             problem=problem,
             cycle_index=cycle_index,
         )
-        return {**state, "simulation": simulation, "value_port": value}
+        return {
+            **state,
+            "simulation": simulation,
+            "value_port": value,
+            "execution_schedule": schedule,
+        }
 
     def _revise_node(self, state: dict[str, Any]) -> dict[str, Any]:
         problem = state["problem"]
@@ -6414,6 +6475,55 @@ def _grounding_status_and_score(
     return "grounding_unavailable", 0.0
 
 
+def _grounding_allows_joint_evaluation(
+    grounding: CandidateGroundingObservation,
+) -> bool:
+    """Return whether one grounded candidate may enter the N5/N8 stage.
+
+    Grounding is an execution prerequisite, not a recommendation or
+    promotion decision.  A candidate with a real coverage gap remains in the
+    history, but cannot consume the joint-evaluation budget while another
+    grounded candidate is available.
+    """
+
+    return (
+        grounding.status in {"current_valid", "grounded_shadow"}
+        and grounding.acquisition_requirement is None
+    )
+
+
+def _grounded_candidate_for_evaluation(
+    *,
+    candidates: Sequence[object],
+    grounding_by_candidate: Mapping[str, CandidateGroundingObservation],
+    rankings: Mapping[str, tuple[float, float]],
+    fallback: object,
+) -> object:
+    """Select the highest-information candidate that passed grounding.
+
+    The original generated order is the final tie-breaker, so a missing VOI
+    ranking never becomes a fabricated priority.  If no candidate passed
+    grounding, retain the original selection to preserve its typed blocker in
+    the normal cycle record.
+    """
+
+    eligible: list[tuple[int, object]] = []
+    for index, candidate in enumerate(candidates):
+        grounding = grounding_by_candidate.get(_candidate_id(candidate))
+        if grounding is not None and _grounding_allows_joint_evaluation(grounding):
+            eligible.append((index, candidate))
+    if not eligible:
+        return fallback
+    return max(
+        eligible,
+        key=lambda row: (
+            rankings.get(_candidate_id(row[1]), (0.0, 0.0))[1],
+            rankings.get(_candidate_id(row[1]), (0.0, 0.0))[0],
+            -row[0],
+        ),
+    )[1]
+
+
 def _grounding_unavailable(
     candidate_id: str,
     *,
@@ -6607,6 +6717,8 @@ def _select_terminal_kind(
     if value_port.acquisition_requirement is not None:
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
     value_issue = _value_revision_issue(value_port)
+    if value_issue == "budget_exhausted_for_next_level":
+        return SearchTerminalKind.BUDGET_EXHAUSTED.value
     if value_issue and value_issue.startswith("acquire_data:"):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if value_issue:

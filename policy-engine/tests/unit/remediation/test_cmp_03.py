@@ -10,7 +10,6 @@ linking apply the same semantic and completeness gates.
 from __future__ import annotations
 
 import pytest
-
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -26,7 +25,6 @@ from polisyos.foundry.methods.exceptions import (
     SlotConnectionError,
     UnitMismatchError,
 )
-
 
 _NEUTRAL_UNIT = Unit(dimension="cmp03", symbol="unit")
 
@@ -96,7 +94,7 @@ def _binding_sources_by_target(result) -> dict[str, str]:
 
 
 @pytest.mark.parametrize(
-    "source_names,target_names",
+    ("source_names", "target_names"),
     [
         pytest.param(
             ("a_flexible", "b_fixed"),
@@ -107,6 +105,11 @@ def _binding_sources_by_target(result) -> dict[str, str]:
             ("left_flexible", "right_fixed"),
             ("alpha_first", "omega_second"),
             id="neutral-slot-renaming",
+        ),
+        pytest.param(
+            ("z_flexible", "a_fixed"),
+            ("z_first", "a_second"),
+            id="adversarial-inverse-order-neutral-rename",
         ),
     ],
 )
@@ -161,16 +164,14 @@ def test_auto_and_explicit_reject_the_same_incomplete_assignment(explicit: bool)
         inputs=(_slot("missing"), _slot("required")),
     )
     linker = SlotLinker(LinkerConfig.strict())
+    mapping = {"required": "required"} if explicit else None
 
-    with pytest.raises(SlotConnectionError, match="unconnected"):
-        if explicit:
-            linker.link(source, target, explicit_mapping={"required": "required"})
-        else:
-            linker.link(source, target)
+    with pytest.raises(SlotConnectionError, match=r"(?i)unconnected"):
+        linker.link(source, target, explicit_mapping=mapping)
 
 
 @pytest.mark.parametrize(
-    "explicit,expected",
+    ("explicit", "expected"),
     [
         pytest.param(True, UnitMismatchError, id="explicit"),
         pytest.param(False, SlotConnectionError, id="auto"),
@@ -190,16 +191,14 @@ def test_unit_dimension_guard_remains_active_for_both_routes(
         inputs=(_slot("target", unit=Unit("time", "yr")),),
     )
     linker = SlotLinker(LinkerConfig.strict())
+    mapping = {"source": "target"} if explicit else None
 
     with pytest.raises(expected):
-        if explicit:
-            linker.link(source, target, explicit_mapping={"source": "target"})
-        else:
-            linker.link(source, target)
+        linker.link(source, target, explicit_mapping=mapping)
 
 
 @pytest.mark.parametrize(
-    "explicit,expected",
+    ("explicit", "expected"),
     [
         pytest.param(True, ShapeMismatchError, id="explicit"),
         pytest.param(False, SlotConnectionError, id="auto"),
@@ -219,12 +218,10 @@ def test_shape_guard_remains_active_for_both_routes(
         inputs=(_slot("target", slot_type=SlotType.TENSOR, shape=(2, 4)),),
     )
     linker = SlotLinker(LinkerConfig.strict())
+    mapping = {"source": "target"} if explicit else None
 
     with pytest.raises(expected):
-        if explicit:
-            linker.link(source, target, explicit_mapping={"source": "target"})
-        else:
-            linker.link(source, target)
+        linker.link(source, target, explicit_mapping=mapping)
 
 
 def test_contract_guard_remains_active_for_both_routes() -> None:

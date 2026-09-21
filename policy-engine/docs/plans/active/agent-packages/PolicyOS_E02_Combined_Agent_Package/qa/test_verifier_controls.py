@@ -15,9 +15,9 @@ def json_change(root,name,change):
     p=root/name; obj=json.loads(p.read_text());change(obj)
     p.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n')
 
-def reduce_runtime_cap(root):
-    json_change(root,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('effective_runtime_direct_leaves',14))
-    json_change(root,'templates/run_ledger.json',lambda x:x['resource_profile'].__setitem__('effective_runtime_direct_leaves',14))
+def profile_change(root,change):
+    json_change(root,'bundle_manifest.json',lambda x:change(x['local_execution']))
+    json_change(root,'templates/run_ledger.json',lambda x:change(x['resource_profile']))
 
 def run():
     report=[]
@@ -32,11 +32,11 @@ def run():
           ('dependency_cycle','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:next(b for b in x['bundles'] if b['id']=='CYC-01')['depends_on'].append('CYC-02')),'cycle'),
           ('source_changed','source/LA_r09_original.md',lambda r:(r/'source/LA_r09_original.md').write_bytes((r/'source/LA_r09_original.md').read_bytes()+b'\nCHANGED\n'),'source integrity'),
           ('first_dispatch_promoted','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x.__setitem__('first_dispatch_status','active_queue')),'historical seed'),
-          ('runtime_cap_reduced',('bundle_manifest.json','templates/run_ledger.json'),reduce_runtime_cap,'Adaptive admission'),
+          ('runtime_cap_reduced',('bundle_manifest.json','templates/run_ledger.json'),lambda r:profile_change(r,lambda x:x.__setitem__('effective_runtime_direct_leaves',14)),'Adaptive admission'),
           ('ledger_runtime_cap_drift','templates/run_ledger.json',lambda r:json_change(r,'templates/run_ledger.json',lambda x:x['resource_profile'].__setitem__('effective_runtime_direct_leaves',14)),'Ledger resource profile'),
-          ('review_backlog_hard_barrier','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('review_backlog_is_executor_cap',True)),'Adaptive admission'),
-          ('excess_parallel_tests','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('max_resource_processes',8)),'Mac resource'),
-          ('excess_weighted_budget','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('light_equivalent_budget',8)),'Mac resource'),
+          ('review_backlog_hard_barrier',('bundle_manifest.json','templates/run_ledger.json'),lambda r:profile_change(r,lambda x:x.__setitem__('review_backlog_is_executor_cap',True)),'Adaptive admission'),
+          ('excess_parallel_tests',('bundle_manifest.json','templates/run_ledger.json'),lambda r:profile_change(r,lambda x:x.__setitem__('max_resource_processes',8)),'Mac resource'),
+          ('excess_weighted_budget',('bundle_manifest.json','templates/run_ledger.json'),lambda r:profile_change(r,lambda x:x.__setitem__('light_equivalent_budget',8)),'Mac resource'),
           ('DDM_schema_protection_removed','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:[b['protected_controls'].remove('LK35') for b in x['bundles'] if 'LK35' in b['protected_controls']]),'Protected LK'),
           ('move_target_not_leased','relocation_map.json',lambda r:json_change(r,'relocation_map.json',lambda x:x['moves'][0]['proposed_target_paths'].append('policy-engine/src/polisyos/unleased_target.py')),'lease both'),
         ]

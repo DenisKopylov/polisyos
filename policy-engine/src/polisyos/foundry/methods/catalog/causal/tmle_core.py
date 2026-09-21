@@ -6,6 +6,7 @@ import hashlib
 import threading
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
@@ -270,7 +271,62 @@ class ATEFitResult:
         return max(float(abs(self.ate)), 0.25)
 
 
-_SHARED_NUISANCE_CACHE: dict[str, ATENuisanceBundle] = {}
+@dataclass(frozen=True)
+class _ATENuisanceFitCore:
+    """Immutable cached fit artifacts, independent of diagnostic policy."""
+
+    propensity: np.ndarray
+    mu1: np.ndarray
+    mu0: np.ndarray
+    trim_mask: np.ndarray
+    scaler: Any
+    split_manifest: list[dict[str, Any]]
+    calibration_modes: list[str]
+    propensity_backends: list[str]
+    outcome_backends: list[str]
+    selection_manifest: list[dict[str, Any]]
+
+    @classmethod
+    def from_bundle(cls, bundle: ATENuisanceBundle) -> _ATENuisanceFitCore:
+        """Freeze fit outputs before placing them in the shared cache."""
+        return cls(
+            propensity=_readonly_array(bundle.propensity),
+            mu1=_readonly_array(bundle.mu1),
+            mu0=_readonly_array(bundle.mu0),
+            trim_mask=_readonly_array(bundle.trim_mask),
+            scaler=deepcopy(bundle.scaler),
+            split_manifest=deepcopy(bundle.split_manifest),
+            calibration_modes=deepcopy(bundle.calibration_modes),
+            propensity_backends=deepcopy(bundle.propensity_backends),
+            outcome_backends=deepcopy(bundle.outcome_backends),
+            selection_manifest=deepcopy(bundle.selection_manifest),
+        )
+
+    def materialize(self, contract: ATENuisanceContract) -> ATENuisanceBundle:
+        """Return an isolated bundle bound to the caller's current contract."""
+        return ATENuisanceBundle(
+            propensity=_readonly_array(self.propensity),
+            mu1=_readonly_array(self.mu1),
+            mu0=_readonly_array(self.mu0),
+            trim_mask=_readonly_array(self.trim_mask),
+            scaler=deepcopy(self.scaler),
+            contract=contract,
+            split_manifest=deepcopy(self.split_manifest),
+            calibration_modes=deepcopy(self.calibration_modes),
+            propensity_backends=deepcopy(self.propensity_backends),
+            outcome_backends=deepcopy(self.outcome_backends),
+            selection_manifest=deepcopy(self.selection_manifest),
+        )
+
+
+def _readonly_array(value: np.ndarray) -> np.ndarray:
+    """Copy an array and prevent mutation of the fitted artifact boundary."""
+    copied = np.array(value, copy=True)
+    copied.setflags(write=False)
+    return copied
+
+
+_SHARED_NUISANCE_CACHE: dict[str, _ATENuisanceFitCore] = {}
 _SHARED_NUISANCE_CACHE_ORDER: list[str] = []
 _SHARED_NUISANCE_CACHE_MAX = 64
 _SHARED_NUISANCE_LOCK = threading.RLock()
@@ -709,7 +765,7 @@ def _shared_nuisance_cache_key(
     )
 
 
-def _cache_get(key: str | None) -> ATENuisanceBundle | None:
+def _cache_get(key: str | None) -> _ATENuisanceFitCore | None:
     if key is None:
         return None
     with _SHARED_NUISANCE_LOCK:
@@ -721,11 +777,11 @@ def _cache_get(key: str | None) -> ATENuisanceBundle | None:
         return cached
 
 
-def _cache_put(key: str | None, bundle: ATENuisanceBundle) -> None:
+def _cache_put(key: str | None, core: _ATENuisanceFitCore) -> None:
     if key is None:
         return
     with _SHARED_NUISANCE_LOCK:
-        _SHARED_NUISANCE_CACHE[key] = bundle
+        _SHARED_NUISANCE_CACHE[key] = core
         if key in _SHARED_NUISANCE_CACHE_ORDER:
             _SHARED_NUISANCE_CACHE_ORDER.remove(key)
         _SHARED_NUISANCE_CACHE_ORDER.append(key)
@@ -955,10 +1011,11 @@ def fit_crossfit_nuisance_bundle(
     cache_key = _shared_nuisance_cache_key(X, T, Y, contract, params)
     cached = _cache_get(cache_key)
     if cached is not None:
-        return cached
+        return cached.materialize(contract)
     bundle = _fit_crossfit_nuisance_bundle_uncached(X, T, Y, contract)
-    _cache_put(cache_key, bundle)
-    return bundle
+    core = _ATENuisanceFitCore.from_bundle(bundle)
+    _cache_put(cache_key, core)
+    return core.materialize(contract)
 
 
 def _interval_from_eif(

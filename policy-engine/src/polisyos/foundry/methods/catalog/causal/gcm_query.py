@@ -80,6 +80,12 @@ def _descendants_of_treatment(
 
 
 def _topological_order(scm_spec: StructuralCausalModelSpec) -> list[str]:
+    if any(edge.lag not in (None, 0) for edge in scm_spec.graph.edges):
+        raise ValueError(
+            "gcm_query is a static consumer; temporal edges require a temporal "
+            "query/finite expansion before sampling"
+        )
+
     nodes = list(scm_spec.graph.nodes)
     indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {node: [] for node in nodes}

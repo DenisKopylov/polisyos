@@ -74,6 +74,13 @@ class CatalogSourceRegistryEntry(DataForgeModel):
             allow_manual_backfill=self.allow_manual_backfill,
             seed_from=self.seed_from,
             require_curated_resources=self.require_curated_resources,
+            agency_prefix=self.agency_prefix,
+            agency_allowlist=self.agency_allowlist,
+            exclude_agencies=self.exclude_agencies,
+            format_allowlist=self.format_allowlist,
+            format_denylist=self.format_denylist,
+            keyword_allowlist=self.keyword_allowlist,
+            keyword_denylist=self.keyword_denylist,
         )
 
 

@@ -6,6 +6,9 @@ from typing import Literal
 
 from pydantic import Field
 
+from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogSelectionError,
+)
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.artifacts import RetentionClass
 from polisyos.data_forge.kernel.pipeline import AssetGroup, AssetKey, AssetSpec
@@ -69,6 +72,13 @@ class CatalogSourceModuleSpec(DataForgeModel):
     allow_manual_backfill: bool = False
     seed_from: str | None = Field(default=None, pattern=SOURCE_ID_PATTERN)
     require_curated_resources: bool = False
+    agency_prefix: str = Field(default="", min_length=0)
+    agency_allowlist: tuple[str, ...] = Field(default_factory=tuple)
+    exclude_agencies: tuple[str, ...] = Field(default_factory=tuple)
+    format_allowlist: tuple[str, ...] = Field(default_factory=tuple)
+    format_denylist: tuple[str, ...] = Field(default_factory=tuple)
+    keyword_allowlist: tuple[str, ...] = Field(default_factory=tuple)
+    keyword_denylist: tuple[str, ...] = Field(default_factory=tuple)
 
     @property
     def emits_observations(self) -> bool:
@@ -199,7 +209,7 @@ def select_catalog_source_modules(
     run_profile: CatalogRunProfile = "prod_full",
 ) -> tuple[CatalogSourceModuleSpec, ...]:
     """Select source modules and include any seed dependencies."""
-    selected_modules = modules or CORE_CATALOG_SOURCE_MODULES
+    selected_modules = CORE_CATALOG_SOURCE_MODULES if modules is None else modules
     selected = [
         module
         for module in selected_modules
@@ -274,16 +284,30 @@ def _with_seed_dependencies(
 ) -> tuple[CatalogSourceModuleSpec, ...]:
     selected_ids = {module.source_id for module in selected}
     by_id = {module.source_id: module for module in modules}
-    queue = list(selected)
-    while queue:
-        module = queue.pop()
-        if not module.seed_from or module.seed_from in selected_ids:
-            continue
-        seed_module = by_id.get(module.seed_from)
+
+    def resolve_seed(module: CatalogSourceModuleSpec, path: tuple[str, ...]) -> None:
+        seed_id = module.seed_from
+        if seed_id is None:
+            return
+        if seed_id in path:
+            cycle = " -> ".join((*path, seed_id))
+            raise CatalogSelectionError("dependency_cycle", cycle)
+        seed_module = by_id.get(seed_id)
         if seed_module is None:
-            continue
+            raise CatalogSelectionError(
+                "dependency_missing",
+                f"source={module.source_id}/seed={seed_id}",
+            )
+        if not seed_module.enabled:
+            raise CatalogSelectionError(
+                "dependency_disabled",
+                f"source={module.source_id}/seed={seed_id}",
+            )
         selected_ids.add(seed_module.source_id)
-        queue.append(seed_module)
+        resolve_seed(seed_module, (*path, seed_id))
+
+    for module in selected:
+        resolve_seed(module, (module.source_id,))
     return tuple(module for module in modules if module.source_id in selected_ids)
 
 

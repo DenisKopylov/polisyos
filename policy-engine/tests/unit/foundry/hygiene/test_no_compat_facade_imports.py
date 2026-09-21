@@ -10,7 +10,6 @@ import pytest
     [
         "polisyos.foundry.base",
         "polisyos.foundry.types",
-        "polisyos.foundry.domain.schema",
         "polisyos.foundry.domain.state",
         "polisyos.foundry.domain.mechanisms.fiscal",
         "polisyos.foundry.domain.mechanisms.labor",

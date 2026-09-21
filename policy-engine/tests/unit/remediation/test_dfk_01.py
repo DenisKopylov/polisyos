@@ -129,10 +129,48 @@ def test_dfk_01_canonical_registry_evolution_and_migration_behave() -> None:
         "polisyos.data_forge.kernel.pipeline.schemas",
         "polisyos.data_forge.kernel.schemas.codegen",
         "polisyos.foundry.domain.schema",
-        "polisyos.foundry.domain.mechanisms",
     ],
 )
-def test_dfk_01_legacy_schema_surfaces_are_not_importable(legacy_module: str) -> None:
-    """Retired schema FQNs must not regain importable compatibility shells."""
+def test_dfk_01_compatibility_pending_surfaces_remain_importable(legacy_module: str) -> None:
+    """Keep unresolved public FQNs until census and an owner decision are complete."""
+    module = importlib.import_module(legacy_module)
+    assert module.__name__ == legacy_module
+
+
+def test_dfk_01_compatibility_pending_surfaces_preserve_current_identity() -> None:
+    """Pending surfaces retain their public and canonical identities for compatibility."""
+    pipeline_schemas = importlib.import_module("polisyos.data_forge.kernel.pipeline.schemas")
+    assert pipeline_schemas.CompatibilityMode is CompatibilityMode
+    assert pipeline_schemas.SchemaRegistry is SchemaRegistry
+    assert pipeline_schemas.SchemaVersion is SchemaVersion
+
+    codegen = importlib.import_module("polisyos.data_forge.kernel.schemas.codegen")
+    generated_schema_module = codegen.GeneratedSchemaModule
+    assert generated_schema_module.__module__ == "polisyos.data_forge.kernel.schemas.codegen"
+    assert set(generated_schema_module.model_fields) == {
+        "module_name",
+        "schema_id",
+        "schema_version",
+    }
+
+    foundry_schema = importlib.import_module("polisyos.foundry.domain.schema")
+    assert foundry_schema.AgentType.__module__ == "polisyos.foundry.domain.schema"
+    assert foundry_schema.RegionProfile.__module__ == "polisyos.foundry.domain.schema"
+    assert foundry_schema.SimulationConfig.__module__ == "polisyos.foundry.domain.schema"
+    assert set(foundry_schema.RegionProfile.model_fields) == {
+        "region_id",
+        "avg_income",
+        "unemployment_rate",
+        "tech_level",
+    }
+    assert set(foundry_schema.SimulationConfig.model_fields) == {
+        "n_agents",
+        "n_steps",
+        "seed",
+    }
+
+
+def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
+    """The confirmed empty mechanisms tombstone remains an absence contract."""
     with pytest.raises(ModuleNotFoundError):
-        importlib.import_module(legacy_module)
+        importlib.import_module("polisyos.foundry.domain.mechanisms")

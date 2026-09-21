@@ -695,6 +695,7 @@ class RecursiveGenerationCycleController:
                     budget_state=budget_state,
                     min_cycles=recursive_budget.min_cycles_per_leaf,
                     max_cycles=recursive_budget.max_cycles_per_leaf,
+                    stable_design_problem_ref=problem_ref,
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")

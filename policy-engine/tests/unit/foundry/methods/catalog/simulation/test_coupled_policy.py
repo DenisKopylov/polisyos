@@ -141,3 +141,49 @@ def test_particle_filter_and_paired_mc_methods_run(isolated_registry) -> None:
 
     assert result["mean_effects"]["final_mean_savings"] == 25.0
     assert result["standard_errors"]["final_mean_savings"] == 0.0
+    assert result["standard_error_status"]["final_mean_savings"] == "estimated"
+
+    one_draw = paired.pure_step(
+        {
+            "initial_income": np.asarray([0.0, 0.0]),
+            "initial_savings": np.asarray([0.0, 0.0]),
+            "is_employed": np.asarray([0.0, 0.0]),
+            "risk_aversion": np.asarray([0.1, 0.9]),
+        },
+        {
+            "metric_names": ("final_mean_savings",),
+            "n_replications": 1,
+            "n_steps": 2,
+            "capacity": 10,
+            "baseline_benefit_amount": 0.0,
+            "policy_benefit_amount": 50.0,
+        },
+    )["result"]
+    assert one_draw["standard_errors"]["final_mean_savings"] is None
+    assert one_draw["standard_error_status"]["final_mean_savings"] == (
+        "standard_error_not_estimated"
+    )
+
+
+def test_coupled_smm_exposes_blocked_when_no_candidate_is_comparable(isolated_registry) -> None:
+    method = isolated_registry.get("simulation.coupled_policy.smm@1.0.0")
+    result = method.pure_step(
+        {
+            "initial_income": np.asarray([0.0, 0.0]),
+            "initial_savings": np.asarray([0.0, 0.0]),
+            "is_employed": np.asarray([0.0, 0.0]),
+            "risk_aversion": np.asarray([0.1, 0.9]),
+            "observed_moments": np.asarray([0.0]),
+        },
+        {
+            "moment_names": ("missing_required_metric",),
+            "service_rate_grid": (1.0,),
+            "benefit_amount_grid": (0.0,),
+            "seeds": (0,),
+            "n_steps": 1,
+        },
+    )["result"]
+
+    assert result["best_params"] is None
+    assert result["comparison_status"] == "no_comparable"
+    assert result["status"] == "blocked"

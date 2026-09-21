@@ -24,7 +24,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     TrajectoryPoint,
     _higher_order_residuals,
 )
-from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+from tests.unit.runtime.quality.test_joint_simulation_horizon import _atom, _request
 
 
 def test_summary_distance_requires_one_declared_metric_set() -> None:
@@ -62,6 +62,23 @@ def test_smm_missing_required_moment_cannot_win_calibration() -> None:
     assert missing["moment_counts"] == {"easy": 2, "hard": 0}
 
 
+def test_smm_all_incomparable_candidates_are_explicitly_blocked() -> None:
+    """B25: all-infinite loss cannot select the first parameter combination."""
+
+    result = calibrate_coupled_smm(
+        {"candidate": (0.0, 1.0)},
+        lambda params, seed: {"easy": float(params["candidate"])},
+        {"easy": 0.0, "hard": 100.0},
+        required_moment_names=("easy", "hard"),
+        seeds=(11, 13),
+    )
+
+    assert result.best_params is None
+    assert result.best_loss == float("inf")
+    assert result.comparison_status == "no_comparable"
+    assert result.status == "blocked"
+
+
 def test_single_paired_draw_has_unestimated_standard_error() -> None:
     """B21: one stochastic draw cannot claim a measured zero standard error."""
 
@@ -74,6 +91,7 @@ def test_single_paired_draw_has_unestimated_standard_error() -> None:
 
     assert result.n_replications == 1
     assert result.standard_errors["welfare"] is None
+    assert result.standard_error_status["welfare"] == "standard_error_not_estimated"
 
 
 def test_paired_replicates_require_distinct_seeds() -> None:
@@ -86,6 +104,115 @@ def test_paired_replicates_require_distinct_seeds() -> None:
             seeds=(7, 7),
             metric_names=("welfare",),
         )
+
+
+def test_joint_request_runs_each_requested_replication_with_distinct_seeds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B21: request-level replication count and seed schedule reach the runner."""
+
+    calls: list[int] = []
+
+    def counted(state: Any, params: Any) -> dict[str, Any]:
+        query = state["ncm_query_data"]
+        calls.append(int(params["__seed__"]))
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {
+                        "world_index": 0,
+                        "firm_survival": {"mean": float(len(query.interventions))},
+                    }
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
+    request = _request().model_copy(update={"seed": 17, "replications": 2})
+    result = JointSimulationHorizonController().run(request)
+
+    assert len(calls) == 6
+    assert calls.count(17) == 3
+    assert calls.count(18) == 3
+    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    assert joint.points[0].engine_state["replication_count"] == 2
+    assert joint.points[0].engine_state["replication_seeds"] == [17, 18]
+    assert result.diagnostics["requested_replications"] == 2
+    assert result.diagnostics["replication_seeds"] == [17, 18]
+
+
+def test_ncm_evidence_none_and_explicit_empty_are_distinct(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B19: explicit empty evidence must not truthiness-fallback to baseline."""
+
+    observed: list[dict[str, float]] = []
+
+    def counted(state: Any, params: Any) -> dict[str, Any]:
+        del params
+        query = state["ncm_query_data"]
+        observed.append(dict(query.evidence))
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": 1.0}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
+    controller = JointSimulationHorizonController()
+    controller.run(_request().model_copy(update={"evidence_state": None}))
+    controller.run(_request().model_copy(update={"evidence_state": {}}))
+
+    assert observed[0] == {
+        "income_delta": 0.0,
+        "balance_delta": 0.0,
+        "firm_survival": 1.0,
+    }
+    assert observed[3] == {}
+
+
+def test_three_atom_controller_reports_real_higher_order_residual_and_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B26: a real three-atom run exposes order-three non-additivity."""
+
+    def triple_only(state: Any, params: Any) -> dict[str, Any]:
+        del params
+        query = state["ncm_query_data"]
+        value = 1.0 if len(query.interventions) == 3 else 0.0
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": value}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(triple_only))
+    request = _request()
+    world_ref = request.world_model_record.world_model_record_id
+    third = _atom(
+        intervention_id="third_atom",
+        causal_variable="agents.income",
+        engine_variable="income_delta",
+        value=1.0,
+        world_model_record_ref=world_ref,
+    )
+    request = request.model_copy(
+        update={
+            "intervention_atoms": (*request.intervention_atoms, third),
+            "baseline_state": {"firm_survival": 0.0},
+        }
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert result.higher_order_residuals == {"firm_survival": {0: 1.0}}
+    assert result.feedback_classification.numeric_interaction == "non_additive"
+    assert result.feedback_classification.checked_interaction_orders == (1, 2, 3)
+    assert result.diagnostics["checked_interaction_orders"] == [1, 2, 3]
 
 
 def test_joint_simulation_requires_explicit_selected_outcome_baseline() -> None:

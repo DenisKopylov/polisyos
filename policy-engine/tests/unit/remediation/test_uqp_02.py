@@ -94,6 +94,50 @@ def test_covariance_reorders_columns_without_reordering_owner_rows() -> None:
     npt.assert_allclose(np.asarray(covariance), np.diag([1.0, 9.0]), atol=1e-5)
 
 
+def test_covariance_rejects_mixed_column_declarations() -> None:
+    """A partial column-order declaration cannot be applied to every row."""
+    envelopes = {
+        "a": _normal_env(
+            0.0,
+            1.0,
+            metadata={"covariance_row": [1.0, 0.0], "covariance_params": ["a", "b"]},
+        ),
+        "b": _normal_env(0.0, 1.0, metadata={"covariance_row": [0.0, 1.0]}),
+    }
+
+    with pytest.raises(ValueError, match="declared for every covariance row"):
+        build_covariance_matrix(
+            ["a", "b"],
+            envelopes,
+            use_full_covariance=True,
+            jitter=0.0,
+        )
+
+
+def test_covariance_rejects_marginally_incompatible_matrix() -> None:
+    """Spectral repair must not conceal a matrix with the wrong marginal scale."""
+    envelopes = {
+        "a": _normal_env(
+            0.0,
+            1.0,
+            metadata={"covariance_row": [4.0, 0.0], "covariance_params": ["a", "b"]},
+        ),
+        "b": _normal_env(
+            0.0,
+            1.0,
+            metadata={"covariance_row": [0.0, 1.0], "covariance_params": ["a", "b"]},
+        ),
+    }
+
+    with pytest.raises(ValueError, match="diagonal"):
+        build_covariance_matrix(
+            ["a", "b"],
+            envelopes,
+            use_full_covariance=True,
+            jitter=0.0,
+        )
+
+
 def test_analytical_uses_joint_covariance_for_shared_difference_and_independent_control() -> None:
     """The analytical variance is w.T @ Sigma @ w, not a sum of marginal variances."""
     shared_metadata = {
@@ -207,11 +251,119 @@ def test_qmc_preserves_shared_empirical_rows_and_axis() -> None:
     assert result.envelope.gate_eligible is False
 
 
+def test_random_mc_uses_weighted_empirical_atoms_instead_of_ci_normal() -> None:
+    """Random sampling must consume source particle masses and preserve atoms."""
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=256,
+            mc_batch_size=256,
+            mc_min_valid_samples=20,
+            mc_seed=11,
+            mc_sampling_method="random",
+        )
+    ).propagate(
+        lambda **params: {"y": params["a"]},
+        {"a": 0.0},
+        {"a": _empirical_env((-1.0, 1.0), weights=(9.0, 1.0))},
+        ["y"],
+    )[0]
+
+    payload = result.envelope.distribution_payload
+    assert isinstance(payload, PosteriorSamplesCarrier)
+    assert set(payload.samples) <= {-1.0, 1.0}
+    assert payload.samples.count(-1.0) > 0.75 * len(payload.samples)
+
+
+def test_qmc_uses_weighted_empirical_atoms_instead_of_ci_normal() -> None:
+    """QMC must apply the weighted inverse CDF to empirical source atoms."""
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=128,
+            mc_batch_size=128,
+            mc_min_valid_samples=20,
+            mc_seed=11,
+            mc_sampling_method="sobol",
+            mc_qmc_scramble=False,
+            mc_qmc_replicates=1,
+        )
+    ).propagate(
+        lambda **params: {"y": params["a"]},
+        {"a": 0.0},
+        {"a": _empirical_env((-1.0, 1.0), weights=(9.0, 1.0))},
+        ["y"],
+    )[0]
+
+    payload = result.envelope.distribution_payload
+    assert isinstance(payload, PosteriorSamplesCarrier)
+    assert set(payload.samples) <= {-1.0, 1.0}
+    assert payload.samples.count(-1.0) > 0.75 * len(payload.samples)
+
+
 def test_incompatible_empirical_axes_are_not_sampled_as_independent() -> None:
     """Mismatched empirical axes must become a typed limitation, not a fake joint law."""
     envelopes = {
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-a"),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-b"),
+    }
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+    ).propagate(
+        lambda **params: {"y": params["a"] - params["b"]},
+        {"a": 0.0, "b": 0.0},
+        envelopes,
+        ["y"],
+    )[0].envelope
+
+    assert result.distribution_family is DistributionFamily.UNKNOWN
+    assert result.gate_eligible is False
+    assert result.metadata["failure"] == "incompatible_joint_law"
+
+
+def test_same_empirical_axis_with_different_weights_is_not_a_joint_law() -> None:
+    """Equal labels do not establish a shared law when source masses differ."""
+    envelopes = {
+        "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 1.0, 1.0, 1.0)),
+        "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 2.0, 1.0, 1.0)),
+    }
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+    ).propagate(
+        lambda **params: {"y": params["a"] - params["b"]},
+        {"a": 0.0, "b": 0.0},
+        envelopes,
+        ["y"],
+    )[0].envelope
+
+    assert result.distribution_family is DistributionFamily.UNKNOWN
+    assert result.gate_eligible is False
+    assert result.metadata["failure"] == "incompatible_joint_law"
+
+
+def test_same_empirical_axis_with_different_lengths_is_not_a_joint_law() -> None:
+    """Equal labels do not establish row alignment when lengths differ."""
+    envelopes = {
+        "a": _empirical_env((-1.0, 0.0, 0.0, 1.0)),
+        "b": _empirical_env((-1.0, 0.0)),
+    }
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+    ).propagate(
+        lambda **params: {"y": params["a"] - params["b"]},
+        {"a": 0.0, "b": 0.0},
+        envelopes,
+        ["y"],
+    )[0].envelope
+
+    assert result.distribution_family is DistributionFamily.UNKNOWN
+    assert result.gate_eligible is False
+    assert result.metadata["failure"] == "incompatible_joint_law"
+
+
+def test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent() -> None:
+    """A carrier plus a non-carrier needs an explicit joint-law producer."""
+    envelopes = {
+        "a": _empirical_env((-1.0, 0.0, 1.0)),
+        "b": _normal_env(0.0, 1.0),
     }
     result = MonteCarloPropagator(
         PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
@@ -233,10 +385,16 @@ def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
         "a": _normal_env(0.0, 1.0, metadata={"dependency": "unknown"}),
         "b": _normal_env(0.0, 1.0, metadata={"dependency": "unknown"}),
     }
+    calls: list[dict[str, float]] = []
+
+    def simulation(**params: float) -> dict[str, float]:
+        calls.append(params)
+        return {"y": params["a"] - params["b"]}
+
     result = PropagationDispatcher(
         PropagationConfig(preferred_method="analytical")
     ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
+        simulation,
         {"a": 0.0, "b": 0.0},
         envelopes,
         ["y"],
@@ -246,3 +404,4 @@ def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
     assert result.metadata["failure"] == "unknown_dependency"
+    assert calls == []

@@ -67,7 +67,19 @@ class TrustScorer:
         )
         if not result.effective_weights:
             return None, None
-        trust_score = result.score
+        completeness_factors: list[float] = []
+        for scenario in scenarios:
+            if scenario.requested_count > 0:
+                completeness_factors.append(
+                    min(1.0, scenario.compared_count / scenario.requested_count)
+                )
+            if scenario.interval_requested_count > 0:
+                completeness_factors.append(
+                    min(1.0, scenario.interval_availability or 0.0)
+                )
+
+        completeness_factor = min(completeness_factors, default=1.0)
+        trust_score = min(result.score, completeness_factor)
         grade = self._grade_mapper.map(trust_score)
 
         # Coverage-first gate: under-covered models cannot receive high trust.

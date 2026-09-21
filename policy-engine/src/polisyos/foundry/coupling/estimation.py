@@ -6,7 +6,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from itertools import product
 from math import sqrt
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 
@@ -34,11 +34,13 @@ class QueueMLEEstimate:
 class SMMResult:
     """Best summary-match fit over a bounded parameter search surface."""
 
-    best_params: dict[str, float]
+    best_params: dict[str, float] | None
     best_loss: float
     fitted_summary: dict[str, float]
     observed_summary: dict[str, float]
     evaluated: tuple[dict[str, Any], ...]
+    comparison_status: Literal["comparable", "no_comparable"]
+    status: Literal["ready", "blocked"]
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,7 @@ class PairedMonteCarloResult:
 
     mean_effects: dict[str, float]
     standard_errors: dict[str, float | None]
+    standard_error_status: dict[str, Literal["estimated", "standard_error_not_estimated"]]
     paired_differences: tuple[dict[str, float], ...]
     n_replications: int
 
@@ -175,7 +178,9 @@ def summary_distance(
     from the moments that happen to overlap.
     """
 
-    required = tuple(required_moment_names or observed.keys())
+    required = tuple(observed.keys()) if required_moment_names is None else tuple(
+        required_moment_names
+    )
     if not required:
         raise ValueError("required_moment_names must not be empty")
     if len(set(required)) != len(required):
@@ -219,7 +224,11 @@ def calibrate_coupled_smm(
     values = tuple(tuple(float(item) for item in parameter_grid[name]) for name in names)
     if any(not value for value in values):
         raise ValueError("each parameter_grid entry must contain at least one value")
-    required = tuple(required_moment_names or observed_summary.keys())
+    required = (
+        tuple(observed_summary.keys())
+        if required_moment_names is None
+        else tuple(required_moment_names)
+    )
     if not required:
         raise ValueError("required_moment_names must not be empty")
     if len(set(required)) != len(required):
@@ -264,19 +273,25 @@ def calibrate_coupled_smm(
                 "missing_moments": missing_moments,
             }
         )
-        if best_params is None or loss < best_loss:
+        if np.isfinite(loss) and (best_params is None or loss < best_loss):
             best_loss = loss
             best_params = params
             best_summary = averaged
 
-    assert best_params is not None
-    assert best_summary is not None
+    comparison_status: Literal["comparable", "no_comparable"] = (
+        "comparable" if best_params is not None else "no_comparable"
+    )
+    status: Literal["ready", "blocked"] = (
+        "ready" if best_params is not None else "blocked"
+    )
     return SMMResult(
         best_params=best_params,
         best_loss=best_loss,
-        fitted_summary=best_summary,
+        fitted_summary=best_summary or {},
         observed_summary={key: float(value) for key, value in observed_summary.items()},
         evaluated=tuple(evaluated),
+        comparison_status=comparison_status,
+        status=status,
     )
 
 
@@ -368,16 +383,20 @@ def paired_monte_carlo_effect(
 
     mean_effects: dict[str, float] = {}
     standard_errors: dict[str, float | None] = {}
+    standard_error_status: dict[str, Literal["estimated", "standard_error_not_estimated"]] = {}
     for name in normalized_metrics:
         values = np.asarray([diff[name] for diff in diffs], dtype=np.float64)
         mean_effects[name] = float(np.mean(values))
         if values.size <= 1:
             standard_errors[name] = None
+            standard_error_status[name] = "standard_error_not_estimated"
         else:
             standard_errors[name] = float(np.std(values, ddof=1) / sqrt(values.size))
+            standard_error_status[name] = "estimated"
     return PairedMonteCarloResult(
         mean_effects=mean_effects,
         standard_errors=standard_errors,
+        standard_error_status=standard_error_status,
         paired_differences=tuple(diffs),
         n_replications=len(seeds),
     )

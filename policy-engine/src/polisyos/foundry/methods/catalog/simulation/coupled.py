@@ -398,7 +398,10 @@ class CoupledSMMEstimator:
             "McFadden, D. (1989). A method of simulated moments for estimation of discrete response models without numerical integration. Econometrica.",
             "Gourieroux, C., Monfort, A., and Renault, E. (1993). Indirect inference. Journal of Applied Econometrics.",
         ),
-        output_interpretation="Best grid point, fitted moments, loss, and the evaluated surface.",
+        output_interpretation=(
+            "Best comparable grid point, fitted moments, loss, and the evaluated surface; "
+            "no-comparable candidates are blocked rather than selecting the first point."
+        ),
     )
 
     @staticmethod
@@ -442,6 +445,8 @@ class CoupledSMMEstimator:
                 "fitted_summary": result.fitted_summary,
                 "observed_summary": result.observed_summary,
                 "evaluated": list(result.evaluated),
+                "comparison_status": result.comparison_status,
+                "status": result.status,
             }
         }
 
@@ -568,7 +573,11 @@ class CoupledPairedMonteCarloEstimator:
             "Glasserman, P. (2004). Monte Carlo Methods in Financial Engineering. Springer.",
             "Asmussen, S. and Glynn, P. W. (2007). Stochastic Simulation: Algorithms and Analysis. Springer.",
         ),
-        output_interpretation="Mean paired differences and standard errors for requested metrics.",
+        output_interpretation=(
+            "Mean paired differences and standard errors for requested metrics. "
+            "A one-replication standard error is null with status "
+            "standard_error_not_estimated; numeric standard errors require at least two."
+        ),
     )
 
     @staticmethod
@@ -609,6 +618,7 @@ class CoupledPairedMonteCarloEstimator:
             "result": {
                 "mean_effects": result.mean_effects,
                 "standard_errors": result.standard_errors,
+                "standard_error_status": result.standard_error_status,
                 "paired_differences": list(result.paired_differences),
                 "n_replications": result.n_replications,
             }

@@ -227,7 +227,7 @@ class JointSimulationRequest(_StrictModel):
     horizon: HorizonSpec
     engine_plan: tuple[EnginePlan, ...] = Field(min_length=1)
     baseline_state: dict[str, float] = Field(default_factory=dict)
-    evidence_state: dict[str, float] = Field(default_factory=dict)
+    evidence_state: dict[str, float] | None = None
     comparator_refs: tuple[str, ...] = ()
     coupling_graph: CouplingGraph | None = None
     budget_ref: str | None = None
@@ -349,6 +349,38 @@ def _higher_order_residuals(
     return residuals
 
 
+def _checked_interaction_orders(
+    trajectories: Sequence[SimulationTrajectory],
+) -> tuple[int, ...]:
+    """Return interaction orders fully backed by the executed trajectory set."""
+
+    individuals = {
+        trajectory.atom_ids[0]
+        for trajectory in trajectories
+        if trajectory.run_level == "individual" and len(trajectory.atom_ids) == 1
+    }
+    pairwise = {
+        tuple(trajectory.atom_ids)
+        for trajectory in trajectories
+        if trajectory.run_level == "pairwise" and len(trajectory.atom_ids) == 2
+    }
+    joints = [
+        trajectory
+        for trajectory in trajectories
+        if trajectory.run_level == "joint" and len(trajectory.atom_ids) >= 3
+    ]
+    if not joints:
+        return (1,) if individuals else ()
+    joint = max(joints, key=lambda trajectory: len(trajectory.atom_ids))
+    atom_ids = tuple(joint.atom_ids)
+    checked: list[int] = [1] if set(atom_ids).issubset(individuals) else []
+    if all(tuple(combo) in pairwise for combo in itertools.combinations(atom_ids, 2)):
+        checked.append(2)
+    if len(atom_ids) == 3:
+        checked.append(3)
+    return tuple(checked)
+
+
 def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
     """Derive one deterministic, distinct seed for every requested replicate."""
 
@@ -378,13 +410,12 @@ def _physical_run_ref(
         "selected_outcomes": list(request.selected_outcomes),
         "seed": int(request.seed),
         "replications": int(request.replications),
+        "replication_seeds": list(_replication_seeds(request)),
+        "evidence_state": _json_ready(request.evidence_state),
         "plan": plan.model_dump(mode="json"),
         "runtime_refs": runtime_refs,
         "atoms": [
-            {
-                "intervention_id": atom.intervention_id,
-                "causal_do_expr": atom.causal_do_expr.model_dump(mode="json"),
-            }
+            atom.model_dump(mode="json")
             for atom in subset
         ],
     }
@@ -429,6 +460,7 @@ def _aggregate_replicated_trajectory(
                 outcomes=outcomes,
                 effect=effects,
                 engine_state={
+                    **dict(_json_ready(first_point.engine_state)),
                     "replication_count": len(replicated_points),
                     "replication_seeds": list(seeds),
                     "replication_engine_states": [
@@ -508,6 +540,7 @@ class FeedbackClassification(_StrictModel):
 
     numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"]
     higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
+    checked_interaction_orders: tuple[int, ...] = ()
     coupling_classes: tuple[BoundaryCouplingKind, ...] = ()
     coupling_regime: str | None = None
     coupling_gate_verdict: str | None = None
@@ -756,8 +789,6 @@ class JointSimulationHorizonController:
         """Run individual, pairwise, and joint horizons or fail closed."""
 
         self._validate_world_model_record(request)
-        for outcome in request.selected_outcomes:
-            _baseline_value(request, outcome)
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         for atom in request.intervention_atoms:
             resolve_intervention_atom_world_binding(atom, request.world_model_record)
@@ -783,6 +814,7 @@ class JointSimulationHorizonController:
         marginal_effects: dict[str, dict[int, dict[str, float]]] = {}
         interaction_terms: tuple[InteractionTerm, ...] = ()
         higher_order_residuals: dict[str, dict[int, float]] = {}
+        checked_interaction_orders: tuple[int, ...] = ()
         diagnostics: dict[str, Any] = {
             "world_model_record_id": request.world_model_record.world_model_record_id,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -799,13 +831,15 @@ class JointSimulationHorizonController:
             "coupling_support_status": coupling_support.support_status,
             "coupling_support_blockers": list(coupling_support.blockers),
             "comparator_refs": list(request.comparator_refs),
+            "comparator_refs_status": "not_established",
             "evidence_source": (
                 "explicit_evidence_state"
-                if request.evidence_state
+                if request.evidence_state is not None
                 else "legacy_baseline_state_compat"
             ),
             "requested_replications": int(request.replications),
             "replication_seeds": list(_replication_seeds(request)),
+            "checked_interaction_orders": [],
             "engine_run_claimed": False,
         }
 
@@ -826,6 +860,8 @@ class JointSimulationHorizonController:
                 trajectories,
                 request.selected_outcomes,
             )
+            checked_interaction_orders = _checked_interaction_orders(trajectories)
+            diagnostics["checked_interaction_orders"] = list(checked_interaction_orders)
             if self._settings.fabricate_interaction_terms:
                 interaction_terms = _contract_testing_fabricated_interactions(interaction_terms)
 
@@ -833,6 +869,7 @@ class JointSimulationHorizonController:
             request=request,
             interaction_terms=interaction_terms,
             higher_order_residuals=higher_order_residuals,
+            checked_interaction_orders=checked_interaction_orders,
             unsupported=decision.decision != "selected",
             coupling_support=coupling_support,
         )
@@ -843,6 +880,7 @@ class JointSimulationHorizonController:
             "grounding_method_refs": [
                 item.method_fqn for item in decisions if item.method_fqn is not None
             ],
+            "comparator_refs_status": "not_established",
             "authority_blockers": ["simulation_only_k_sim_not_world_evidence"],
             "uncertainty_kind": "K_sim",
         }
@@ -1293,7 +1331,11 @@ class JointSimulationHorizonController:
             replication_seed: int,
         ) -> SimulationTrajectory:
             intervention = _ncm_intervention(subset, plan)
-            evidence_state = request.evidence_state or request.baseline_state
+            evidence_state = (
+                request.baseline_state
+                if request.evidence_state is None
+                else request.evidence_state
+            )
             evidence = {
                 _engine_variable(variable, plan): float(value)
                 for variable, value in evidence_state.items()
@@ -2079,6 +2121,7 @@ def _feedback_classification(
     request: JointSimulationRequest,
     interaction_terms: Sequence[InteractionTerm],
     higher_order_residuals: Mapping[str, Mapping[int, float]],
+    checked_interaction_orders: Sequence[int],
     unsupported: bool,
     coupling_support: _CouplingSupportDecision,
 ) -> FeedbackClassification:
@@ -2107,6 +2150,7 @@ def _feedback_classification(
                 str(outcome): {int(step): float(value) for step, value in by_step.items()}
                 for outcome, by_step in higher_order_residuals.items()
             },
+            checked_interaction_orders=tuple(int(order) for order in checked_interaction_orders),
             coupling_classes=coupling_support.coupling_classes,
             coupling_regime=classification.coupling_regime if classification is not None else None,
             coupling_gate_verdict=coupling_verdict,
@@ -2132,6 +2176,7 @@ def _feedback_classification(
             str(outcome): {int(step): float(value) for step, value in by_step.items()}
             for outcome, by_step in higher_order_residuals.items()
         },
+        checked_interaction_orders=tuple(int(order) for order in checked_interaction_orders),
         coupling_classes=coupling_support.coupling_classes,
         coupling_regime=classification.coupling_regime if classification is not None else None,
         coupling_gate_verdict=coupling_verdict,

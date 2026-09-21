@@ -1071,29 +1071,20 @@
       "suggested_target": "tests/integration/<package_bridge>/"
     },
     {
-      "count": 1,
-      "current_status": "observed",
+      "count": 0,
+      "current_status": "not_observed",
       "finding_id": "LM-012",
       "kind": "redirect_only_directory",
       "owner": "team-frontend",
       "package": "frontend",
-      "path": "frontend",
-      "paths": [
-        "frontend"
-      ],
+      "path": "",
+      "paths": [],
       "suggested_target": "apps/ and packages/",
       "sunset": {
-        "metadata_present": true,
-        "rows": [
-          {
-            "metadata_present": true,
-            "path": "frontend",
-            "source": "frontend/README.md",
-            "sunset_date": "2026-08-05"
-          }
-        ],
-        "source": "frontend/README.md",
-        "sunset_date": "2026-08-05"
+        "metadata_present": false,
+        "rows": [],
+        "source": null,
+        "sunset_date": null
       }
     },
     {

@@ -201,3 +201,40 @@ def test_period_helpers_have_one_canonical_owner_and_compatibility_aliases() -> 
     assert demography._period_series_to_iso_bounds is observation._period_series_to_iso_bounds
     assert builders._period_to_dates is observation._period_to_dates
     assert builders._period_series_to_iso_bounds is observation._period_series_to_iso_bounds
+
+
+def test_graph_consumer_quarantines_missing_or_invalid_period_edges() -> None:
+    """Graph edges never acquire a synthetic period when source timing is absent."""
+    _, common, _, _, _ = _load_builder_surface()
+    frame = pd.DataFrame(
+        {
+            "source_agent_id": ["agent::valid", "agent::invalid", "agent::missing"],
+            "target_agent_id": ["agent::target", "agent::target", "agent::target"],
+            "amount": [1.0, 2.0, 3.0],
+            "period_id": ["2024-02", "2024-13", None],
+        }
+    )
+
+    arrays = common._graph_arrays_from_edges(
+        frame,
+        src_col="source_agent_id",
+        dst_col="target_agent_id",
+        weight_col="amount",
+    )
+
+    assert arrays["src_ids"].tolist() == ["agent::valid"]
+    assert arrays["period_id"].tolist() == ["2024-02"]
+    assert not any("2025" in period for period in arrays["period_id"])
+
+
+def test_builder_facade_exports_only_the_declared_stage_surface() -> None:
+    """Dependency modules and private implementation helpers stay off __all__."""
+    _, _, _, _, builders = _load_builder_surface()
+
+    assert {
+        "calendar",
+        "re",
+        "pd",
+        "date",
+        "TimeFrequency",
+    }.isdisjoint(builders.__all__)

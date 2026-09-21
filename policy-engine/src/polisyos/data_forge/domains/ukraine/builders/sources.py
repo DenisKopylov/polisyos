@@ -7,14 +7,23 @@ import json
 import shutil
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Iterable, Sequence
+
+import numpy as np
+import pandas as pd
 
 from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.ukraine.manifests import (
+    ArtifactRecord,
     CalibrationBundleManifest,
     RuntimeBundleManifest,
+    ValidationFinding,
     write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import SourceConfig
+from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
+from polisyos.data_forge.kernel.io import ensure_dirs
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
@@ -44,7 +53,41 @@ from polisyos.ir.observation.measurement import (
     ShockCalendarEntry,
 )
 
-from .common import *
+from .common import (
+    OBSERVATION_FRAME_COLUMNS,
+    StageBuildResult,
+    _adjacency_from_edge_arrays,
+    _augment_lookup_with_identity_bridge,
+    _build_edr_identity_bridge,
+    _build_synthetic_multiscale_payload,
+    _cas_put_json,
+    _coerce_string_series,
+    _collect_graph_node_ids,
+    _compact_locator_value,
+    _ensure_agent_numeric_columns,
+    _extract_unresolved_identity_rows,
+    _graph_arrays_from_edges,
+    _int_env,
+    _kernel_safe_id,
+    _link_participants,
+    _load_source_frame,
+    _node_features_from_agent_registry,
+    _normalize_identity_key,
+    _participant_resolution_coverage,
+    _read_parquet_frame,
+    _reindex_edge_arrays_to_node_subset,
+    _resolve_agent_lookup,
+    _safe_numeric_series,
+    _sanitize_numeric_series,
+    _select_contract_graph_node_ids,
+    _select_procurement_frame,
+    _stable_cell_id,
+    _stage_dir,
+    _validation_subset,
+    _write_frame,
+    _write_json,
+    _write_npz,
+)
 from .observation import _period_series_to_iso_bounds
 
 _PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
@@ -448,13 +491,13 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         geo_index["latitude"] = 0.0
 
     budget_arrays = _graph_arrays_from_edges(
-        spending_linked.fillna({"period_id": "2025-01"}),
+        spending_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="amount",
     )
     procurement_arrays = _graph_arrays_from_edges(
-        prozorro_linked.fillna({"period_id": "2025-01"}),
+        prozorro_linked,
         src_col="buyer_agent_id",
         dst_col="supplier_agent_id",
         weight_col="amount",
@@ -794,7 +837,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
         ],
     )
     trade_arrays = _graph_arrays_from_edges(
-        trade_linked.fillna({"period_id": "2025-01"}),
+        trade_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="trade_value",
@@ -806,7 +849,10 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
     distress["weight"] = _safe_numeric_series(distress, "tax_debt") + _safe_numeric_series(
         distress, "risk_score"
     )
-    distress["period_id"] = distress.get("period_id", "2025-01")
+    distress["period_id"] = distress.get(
+        "period_id",
+        pd.Series(pd.NA, index=distress.index, dtype="string"),
+    )
     node_ids = _collect_graph_node_ids(
         base_node_ids=node_ids,
         edge_frames=[
@@ -847,7 +893,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
         ],
     )
     public_service_arrays = _graph_arrays_from_edges(
-        public_service_linked.fillna({"period_id": "2025-01"}),
+        public_service_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="payment_amount",
@@ -1994,4 +2040,4 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     )
 
 
-__all__ = tuple(name for name in globals() if not name.startswith("__"))
+__all__ = ("build_d0_p0_stage", "build_d1_stage", "build_d2_stage")

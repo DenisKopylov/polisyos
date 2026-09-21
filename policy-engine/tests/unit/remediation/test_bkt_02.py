@@ -409,7 +409,7 @@ def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
     )
     envelope_refs = {
         metric: put_artifact(payload, "scientist.backtest.envelope")
-        for metric, payload in zip(metric_names, envelope_payloads)
+        for metric, payload in zip(metric_names, envelope_payloads, strict=True)
     }
     simulation_ref = put_artifact(
         {"uncertainty_envelopes": envelope_refs},

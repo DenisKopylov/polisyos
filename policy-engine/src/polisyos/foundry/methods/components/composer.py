@@ -609,6 +609,18 @@ class MethodComposer:
         req_predecessors, req_warnings = self._requirement_edges(level=level)
         warnings.extend(req_warnings)
 
+        # Validate concrete target occurrences at the composition boundary.  The
+        # linker already owns this predicate; keeping the call here means both
+        # sequential and async executors consume the same validated chain and
+        # cannot silently fall back to last-write-wins for one input slot.
+        link_issues = self._linker.validate_chain(
+            tuple(self._signatures.values()),
+            tuple(self._dag.edges.values()),
+        )
+        if link_issues and level == SemanticValidationLevel.STRICT:
+            raise ValueError("Chain failed slot validation:\n  " + "\n  ".join(link_issues))
+        warnings.extend(f"[slot] {issue}" for issue in link_issues)
+
         try:
             self._dag.topological_order(extra_predecessors=req_predecessors)
         except CyclicDependencyError as exc:

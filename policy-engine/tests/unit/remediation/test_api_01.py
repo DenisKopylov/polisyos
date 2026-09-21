@@ -8,7 +8,7 @@ that happened to be imported by a leaf module.
 
 from __future__ import annotations
 
-import importlib
+from importlib import import_module, reload
 
 import pytest
 
@@ -43,16 +43,17 @@ REQUIRED_MONKEYPATCH_BINDINGS = (
 def _star_import(module_name: str) -> dict[str, object]:
     """Return the names produced by a real ``from module import *``."""
     namespace: dict[str, object] = {}
-    exec(f"from {module_name} import *", namespace)
+    # Intentional dynamic import: exercise the real star-import surface.
+    exec(f"from {module_name} import *", namespace)  # noqa: S102
     namespace.pop("__builtins__", None)
     return namespace
 
 
 def test_causal_engine_characterization_preserves_identity_and_test_bindings() -> None:
     """Keep documented classes, errors, and test-facing monkeypatch aliases identical."""
-    runtime = importlib.import_module(CAUSAL_ENGINE_MODULE)
-    api = importlib.import_module(f"{CAUSAL_ENGINE_MODULE}.api")
-    artifacts = importlib.import_module(f"{CAUSAL_ENGINE_MODULE}.artifacts")
+    runtime = import_module(CAUSAL_ENGINE_MODULE)
+    api = import_module(f"{CAUSAL_ENGINE_MODULE}.api")
+    artifacts = import_module(f"{CAUSAL_ENGINE_MODULE}.artifacts")
 
     assert runtime.CausalEngine is api.CausalEngine
     assert runtime.CausalEngine.__module__ == f"{CAUSAL_ENGINE_MODULE}.api"
@@ -65,12 +66,12 @@ def test_causal_engine_characterization_preserves_identity_and_test_bindings() -
 
 def test_interference_characterization_preserves_leaf_identity() -> None:
     """Keep interference package aliases pointed at their real leaf owners."""
-    runtime = importlib.import_module(INTERFERENCE_MODULE)
-    api = importlib.import_module(f"{INTERFERENCE_MODULE}.api")
-    contracts = importlib.import_module(
+    runtime = import_module(INTERFERENCE_MODULE)
+    api = import_module(f"{INTERFERENCE_MODULE}.api")
+    contracts = import_module(
         "polisyos.foundry.methods.catalog.causal._interference_contracts"
     )
-    identification = importlib.import_module(f"{INTERFERENCE_MODULE}.identification")
+    identification = import_module(f"{INTERFERENCE_MODULE}.identification")
 
     for name in (
         "BipartiteInterferenceEstimator",
@@ -99,19 +100,19 @@ def test_interference_characterization_preserves_leaf_identity() -> None:
 
 @pytest.mark.parametrize(
     ("module_name", "expected_exports"),
-    (
+    [
         (CAUSAL_ENGINE_MODULE, EXPECTED_CAUSAL_ENGINE_EXPORTS),
         (INTERFERENCE_MODULE, EXPECTED_INTERFERENCE_EXPORTS),
-    ),
+    ],
 )
 def test_explicit_export_manifests_are_deterministic_and_star_importable(
     module_name: str,
     expected_exports: tuple[str, ...],
 ) -> None:
     """Use a fixed public manifest and make star-import match it exactly."""
-    runtime = importlib.import_module(module_name)
+    runtime = import_module(module_name)
     first_manifest = tuple(runtime.__all__)
-    second_manifest = tuple(importlib.import_module(module_name).__all__)
+    second_manifest = tuple(import_module(module_name).__all__)
 
     assert first_manifest == expected_exports
     assert second_manifest == first_manifest
@@ -122,61 +123,62 @@ def test_explicit_export_manifests_are_deterministic_and_star_importable(
 
 def test_causal_engine_private_and_test_helpers_are_not_public_exports() -> None:
     """Keep compatibility-only private/test names addressable but out of ``__all__``."""
-    runtime = importlib.import_module(CAUSAL_ENGINE_MODULE)
+    runtime = import_module(CAUSAL_ENGINE_MODULE)
 
     assert "_make_dummy_identification_result" not in runtime.__all__
     assert set(REQUIRED_MONKEYPATCH_BINDINGS).isdisjoint(runtime.__all__)
     assert "_artifacts" not in runtime.__all__
 
 
-@pytest.mark.parametrize("module_name", (CAUSAL_ENGINE_MODULE, INTERFERENCE_MODULE))
+@pytest.mark.parametrize("module_name", [CAUSAL_ENGINE_MODULE, INTERFERENCE_MODULE])
 def test_unknown_facade_names_fail_closed(module_name: str) -> None:
     """An unknown name must not become importable through a package facade."""
     with pytest.raises(ImportError):
-        exec(f"from {module_name} import __api_01_unknown_name__", {})
+        # Intentional dynamic import: prove unknown names fail closed.
+        exec(f"from {module_name} import __api_01_unknown_name__", {})  # noqa: S102
 
 
 def test_causal_engine_incidental_leaf_import_does_not_expand_api(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Adding a public-looking leaf import must not change the causal facade."""
-    runtime = importlib.import_module(CAUSAL_ENGINE_MODULE)
-    artifacts = importlib.import_module(f"{CAUSAL_ENGINE_MODULE}.artifacts")
+    runtime = import_module(CAUSAL_ENGINE_MODULE)
+    artifacts = import_module(f"{CAUSAL_ENGINE_MODULE}.artifacts")
     incidental_name = "API_01_INCIDENTAL_IMPORT"
 
     monkeypatch.setattr(artifacts, incidental_name, object(), raising=False)
     try:
-        importlib.reload(runtime)
+        reload(runtime)
         assert not hasattr(runtime, incidental_name)
         assert incidental_name not in runtime.__all__
     finally:
         monkeypatch.undo()
         runtime.__dict__.pop(incidental_name, None)
-        importlib.reload(runtime)
+        reload(runtime)
 
 
 def test_interference_incidental_leaf_import_does_not_expand_api(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Adding a public-looking API-module import must not change the facade."""
-    runtime = importlib.import_module(INTERFERENCE_MODULE)
-    api = importlib.import_module(f"{INTERFERENCE_MODULE}.api")
+    runtime = import_module(INTERFERENCE_MODULE)
+    api = import_module(f"{INTERFERENCE_MODULE}.api")
     incidental_name = "API_01_INCIDENTAL_IMPORT"
 
     monkeypatch.setattr(api, incidental_name, object(), raising=False)
     try:
-        importlib.reload(runtime)
+        reload(runtime)
         assert not hasattr(runtime, incidental_name)
         assert incidental_name not in runtime.__all__
     finally:
         monkeypatch.undo()
         runtime.__dict__.pop(incidental_name, None)
-        importlib.reload(runtime)
+        reload(runtime)
 
 
 @pytest.mark.parametrize(
     ("module_name", "required_bindings"),
-    (
+    [
         (
             CAUSAL_ENGINE_MODULE,
             (
@@ -196,23 +198,23 @@ def test_interference_incidental_leaf_import_does_not_expand_api(
                 "_TopologyCertificatePlan",
             ),
         ),
-    ),
+    ],
 )
 def test_facade_reload_purges_stale_injected_names(
     module_name: str,
     required_bindings: tuple[str, ...],
 ) -> None:
     """Reloading a facade must not retain names from its previous module dict."""
-    runtime = importlib.import_module(module_name)
+    runtime = import_module(module_name)
     stale_name = "API_01_STALE_INJECTED_NAME"
     runtime.__dict__[stale_name] = object()
 
     try:
-        reloaded = importlib.reload(runtime)
+        reloaded = reload(runtime)
         assert not hasattr(reloaded, stale_name)
         assert stale_name not in reloaded.__all__
         for name in required_bindings:
             assert hasattr(reloaded, name)
     finally:
         runtime.__dict__.pop(stale_name, None)
-        importlib.reload(runtime)
+        reload(runtime)

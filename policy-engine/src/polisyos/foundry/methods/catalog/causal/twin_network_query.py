@@ -39,10 +39,10 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
     _abduce_noises_unified,
     _apply_intervention,
-    _joint_root_sample_index,
-    _mechanism_predict,
-    _mechanism_map,
-    _observed_root_samples,
+            _joint_root_sample_index,
+            _mechanism_predict,
+            _mechanism_map,
+            _observed_root_samples,
     _parents_by_node,
     _percentile_ci,
     _topological_order,
@@ -193,6 +193,7 @@ def _twin_simulate_samples(
     n_samples: int,
     rng: np.random.Generator,
     warnings: list[str],
+    allow_declared_hypothesis: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Run both factual and counterfactual worlds with shared exogenous noise.
 
@@ -223,12 +224,18 @@ def _twin_simulate_samples(
             else:
                 mechanism = mechanisms.get(node)
                 if mechanism is None:
-                    message = (
-                        f"twin-network: missing mechanism for node '{node}'; using a declared "
-                        "hypothesis only (standard normal root sampler is not a fitted law)"
-                    )
-                    if message not in warnings:
-                        warnings.append(message)
+                    if node != treatment_variable and not allow_declared_hypothesis:
+                        raise ValueError(
+                            f"missing mechanism for node '{node}'; provide a fitted root "
+                            "carrier or explicitly enable the declared root hypothesis"
+                        )
+                    if node != treatment_variable:
+                        message = (
+                            f"twin-network: missing mechanism for node '{node}'; using a declared "
+                            "hypothesis only (standard normal root sampler is not a fitted law)"
+                        )
+                        if message not in warnings:
+                            warnings.append(message)
                 observed_root_value: float | None = None
                 if (
                     mechanism is not None
@@ -346,6 +353,7 @@ class TwinNetworkQuery:
         parameters=(
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="store_distribution", default=True),
+            ParameterSpec(name="allow_declared_root_hypothesis", default=False),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -410,6 +418,7 @@ class TwinNetworkQuery:
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
         store_distribution = params.get("store_distribution", True) is not False
+        allow_declared_hypothesis = params.get("allow_declared_root_hypothesis", False) is True
 
         seed = int(params.get("__seed__", 0) or 0)
         rng_param = params.get("__rng__")
@@ -424,6 +433,23 @@ class TwinNetworkQuery:
         order = _topological_order(scm_spec)
         parents_map = _parents_by_node(scm_spec)
         mechanisms = _mechanism_map(scm_spec)
+        roots = {node for node, parents in parents_map.items() if not parents}
+        missing_root_nodes = sorted(
+            node
+            for node in roots
+            if node not in mechanisms and node != payload.treatment_variable
+        )
+        if missing_root_nodes and not allow_declared_hypothesis:
+            raise ValueError(
+                "missing mechanism for required root node(s): "
+                f"{missing_root_nodes}; provide fitted carriers or explicitly enable "
+                "allow_declared_root_hypothesis"
+            )
+        if missing_root_nodes:
+            warnings.append(
+                "declared root hypothesis used for missing node(s): "
+                f"{missing_root_nodes}; result is limited and not gate eligible"
+            )
 
         abduced_noises: dict[str, float] = {}
         if payload.factual_condition:
@@ -456,6 +482,7 @@ class TwinNetworkQuery:
             n_samples=n_samples,
             rng=rng,
             warnings=warnings,
+            allow_declared_hypothesis=allow_declared_hypothesis,
         )
 
         # ── STATISTICS ────────────────────────────────────────────────────────
@@ -508,6 +535,7 @@ class TwinNetworkQuery:
                 "n_abduced_nodes": len(abduced_noises),
                 "factual_treatment_value": payload.factual_treatment_value,
                 "counterfactual_treatment_value": payload.counterfactual_treatment_value,
+                "declared_root_hypothesis": missing_root_nodes,
             },
         )
 
@@ -528,8 +556,11 @@ class TwinNetworkQuery:
                 "outcome_variable": payload.outcome_variable,
                 "ite_std": result.ite_std,
                 "po_correlation": result.po_correlation,
+                "declared_root_hypothesis": missing_root_nodes,
             },
         )
+        if missing_root_nodes:
+            envelope = envelope.model_copy(update={"gate_eligible": False})
 
         return {
             "twin_network_result": result,

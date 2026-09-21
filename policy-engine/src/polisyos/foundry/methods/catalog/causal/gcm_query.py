@@ -181,6 +181,10 @@ def _mechanism_predict(
         polynomial = _polynomial_predict(mechanism, parent_values)
         if polynomial is not None:
             return polynomial
+        if mechanism.family_params.get("fit_mode") == "additive_noise_poly":
+            raise ValueError(
+                f"invalid additive_noise polynomial payload for node '{mechanism.variable}'"
+            )
     return _linear_predict(mechanism, parent_values)
 
 
@@ -316,8 +320,14 @@ def _sample_node_value(
     linear_noise_override: float | None = None,
     sample_index: int | None = None,
     observed_root_samples: Mapping[str, Sequence[float]] | None = None,
+    allow_declared_hypothesis: bool = False,
 ) -> float:
     if mechanism is None:
+        if not allow_declared_hypothesis:
+            raise ValueError(
+                "missing mechanism for node; provide a fitted root carrier or explicitly "
+                "enable the declared root hypothesis"
+            )
         _append_warning(
             warnings,
             "missing mechanism for node; using a declared hypothesis only "
@@ -382,6 +392,10 @@ def _sample_node_value(
                 return float(polynomial + linear_noise_override)
             std = _linear_noise_std(mechanism)
             return float(polynomial + rng.normal(scale=std)) if std > 0.0 else float(polynomial)
+        if mechanism.family_params.get("fit_mode") == "additive_noise_poly":
+            raise ValueError(
+                f"invalid additive_noise polynomial payload for node '{mechanism.variable}'"
+            )
         _append_warning(
             warnings,
             "mechanism family 'additive_noise' lacks a valid polynomial payload; "
@@ -395,6 +409,7 @@ def _sample_node_value(
             linear_noise_override=linear_noise_override,
             sample_index=sample_index,
             observed_root_samples=observed_root_samples,
+            allow_declared_hypothesis=allow_declared_hypothesis,
         )
 
     if mechanism.family in {
@@ -417,6 +432,7 @@ def _sample_node_value(
                 linear_noise_override=linear_noise_override,
                 sample_index=sample_index,
                 observed_root_samples=observed_root_samples,
+                allow_declared_hypothesis=allow_declared_hypothesis,
             )
         return _sample_node_value(
             mechanism=mechanism.model_copy(update={"family": MechanismFamily.EMPIRICAL}),
@@ -426,6 +442,7 @@ def _sample_node_value(
             linear_noise_override=linear_noise_override,
             sample_index=sample_index,
             observed_root_samples=observed_root_samples,
+            allow_declared_hypothesis=allow_declared_hypothesis,
         )
 
     raise ValueError(f"unsupported mechanism family: {mechanism.family.value}")
@@ -601,6 +618,29 @@ def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     return None
 
 
+def _required_missing_root_nodes(
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+) -> list[str]:
+    """Find roots whose natural law is required but has no fitted carrier."""
+    roots = set(scm_spec.graph.nodes) - {
+        edge.dst for edge in scm_spec.graph.edges if edge.lag in (None, 0)
+    }
+    mechanisms = _mechanism_map(scm_spec)
+    intervention = _effective_intervention(query)
+    directly_intervened_root = (
+        query.treatment_variable in roots
+        and intervention is not None
+        and intervention.type is InterventionType.ATOMIC
+    )
+    return sorted(
+        root
+        for root in roots
+        if root not in mechanisms
+        and not (directly_intervened_root and root == query.treatment_variable)
+    )
+
+
 def _simulate_samples(
     *,
     scm_spec: StructuralCausalModelSpec,
@@ -611,6 +651,7 @@ def _simulate_samples(
     intervention_override: InterventionSpec | None = None,
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
+    allow_declared_hypothesis: bool = False,
 ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
@@ -662,15 +703,26 @@ def _simulate_samples(
                     if query.query_type is QueryType.COUNTERFACTUAL
                     else None
                 )
-                value = _sample_node_value(
-                    mechanism=mechanism,
-                    parent_values=parent_values,
-                    rng=rng,
-                    warnings=warnings,
-                    linear_noise_override=noise_override,
-                    sample_index=root_sample_index,
-                    observed_root_samples=observed_root_samples,
-                )
+                if (
+                    mechanism is None
+                    and node == query.treatment_variable
+                    and intervention is not None
+                    and intervention.type is InterventionType.ATOMIC
+                ):
+                    # An explicit do(X=x) fully determines a missing root's
+                    # natural law for this query.
+                    value = 0.0
+                else:
+                    value = _sample_node_value(
+                        mechanism=mechanism,
+                        parent_values=parent_values,
+                        rng=rng,
+                        warnings=warnings,
+                        linear_noise_override=noise_override,
+                        sample_index=root_sample_index,
+                        observed_root_samples=observed_root_samples,
+                        allow_declared_hypothesis=allow_declared_hypothesis,
+                    )
 
             if node == query.treatment_variable and intervention is not None:
                 baseline = float(condition[node]) if node in condition else float(value)
@@ -880,6 +932,7 @@ class GCMQuery:
             ParameterSpec(name="enable_dowhy_comparison", default=True),
             ParameterSpec(name="dowhy_method_name", default="backdoor.linear_regression"),
             ParameterSpec(name="dowhy_control_value", default=0.0),
+            ParameterSpec(name="allow_declared_root_hypothesis", default=False),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -894,7 +947,10 @@ class GCMQuery:
         tags=frozenset({"causal", "structural", "gcm", "query"}),
         assumptions={
             "acyclic_graph": "SCM graph must be acyclic for topological sampling.",
-            "mechanism_coverage": "Missing/unsupported mechanisms use deterministic fallbacks.",
+            "mechanism_coverage": (
+                "Missing root mechanisms fail closed unless the caller explicitly opts into "
+                "a limited declared hypothesis; such results are not gate eligible."
+            ),
             "counterfactual_scope": (
                 "Counterfactual abduction-action-prediction is exact only for "
                 "linear mechanisms with identifiable residuals."
@@ -923,6 +979,20 @@ class GCMQuery:
         confidence_level = float(params.get("confidence_level", 0.95))
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
+        allow_declared_hypothesis = params.get("allow_declared_root_hypothesis", False) is True
+        missing_root_nodes = _required_missing_root_nodes(scm_spec, query)
+        if missing_root_nodes and not allow_declared_hypothesis:
+            raise ValueError(
+                "missing mechanism for required root node(s): "
+                f"{missing_root_nodes}; provide fitted carriers or explicitly enable "
+                "allow_declared_root_hypothesis"
+            )
+        if missing_root_nodes:
+            _append_warning(
+                warnings,
+                "declared root hypothesis used for missing node(s): "
+                f"{missing_root_nodes}; result is limited and not gate eligible",
+            )
 
         warnings: list[str] = []
         started_at = time.perf_counter()
@@ -939,6 +1009,7 @@ class GCMQuery:
                 warnings=warnings,
                 intervention_override=intervention,
                 condition_override={},
+                allow_declared_hypothesis=allow_declared_hypothesis,
             )
             baseline, _ = _simulate_samples(
                 scm_spec=scm_spec,
@@ -948,6 +1019,7 @@ class GCMQuery:
                 warnings=warnings,
                 intervention_override=None,
                 condition_override={},
+                allow_declared_hypothesis=allow_declared_hypothesis,
             )
             samples = treated - baseline
         else:
@@ -958,6 +1030,7 @@ class GCMQuery:
                 rng=rng,
                 warnings=warnings,
                 intervention_override=_effective_intervention(query),
+                allow_declared_hypothesis=allow_declared_hypothesis,
             )
 
         result_mean = float(np.mean(samples))
@@ -982,12 +1055,25 @@ class GCMQuery:
             metadata={
                 "confidence_level": confidence_level,
                 "warnings_count": len(warnings),
+                "declared_root_hypothesis": missing_root_nodes,
             },
         )
 
+        envelope = query_result.to_uncertainty_envelope()
+        if missing_root_nodes:
+            envelope = envelope.model_copy(
+                update={
+                    "gate_eligible": False,
+                    "metadata": {
+                        **dict(envelope.metadata),
+                        "declared_root_hypothesis": missing_root_nodes,
+                    },
+                }
+            )
+
         output: dict[str, Any] = {
             "query_result": query_result,
-            "envelope": query_result.to_uncertainty_envelope(),
+            "envelope": envelope,
             "warnings": warnings,
             "__determinism_tier__": DeterminismTier.STATISTICAL,
         }

@@ -85,6 +85,9 @@ def _run_bounded(
             except StopIteration:
                 exhausted = True
                 return
+            if cancel_event is not None and cancel_event.is_set():
+                cancelled = True
+                return
             future = executor.submit(process, artifact_id)
             pending[future] = (next_index, artifact_id)
             next_index += 1

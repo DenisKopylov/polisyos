@@ -336,3 +336,60 @@ def test_verify_batch_cancellation_stops_new_submissions_and_is_reported(
         and "cancel" in (item.message or "").lower()
         for item in report.details
     )
+
+
+def test_default_batch_path_stops_lazy_inventory_on_cancellation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The public default inventory path must not list every manifest first."""
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = [
+        store.put_bytes(
+            f"cas-03-default-inventory-{index}".encode(),
+            PutOptions(kind="cas03.default-inventory", media_type="application/octet-stream"),
+        )
+        for index in range(12)
+    ]
+    cancel_event = threading.Event()
+    yielded: list[ArtifactID] = []
+    delayed = threading.Event()
+    original_inventory = store._iter_artifact_ids_lazy
+
+    def delayed_inventory():
+        for index, artifact_id in enumerate(original_inventory()):
+            yielded.append(artifact_id)
+            if index == 1:
+                delayed.set()
+                cancel_event.wait(timeout=2)
+            yield artifact_id
+
+    def fake_verify(
+        artifact_id: ArtifactID,
+        _verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        del strict_identity
+        cancel_event.set()
+        return _valid_result(artifact_id)
+
+    monkeypatch.setattr(store, "_iter_artifact_ids_lazy", delayed_inventory)
+    monkeypatch.setattr(store, "verify_signature", fake_verify)
+
+    report = store.verify_all_signatures(
+        Ed25519Verifier(),
+        max_workers=1,
+        pending_window=2,
+        cancel_event=cancel_event,
+    )
+
+    assert delayed.is_set()
+    assert len(yielded) < len(refs)
+    assert report.valid < report.total
+    assert report.errors >= 1
+    assert any(
+        item.status == SignatureVerificationStatus.ERROR
+        and "cancel" in (item.message or "").lower()
+        for item in report.details
+    )

@@ -9,10 +9,12 @@ import pytest
 
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
+    CandidateSummary,
     GenerationCycleController,
     PromotionPortObservation,
     SimulationPortObservation,
     ValuePortObservation,
+    _n7_reentered_summaries,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -330,6 +332,48 @@ def test_blocked_candidate_remains_in_history_with_typed_reason() -> None:
         "usable-second",
     )
     assert grounded["selected_candidate"].candidate_id == "usable-second"
+
+
+def test_n7_reentry_replaces_grounding_reason_and_report_ref() -> None:
+    old_summary = CandidateSummary(
+        candidate_id="reentered-candidate",
+        content_hash="sha256:" + "4" * 64,
+        cycle_index=0,
+        proxy_score=0.2,
+        voi_estimate=0.4,
+        grounding_status="grounding_unavailable",
+        grounding_source="grounding_unavailable",
+        grounding_issue_codes=("old_missing_owner_input",),
+        grounding_report_ref="grounding://old",
+        grounding_score=0.0,
+        current_valid=False,
+        front="research",
+        high_proxy=False,
+        low_grounding=True,
+    )
+    rederived = CandidateGroundingObservation(
+        candidate_id="reentered-candidate",
+        status="current_valid",
+        grounding_score=0.95,
+        issue_codes=("owner_input_revalidated",),
+        evidence_refs=("evidence://revalidated",),
+        current_valid=True,
+        report_ref="grounding://new",
+        grounding_source="cgf_firewall",
+        grounding_disposition="shadow_bound",
+    )
+
+    updated = _n7_reentered_summaries(
+        (old_summary,),
+        candidate_id="reentered-candidate",
+        grounding=rederived,
+        low_grounding_threshold=0.5,
+    )[0]
+
+    assert updated.grounding_issue_codes == ("owner_input_revalidated",)
+    assert updated.grounding_report_ref == "grounding://new"
+    assert updated.grounding_issue_codes != old_summary.grounding_issue_codes
+    assert updated.grounding_report_ref != old_summary.grounding_report_ref
 
 
 def test_informative_candidate_is_not_rejected_by_unknown_monetary_proxy_inside_budget() -> None:

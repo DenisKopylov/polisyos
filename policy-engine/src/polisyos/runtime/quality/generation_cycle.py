@@ -4953,6 +4953,8 @@ def _n7_reentered_summaries(
                     "grounding_status": grounding.status,
                     "grounding_source": grounding.grounding_source,
                     "grounding_disposition": grounding.grounding_disposition,
+                    "grounding_issue_codes": grounding.issue_codes,
+                    "grounding_report_ref": grounding.report_ref,
                     "grounding_score": grounding.grounding_score,
                     "current_valid": grounding.current_valid,
                     "front": front,

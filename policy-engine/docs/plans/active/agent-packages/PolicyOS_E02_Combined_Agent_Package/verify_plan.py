@@ -147,10 +147,11 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
         require(b['initial_status']=='planned' and b['checkpoint_status']=='not_run', f'{bid} premature completion')
         require(b['checkpoint'] in {f'CP{x}' for x in range(1,7)}, f'{bid} ambiguous checkpoint ID')
         require(b['check_class'] in {'L','N'}, f'{bid} invalid local test class')
+    require(m['first_dispatch_status'] == 'historical_seed_only_not_current_queue', 'Historical seed was promoted to active dispatch')
     first=m['first_dispatch']
-    require(len(first)==9 and len(set(first))==9, 'Initial writer count mismatch')
-    require(all(not graph[x] for x in first), 'Initial dispatch waits for prerequisite')
-    require(not any(pair<=set(first) for pair in supplied), 'Initial dispatch conflict')
+    require(len(first)==9 and len(set(first))==9, 'Historical seed count mismatch')
+    require(all(not graph[x] for x in first), 'Historical seed dependency integrity changed')
+    require(not any(pair<=set(first) for pair in supplied), 'Historical seed conflict integrity changed')
     reloc=load(root,'relocation_map.json')['moves']
     require(len(reloc)==21, 'Relocation map count mismatch')
     for move in reloc:

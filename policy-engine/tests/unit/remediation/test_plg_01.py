@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterator
-from pathlib import Path
 from types import ModuleType
+from pathlib import Path
 
 import pytest
 
@@ -370,7 +370,7 @@ def test_legacy_entry_point_group_and_domain_plugin_abi_are_preserved(
     ]
     assert len(entrypoint_plugins) == 1
     assert isinstance(entrypoint_plugins[0], DomainPlugin)
-    assert plugin_discovery.CANONICAL_METHOD_ENTRY_POINT_GROUP != seen_groups[0]
+    assert seen_groups[0] != plugin_discovery.CANONICAL_METHOD_ENTRY_POINT_GROUP
 
 
 def test_builtin_economics_plugin_preserves_domain_abi_and_lifecycle(

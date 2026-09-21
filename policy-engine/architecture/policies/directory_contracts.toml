@@ -574,6 +574,27 @@ ignored_descendant_retention = "source_adjacent_tool_caches"
 evidence_or_generated_artifact_promotion_path = "examples/<example-name>/README.md or docs/tutorials/"
 
 [[contract]]
+path = "frontend"
+status = "reserved_future"
+role = "Contributor handoff for the former JavaScript workspace root. Active apps live under apps/ and shared JavaScript packages live under packages/."
+owner = "team-frontend"
+lifecycle_class = "frontend_handoff"
+topology_category = "docs"
+topology_commit_policy = "committed"
+allowed_file_kinds = [
+  "documentation",
+]
+allowed_child_directory_kinds = ["legacy_handoff", "editor_residue"]
+python_import_policy = "not_importable"
+generated_output_policy = "no generated outputs; old workspace paths are redirects or handoff documentation only"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "Root README.md required and must point contributors to apps/ and packages/."
+max_root_loose_files = 1
+root_loose_file_policy = "No active source or package manifests under frontend/."
+ignored_descendant_retention = "editor_residue_only"
+evidence_or_generated_artifact_promotion_path = "architecture/frontend_workspaces.toml and architecture/generated_artifacts.toml"
+
+[[contract]]
 path = "apps"
 status = "active"
 role = "JavaScript application workspace root for operator-facing apps and static shells."

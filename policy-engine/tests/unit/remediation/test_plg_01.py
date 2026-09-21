@@ -15,15 +15,19 @@ from __future__ import annotations
 import sys
 from collections.abc import Iterator
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
+from polisyos.core import discovery as core_discovery
+from polisyos.core.discovery import discovery_module_name
 from polisyos.foundry.plugins import discovery as plugin_discovery
 from polisyos.foundry.plugins.core import (
     DomainPlugin,
     PluginMetadata,
     PluginRegistry,
 )
+from polisyos.foundry.plugins.economics import EconomicsPlugin
 
 
 _NO_MATCHING_PACKAGE_PREFIX = "plg01_no_matching_distribution_"
@@ -99,7 +103,7 @@ def _reverse_root_iteration(monkeypatch: pytest.MonkeyPatch, root: Path) -> None
 
     def reversed_iterdir(path: Path) -> Iterator[Path]:
         entries = list(original_iterdir(path))
-        if path == root:
+        if root == path:
             return iter(reversed(entries))
         return iter(entries)
 
@@ -138,10 +142,6 @@ def test_dev_plugin_loading_uses_the_core_file_loader_seam(
     tmp_path: Path,
 ) -> None:
     """The adapter delegates source-file loading to Core's shared primitive."""
-
-    from types import ModuleType
-
-    from polisyos.core import discovery as core_discovery
 
     _isolate_core_entry_points(monkeypatch)
     plugin_file = _write_dev_plugin(tmp_path, "selected", "plg01-selected") / "plugin.py"
@@ -210,8 +210,6 @@ def test_import_errors_are_reported_in_stable_source_order(
     assert "plg01-alpha-import-error" in messages[0]
     assert "plg01-zeta-import-error" in messages[1]
 
-    from polisyos.core.discovery import discovery_module_name
-
     broken_files = {alpha_dir / "plugin.py", zeta_dir / "plugin.py"}
     core_candidate_names = {
         discovery_module_name(
@@ -253,7 +251,7 @@ def test_duplicate_ids_keep_deterministic_winner_and_visible_registration_error(
         )
 
     assert "plg01-shared" in registered
-    assert getattr(registry.get("plg01-shared"), "source") == "alpha-source"
+    assert registry.get("plg01-shared").source == "alpha-source"
     registry.clear()
 
 
@@ -379,8 +377,6 @@ def test_builtin_economics_plugin_preserves_domain_abi_and_lifecycle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The real builtin plugin remains a DomainPlugin through registry lifecycle."""
-
-    from polisyos.foundry.plugins.economics import EconomicsPlugin
 
     _isolate_core_entry_points(monkeypatch)
     plugins = plugin_discovery.discover_plugins(

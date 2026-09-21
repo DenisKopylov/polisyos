@@ -457,6 +457,42 @@ def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: 
     assert store.get_bytes(current_ref.artifact_id)
 
 
+def test_legacy_result_rejects_self_attested_provenance_conflict(tmp_path: Path) -> None:
+    """A legacy payload cannot override the CAS manifest's source provenance."""
+    store = FileSystemCAS(tmp_path / "cas")
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+    )
+    result = CausalQueryResult(
+        query=query,
+        result_mean=6.0,
+        result_std=0.0,
+        result_ci=(6.0, 6.0),
+        metadata={
+            "source_schema_version": "9.9",
+            "source_schema_name": "attacker.claimed.schema",
+        },
+    )
+    legacy_payload = result.model_dump(mode="json")
+    legacy_payload["schema_version"] = "1.0"
+    legacy_ref = store.put_json(
+        legacy_payload,
+        PutOptions(
+            kind="ir.causal_query_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.causal_query_result", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    typed_legacy_ref = CausalQueryResultRef.model_validate(legacy_ref.model_dump(mode="json"))
+
+    with pytest.raises(ValueError, match="provenance|manifest"):
+        load_causal_query_result(store, typed_legacy_ref)
+
+
 def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

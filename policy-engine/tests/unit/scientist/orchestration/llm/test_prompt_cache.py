@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
 
 import pytest
@@ -27,6 +28,50 @@ class _FakeLLMClient:
 
     async def generate(self, *args, **kwargs):
         self.calls.append((args, dict(kwargs)))
+        prompt = str(args[0]) if args else str(kwargs.get("user") or kwargs.get("prompt") or "")
+        return _make_response(f"answer:{prompt}")
+
+
+def _frozen_snapshot_metadata(
+    *,
+    tenant: str = "tenant-a",
+    scope: str = "policy-a",
+    content_hash: str = "sha256:" + "a" * 64,
+) -> dict[str, object]:
+    """Return the explicit immutable-snapshot permission used by B67 tests."""
+
+    return {
+        "cache_reuse": {
+            "snapshot": {
+                "ref": "artifact://evidence/policy-a",
+                "content_hash": content_hash,
+                "version": "snapshot-v1",
+                "immutable": True,
+            },
+            "permission": {
+                "allowed": True,
+                "tenant": tenant,
+                "scope": scope,
+            },
+            "tenant": tenant,
+            "scope": scope,
+        }
+    }
+
+
+class _SlowLLMClient(_FakeLLMClient):
+    def __init__(self, *, fail_first: bool = False) -> None:
+        super().__init__()
+        self.started = asyncio.Event()
+        self.release = asyncio.Event()
+        self.fail_first = fail_first
+
+    async def generate(self, *args, **kwargs):
+        self.calls.append((args, dict(kwargs)))
+        self.started.set()
+        await self.release.wait()
+        if self.fail_first and len(self.calls) == 1:
+            raise RuntimeError("provider failed")
         prompt = str(args[0]) if args else str(kwargs.get("user") or kwargs.get("prompt") or "")
         return _make_response(f"answer:{prompt}")
 
@@ -267,3 +312,165 @@ class TestCachingLLMClient:
             "retrieval_freshness_guard": 1,
             "tools_present": 1,
         }
+
+    @pytest.mark.asyncio
+    async def test_frozen_snapshot_with_url_reuses(self):
+        base_client = _FakeLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+
+        first = await client.generate(
+            user="Use https://example.org/frozen report with uncertainty_notes",
+            metadata=metadata,
+            temperature=0.0,
+        )
+        second = await client.generate(
+            user="Use https://example.org/frozen report with uncertainty_notes",
+            metadata=metadata,
+            temperature=0.0,
+        )
+
+        assert first.content == second.content
+        assert len(base_client.calls) == 1
+        assert client._cache.stats()["hits"] == 1
+
+    @pytest.mark.asyncio
+    async def test_live_url_without_snapshot_skips(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+
+        await client.generate(user="Use https://example.org/live report", temperature=0.0)
+        await client.generate(user="Use https://example.org/live report", temperature=0.0)
+
+        assert len(base_client.calls) == 2
+        assert cache.size == 0
+        assert cache.stats()["skips"] == 2
+
+    @pytest.mark.asyncio
+    async def test_four_identical_allowed_misses_single_flight(self):
+        base_client = _SlowLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        tasks = [
+            asyncio.create_task(
+                client.generate(
+                    user="Use https://example.org/frozen report",
+                    metadata=metadata,
+                    temperature=0.0,
+                )
+            )
+            for _ in range(4)
+        ]
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        base_client.release.set()
+        responses = await asyncio.gather(*tasks)
+
+        assert len(base_client.calls) == 1
+        assert [response.content for response in responses] == ["answer:Use https://example.org/frozen report"] * 4
+
+    @pytest.mark.asyncio
+    async def test_different_seed_and_tenant_are_separate_flights(self):
+        base_client = _SlowLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        first = asyncio.create_task(
+            client.generate(
+                user="same prompt",
+                seed=1,
+                metadata=_frozen_snapshot_metadata(tenant="tenant-a"),
+                temperature=0.0,
+            )
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        second = asyncio.create_task(
+            client.generate(
+                user="same prompt",
+                seed=2,
+                metadata=_frozen_snapshot_metadata(tenant="tenant-b"),
+                temperature=0.0,
+            )
+        )
+        await asyncio.sleep(0)
+        base_client.release.set()
+        await asyncio.gather(first, second)
+
+        assert len(base_client.calls) == 2
+
+    @pytest.mark.asyncio
+    async def test_cancelled_follower_does_not_cancel_owner(self):
+        base_client = _SlowLLMClient()
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        owner = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        follower = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.sleep(0)
+        follower.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await follower
+
+        base_client.release.set()
+        response = await owner
+
+        assert response.content == "answer:same prompt"
+        assert len(base_client.calls) == 1
+
+    @pytest.mark.asyncio
+    async def test_failed_owner_clears_inflight_entry(self):
+        base_client = _SlowLLMClient(fail_first=True)
+        client = CachingLLMClient(
+            base_client,
+            cache=InMemoryPromptCache(maxsize=10, default_ttl_s=3600),
+            model="m",
+            ttl_s=3600,
+        )
+        metadata = _frozen_snapshot_metadata()
+        first = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        follower = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.sleep(0)
+        base_client.release.set()
+        results = await asyncio.gather(first, follower, return_exceptions=True)
+
+        assert all(isinstance(result, RuntimeError) for result in results)
+        assert len(base_client.calls) == 1
+
+        base_client.started.clear()
+        base_client.release.clear()
+        retry = asyncio.create_task(
+            client.generate("same prompt", metadata=metadata, temperature=0.0)
+        )
+        await asyncio.wait_for(base_client.started.wait(), timeout=1.0)
+        base_client.release.set()
+        response = await retry
+
+        assert response.content == "answer:same prompt"
+        assert len(base_client.calls) == 2

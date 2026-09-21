@@ -16,7 +16,7 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from polisyos.data_forge.domains.ukraine.models import StageId, SourceConfig
+from polisyos.data_forge.domains.ukraine.models import SourceConfig, StageId
 from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
 

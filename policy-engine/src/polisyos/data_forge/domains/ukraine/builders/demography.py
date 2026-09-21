@@ -10,13 +10,13 @@ import pandas as pd
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
 from polisyos.data_forge.kernel.io import ensure_dirs
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
     ObservationFamily,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 from .common import (
     OBSERVATION_FRAME_COLUMNS,

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import shutil
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -20,8 +19,8 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
-from polisyos.data_forge.kernel.io import ensure_dirs
 from polisyos.data_forge.domains.ukraine.resources import directory_size_bytes
+from polisyos.data_forge.kernel.io import ensure_dirs
 
 from .common import (
     StageBuildResult,
@@ -34,6 +33,9 @@ from .common import (
     _write_json,
     _write_npz,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _build_embedding_matrix(frame: pd.DataFrame, n_components: int) -> np.ndarray:

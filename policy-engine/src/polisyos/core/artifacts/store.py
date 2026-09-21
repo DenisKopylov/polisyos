@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from contextlib import ExitStack
-from pathlib import Path
 import re
 import threading
 import time
+from contextlib import ExitStack
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ..canon import content_hash
@@ -973,11 +973,14 @@ class FileSystemCAS:
                 staged_signature_data = (
                     staged_signature.read_bytes() if staged_signature is not None else None
                 )
-                if existing_signature is not None and staged_signature_data is not None:
-                    if existing_signature != staged_signature_data:
-                        raise ValueError(
-                            f"Existing detached signature conflicts for {artifact_id}"
-                        )
+                if (
+                    existing_signature is not None
+                    and staged_signature_data is not None
+                    and existing_signature != staged_signature_data
+                ):
+                    raise ValueError(
+                        f"Existing detached signature conflicts for {artifact_id}"
+                    )
 
                 if blob_exists:
                     self._require_artifact_owner(artifact_id, operation="import")
@@ -1075,13 +1078,12 @@ class FileSystemCAS:
                 tenant_id, cell_id = self._resolve_owner(
                     required=self._ownership_requires_scope
                 )
-                if tenant_id is not None:
-                    if not self._ownership_index.is_owned_by(
-                        artifact_id,
-                        tenant_id=tenant_id,
-                        cell_id=cell_id,
-                    ):
-                        continue
+                if tenant_id is not None and not self._ownership_index.is_owned_by(
+                    artifact_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ):
+                    continue
             ids.append(artifact_id)
         return ids
 

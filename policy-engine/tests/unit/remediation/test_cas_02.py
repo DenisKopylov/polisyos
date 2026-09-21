@@ -176,6 +176,41 @@ def test_reused_directory_export_publishes_exact_new_inventory_without_a_to_b_le
     assert manifest["members"] == sorted(expected_members)
 
 
+def test_failed_reused_directory_export_preserves_prior_complete_generation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed replacement leaves the previously published directory intact."""
+    import polisyos.core.artifacts._transfer_ops as transfer_ops
+
+    source = FileSystemCAS(tmp_path / "source")
+    artifact_a = source.put_bytes(PAYLOAD_A, _options())
+    artifact_b = source.put_bytes(PAYLOAD_B, _options())
+    export_root = tmp_path / "reused-export"
+
+    source.export_subgraph([artifact_a.artifact_id], export_root, compress=False)
+    prior_members = {
+        path.relative_to(export_root): path.read_bytes()
+        for path in export_root.rglob("*")
+        if path.is_file()
+    }
+
+    def fail_replacement_copy(*_args: object, **_kwargs: object) -> None:
+        raise OSError("injected replacement copy failure")
+
+    monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+
+    with pytest.raises(OSError, match="replacement copy"):
+        source.export_subgraph([artifact_b.artifact_id], export_root, compress=False)
+
+    current_members = {
+        path.relative_to(export_root): path.read_bytes()
+        for path in export_root.rglob("*")
+        if path.is_file()
+    }
+    assert current_members == prior_members
+
+
 def test_import_rejects_valid_but_unlisted_member_from_export_inventory(
     tmp_path: Path,
 ) -> None:

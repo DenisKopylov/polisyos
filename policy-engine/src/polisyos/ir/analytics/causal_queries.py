@@ -370,6 +370,17 @@ class CausalQueryResult(BaseModel):
         return self
 
     def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
+        metadata = dict(self.metadata)
+        if self.query.contrast is not None:
+            target_payload = self.query.contrast.target.model_dump(mode="json")
+            comparator_payload = self.query.contrast.comparator.model_dump(mode="json")
+            for key, expected in (
+                ("contrast_target", target_payload),
+                ("contrast_comparator", comparator_payload),
+            ):
+                if key in metadata and metadata[key] != expected:
+                    raise ValueError(f"{key} metadata conflicts with query contrast")
+                metadata[key] = expected
         return UncertaintyEnvelope(
             point_estimate=float(self.result_mean),
             confidence_interval=(
@@ -388,7 +399,7 @@ class CausalQueryResult(BaseModel):
                 "query_type": self.query.query_type.value,
                 "treatment_variable": self.query.treatment_variable,
                 "outcome_variable": self.query.outcome_variable,
-                **dict(self.metadata),
+                **metadata,
             },
         )
 
@@ -460,9 +471,25 @@ def load_causal_query_result(
     normalized_payload["schema_version"] = source_version
     if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
         metadata = dict(normalized_payload.get("metadata") or {})
-        metadata.setdefault("source_schema_version", source_version)
+        claimed_source_version = metadata.get("source_schema_version")
+        if claimed_source_version is not None and claimed_source_version != source_version:
+            raise ValueError(
+                "legacy causal query result provenance conflicts with CAS manifest version: "
+                f"payload={claimed_source_version}, manifest={source_version}"
+            )
+        metadata["source_schema_version"] = source_version
         if schema is not None:
-            metadata.setdefault("source_schema_name", str(getattr(schema, "name", "")))
+            authoritative_schema_name = str(getattr(schema, "name", ""))
+            claimed_schema_name = metadata.get("source_schema_name")
+            if (
+                claimed_schema_name is not None
+                and claimed_schema_name != authoritative_schema_name
+            ):
+                raise ValueError(
+                    "legacy causal query result provenance conflicts with CAS manifest name: "
+                    f"payload={claimed_schema_name}, manifest={authoritative_schema_name}"
+                )
+            metadata["source_schema_name"] = authoritative_schema_name
         normalized_payload["metadata"] = metadata
     return CausalQueryResult.model_validate(normalized_payload)
 

@@ -926,16 +926,21 @@ def _required_missing_root_nodes(
     scm_spec: StructuralCausalModelSpec,
     query: CausalQuery,
 ) -> list[str]:
-    """Find roots whose natural law is required but has no fitted carrier."""
+    """Find roots whose natural law is required by any simulated query arm."""
     roots = set(scm_spec.graph.nodes) - {
         edge.dst for edge in scm_spec.graph.edges if edge.lag in (None, 0)
     }
     mechanisms = _mechanism_map(scm_spec)
-    intervention = _effective_intervention(query)
+    interventions: list[InterventionSpec | None] = [_effective_intervention(query)]
+    if query.query_type is QueryType.ATTRIBUTION:
+        interventions.append(_attribution_comparator(query))
+    all_arms_atomic = all(
+        intervention is not None and intervention.type is InterventionType.ATOMIC
+        for intervention in interventions
+    )
     directly_intervened_root = (
         query.treatment_variable in roots
-        and intervention is not None
-        and intervention.type is InterventionType.ATOMIC
+        and all_arms_atomic
     )
     return sorted(
         root

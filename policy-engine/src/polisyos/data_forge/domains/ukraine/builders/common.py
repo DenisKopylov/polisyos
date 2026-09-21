@@ -31,9 +31,10 @@ from polisyos.data_forge.domains.ukraine.models import (
     StageId,
 )
 from polisyos.data_forge.kernel.io import ensure_dirs
-from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.model_layer import types as _model_layer_types
 from polisyos.ir.observation.contracts import ObservationFamily
 
+from . import observation as _observation
 from .contracts import StageBuildResult as _StageBuildResult
 
 if TYPE_CHECKING:
@@ -41,55 +42,14 @@ if TYPE_CHECKING:
 
 
 StageBuildResult = _StageBuildResult
+TimeFrequency = _model_layer_types.TimeFrequency
+MONTHLY_END_MONTH = _observation.MONTHLY_END_MONTH
+OBSERVATION_FRAME_COLUMNS = _observation.OBSERVATION_FRAME_COLUMNS
+_period_to_dates = _observation._period_to_dates
 
 
 def _clip_value(value: float, *, lower: float, upper: float) -> float:
     return float(min(max(value, lower), upper))
-
-
-MONTHLY_END_MONTH = {
-    1: 31,
-    2: 28,
-    3: 31,
-    4: 30,
-    5: 31,
-    6: 30,
-    7: 31,
-    8: 31,
-    9: 30,
-    10: 31,
-    11: 30,
-    12: 31,
-}
-
-OBSERVATION_FRAME_COLUMNS = [
-    "observation_id",
-    "family",
-    "time_grain",
-    "period_start",
-    "period_end",
-    "entity_scope",
-    "entity_id",
-    "cell_id",
-    "region_code",
-    "sector_id",
-    "metric_id",
-    "observed_value",
-    "unit",
-    "coverage_estimate",
-    "measurement_bias_flag",
-    "censoring_mask",
-    "trust_weight",
-    "lag_days_estimate",
-    "source_id",
-    "source_version",
-    "regime_id",
-    "shock_mask",
-    "schema_regime_id",
-    "identification_mode",
-    "source_confidence_tier",
-    "proxy_source_id",
-]
 
 
 @dataclass(frozen=True)
@@ -294,40 +254,6 @@ def _select_procurement_frame(
         warnings.append("procurement_source_empty:spending_contracts_procurement_proxy")
     warnings.append("procurement_source_selected:prozorro_full")
     return _load_source_frame(config, "prozorro_full", columns=columns), "prozorro_full", warnings
-
-
-def _period_to_dates(period_value: object, time_grain: TimeFrequency) -> tuple[date, date]:
-    text = str(period_value).strip()
-    normalized = text.upper()
-    year = 2025
-    month = 1
-    quarter_from_text: int | None = None
-
-    if re.match(r"^\d{4}$", normalized):
-        year = int(normalized[:4])
-    elif match := re.match(r"^(\d{4})[-_/]?Q([1-4])$", normalized):
-        year = int(match.group(1))
-        quarter_from_text = int(match.group(2))
-        month = (quarter_from_text - 1) * 3 + 1
-    elif (
-        (match := re.match(r"^(\d{4})[-_/]?M(\d{1,2})$", normalized))
-        or (match := re.match(r"^(\d{4})-(\d{2})-(\d{2})$", normalized))
-        or (match := re.match(r"^(\d{4})[-_/]?(\d{2})$", normalized))
-    ):
-        year = int(match.group(1))
-        month = int(match.group(2))
-    month = max(1, min(12, month))
-
-    if time_grain == TimeFrequency.YEAR:
-        start = date(year, 1, 1)
-        return start, date(year, 12, 31)
-    if time_grain == TimeFrequency.QUARTER:
-        quarter = quarter_from_text or max(1, min(4, ((month - 1) // 3) + 1))
-        start_month = (quarter - 1) * 3 + 1
-        end_month = start_month + 2
-        return date(year, start_month, 1), date(year, end_month, MONTHLY_END_MONTH[end_month])
-    start = date(year, month, 1)
-    return start, date(year, month, MONTHLY_END_MONTH[month])
 
 
 def _stable_cell_id(region_code: object, sector_id: object) -> str:

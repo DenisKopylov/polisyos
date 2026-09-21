@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, ClassVar, cast
+from typing import Any, ClassVar, Literal, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -36,6 +36,117 @@ def _resolve_artifact_path(root: Path, *candidates: str) -> Path:
     raise FileNotFoundError(
         f"none of the expected demographic artifact files exist under {root}: {candidates}"
     )
+
+
+_DemographyLayout = Literal["new", "legacy"]
+_LAYOUT_PATHS: dict[_DemographyLayout, dict[str, str]] = {
+    "new": {
+        "targets": "demography/targets.json",
+        "priors": "demography/transition_priors.json",
+        "donor": "demography/donor_pool.json",
+    },
+    "legacy": {
+        "targets": "demography_targets.json",
+        "priors": "demography_transition_priors.json",
+        "donor": "demography_donor_pool.json",
+    },
+}
+_REQUIRED_LAYOUT_MEMBERS = ("targets", "priors")
+
+
+def _layout_member_paths(
+    root: Path,
+    layout: _DemographyLayout,
+) -> dict[str, Path]:
+    """Resolve every member path for one declared demographic layout."""
+    return {
+        member: root / relative_path
+        for member, relative_path in _LAYOUT_PATHS[layout].items()
+    }
+
+
+def _select_demography_layout(
+    root: Path,
+    requested_layout: _DemographyLayout | None,
+) -> tuple[_DemographyLayout, dict[str, Path]]:
+    """Select one complete layout before reading any demographic member."""
+    layout_paths = {
+        layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS
+    }
+    complete_layouts = tuple(
+        layout
+        for layout, paths in layout_paths.items()
+        if all(paths[member].is_file() for member in _REQUIRED_LAYOUT_MEMBERS)
+    )
+
+    if requested_layout is not None:
+        if requested_layout not in _LAYOUT_PATHS:
+            raise ValueError(f"unsupported demographic layout: {requested_layout}")
+        selected_paths = layout_paths[requested_layout]
+        if not all(selected_paths[member].is_file() for member in _REQUIRED_LAYOUT_MEMBERS):
+            raise FileNotFoundError(
+                f"selected demographic layout is incomplete under {root}: "
+                f"{requested_layout}"
+            )
+        selected_donor = selected_paths["donor"]
+        if selected_donor.exists() and not selected_donor.is_file():
+            raise ValueError(
+                f"selected demographic donor member is not a file: {selected_donor}"
+            )
+        other_layout = "legacy" if requested_layout == "new" else "new"
+        other_members = tuple(
+            member
+            for member, path in layout_paths[other_layout].items()
+            if path.exists()
+        )
+        if other_members and not all(
+            layout_paths[other_layout][member].is_file()
+            for member in _REQUIRED_LAYOUT_MEMBERS
+        ):
+            raise ValueError(
+                "demographic layouts are mixed or incomplete; explicit selection "
+                f"cannot ignore {other_layout} members {other_members}"
+            )
+        return requested_layout, selected_paths
+
+    if len(complete_layouts) > 1:
+        raise ValueError(
+            "multiple complete demographic layouts are present; "
+            "select one explicitly"
+        )
+    if len(complete_layouts) == 1:
+        selected_layout = complete_layouts[0]
+        other_layout = "legacy" if selected_layout == "new" else "new"
+        other_members = tuple(
+            member
+            for member, path in layout_paths[other_layout].items()
+            if path.exists()
+        )
+        if other_members:
+            raise ValueError(
+                "demographic layouts are mixed; "
+                f"{selected_layout} is complete but {other_layout} has "
+                f"members {other_members}"
+            )
+        selected_donor = layout_paths[selected_layout]["donor"]
+        if selected_donor.exists() and not selected_donor.is_file():
+            raise ValueError(
+                f"selected demographic donor member is not a file: {selected_donor}"
+            )
+        return selected_layout, layout_paths[selected_layout]
+
+    present_members = tuple(
+        (layout, member)
+        for layout, paths in layout_paths.items()
+        for member, path in paths.items()
+        if path.exists()
+    )
+    if present_members:
+        raise ValueError(
+            "demographic layout is incomplete; required targets and priors "
+            f"were not found as one declared snapshot: {present_members}"
+        )
+    raise FileNotFoundError(f"no complete demographic layout exists under {root}")
 
 
 class UkraineDemographyArtifacts(BaseModel):
@@ -171,11 +282,27 @@ def load_donor_pool(root: str | Path) -> dict[str, Any]:
     return _read_json(path)
 
 
-def load_demography_artifacts(root: str | Path) -> UkraineDemographyArtifacts:
-    """Load and validate all Ukraine demographic artifacts from a directory."""
-    targets = load_reconciled_targets(root)
-    priors = load_transition_priors(root)
-    donor = load_donor_pool(root)
+def load_demography_artifacts(
+    root: str | Path,
+    *,
+    layout: _DemographyLayout | None = None,
+) -> UkraineDemographyArtifacts:
+    """Load and validate one declared Ukraine demographic layout.
+
+    Without ``layout``, exactly one complete new or legacy layout must be
+    present.  A caller may select a layout explicitly when both complete
+    snapshots are intentionally available; members are then read only from
+    that selected layout.
+    """
+    root_path = Path(root)
+    selected_layout, selected_paths = _select_demography_layout(root_path, layout)
+    targets = _read_json(selected_paths["targets"])
+    priors = _read_json(selected_paths["priors"])
+    donor = (
+        _read_json(selected_paths["donor"])
+        if selected_paths["donor"].is_file()
+        else {}
+    )
     payload = {
         **targets,
         **priors,
@@ -183,6 +310,10 @@ def load_demography_artifacts(root: str | Path) -> UkraineDemographyArtifacts:
     }
     payload.setdefault("entrant_state_totals", [0.0] * len(payload["state_ids"]))
     payload.setdefault("metadata", {})
+    payload["metadata"] = {
+        **payload["metadata"],
+        "demography_layout": selected_layout,
+    }
     return UkraineDemographyArtifacts.model_validate(payload)
 
 

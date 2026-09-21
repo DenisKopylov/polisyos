@@ -1,9 +1,1027 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "AuditReport": {
+      "additionalProperties": false,
+      "description": "Reproducibility metadata and artifact references.",
+      "properties": {
+        "artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Refs",
+          "type": "array"
+        },
+        "code_version": {
+          "minLength": 1,
+          "title": "Code Version",
+          "type": "string"
+        },
+        "random_seeds": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Random Seeds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code_version"
+      ],
+      "title": "AuditReport",
+      "type": "object"
+    },
+    "BackgroundData": {
+      "additionalProperties": false,
+      "description": "Background data reference used by removal or perturbation explainers.",
+      "properties": {
+        "dataset_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset Ref"
+        },
+        "n": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "sampling_policy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sampling Policy"
+        }
+      },
+      "title": "BackgroundData",
+      "type": "object"
+    },
+    "DisagreementReport": {
+      "additionalProperties": false,
+      "description": "Cross-method disagreement summary.",
+      "properties": {
+        "flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "kendall_tau_median": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": -1.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kendall Tau Median"
+        },
+        "magnitude_l1_median": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Magnitude L1 Median"
+        },
+        "methods_compared": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Methods Compared",
+          "type": "array"
+        },
+        "redundancy_adjusted_conflicts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Redundancy Adjusted Conflicts",
+          "type": "array"
+        },
+        "sign_conflict_features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sign Conflict Features",
+          "type": "array"
+        },
+        "top_k": {
+          "default": 5,
+          "exclusiveMinimum": 0,
+          "title": "Top K",
+          "type": "integer"
+        },
+        "top_k_jaccard_median": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Top K Jaccard Median"
+        },
+        "uncertainty_summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uncertainty Summary"
+        }
+      },
+      "title": "DisagreementReport",
+      "type": "object"
+    },
+    "ExplanationAssumptions": {
+      "additionalProperties": false,
+      "description": "Assumption set that scopes every explanation claim in the bundle.",
+      "properties": {
+        "background_data": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BackgroundData"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "explanation_question": {
+          "default": "local_prediction_drivers",
+          "minLength": 1,
+          "title": "Explanation Question",
+          "type": "string"
+        },
+        "feature_dependence_policy": {
+          "$ref": "#/$defs/FeatureDependencePolicy"
+        },
+        "perturbation_distribution": {
+          "$ref": "#/$defs/PerturbationDistribution"
+        }
+      },
+      "required": [
+        "perturbation_distribution",
+        "feature_dependence_policy"
+      ],
+      "title": "ExplanationAssumptions",
+      "type": "object"
+    },
+    "FeatureAttribution": {
+      "additionalProperties": false,
+      "description": "One feature attribution and optional estimator uncertainty.",
+      "properties": {
+        "confidence_interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence Interval"
+        },
+        "feature": {
+          "minLength": 1,
+          "title": "Feature",
+          "type": "string"
+        },
+        "standard_error": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Standard Error"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "feature",
+        "value"
+      ],
+      "title": "FeatureAttribution",
+      "type": "object"
+    },
+    "FeatureContext": {
+      "additionalProperties": false,
+      "description": "Feature value, schema, constraint, and missingness references.",
+      "properties": {
+        "constraints_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Constraints Ref"
+        },
+        "feature_schema_version": {
+          "minLength": 1,
+          "title": "Feature Schema Version",
+          "type": "string"
+        },
+        "feature_values_ref": {
+          "minLength": 1,
+          "title": "Feature Values Ref",
+          "type": "string"
+        },
+        "missingness_policy": {
+          "default": "model_native",
+          "minLength": 1,
+          "title": "Missingness Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "feature_values_ref",
+        "feature_schema_version"
+      ],
+      "title": "FeatureContext",
+      "type": "object"
+    },
+    "FeatureDependencePolicy": {
+      "additionalProperties": false,
+      "description": "Declared semantics for dependent and correlated features.",
+      "properties": {
+        "alternatives_tested": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives Tested",
+          "type": "array"
+        },
+        "causal_claim_made": {
+          "default": false,
+          "title": "Causal Claim Made",
+          "type": "boolean"
+        },
+        "primary": {
+          "minLength": 1,
+          "title": "Primary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary"
+      ],
+      "title": "FeatureDependencePolicy",
+      "type": "object"
+    },
+    "GroupAttribution": {
+      "additionalProperties": false,
+      "description": "One redundancy-cluster attribution and optional interval.",
+      "properties": {
+        "cluster_id": {
+          "minLength": 1,
+          "title": "Cluster Id",
+          "type": "string"
+        },
+        "confidence_interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence Interval"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cluster_id",
+        "value"
+      ],
+      "title": "GroupAttribution",
+      "type": "object"
+    },
+    "InfidelityReport": {
+      "additionalProperties": false,
+      "description": "Held-out local reconstruction infidelity claim.",
+      "properties": {
+        "bound_type": {
+          "minLength": 1,
+          "title": "Bound Type",
+          "type": "string"
+        },
+        "confidence": {
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evaluation_split": {
+          "default": "heldout",
+          "minLength": 1,
+          "title": "Evaluation Split",
+          "type": "string"
+        },
+        "loss": {
+          "default": "squared_reconstruction_error",
+          "minLength": 1,
+          "title": "Loss",
+          "type": "string"
+        },
+        "n_eval_perturbations": {
+          "exclusiveMinimum": 0,
+          "title": "N Eval Perturbations",
+          "type": "integer"
+        },
+        "point_estimate": {
+          "minimum": 0.0,
+          "title": "Point Estimate",
+          "type": "number"
+        },
+        "residual_cap": {
+          "exclusiveMinimum": 0.0,
+          "title": "Residual Cap",
+          "type": "number"
+        },
+        "upper_bound": {
+          "minimum": 0.0,
+          "title": "Upper Bound",
+          "type": "number"
+        }
+      },
+      "required": [
+        "point_estimate",
+        "upper_bound",
+        "confidence",
+        "n_eval_perturbations",
+        "residual_cap",
+        "bound_type"
+      ],
+      "title": "InfidelityReport",
+      "type": "object"
+    },
+    "MethodExplanation": {
+      "additionalProperties": false,
+      "description": "One method-specific explanation inside the bundle.",
+      "properties": {
+        "assumptions": {
+          "additionalProperties": true,
+          "title": "Assumptions",
+          "type": "object"
+        },
+        "attributions": {
+          "items": {
+            "$ref": "#/$defs/FeatureAttribution"
+          },
+          "title": "Attributions",
+          "type": "array"
+        },
+        "effective_method_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective Method Id"
+        },
+        "fallback": {
+          "default": false,
+          "title": "Fallback",
+          "type": "boolean"
+        },
+        "fallback_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fallback Reason"
+        },
+        "group_attributions": {
+          "items": {
+            "$ref": "#/$defs/GroupAttribution"
+          },
+          "title": "Group Attributions",
+          "type": "array"
+        },
+        "infidelity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InfidelityReport"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "library": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Library"
+        },
+        "library_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Library Version"
+        },
+        "method_id": {
+          "minLength": 1,
+          "title": "Method Id",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "requested_method_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Method Id"
+        },
+        "scope": {
+          "default": "local",
+          "enum": [
+            "local",
+            "global",
+            "local_bin",
+            "diagnostic"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "stability": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StabilityReport"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "method_id"
+      ],
+      "title": "MethodExplanation",
+      "type": "object"
+    },
+    "ModelContext": {
+      "additionalProperties": false,
+      "description": "Model identity and provenance for one explanation claim.",
+      "properties": {
+        "calibration_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibration Ref"
+        },
+        "model_class": {
+          "minLength": 1,
+          "title": "Model Class",
+          "type": "string"
+        },
+        "model_hash": {
+          "minLength": 1,
+          "title": "Model Hash",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "training_data_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Data Hash"
+        }
+      },
+      "required": [
+        "model_id",
+        "model_hash",
+        "model_class"
+      ],
+      "title": "ModelContext",
+      "type": "object"
+    },
+    "PerturbationDistribution": {
+      "additionalProperties": false,
+      "description": "Declared local perturbation distribution.",
+      "properties": {
+        "categorical_policy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Categorical Policy"
+        },
+        "continuous_policy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Continuous Policy"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius"
+        },
+        "support_constraints": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Support Constraints"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PerturbationDistribution",
+      "type": "object"
+    },
+    "PredictionContext": {
+      "additionalProperties": false,
+      "description": "Prediction being explained.",
+      "properties": {
+        "decision_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Threshold"
+        },
+        "display_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Score"
+        },
+        "output_name": {
+          "minLength": 1,
+          "title": "Output Name",
+          "type": "string"
+        },
+        "output_scale": {
+          "minLength": 1,
+          "title": "Output Scale",
+          "type": "string"
+        },
+        "prediction_id": {
+          "minLength": 1,
+          "title": "Prediction Id",
+          "type": "string"
+        },
+        "raw_score": {
+          "title": "Raw Score",
+          "type": "number"
+        },
+        "row_id": {
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prediction_id",
+        "row_id",
+        "output_name",
+        "output_scale",
+        "raw_score"
+      ],
+      "title": "PredictionContext",
+      "type": "object"
+    },
+    "RedundancyClusterModel": {
+      "additionalProperties": false,
+      "description": "Redundancy cluster serialized inside an ExplanationBundle.",
+      "properties": {
+        "cluster_id": {
+          "minLength": 1,
+          "title": "Cluster Id",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/RedundancyEvidenceModel"
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Features",
+          "type": "array"
+        },
+        "reporting_policy": {
+          "default": "group_first",
+          "minLength": 1,
+          "title": "Reporting Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cluster_id",
+        "features"
+      ],
+      "title": "RedundancyClusterModel",
+      "type": "object"
+    },
+    "RedundancyContext": {
+      "additionalProperties": false,
+      "description": "Redundancy clusters used by UI and validation gates.",
+      "properties": {
+        "clusters": {
+          "items": {
+            "$ref": "#/$defs/RedundancyClusterModel"
+          },
+          "title": "Clusters",
+          "type": "array"
+        }
+      },
+      "title": "RedundancyContext",
+      "type": "object"
+    },
+    "RedundancyEvidenceModel": {
+      "additionalProperties": false,
+      "description": "Evidence behind one redundancy cluster.",
+      "properties": {
+        "domain_rule": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Domain Rule"
+        },
+        "max_abs_corr": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Abs Corr"
+        },
+        "max_predictability_r2": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Predictability R2"
+        }
+      },
+      "title": "RedundancyEvidenceModel",
+      "type": "object"
+    },
+    "StabilityReport": {
+      "additionalProperties": false,
+      "description": "Stability diagnostics for stochastic explainers.",
+      "properties": {
+        "bootstrap_runs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bootstrap Runs"
+        },
+        "max_rank_shift_top5": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Rank Shift Top5"
+        },
+        "seed_policy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed Policy"
+        }
+      },
+      "title": "StabilityReport",
+      "type": "object"
+    },
+    "SupportCheck": {
+      "additionalProperties": false,
+      "description": "Support and constraint checks for held-out perturbations.",
+      "properties": {
+        "constraint_violation_rate": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Constraint Violation Rate",
+          "type": "number"
+        },
+        "ood_rate_eval_perturbations": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Ood Rate Eval Perturbations",
+          "type": "number"
+        }
+      },
+      "title": "SupportCheck",
+      "type": "object"
+    },
+    "ValidityReport": {
+      "additionalProperties": false,
+      "description": "Use restrictions and support diagnostics.",
+      "properties": {
+        "support_check": {
+          "$ref": "#/$defs/SupportCheck"
+        },
+        "use_restrictions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Use Restrictions",
+          "type": "array"
+        }
+      },
+      "title": "ValidityReport",
+      "type": "object"
+    }
+  },
   "$id": "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0",
-  "title": "BERL ExplanationBundle",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
   "description": "Versioned audit contract for bounded, assumption-scoped model explanations.",
-  "type": "object",
+  "properties": {
+    "analyst_warning": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Analyst Warning"
+    },
+    "assumptions": {
+      "$ref": "#/$defs/ExplanationAssumptions"
+    },
+    "audit": {
+      "$ref": "#/$defs/AuditReport"
+    },
+    "bundle_id": {
+      "minLength": 1,
+      "title": "Bundle Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "disagreement": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DisagreementReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "display_policy": {
+      "default": "limited",
+      "enum": [
+        "analyst_display",
+        "limited",
+        "diagnostic_only"
+      ],
+      "title": "Display Policy",
+      "type": "string"
+    },
+    "faithfulness_claim": {
+      "default": "bounded",
+      "enum": [
+        "bounded",
+        "unbounded"
+      ],
+      "title": "Faithfulness Claim",
+      "type": "string"
+    },
+    "feature_context": {
+      "$ref": "#/$defs/FeatureContext"
+    },
+    "methods": {
+      "items": {
+        "$ref": "#/$defs/MethodExplanation"
+      },
+      "title": "Methods",
+      "type": "array"
+    },
+    "model": {
+      "$ref": "#/$defs/ModelContext"
+    },
+    "prediction": {
+      "$ref": "#/$defs/PredictionContext"
+    },
+    "redundancy": {
+      "$ref": "#/$defs/RedundancyContext"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "validity": {
+      "$ref": "#/$defs/ValidityReport"
+    }
+  },
   "required": [
     "schema_version",
     "bundle_id",
@@ -16,25 +1034,6 @@
     "validity",
     "audit"
   ],
-  "properties": {
-    "schema_version": { "const": "1.0.0" },
-    "bundle_id": { "type": "string", "minLength": 1 },
-    "created_at": { "type": "string", "format": "date-time" },
-    "faithfulness_claim": { "enum": ["bounded", "unbounded"] },
-    "display_policy": { "enum": ["analyst_display", "limited", "diagnostic_only"] },
-    "analyst_warning": { "type": ["string", "null"] },
-    "model": { "type": "object" },
-    "prediction": { "type": "object" },
-    "feature_context": { "type": "object" },
-    "assumptions": { "type": "object" },
-    "redundancy": { "type": "object" },
-    "methods": {
-      "type": "array",
-      "items": { "type": "object" }
-    },
-    "disagreement": { "type": ["object", "null"] },
-    "validity": { "type": "object" },
-    "audit": { "type": "object" }
-  },
-  "additionalProperties": false
+  "title": "BERL ExplanationBundle",
+  "type": "object"
 }

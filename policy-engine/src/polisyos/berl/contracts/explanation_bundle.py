@@ -147,6 +147,10 @@ class MethodExplanation(StrictModel):
     """One method-specific explanation inside the bundle."""
 
     method_id: str = Field(min_length=1)
+    requested_method_id: str | None = None
+    effective_method_id: str | None = None
+    fallback: bool = False
+    fallback_reason: str | None = None
     library: str | None = None
     library_version: str | None = None
     scope: Literal["local", "global", "local_bin", "diagnostic"] = "local"

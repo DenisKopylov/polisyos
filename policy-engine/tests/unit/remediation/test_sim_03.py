@@ -22,6 +22,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     SimulationTrajectory,
     TrajectoryPoint,
+    _checked_interaction_orders,
     _higher_order_residuals,
 )
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _atom, _request
@@ -173,6 +174,43 @@ def test_ncm_evidence_none_and_explicit_empty_are_distinct(
     assert observed[3] == {}
 
 
+def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
+    """B23: cache identity includes effective NCM evidence and its source mode."""
+
+    controller = JointSimulationHorizonController()
+    baseline = {
+        "income_delta": 0.0,
+        "balance_delta": 0.0,
+        "firm_survival": 1.0,
+    }
+    implicit_baseline = controller.run(
+        _request().model_copy(update={"baseline_state": baseline, "evidence_state": None})
+    )
+    explicit_empty = controller.run(
+        _request().model_copy(update={"baseline_state": baseline, "evidence_state": {}})
+    )
+    changed_baseline = controller.run(
+        _request().model_copy(
+            update={
+                "baseline_state": {**baseline, "income_delta": 9.0},
+                "evidence_state": None,
+            }
+        )
+    )
+
+    def joint_ref(result: Any) -> str:
+        return result.trajectory_for(
+            "joint", ("income_subsidy", "balance_grant")
+        ).diagnostics["physical_run_ref"]
+
+    refs = {
+        joint_ref(implicit_baseline),
+        joint_ref(explicit_empty),
+        joint_ref(changed_baseline),
+    }
+    assert len(refs) == 3
+
+
 def test_three_atom_controller_reports_real_higher_order_residual_and_order(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -319,3 +357,31 @@ def test_joint_residual_keeps_higher_order_interaction_visible() -> None:
     residuals = _higher_order_residuals(trajectories, ("y",))
 
     assert residuals == {"y": {0: 1.0}}
+
+
+def test_checked_interaction_orders_include_pairwise_two_atom_run() -> None:
+    """B26: a two-atom pairwise run is evidence for orders one and two."""
+
+    trajectories = [
+        SimulationTrajectory(
+            run_level="individual",
+            atom_ids=(atom,),
+            engine_kind="method_registry_estimator",
+            method_fqn="tests.sim03",
+            objective_ref="objective://sim03",
+            points=(TrajectoryPoint(step=0, outcomes={"y": 0.0}, effect={"y": 0.0}),),
+        )
+        for atom in ("a", "b")
+    ]
+    trajectories.append(
+        SimulationTrajectory(
+            run_level="pairwise",
+            atom_ids=("a", "b"),
+            engine_kind="method_registry_estimator",
+            method_fqn="tests.sim03",
+            objective_ref="objective://sim03",
+            points=(TrajectoryPoint(step=0, outcomes={"y": 0.0}, effect={"y": 0.0}),),
+        )
+    )
+
+    assert _checked_interaction_orders(trajectories) == (1, 2)

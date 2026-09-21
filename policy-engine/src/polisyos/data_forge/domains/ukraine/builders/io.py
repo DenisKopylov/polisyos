@@ -25,6 +25,7 @@ from polisyos.data_forge.kernel.io import atomic_write_bytes, atomic_write_text,
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
     from polisyos.core.artifacts.manifest import ArtifactRef
 
 

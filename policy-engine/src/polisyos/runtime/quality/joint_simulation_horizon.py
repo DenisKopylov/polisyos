@@ -877,6 +877,13 @@ class JointSimulationHorizonController:
             else:
                 trajectories = tuple(runner(request, selected_plan, decision))
                 diagnostics["engine_run_claimed"] = bool(trajectories)
+                if trajectories:
+                    self._validate_selected_trajectories(
+                        request=request,
+                        plan=selected_plan,
+                        decision=decision,
+                        trajectories=trajectories,
+                    )
         else:
             diagnostics["unsupported_objectives"].append(decision.objective_ref)
 
@@ -980,6 +987,18 @@ class JointSimulationHorizonController:
             selector = selectors.get(plan.engine_kind, self._select_registry_method_engine)
             decision = selector(plan)
             decision = self._resolve_engine_semantics(plan, decision)
+            if decision.decision == "selected":
+                coupling_support = _resolve_coupling_support(
+                    request=request,
+                    engine_kind=decision.engine_kind,
+                    gate_disabled=self._settings.disable_coupling_gate,
+                )
+                if not coupling_support.engine_supported:
+                    decision = _unsupported(
+                        plan,
+                        "coupling_composition_gate_unsupported",
+                        coupling_support.blockers,
+                    )
             decisions.append(decision)
             if decision.decision == "selected":
                 return _SelectedEngine(decision=decision, plan=plan, decisions=tuple(decisions))
@@ -988,6 +1007,44 @@ class JointSimulationHorizonController:
             plan=fallback_plan,
             decisions=tuple(decisions),
         )
+
+    def _validate_selected_trajectories(
+        self,
+        *,
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+        decision: EngineDecision,
+        trajectories: Sequence[SimulationTrajectory],
+    ) -> None:
+        """Require every emitted trajectory to bind to the executed plan."""
+
+        atoms_by_id = {
+            atom.intervention_id: atom for atom in request.intervention_atoms
+        }
+        for trajectory in trajectories:
+            if (
+                trajectory.engine_kind != decision.engine_kind
+                or trajectory.method_fqn != decision.method_fqn
+                or trajectory.objective_ref != plan.objective_ref
+            ):
+                raise JointSimulationControllerError(
+                    "selected_trajectory_binding_mismatch",
+                    "trajectory identity does not match the selected engine plan",
+                )
+            try:
+                subset = tuple(atoms_by_id[atom_id] for atom_id in trajectory.atom_ids)
+            except KeyError as exc:
+                raise JointSimulationControllerError(
+                    "selected_trajectory_binding_mismatch",
+                    f"unknown intervention atom: {exc.args[0]}",
+                ) from exc
+            physical_run_ref = trajectory.diagnostics.get("physical_run_ref")
+            expected_ref = _physical_run_ref(request, plan, decision, subset)
+            if physical_run_ref != expected_ref:
+                raise JointSimulationControllerError(
+                    "selected_plan_execution_binding_missing",
+                    "trajectory is not content-bound to the executed selected plan",
+                )
 
     def _engine_selectors(
         self,

@@ -468,12 +468,27 @@ def test_g1_selected_empty_generation_disables_stale_flat_semantic_search(
         legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
         legacy_index_path=index_dir / "ds_dataset_index.hnsw",
     )
+    selector = json.loads(
+        (index_dir / "embedding_generation.json").read_text(encoding="utf-8")
+    )
+    generation_id = selector["generation_id"]
     monkeypatch.setattr(
         g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
     )
     monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
 
-    assert g1._semantic_search_state(tmp_path)[0] == "disabled_missing_index"
+    semantic_status, hnsw_refs = g1._semantic_search_state(tmp_path)
+    assert semantic_status == "disabled_missing_index"
+    assert hnsw_refs
+    assert not any(
+        ref.endswith(("ds_dataset_index.hnsw", "ds_dataset_embeddings.npz"))
+        for ref in hnsw_refs
+    )
+    assert any(
+        f"embedding_generations/{generation_id}/" in ref
+        or ref.endswith("embedding_generation.json")
+        for ref in hnsw_refs
+    )
     report = _dump(g1.build_g1_search_engineering_quality_report(tmp_path, ()))
     assert report["index_backed"] is False
 

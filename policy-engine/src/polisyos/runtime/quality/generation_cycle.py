@@ -2957,6 +2957,7 @@ class GenerationCycleController:
         revision_policy: RevisionPolicy | None = None,
         voi_scheduler: SimpleVOIScheduler | None = None,
         acquisition_owner_gateway: object | None = None,
+        capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         repo_root: Path | None = None,
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
@@ -3035,6 +3036,7 @@ class GenerationCycleController:
         )
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
+        self._capability_resolver = capability_resolver
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
             stage_costs={3: Decimal("0.5"), 4: Decimal("1.0")},
             min_roi_threshold=1.0,
@@ -3789,18 +3791,29 @@ class GenerationCycleController:
                 # Carry the actual unsatisfied any_of request, without fabricating
                 # data-family requirements or claiming either alternative is met.
                 return (gap,)
+        # A present primary field is authoritative, including an explicit empty
+        # tuple.  Falling through via ``or`` used to let a stale alias or runtime
+        # hint overwrite an intentional empty requirement set.
+        for key in ("data_requirement_specs", "compiled_requirement_specs"):
+            if key not in acquisition_request:
+                continue
+            explicit = acquisition_request[key]
+            if explicit is None:
+                continue
+            if isinstance(explicit, Sequence) and not isinstance(
+                explicit, str | bytes | bytearray
+            ):
+                return tuple(explicit)
+            raise GenerationCycleError("n7_data_requirement_specs_invalid")
         hinted = problem.runtime_hints.get("n7_data_requirement_specs")
         if hinted is not None:
             return tuple(hinted)
-        explicit = acquisition_request.get("data_requirement_specs") or acquisition_request.get(
-            "compiled_requirement_specs"
-        )
-        if isinstance(explicit, Sequence) and not isinstance(explicit, str | bytes | bytearray):
-            return tuple(explicit)
         families = _n7_required_data_families(problem, acquisition_request)
         if not families:
             return ()
-        report = DataRequirementCompiler().compile_for_scenario(
+        report = DataRequirementCompiler(
+            capability_resolver=self._n7_capability_resolver(problem),
+        ).compile_for_scenario(
             {
                 "scenario_id": problem.design_problem_id,
                 "text": problem.problem_statement,
@@ -3808,9 +3821,78 @@ class GenerationCycleController:
                 "expected_evidence_contract": {
                     "admissible_data_source_families": list(families),
                 },
+                "scenario_profile": self._n7_scope_profile(
+                    problem,
+                    acquisition_request=acquisition_request,
+                ),
             }
         )
         return tuple(report.specs)
+
+    def _n7_capability_resolver(
+        self,
+        problem: DesignProblem,
+    ) -> core_contracts.CapabilityResolverPort | None:
+        """Return the resolver composed for the N7 requirement handoff.
+
+        The normal owner supplies an already-loaded port.  A persisted governed
+        capability index is the bounded runtime fallback for the ordinary
+        production controller; an unavailable index stays ``None`` so the
+        compiler emits no regular capability requirements and N7 cannot mint a
+        receipt from an unestablished resolver.
+        """
+
+        candidates = (
+            problem.runtime_hints.get("n7_capability_resolver"),
+            self._capability_resolver,
+            getattr(problem.runtime_hints.get("n7_owner_gateway"), "capability_resolver", None),
+            getattr(self._acquisition_owner_gateway, "capability_resolver", None),
+        )
+        for candidate in candidates:
+            if callable(getattr(candidate, "resolve", None)):
+                return candidate
+        if self._repo_root is None:
+            return None
+        try:
+            from polisyos.runtime.quality.capability_resolver import (
+                RequirementToCapabilityResolver,
+            )
+
+            return RequirementToCapabilityResolver.governed_fixture(self._repo_root)
+        except (OSError, TypeError, ValueError):
+            return None
+
+    def _n7_scope_profile(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_request: Mapping[str, Any],
+    ) -> Mapping[str, Any]:
+        """Carry explicit N7 scope instead of reconstructing it from labels."""
+
+        for source in (
+            acquisition_request.get("scope_profile"),
+            problem.runtime_hints.get("n7_scope_profile"),
+        ):
+            if isinstance(source, Mapping):
+                return dict(source)
+
+        profile: dict[str, Any] = {
+            "profile_id": f"design-problem:{problem.design_problem_id}",
+            "jurisdiction": problem.jurisdiction_time.region,
+        }
+        time_semantics = problem.jurisdiction_time.time_semantics
+        if time_semantics is not None:
+            profile["time_window"] = {
+                "start": time_semantics.start_date,
+                "end": time_semantics.end_date,
+            }
+        for key in ("required_constructs", "construct_refs"):
+            value = acquisition_request.get(key)
+            if value is not None:
+                profile["required_constructs"] = value
+                break
+        return profile
 
     def _n7_world_snapshot(
         self,

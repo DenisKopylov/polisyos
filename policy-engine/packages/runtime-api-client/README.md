@@ -78,59 +78,63 @@ file is a downstream compatibility surface, not a second owner.
 
 ## Common Commands
 
-- `pnpm --filter @polisyos/runtime-api-client run lint`
+- `corepack pnpm --filter @polisyos/runtime-api-client run lint`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run format:check`
+- `corepack pnpm --filter @polisyos/runtime-api-client run format:check`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run typecheck`
+- `corepack pnpm --filter @polisyos/runtime-api-client run typecheck`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run check:architecture`
+- `corepack pnpm --filter @polisyos/runtime-api-client run check:architecture`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client test`
+- `corepack pnpm --filter @polisyos/runtime-api-client test`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run contracts:verify`
+- `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify`
   `smoke-tested 2026-04-23`
 
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
   `conceptual/manual; rewrites the checked-in OpenAPI snapshot`
 
-- `corepack pnpm --dir packages/runtime-api-client run generate`
+- `corepack pnpm --dir packages/runtime-api-client run generate -- \
+  --openapi schemas/runtime_api_v1.openapi.json`
   Replays schema types, the raw compatibility artifacts, and the public
-  canonical twin in one command after exporting the OpenAPI schema.
+  canonical twin in one command after exporting the OpenAPI schema. Pass
+  `--output-root /absolute/scratch/root` to keep all five outputs isolated.
 
-- `npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
-  Canonical schema-type generation; the exact tool pin is owned by this shared
-  package and does not depend on a dashboard-local installation.
+- `corepack pnpm --dir packages/runtime-api-client exec openapi-typescript \
+  ../../schemas/runtime_api_v1.openapi.json -o types.ts`
+  Canonical schema-type generation; the exact `7.13.0` tool pin is owned by
+  this shared package and does not depend on a dashboard-local installation.
 
 ## Test And Verification
 
-- `pnpm --filter @polisyos/runtime-api-client run lint`
+- `corepack pnpm --filter @polisyos/runtime-api-client run lint`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run format:check`
+- `corepack pnpm --filter @polisyos/runtime-api-client run format:check`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run typecheck`
+- `corepack pnpm --filter @polisyos/runtime-api-client run typecheck`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run check:architecture`
+- `corepack pnpm --filter @polisyos/runtime-api-client run check:architecture`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client test`
+- `corepack pnpm --filter @polisyos/runtime-api-client test`
   `smoke-tested 2026-04-23`
 
-- `pnpm --filter @polisyos/runtime-api-client run contracts:verify`
+- `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify`
   `smoke-tested 2026-04-23`
 
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
   `smoke-tested 2026-04-17`
 
-- `pnpm --filter @polisyos/runtime-dashboard run generate:api`
+- `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- \
+  --openapi schemas/runtime_api_v1.openapi.json`
   `smoke-tested 2026-04-17; verifies downstream dashboard type generation still works`
 
 ## Reference Docs

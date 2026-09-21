@@ -15,26 +15,34 @@ internals or reading runtime filesystem state.
 
 | Workspace | Owner | Build | Test | Drift |
 | --- | --- | --- | --- | --- |
-| `packages/runtime-api-client` | `team-runtime` | `pnpm --filter @polisyos/runtime-api-client run build` | `pnpm --filter @polisyos/runtime-api-client test`, `pnpm --filter @polisyos/runtime-api-client run contracts:verify` | `pnpm --filter @polisyos/runtime-api-client run generate`, `pnpm --filter @polisyos/runtime-api-client run contracts:verify` |
-| `apps/runtime-dashboard` | `team-frontend` | `pnpm --filter @polisyos/runtime-dashboard run build`, `pnpm --filter @polisyos/runtime-dashboard run typecheck` | `pnpm --filter @polisyos/runtime-dashboard run test:components`, `pnpm --filter @polisyos/runtime-dashboard run test:contracts` | `pnpm --filter @polisyos/runtime-dashboard run generate:api`, `pnpm --filter @polisyos/runtime-dashboard run contracts:verify` |
-| `apps/runtime-reference-shell` | `team-runtime` | `pnpm --filter @polisyos/runtime-reference-shell run build` | `pnpm --filter @polisyos/runtime-reference-shell test` | `pnpm --filter @polisyos/runtime-reference-shell run check:architecture` |
-| `packages/cli` | `team-frontend` | `pnpm --filter @polisyos/cli run build` | `pnpm --filter @polisyos/cli test` | `pnpm --filter @polisyos/cli run lint` |
+| `packages/runtime-api-client` | `team-runtime` | `corepack pnpm --filter @polisyos/runtime-api-client run build` | `corepack pnpm --filter @polisyos/runtime-api-client test`, `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify` | `corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json`, `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify` |
+| `apps/runtime-dashboard` | `team-frontend` | `corepack pnpm --filter @polisyos/runtime-dashboard run build`, `corepack pnpm --filter @polisyos/runtime-dashboard run typecheck` | `corepack pnpm --filter @polisyos/runtime-dashboard run test:components`, `corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts` | `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json`, `corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify` |
+| `apps/runtime-reference-shell` | `team-runtime` | `corepack pnpm --filter @polisyos/runtime-reference-shell run build` | `corepack pnpm --filter @polisyos/runtime-reference-shell test` | `corepack pnpm --filter @polisyos/runtime-reference-shell run check:architecture` |
+| `packages/cli` | `team-frontend` | `corepack pnpm --filter @polisyos/cli run build` | `corepack pnpm --filter @polisyos/cli test` | `corepack pnpm --filter @polisyos/cli run lint` |
 
 Root fan-out commands:
 
-- `pnpm build`
-- `pnpm test` (all package-local `test` scripts, including the full dashboard component suite)
-- `pnpm test:smoke` (workspace smoke/contract pass)
-- `pnpm lint`
+- `corepack pnpm build`
+- `corepack pnpm test` (all package-local `test` scripts, including the full dashboard component suite)
+- `corepack pnpm test:smoke` (workspace smoke/contract pass)
+- `corepack pnpm lint`
 
 ## Generated Outputs
 
 Committed generated outputs are registered in
 `architecture/generated_artifacts.toml`:
 
-- `packages/runtime-api-client/runtimeApiClient.ts`
-- `packages/runtime-api-client/runtimeApiClient.js`
+- `packages/runtime-api-client/types.ts`
+- `packages/runtime-api-client/runtimeApiClient.ts` (raw compatibility output)
+- `packages/runtime-api-client/runtimeApiClient.js` (raw compatibility output)
+- `packages/runtime-api-client/canonicalRuntimeApiClient.ts` (public entrypoint)
+- `packages/runtime-api-client/canonicalRuntimeApiClient.js` (public entrypoint)
 - `apps/runtime-dashboard/src/api/types.ts`
+
+The runtime client package owns the pinned `openapi-typescript` `7.13.0`
+resolver. Both client generators accept the explicit `--openapi` input and
+write to an isolated `--output-root` when one is supplied; dashboard output
+keeps its downstream normalization and formatting profile.
 
 Local outputs stay ignored under workspace-local `node_modules/`, product
 `_build/{apps,packages}/...`, and product `_cache/{apps,packages}/...`.

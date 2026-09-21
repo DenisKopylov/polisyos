@@ -761,7 +761,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
-- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-api-client run generate -- --output-root '{output_root}'`
+- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json --output-root '{output_root}'`
 - Outputs:
   - `packages/runtime-api-client/types.ts`
   - `packages/runtime-api-client/runtimeApiClient.ts`
@@ -772,7 +772,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 Canonical regeneration commands:
 
 ```bash
-corepack pnpm --filter @polisyos/runtime-api-client run generate
+corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
 ## `Runtime dashboard generated API types`
@@ -791,14 +791,14 @@ corepack pnpm --filter @polisyos/runtime-api-client run generate
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
-- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --output-root '{output_root}'`
+- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json --output-root '{output_root}'`
 - Outputs:
   - `apps/runtime-dashboard/src/api/types.ts`
 
 Canonical regeneration commands:
 
 ```bash
-corepack pnpm --filter @polisyos/runtime-dashboard run generate:api
+corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
 ## `Recorded connector fixtures`

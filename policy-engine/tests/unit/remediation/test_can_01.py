@@ -18,6 +18,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 import pytest
+
 import polisyos.core.canon as core_canon
 import polisyos.ir.model_layer.canon as ir_canon
 

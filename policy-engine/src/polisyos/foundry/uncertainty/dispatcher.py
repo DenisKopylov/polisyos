@@ -254,10 +254,12 @@ def _requires_monte_carlo_sampling(
         payload = envelope.distribution_payload
         if isinstance(payload, PosteriorSamplesCarrier):
             return True
-        if payload is not None and not (
-            envelope.distribution_family is DistributionFamily.NORMAL
-            and isinstance(payload, ParametricFitCarrier)
-        ):
+        if isinstance(payload, ParametricFitCarrier):
+            # The MC adapter is the only path that consumes the typed fit
+            # parameters.  Do not let analytical/delta silently substitute
+            # envelope point/CI moments for a declared law.
+            return True
+        if payload is not None:
             return True
         if envelope.distribution_family in {
             DistributionFamily.BOOTSTRAP,

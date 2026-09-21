@@ -58,6 +58,41 @@ class _EmpiricalJointSpec:
     sample_count: int
     samples: Mapping[str, np.ndarray]
     probabilities: np.ndarray
+    joint_sample_id: str | None
+
+
+def _normal_parametric_fit(env: UncertaintyEnvelope) -> tuple[float, float] | None:
+    """Return the typed normal law, rejecting payloads this backend cannot honor."""
+    payload = env.distribution_payload
+    if not isinstance(payload, ParametricFitCarrier):
+        return None
+    if env.distribution_family is not DistributionFamily.NORMAL:
+        raise ValueError("parametric fit family does not match envelope family")
+    if payload.family is not DistributionFamily.NORMAL:
+        raise ValueError("normal envelope carries a non-normal parametric fit")
+    if payload.support is not None:
+        raise ValueError("bounded normal parametric fit support is unsupported")
+
+    raw_mean = payload.parameters.get("mean", payload.parameters.get("mu"))
+    raw_std = payload.parameters.get("std", payload.parameters.get("sigma"))
+    if raw_mean is None or raw_std is None:
+        raise ValueError("normal parametric fit requires mean/mu and std/sigma")
+    mean = float(raw_mean)
+    std = float(raw_std)
+    if not math.isfinite(mean) or not math.isfinite(std) or std < 0.0:
+        raise ValueError("normal parametric fit parameters must be finite and non-negative")
+    return mean, std
+
+
+def _parametric_fit_names(
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> tuple[str, ...]:
+    """Return inputs whose sampling law came from a typed fit carrier."""
+    return tuple(
+        name
+        for name, envelope in input_envelopes.items()
+        if isinstance(envelope.distribution_payload, ParametricFitCarrier)
+    )
 
 
 def _build_empirical_joint_spec(
@@ -72,10 +107,11 @@ def _build_empirical_joint_spec(
         if isinstance(payload, PosteriorSamplesCarrier):
             carriers[name] = payload
             continue
-        if (
-            isinstance(payload, ParametricFitCarrier)
-            and envelope.distribution_family is DistributionFamily.NORMAL
-        ):
+        if isinstance(payload, ParametricFitCarrier):
+            try:
+                _normal_parametric_fit(envelope)
+            except (TypeError, ValueError):
+                return None, "unsupported_parametric_fit"
             continue
         if payload is not None:
             return None, "unsupported_distribution_payload"
@@ -90,6 +126,18 @@ def _build_empirical_joint_spec(
         return None, None
     if len(carriers) != len(param_names):
         return None, "incompatible_joint_law"
+
+    joint_sample_id: str | None = None
+    if len(carriers) > 1:
+        declared_ids: list[str] = []
+        for name in carriers:
+            raw_id = input_envelopes[name].metadata.get("joint_sample_id")
+            if not isinstance(raw_id, str) or not raw_id.strip():
+                return None, "unestablished_joint_law"
+            declared_ids.append(raw_id.strip())
+        if len(set(declared_ids)) != 1:
+            return None, "incompatible_joint_law"
+        joint_sample_id = declared_ids[0]
 
     first = next(iter(carriers.values()))
     axis = first.sample_axis.strip()
@@ -136,6 +184,7 @@ def _build_empirical_joint_spec(
                 for name, carrier in carriers.items()
             },
             probabilities=probabilities,
+            joint_sample_id=joint_sample_id,
         ),
         None,
     )
@@ -314,6 +363,8 @@ class MonteCarloPropagator:
             missing_outputs=missing_outputs,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
+            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
+            parametric_fit_names=_parametric_fit_names(input_envelopes),
         )
 
     # ------------------------------------------------------------------
@@ -590,6 +641,8 @@ class MonteCarloPropagator:
         missing_outputs: Mapping[str, int],
         qmc_summary: _QMCExecutionSummary | None,
         sample_axis: str = "draw",
+        joint_sample_id: str | None = None,
+        parametric_fit_names: tuple[str, ...] = (),
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
 
@@ -746,8 +799,16 @@ class MonteCarloPropagator:
                     metadata["qmc_replicates"] = qmc_replicates
                 if sample_axis != "draw":
                     metadata["input_sample_axis"] = sample_axis
-                    metadata["empirical_joint_law"] = "axis_length_weight_compatible"
                     metadata["empirical_source_weights_applied"] = True
+                if joint_sample_id is not None:
+                    metadata["empirical_joint_law"] = (
+                        "explicit_shared_sample_id+axis_length_weight_compatible"
+                    )
+                    metadata["empirical_joint_id"] = joint_sample_id
+                    metadata["empirical_joint_identity_status"] = "declared_non_authoritative"
+                if parametric_fit_names:
+                    metadata["parametric_fit_payload_used"] = True
+                    metadata["parametric_fit_inputs"] = list(parametric_fit_names)
 
                 if stopped_early:
                     metadata["adaptive_stopped_early"] = True
@@ -804,11 +865,21 @@ class MonteCarloPropagator:
                 if qmc_method is not None and not qmc_has_full_certificate:
                     notes["restricted_scope"] = "expectation_bv"
                 if sample_axis != "draw":
-                    notes["empirical_joint_law"] = "axis_length_weight_compatible"
+                    notes["input_sample_axis"] = sample_axis
                     notes["empirical_source_weights_applied"] = True
+                if joint_sample_id is not None:
+                    notes["empirical_joint_law"] = (
+                        "explicit_shared_sample_id+axis_length_weight_compatible"
+                    )
+                    notes["empirical_joint_id"] = joint_sample_id
+                    notes["empirical_joint_identity_status"] = "declared_non_authoritative"
                 assumptions = ["empirical_push_forward"]
                 if sample_axis != "draw":
-                    assumptions.append("axis_length_weight_compatible_rows")
+                    assumptions.append("source_axis_preserved")
+                if joint_sample_id is not None:
+                    assumptions.append("declared_shared_sample_identity")
+                if parametric_fit_names:
+                    assumptions.append("typed_parametric_fit")
                 if qmc_has_full_certificate:
                     assumptions.append("rqmc_replicates")
                 elif qmc_method is not None:
@@ -912,8 +983,13 @@ class MonteCarloPropagator:
         hi = float(hi)
 
         if env.distribution_family == DistributionFamily.NORMAL:
-            std = max(extract_std(env), 1e-12)
-            return point + std * jrandom.normal(rng, shape=(n,))
+            fit = _normal_parametric_fit(env)
+            if fit is None:
+                mean = point
+                std = extract_std(env)
+            else:
+                mean, std = fit
+            return mean + max(std, 1e-12) * jrandom.normal(rng, shape=(n,))
 
         if env.distribution_family == DistributionFamily.UNIFORM:
             return jrandom.uniform(rng, shape=(n,), minval=lo, maxval=hi)
@@ -974,8 +1050,13 @@ class MonteCarloPropagator:
             lo, hi = float(env.confidence_interval[0]), float(env.confidence_interval[1])
 
             if env.distribution_family == DistributionFamily.NORMAL:
-                std = max(extract_std(env), 1e-12)
-                result[name] = sp_norm.ppf(u, loc=point, scale=std)
+                fit = _normal_parametric_fit(env)
+                if fit is None:
+                    mean = point
+                    std = extract_std(env)
+                else:
+                    mean, std = fit
+                result[name] = sp_norm.ppf(u, loc=mean, scale=max(std, 1e-12))
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)
             elif env.distribution_family == DistributionFamily.TRIANGULAR:

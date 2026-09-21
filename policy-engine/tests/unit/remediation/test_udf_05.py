@@ -8,9 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from polisyos.data_forge.domains.ukraine.demography import (
-    load_demography_artifacts,
-)
+from polisyos.data_forge.domains.ukraine.demography import load_demography_artifacts
 from polisyos.data_forge.read_api.ukraine import (
     build_static_aging_state,
     load_demography_artifacts as load_demography_from_read_api,

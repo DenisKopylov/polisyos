@@ -37,6 +37,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from polisyos.foundry.methods.components.slot_schema import is_semantically_compatible
 
@@ -229,9 +230,10 @@ class CrossMethodValidator:
 
     def _check_ordering_rules(self, chain: CompiledMethodChain, report: ValidationReport) -> None:
         """Verify that ordering prerequisites are satisfied."""
-        # Build tag → set[node_id] and ordered list of (node_id, fqn, tags).
-        ordered_nodes: list[tuple[str, frozenset[str]]] = []  # (fqn, tags)
-        fqn_to_tags: dict[str, frozenset[str]] = {}
+        # Keep the concrete node occurrence alongside its FQN.  A chain may
+        # intentionally contain the same method more than once, so indexing by
+        # FQN would let a later occurrence hide an earlier violation.
+        ordered_nodes: list[tuple[UUID, str, frozenset[str]]] = []
 
         for node_id in chain.execution_order:
             sig = chain.signatures[node_id]
@@ -249,22 +251,27 @@ class CrossMethodValidator:
             for dm in sig.data_modalities:
                 tag_sources.add(dm.lower())
             tags = frozenset(tag_sources)
-            fqn_to_tags[sig.fqn] = tags
-            ordered_nodes.append((sig.fqn, tags))
+            ordered_nodes.append((node_id, sig.fqn, tags))
 
         severity = "error" if self._strict else "warning"
 
         for prereq_tags, dep_tags, message in _ORDERING_RULES:
-            # Find all dependent methods in the chain.
-            dependent_fqns = [fqn for fqn, tags in ordered_nodes if tags & dep_tags]
-            if not dependent_fqns:
+            dependent_nodes = [
+                (index, node_id, fqn)
+                for index, (node_id, fqn, tags) in enumerate(ordered_nodes)
+                if tags & dep_tags
+            ]
+            if not dependent_nodes:
                 continue  # Rule not triggered.
 
-            # Find all prerequisite methods.
-            prereq_fqns = [fqn for fqn, tags in ordered_nodes if tags & prereq_tags]
-            if not prereq_fqns:
+            prerequisite_nodes = [
+                (index, node_id, fqn)
+                for index, (node_id, fqn, tags) in enumerate(ordered_nodes)
+                if tags & prereq_tags
+            ]
+            if not prerequisite_nodes:
                 # No prerequisite exists at all.
-                for dep_fqn in dependent_fqns:
+                for _dep_index, _dep_node_id, dep_fqn in dependent_nodes:
                     report.issues.append(
                         ValidationIssue(
                             severity=severity,
@@ -275,13 +282,12 @@ class CrossMethodValidator:
                     )
                 continue
 
-            # Check ordering: for each dependent, at least one prereq must precede it.
-            fqn_order_index = {fqn: i for i, (fqn, _) in enumerate(ordered_nodes)}
-            for dep_fqn in dependent_fqns:
-                dep_idx = fqn_order_index.get(dep_fqn, 0)
-                any_prereq_before = any(
-                    fqn_order_index.get(p_fqn, dep_idx + 1) < dep_idx for p_fqn in prereq_fqns
-                )
+            # Check ordering per occurrence: a prerequisite must precede this
+            # dependent node, not merely some later node with the same FQN.
+            prereq_indices = [index for index, _node_id, _fqn in prerequisite_nodes]
+            prereq_fqns = [fqn for _index, _node_id, fqn in prerequisite_nodes]
+            for dep_idx, _dep_node_id, dep_fqn in dependent_nodes:
+                any_prereq_before = any(index < dep_idx for index in prereq_indices)
                 if not any_prereq_before:
                     report.issues.append(
                         ValidationIssue(

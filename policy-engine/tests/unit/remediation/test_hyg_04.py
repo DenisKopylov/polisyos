@@ -157,52 +157,49 @@ assert "jax" not in sys.modules
     assert result.returncode == 0, result.stderr
 
 
-def test_workspace_bootstrap_subprocess_exposes_real_profiles() -> None:
-    """The real bootstrap parser exposes every supported dependency profile."""
+def test_workspace_bootstrap_subprocess_exposes_real_profiles(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The real bootstrap main forwards each profile to a captured uv argv."""
 
-    probe = """
-from tools.devx.workspace._common import UV_SYNC_PROFILES
-from tools.devx.workspace.bootstrap import _build_parser
+    from tools.devx.workspace import bootstrap
 
-expected = {
-    "minimal": ("lint", "test"),
-    "docs": ("lint", "docs"),
-    "runtime": ("lint", "test", "runtime"),
-    "research": ("lint", "test", "runtime", "research"),
-}
-assert UV_SYNC_PROFILES == expected
-
-parser = _build_parser()
-for profile in expected:
-    parsed = parser.parse_args(
-        [
-            "--profile",
-            profile,
-            "--skip-frontend",
-            "--skip-hooks",
-            "--skip-doctor",
-            "--no-install-uv",
-        ]
+    capture = tmp_path / "uv-argv.txt"
+    fake_uv = tmp_path / "uv"
+    fake_uv.write_text(
+        "#!/bin/sh\n"
+        'printf \'%s\\n\' "$@" > "$HYG04_BOOTSTRAP_CAPTURE"\n',
+        encoding="utf-8",
     )
-    assert parsed.profile == profile
-"""
-    environment = os.environ.copy()
-    environment["PYTHONPATH"] = os.pathsep.join(
-        filter(
-            None,
-            (str(REPO_ROOT), str(REPO_ROOT / "src"), environment.get("PYTHONPATH", "")),
-        )
-    )
-    result = subprocess.run(
-        [sys.executable, "-c", probe],
-        cwd=REPO_ROOT,
-        env=environment,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    fake_uv.chmod(0o755)
+    monkeypatch.setenv("HYG04_BOOTSTRAP_CAPTURE", str(capture))
+    monkeypatch.setattr(bootstrap, "_ensure_python_baseline", lambda: None)
+    monkeypatch.setattr(bootstrap, "_ensure_uv_available", lambda **_: None)
+    monkeypatch.setattr(bootstrap, "_ensure_node_baseline", lambda **_: None)
+    monkeypatch.setattr(bootstrap, "uv_command", lambda: (str(fake_uv),))
 
-    assert result.returncode == 0, result.stderr
+    expected_profiles = {
+        "minimal": ("lint", "test"),
+        "docs": ("lint", "docs"),
+        "runtime": ("lint", "test", "runtime"),
+        "research": ("lint", "test", "runtime", "research"),
+    }
+    for profile, extras in expected_profiles.items():
+        expected_argv = ["sync", "--frozen"]
+        for extra in extras:
+            expected_argv.extend(("--extra", extra))
+        assert bootstrap.main(
+            [
+                "--profile",
+                profile,
+                "--skip-frontend",
+                "--skip-hooks",
+                "--skip-doctor",
+                "--no-install-uv",
+            ]
+        ) == 0
+        assert capture.read_text(encoding="utf-8").splitlines() == expected_argv
 
 
 def test_jax_env_defaults_to_cpu_on_darwin_without_a_user_request(
@@ -299,53 +296,165 @@ def test_benchmark_suite_registry_shim_forwards_cli_and_exit_code() -> None:
 
 
 def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
-    """All executable callers of the named benchmark wrappers are enumerated."""
+    """Enumerate every tracked text surface before classifying wrapper references."""
 
-    source_suffixes = {".py", ".pyi", ".sh"}
+    tracked_surface_suffixes = {
+        ".cfg",
+        ".cjs",
+        ".csv",
+        ".ini",
+        ".js",
+        ".json",
+        ".jsonc",
+        ".jsonl",
+        ".lock",
+        ".md",
+        ".mjs",
+        ".py",
+        ".pyi",
+        ".sh",
+        ".sql",
+        ".svg",
+        ".toml",
+        ".ts",
+        ".tsx",
+        ".txt",
+        ".xml",
+        ".yaml",
+        ".yml",
+    }
     legacy_modules = {
         "harness": "tools.research.benchmarks.harness",
         "metrics": "tools.research.benchmarks.metrics",
         "suite_registry": "tools.research.benchmarks.suite_registry",
     }
-    callers: dict[str, set[str]] = {}
+    file_tokens = {
+        f"{prefix}tools/research/benchmarks/{name}.py": full_name
+        for prefix in ("", "policy-engine/")
+        for name, full_name in legacy_modules.items()
+    }
+    non_caller_exemptions = {
+        "docs/plans/active/TOOLS_AUDIT_REMEDIATION_PLAN.md": "active plan reference",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
+        "PolicyOS_Combined_Remediation_E02_Agent_Bundles.md": "bundle plan source",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
+        "bundle_manifest.json": "generated package manifest",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
+        "bundles/HYG-04.md": "active bundle contract",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/"
+        "source/LA_r09_original.md": "historical source snapshot",
+        "docs/superpowers/journals/2026-09-08-gy-ambiguous-census.md": "historical evidence",
+        "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/"
+        "openapi-current-contract.json": "historical evidence",
+        "docs/superpowers/journals/gy-phase5-evidence/pr1/"
+        "private-interpreter-owner-complete.json": "historical evidence",
+        "docs/superpowers/journals/gy-phase5-evidence/s3/epoch-binding-census.json": (
+            "historical evidence"
+        ),
+        "docs/superpowers/journals/gy-phase5-evidence/s3/epoch-binding-final-census.json": (
+            "historical evidence"
+        ),
+        "docs/superpowers/journals/gy-phase5-evidence/s3/final-epoch-census.json": (
+            "historical evidence"
+        ),
+        "docs/superpowers/journals/gy-phase5-evidence/shared/"
+        "ds17-dependency-analysis.json": "historical evidence",
+        "docs/superpowers/journals/gy-phase5-evidence/shared/"
+        "ds17-worker-observation.json": "historical evidence",
+        "tests/unit/remediation/test_hyg_04.py": "deliberate witness corpus",
+    }
+    tracked_files = tuple(iter_repository_files(REPO_ROOT))
+    denominator = tuple(
+        path
+        for path in tracked_files
+        if path.suffix.lower() in tracked_surface_suffixes
+        or path.name in {"Dockerfile", "Jenkinsfile", "Makefile", "Procfile"}
+    )
+    assert denominator
+    assert {
+        "pyproject.toml",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "uv.lock",
+    } <= {path.name for path in denominator}
+
+    denominator_paths = {
+        path.relative_to(REPO_ROOT).as_posix() for path in denominator
+    }
+    token_search = ["git", "grep", "-I", "-l", "-F"]
+    for token in (
+        "from tools.research.benchmarks import",
+        *legacy_modules.values(),
+        *file_tokens,
+    ):
+        token_search.extend(("-e", token))
+    token_search.extend(("--", "."))
+    token_matches = subprocess.run(
+        token_search,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert token_matches.returncode == 0, token_matches.stderr
+    matched_paths = set(token_matches.stdout.splitlines())
+    assert matched_paths <= denominator_paths
+
+    dynamic_references = {
+        path: {"fqn/string/file-loader reference"} for path in matched_paths
+    }
+    ast_callers: dict[str, set[str]] = {}
     parse_failures: list[str] = []
-
-    for path in iter_repository_files(REPO_ROOT):
-        if path.suffix not in source_suffixes:
+    for relative in matched_paths:
+        path = REPO_ROOT / relative
+        if path.suffix.lower() not in {".py", ".pyi"}:
             continue
-        text = path.read_text(encoding="utf-8")
-        references: set[str] = set()
-        if path.suffix in {".py", ".pyi"}:
-            try:
-                tree = ast.parse(text, filename=str(path))
-            except SyntaxError:
-                parse_failures.append(path.relative_to(REPO_ROOT).as_posix())
-            else:
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Import):
-                        for alias in node.names:
-                            if alias.name in legacy_modules.values():
-                                references.add(alias.name)
-                    elif isinstance(node, ast.ImportFrom):
-                        module = node.module or ""
-                        for name, full_name in legacy_modules.items():
-                            if module == "tools.research.benchmarks" and any(
-                                alias.name == name for alias in node.names
-                            ):
-                                references.add(full_name)
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            parse_failures.append(relative)
+            continue
 
-        for name, full_name in legacy_modules.items():
-            if f"tools/research/benchmarks/{name}.py" in text:
-                references.add(f"path:{full_name}")
-        if references:
-            callers[path.relative_to(REPO_ROOT).as_posix()] = references
+        ast_references: set[str] = set()
+        try:
+            tree = ast.parse(text, filename=str(path))
+        except SyntaxError:
+            parse_failures.append(relative)
+        else:
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        if alias.name in legacy_modules.values():
+                            ast_references.add(alias.name)
+                elif isinstance(node, ast.ImportFrom):
+                    module = node.module or ""
+                    if module in legacy_modules.values():
+                        ast_references.add(module)
+                    elif module == "tools.research.benchmarks":
+                        for alias in node.names:
+                            if alias.name == "*":
+                                ast_references.update(legacy_modules.values())
+                            elif alias.name in legacy_modules:
+                                ast_references.add(legacy_modules[alias.name])
+        if ast_references:
+            ast_callers[relative] = ast_references
 
     assert parse_failures == []
-    assert set(callers) == {"tests/unit/remediation/test_hyg_04.py"}
-    assert callers["tests/unit/remediation/test_hyg_04.py"] == {
-        *legacy_modules.values(),
-        "path:tools.research.benchmarks.suite_registry",
+    assert set(ast_callers) == {"tests/unit/remediation/test_hyg_04.py"}
+    assert ast_callers["tests/unit/remediation/test_hyg_04.py"] == {
+        *legacy_modules.values()
     }
+    assert set(dynamic_references) == set(non_caller_exemptions)
+    assert all(non_caller_exemptions.values())
+    witness_text = (
+        REPO_ROOT / "tests/unit/remediation/test_hyg_04.py"
+    ).read_text(encoding="utf-8")
+    assert all(full_name in witness_text for full_name in legacy_modules.values())
+    assert all(
+        f"tools/research/benchmarks/{name}.py" in witness_text
+        for name in legacy_modules
+    )
 
 
 def test_benchmark_wrapper_cli_matches_canonical_entrypoint() -> None:

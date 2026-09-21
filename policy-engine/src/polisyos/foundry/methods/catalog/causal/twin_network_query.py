@@ -39,10 +39,10 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
     _abduce_noises_unified,
     _apply_intervention,
-            _joint_root_sample_index,
-            _mechanism_predict,
-            _mechanism_map,
-            _observed_root_samples,
+    _joint_root_sample_index,
+    _mechanism_map,
+    _mechanism_predict,
+    _observed_root_samples,
     _parents_by_node,
     _percentile_ci,
     _topological_order,
@@ -435,9 +435,7 @@ class TwinNetworkQuery:
         mechanisms = _mechanism_map(scm_spec)
         roots = {node for node, parents in parents_map.items() if not parents}
         missing_root_nodes = sorted(
-            node
-            for node in roots
-            if node not in mechanisms and node != payload.treatment_variable
+            node for node in roots if node not in mechanisms and node != payload.treatment_variable
         )
         if missing_root_nodes and not allow_declared_hypothesis:
             raise ValueError(

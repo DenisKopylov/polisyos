@@ -138,8 +138,7 @@ class StructuralCausalModelSpec(BaseModel):
         )
         if invalid_root_carriers:
             raise ValueError(
-                "Observed root samples require an EMPIRICAL mechanism: "
-                f"{invalid_root_carriers}"
+                f"Observed root samples require an EMPIRICAL mechanism: {invalid_root_carriers}"
             )
         root_carriers = [
             mechanism
@@ -160,8 +159,7 @@ class StructuralCausalModelSpec(BaseModel):
                     not isinstance(samples, list)
                     or not samples
                     or not all(
-                        isinstance(value, (int, float)) and np.isfinite(value)
-                        for value in samples
+                        isinstance(value, (int, float)) and np.isfinite(value) for value in samples
                     )
                 ):
                     raise ValueError(
@@ -172,8 +170,7 @@ class StructuralCausalModelSpec(BaseModel):
                 alignment = params.get("observed_sample_alignment")
                 group = params.get("joint_sample_group")
                 if not all(
-                    isinstance(value, str) and value.strip()
-                    for value in (source, alignment, group)
+                    isinstance(value, str) and value.strip() for value in (source, alignment, group)
                 ):
                     raise ValueError(
                         f"Observed root carrier '{mechanism.variable}' requires "

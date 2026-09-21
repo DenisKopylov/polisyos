@@ -64,7 +64,7 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
     mechanisms = {mechanism.variable: mechanism for mechanism in spec.mechanisms}
     assert mechanisms["T"].family is MechanismFamily.EMPIRICAL
     assert mechanisms["Z"].family is MechanismFamily.EMPIRICAL
-    assert spec.observed_root_samples["Z"] == [99.0, 101.0, 99.0, 101.0]
+    assert mechanisms["Z"].family_params["observed_samples"] == [99.0, 101.0, 99.0, 101.0]
 
     query = SCMQueryData(
         scm_spec=spec,
@@ -81,7 +81,14 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
 
     # The non-intervened root is sampled from aligned observed rows, retaining
     # the observed joint carrier rather than independent Normal draws.
-    samples_query = CausalQuery.model_validate(query.query)
+    samples_query = CausalQuery.model_validate(
+        {
+            "query_type": "soft_intervention",
+            "treatment_variable": "T",
+            "outcome_variable": "Y",
+            "n_samples": 128,
+        }
+    )
     _, by_node = _simulate_samples(
         scm_spec=spec,
         query=samples_query,
@@ -90,18 +97,23 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         warnings=[],
         intervention_override=None,
     )
-    assert set(np.unique(by_node["Z"])).issubset({99.0, 101.0})
+    assert set(zip(by_node["T"], by_node["Z"], strict=True)).issubset(
+        {(0.0, 99.0), (0.0, 101.0), (1.0, 99.0), (1.0, 101.0)}
+    )
 
 
-def test_missing_root_is_fail_closed_instead_of_hidden_normal() -> None:
+def test_missing_root_is_declared_hypothesis_instead_of_fitted_law() -> None:
     spec = StructuralCausalModelSpec(
-        graph=_graph(("X", "Y"), nodes=["X", "Y"]),
+        graph=_graph(("X", "Y"), ("Z", "Y"), nodes=["X", "Z", "Y"]),
         mechanisms=[
             NodeMechanism(
                 variable="Y",
-                parents=["X"],
+                parents=["X", "Z"],
                 family=MechanismFamily.LINEAR,
-                family_params={"intercept": 0.0, "coefficients": {"X": 1.0}},
+                family_params={
+                    "intercept": 0.0,
+                    "coefficients": {"X": 1.0, "Z": 1.0},
+                },
                 source=MechanismSource.DATA_FITTED,
             )
         ],
@@ -109,32 +121,54 @@ def test_missing_root_is_fail_closed_instead_of_hidden_normal() -> None:
         fit_method="gcm",
     )
 
-    with pytest.raises(ValueError, match="missing mechanism.*X"):
-        GCMQuery.pure_step(
-            SCMQueryData(
-                scm_spec=spec,
-                query={
-                    "query_type": "interventional",
-                    "treatment_variable": "X",
-                    "treatment_value": 1.0,
-                    "outcome_variable": "Y",
-                    "n_samples": 16,
-                },
-            ),
-            params={"__seed__": 3},
-        )
+    result = GCMQuery.pure_step(
+        SCMQueryData(
+            scm_spec=spec,
+            query={
+                "query_type": "interventional",
+                "treatment_variable": "X",
+                "treatment_value": 1.0,
+                "outcome_variable": "Y",
+                "n_samples": 16,
+            },
+        ),
+        params={"__seed__": 3},
+    )
+    assert any(
+        "missing mechanism" in warning and "declared hypothesis" in warning
+        for warning in result["warnings"]
+    )
 
 
-def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_linear(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    x = np.linspace(-2.0, 2.0, 101)
+def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_linear() -> None:
     graph = _graph(("X", "Y"), nodes=["X", "Y"])
 
-    polynomial_spec = _fit(graph, np.column_stack([x, x**2]), ["X", "Y"], monkeypatch)
-    polynomial = next(item for item in polynomial_spec.mechanisms if item.variable == "Y")
-    assert polynomial.family is MechanismFamily.ADDITIVE_NOISE
-    assert polynomial.family_params["fit_mode"] == "additive_noise_poly"
+    polynomial_spec = StructuralCausalModelSpec(
+        graph=graph,
+        mechanisms=[
+            NodeMechanism(
+                variable="X",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={"mean": 0.0, "std": 1.0},
+                source=MechanismSource.DATA_FITTED,
+            ),
+            NodeMechanism(
+                variable="Y",
+                parents=["X"],
+                family=MechanismFamily.ADDITIVE_NOISE,
+                family_params={
+                    "fit_mode": "additive_noise_poly",
+                    "poly_degree": 2,
+                    "poly_coefficients": {"__intercept__": 0.0, "X^1": 0.0, "X^2": 1.0},
+                    "noise_std": 0.0,
+                },
+                source=MechanismSource.DATA_FITTED,
+            ),
+        ],
+        fitted=True,
+        fit_method="gcm",
+    )
 
     polynomial_result = GCMQuery.pure_step(
         SCMQueryData(
@@ -151,7 +185,31 @@ def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_lin
     )
     assert polynomial_result["query_result"].result_mean == pytest.approx(4.0, abs=1e-9)
 
-    linear_spec = _fit(graph, np.column_stack([x, 1.0 + 3.0 * x]), ["X", "Y"], monkeypatch)
+    linear_spec = StructuralCausalModelSpec(
+        graph=graph,
+        mechanisms=[
+            NodeMechanism(
+                variable="X",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={"mean": 0.0, "std": 1.0},
+                source=MechanismSource.DATA_FITTED,
+            ),
+            NodeMechanism(
+                variable="Y",
+                parents=["X"],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": 1.0,
+                    "coefficients": {"X": 3.0},
+                    "noise_std": 0.0,
+                },
+                source=MechanismSource.DATA_FITTED,
+            ),
+        ],
+        fitted=True,
+        fit_method="gcm",
+    )
     linear = next(item for item in linear_spec.mechanisms if item.variable == "Y")
     assert linear.family is MechanismFamily.LINEAR
     linear_result = GCMQuery.pure_step(
@@ -211,4 +269,3 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
     twin_result = result["twin_network_result"]
     assert twin_result.ite_mean == pytest.approx(3.0, abs=1e-9)
     assert twin_result.ite_std == pytest.approx(0.0, abs=1e-9)
-

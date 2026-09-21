@@ -22,7 +22,6 @@ from polisyos.data_forge.read_api.ukraine import (
 )
 from polisyos.scientist.governance.blueprint_release import _load_d4_governance_request
 
-
 D4_OUTPUT = "d4_governance_request.json"
 EXPECTED_D4_PAYLOAD = {
     "authority_purpose": "producer_governance_handoff",

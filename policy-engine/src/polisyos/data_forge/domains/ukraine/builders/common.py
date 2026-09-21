@@ -12,7 +12,7 @@ import hashlib
 import json
 import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -24,10 +24,7 @@ from pydantic import BaseModel
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.ukraine.adapters import _UKRAINE_OBLAST_CODE_MAP
-from polisyos.data_forge.domains.ukraine.manifests import (
-    ArtifactRecord,
-    ValidationFinding,
-)
+from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
 from polisyos.data_forge.domains.ukraine.models import (
     BuildRootConfig,
     PipelineConfig,
@@ -39,10 +36,13 @@ from polisyos.ir.observation.contracts import (
 )
 from polisyos.ir.model_layer.types import TimeFrequency
 
-from .contracts import StageBuildResult
+from .contracts import StageBuildResult as _StageBuildResult
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+
+
+StageBuildResult = _StageBuildResult
 
 
 def _clip_value(value: float, *, lower: float, upper: float) -> float:

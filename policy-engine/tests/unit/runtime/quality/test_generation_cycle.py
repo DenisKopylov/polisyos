@@ -3139,6 +3139,49 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
     assert validate_generation_cycle_run(run) == ()
 
 
+@pytest.mark.asyncio
+async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The owner sees one current occurrence and the last executed basis."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    observed: dict[str, object] = {}
+    prepare = runtime._prepare_completed_generation
+
+    def capture_prepare(*, problem: DesignProblem, summaries: Any) -> Any:
+        observed["problem"] = problem
+        observed["summaries"] = tuple(summaries)
+        return prepare(problem=problem, summaries=summaries)
+
+    monkeypatch.setattr(runtime, "_prepare_completed_generation", capture_prepare)
+    run = await GenerationCycleController(
+        generation_port=_SameCandidateNewBasisGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        promotion_runtime=runtime,
+    ).run(
+        _problem("same_subject_owner_basis"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    owner_summaries = observed["summaries"]
+    assert isinstance(owner_summaries, tuple)
+    assert len(owner_summaries) == 1
+    assert owner_summaries[0].content_hash == "sha256:" + "2" * 64
+    owner_problem = observed["problem"]
+    assert isinstance(owner_problem, DesignProblem)
+    assert gy_content_hash(owner_problem.model_dump(mode="json")) == (
+        run.cycles[-1].design_problem_basis_ref
+    )
+    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    assert len(run.promotion_port.pre_n9_open_world_gates) == 1
+    assert validate_generation_cycle_run(run) == ()
+
+
 def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
     tmp_path: Path,
 ) -> None:

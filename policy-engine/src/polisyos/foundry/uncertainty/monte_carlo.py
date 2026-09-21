@@ -85,7 +85,7 @@ class MonteCarloPropagator:
             output_metric_ids=output_metric_ids,
             n_samples=n_samples,
         )
-        missing_outputs = {metric_id: 0 for metric_id in output_metric_ids}
+        missing_outputs = dict.fromkeys(output_metric_ids, 0)
         failed = 0
         stopped_early = False
         actual_n_samples = 0

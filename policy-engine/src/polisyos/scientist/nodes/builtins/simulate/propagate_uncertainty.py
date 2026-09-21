@@ -334,7 +334,7 @@ def _build_propagation_fn(
             )
         return result
 
-    setattr(_fn, "_sensitivity_map", sensitivity_map)
+    _fn._sensitivity_map = sensitivity_map
     return _fn, mapped_params
 
 

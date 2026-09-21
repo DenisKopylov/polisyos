@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -9,8 +10,23 @@ import pytest
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
     GenerationCycleController,
+    PromotionPortObservation,
     SimulationPortObservation,
     ValuePortObservation,
+)
+from polisyos.runtime.quality.design_problem import (
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignConstraint,
+    DesignObjective,
+    DesignProblem,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    EvidenceNeed,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
@@ -51,6 +67,78 @@ def _candidate(candidate_id: str, fill: str) -> _Candidate:
 def _budget(max_usd: str = "5.0") -> BudgetState:
     return BudgetState(
         limits={"run": BudgetLimit(key="run", max_usd=Decimal(max_usd))},
+    )
+
+
+def _public_problem() -> DesignProblem:
+    return DesignProblem(
+        design_problem_id="cyc_04_public_run",
+        problem_statement="Improve firm survival with grounded support under fiscal constraints.",
+        domain="generic_policy",
+        nl_provenance=NLProvenance(
+            raw_request="Improve firm survival with grounded support.",
+            source_surface="test_cyc_04",
+        ),
+        authority_profile=AuthorityProfile(
+            requester_authority="research_lab",
+            requested_authority_level="research",
+            mandate="test-only research mandate",
+        ),
+        jurisdiction_time=JurisdictionTimeSemantics(
+            region="UA",
+            valid_time="2026",
+            as_of="2026-06-29",
+            policy_time="2026",
+            data_time="2026",
+        ),
+        objectives=[
+            DesignObjective(
+                objective_id="firm_survival",
+                description="Improve firm survival",
+                metric_id="firm_survival",
+            )
+        ],
+        constraints=[
+            DesignConstraint(
+                constraint_id="shadow_only",
+                description="Generated candidates remain shadow until A/N9 certification.",
+                hard=True,
+                admissibility_basis="request_text",
+                source_text="Do not promote generated candidates.",
+            )
+        ],
+        stakeholders=[
+            DesignStakeholder(
+                stakeholder_id="firms",
+                name="Firms",
+                role="target_population",
+            )
+        ],
+        outcome_of_interest=OutcomeOfInterest(
+            target_variable="firm_survival",
+            metric_id="firm_survival",
+            estimand="average_treatment_effect",
+        ),
+        candidate_lever_space=CandidateLeverSpace(
+            allowed_operator_kinds=["grant", "tax_relief"],
+            candidate_levers=[
+                CandidateLever(
+                    lever_id="grant",
+                    operator_kind="grant",
+                    instrument="Targeted grant",
+                    target_slot="government_balance",
+                )
+            ],
+        ),
+        evidence_acquisition_needs=EvidenceAcquisitionNeeds(
+            needs=[
+                EvidenceNeed(
+                    need_id="supporting_data",
+                    question="Which data grounds this effect?",
+                    required_for="A-side grounding",
+                )
+            ]
+        ),
     )
 
 
@@ -123,6 +211,17 @@ class _RecordingSimulation:
         )
 
 
+class _NoPromotion:
+    def __call__(
+        self,
+        *,
+        summaries: object,
+        problem: object,
+    ) -> PromotionPortObservation:
+        del summaries, problem
+        return PromotionPortObservation(status="not_promoted", reason="test_only")
+
+
 def _grounded_two_candidate_state(
     *,
     simulation_port: object | None = None,
@@ -156,6 +255,37 @@ async def test_generation_cycle_executes_next_grounded_candidate_after_first_blo
     assert grounded["selected_candidate"].candidate_id == "usable-second"
     assert finished["simulation"].candidate_id == "usable-second"
     assert finished["simulation"].status == "joint_simulated"
+
+
+@pytest.mark.asyncio
+async def test_public_run_retains_blocked_first_reason_after_executing_second() -> None:
+    simulation = _RecordingSimulation()
+    controller = GenerationCycleController(
+        generation_port=_TwoCandidateGenerator(),
+        grounding_port=_GroundingWithFirstBlocker(),
+        simulation_port=simulation,
+        value_port=lambda **_: ValuePortObservation(),
+        promotion_port=_NoPromotion(),
+        authority_scope="contract_testing",
+        repo_root=Path(__file__).resolve().parents[3],
+    )
+
+    run = await controller.run(
+        _public_problem(),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    assert simulation.calls == ["usable-second"]
+    assert run.cycles[0].selected_candidate_ref == "usable-second"
+    assert run.cycles[0].candidate_ids == ("blocked-first", "usable-second")
+    blocked = next(
+        summary for summary in run.candidate_summaries if summary.candidate_id == "blocked-first"
+    )
+    assert blocked.grounding_status == "grounding_unavailable"
+    assert blocked.grounding_issue_codes == ("missing_owner_input",)
+    assert blocked.grounding_report_ref == "grounding://blocked-first"
 
 
 def test_blocked_candidate_remains_in_history_with_typed_reason() -> None:

@@ -685,6 +685,8 @@ class CandidateSummary(_StrictModel):
     grounding_status: GroundingStatus
     grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = "grounding_unavailable"
     grounding_disposition: str | None = None
+    grounding_issue_codes: tuple[str, ...] = ()
+    grounding_report_ref: str | None = None
     grounding_score: float = Field(ge=0.0, le=1.0)
     current_valid: bool
     value_status: ValuePortStatus = "value_pending_n8"
@@ -4192,6 +4194,8 @@ class GenerationCycleController:
                     grounding_status=grounding.status,
                     grounding_source=grounding.grounding_source,
                     grounding_disposition=grounding.grounding_disposition,
+                    grounding_issue_codes=grounding.issue_codes,
+                    grounding_report_ref=grounding.report_ref,
                     grounding_score=grounding.grounding_score,
                     current_valid=grounding.current_valid,
                     front=front,

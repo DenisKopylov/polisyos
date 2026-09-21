@@ -853,6 +853,7 @@ class JointSimulationHorizonController:
             ),
             "temporal_capability": decision.temporal_capability,
             "unsupported_objectives": [],
+            "unsupported_reasons": [],
             "controller_authority_scope": self._settings.authority_scope,
             "coupling_gate_disabled": self._settings.disable_coupling_gate,
             "coupling_support_status": coupling_support.support_status,
@@ -885,7 +886,20 @@ class JointSimulationHorizonController:
                         trajectories=trajectories,
                     )
         else:
-            diagnostics["unsupported_objectives"].append(decision.objective_ref)
+            unsupported_decisions = tuple(
+                item for item in decisions if item.decision != "selected"
+            )
+            diagnostics["unsupported_objectives"].extend(
+                item.objective_ref for item in unsupported_decisions
+            )
+            diagnostics["unsupported_reasons"].extend(
+                {
+                    "objective_ref": item.objective_ref,
+                    "reason": item.reason,
+                    "blockers": list(item.blockers),
+                }
+                for item in unsupported_decisions
+            )
 
         if trajectories:
             marginal_effects = _marginal_effects(trajectories)
@@ -906,6 +920,9 @@ class JointSimulationHorizonController:
             checked_interaction_orders=checked_interaction_orders,
             unsupported=decision.decision != "selected",
             coupling_support=coupling_support,
+            decision_blockers=tuple(
+                blocker for item in decisions for blocker in item.blockers
+            ),
         )
         value_packet = {
             "world_model_record_ref": request.world_model_record_ref,
@@ -2204,6 +2221,7 @@ def _feedback_classification(
     checked_interaction_orders: Sequence[int],
     unsupported: bool,
     coupling_support: _CouplingSupportDecision,
+    decision_blockers: Sequence[str] = (),
 ) -> FeedbackClassification:
     classification = coupling_support.classification
     coupling_verdict = None
@@ -2224,6 +2242,14 @@ def _feedback_classification(
             limitations.append("general_equilibrium_limitation")
         limitations.extend(coupling_support.blockers)
     if unsupported:
+        refusal_limitations = tuple(
+            dict.fromkeys(
+                (
+                    *limitations,
+                    *(str(blocker) for blocker in decision_blockers),
+                )
+            )
+        )
         return FeedbackClassification(
             numeric_interaction="unsupported",
             higher_order_residuals={
@@ -2241,7 +2267,7 @@ def _feedback_classification(
             feedback=feedback,
             shared_resource=shared,
             general_equilibrium=coupling_support.general_equilibrium,
-            limitations=("eligible_joint_engine_missing", *limitations),
+            limitations=("eligible_joint_engine_missing", *refusal_limitations),
         )
     any_nonzero = any(
         abs(value) > 1e-12 for term in interaction_terms for value in term.by_step.values()

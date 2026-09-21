@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 from polisyos.runtime.quality.joint_simulation_horizon import (
     EnginePlan,
     JointSimulationControllerError,
@@ -11,6 +12,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     SimulationTrajectory,
     TrajectoryPoint,
 )
+from polisyos.runtime.quality.recursive_generation_cycle import _joint_simulation_is_unsupported
 from tests.unit.runtime.quality.test_joint_simulation_horizon import (
     _coupling_graph,
     _request,
@@ -90,13 +92,23 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
     assert all(
         trajectory.engine_kind == "coupled_des_abm" for trajectory in result.trajectories
     )
+    status, blockers = _joint_simulation_port_outcome(result)
+    assert status == "joint_simulated"
+    assert _joint_simulation_is_unsupported(result) is False
+    assert "n5_coupling_blocked" not in blockers
 
 
 def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
     """B07: no coupling-compatible candidate remains a typed no-run refusal."""
 
     first = _request().engine_plan[0]
-    second = first.model_copy(update={"objective_ref": "objective://second-incompatible"})
+    second = first.model_copy(
+        update={
+            "engine_kind": "method_registry_estimator",
+            "objective_ref": "objective://second-incompatible",
+            "method_fqn": None,
+        }
+    )
     request = _request().model_copy(
         update={
             "coupling_graph": _coupling_graph("feedback"),
@@ -108,13 +120,25 @@ def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
 
     assert len(result.engine_decisions) == 2
     assert all(item.decision == "unsupported" for item in result.engine_decisions)
-    assert all(
-        item.reason == "coupling_composition_gate_unsupported"
-        for item in result.engine_decisions
-    )
+    assert [item.reason for item in result.engine_decisions] == [
+        "coupling_composition_gate_unsupported",
+        "method_registry_fqn_missing",
+    ]
     assert not result.trajectories
     assert result.receipt.calibration_status == "unsupported_coupling_gated"
     assert result.feedback_classification.support_status == "unsupported"
+    assert "method_registry_fqn_missing" in result.feedback_classification.limitations
+    assert result.diagnostics["unsupported_objectives"] == [
+        first.objective_ref,
+        second.objective_ref,
+    ]
+    assert {
+        item["reason"] for item in result.content_bound_payload()["engine_decisions"]
+    } == {"coupling_composition_gate_unsupported", "method_registry_fqn_missing"}
+    status, blockers = _joint_simulation_port_outcome(result)
+    assert status == "simulation_blocked"
+    assert _joint_simulation_is_unsupported(result) is True
+    assert "method_registry_fqn_missing" in blockers
 
 
 def test_selected_plan_requires_its_executed_trajectory(

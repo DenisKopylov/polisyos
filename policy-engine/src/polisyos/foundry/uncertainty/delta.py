@@ -55,12 +55,26 @@ class DeltaMethodPropagator:
         if not output_metric_ids:
             return []
 
+        effective_nominal = dict(nominal_params)
         param_names = sorted(input_envelopes.keys())
         n_params = len(param_names)
         vector_nominal = jnp.asarray(
-            [float(nominal_params[name]) for name in param_names],
+            [float(effective_nominal[name]) for name in param_names],
             dtype=jnp.float32,
         )
+
+        nominal_result = simulation_fn(**effective_nominal)
+        if not isinstance(nominal_result, Mapping):
+            raise TypeError("simulation_fn must return a mapping of output metrics")
+
+        available_metric_ids = [
+            metric_id
+            for metric_id in output_metric_ids
+            if metric_id in nominal_result and nominal_result[metric_id] is not None
+        ]
+        missing_metric_ids = [
+            metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
+        ]
 
         cov = build_covariance_matrix(
             param_names,
@@ -70,25 +84,31 @@ class DeltaMethodPropagator:
         )
 
         def _vectorized_fn(theta: jnp.ndarray) -> jnp.ndarray:
-            params = {name: theta[idx] for idx, name in enumerate(param_names)}
+            params = dict(effective_nominal)
+            params.update({name: theta[idx] for idx, name in enumerate(param_names)})
             result = simulation_fn(**params)
             values: list[jnp.ndarray] = []
-            for metric_id in output_metric_ids:
-                raw = result.get(metric_id, jnp.asarray(0.0, dtype=jnp.float32))
-                values.append(jnp.asarray(raw, dtype=jnp.float32))
+            for metric_id in available_metric_ids:
+                values.append(jnp.asarray(result[metric_id], dtype=jnp.float32))
             return jnp.stack(values)
-
-        jacobian = jax.jacfwd(_vectorized_fn)(vector_nominal)
-        output_cov = jacobian @ cov @ jacobian.T
-        output_var = jnp.clip(jnp.diag(output_cov), a_min=0.0)
-        output_std = jnp.sqrt(output_var)
-        nominal_out = _vectorized_fn(vector_nominal)
 
         level = self._config.confidence_level
         z = NormalDist().inv_cdf((1.0 + level) / 2.0)
 
-        out: list[PropagationResult] = []
-        for idx, metric_id in enumerate(output_metric_ids):
+        if available_metric_ids:
+            jacobian = jax.jacfwd(_vectorized_fn)(vector_nominal)
+            output_cov = jacobian @ cov @ jacobian.T
+            output_var = jnp.clip(jnp.diag(output_cov), a_min=0.0)
+            output_std = jnp.sqrt(output_var)
+            nominal_out = _vectorized_fn(vector_nominal)
+        else:
+            jacobian = jnp.empty((0, n_params), dtype=jnp.float32)
+            output_var = jnp.empty((0,), dtype=jnp.float32)
+            output_std = jnp.empty((0,), dtype=jnp.float32)
+            nominal_out = jnp.empty((0,), dtype=jnp.float32)
+
+        result_by_metric: dict[str, PropagationResult] = {}
+        for idx, metric_id in enumerate(available_metric_ids):
             point = float(nominal_out[idx])
             std = float(output_std[idx])
             lo = point - z * std
@@ -132,17 +152,52 @@ class DeltaMethodPropagator:
                     },
                 ),
             )
-            out.append(
-                PropagationResult(
-                    metric_id=metric_id,
-                    envelope=envelope,
-                    input_envelopes_used=param_names,
-                    method_used=PropagationMethod.DELTA_METHOD,
-                    diagnostics={
-                        "jacobian_norm": float(jnp.linalg.norm(jacobian[idx])),
-                        "output_variance": float(output_var[idx]),
-                    },
-                )
+            result_by_metric[metric_id] = PropagationResult(
+                metric_id=metric_id,
+                envelope=envelope,
+                input_envelopes_used=param_names,
+                method_used=PropagationMethod.DELTA_METHOD,
+                diagnostics={
+                    "jacobian_norm": float(jnp.linalg.norm(jacobian[idx])),
+                    "output_variance": float(output_var[idx]),
+                },
             )
 
-        return out
+        for metric_id in missing_metric_ids:
+            result_by_metric[metric_id] = _missing_output_result(
+                metric_id,
+                input_param_names=param_names,
+            )
+
+        return [result_by_metric[metric_id] for metric_id in output_metric_ids]
+
+
+def _missing_output_result(
+    metric_id: str,
+    *,
+    input_param_names: list[str],
+) -> PropagationResult:
+    """Return a non-authoritative result for an output absent from the response."""
+
+    return PropagationResult(
+        metric_id=metric_id,
+        envelope=UncertaintyEnvelope(
+            point_estimate=0.0,
+            confidence_interval=(-1.0, 1.0),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.ENSEMBLE,
+            propagation_method=PropagationMethod.DELTA_METHOD,
+            interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+            is_heuristic_ci=True,
+            gate_eligible=False,
+            metadata={
+                "failure": "missing_output",
+                "missing_output": metric_id,
+                "input_param_names": input_param_names,
+            },
+        ),
+        input_envelopes_used=input_param_names,
+        method_used=PropagationMethod.DELTA_METHOD,
+        diagnostics={"missing_output": True},
+    )

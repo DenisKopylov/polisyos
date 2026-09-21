@@ -85,6 +85,7 @@ class MonteCarloPropagator:
             output_metric_ids=output_metric_ids,
             n_samples=n_samples,
         )
+        missing_outputs = {metric_id: 0 for metric_id in output_metric_ids}
         failed = 0
         stopped_early = False
         actual_n_samples = 0
@@ -96,6 +97,7 @@ class MonteCarloPropagator:
         if use_qmc:
             actual_n_samples, failed, qmc_summary = self._run_qmc_loop(
                 simulation_fn,
+                nominal_params,
                 param_names,
                 input_envelopes,
                 output_metric_ids,
@@ -103,11 +105,13 @@ class MonteCarloPropagator:
                 sample_buffers,
                 adaptive,
                 alpha,
+                missing_outputs,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
         else:
             actual_n_samples, failed = self._run_random_loop(
                 simulation_fn,
+                nominal_params,
                 param_names,
                 input_envelopes,
                 output_metric_ids,
@@ -116,6 +120,7 @@ class MonteCarloPropagator:
                 sample_buffers,
                 adaptive,
                 alpha,
+                missing_outputs,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
@@ -132,6 +137,7 @@ class MonteCarloPropagator:
             stopped_early,
             level,
             alpha,
+            missing_outputs=missing_outputs,
             qmc_summary=qmc_summary,
         )
 
@@ -142,6 +148,7 @@ class MonteCarloPropagator:
     def _run_qmc_loop(
         self,
         simulation_fn: Callable[..., Mapping[str, float]],
+        nominal_params: Mapping[str, float],
         param_names: list[str],
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
@@ -149,6 +156,7 @@ class MonteCarloPropagator:
         sample_buffers: _SampleBuffers,
         adaptive: Any,
         alpha: float,
+        missing_outputs: dict[str, int],
     ) -> tuple[int, int, _QMCExecutionSummary]:
         batch_size = min(self._config.mc_batch_size, n_samples)
         failed = 0
@@ -184,7 +192,10 @@ class MonteCarloPropagator:
                 )
 
                 for row_idx in range(uniform_samples.shape[0]):
-                    params = {name: float(qmc_transformed[name][row_idx]) for name in param_names}
+                    params = dict(nominal_params)
+                    params.update(
+                        {name: float(qmc_transformed[name][row_idx]) for name in param_names}
+                    )
                     sample_idx = generated + row_idx
                     ok = self._eval_and_record(
                         simulation_fn,
@@ -193,6 +204,7 @@ class MonteCarloPropagator:
                         output_metric_ids,
                         sample_buffers,
                         sample_idx=sample_idx,
+                        missing_outputs=missing_outputs,
                     )
                     if not ok:
                         failed += 1
@@ -231,6 +243,7 @@ class MonteCarloPropagator:
     def _run_random_loop(
         self,
         simulation_fn: Callable[..., Mapping[str, float]],
+        nominal_params: Mapping[str, float],
         param_names: list[str],
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
@@ -239,6 +252,7 @@ class MonteCarloPropagator:
         sample_buffers: _SampleBuffers,
         adaptive: Any,
         alpha: float,
+        missing_outputs: dict[str, int],
     ) -> tuple[int, int]:
         rng = jrandom.PRNGKey(self._config.mc_seed)
         generated = 0
@@ -253,7 +267,8 @@ class MonteCarloPropagator:
                 batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
 
             for i in range(this_batch):
-                params = {name: batch_samples[name][i] for name in param_names}
+                params = dict(nominal_params)
+                params.update({name: batch_samples[name][i] for name in param_names})
                 sample_idx = generated + i
                 ok = self._eval_and_record(
                     simulation_fn,
@@ -262,6 +277,7 @@ class MonteCarloPropagator:
                     output_metric_ids,
                     sample_buffers,
                     sample_idx=sample_idx,
+                    missing_outputs=missing_outputs,
                 )
                 if not ok:
                     failed += 1
@@ -288,14 +304,20 @@ class MonteCarloPropagator:
         sample_buffers: _SampleBuffers,
         *,
         sample_idx: int,
+        missing_outputs: dict[str, int],
     ) -> bool:
         for name in param_names:
             sample_buffers.input_samples[name][sample_idx] = float(params[name])
         try:
             result = simulation_fn(**params)
+            if not isinstance(result, Mapping):
+                raise TypeError("simulation_fn must return a mapping of output metrics")
             for mid in output_metric_ids:
-                raw = result.get(mid)
-                sample_buffers.values[mid][sample_idx] = float("nan") if raw is None else float(raw)
+                if mid not in result or result[mid] is None:
+                    missing_outputs[mid] += 1
+                    sample_buffers.values[mid][sample_idx] = float("nan")
+                    continue
+                sample_buffers.values[mid][sample_idx] = float(result[mid])
             return True
         except Exception:
             for mid in output_metric_ids:
@@ -369,6 +391,7 @@ class MonteCarloPropagator:
         level: float,
         alpha: float,
         *,
+        missing_outputs: Mapping[str, int],
         qmc_summary: _QMCExecutionSummary | None,
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
@@ -396,6 +419,8 @@ class MonteCarloPropagator:
             arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             valid = arr[jnp.isfinite(arr)]
             n_valid = int(valid.shape[0])
+            missing_count = int(missing_outputs.get(metric_id, 0))
+            has_missing_output = missing_count > 0
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             gate_eligible = True
@@ -413,25 +438,43 @@ class MonteCarloPropagator:
                 scope = ("expectation_bv",)
             if qmc_method is None and actual_n_samples <= 0:
                 scope = ("expectation", "bounds")
+            if has_missing_output:
+                interval_semantics = IntervalSemantics.HEURISTIC_RANGE
+                confidence_level = None
+                gate_eligible = False
+                exactness = ExactnessKind.CONSTRAINT_ONLY
+                scope = ("expectation_bv",)
 
             if n_valid < self._config.mc_min_valid_samples:
-                point, point_source = self._fallback_point_estimate(
-                    metric_id,
-                    nominal_params=nominal_params,
-                    nominal_outputs=nominal_outputs,
-                )
+                if has_missing_output:
+                    point = 0.0
+                    point_source = "missing_output_unavailable"
+                    confidence_interval = (-1.0, 1.0)
+                else:
+                    point, point_source = self._fallback_point_estimate(
+                        metric_id,
+                        nominal_params=nominal_params,
+                        nominal_outputs=nominal_outputs,
+                    )
+                    confidence_interval = (point, point)
                 failure_metadata = {
-                    "failure": "insufficient_valid_samples",
+                    "failure": (
+                        "missing_output"
+                        if has_missing_output
+                        else "insufficient_valid_samples"
+                    ),
                     "mc_n_valid": n_valid,
                     "mc_n_samples": actual_n_samples,
                     "fallback_point_estimate_source": point_source,
                 }
+                if has_missing_output:
+                    failure_metadata["missing_output_count"] = missing_count
                 if qmc_method is not None:
                     failure_metadata["qmc_scrambled"] = qmc_scrambled
                     failure_metadata["qmc_replicates"] = qmc_replicates
                 envelope = UncertaintyEnvelope(
                     point_estimate=point,
-                    confidence_interval=(point, point),
+                    confidence_interval=confidence_interval,
                     confidence_level=None,
                     distribution_family=DistributionFamily.UNKNOWN,
                     source=UncertaintySource.ENSEMBLE,
@@ -446,7 +489,7 @@ class MonteCarloPropagator:
                         op="push_forward",
                         stage_name="foundry.monte_carlo.push_forward",
                         output_flavour=output_flavour,
-                        exactness=ExactnessKind.APPROXIMATION,
+                        exactness=exactness,
                         certificate_kind=certificate_kind,
                         certificate_radius=(
                             {
@@ -457,9 +500,7 @@ class MonteCarloPropagator:
                             else None
                         ),
                         confidence_level=None,
-                        scope=("expectation_bv",)
-                        if qmc_method is not None
-                        else ("expectation", "bounds"),
+                        scope=scope,
                         map_name=metric_id,
                         sample_size=n_valid if n_valid > 0 else None,
                         replicate_count=qmc_replicates if qmc_method is not None else None,
@@ -499,6 +540,9 @@ class MonteCarloPropagator:
                     "mc_seed": int(self._config.mc_seed),
                     "mc_sampling_method": self._config.mc_sampling_method,
                 }
+                if has_missing_output:
+                    metadata["missing_output"] = metric_id
+                    metadata["missing_output_count"] = missing_count
                 if qmc_method is not None:
                     metadata["qmc_scrambled"] = qmc_scrambled
                     metadata["qmc_replicates"] = qmc_replicates
@@ -553,6 +597,8 @@ class MonteCarloPropagator:
                         math.log(2.0 / max(1.0 - level, 1e-12)) / (2.0 * max(n_valid, 1))
                     )
                 notes = {"mc_sampling_method": self._config.mc_sampling_method}
+                if has_missing_output:
+                    notes["missing_output_count"] = missing_count
                 if qmc_method is not None and not qmc_has_full_certificate:
                     notes["restricted_scope"] = "expectation_bv"
                 envelope = UncertaintyEnvelope(
@@ -607,6 +653,7 @@ class MonteCarloPropagator:
                         "n_samples": actual_n_samples,
                         "n_valid": n_valid,
                         "n_failed": actual_n_samples - n_valid,
+                        "missing_output_count": missing_count,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
                         "qmc_method": qmc_method,

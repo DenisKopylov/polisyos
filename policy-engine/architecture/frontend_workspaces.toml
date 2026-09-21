@@ -36,9 +36,9 @@ ignored_outputs = [
   "../../_build/packages/runtime-api-client/.tmp/",
   "../../_cache/packages/runtime-api-client/eslint/.eslintcache",
 ]
-build_commands = ["pnpm --filter @polisyos/runtime-api-client run build"]
-test_commands = ["pnpm --filter @polisyos/runtime-api-client test", "pnpm --filter @polisyos/runtime-api-client run contracts:verify"]
-drift_commands = ["pnpm --filter @polisyos/runtime-api-client run generate", "pnpm --filter @polisyos/runtime-api-client run contracts:verify", "pnpm --filter @polisyos/runtime-api-client run check:architecture"]
+build_commands = ["corepack pnpm --filter @polisyos/runtime-api-client run build"]
+test_commands = ["corepack pnpm --filter @polisyos/runtime-api-client test", "corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify"]
+drift_commands = ["corepack pnpm --filter @polisyos/runtime-api-client run generate", "corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify", "corepack pnpm --filter @polisyos/runtime-api-client run check:architecture"]
 
 [[workspace]]
 id = "runtime-dashboard"
@@ -65,13 +65,13 @@ ignored_outputs = [
   "../../_build/apps/runtime-dashboard/.tmp/",
   "../../_cache/apps/runtime-dashboard/eslint/.eslintcache",
 ]
-build_commands = ["pnpm --filter @polisyos/runtime-dashboard run build", "pnpm --filter @polisyos/runtime-dashboard run typecheck"]
-test_commands = ["pnpm --filter @polisyos/runtime-dashboard run test:components", "pnpm --filter @polisyos/runtime-dashboard run test:contracts"]
+build_commands = ["corepack pnpm --filter @polisyos/runtime-dashboard run build", "corepack pnpm --filter @polisyos/runtime-dashboard run typecheck"]
+test_commands = ["corepack pnpm --filter @polisyos/runtime-dashboard run test:components", "corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts"]
 drift_commands = [
-  "pnpm --filter @polisyos/runtime-dashboard run generate:api",
-  "pnpm --filter @polisyos/runtime-dashboard run contracts:verify",
-  "pnpm --filter @polisyos/runtime-dashboard run check:architecture",
-  "pnpm --filter @polisyos/runtime-dashboard run check:bundle",
+  "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api",
+  "corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify",
+  "corepack pnpm --filter @polisyos/runtime-dashboard run check:architecture",
+  "corepack pnpm --filter @polisyos/runtime-dashboard run check:bundle",
 ]
 
 [[workspace]]
@@ -94,9 +94,9 @@ ignored_outputs = [
   "../../_build/apps/runtime-reference-shell/.tmp/",
   "../../_cache/apps/runtime-reference-shell/eslint/.eslintcache",
 ]
-build_commands = ["pnpm --filter @polisyos/runtime-reference-shell run build"]
-test_commands = ["pnpm --filter @polisyos/runtime-reference-shell test"]
-drift_commands = ["pnpm --filter @polisyos/runtime-reference-shell run check:architecture"]
+build_commands = ["corepack pnpm --filter @polisyos/runtime-reference-shell run build"]
+test_commands = ["corepack pnpm --filter @polisyos/runtime-reference-shell test"]
+drift_commands = ["corepack pnpm --filter @polisyos/runtime-reference-shell run check:architecture"]
 
 [[workspace]]
 id = "cli"
@@ -114,6 +114,6 @@ ignored_outputs = [
   "node_modules/",
   "../../_cache/packages/cli/eslint/.eslintcache",
 ]
-build_commands = ["pnpm --filter @polisyos/cli run build"]
-test_commands = ["pnpm --filter @polisyos/cli test"]
-drift_commands = ["pnpm --filter @polisyos/cli run lint"]
+build_commands = ["corepack pnpm --filter @polisyos/cli run build"]
+test_commands = ["corepack pnpm --filter @polisyos/cli test"]
+drift_commands = ["corepack pnpm --filter @polisyos/cli run lint"]

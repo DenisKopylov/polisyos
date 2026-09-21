@@ -22,14 +22,14 @@ cover the dashboard's full control-plane surface.
   [`styles.css`](styles.css)
 
 - Generated API dependency:
-  [`../../packages/runtime-api-client/runtimeApiClient.js`](../../packages/runtime-api-client/runtimeApiClient.js)
+  [`../../packages/runtime-api-client/canonicalRuntimeApiClient.js`](../../packages/runtime-api-client/canonicalRuntimeApiClient.js)
 
 ## Public Entrypoints
 
 - Page entry: [`index.html`](index.html)
 - UI bootstrap and event wiring: [`app.js`](app.js)
 - Imported API client:
-  [`../../packages/runtime-api-client/runtimeApiClient.js`](../../packages/runtime-api-client/runtimeApiClient.js)
+  [`../../packages/runtime-api-client/canonicalRuntimeApiClient.js`](../../packages/runtime-api-client/canonicalRuntimeApiClient.js)
 
 - Default runtime base URL in [`app.js`](app.js): `http://127.0.0.1:8000`
 

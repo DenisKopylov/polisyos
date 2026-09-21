@@ -115,36 +115,29 @@ def _config(target: CalibrationTarget, *, steps: int = 3) -> CalibrationConfig:
 def test_observation_id_renaming_does_not_change_compiled_value() -> None:
     """Technical lineage IDs must not choose a different same-period value."""
 
-    def compile_value(first_id: str, second_id: str) -> np.ndarray | None:
-        try:
-            bundle = _compile(
-                [
-                    _record(
-                        observation_id=first_id,
-                        period_start=date(2024, 1, 1),
-                        observed_value=10.0,
-                        source_id="source_a",
-                    ),
-                    _record(
-                        observation_id=second_id,
-                        period_start=date(2024, 1, 1),
-                        observed_value=20.0,
-                        source_id="source_b",
-                    ),
-                ]
-            )
-        except ValueError:
-            # A typed collision outcome is valid; it must not depend on IDs.
-            return None
+    def compile_value(first_id: str, second_id: str) -> np.ndarray:
+        bundle = _compile(
+            [
+                _record(
+                    observation_id=first_id,
+                    period_start=date(2024, 1, 1),
+                    observed_value=10.0,
+                    source_id="source_a",
+                ),
+                _record(
+                    observation_id=second_id,
+                    period_start=date(2024, 1, 1),
+                    observed_value=20.0,
+                    source_id="source_b",
+                ),
+            ]
+        )
         return np.asarray(bundle.observed_value[TARGET_ID])
 
     original = compile_value("obs_a", "obs_b")
     renamed = compile_value("obs_z", "obs_a")
 
-    if original is None or renamed is None:
-        assert original is None and renamed is None
-    else:
-        npt.assert_array_equal(renamed, original)
+    npt.assert_array_equal(renamed, original)
 
 
 def test_compiler_keeps_time_value_and_metadata_pairs_after_record_reordering() -> None:

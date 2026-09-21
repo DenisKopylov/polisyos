@@ -11,6 +11,8 @@ from polisyos.ir.analytics.backtest import BacktestScenario, SystematicBias
 class TrustScorer:
     """Aggregate backtest quality into trust score/grade."""
 
+    # Reports written before nominal confidence became explicit retain the historical profile.
+    _DEFAULT_NOMINAL_CONFIDENCE_LEVEL = 0.95
     _scorer = WeightedScorer({"coverage": 0.5, "mape": 0.3, "bias": 0.2})
     _grade_mapper = ThresholdMapper[str](
         [
@@ -43,7 +45,17 @@ class TrustScorer:
         avg_coverage = None
         if coverage_values:
             avg_coverage = float(np.mean(coverage_values))
-            coverage_score = max(0.0, min(1.0, avg_coverage / 0.95))
+            normalized_coverage: list[float] = []
+            for scenario in scenarios:
+                if scenario.coverage_probability is None:
+                    continue
+                nominal_level = scenario.nominal_confidence_level
+                if nominal_level is None:
+                    nominal_level = self._DEFAULT_NOMINAL_CONFIDENCE_LEVEL
+                normalized_coverage.append(
+                    max(0.0, min(1.0, float(scenario.coverage_probability) / nominal_level))
+                )
+            coverage_score = float(np.mean(normalized_coverage))
 
         mape_score = None
         if mape_values:
@@ -69,10 +81,14 @@ class TrustScorer:
             return None, None
         completeness_factors: list[float] = []
         for scenario in scenarios:
-            if scenario.requested_count > 0:
+            if scenario.requested_count > 0 and scenario.compared_count > 0:
                 completeness_factors.append(
                     min(1.0, scenario.compared_count / scenario.requested_count)
                 )
+                if scenario.compared_count != len(scenario.outcome_comparisons):
+                    completeness_factors[-1] = 0.0
+            else:
+                completeness_factors.append(0.0)
             if scenario.interval_requested_count > 0:
                 completeness_factors.append(
                     min(1.0, scenario.interval_availability or 0.0)

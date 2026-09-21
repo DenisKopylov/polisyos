@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -92,6 +93,38 @@ class InterventionSpec(BaseModel):
         return self
 
 
+class CausalContrastRegime(BaseModel):
+    """Describe one attribution arm without conflating observation and intervention."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    kind: Literal["observational", "interventional"]
+    intervention: InterventionSpec | None = None
+
+    @model_validator(mode="after")
+    def _validate_regime(self) -> CausalContrastRegime:
+        if self.kind == "interventional" and self.intervention is None:
+            raise ValueError("intervention is required for an interventional regime")
+        if self.kind == "observational" and self.intervention is not None:
+            raise ValueError("observational regime must not carry an intervention")
+        return self
+
+
+class CausalAttributionSpec(BaseModel):
+    """Typed target/comparator arms for an attribution query."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    target: CausalContrastRegime
+    comparator: CausalContrastRegime
+
+    @model_validator(mode="after")
+    def _validate_target(self) -> CausalAttributionSpec:
+        if self.target.kind != "interventional":
+            raise ValueError("target regime must be interventional")
+        return self
+
+
 class CausalQuery(BaseModel):
     """Fully specified causal query contract for execution or persistence."""
 
@@ -104,6 +137,35 @@ class CausalQuery(BaseModel):
     condition: dict[str, float] = Field(default_factory=dict)
     n_samples: int = Field(default=1000, ge=1)
     intervention_spec: InterventionSpec | None = None
+    contrast: CausalAttributionSpec | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_attribution(cls, value: Any) -> Any:
+        """Map legacy ATTRIBUTION fields to explicit target/comparator arms."""
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        query_type = payload.get("query_type")
+        if query_type not in {QueryType.ATTRIBUTION, QueryType.ATTRIBUTION.value}:
+            return payload
+        if payload.get("contrast") is not None:
+            return payload
+
+        legacy_intervention = payload.get("intervention_spec")
+        if legacy_intervention is None:
+            legacy_intervention = {
+                "type": InterventionType.ATOMIC.value,
+                "value": payload.get("treatment_value"),
+            }
+        payload["contrast"] = {
+            "target": {
+                "kind": "interventional",
+                "intervention": legacy_intervention,
+            },
+            "comparator": {"kind": "observational"},
+        }
+        return payload
 
     @field_validator("treatment_variable", "outcome_variable")
     @classmethod
@@ -152,6 +214,23 @@ class CausalQuery(BaseModel):
             if self.intervention_spec.type is InterventionType.ATOMIC:
                 raise ValueError("soft_intervention queries require non-atomic intervention_spec")
 
+        if self.query_type is QueryType.ATTRIBUTION:
+            if self.contrast is None:
+                raise ValueError("attribution queries require a target/comparator contrast")
+            target_intervention = self.contrast.target.intervention
+            if (
+                self.treatment_value is not None
+                and target_intervention is not None
+                and target_intervention.type is InterventionType.ATOMIC
+                and target_intervention.value is not None
+                and not math.isclose(
+                    float(self.treatment_value), float(target_intervention.value), rel_tol=0.0
+                )
+            ):
+                raise ValueError("treatment_value must match the attribution target intervention")
+        elif self.contrast is not None:
+            raise ValueError("contrast is only valid for attribution queries")
+
         effective_intervention = self.intervention_spec.type if self.intervention_spec else None
         if effective_intervention is None:
             if self.query_type in {QueryType.INTERVENTIONAL, QueryType.COUNTERFACTUAL}:
@@ -169,6 +248,12 @@ class CausalQuery(BaseModel):
     def effective_treatment_value(self) -> float | None:
         if self.intervention_spec is not None and self.intervention_spec.value is not None:
             return float(self.intervention_spec.value)
+        if (
+            self.contrast is not None
+            and self.contrast.target.intervention is not None
+            and self.contrast.target.intervention.value is not None
+        ):
+            return float(self.contrast.target.intervention.value)
         if self.treatment_value is not None:
             return float(self.treatment_value)
         return None

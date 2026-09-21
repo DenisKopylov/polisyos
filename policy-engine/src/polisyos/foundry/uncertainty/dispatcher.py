@@ -161,20 +161,32 @@ class PropagationDispatcher:
         output_metric_ids: list[str],
     ) -> bool:
         param_names = sorted(input_envelopes.keys())
+        effective_nominal = dict(nominal_params)
         nominal = jnp.asarray(
-            [float(nominal_params[name]) for name in param_names],
+            [float(effective_nominal[name]) for name in param_names],
             dtype=jnp.float32,
         )
 
         def _vectorized(theta: jnp.ndarray) -> jnp.ndarray:
-            params = {name: theta[idx] for idx, name in enumerate(param_names)}
+            params = dict(effective_nominal)
+            params.update({name: theta[idx] for idx, name in enumerate(param_names)})
             result = simulation_fn(**params)
-            vals = [
-                jnp.asarray(result.get(mid, 0.0), dtype=jnp.float32) for mid in output_metric_ids
-            ]
+            if not isinstance(result, Mapping):
+                raise TypeError("simulation_fn must return a mapping of output metrics")
+            vals = [jnp.asarray(result[mid], dtype=jnp.float32) for mid in output_metric_ids]
             return jnp.stack(vals)
 
         try:
+            nominal_result = simulation_fn(**effective_nominal)
+            if not isinstance(nominal_result, Mapping):
+                return False
+            if any(
+                mid not in nominal_result or nominal_result[mid] is None
+                for mid in output_metric_ids
+            ):
+                # Delta can emit a typed, non-authoritative missing-output result without
+                # launching a large Monte Carlo fallback for a structural response gap.
+                return True
             jax.eval_shape(lambda x: jax.jacfwd(_vectorized)(x), nominal)
             return True
         except Exception as exc:

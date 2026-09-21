@@ -7,6 +7,7 @@ import inspect
 import json
 import threading
 import time
+import uuid
 from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -70,6 +71,36 @@ class _SerializedGatewayResponse:
     response_headers: dict[str, str] | None
     raw_json: bytes | None
     tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
+
+
+class _CacheReuseGatewayResponse(GatewayLLMResponse):
+    """Gateway response carrying cache-owned provenance outside provider raw data."""
+
+    __slots__ = (
+        "_polisyos_cache_hit",
+        "_polisyos_cache_key",
+        "_polisyos_reuse_event_id",
+    )
+
+    def __init__(
+        self,
+        response: GatewayLLMResponse,
+        *,
+        cache_key: str,
+    ) -> None:
+        super().__init__(
+            content=response.content,
+            usage=response.usage,
+            model=response.model,
+            provider=response.provider,
+            request_id=response.request_id,
+            response_headers=response.response_headers,
+            raw=response.raw,
+            tool_calls=response.tool_calls,
+        )
+        self._polisyos_cache_hit = True
+        self._polisyos_cache_key = cache_key
+        self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
 
 
 class PromptCacheProtocol(Protocol):
@@ -291,6 +322,7 @@ class CachingLLMClient:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
+                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
             return cached
 
         response = await _maybe_await(self._client.generate(*args, **kwargs))

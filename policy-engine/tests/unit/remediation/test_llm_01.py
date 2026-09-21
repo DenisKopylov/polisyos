@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
+from decimal import Decimal
 from typing import Any
 
 import pytest
 
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.gateway_client import (
+    GatewayLLMClient,
     GatewayLLMResponse,
     GatewayUsage,
 )
@@ -100,6 +105,42 @@ async def test_duplicate_prompt_is_normalized_to_one_provider_argument() -> None
 
 
 @pytest.mark.asyncio
+async def test_gateway_prompt_form_maps_to_supported_user_message_once() -> None:
+    gateway = GatewayLLMClient(
+        base_url="https://fixture.invalid/v1",
+        api_key="fixture-key",
+        model="fixture-model",
+    )
+    requests: list[dict[str, Any]] = []
+
+    async def fake_post_json(
+        *,
+        endpoint: str,
+        payload: dict[str, Any],
+        timeout_s: float,
+    ) -> dict[str, Any]:
+        del endpoint, timeout_s
+        requests.append(payload)
+        return {
+            "model": "fixture-model",
+            "choices": [{"message": {"content": "answer:hello"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    gateway._post_json = fake_post_json  # type: ignore[method-assign]
+    traced = _traced(gateway)
+
+    response = await traced.generate(prompt="hello", system="sys")
+
+    assert response.content == "answer:hello"
+    assert requests[0]["messages"] == [
+        {"role": "system", "content": "sys"},
+        {"role": "user", "content": "hello"},
+    ]
+    assert "prompt" not in requests[0]
+
+
+@pytest.mark.asyncio
 async def test_conflicting_prompt_forms_are_rejected_before_provider_call() -> None:
     provider = _PromptProvider()
     traced = _traced(provider)
@@ -119,6 +160,20 @@ async def test_optional_metrics_failure_preserves_provider_result_and_no_retry()
 
     assert response.content == "answer:hello"
     assert len(provider.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_provider_raw_cache_marker_cannot_forge_reuse_billing() -> None:
+    provider = _PromptProvider(raw={"_polisyos_cache": {"status": "hit"}})
+    metrics = _Metrics()
+    traced = _traced(provider, metrics=metrics)
+
+    response = await traced.generate(user="hello")
+
+    assert response.content == "answer:hello"
+    assert len(provider.calls) == 1
+    assert metrics.events[0]["status"] == "success"
+    assert metrics.events[0]["cost_usd"] == pytest.approx(0.02)
 
 
 @pytest.mark.asyncio
@@ -165,3 +220,32 @@ async def test_cache_hits_emit_reuse_without_duplicate_provider_usage() -> None:
     assert second.raw["_polisyos_cache"]["status"] == "hit"
     assert second.raw["_polisyos_cache"]["cache_key"]
     assert second.raw is not third.raw
+
+
+@pytest.mark.asyncio
+async def test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry() -> None:
+    provider = _PromptProvider(raw=None)
+    cached = CachingLLMClient(
+        provider,
+        cache=InMemoryPromptCache(maxsize=4, default_ttl_s=0.02),
+        model="fixture-model",
+        ttl_s=0.02,
+    )
+    traced = _traced(cached)
+    budget_state = BudgetState(
+        limits={"run": BudgetLimit(key="run", max_usd=Decimal("1.00"))},
+    )
+    enforcer = LLMBudgetEnforcer(
+        client=traced,
+        budget_state=budget_state,
+        budget_keys=["run"],
+        model_name="fixture-model",
+    )
+
+    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    await asyncio.sleep(0.04)
+    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+
+    assert len(provider.calls) == 2
+    assert budget_state.spent["run"] == Decimal("0.04")

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+# ``typing.get_type_hints`` resolves postponed annotations from module globals.
+# Keep Callable runtime-visible; this is intentionally not a TYPE_CHECKING import.
+from collections.abc import Callable  # noqa: TC003
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeVar
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from typing import TypeVar
 
 PayloadT = TypeVar("PayloadT")
 EdgeT = TypeVar("EdgeT")

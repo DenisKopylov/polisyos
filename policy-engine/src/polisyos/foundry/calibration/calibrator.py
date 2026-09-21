@@ -1413,7 +1413,9 @@ class Calibrator:
                 jnp.ndarray,
                 jnp.ndarray,
             ] | None = None
-            if np.isfinite(best_eval_loss) and not weights_comparable:
+            if np.isfinite(best_eval_loss) and (
+                not weights_comparable or cfg.seed_strategy == "step"
+            ):
                 try:
                     baseline_forward = _forward_evaluation(
                         best_u_state,

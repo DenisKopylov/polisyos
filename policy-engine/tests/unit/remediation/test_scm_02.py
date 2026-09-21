@@ -48,6 +48,7 @@ from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCaus
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF,
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )

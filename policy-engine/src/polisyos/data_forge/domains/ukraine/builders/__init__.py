@@ -8,6 +8,7 @@ from .calibration import *
 from .common import *
 from .demography import *
 from .governance_handoff import build_d4_stage
+from .observation import *
 from .release import *
 from .sources import *
 

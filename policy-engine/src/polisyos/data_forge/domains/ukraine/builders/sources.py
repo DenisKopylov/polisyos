@@ -45,6 +45,7 @@ from polisyos.ir.observation.measurement import (
 )
 
 from .common import *
+from .observation import _period_series_to_iso_bounds
 
 _PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
 _DYNAMIC_TREATMENT_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
@@ -1119,18 +1120,6 @@ def _compact_locator_series(
     return result
 
 
-def _period_series_to_iso_bounds(
-    values: pd.Series,
-    *,
-    time_grain: TimeFrequency,
-) -> tuple[pd.Series, pd.Series]:
-    raw = values.fillna("2025-01").astype(str)
-    mapping = {key: _period_to_dates(key, time_grain) for key in raw.unique().tolist()}
-    period_start = raw.map(lambda key: mapping[key][0].isoformat())
-    period_end = raw.map(lambda key: mapping[key][1].isoformat())
-    return period_start, period_end
-
-
 def _observation_metric_frames_from_frame(
     source: SourceConfig,
     frame: pd.DataFrame,
@@ -1144,7 +1133,7 @@ def _observation_metric_frames_from_frame(
         frame[source.period_column]
         if source.period_column in frame.columns
         else pd.Series(
-            ["2025-01"] * len(frame),
+            [pd.NA] * len(frame),
             index=frame.index,
             dtype="string",
         )

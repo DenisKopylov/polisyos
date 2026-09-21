@@ -127,6 +127,16 @@ def test_two_complete_layouts_require_explicit_snapshot_selection(tmp_path: Path
     with pytest.raises(ValueError):
         load_demography_artifacts(root)
 
+    selected_new = load_demography_artifacts(root, layout="new")
+    selected_legacy = load_demography_artifacts(root, layout="legacy")
+
+    assert selected_new.metadata["snapshot"] == "new-2027"
+    assert selected_new.metadata["demography_layout"] == "new"
+    assert np.array_equal(selected_new.target_state_totals, np.array([100.0, 250.0]))
+    assert selected_legacy.metadata["snapshot"] == "legacy-2026"
+    assert selected_legacy.metadata["demography_layout"] == "legacy"
+    assert np.array_equal(selected_legacy.target_state_totals, np.array([900.0, 800.0]))
+
 
 def test_mixed_targets_and_priors_fail_before_component_composition(tmp_path: Path) -> None:
     """Shape-compatible members from different layouts are not one snapshot."""
@@ -155,10 +165,10 @@ def test_corrupt_new_member_does_not_fallback_to_legacy_bytes(tmp_path: Path) ->
     corrupt = _path(root, "new", "priors")
     corrupt.parent.mkdir(parents=True, exist_ok=True)
     corrupt.write_text("{not-json", encoding="utf-8")
-    _write_json(_path(root, "legacy", "priors"), _priors(scale=2.0))
+    _write_layout(root, "legacy", snapshot="legacy-2026", include_donor=False)
 
     with pytest.raises(ValueError):
-        load_demography_artifacts(root)
+        load_demography_artifacts(root, layout="new")
 
 
 def test_shape_mismatch_fails_closed_without_layout_fallback(tmp_path: Path) -> None:
@@ -172,10 +182,10 @@ def test_shape_mismatch_fails_closed_without_layout_fallback(tmp_path: Path) -> 
             "allowed_transition_mask": [[True]],
         },
     )
-    _write_json(_path(root, "legacy", "priors"), _priors(scale=2.0))
+    _write_layout(root, "legacy", snapshot="legacy-2026", include_donor=False)
 
     with pytest.raises(ValueError):
-        load_demography_artifacts(root)
+        load_demography_artifacts(root, layout="new")
 
 
 def test_removing_new_required_member_does_not_change_snapshot_to_legacy(
@@ -189,6 +199,8 @@ def test_removing_new_required_member_does_not_change_snapshot_to_legacy(
 
     with pytest.raises((FileNotFoundError, ValueError)):
         load_demography_artifacts(root)
+    with pytest.raises(ValueError):
+        load_demography_artifacts(root, layout="legacy")
 
 
 def test_optional_donor_remains_optional_after_layout_selection(tmp_path: Path) -> None:

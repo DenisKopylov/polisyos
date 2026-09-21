@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Literal, Protocol, TypeVar
+from typing import TYPE_CHECKING, Literal, Protocol, TypeVar
 
 from pydantic import Field
 
@@ -13,6 +12,9 @@ from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection 
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.artifacts import RetentionClass
 from polisyos.data_forge.kernel.pipeline import AssetGroup, AssetKey, AssetSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 CatalogExecutionTier = Literal["catalog", "fetchable", "transport_ready"]
 CatalogHistoryPolicy = Literal["full_snapshot", "rolling_window"]

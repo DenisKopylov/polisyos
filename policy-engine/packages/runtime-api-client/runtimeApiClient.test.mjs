@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { RuntimeApiClient } from "./runtimeApiClient.js";
-import { RuntimeApiClient as CanonicalRuntimeApiClient } from "./canonicalRuntimeApiClient.js";
+import { RuntimeApiClient } from "./canonicalRuntimeApiClient.js";
 
 function createClient(calls, payload = { ok: true }) {
   return new RuntimeApiClient({
@@ -20,42 +19,40 @@ function createClient(calls, payload = { ok: true }) {
 }
 
 test("normative evidence submission forwards the source head and signed refs", async () => {
-  for (const Client of [RuntimeApiClient, CanonicalRuntimeApiClient]) {
-    const calls = [];
-    const payload = { status: "admitted", head_ref: "sha256:admitted" };
-    const client = new Client({
-      baseUrl: "https://runtime.test/",
-      fetchImpl: async (url, init) => {
-        calls.push({ url, init });
-        return Response.json(payload);
-      },
-    });
-    const body = {
-      job_id: "job-source-bound",
-      expected_prior_head_ref: null,
-      evidence: {
-        by_node: {
-          "leaf/novel": {
-            authorization_ref: "sha256:authorization",
-            frontier_ref: "sha256:frontier",
-            scope_ref: "sha256:scope",
-          },
+  const calls = [];
+  const payload = { status: "admitted", head_ref: "sha256:admitted" };
+  const client = new RuntimeApiClient({
+    baseUrl: "https://runtime.test/",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return Response.json(payload);
+    },
+  });
+  const body = {
+    job_id: "job-source-bound",
+    expected_prior_head_ref: null,
+    evidence: {
+      by_node: {
+        "leaf/novel": {
+          authorization_ref: "sha256:authorization",
+          frontier_ref: "sha256:frontier",
+          scope_ref: "sha256:scope",
         },
       },
-    };
-    const response = await client.submitRunNormativeEvidence({
-      run_id: "run/with space",
-      body,
-    });
-    assert.deepEqual(response, payload);
-    assert.equal(calls.length, 1);
-    assert.equal(
-      calls[0].url,
-      "https://runtime.test/api/v1/control/runs/run%2Fwith%20space/normative-evidence",
-    );
-    assert.equal(calls[0].init.method, "POST");
-    assert.deepEqual(JSON.parse(calls[0].init.body), body);
-  }
+    },
+  };
+  const response = await client.submitRunNormativeEvidence({
+    run_id: "run/with space",
+    body,
+  });
+  assert.deepEqual(response, payload);
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0].url,
+    "https://runtime.test/api/v1/control/runs/run%2Fwith%20space/normative-evidence",
+  );
+  assert.equal(calls[0].init.method, "POST");
+  assert.deepEqual(JSON.parse(calls[0].init.body), body);
 });
 
 test("batch POST methods forward request bodies to fetch", async () => {
@@ -159,7 +156,7 @@ test("mobility POST methods forward request bodies to fetch", async () => {
 test("human decision methods bind the exact exposure header and POST body", async () => {
   const calls = [];
   const evidenceBytes = Uint8Array.from([0, 255, 17, 34]);
-  const client = new CanonicalRuntimeApiClient({
+  const client = new RuntimeApiClient({
     baseUrl: "https://runtime.test/",
     fetchImpl: async (url, init) => {
       calls.push({ url, init });

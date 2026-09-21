@@ -105,6 +105,13 @@ class CausalRegime(BaseModel):
     def _validate_regime(self) -> CausalRegime:
         if self.kind == "interventional" and self.intervention is None:
             raise ValueError("intervention is required for an interventional regime")
+        if (
+            self.kind == "interventional"
+            and self.intervention is not None
+            and self.intervention.type is InterventionType.ATOMIC
+            and self.intervention.value is None
+        ):
+            raise ValueError("interventional comparator atomic value is required")
         if self.kind == "observational" and self.intervention is not None:
             raise ValueError("observational regime must not carry an intervention")
         return self
@@ -179,6 +186,16 @@ class CausalQuery(BaseModel):
                 "type": InterventionType.ATOMIC.value,
                 "value": payload.get("treatment_value"),
             }
+        elif isinstance(legacy_intervention, Mapping):
+            legacy_intervention = dict(legacy_intervention)
+            intervention_type = legacy_intervention.get("type")
+            if (
+                intervention_type in {InterventionType.ATOMIC, InterventionType.ATOMIC.value}
+                and legacy_intervention.get("value") is None
+                and payload.get("treatment_value") is not None
+            ):
+                legacy_intervention["value"] = payload["treatment_value"]
+                payload["intervention_spec"] = legacy_intervention
         payload["contrast"] = {
             "target": legacy_intervention,
             "comparator": {"kind": "observational"},
@@ -300,7 +317,7 @@ class CausalQueryResult(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _normalize_legacy_schema(cls, value: Any) -> Any:
-        """Normalize legacy payload versions while retaining source provenance."""
+        """Normalize legacy payloads without trusting unbound source provenance."""
         if not isinstance(value, Mapping):
             return value
         payload = dict(value)
@@ -309,18 +326,19 @@ class CausalQueryResult(BaseModel):
         source_version = str(payload["schema_version"])
         if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
             metadata = dict(payload.get("metadata") or {})
-            claimed_source_version = metadata.get("source_schema_version")
-            if claimed_source_version is not None and claimed_source_version != source_version:
+            if any(
+                metadata.get(key) is not None
+                for key in ("source_schema_version", "source_schema_name")
+            ):
                 raise ValueError(
-                    "legacy causal query result provenance conflicts with its schema version: "
-                    f"payload={claimed_source_version}, expected={source_version}"
+                    "legacy causal query result source provenance requires a CAS manifest"
                 )
-            if metadata.get("source_schema_name") is not None:
-                raise ValueError(
-                    "legacy causal query result source schema name requires a CAS manifest"
-                )
-            metadata["source_schema_version"] = source_version
-            payload["metadata"] = metadata
+            metadata.pop("source_schema_version", None)
+            metadata.pop("source_schema_name", None)
+            if metadata:
+                payload["metadata"] = metadata
+            else:
+                payload.pop("metadata", None)
             payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
         return payload
 
@@ -479,28 +497,35 @@ def load_causal_query_result(
         raise TypeError("causal query result payload must be a mapping")
     normalized_payload = dict(payload)
     normalized_payload["schema_version"] = source_version
-    if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
-        metadata = dict(normalized_payload.get("metadata") or {})
-        claimed_source_version = metadata.get("source_schema_version")
+    metadata = dict(normalized_payload.get("metadata") or {})
+    claimed_source_version = metadata.get("source_schema_version")
+    claimed_schema_name = metadata.get("source_schema_name")
+    if schema is None and (
+        claimed_source_version is not None or claimed_schema_name is not None
+    ):
+        raise ValueError("causal query result source provenance requires a CAS manifest")
+    authoritative_schema_name = str(getattr(schema, "name", "")) if schema is not None else None
+    if schema is not None:
         if claimed_source_version is not None and claimed_source_version != source_version:
             raise ValueError(
-                "legacy causal query result provenance conflicts with CAS manifest version: "
+                "causal query result provenance conflicts with CAS manifest version: "
                 f"payload={claimed_source_version}, manifest={source_version}"
             )
+        if claimed_schema_name is not None and claimed_schema_name != authoritative_schema_name:
+            raise ValueError(
+                "causal query result provenance conflicts with CAS manifest name: "
+                f"payload={claimed_schema_name}, manifest={authoritative_schema_name}"
+            )
+        if claimed_source_version is not None:
+            metadata["source_schema_version"] = source_version
+        if claimed_schema_name is not None:
+            metadata["source_schema_name"] = authoritative_schema_name
+    if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
         metadata["source_schema_version"] = source_version
-        if schema is not None:
-            authoritative_schema_name = str(getattr(schema, "name", ""))
-            claimed_schema_name = metadata.get("source_schema_name")
-            if (
-                claimed_schema_name is not None
-                and claimed_schema_name != authoritative_schema_name
-            ):
-                raise ValueError(
-                    "legacy causal query result provenance conflicts with CAS manifest name: "
-                    f"payload={claimed_schema_name}, manifest={authoritative_schema_name}"
-                )
+        if authoritative_schema_name is not None:
             metadata["source_schema_name"] = authoritative_schema_name
         normalized_payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
+    if metadata:
         normalized_payload["metadata"] = metadata
     return CausalQueryResult.model_validate(normalized_payload)
 

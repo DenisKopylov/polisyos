@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from polisyos.data_forge.domains.ukraine.models import StageId
 
-from .governance_handoff import build_d4_stage
 from .calibration import *
 from .common import *
 from .demography import *
+from .governance_handoff import build_d4_stage
 from .release import *
 from .sources import *
 

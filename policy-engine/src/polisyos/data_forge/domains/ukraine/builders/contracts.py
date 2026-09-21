@@ -4,13 +4,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass as _dataclass
 from dataclasses import field as _field
-from pathlib import Path as _Path
-from typing import Any as _Any
+from typing import TYPE_CHECKING, Any as _Any
 
-from polisyos.data_forge.domains.ukraine.manifests import (
-    ArtifactRecord as _ArtifactRecord,
-    ValidationFinding as _ValidationFinding,
-)
+if TYPE_CHECKING:
+    from pathlib import Path as _Path
+
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ArtifactRecord as _ArtifactRecord,
+        ValidationFinding as _ValidationFinding,
+    )
 
 
 @_dataclass

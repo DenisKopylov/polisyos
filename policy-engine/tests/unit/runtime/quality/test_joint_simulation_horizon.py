@@ -167,18 +167,24 @@ def _coupling_graph(kind: str):
     )
 
 
-def _intervention(*, intervention_id: str, rate: str = "0.20") -> InterventionSpec:
+def _intervention(
+    *,
+    intervention_id: str,
+    rate: str = "0.20",
+    kind: str = "tax_subsidy",
+) -> InterventionSpec:
+    params = {"rate": Decimal(rate)} if kind in {"tax_subsidy", "income_tax"} else {}
     return InterventionSpec.model_validate(
         {
             "intervention_id": intervention_id,
-            "kind": "tax_subsidy",
+            "kind": kind,
             "target": SelectorPredicate(
                 field="id",
                 operator=SelectorOperator.EQUALS,
                 value="all",
             ),
             "schedule": ScheduleSpec(start_step=0, duration_steps=4),
-            "params": {"rate": Decimal(rate)},
+            "params": params,
             "priority": 1,
             "target_population_type": "wartime_msme",
             "target_sector_ids": ["manufacturing"],
@@ -224,8 +230,13 @@ def _atom(
     engine_variable: str,
     value: float,
     world_model_record_ref: str,
+    mechanism_kind: str = "tax_subsidy",
+    mechanism_variables: tuple[str, ...] | None = None,
 ) -> InterventionAtomBinding:
-    intervention = _intervention(intervention_id=intervention_id)
+    intervention = _intervention(
+        intervention_id=intervention_id,
+        kind=mechanism_kind,
+    )
     causal = NodeIntervention(
         assignments=(VariableAssignment(variable=causal_variable, value=value),)
     )
@@ -250,8 +261,11 @@ def _atom(
         ),
         world_model_record_ref=world_model_record_ref,
         producer_ref=f"test.joint_simulation:{intervention_id}",
-        operator_proof_type_map={"tax_subsidy": "node"},
-        mechanism_variable_map={"tax_subsidy": ("agents.income", "government.balance")},
+        operator_proof_type_map={mechanism_kind: "node"},
+        mechanism_variable_map={
+            mechanism_kind: mechanism_variables
+            or ("agents.income", "government.balance")
+        },
         mechanism_config_overrides={
             "joint_simulation_engine_variable": engine_variable,
         },
@@ -344,6 +358,24 @@ def _world_record(*, policy_domain: str = "fiscal_credit") -> WorldModelRecord:
                 entity_scope="government",
                 temporal_granularity="month",
             ),
+            PolicySlotBinding(
+                slot_id="firms.labor_count",
+                state_path="firms.labor_count",
+                entity_scope="firm",
+                temporal_granularity="month",
+            ),
+            PolicySlotBinding(
+                slot_id="agents.employer_id",
+                state_path="agents.employer_id",
+                entity_scope="agent",
+                temporal_granularity="month",
+            ),
+            PolicySlotBinding(
+                slot_id="agents.is_employed",
+                state_path="agents.is_employed",
+                entity_scope="agent",
+                temporal_granularity="month",
+            ),
         ),
     }
     candidate = WorldModelRecord.model_construct(
@@ -361,10 +393,19 @@ def _world_record(*, policy_domain: str = "fiscal_credit") -> WorldModelRecord:
 
 def _ncm_with_cross_term() -> NCMSpec:
     return NCMSpec(
-        endogenous_vars=["income_delta", "balance_delta", "firm_survival"],
+        endogenous_vars=[
+            "income_delta",
+            "balance_delta",
+            "labor_count_delta",
+            "firm_survival",
+        ],
         exogenous_specs=[
             ExogenousSpec(variable="u_income", associated_endogenous="income_delta"),
             ExogenousSpec(variable="u_balance", associated_endogenous="balance_delta"),
+            ExogenousSpec(
+                variable="u_labor_count",
+                associated_endogenous="labor_count_delta",
+            ),
             ExogenousSpec(variable="u_survival", associated_endogenous="firm_survival"),
         ],
         structural_equations=[
@@ -379,6 +420,13 @@ def _ncm_with_cross_term() -> NCMSpec:
                 variable="balance_delta",
                 parents=[],
                 exogenous="u_balance",
+                equation_type="linear",
+                equation_params={"intercept": 0.0, "coefficients": {}},
+            ),
+            StructuralEquation(
+                variable="labor_count_delta",
+                parents=[],
+                exogenous="u_labor_count",
                 equation_type="linear",
                 equation_params={"intercept": 0.0, "coefficients": {}},
             ),
@@ -442,6 +490,7 @@ def _request(
                 variable_map={
                     "agents.income": "income_delta",
                     "government.balance": "balance_delta",
+                    "firms.labor_count": "labor_count_delta",
                     "firm_survival": "firm_survival",
                 },
                 eligibility_conditions=("acyclic", "counterfactual_do_worlds"),

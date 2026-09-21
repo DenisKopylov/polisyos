@@ -96,6 +96,30 @@ def test_snapshot_copy_preflight_rejects_a_duplicated_typed_vocabulary_key() -> 
         )
 
 
+def test_runtime_gate_rejects_stale_flat_embeddings_after_empty_selection(tmp_path) -> None:
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    component_dir = tmp_path / "academic"
+    component_dir.mkdir()
+    np.savez(
+        component_dir / "ac_work_embeddings.npz",
+        ids=np.array([], dtype=object),
+        vectors=np.empty((0, 2), dtype=np.float32),
+    )
+    (component_dir / "ac_work_index.hnsw").write_bytes(b"stale-index")
+    build_embedding_generation(
+        rows=(),
+        index_dir=component_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=component_dir / "ac_work_embeddings.npz",
+        legacy_index_path=component_dir / "ac_work_index.hnsw",
+    )
+
+    assert best_snapshot._embedding_runtime_complete(component_dir) is False
+
+
 def test_snapshot_clone_preserves_claim_constraints_and_defaults(tmp_path: Path) -> None:
     source_path = tmp_path / "source.duckdb"
     target_path = tmp_path / "target.duckdb"
@@ -772,7 +796,11 @@ def _install_stage_fakes(
 
     def fake_embed(config, *, thermal=False):  # type: ignore[no-untyped-def]
         del thermal
-        (config.index_dir / "ac_work_embeddings.npz").write_bytes(b"npz")
+        np.savez(
+            config.index_dir / "ac_work_embeddings.npz",
+            ids=np.array([], dtype=object),
+            vectors=np.empty((0, config.embedding_dimension), dtype=np.float32),
+        )
         (config.index_dir / "ac_work_index.hnsw").write_bytes(b"hnsw")
         write_stage_manifest(
             manifest_path=config.manifests_dir / "embed.json",

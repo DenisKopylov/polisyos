@@ -446,6 +446,38 @@ def test_task7_search_health_reports_semantic_hnsw_state() -> None:
         assert all("hnsw" in ref for ref in payload["hnsw_index_refs"])
 
 
+def test_g1_selected_empty_generation_disables_stale_flat_semantic_search(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A selected typed-empty generation must not enable the legacy flat pair."""
+
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    (index_dir / "ds_dataset_embeddings.npz").write_bytes(b"stale-embeddings")
+    (index_dir / "ds_dataset_index.hnsw").write_bytes(b"stale-index")
+    build_embedding_generation(
+        rows=(),
+        index_dir=index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+
+    assert g1._semantic_search_state(tmp_path)[0] == "disabled_missing_index"
+    report = _dump(g1.build_g1_search_engineering_quality_report(tmp_path, ()))
+    assert report["index_backed"] is False
+
+
 def test_task1_resolver_query_uses_scope_seed_rows_without_python_fallback(
     tmp_path: Path,
 ) -> None:

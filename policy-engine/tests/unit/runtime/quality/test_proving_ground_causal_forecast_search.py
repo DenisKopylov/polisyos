@@ -1879,6 +1879,57 @@ def test_g2_semantic_retrieval_fails_without_hnsw_assets_when_required(
     assert "layer3_g2_stale_index_blocks_domain_ceiling" in report["issue_codes"]
 
 
+def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A selected typed-empty generation must not fall back to old flat assets."""
+
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    build_embedding_generation(
+        rows=(),
+        index_dir=academic_root,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=academic_root / "ac_work_embeddings.npz",
+        legacy_index_path=academic_root / "ac_work_index.hnsw",
+    )
+    seed = g2.Layer3G2SearchRecallSeed(
+        seed_id="g2-recall-seed:fixture-semantic-edge",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        expected_row_refs=("skg-edge://edge-1",),
+        requires_semantic_retrieval=True,
+    )
+
+    coverage = _dump(g2.build_g2_l2_skg_index_coverage(tmp_path))
+    freshness = _dump(
+        g2.build_g2_search_recall_freshness(
+            tmp_path,
+            seeds=(seed,),
+            semantic_retrieval_required=True,
+            query_vector_producer_ref="producer://fixture-query-vector",
+            query_vector_ref="query-vector://fixture",
+        )
+    )
+    quality = _dump(
+        g2.build_g2_search_engineering_quality_report(
+            tmp_path,
+            None,
+            semantic_retrieval_required=True,
+        )
+    )
+
+    assert coverage["hnsw_assets_status"] == "fail"
+    assert freshness["hnsw_freshness_status"] == "fail"
+    assert quality["hnsw_index_backed_status"] == "fail"
+
+
 def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
     tmp_path: Path,
     monkeypatch: Any,

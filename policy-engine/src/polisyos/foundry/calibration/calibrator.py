@@ -148,6 +148,99 @@ class ConstraintHandle:
     value: float
 
 
+@dataclass(frozen=True)
+class _HessianReuseKey:
+    """Identity of the objective at which a Hessian diagnostic was computed.
+
+    A Hessian is local evidence.  The point, coordinate naming, objective
+    weights, stochastic replica, and numerical policy therefore all belong to
+    its identity; matching only the parameter count would silently attach a
+    diagnostic to a different objective.
+    """
+
+    flat_theta: tuple[float, ...]
+    param_names: tuple[str, ...]
+    weights: tuple[float, ...]
+    seed: int
+    seed_strategy: str
+    steps: int
+    dtype: str
+    damping: float
+    rank_tol: float
+    max_params: int | None
+    fidelity_mode: str
+    fidelity_temperature: float
+    fidelity_force_override: bool
+
+
+def _select_lower_loss_state(
+    *,
+    previous_loss: float,
+    previous_state: Any,
+    candidate_loss: float,
+    candidate_state: Any,
+) -> tuple[float, Any]:
+    """Return the lower finite-loss state after evaluating both candidates.
+
+    The helper deliberately does not infer quality from the candidate's
+    position or from the fact that it was produced by an optimizer step.  A
+    produced state becomes eligible only after its comparable objective has
+    been evaluated.
+    """
+    try:
+        previous_value = float(previous_loss)
+    except (TypeError, ValueError, OverflowError):
+        previous_value = float("inf")
+    try:
+        candidate_value = float(candidate_loss)
+    except (TypeError, ValueError, OverflowError):
+        candidate_value = float("inf")
+    if np.isfinite(candidate_value) and (
+        not np.isfinite(previous_value) or candidate_value < previous_value
+    ):
+        return candidate_value, candidate_state
+    return previous_value, previous_state
+
+
+def _hessian_reuse_key_matches(
+    first: _HessianReuseKey | None,
+    second: _HessianReuseKey | None,
+) -> bool:
+    """Return whether two Hessian evidence identities are exactly compatible."""
+    if first is None or second is None or first != second:
+        return False
+    return bool(
+        np.all(np.isfinite(np.asarray(first.flat_theta, dtype=float)))
+        and np.all(np.isfinite(np.asarray(first.weights, dtype=float)))
+    )
+
+
+def _make_hessian_reuse_key(
+    flat_theta: jnp.ndarray,
+    param_names: Sequence[str],
+    weights: jnp.ndarray,
+    config: CalibrationConfig,
+    *,
+    steps: int,
+) -> _HessianReuseKey:
+    """Build a complete local identity for a Hessian diagnostic."""
+    return _HessianReuseKey(
+        flat_theta=tuple(float(value) for value in np.asarray(flat_theta).reshape(-1)),
+        param_names=tuple(param_names),
+        weights=tuple(float(value) for value in np.asarray(weights).reshape(-1)),
+        seed=int(config.seed),
+        seed_strategy=config.seed_strategy,
+        steps=int(steps),
+        dtype=str(jnp.asarray(flat_theta).dtype),
+        damping=float(config.hessian.damping),
+        rank_tol=float(config.hessian.rank_tol),
+        max_params=config.hessian.max_params,
+        fidelity_mode=config.fidelity.mode,
+        fidelity_temperature=float(config.fidelity.temperature),
+        fidelity_force_override=bool(config.fidelity.force_override),
+    )
+
+
 @dataclass
 class CalibrationMetricsCollector:
     """Batch optimizer telemetry and emit it periodically to observability sinks."""
@@ -955,15 +1048,26 @@ class Calibrator:
                 return jnp.zeros((0,), dtype=jnp.float32)
             return jnp.stack(losses)
 
-        def _tree_is_finite(tree: Any) -> jnp.ndarray:
-            leaves = jax.tree_util.tree_leaves(tree)
-            finite = jnp.array(True)
-            for leaf in leaves:
-                finite = finite & jnp.all(jnp.isfinite(leaf))
-            return finite
+        def _forward_evaluation(
+            u_state: Sequence[jnp.ndarray],
+            weights_state: jnp.ndarray,
+            step_idx: jax.Array,
+        ) -> tuple[
+            jnp.ndarray,
+            jnp.ndarray,
+            Mapping[str, jnp.ndarray],
+            jnp.ndarray,
+            jnp.ndarray,
+            jnp.ndarray,
+        ]:
+            """Run one parameter-connected forward and derive all loss views.
 
-        def loss_fn(u: Sequence[jnp.ndarray], weights_vec: jnp.ndarray, step_idx: jax.Array):
-            theta_groups = from_unconstrained(u, group_bijectors)
+            The returned traces remain connected to ``u_state``.  This helper
+            is used by the differentiable loss path as well as final report
+            projection, so report projections do not need to launch separate
+            scans for the target losses, total loss, and series data.
+            """
+            theta_groups = from_unconstrained(u_state, group_bijectors)
             theta = _expand_group_values(theta_groups)
             sim_bundle = apply_trainable_values(bundle, theta)
             _, traces = run_pure_scan(
@@ -974,14 +1078,35 @@ class Calibrator:
                 metric_paths=metric_paths,
                 controls_seq=self.inputs.controls_seq,
             )
-            base_vec = _base_vec_from_traces(
-                traces,
-            )
-            total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
+            base_vec = _base_vec_from_traces(traces)
+            total = jnp.sum(base_vec * weights_state) if base_vec.size else jnp.array(0.0)
             constraint_penalty = _constraint_penalty(traces)
             prior_penalty = _prior_penalty(theta_groups)
             aux_penalty = _aux_penalty(traces)
-            total = total + constraint_penalty + prior_penalty + aux_penalty
+            total = (
+                total
+                + constraint_penalty
+                + prior_penalty
+                + aux_penalty
+            )
+            return total, base_vec, traces, constraint_penalty, prior_penalty, aux_penalty
+
+        def _tree_is_finite(tree: Any) -> jnp.ndarray:
+            leaves = jax.tree_util.tree_leaves(tree)
+            finite = jnp.array(True)
+            for leaf in leaves:
+                finite = finite & jnp.all(jnp.isfinite(leaf))
+            return finite
+
+        def loss_fn(u: Sequence[jnp.ndarray], weights_vec: jnp.ndarray, step_idx: jax.Array):
+            (
+                total,
+                base_vec,
+                _traces,
+                constraint_penalty,
+                prior_penalty,
+                aux_penalty,
+            ) = _forward_evaluation(u, weights_vec, step_idx)
             aux = (base_vec, constraint_penalty, prior_penalty, aux_penalty)
             return total, aux
 
@@ -1059,13 +1184,13 @@ class Calibrator:
         def _compute_run_hessian_summary(
             theta_groups: Sequence[jnp.ndarray],
             weights_vec: jnp.ndarray,
-        ) -> tuple[HessianResult | None, Any | None, list[str]]:
+        ) -> tuple[HessianResult | None, Any | None, list[str], _HessianReuseKey | None]:
             if not cfg.hessian.enabled:
-                return None, None, []
+                return None, None, [], None
             flat_theta, unravel_theta = ravel_pytree(theta_groups)
             n_params = int(flat_theta.size)
             if n_params == 0:
-                return None, None, ["Hessian skipped: no parameters"]
+                return None, None, ["Hessian skipped: no parameters"], None
             if cfg.hessian.max_params is not None and n_params > cfg.hessian.max_params:
                 return (
                     None,
@@ -1073,9 +1198,17 @@ class Calibrator:
                     [
                         f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"
                     ],
+                    None,
                 )
 
             param_names = _param_names_for_groups(theta_groups)
+            reuse_key = _make_hessian_reuse_key(
+                flat_theta,
+                param_names,
+                weights_vec,
+                cfg,
+                steps=steps,
+            )
 
             def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
                 theta_groups_local = unravel_theta(flat_params)
@@ -1115,7 +1248,7 @@ class Calibrator:
                     jitter_floor=cfg.hessian.rank_tol,
                 )
             except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
-                return None, None, [f"Hessian computation failed: {exc}"]
+                return None, None, [f"Hessian computation failed: {exc}"], reuse_key
 
             identifiability_report = None
             try:
@@ -1127,7 +1260,7 @@ class Calibrator:
                 ValueError,
             ) as exc:  # pragma: no cover - defensive
                 local_diagnostics.append(f"Identifiability diagnostics failed: {exc}")
-            return hessian_result, identifiability_report, local_diagnostics
+            return hessian_result, identifiability_report, local_diagnostics, reuse_key
 
         # ------------------------------------------------------------------
         # Multi-start: build list of (u_init, seed_offset) pairs
@@ -1240,18 +1373,88 @@ class Calibrator:
                         span.set_attribute("calibration.convergence_reason", convergence_reason)
                         span.set_attribute("calibration.total_steps", total_steps)
 
-            run_u_state = best_u_state if np.isfinite(best_eval_loss) else u_state
-            run_weights_state = best_weights_state if np.isfinite(best_eval_loss) else weights_state
-            final_loss = (
-                best_eval_loss
-                if np.isfinite(best_eval_loss)
-                else (float(loss_history[-1]) if loss_history else float("inf"))
+            # The optimizer evaluates ``prev_u_state`` before producing the
+            # next state.  Evaluate that last produced state on the same
+            # designated final replica before allowing it to replace the
+            # historical best.  If GradNorm changed the weights, re-evaluate
+            # the historical state with those same final weights so the two
+            # objectives remain comparable.
+            final_step_idx = jnp.array(0, dtype=jnp.int32)
+            candidate_forward: tuple[
+                jnp.ndarray,
+                jnp.ndarray,
+                Mapping[str, jnp.ndarray],
+                jnp.ndarray,
+                jnp.ndarray,
+                jnp.ndarray,
+            ] | None = None
+            candidate_loss = float("inf")
+            try:
+                candidate_forward = _forward_evaluation(
+                    u_state,
+                    weights_state,
+                    final_step_idx,
+                )
+                candidate_loss = float(candidate_forward[0])
+            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
+                _ms_diagnostics.append(f"Last iterate evaluation failed: {exc}")
+
+            weights_comparable = np.array_equal(
+                np.asarray(best_weights_state),
+                np.asarray(weights_state),
+                equal_nan=True,
             )
+            baseline_loss = best_eval_loss
+            baseline_forward: tuple[
+                jnp.ndarray,
+                jnp.ndarray,
+                Mapping[str, jnp.ndarray],
+                jnp.ndarray,
+                jnp.ndarray,
+                jnp.ndarray,
+            ] | None = None
+            if np.isfinite(best_eval_loss) and not weights_comparable:
+                try:
+                    baseline_forward = _forward_evaluation(
+                        best_u_state,
+                        weights_state,
+                        final_step_idx,
+                    )
+                    baseline_loss = float(baseline_forward[0])
+                except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
+                    _ms_diagnostics.append(f"Historical best re-evaluation failed: {exc}")
+                    baseline_loss = float("inf")
+
+            selected_loss, selected_state = _select_lower_loss_state(
+                previous_loss=baseline_loss,
+                previous_state=best_u_state,
+                candidate_loss=candidate_loss,
+                candidate_state=u_state,
+            )
+            candidate_selected = (
+                np.isfinite(candidate_loss)
+                and (
+                    not np.isfinite(baseline_loss)
+                    or candidate_loss < baseline_loss
+                )
+            )
+            run_u_state = selected_state
+            run_weights_state = weights_state
+            final_loss = selected_loss
+            selected_forward = candidate_forward if candidate_selected else baseline_forward
+            if candidate_selected:
+                _ms_diagnostics.append("Last produced iterate admitted after comparable evaluation")
             run_hessian_result = None
             run_identifiability = None
+            run_hessian_key: _HessianReuseKey | None = None
             if len(start_points) > 1 and cfg.hessian.enabled:
                 theta_groups_run = from_unconstrained(run_u_state, group_bijectors)
-                run_hessian_result, run_identifiability, hessian_diags = (
+                (
+                    run_hessian_result,
+                    run_identifiability,
+                    hessian_diags,
+                    run_hessian_key,
+                ) = (
                     _compute_run_hessian_summary(
                         theta_groups_run,
                         run_weights_state,
@@ -1268,6 +1471,8 @@ class Calibrator:
                     "diagnostics": _ms_diagnostics,
                     "hessian_result": run_hessian_result,
                     "identifiability": run_identifiability,
+                    "hessian_reuse_key": run_hessian_key,
+                    "forward": selected_forward,
                 }
             )
 
@@ -1320,26 +1525,20 @@ class Calibrator:
             node_id = final_bundle.nodes[handle.node_index].node_id
             calibrated_params[f"{node_id}.{handle.field_name}"] = float(value)
 
-        final_target_losses = _target_loss_vec(
-            u_state,
-            jnp.array(0, dtype=jnp.int32),
-        )
+        final_forward = selected_run.get("forward")
+        if final_forward is None:
+            final_forward = _forward_evaluation(
+                u_state,
+                weights_state,
+                jnp.array(0, dtype=jnp.int32),
+            )
+        final_total_loss_jax, final_target_losses, traces, _, _, _ = final_forward
         per_target_final = {
             tid: float(final_target_losses[idx] * weights_state[idx])
             for idx, tid in enumerate(target_ids)
         }
         target_weights = {tid: float(weights_state[idx]) for idx, tid in enumerate(target_ids)}
-        final_total_loss, _ = loss_fn(u_state, weights_state, jnp.array(0, dtype=jnp.int32))
-        final_total_loss = float(final_total_loss)
-
-        _, traces = run_pure_scan(
-            self.inputs.base_state,
-            steps=steps,
-            root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-            bundle=final_bundle,
-            metric_paths=metric_paths,
-            controls_seq=self.inputs.controls_seq,
-        )
+        final_total_loss = float(final_total_loss_jax)
         series_comparison: dict[str, CalibrationSeriesComparison] = {}
         per_target_metrics: dict[str, CalibrationFitMetrics] = {}
         all_real: list[np.ndarray] = []
@@ -1383,6 +1582,7 @@ class Calibrator:
 
         uncertainties: CalibrationUncertainty | None = None
         hessian_result: HessianResult | None = None
+        identifiability_report = None
         if cfg.hessian.enabled:
             flat_theta, unravel_theta = ravel_pytree(final_theta_groups)
             n_params = int(flat_theta.size)
@@ -1393,55 +1593,74 @@ class Calibrator:
                     f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"
                 )
             else:
-                param_names: list[str] = []
-                for group, value in zip(groups, final_theta_groups):
-                    arr = np.asarray(value)
-                    if arr.size == 1:
-                        param_names.append(group.group_id)
-                    else:
-                        param_names.extend(
-                            f"{group.group_id}[{idx}]" for idx in range(int(arr.size))
-                        )
+                param_names = _param_names_for_groups(final_theta_groups)
                 if len(param_names) != n_params:
                     diagnostics.append("Hessian param naming mismatch; using generic names")
                     param_names = [f"param_{idx}" for idx in range(n_params)]
 
-                def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
-                    theta_groups = unravel_theta(flat_params)
-                    theta = _expand_group_values(theta_groups)
-                    sim_bundle = apply_trainable_values(bundle, theta)
-                    _, traces_local = run_pure_scan(
-                        self.inputs.base_state,
-                        steps=steps,
-                        root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-                        bundle=sim_bundle,
-                        metric_paths=metric_paths,
-                        controls_seq=self.inputs.controls_seq,
-                    )
-                    base_vec = _base_vec_from_traces(
-                        traces_local,
-                    )
-                    total = (
-                        jnp.sum(base_vec * weights_state)
-                        if base_vec.size
-                        else jnp.array(0.0)
-                    )
-                    total = (
-                        total
-                        + _constraint_penalty(traces_local)
-                        + _prior_penalty(theta_groups)
-                        + _aux_penalty(traces_local)
-                    )
-                    return total
+                final_hessian_key = _make_hessian_reuse_key(
+                    flat_theta,
+                    param_names,
+                    weights_state,
+                    cfg,
+                    steps=steps,
+                )
+                cached_hessian = selected_run.get("hessian_result")
+                cached_hessian_key = selected_run.get("hessian_reuse_key")
+                reused_hessian = cached_hessian is not None and _hessian_reuse_key_matches(
+                    cached_hessian_key,
+                    final_hessian_key,
+                )
+                if reused_hessian:
+                    hessian_result = cached_hessian
+                    identifiability_report = selected_run.get("identifiability")
+                    diagnostics.append("Hessian reused from selected start")
+                else:
+                    def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
+                        theta_groups = unravel_theta(flat_params)
+                        theta = _expand_group_values(theta_groups)
+                        sim_bundle = apply_trainable_values(bundle, theta)
+                        _, traces_local = run_pure_scan(
+                            self.inputs.base_state,
+                            steps=steps,
+                            root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
+                            bundle=sim_bundle,
+                            metric_paths=metric_paths,
+                            controls_seq=self.inputs.controls_seq,
+                        )
+                        base_vec = _base_vec_from_traces(
+                            traces_local,
+                        )
+                        total = (
+                            jnp.sum(base_vec * weights_state)
+                            if base_vec.size
+                            else jnp.array(0.0)
+                        )
+                        total = (
+                            total
+                            + _constraint_penalty(traces_local)
+                            + _prior_penalty(theta_groups)
+                            + _aux_penalty(traces_local)
+                        )
+                        return total
 
-                try:
-                    hessian_result = compute_hessian(
-                        _loss_from_flat,
-                        jnp.asarray(flat_theta),
-                        param_names,
-                        damping=cfg.hessian.damping,
-                        jitter_floor=cfg.hessian.rank_tol,
-                    )
+                    try:
+                        hessian_result = compute_hessian(
+                            _loss_from_flat,
+                            jnp.asarray(flat_theta),
+                            param_names,
+                            damping=cfg.hessian.damping,
+                            jitter_floor=cfg.hessian.rank_tol,
+                        )
+                    except (
+                        FloatingPointError,
+                        RuntimeError,
+                        TypeError,
+                        ValueError,
+                    ) as exc:  # pragma: no cover - defensive
+                        diagnostics.append(f"Hessian computation failed: {exc}")
+
+                if hessian_result is not None:
                     hr = hessian_result
                     n_p = len(hr.param_names)
 
@@ -1482,16 +1701,8 @@ class Calibrator:
                         hessian_condition=None if not np.isfinite(condition) else float(condition),
                         non_identifiable=non_identifiable,
                     )
-                except (
-                    FloatingPointError,
-                    RuntimeError,
-                    TypeError,
-                    ValueError,
-                ) as exc:  # pragma: no cover - defensive
-                    diagnostics.append(f"Hessian computation failed: {exc}")
 
-        identifiability_report = None
-        if hessian_result is not None:
+        if hessian_result is not None and identifiability_report is None:
             try:
                 identifiability_report = diagnose_identifiability(hessian_result)
             except (

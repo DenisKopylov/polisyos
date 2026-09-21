@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
 
-from ..source_modules import CatalogSourceModuleSpec
+if TYPE_CHECKING:
+    from ..source_modules import CatalogSourceModuleSpec
+
 from .core import UKONS_SOURCE, WORLDBANK_SOURCE, WVS_SOURCE
 from .open_data import (
     CHICAGO_OPENDATA_EXEC_SOURCE,

@@ -9,6 +9,7 @@ single-flight compilation cache.
 from __future__ import annotations
 
 import functools
+import math
 import threading
 import time
 from collections import OrderedDict
@@ -111,6 +112,14 @@ class CacheToken:
     generation: int
 
 
+@dataclass(slots=True)
+class _InFlight:
+    event: threading.Event
+    error: BaseException | None = None
+    result: CompiledMethod | None = None
+    invalidated: bool = False
+
+
 class CompilationCache:
     """
     Thread-safe LRU cache for compiled methods.
@@ -125,6 +134,8 @@ class CompilationCache:
         self._cache: OrderedDict[tuple[int, str], CacheEntry] = OrderedDict()
         self._max_size = max_size
         self._lock = threading.RLock()
+        self._flight_lock = threading.Lock()
+        self._flights: dict[str, _InFlight] = {}
         self._hits = 0
         self._misses = 0
         self._evictions = 0
@@ -133,6 +144,52 @@ class CompilationCache:
     def current_token(self) -> CacheToken:
         with self._lock:
             return CacheToken(self._generation)
+
+    def claim_flight(self, key: str) -> tuple[_InFlight, bool]:
+        """Claim one compilation flight for every compiler sharing this cache."""
+        with self._flight_lock:
+            flight = self._flights.get(key)
+            if flight is not None:
+                return flight, False
+            flight = _InFlight(event=threading.Event())
+            self._flights[key] = flight
+            return flight, True
+
+    def complete_flight(
+        self,
+        key: str,
+        flight: _InFlight,
+        *,
+        error: BaseException | None = None,
+        invalidated: bool = False,
+    ) -> None:
+        """Publish a failed or invalidated flight and then wake its followers."""
+        with self._flight_lock:
+            if error is not None:
+                flight.error = error
+            flight.invalidated = invalidated
+            self._flights.pop(key, None)
+            flight.event.set()
+
+    def publish_flight(
+        self,
+        key: str,
+        flight: _InFlight,
+        spec: Specialization,
+        compiled: CompiledMethod,
+        *,
+        token: CacheToken,
+    ) -> bool:
+        """Publish cache result and follower notification as one generation step."""
+        with self._lock:
+            if token.generation != self._generation:
+                return False
+            self._put_unlocked(spec, compiled, generation=token.generation)
+            with self._flight_lock:
+                flight.result = compiled
+                self._flights.pop(key, None)
+                flight.event.set()
+            return True
 
     def get(
         self,
@@ -163,27 +220,35 @@ class CompilationCache:
             generation = self._resolve_generation(token)
             if generation != self._generation:
                 return False
+            self._put_unlocked(spec, compiled, generation=generation)
+            return True
 
-            key = (generation, spec.cache_key)
-            if key in self._cache:
-                self._cache[key] = CacheEntry(
-                    compiled=compiled,
-                    last_access=time.monotonic(),
-                    access_count=1,
-                )
-                self._cache.move_to_end(key)
-                return True
-
-            while len(self._cache) >= self._max_size:
-                self._cache.popitem(last=False)
-                self._evictions += 1
-
+    def _put_unlocked(
+        self,
+        spec: Specialization,
+        compiled: CompiledMethod,
+        *,
+        generation: int,
+    ) -> None:
+        key = (generation, spec.cache_key)
+        if key in self._cache:
             self._cache[key] = CacheEntry(
                 compiled=compiled,
                 last_access=time.monotonic(),
                 access_count=1,
             )
-            return True
+            self._cache.move_to_end(key)
+            return
+
+        while len(self._cache) >= self._max_size:
+            self._cache.popitem(last=False)
+            self._evictions += 1
+
+        self._cache[key] = CacheEntry(
+            compiled=compiled,
+            last_access=time.monotonic(),
+            access_count=1,
+        )
 
     def contains(
         self,
@@ -420,12 +485,22 @@ def _bind_compiled_method(
     )
 
 
-@dataclass(slots=True)
-class _InFlight:
-    event: threading.Event
-    error: BaseException | None = None
-    result: CompiledMethod | None = None
-    invalidated: bool = False
+def _wait_for_flight(
+    flight: _InFlight,
+    *,
+    timeout: float,
+    cancel_event: threading.Event | None,
+) -> str:
+    """Wait for a flight with a deadline and cooperative cancellation."""
+    deadline = time.monotonic() + timeout
+    while not flight.event.is_set():
+        if cancel_event is not None and cancel_event.is_set():
+            return "cancelled"
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return "timeout"
+        flight.event.wait(min(remaining, 0.05))
+    return "completed"
 
 
 class MethodCompiler:
@@ -445,8 +520,6 @@ class MethodCompiler:
 
         self._registry = registry
         self._cache = cache or get_global_cache()
-        self._inflight_lock = threading.Lock()
-        self._inflight: dict[str, _InFlight] = {}
 
     def compile(
         self,
@@ -461,10 +534,18 @@ class MethodCompiler:
         vmap_axis: int | None = None,
         donate_argnums: tuple[int, ...] = (),
         backend: BackendSpec | None = None,
+        flight_timeout: float = 30.0,
+        cancel_event: threading.Event | None = None,
     ) -> CompiledMethod:
         """
         Compile a single method.
+
+        A follower waits at most ``flight_timeout`` for an in-flight build and
+        may leave that wait cooperatively through ``cancel_event``. The leader
+        remains responsible for completing or publishing the shared flight.
         """
+        if not math.isfinite(flight_timeout) or flight_timeout <= 0:
+            raise ValueError("flight_timeout must be finite and greater than zero")
         if sample_inputs is None:
             sample_inputs = {}
         attempts = 0
@@ -501,22 +582,31 @@ class MethodCompiler:
                 return _bind_compiled_method(cached, dynamic_defaults)
 
             flight_key = f"{token.generation}:{spec.cache_key}"
-            with self._inflight_lock:
-                flight = self._inflight.get(flight_key)
-                if flight is None:
-                    flight = _InFlight(event=threading.Event())
-                    self._inflight[flight_key] = flight
-                    leader = True
-                else:
-                    leader = False
+            flight, leader = self._cache.claim_flight(flight_key)
 
             if not leader:
-                flight.event.wait()
+                wait_status = _wait_for_flight(
+                    flight,
+                    timeout=flight_timeout,
+                    cancel_event=cancel_event,
+                )
+                if wait_status == "timeout":
+                    raise CompilationError(sig.fqn, "Compilation wait deadline exceeded")
+                if wait_status == "cancelled":
+                    raise CompilationError(sig.fqn, "Compilation wait cancelled")
                 if flight.error is not None:
                     if isinstance(flight.error, Exception):
                         raise CompilationError(sig.fqn, str(flight.error))
                     raise flight.error
                 if flight.result is not None:
+                    if self._cache.current_token() != token:
+                        attempts += 1
+                        if attempts >= 3:
+                            raise CompilationError(
+                                sig.fqn,
+                                "Compilation invalidated before follower result",
+                            )
+                        continue
                     if _dynamic_defaults_equal(flight.result.dynamic_defaults, dynamic_defaults):
                         return flight.result
                     return _bind_compiled_method(flight.result, dynamic_defaults)
@@ -560,28 +650,31 @@ class MethodCompiler:
                     _kernel=kernel,
                 )
                 compiled = _bind_compiled_method(template, dynamic_defaults)
-                published = self._cache.put(spec, compiled, token=token)
-                if published and self._cache.current_token() != token:
-                    published = False
+                published = self._cache.publish_flight(
+                    flight_key,
+                    flight,
+                    spec,
+                    compiled,
+                    token=token,
+                )
             except BaseException as exc:
-                with self._inflight_lock:
-                    flight.error = exc
-                    self._inflight.pop(flight_key, None)
-                    flight.event.set()
+                self._cache.complete_flight(flight_key, flight, error=exc)
                 if isinstance(exc, Exception):
                     raise CompilationError(sig.fqn, str(exc)) from exc
                 raise
 
-            with self._inflight_lock:
-                if published:
-                    flight.result = compiled
-                else:
-                    flight.invalidated = True
-                self._inflight.pop(flight_key, None)
-                flight.event.set()
-
             if published:
-                return compiled
+                if self._cache.current_token() == token:
+                    return compiled
+                attempts += 1
+                if attempts >= 3:
+                    raise CompilationError(
+                        sig.fqn,
+                        "Compilation invalidated after publication",
+                    )
+                continue
+
+            self._cache.complete_flight(flight_key, flight, invalidated=True)
 
             attempts += 1
             if attempts >= 3:

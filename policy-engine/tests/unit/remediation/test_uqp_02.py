@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.testing as npt
 import pytest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.covariance import build_covariance_matrix
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator

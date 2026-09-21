@@ -14,6 +14,20 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+_PERSISTED_REQUIRED_FIELDS = (
+    "schema_version",
+    "bundle_id",
+    "created_at",
+    "model",
+    "prediction",
+    "feature_context",
+    "assumptions",
+    "methods",
+    "validity",
+    "audit",
+)
+
+
 def explanation_bundle_schema_id() -> str:
     """Return the stable schema id for the current bundle version."""
 
@@ -24,11 +38,20 @@ def explanation_bundle_schema_id() -> str:
 
 
 def generated_explanation_bundle_schema() -> dict[str, object]:
-    """Return the Pydantic-generated bundle schema with stable metadata."""
+    """Return the reproducible persisted-output profile for ExplanationBundle."""
 
     schema = bundle_json_schema()
     schema["$id"] = explanation_bundle_schema_id()
     schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    schema["title"] = "BERL ExplanationBundle"
+    schema["description"] = (
+        "Versioned audit contract for bounded, assumption-scoped model explanations."
+    )
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        raise TypeError("ExplanationBundle schema must define object properties")
+    properties["schema_version"] = {"const": EXPLANATION_BUNDLE_SCHEMA_VERSION}
+    schema["required"] = list(_PERSISTED_REQUIRED_FIELDS)
     return schema
 
 

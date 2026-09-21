@@ -53,11 +53,14 @@ class _Generator:
         return {"candidate_id": candidate_id, "x": self.calls}
 
 
-def _build_adapter() -> tuple[LegacySearchServiceAdapter, _Generator]:
+def _build_adapter(
+    *,
+    max_iterations: int = 4,
+) -> tuple[LegacySearchServiceAdapter, _Generator]:
     generator = _Generator()
     controller = SearchController(
         config=SearchConfig(
-            stopping=MaxIterations(4),
+            stopping=MaxIterations(max_iterations),
             objective=CompositeObjective([_Objective()]),
         ),
         candidate_generator=generator,
@@ -180,6 +183,24 @@ def test_ask_tell_uses_owner_transition_and_resumes_frontier() -> None:
     assert first_result.best_candidate == first[0].payload
 
 
+def test_ask_tell_stage_a_rejection_does_not_count_stage_b() -> None:
+    adapter, _ = _build_adapter()
+    proposal = adapter.ask(goal=None, search_space=None, context={})[0]
+
+    result = adapter.tell(
+        proposal.candidate_id,
+        EvaluationBundle(
+            objective_value=1.0,
+            is_promising=False,
+            stage_a_passed=False,
+        ),
+    )
+
+    assert result.history_length == 1
+    assert adapter.controller._run_state.stage_a_evaluations == 1
+    assert adapter.controller._run_state.stage_b_evaluations == 0
+
+
 def test_unknown_and_duplicate_candidate_ids_do_not_create_history() -> None:
     adapter, _ = _build_adapter()
 
@@ -216,7 +237,7 @@ def test_malformed_typed_feedback_cannot_fall_back_to_scalar_best() -> None:
 
 
 def test_run_search_compatibility_path_remains_available() -> None:
-    adapter, _ = _build_adapter()
+    adapter, _ = _build_adapter(max_iterations=1)
 
     result = adapter.run_search(
         initial_context={},

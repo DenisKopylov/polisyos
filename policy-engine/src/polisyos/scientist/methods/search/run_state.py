@@ -115,17 +115,21 @@ class SearchRunState:
         transition: _EvaluationTransition,
         *,
         stage_a_evaluated: bool,
+        stage_b_evaluated: bool = True,
     ) -> None:
         """Apply one externally evaluated candidate through this state owner.
 
-        Ask/tell adapters report a completed Stage B evaluation rather than
-        invoking the controller's full loop.  Counters and history still enter
-        through the same transition owner used by ``SearchController.run``;
-        adapters must not maintain a second mutable ledger.
+        Ask/tell adapters report evaluator feedback without invoking the
+        controller's full loop.  Stage A rejection is a valid terminal path
+        for the candidate and therefore must not be counted as a Stage B
+        evaluation.  Counters and history still enter through the same
+        transition owner used by ``SearchController.run``; adapters must not
+        maintain a second mutable ledger.
         """
         if stage_a_evaluated:
             self.stage_a_evaluations += 1
-        self.stage_b_evaluations += 1
+        if stage_b_evaluated:
+            self.stage_b_evaluations += 1
         self.apply_evaluation_transition(transition)
 
     def snapshot(self) -> SearchRunState:

@@ -479,6 +479,7 @@ class SearchController:
         self._run_state.apply_tell_transition(
             transition,
             stage_a_evaluated=True,
+            stage_b_evaluated=stage_a_passed,
         )
         return record
 

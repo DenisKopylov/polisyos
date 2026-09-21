@@ -69,7 +69,7 @@ def _joint_simulation_is_unsupported(result: JointSimulationResult) -> bool:
     return (
         result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
         or not result.trajectories
-        or any(decision.decision != "selected" for decision in result.engine_decisions)
+        or not any(decision.decision == "selected" for decision in result.engine_decisions)
     )
 
 

@@ -288,7 +288,7 @@ def _joint_simulation_port_outcome(
     unsupported = (
         result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
         or not result.trajectories
-        or any(decision.decision != "selected" for decision in result.engine_decisions)
+        or not any(decision.decision == "selected" for decision in result.engine_decisions)
     )
     blockers = list(result.promotion_ready_value_packet.get("authority_blockers", ()))
     if unsupported:

@@ -556,9 +556,9 @@ def test_non_gate_input_stays_non_gate_through_all_propagators() -> None:
     )[0]
     monte_carlo = MonteCarloPropagator(
         PropagationConfig(
-            mc_n_samples=8,
-            mc_batch_size=8,
-            mc_min_valid_samples=1,
+            mc_n_samples=100,
+            mc_batch_size=10,
+            mc_min_valid_samples=10,
             mc_seed=11,
         )
     ).propagate(

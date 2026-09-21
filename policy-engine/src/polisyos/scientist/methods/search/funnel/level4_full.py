@@ -18,6 +18,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
+    statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.stages import ExpensiveStage
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
@@ -147,27 +148,12 @@ class Level4FullFidelity(FunnelStage):
         self,
         simulation_results: dict[str, Any],
     ) -> UncertaintyEnvelope:
-        bootstrap = simulation_results.get("bootstrap", {})
-        effect = abs(float(simulation_results.get("ate", 0.0) or 0.0))
-        ci_width = bootstrap.get("ci_width")
-        statistical_level = 0.5
-        if ci_width is not None:
-            try:
-                ci_width_float = abs(float(ci_width))
-            except (TypeError, ValueError):
-                ci_width_float = 0.0
-            if effect > 0.0:
-                statistical_level = min(1.0, ci_width_float / (2.0 * effect))
-            else:
-                statistical_level = 1.0 if ci_width_float > 0.0 else 0.5
-
         return UncertaintyEnvelope.from_partial(
             {
-                UncertaintyType.STATISTICAL: UncertaintyEstimate(
-                    level=statistical_level,
+                UncertaintyType.STATISTICAL: statistical_uncertainty_from_ci_width(
+                    simulation_results,
                     source="full bootstrap/full estimator stack",
                     quantification_method="full_fidelity_bootstrap",
-                    is_reducible=True,
                     recommended_action="Run refutation and holdout checks before promotion.",
                 ),
                 UncertaintyType.MODEL: UncertaintyEstimate(

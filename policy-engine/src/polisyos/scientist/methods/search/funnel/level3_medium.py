@@ -12,6 +12,7 @@ evidence.  No candidate may be promoted based solely on Level 3 results.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
 
@@ -23,6 +24,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
+    statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
@@ -36,6 +38,13 @@ _FORBIDDEN_PRUNING_METRICS = [
     "subgroup_harm_magnitude",
     "bootstrap_stability",
 ]
+_REDUCED_CONFIG_KEYS = (
+    "data_config",
+    "estimation_config",
+    "scenario_config",
+    "subgroup_config",
+    "model_config",
+)
 
 
 class Level3MediumFidelity(FunnelStage):
@@ -190,22 +199,29 @@ class Level3MediumFidelity(FunnelStage):
             if k not in ("ir", "user_request") and not k.startswith("_funnel_"):
                 state[k] = v
 
+        # Copy only the small configuration mappings that this stage overlays.
+        # Dataset/model/CAS handles and future full-fidelity config remain shared
+        # references; the caller-owned mapping itself is never mutated.
+        for config_key in _REDUCED_CONFIG_KEYS:
+            config = context.get(config_key)
+            if config is None:
+                state[config_key] = {}
+            elif isinstance(config, Mapping):
+                state[config_key] = dict(config)
+            else:
+                raise TypeError(f"{config_key} must be a mapping when provided")
+
         # Inject reduced-fidelity configuration.
-        state.setdefault("data_config", {})
         state["data_config"]["subsample_fraction"] = self._subsample_fraction
         state["data_config"]["stratified"] = True
 
-        state.setdefault("estimation_config", {})
         state["estimation_config"]["estimator"] = self._estimator_tier
         state["estimation_config"]["n_bootstrap"] = self._bootstrap_draws
 
-        state.setdefault("scenario_config", {})
         state["scenario_config"]["grid"] = self._scenario_set
 
-        state.setdefault("subgroup_config", {})
         state["subgroup_config"]["top_k"] = self._top_k_subgroups
 
-        state.setdefault("model_config", {})
         state["model_config"]["scm_complexity"] = "reduced"
 
         # Flag that this is a medium-fidelity evaluation.
@@ -236,26 +252,15 @@ class Level3MediumFidelity(FunnelStage):
         envelope = UncertaintyEnvelope.unknown(source="L3 medium fidelity")
 
         # Statistical uncertainty from bootstrap (if available).
-        bootstrap_stats = sim_results.get("bootstrap", {})
-        ci_width = bootstrap_stats.get("ci_width")
-        if ci_width is not None:
-            # Wider CI → higher uncertainty.  Normalize relative to effect size.
-            effect = abs(sim_results.get("ate", 0.0))
-            if effect > 0:
-                relative_width = min(1.0, ci_width / (2 * effect))
-            else:
-                relative_width = 1.0
-
-            envelope = envelope.with_update(
-                UncertaintyType.STATISTICAL,
-                UncertaintyEstimate(
-                    level=relative_width,
-                    source=f"reduced bootstrap ({self._bootstrap_draws} draws)",
-                    quantification_method="bootstrap_reduced",
-                    is_reducible=True,
-                    recommended_action="Advance to L4 for full bootstrap.",
-                ),
-            )
+        envelope = envelope.with_update(
+            UncertaintyType.STATISTICAL,
+            statistical_uncertainty_from_ci_width(
+                sim_results,
+                source=f"reduced bootstrap ({self._bootstrap_draws} draws)",
+                quantification_method="bootstrap_reduced",
+                recommended_action="Advance to L4 for full bootstrap.",
+            ),
+        )
 
         # Model uncertainty from estimator tier.
         envelope = envelope.with_update(

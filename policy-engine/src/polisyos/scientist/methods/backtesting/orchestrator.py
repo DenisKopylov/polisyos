@@ -6,6 +6,7 @@ import json
 import math
 import uuid
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -51,6 +52,16 @@ else:
 
 
 BacktestStoreFactory = Callable[[Path], BacktestStore]
+
+
+@dataclass(frozen=True)
+class _TTestResult:
+    """Keep descriptive diagnostics separate from statistical test status."""
+
+    p_value: float | None
+    test_name: str | None
+    status: str
+    reason: str | None = None
 
 
 def _default_backtest_store_factory(root: Path) -> BacktestStore:
@@ -721,8 +732,9 @@ class BacktestOrchestrator:
         if interval_contracts:
             metadata_payload["interval_contracts"] = interval_contracts
 
-        biases = self._detect_systematic_biases(scenarios)
-        degraded = bool(degraded_reasons)
+        biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
+        all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+        degraded = bool(all_degraded_reasons)
 
         def has_complete_point_comparisons(scenario: BacktestScenario) -> bool:
             return bool(
@@ -762,30 +774,69 @@ class BacktestOrchestrator:
             prediction_mode_requested=prediction_mode_requested,
             prediction_mode_effective=prediction_mode_effective,
             degraded=degraded,
-            degraded_reasons=degraded_reasons,
+            degraded_reasons=all_degraded_reasons,
             trust_eligible=trust_eligible,
             trust_score=trust_score,
             trust_grade=trust_grade,
             metadata=metadata_payload,
         )
 
-    def _detect_systematic_biases(self, scenarios: list[BacktestScenario]) -> list[SystematicBias]:
+    def _detect_systematic_biases(
+        self,
+        scenarios: list[BacktestScenario],
+    ) -> tuple[list[SystematicBias], list[str]]:
         errors_by_metric: dict[str, list[float]] = {}
         for scenario in scenarios:
             for comp in scenario.outcome_comparisons:
                 errors_by_metric.setdefault(comp.metric_name, []).append(comp.y_pred - comp.y_true)
 
         biases: list[SystematicBias] = []
+        degraded_reasons: list[str] = []
         for metric, errors in errors_by_metric.items():
             if len(errors) < 3:
                 continue
             arr = np.asarray(errors, dtype=float)
             mean = float(np.mean(arr))
-            std = float(np.std(arr, ddof=1))
-            if std <= 1e-12:
+            test_result = self._two_sided_ttest(arr)
+            if test_result.status == "unavailable":
+                assert test_result.reason is not None
+                degraded_reasons.append(
+                    f"bias_statistical_test_unavailable:{metric}:{test_result.reason}"
+                )
+
+            if test_result.p_value is None:
+                if abs(mean) <= 1e-12:
+                    continue
+                biases.append(
+                    SystematicBias(
+                        bias_type="directional",
+                        direction=(
+                            BiasDirection.OPTIMISTIC
+                            if mean > 0
+                            else BiasDirection.PESSIMISTIC
+                        ),
+                        magnitude=float(abs(mean)),
+                        affected_metrics=[metric],
+                        description=(
+                            "Model systematically "
+                            f"{'overestimates' if mean > 0 else 'underestimates'} "
+                            f"metric '{metric}'"
+                        ),
+                        statistical_test=test_result.test_name or "",
+                        p_value=None,
+                        metadata={
+                            "diagnostic": "descriptive_residual",
+                            "test_status": test_result.status,
+                            **(
+                                {"test_reason": test_result.reason}
+                                if test_result.reason is not None
+                                else {}
+                            ),
+                        },
+                    )
+                )
                 continue
-            p_value = self._two_sided_ttest_pvalue(arr)
-            if p_value is None or p_value >= 0.05:
+            if test_result.p_value >= 0.05:
                 continue
             direction = BiasDirection.OPTIMISTIC if mean > 0 else BiasDirection.PESSIMISTIC
             biases.append(
@@ -795,38 +846,72 @@ class BacktestOrchestrator:
                     magnitude=float(abs(mean)),
                     affected_metrics=[metric],
                     description=(
-                        f"Model systematically {'overestimates' if mean > 0 else 'underestimates'} "
+                        "Model systematically "
+                        f"{'overestimates' if mean > 0 else 'underestimates'} "
                         f"metric '{metric}'"
                     ),
-                    statistical_test="one-sample t-test H0(mean_error=0)",
-                    p_value=float(p_value),
+                    statistical_test=test_result.test_name or "",
+                    p_value=float(test_result.p_value),
                 )
             )
-        return biases
+        return biases, degraded_reasons
+
+    @staticmethod
+    def _two_sided_ttest(errors: np.ndarray) -> _TTestResult:
+        n = int(errors.shape[0])
+        if n < 3:
+            return _TTestResult(
+                p_value=None,
+                test_name=None,
+                status="not_computable",
+                reason="insufficient_observations",
+            )
+
+        std = float(np.std(errors, ddof=1))
+        if std <= 1e-12:
+            return _TTestResult(
+                p_value=None,
+                test_name=None,
+                status="not_computable",
+                reason="zero_variance",
+            )
+
+        try:
+            scipy_stats = import_module("scipy.stats")
+            ttest_1samp = getattr(scipy_stats, "ttest_1samp", None)
+            if ttest_1samp is None:
+                return _TTestResult(
+                    p_value=None,
+                    test_name=None,
+                    status="unavailable",
+                    reason="scipy_ttest_1samp_missing",
+                )
+            result = ttest_1samp(errors, popmean=0.0, alternative="two-sided")
+            p_value = float(result.pvalue)
+            if not math.isfinite(p_value) or not 0.0 <= p_value <= 1.0:
+                return _TTestResult(
+                    p_value=None,
+                    test_name=None,
+                    status="unavailable",
+                    reason="scipy_ttest_1samp_invalid_result",
+                )
+            return _TTestResult(
+                p_value=p_value,
+                test_name="one-sample t-test H0(mean_error=0)",
+                status="available",
+            )
+        except Exception as exc:
+            return _TTestResult(
+                p_value=None,
+                test_name=None,
+                status="unavailable",
+                reason=f"scipy_ttest_1samp_error:{type(exc).__name__}",
+            )
 
     @staticmethod
     def _two_sided_ttest_pvalue(errors: np.ndarray) -> float | None:
-        n = int(errors.shape[0])
-        if n < 3:
-            return None
-        mean = float(np.mean(errors))
-        std = float(np.std(errors, ddof=1))
-        if std <= 1e-12:
-            return None
-        t_stat = mean / (std / math.sqrt(n))
-        try:
-            scipy_stats = import_module("scipy.stats")
-            t_dist = getattr(scipy_stats, "t", None)
-            if t_dist is None:
-                return None
-            return float(2.0 * (1.0 - t_dist.cdf(abs(t_stat), df=n - 1)))
-        except Exception:
-            # Normal approximation fallback.
-            from math import erf, sqrt
-
-            z = abs(t_stat)
-            cdf = 0.5 * (1.0 + erf(z / sqrt(2.0)))
-            return float(2.0 * (1.0 - cdf))
+        """Return a real SciPy one-sample t-test p-value when available."""
+        return BacktestOrchestrator._two_sided_ttest(errors).p_value
 
     @staticmethod
     def _aggregate_bias_direction(biases: list[SystematicBias]) -> BiasDirection:

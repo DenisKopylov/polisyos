@@ -125,3 +125,97 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
         partitioned_report.aggregation_policy
         == "micro_rmse_with_explicit_equal_scenario_macro"
     )
+
+
+def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> None:
+    scenario = PredictionEvaluator().evaluate(
+        scenario_id="invalid-prediction",
+        scenario_label="one invalid prediction",
+        y_pred={"metric": [math.nan, 2.0]},
+        y_true={"metric": [1.0, 2.0]},
+    )
+
+    assert scenario.requested_count == 2
+    assert scenario.compared_count == 1
+    assert scenario.invalid_count == 1
+    assert scenario.missing_count == 0
+    assert scenario.invalid_cells == [("metric", 0)]
+    assert scenario.rmse == pytest.approx(0.0)
+
+
+def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
+    scenario = PredictionEvaluator().evaluate(
+        scenario_id="complete-exact",
+        scenario_label="complete exact prediction",
+        y_pred={"metric": [1.0, 100.0]},
+        y_true={"metric": [1.0, 100.0]},
+    )
+
+    score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
+
+    assert scenario.requested_count == 2
+    assert scenario.compared_count == 2
+    assert scenario.missing_count == 0
+    assert scenario.invalid_count == 0
+    assert score == pytest.approx(1.0)
+    assert grade == "A"
+
+
+def test_omitting_difficult_prediction_cannot_improve_completeness_or_grade() -> None:
+    evaluator = PredictionEvaluator()
+    complete = evaluator.evaluate(
+        scenario_id="complete-comparison",
+        scenario_label="complete comparison",
+        y_pred={"metric": [1.0, 100.0]},
+        y_true={"metric": [1.0, 100.0]},
+    )
+    partial = evaluator.evaluate(
+        scenario_id="partial-comparison",
+        scenario_label="difficult prediction omitted",
+        y_pred={"metric": [1.0]},
+        y_true={"metric": [1.0, 100.0]},
+    )
+    scorer = TrustScorer()
+    _complete_score, complete_grade = scorer.compute(scenarios=[complete], biases=[])
+    _partial_score, partial_grade = scorer.compute(scenarios=[partial], biases=[])
+
+    assert complete.requested_count == partial.requested_count == 2
+    assert complete.compared_count == 2
+    assert partial.compared_count == 1
+    assert complete_grade == "A"
+    assert partial_grade != "A"
+
+
+def test_non_default_nominal_confidence_survives_orchestrator_and_persisted_report(
+    tmp_path,
+) -> None:
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.registry.refs import BacktestReportRef
+
+    history_path = tmp_path / "history.json"
+    history_path.write_text('{"metric": [0.0, 0.0]}', encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="nominal-confidence",
+        historical_data_path=str(history_path),
+        ground_truth_outcomes={"metric": [1.0, 2.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [1.0, 2.0]},
+        prediction_intervals={"metric": [(0.0, 2.0), (1.0, 3.0)]},
+        confidence_level=0.80,
+        metadata={"interval_type": "predictive"},
+    )
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    report = orchestrator.run([plan])
+    assert report.cas_artifact_id is not None
+    assert report.scenarios[0].nominal_confidence_level == pytest.approx(0.80)
+    assert report.scenarios[0].interval_type == "predictive"
+    assert report.overall_coverage_probability == pytest.approx(1.0)
+    persisted_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
+    persisted = load_backtest_report(orchestrator._store, persisted_ref)
+    scenario = persisted.scenarios[0]
+
+    assert persisted.overall_coverage_probability == pytest.approx(1.0)
+    assert scenario.nominal_confidence_level == pytest.approx(0.80)
+    assert scenario.interval_type == "predictive"

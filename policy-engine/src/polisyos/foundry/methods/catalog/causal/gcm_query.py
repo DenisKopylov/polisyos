@@ -157,7 +157,13 @@ def _polynomial_predict(
     if not isinstance(raw_coefficients, Mapping):
         return None
     try:
-        degree = int(params.get("poly_degree", 0))
+        raw_degree = params.get("poly_degree")
+        if isinstance(raw_degree, bool) or not isinstance(raw_degree, (int, float)):
+            return None
+        degree_value = float(raw_degree)
+        if not math.isfinite(degree_value) or not degree_value.is_integer():
+            return None
+        degree = int(degree_value)
         if degree < 1:
             return None
         required_keys = {"__intercept__"}

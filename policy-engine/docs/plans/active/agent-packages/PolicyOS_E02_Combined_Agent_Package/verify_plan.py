@@ -94,6 +94,15 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
             'measured_medium_min': 2,
             'measured_medium_max': 3,
         }
+        and r['requested_direct_leaves'] == 15
+        and r['effective_runtime_direct_leaves'] == 14
+        and r['effective_runtime_cap_includes_sol'] is True
+        and r['runtime_cap_observed'] is True
+        and r['runtime_cap_basis'] == 'observed_current_platform'
+        and r['fifteenth_role_rotation'] is True
+        and r['review_backlog_soft_target'] == 4
+        and r['review_backlog_is_executor_cap'] is False
+        and r['small_excess_global_stop'] is False
         and set(r['immutable_request_fields'])
         == {
             'executable', 'argv', 'cwd', 'worktree', 'code_sha',
@@ -117,6 +126,7 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require(
         r['executor_min'] <= r['executors'] <= r['executor_max']
         and r['reviewer_min'] <= r['reviewers'] <= r['reviewer_max']
+        and r['effective_runtime_direct_leaves'] + 1 == r['requested_direct_leaves']
         and r['executors'] + r['reviewers'] + r['preparers'] + r['brokers'] + r['integrators']
         == r['requested_direct_workers'],
         'Elastic staffing projection mismatch',

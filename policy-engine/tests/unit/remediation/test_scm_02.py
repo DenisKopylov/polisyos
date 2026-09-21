@@ -5,7 +5,8 @@ from __future__ import annotations
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
-from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData, TwinNetworkQueryData
+from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQueryResult
 from polisyos.ir.analytics.structural_causal_model import (
@@ -113,3 +114,24 @@ def test_attribution_uses_a_distinct_observational_baseline() -> None:
     result = CausalQueryResult.model_validate(output["query_result"])
     assert result.result_mean == pytest.approx(6.0)
     assert result.result_std == pytest.approx(0.0)
+
+
+def test_twin_partial_gaussian_abduction_reuses_conditioned_noise() -> None:
+    """Twin worlds share draws from U|Y=2 instead of a fixed imputed residual."""
+    payload = TwinNetworkQueryData(
+        scm_spec=_linear_chain(),
+        factual_condition={"Y": 2.0},
+        treatment_variable="X",
+        factual_treatment_value=1.0,
+        counterfactual_treatment_value=0.0,
+        outcome_variable="Y",
+        n_samples=2048,
+    )
+
+    output = TwinNetworkQuery.pure_step(payload, params={"__seed__": 117})
+
+    assert output["twin_network_result"].po_counter_mean == pytest.approx(1.0, abs=0.08)
+    assert output["twin_network_result"].po_counter_std == pytest.approx(
+        2.0**-0.5,
+        abs=0.08,
+    )

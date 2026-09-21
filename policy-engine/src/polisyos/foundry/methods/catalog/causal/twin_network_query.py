@@ -37,9 +37,12 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
+    _LinearGaussianPosterior,
     _abduce_noises_unified,
     _apply_intervention,
+    _draw_linear_gaussian_noises,
     _joint_root_sample_index,
+    _linear_gaussian_posterior,
     _mechanism_map,
     _mechanism_predict,
     _observed_root_samples,
@@ -190,6 +193,7 @@ def _twin_simulate_samples(
     factual_intervention: InterventionSpec,
     counterfactual_intervention: InterventionSpec,
     abduced_noises: dict[str, float],
+    abduction_posterior: _LinearGaussianPosterior | None = None,
     n_samples: int,
     rng: np.random.Generator,
     warnings: list[str],
@@ -217,10 +221,15 @@ def _twin_simulate_samples(
     for i in range(n_samples):
         # ── Step 1: pre-sample shared exogenous noise ──────────────────────────
         shared_noise: dict[str, float] = {}
+        sampled_abduced_noises = (
+            _draw_linear_gaussian_noises(abduction_posterior, rng)
+            if abduction_posterior is not None
+            else abduced_noises
+        )
         root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
         for node in order:
-            if node in abduced_noises:
-                shared_noise[node] = abduced_noises[node]
+            if node in sampled_abduced_noises:
+                shared_noise[node] = sampled_abduced_noises[node]
             else:
                 mechanism = mechanisms.get(node)
                 if mechanism is None:
@@ -450,14 +459,22 @@ class TwinNetworkQuery:
             )
 
         abduced_noises: dict[str, float] = {}
+        abduction_posterior: _LinearGaussianPosterior | None = None
         if payload.factual_condition:
-            abduced_noises = _abduce_noises_unified(
+            abduction_posterior = _linear_gaussian_posterior(
                 condition=payload.factual_condition,
                 order=order,
                 parents_map=parents_map,
                 mechanisms=mechanisms,
-                warnings=warnings,
             )
+            if abduction_posterior is None:
+                abduced_noises = _abduce_noises_unified(
+                    condition=payload.factual_condition,
+                    order=order,
+                    parents_map=parents_map,
+                    mechanisms=mechanisms,
+                    warnings=warnings,
+                )
 
         # ── ACTION: build ATOMIC InterventionSpecs ────────────────────────────
         factual_intervention = InterventionSpec(
@@ -477,6 +494,7 @@ class TwinNetworkQuery:
             factual_intervention=factual_intervention,
             counterfactual_intervention=counterfactual_intervention,
             abduced_noises=abduced_noises,
+            abduction_posterior=abduction_posterior,
             n_samples=n_samples,
             rng=rng,
             warnings=warnings,

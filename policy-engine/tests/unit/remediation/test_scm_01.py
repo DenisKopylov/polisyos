@@ -75,9 +75,7 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         100.0,
     ]
 
-    non_empirical_root = mechanisms["Z"].model_copy(
-        update={"family": MechanismFamily.LINEAR}
-    )
+    non_empirical_root = mechanisms["Z"].model_copy(update={"family": MechanismFamily.LINEAR})
     with pytest.raises(ValueError, match="require an EMPIRICAL mechanism"):
         StructuralCausalModelSpec(
             graph=spec.graph,

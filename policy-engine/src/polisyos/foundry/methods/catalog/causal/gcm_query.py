@@ -168,9 +168,7 @@ def _polynomial_predict(
             return None
         required_keys = {"__intercept__"}
         required_keys.update(
-            f"{parent}^{power}"
-            for parent in mechanism.parents
-            for power in range(1, degree + 1)
+            f"{parent}^{power}" for parent in mechanism.parents for power in range(1, degree + 1)
         )
         if not required_keys.issubset(raw_coefficients):
             return None
@@ -178,9 +176,7 @@ def _polynomial_predict(
         for parent in mechanism.parents:
             parent_value = float(parent_values[parent])
             for power in range(1, degree + 1):
-                value += float(raw_coefficients[f"{parent}^{power}"]) * (
-                    parent_value**power
-                )
+                value += float(raw_coefficients[f"{parent}^{power}"]) * (parent_value**power)
     except (KeyError, TypeError, ValueError, OverflowError):
         return None
     return value if math.isfinite(value) else None
@@ -484,9 +480,7 @@ def _abduce_linear_noises(
             elif mechanism.family in {
                 MechanismFamily.LINEAR,
                 MechanismFamily.ADDITIVE_NOISE,
-            } and all(
-                parent in pseudo_observed for parent in parents_map.get(node, [])
-            ):
+            } and all(parent in pseudo_observed for parent in parents_map.get(node, [])):
                 parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
                 pseudo_observed[node] = _mechanism_predict(mechanism, parent_values)
             else:
@@ -495,7 +489,8 @@ def _abduce_linear_noises(
         mechanism = mechanisms.get(node)
         if (
             mechanism is not None
-            and mechanism.family in {
+            and mechanism.family
+            in {
                 MechanismFamily.LINEAR,
                 MechanismFamily.ADDITIVE_NOISE,
             }

@@ -11,6 +11,7 @@ from typing import Any, NamedTuple
 import jax.numpy as jnp
 import pytest
 
+import polisyos.foundry.methods.compiler as compiler_module
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -191,8 +192,8 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
     cache = CompilationCache()
     first_compile_returned = threading.Event()
     release_compile = threading.Event()
-    first_put_entered = threading.Event()
-    release_put = threading.Event()
+    first_publish_entered = threading.Event()
+    release_publish = threading.Event()
     duplicate_compile_entered = threading.Event()
     calls = 0
 
@@ -208,18 +209,18 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
             return super()._compile_method(*args, **kwargs)
 
     compiler = CoordinatedCompiler(registry=registry, cache=cache)
-    original_put = cache.put
-    put_calls = 0
+    original_publish = cache.publish_flight
+    publish_calls = 0
 
-    def gated_put(*args, **kwargs):
-        nonlocal put_calls
-        put_calls += 1
-        if put_calls == 1:
-            first_put_entered.set()
-            assert release_put.wait(timeout=2)
-        return original_put(*args, **kwargs)
+    def gated_publish(*args, **kwargs):
+        nonlocal publish_calls
+        publish_calls += 1
+        if publish_calls == 1:
+            first_publish_entered.set()
+            assert release_publish.wait(timeout=2)
+        return original_publish(*args, **kwargs)
 
-    cache.put = gated_put
+    cache.publish_flight = gated_publish
     state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
 
     def compile_one():
@@ -237,8 +238,8 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
 
         deadline = time.monotonic() + 2
         while time.monotonic() < deadline:
-            with compiler._inflight_lock:
-                in_flight = tuple(compiler._inflight.values())
+            with cache._flight_lock:
+                in_flight = tuple(cache._flights.values())
             if in_flight:
                 break
             time.sleep(0.001)
@@ -246,15 +247,251 @@ def test_single_flight_publishes_before_followers_are_notified(scalar_slots):
             pytest.fail("follower did not join the in-flight compilation")
 
         release_compile.set()
-        assert first_put_entered.wait(timeout=2)
+        assert first_publish_entered.wait(timeout=2)
         assert not duplicate_compile_entered.wait(timeout=0.2)
-        release_put.set()
+        release_publish.set()
 
         leader_result = leader.result(timeout=2)
         follower_result = follower.result(timeout=2)
 
     assert calls == 1
     assert leader_result is follower_result
+
+
+def test_single_flight_is_shared_by_compiler_instances(scalar_slots):
+    value_slot, result_slot = scalar_slots
+
+    def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:
+        return state._replace(result=state.value * params["coefficient"])
+
+    method = _method(
+        name="shared_single_flight_scale",
+        namespace="jit01",
+        input_slots=frozenset({value_slot}),
+        output_slots=frozenset({result_slot}),
+        parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+        pure_step=pure_step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+
+    cache = CompilationCache()
+    first_compile_started = threading.Event()
+    release_compile = threading.Event()
+    calls = 0
+
+    class CoordinatedCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                first_compile_started.set()
+                assert release_compile.wait(timeout=2)
+            return super()._compile_method(*args, **kwargs)
+
+    compiler_a = CoordinatedCompiler(registry=registry, cache=cache)
+    compiler_b = CoordinatedCompiler(registry=registry, cache=cache)
+    state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
+
+    def compile_one(compiler: MethodCompiler):
+        return compiler.compile(
+            method_name="jit01.shared_single_flight_scale@1.0.0",
+            params={"coefficient": 2.0},
+            sample_inputs={"value": state.value},
+            jit=False,
+        )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        leader = executor.submit(compile_one, compiler_a)
+        assert first_compile_started.wait(timeout=2)
+        follower = executor.submit(compile_one, compiler_b)
+
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            with cache._flight_lock:
+                if cache._flights:
+                    break
+            time.sleep(0.001)
+        else:
+            pytest.fail("second compiler did not join the shared flight")
+
+        release_compile.set()
+        leader_result = leader.result(timeout=2)
+        follower_result = follower.result(timeout=2)
+
+    assert calls == 1
+    assert leader_result is follower_result
+
+
+def test_single_flight_follower_honors_deadline_and_cancellation(scalar_slots):
+    value_slot, result_slot = scalar_slots
+
+    def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:
+        return state._replace(result=state.value * params["coefficient"])
+
+    method = _method(
+        name="bounded_single_flight_scale",
+        namespace="jit01",
+        input_slots=frozenset({value_slot}),
+        output_slots=frozenset({result_slot}),
+        parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+        pure_step=pure_step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+
+    cache = CompilationCache()
+    leader_started = threading.Event()
+    release_leader = threading.Event()
+    calls = 0
+
+    class HangingCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                leader_started.set()
+                assert release_leader.wait(timeout=2)
+            return super()._compile_method(*args, **kwargs)
+
+    compiler = HangingCompiler(registry=registry, cache=cache)
+    state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
+
+    def compile_leader():
+        return compiler.compile(
+            method_name="jit01.bounded_single_flight_scale@1.0.0",
+            params={"coefficient": 2.0},
+            sample_inputs={"value": state.value},
+            jit=False,
+        )
+
+    def compile_follower(*, cancel_event=None):
+        return compiler.compile(
+            method_name="jit01.bounded_single_flight_scale@1.0.0",
+            params={"coefficient": 2.0},
+            sample_inputs={"value": state.value},
+            jit=False,
+            flight_timeout=0.05,
+            cancel_event=cancel_event,
+        )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        leader = executor.submit(compile_leader)
+        assert leader_started.wait(timeout=2)
+
+        timed_out = executor.submit(compile_follower)
+        with pytest.raises(CompilationError, match="deadline"):
+            timed_out.result(timeout=1)
+
+        cancelled_event = threading.Event()
+        cancelled = executor.submit(compile_follower, cancel_event=cancelled_event)
+        cancelled_event.set()
+        with pytest.raises(CompilationError, match="cancelled"):
+            cancelled.result(timeout=1)
+
+        assert calls == 1
+        release_leader.set()
+        leader.result(timeout=2)
+
+
+def test_single_flight_retries_when_invalidation_wins_result_delivery(
+    scalar_slots,
+    monkeypatch,
+):
+    value_slot, result_slot = scalar_slots
+
+    def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:
+        return state._replace(result=state.value * params["coefficient"])
+
+    method = _method(
+        name="invalidation_race_scale",
+        namespace="jit01",
+        input_slots=frozenset({value_slot}),
+        output_slots=frozenset({result_slot}),
+        parameters=(ParameterSpec("coefficient", default=2.0, is_static=False),),
+        pure_step=pure_step,
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+
+    cache = CompilationCache()
+    first_compile_started = threading.Event()
+    release_compile = threading.Event()
+    publication_ready = threading.Event()
+    release_publication = threading.Event()
+    follower_wait_entered = threading.Event()
+    release_follower = threading.Event()
+    publish_calls = 0
+    calls = 0
+
+    class CountingCompiler(MethodCompiler):
+        def _compile_method(self, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                first_compile_started.set()
+                assert release_compile.wait(timeout=2)
+            return super()._compile_method(*args, **kwargs)
+
+    compiler_a = CountingCompiler(registry=registry, cache=cache)
+    compiler_b = CountingCompiler(registry=registry, cache=cache)
+    original_publish = cache.publish_flight
+    original_wait = compiler_module._wait_for_flight
+    wait_calls = 0
+
+    def gated_publish(*args, **kwargs):
+        nonlocal publish_calls
+        publish_calls += 1
+        if publish_calls == 1:
+            published = original_publish(*args, **kwargs)
+            publication_ready.set()
+            assert release_publication.wait(timeout=2)
+            return published
+        return original_publish(*args, **kwargs)
+
+    def gated_wait(*args, **kwargs):
+        nonlocal wait_calls
+        result = original_wait(*args, **kwargs)
+        wait_calls += 1
+        if wait_calls == 1:
+            follower_wait_entered.set()
+            assert release_follower.wait(timeout=2)
+        return result
+
+    cache.publish_flight = gated_publish
+    monkeypatch.setattr(compiler_module, "_wait_for_flight", gated_wait)
+    state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        leader = executor.submit(
+            compiler_a.compile,
+            method_name="jit01.invalidation_race_scale@1.0.0",
+            params={"coefficient": 2.0},
+            sample_inputs={"value": state.value},
+            jit=False,
+        )
+        assert first_compile_started.wait(timeout=2)
+        follower = executor.submit(
+            compiler_b.compile,
+            method_name="jit01.invalidation_race_scale@1.0.0",
+            params={"coefficient": 2.0},
+            sample_inputs={"value": state.value},
+            jit=False,
+        )
+        release_compile.set()
+        assert publication_ready.wait(timeout=2)
+        assert follower_wait_entered.wait(timeout=2)
+        assert cache.invalidate_all() == 1
+        release_publication.set()
+        release_follower.set()
+        leader_result = leader.result(timeout=2)
+        follower_result = follower.result(timeout=2)
+
+    assert calls == 2
+    assert publish_calls == 2
+    assert cache.stats["generation"] == 1
+    assert leader_result is follower_result
+    assert cache.get(leader_result.specialization) is leader_result
 
 
 def test_single_flight_error_releases_all_followers(scalar_slots):

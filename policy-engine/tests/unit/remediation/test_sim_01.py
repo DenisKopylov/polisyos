@@ -101,17 +101,13 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
 def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
     """B07: no coupling-compatible candidate remains a typed no-run refusal."""
 
-    first = _request().engine_plan[0]
-    second = first.model_copy(
-        update={
-            "engine_kind": "method_registry_estimator",
-            "objective_ref": "objective://second-incompatible",
-            "method_fqn": None,
-        }
+    first = _coupled_plan().model_copy(
+        update={"declared_equilibrium_semantics": "game_model"}
     )
-    request = _request().model_copy(
+    second = _request().engine_plan[0]
+    request = _request(policy_domain="unemployment_claims_benefit").model_copy(
         update={
-            "coupling_graph": _coupling_graph("feedback"),
+            "coupling_graph": _coupling_graph("shared_resource"),
             "engine_plan": (first, second),
         }
     )
@@ -121,24 +117,63 @@ def test_all_engine_candidates_incompatible_return_typed_rejection() -> None:
     assert len(result.engine_decisions) == 2
     assert all(item.decision == "unsupported" for item in result.engine_decisions)
     assert [item.reason for item in result.engine_decisions] == [
+        "equilibrium_semantics_not_backed_by_engine",
         "coupling_composition_gate_unsupported",
-        "method_registry_fqn_missing",
     ]
     assert not result.trajectories
     assert result.receipt.calibration_status == "unsupported_coupling_gated"
     assert result.feedback_classification.support_status == "unsupported"
-    assert "method_registry_fqn_missing" in result.feedback_classification.limitations
+    assert result.feedback_classification.engine_supported is False
+    assert "unsupported_coupling_class:shared_resource" in (
+        result.feedback_classification.support_blockers
+    )
+    assert "all_engine_candidates_rejected" in result.feedback_classification.support_blockers
+    assert "declared_semantics_unbacked:game_model" in (
+        result.feedback_classification.limitations
+    )
     assert result.diagnostics["unsupported_objectives"] == [
         first.objective_ref,
         second.objective_ref,
     ]
+    assert [
+        item["reason"] for item in result.diagnostics["unsupported_reasons"]
+    ] == [
+        "equilibrium_semantics_not_backed_by_engine",
+        "coupling_composition_gate_unsupported",
+    ]
     assert {
         item["reason"] for item in result.content_bound_payload()["engine_decisions"]
-    } == {"coupling_composition_gate_unsupported", "method_registry_fqn_missing"}
+    } == {
+        "equilibrium_semantics_not_backed_by_engine",
+        "coupling_composition_gate_unsupported",
+    }
+    assert result.diagnostics["coupling_support_status"] == "unsupported"
+    assert result.diagnostics["coupling_gate_blocked"] is True
     status, blockers = _joint_simulation_port_outcome(result)
     assert status == "simulation_blocked"
     assert _joint_simulation_is_unsupported(result) is True
-    assert "method_registry_fqn_missing" in blockers
+    assert "unsupported_coupling_class:shared_resource" in blockers
+
+    no_coupling_request = _request(policy_domain="unemployment_claims_benefit").model_copy(
+        update={
+            "engine_plan": (
+                first,
+                second.model_copy(
+                    update={
+                        "engine_kind": "method_registry_estimator",
+                        "method_fqn": None,
+                    }
+                ),
+            )
+        }
+    )
+    no_coupling_result = JointSimulationHorizonController().run(no_coupling_request)
+    assert no_coupling_result.receipt.calibration_status == "no_run"
+    assert no_coupling_result.diagnostics["coupling_support_status"] == "not_applicable"
+    assert no_coupling_result.diagnostics["coupling_gate_blocked"] is False
+    assert no_coupling_result.feedback_classification.support_status == "not_applicable"
+    _, no_coupling_blockers = _joint_simulation_port_outcome(no_coupling_result)
+    assert "n5_coupling_blocked" not in no_coupling_blockers
 
 
 def test_selected_plan_requires_its_executed_trajectory(

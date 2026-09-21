@@ -221,10 +221,12 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
         "balance_delta": 1.0,
         "labor_count_delta": 1.0,
     }
+    observed_interventions: list[dict[str, float]] = []
 
     def triple_only(state: Any, params: Any) -> dict[str, Any]:
         del params
         query = state["ncm_query_data"]
+        observed_interventions.append(dict(query.interventions[0]))
         value = 1.0 if query.interventions == [expected_joint] else 0.0
         return {
             "counterfactual_result": {
@@ -269,6 +271,8 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
 
     result = JointSimulationHorizonController().run(request)
 
+    assert len(observed_interventions) == 7
+    assert observed_interventions.count(expected_joint) == 1
     assert result.higher_order_residuals == {"firm_survival": {0: 1.0}}
     assert result.feedback_classification.numeric_interaction == "non_additive"
     assert result.feedback_classification.checked_interaction_orders == (1, 2, 3)

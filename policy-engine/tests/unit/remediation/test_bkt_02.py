@@ -12,8 +12,8 @@ import math
 import pytest
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
-from polisyos.core.artifacts import StorePutOptions
 from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+from polisyos.ir.artifacts import StorePutOptions
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator

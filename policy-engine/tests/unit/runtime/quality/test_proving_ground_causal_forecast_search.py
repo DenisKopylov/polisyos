@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
@@ -178,7 +179,11 @@ def _create_minimal_skg_fixture(
     manifest_dir.mkdir(parents=True)
     if include_hnsw_assets:
         (academic_root / "ac_work_index.hnsw").write_bytes(b"hnsw-fixture")
-        (academic_root / "ac_work_embeddings.npz").write_bytes(b"npz-fixture")
+        np.savez(
+            academic_root / "ac_work_embeddings.npz",
+            ids=np.array([], dtype=object),
+            vectors=np.empty((0, 2), dtype=np.float32),
+        )
     (manifest_dir / "graph_index.json").write_text(
         json.dumps(
             {

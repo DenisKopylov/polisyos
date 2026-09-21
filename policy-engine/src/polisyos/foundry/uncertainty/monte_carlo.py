@@ -694,6 +694,10 @@ class MonteCarloPropagator:
                 gate_eligible = False
                 exactness = ExactnessKind.CONSTRAINT_ONLY
                 scope = ("expectation_bv",)
+            if joint_sample_id is not None:
+                # The producer-supplied ID is a declaration, not an
+                # independently reconciled row-identity proof.
+                gate_eligible = False
 
             if n_valid < self._config.mc_min_valid_samples:
                 if has_missing_output:

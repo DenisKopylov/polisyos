@@ -3,7 +3,7 @@
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
 Owner: `@lex-owners`
-Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/errors.py`, `src/polisyos/lex/simulator/**`, and `tests/unit/lex/**`
+Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/errors.py`, `src/polisyos/lex/normpack/diff.py`, `src/polisyos/lex/legal_evaluation/impact_diff.py`, compatibility facades under `src/polisyos/lex/simulator/`, and `tests/unit/lex/**`
 
 This page covers the public Lex API for the stage flow `ingest -> structure -> version index ->
 normpack -> legal evaluation`: ingest legal documents, structure provision anchors, resolve active
@@ -33,8 +33,9 @@ snapshots.
 
 ::: polisyos.lex.simulator.mutator
 
-::: polisyos.lex.simulator.diff
+::: polisyos.lex.normpack.diff
 
-::: polisyos.lex.simulator.report
+::: polisyos.lex.legal_evaluation.impact_diff
 
-::: polisyos.lex.simulator.engine
+The former `polisyos.lex.simulator.diff`, `report`, and `engine` modules remain narrow
+compatibility facades that re-export these canonical owners.

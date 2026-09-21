@@ -129,6 +129,7 @@
     "direct_workers": 15
   },
   "main_document": "PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+  "first_dispatch_status": "historical_seed_only_not_current_queue",
   "first_dispatch": [
     "CYC-01",
     "SEL-01",

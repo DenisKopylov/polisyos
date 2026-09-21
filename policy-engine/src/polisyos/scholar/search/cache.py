@@ -38,6 +38,11 @@ class CachedPageRecord(BaseModel):
     error: str | None = None
     source_type: str = "web"
     artifact_id: str | None = None
+    byte_size: int | None = Field(default=None, ge=0)
+    license: str = "public-web"
+    fetch_profile: dict[str, Any] = Field(default_factory=dict)
+    lineage_parent_artifact_id: str | None = None
+    refresh_reason: str | None = None
 
     def to_fetch_result(self) -> FetchResult:
         return FetchResult.model_validate(
@@ -60,6 +65,11 @@ class CachedPageRecord(BaseModel):
                 "error": self.error,
                 "source_type": self.source_type,
                 "artifact_id": self.artifact_id,
+                "byte_size": self.byte_size,
+                "license": self.license,
+                "fetch_profile": dict(self.fetch_profile),
+                "lineage_parent_artifact_id": self.lineage_parent_artifact_id,
+                "refresh_reason": self.refresh_reason,
             }
         )
 
@@ -101,6 +111,7 @@ class UrlFetchCache:
 
     def put(self, result: FetchResult, *, raw_bytes: bytes | None = None) -> CachedPageRecord:
         artifact_id = result.artifact_id
+        previous = self._records.get(str(result.url))
         if self._cas is not None and raw_bytes is not None:
             ref = self._cas.put_bytes(
                 raw_bytes,
@@ -114,6 +125,19 @@ class UrlFetchCache:
                 ),
             )
             artifact_id = str(ref.artifact_id)
+
+        if artifact_id is not None and previous is not None:
+            if (
+                previous.artifact_id is not None
+                and previous.artifact_id != artifact_id
+                and result.lineage_parent_artifact_id is None
+            ):
+                result.lineage_parent_artifact_id = previous.artifact_id
+                if result.refresh_reason is None:
+                    result.refresh_reason = "cache-refresh"
+        if raw_bytes is not None:
+            result.byte_size = len(raw_bytes)
+        result.artifact_id = artifact_id
 
         record = CachedPageRecord(
             url=str(result.url),
@@ -131,6 +155,11 @@ class UrlFetchCache:
             error=result.error,
             source_type=result.source_type,
             artifact_id=artifact_id,
+            byte_size=result.byte_size,
+            license=result.license,
+            fetch_profile=dict(result.fetch_profile),
+            lineage_parent_artifact_id=result.lineage_parent_artifact_id,
+            refresh_reason=result.refresh_reason,
         )
         self._records[str(result.url)] = record
         self._flush()

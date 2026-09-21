@@ -9,6 +9,8 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.canon import content_hash
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_LEX_EXTRACTORS,
     ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
@@ -151,6 +153,49 @@ def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResul
         )
 
     raw_bytes = source.data
+    actual_digest = content_hash(raw_bytes)
+    expected_digest = _source_digest(source)
+    if expected_digest is not None and actual_digest != expected_digest:
+        raise ScholarAcquireError(
+            "bytes source content digest mismatch",
+            source_identity=source.source_locator,
+            details={"expected_sha256": expected_digest, "actual_sha256": actual_digest},
+        )
+
+    raw_artifact_id = source.props.get("raw_artifact_id")
+    if raw_artifact_id is not None:
+        try:
+            artifact_id = ArtifactID.model_validate(raw_artifact_id)
+        except Exception as exc:
+            raise ScholarAcquireError(
+                "bytes source raw artifact reference is invalid",
+                source_identity=source.source_locator,
+                details={"raw_artifact_id": raw_artifact_id},
+            ) from exc
+        if artifact_id.hex != actual_digest:
+            raise ScholarAcquireError(
+                "bytes source raw artifact identity mismatch",
+                source_identity=source.source_locator,
+                details={"raw_artifact_id": raw_artifact_id, "actual_sha256": actual_digest},
+            )
+
+    declared_size = source.props.get("byte_size")
+    if declared_size is not None:
+        try:
+            declared_size_int = int(declared_size)
+        except ValueError as exc:
+            raise ScholarAcquireError(
+                "bytes source byte size is invalid",
+                source_identity=source.source_locator,
+                details={"byte_size": declared_size},
+            ) from exc
+        if declared_size_int != len(raw_bytes):
+            raise ScholarAcquireError(
+                "bytes source byte size mismatch",
+                source_identity=source.source_locator,
+                details={"expected": declared_size_int, "actual": len(raw_bytes)},
+            )
+
     if max_bytes is not None and len(raw_bytes) > max_bytes:
         raise ScholarAcquireError(
             "bytes source exceeds max_bytes_per_doc",
@@ -159,10 +204,11 @@ def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResul
         )
 
     mime = source.mime_hint.strip() if source.mime_hint else "application/octet-stream"
+    canonical_url = source.props.get("canonical_url")
     doc_source = _doc_source_from_source(
         source,
-        canonical_url=None,
-        source_locator=source.source_locator,
+        canonical_url=canonical_url,
+        source_locator=None if canonical_url else source.source_locator,
     )
     return AcquireResult(
         source=source,
@@ -171,6 +217,26 @@ def _acquire_bytes(source: SourceSpec, *, max_bytes: int | None) -> AcquireResul
         mime=mime,
         doc_source=doc_source,
     )
+
+
+def _source_digest(source: SourceSpec) -> str | None:
+    value = source.props.get("content_sha256")
+    if value is None:
+        locator = source.source_locator or ""
+        if locator.startswith("bytes.sha256_"):
+            value = locator.removeprefix("bytes.sha256_")
+    if value is None:
+        return None
+    candidate = value.strip().lower()
+    if candidate.startswith("sha256:"):
+        candidate = candidate[7:]
+    if len(candidate) != 64 or any(char not in "0123456789abcdef" for char in candidate):
+        raise ScholarAcquireError(
+            "bytes source content digest is invalid",
+            source_identity=source.source_locator,
+            details={"content_sha256": value},
+        )
+    return candidate
 
 
 def _resolve_budgets(intent: ResearchIntent, policy: ScholarPolicy) -> BudgetsV1:
@@ -351,6 +417,16 @@ def _web_evidence_payload(
                 "title": source.title,
                 "domain": source.domain,
                 "source_type": source.source_type,
+                "final_url": source.final_url,
+                "content_type": source.content_type,
+                "content_sha256": source.content_sha256,
+                "artifact_id": source.artifact_id,
+                "byte_size": source.byte_size,
+                "license": source.license,
+                "fetch_profile": dict(source.fetch_profile),
+                "redirect_chain": list(source.redirect_chain),
+                "lineage_parent_artifact_id": source.lineage_parent_artifact_id,
+                "refresh_reason": source.refresh_reason,
                 "quality_score": source.quality_score,
                 "duplicate_of_source_id": source.duplicate_of_source_id,
                 "paywalled": source.paywalled,

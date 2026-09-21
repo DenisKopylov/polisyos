@@ -137,6 +137,11 @@ class FetchResult(BaseModel):
     error: str | None = None
     source_type: str = "web"
     artifact_id: str | None = None
+    byte_size: int | None = Field(default=None, ge=0)
+    license: str = "public-web"
+    fetch_profile: dict[str, Any] = Field(default_factory=dict)
+    lineage_parent_artifact_id: str | None = None
+    refresh_reason: str | None = None
 
 
 class SourceMetadata(BaseModel):
@@ -158,6 +163,16 @@ class SourceMetadata(BaseModel):
     fetch_status: str = "ok"
     content_type: str = "application/octet-stream"
     content_sha256: str | None = None
+    artifact_id: str | None = None
+    byte_size: int | None = Field(default=None, ge=0)
+    license: str = "public-web"
+    fetch_profile: dict[str, Any] = Field(default_factory=dict)
+    final_url: str | None = None
+    etag: str | None = None
+    last_modified: str | None = None
+    redirect_chain: list[str] = Field(default_factory=list)
+    lineage_parent_artifact_id: str | None = None
+    refresh_reason: str | None = None
     publication_tier: str | None = None
     underlying_study_id: str | None = None
     dataset_ids: list[str] = Field(default_factory=list)
@@ -171,6 +186,17 @@ class SourceMetadata(BaseModel):
     duplicate_of_source_id: str | None = None
     paywalled: bool = False
     error: str | None = None
+
+    @model_validator(mode="after")
+    def _derive_raw_artifact_id(self) -> SourceMetadata:
+        """Bind the content-addressed raw artifact when the fetch supplied a digest."""
+        if self.artifact_id is None and self.content_sha256:
+            digest = self.content_sha256.strip().lower()
+            if digest.startswith("sha256:"):
+                digest = digest[7:]
+            if len(digest) == 64 and all(char in "0123456789abcdef" for char in digest):
+                self.artifact_id = f"sha256:{digest}"
+        return self
 
 
 class SourceSnippet(BaseModel):

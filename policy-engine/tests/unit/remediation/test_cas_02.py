@@ -211,6 +211,36 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
     assert current_members == prior_members
 
 
+def test_reused_directory_export_preserves_unowned_non_file_entries(
+    tmp_path: Path,
+) -> None:
+    """An owned export with an extra directory is rejected without data loss."""
+    source = FileSystemCAS(tmp_path / "source")
+    artifact_a = source.put_bytes(PAYLOAD_A, _options())
+    artifact_b = source.put_bytes(PAYLOAD_B, _options())
+    export_root = tmp_path / "reused-export"
+
+    source.export_subgraph([artifact_a.artifact_id], export_root, compress=False)
+    prior_members = {
+        path.relative_to(export_root): path.read_bytes()
+        for path in export_root.rglob("*")
+        if path.is_file()
+    }
+    foreign_directory = export_root / "user-owned-directory"
+    foreign_directory.mkdir()
+
+    with pytest.raises(ValueError, match="unowned"):
+        source.export_subgraph([artifact_b.artifact_id], export_root, compress=False)
+
+    current_members = {
+        path.relative_to(export_root): path.read_bytes()
+        for path in export_root.rglob("*")
+        if path.is_file()
+    }
+    assert current_members == prior_members
+    assert foreign_directory.is_dir()
+
+
 def test_import_rejects_valid_but_unlisted_member_from_export_inventory(
     tmp_path: Path,
 ) -> None:

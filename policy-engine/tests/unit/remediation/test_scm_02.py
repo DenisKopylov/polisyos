@@ -14,7 +14,12 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData, TwinNetworkQueryData
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.causal_queries import (
     CausalContrastSpec,
     CausalRegime,
@@ -390,11 +395,11 @@ def test_explicit_do_zero_is_not_observational_attribution_baseline() -> None:
             "treatment_variable": "X",
             "treatment_value": 2.0,
             "outcome_variable": "Y",
-            "contrast": {
-                "target": {
-                    "kind": "interventional",
-                    "intervention": {"type": "atomic", "value": 2.0},
-                },
+                "contrast": {
+                    "target": {
+                        "type": "atomic",
+                        "value": 2.0,
+                    },
                 "comparator": {
                     "kind": "interventional",
                     "intervention": {"type": "atomic", "value": 0.0},
@@ -526,6 +531,7 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
     """A mixed-member target/comparator set fails before ensemble aggregation."""
     ctx = _build_execution_context(tmp_path, run_id="R_scm02_mixed_ensemble")
     scm_ref = persist_structural_causal_model_spec(ctx.store, _linear_chain())
+    graph_ref = persist_causal_graph_model(ctx.store, _linear_chain().graph)
     target = InterventionSpec(type=InterventionType.ATOMIC, value=2.0)
     observational = CausalQuery(
         query_type=QueryType.ATTRIBUTION,
@@ -568,6 +574,7 @@ def test_causal_ensemble_rejects_mixed_canonical_contrast_before_persisting(
             "causal_ensemble_members": [
                 {
                     "structural_causal_model_spec_ref": scm_ref.model_dump(mode="json"),
+                    "graph_ref": graph_ref.model_dump(mode="json"),
                     "causal_query_result_ref": ref.model_dump(mode="json"),
                 }
                 for ref in result_refs

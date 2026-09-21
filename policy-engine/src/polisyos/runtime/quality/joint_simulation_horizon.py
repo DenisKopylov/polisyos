@@ -666,6 +666,7 @@ class _CouplingSupportDecision:
     blockers: tuple[str, ...]
     coupling_classes: tuple[BoundaryCouplingKind, ...]
     general_equilibrium: bool
+    gate_blocked: bool = False
 
     @property
     def engine_supported(self) -> bool:
@@ -693,7 +694,10 @@ def build_content_bound_simulation_receipt(
     if trajectory_count == 0:
         calibration_status: SimulationCalibrationStatus = (
             "unsupported_coupling_gated"
-            if diagnostics_dict.get("coupling_support_status") == "unsupported"
+            if diagnostics_dict.get(
+                "coupling_gate_blocked",
+                diagnostics_dict.get("coupling_support_status") == "unsupported",
+            )
             else "no_run"
         )
         authoritative_for: tuple[Literal["simulation_numerical_uncertainty"], ...] = ()
@@ -836,6 +840,12 @@ class JointSimulationHorizonController:
                 coupling_support.blockers,
             )
             decisions = (*decisions[:-1], decision)
+        if decision.decision != "selected":
+            coupling_support = _aggregate_no_run_coupling_support(
+                request=request,
+                decisions=decisions,
+                gate_disabled=self._settings.disable_coupling_gate,
+            )
         equilibrium = {decision.objective_ref: decision.equilibrium_semantics}
         trajectories: tuple[SimulationTrajectory, ...] = ()
         marginal_effects: dict[str, dict[int, dict[str, float]]] = {}
@@ -858,6 +868,7 @@ class JointSimulationHorizonController:
             "coupling_gate_disabled": self._settings.disable_coupling_gate,
             "coupling_support_status": coupling_support.support_status,
             "coupling_support_blockers": list(coupling_support.blockers),
+            "coupling_gate_blocked": coupling_support.gate_blocked,
             "comparator_refs": list(request.comparator_refs),
             "comparator_refs_status": "not_established",
             "evidence_source": (
@@ -1723,6 +1734,7 @@ def _resolve_coupling_support(
             blockers=(),
             coupling_classes=(),
             general_equilibrium=False,
+            gate_blocked=False,
         )
     classification = classify_coupling(request.coupling_graph)
     classes = _coupling_classes(classification)
@@ -1742,6 +1754,48 @@ def _resolve_coupling_support(
         blockers=blockers,
         coupling_classes=classes,
         general_equilibrium=general_equilibrium,
+        gate_blocked=bool(blockers) and not gate_disabled,
+    )
+
+
+def _aggregate_no_run_coupling_support(
+    *,
+    request: JointSimulationRequest,
+    decisions: Sequence[EngineDecision],
+    gate_disabled: bool = False,
+) -> _CouplingSupportDecision:
+    """Build a fail-closed coupling posture when no candidate was selected."""
+
+    supports = tuple(
+        _resolve_coupling_support(
+            request=request,
+            engine_kind=decision.engine_kind,
+            gate_disabled=gate_disabled,
+        )
+        for decision in decisions
+    )
+    reference = supports[0] if supports else None
+    coupling_blockers = tuple(
+        dict.fromkeys(
+            blocker
+            for support in supports
+            for blocker in support.blockers
+        )
+    )
+    blockers = (*coupling_blockers, "all_engine_candidates_rejected")
+    gate_blocked = any(support.gate_blocked for support in supports)
+    support_status: CouplingSupportStatus = (
+        "unsupported"
+        if gate_blocked
+        else ("not_applicable" if reference is None else reference.support_status)
+    )
+    return _CouplingSupportDecision(
+        classification=None if reference is None else reference.classification,
+        support_status=support_status,
+        blockers=blockers,
+        coupling_classes=() if reference is None else reference.coupling_classes,
+        general_equilibrium=False if reference is None else reference.general_equilibrium,
+        gate_blocked=gate_blocked,
     )
 
 

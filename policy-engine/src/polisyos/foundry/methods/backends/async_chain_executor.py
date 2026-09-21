@@ -315,7 +315,6 @@ class AsyncChainExecutor:
 
         # Reuse the sequential static -> dynamic -> override payload contract.
         node_params = _build_node_param_payload(node, {node_id: params})
-        node_params.setdefault("seed", seed)
 
         bound_inputs: dict[str, Any] = {}
         for binding in chain.get_bindings_for_target(node_id):

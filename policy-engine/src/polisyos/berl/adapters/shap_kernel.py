@@ -25,6 +25,12 @@ class KernelSHAPAdapter:
     method_id: str = "kernel_shap"
     max_exact_features: int = 10
 
+    @property
+    def effective_method_id(self) -> str:
+        """Return the canonical implementation identity shared by aliases."""
+
+        return "kernel_shap"
+
     def explain(
         self,
         model: ScalarModel,
@@ -86,6 +92,9 @@ class KernelSHAPAdapter:
                 "explained_values": explained_values,
                 "feature_removal": context.feature_dependence_policy,
                 "exact_enumeration": True,
+                "requested_method_id": self.method_id,
+                "effective_method_id": self.effective_method_id,
+                "fallback": False,
             },
             assumptions={
                 "output_scale": context.output_scale,
@@ -93,6 +102,8 @@ class KernelSHAPAdapter:
                 "feature_dependence_policy": context.feature_dependence_policy,
                 "causal_claim_made": False,
             },
+            requested_method_id=self.method_id,
+            effective_method_id=self.effective_method_id,
         )
 
     def reconstruct_delta(

@@ -7,6 +7,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from polisyos.common.migrations._engine import (
+    LinearMigrationProfile,
+    run_linear_migration,
+)
+
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
 
 _MIGRATIONS: dict[str, dict[str, MigrationEdge]] = {}
@@ -240,6 +245,47 @@ def _apply_migration(
     return result
 
 
+def _prepare_ir_payload(
+    data: dict[str, Any],
+    artifact: str,
+) -> tuple[dict[str, Any], str]:
+    if "schema_version" not in data:
+        raise ValueError(f"Missing schema_version for artifact '{artifact}'")
+    return data, str(data["schema_version"])
+
+
+def _lookup_ir_edge(artifact: str, from_version: str) -> MigrationEdge | None:
+    return _MIGRATIONS.get(artifact, {}).get(from_version)
+
+
+def _ir_edge_target(edge: MigrationEdge) -> str:
+    return edge.to_version
+
+
+def _apply_ir_step(
+    data: dict[str, Any],
+    edge: MigrationEdge,
+    artifact: str,
+    from_version: str,
+    to_version: str,
+) -> dict[str, Any]:
+    return _apply_migration(
+        data,
+        artifact=artifact,
+        from_version=from_version,
+        to_version=to_version,
+        fn=edge.fn,
+    )
+
+
+_IR_PROFILE = LinearMigrationProfile(
+    prepare=_prepare_ir_payload,
+    no_op=lambda payload: payload,
+    edge_target=_ir_edge_target,
+    apply_step=_apply_ir_step,
+)
+
+
 def migrate_artifact(data: dict[str, Any], artifact: str, target_version: str) -> dict[str, Any]:
     """Migrate artifact helper.
 
@@ -248,37 +294,13 @@ def migrate_artifact(data: dict[str, Any], artifact: str, target_version: str) -
     it must match the registered edge; incompatible versions are errors rather
     than being silently overwritten.
     """
-    if "schema_version" not in data:
-        raise ValueError(f"Missing schema_version for artifact '{artifact}'")
-    current_version = str(data["schema_version"])
-    if current_version == target_version:
-        return data
-
-    visited = set()
-    while current_version != target_version:
-        if current_version in visited:
-            raise ValueError(
-                f"Migration loop detected for '{artifact}': {current_version} -> {target_version}"
-            )
-        visited.add(current_version)
-
-        artifact_migrations = _MIGRATIONS.get(artifact, {})
-        if current_version not in artifact_migrations:
-            raise ValueError(
-                f"No migrator for '{artifact}' from {current_version} to {target_version}"
-            )
-        edge = artifact_migrations[current_version]
-        next_version = edge.to_version
-        data = _apply_migration(
-            data,
-            artifact=artifact,
-            from_version=current_version,
-            to_version=next_version,
-            fn=edge.fn,
-        )
-        current_version = next_version
-
-    return data
+    return run_linear_migration(
+        data,
+        artifact=artifact,
+        target_version=target_version,
+        edge_lookup=_lookup_ir_edge,
+        profile=_IR_PROFILE,
+    )
 
 
 _BACKWARD_READ_MODES = {

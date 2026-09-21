@@ -23,6 +23,12 @@ from polisyos.ir.analytics.backtest import (
     SystematicBias,
     persist_backtest_report,
 )
+from polisyos.ir.analytics.uncertainty import (
+    IntervalSemantics,
+    UncertaintyEnvelope,
+    UncertaintySource,
+    combine_envelopes,
+)
 from polisyos.ir.artifacts import InputRef, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.scientist import run_experiment
@@ -343,12 +349,15 @@ class BacktestOrchestrator:
             sim_payload = from_canonical_bytes(self._store.get_bytes(sim_id))
         except Exception:
             return {}, {}, ()
+        if not isinstance(sim_payload, Mapping):
+            return {}, {}, ()
         envelopes = sim_payload.get("uncertainty_envelopes")
         if not isinstance(envelopes, dict):
             return {}, {}, ()
 
         intervals: dict[str, list[tuple[float, float]]] = {}
         envelope_metadata: list[tuple[float | None, str | None]] = []
+        envelope_contracts: list[UncertaintyEnvelope] = []
         legacy_metadata_seen = False
         metadata_errors: list[str] = []
         for metric in plan.target_metrics:
@@ -358,11 +367,15 @@ class BacktestOrchestrator:
             try:
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
                 env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
-                metadata_declared, confidence_level, interval_type = (
+                if not isinstance(env_payload, Mapping):
+                    raise TypeError("uncertainty envelope payload must be an object")
+                metadata_declared, confidence_level, interval_type, envelope_contract = (
                     self._resolve_persisted_interval_metadata(env_payload)
                 )
                 if metadata_declared:
                     envelope_metadata.append((confidence_level, interval_type))
+                    assert envelope_contract is not None
+                    envelope_contracts.append(envelope_contract)
                 else:
                     legacy_metadata_seen = True
                 horizon = len(plan.ground_truth_outcomes.get(metric, []))
@@ -389,12 +402,15 @@ class BacktestOrchestrator:
                 if isinstance(ref_payload, dict) and ref_payload.get("artifact_id"):
                     metadata_errors.append("uncertainty_envelope_metadata_invalid")
                 continue
-        if metadata_errors:
-            intervals = {}
         if envelope_metadata and legacy_metadata_seen:
             metadata_errors.append("uncertainty_envelope_metadata_incomplete")
-        if len(set(envelope_metadata)) > 1:
-            metadata_errors.append("uncertainty_envelope_metadata_incompatible")
+        if len(envelope_contracts) > 1:
+            try:
+                combine_envelopes(envelope_contracts)
+            except ValueError:
+                metadata_errors.append("uncertainty_envelope_metadata_incompatible")
+        if metadata_errors:
+            intervals = {}
 
         interval_metadata: dict[str, Any] = {}
         if envelope_metadata and not metadata_errors:
@@ -414,23 +430,67 @@ class BacktestOrchestrator:
     @staticmethod
     def _resolve_persisted_interval_metadata(
         payload: Mapping[str, Any],
-    ) -> tuple[bool, float | None, str | None]:
-        """Read persisted interval identity without substituting the plan contract."""
+    ) -> tuple[bool, float | None, str | None, UncertaintyEnvelope | None]:
+        """Validate persisted interval identity through the canonical IR contract."""
         metadata_keys = {"confidence_level", "interval_semantics", "interval_type"}
         if not metadata_keys.intersection(payload):
-            return False, None, None
+            return False, None, None, None
 
-        confidence_level: float | None = None
-        if "confidence_level" in payload and payload["confidence_level"] is not None:
-            confidence_level = float(payload["confidence_level"])
-            if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
-                raise ValueError("uncertainty_envelope_confidence_level_invalid")
+        canonical_fields = {"point_estimate", "confidence_interval", "source"}
+        if canonical_fields.issubset(payload):
+            envelope = UncertaintyEnvelope.model_validate(dict(payload))
+            return (
+                True,
+                envelope.confidence_level,
+                envelope.interval_semantics.value,
+                envelope,
+            )
 
-        raw_interval_type = payload.get("interval_semantics", payload.get("interval_type"))
-        interval_type = None if raw_interval_type is None else str(raw_interval_type)
-        if interval_type is not None and not interval_type:
-            raise ValueError("uncertainty_envelope_interval_semantics_invalid")
-        return True, confidence_level, interval_type
+        raw_semantics = payload.get("interval_semantics")
+        raw_interval_type = payload.get("interval_type")
+        if raw_semantics is not None and raw_interval_type is not None:
+            try:
+                if IntervalSemantics(raw_semantics) is not IntervalSemantics(raw_interval_type):
+                    raise ValueError("uncertainty_envelope_semantics_mismatch")
+            except (TypeError, ValueError) as exc:
+                raise ValueError("uncertainty_envelope_interval_semantics_invalid") from exc
+        raw_semantics = raw_semantics if raw_semantics is not None else raw_interval_type
+        try:
+            interval_semantics = IntervalSemantics(raw_semantics)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("uncertainty_envelope_interval_semantics_invalid") from exc
+
+        raw_intervals = payload.get(
+            "confidence_interval", payload.get("confidence_intervals")
+        )
+        representative_interval = raw_intervals
+        if (
+            isinstance(raw_intervals, (list, tuple))
+            and raw_intervals
+            and isinstance(raw_intervals[0], (list, tuple))
+        ):
+            representative_interval = raw_intervals[0]
+        interval = BacktestOrchestrator._parse_interval(representative_interval)
+        if interval is None:
+            raise ValueError("uncertainty_envelope_interval_missing")
+
+        envelope = UncertaintyEnvelope.model_validate(
+            {
+                "point_estimate": (interval[0] + interval[1]) / 2.0,
+                "confidence_interval": interval,
+                "confidence_level": payload.get("confidence_level"),
+                "source": UncertaintySource.MANUAL,
+                "interval_semantics": interval_semantics,
+                "is_heuristic_ci": payload.get("is_heuristic_ci", False),
+                "gate_eligible": payload.get("gate_eligible", True),
+            }
+        )
+        return (
+            True,
+            envelope.confidence_level,
+            envelope.interval_semantics.value,
+            envelope,
+        )
 
     def _is_constant_forecast(
         self,

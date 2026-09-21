@@ -345,3 +345,99 @@ def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_pa
     contract = report.metadata["interval_contracts"][0]
     assert contract["nominal_confidence_level"] == pytest.approx(0.80)
     assert contract["interval_type"] == "credible_interval"
+
+
+@pytest.mark.parametrize(
+    "envelope_payloads",
+    [
+        [
+            {
+                "confidence_intervals": [[0.0, 2.0]],
+                "confidence_level": 0.80,
+                "interval_semantics": "bogus_semantics",
+            }
+        ],
+        [
+            {
+                "confidence_intervals": [[0.0, 2.0]],
+                "interval_semantics": "credible_interval",
+            }
+        ],
+        [
+            {
+                "confidence_intervals": [[0.0, 2.0]],
+                "confidence_level": 0.80,
+                "interval_semantics": "credible_interval",
+            },
+            {
+                "confidence_intervals": [[0.0, 2.0]],
+                "confidence_level": None,
+                "interval_semantics": "deterministic_bounds",
+            },
+        ],
+    ],
+    ids=["bogus-semantics", "credible-missing-level", "statistical-nonstatistical-pair"],
+)
+def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
+    monkeypatch,
+    tmp_path,
+    envelope_payloads,
+) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text("{}", encoding="utf-8")
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    def put_artifact(payload: dict, kind: str) -> dict[str, str]:
+        ref = orchestrator._store.put_json(
+            payload,
+            StorePutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema={"name": kind, "version": "1.0"},
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        return {"artifact_id": str(ref.artifact_id)}
+
+    metric_names = [f"metric_{index}" for index in range(len(envelope_payloads))]
+    metrics_ref = put_artifact(
+        {"values": {metric: [1.0] for metric in metric_names}},
+        "scientist.backtest.metrics",
+    )
+    envelope_refs = {
+        metric: put_artifact(payload, "scientist.backtest.envelope")
+        for metric, payload in zip(metric_names, envelope_payloads)
+    }
+    simulation_ref = put_artifact(
+        {"uncertainty_envelopes": envelope_refs},
+        "scientist.backtest.simulation",
+    )
+    monkeypatch.setattr(
+        orchestrator_module,
+        "run_experiment",
+        lambda _state: {
+            "artifacts_index": {
+                "metrics_ref": metrics_ref,
+                "simulation_result_ref": simulation_ref,
+            }
+        },
+    )
+    plan = HistoricalValidationPlan(
+        plan_id="invalid-persisted-envelope",
+        historical_data_path=str(history_path),
+        intervention_step=1,
+        ground_truth_outcomes={metric: [1.0] for metric in metric_names},
+        target_metrics=metric_names,
+        prediction_source=PredictionSource.SCIENTIST,
+        scientist_state={"run_id": "BKT-02-invalid-envelope"},
+    )
+
+    report = orchestrator.run([plan])
+
+    scenario = report.scenarios[0]
+    assert report.degraded is True
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert scenario.interval_evaluated_count == 0
+    assert scenario.coverage_probability is None
+    assert any("uncertainty_envelope_metadata" in reason for reason in report.degraded_reasons)

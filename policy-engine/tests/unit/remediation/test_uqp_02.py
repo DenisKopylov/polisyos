@@ -6,6 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from polisyos.foundry.uncertainty.analytical import AnalyticalPropagator
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.covariance import build_covariance_matrix
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
@@ -100,6 +101,22 @@ def _parametric_normal_env(
         ),
         gate_eligible=True,
         metadata={},
+    )
+
+
+def _heuristic_normal_env() -> UncertaintyEnvelope:
+    """Build a calibration-style normal approximation that cannot gate."""
+    return UncertaintyEnvelope(
+        point_estimate=0.0,
+        confidence_interval=(-1.96, 1.96),
+        confidence_level=None,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+        is_heuristic_ci=True,
+        gate_eligible=False,
+        metadata={"interval_basis": "local_gaussian_hessian_approximation"},
     )
 
 
@@ -515,3 +532,42 @@ def test_qmc_uses_normal_parametric_fit_payload() -> None:
     assert result.envelope.point_estimate == pytest.approx(42.0, abs=0.2)
     assert all(40.0 < sample < 44.0 for sample in payload.samples)
     assert result.envelope.metadata["parametric_fit_payload_used"] is True
+
+
+def test_non_gate_input_stays_non_gate_through_all_propagators() -> None:
+    """Propagation cannot promote a heuristic calibration input into a gate."""
+    input_envelopes = {"a": _heuristic_normal_env()}
+
+    def simulation(**params: float) -> dict[str, float]:
+        return {"y": params["a"]}
+
+    analytical = AnalyticalPropagator.propagate_linear_combination(
+        weights={"a": 1.0},
+        input_envelopes=input_envelopes,
+        output_metric_id="y",
+    )
+    delta = DeltaMethodPropagator(
+        PropagationConfig(delta_use_full_covariance=True)
+    ).propagate(
+        simulation,
+        {"a": 0.0},
+        input_envelopes,
+        ["y"],
+    )[0]
+    monte_carlo = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=8,
+            mc_batch_size=8,
+            mc_min_valid_samples=1,
+            mc_seed=11,
+        )
+    ).propagate(
+        simulation,
+        {"a": 0.0},
+        input_envelopes,
+        ["y"],
+    )[0]
+
+    assert analytical.envelope.gate_eligible is False
+    assert delta.envelope.gate_eligible is False
+    assert monte_carlo.envelope.gate_eligible is False

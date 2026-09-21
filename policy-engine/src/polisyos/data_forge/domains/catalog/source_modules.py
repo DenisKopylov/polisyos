@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from collections.abc import Sequence
+from typing import Literal, Protocol, TypeVar
 
 from pydantic import Field
 
@@ -27,6 +28,15 @@ CatalogRunProfile = Literal[
 CatalogSourceStage = Literal["harvest", "normalize", "observations", "publish"]
 
 SOURCE_ID_PATTERN = r"^[a-z][a-z0-9_]*$"
+
+
+class _CatalogSeedSource(Protocol):
+    source_id: str
+    enabled: bool
+    seed_from: str | None
+
+
+_CatalogSeedSourceT = TypeVar("_CatalogSeedSourceT", bound=_CatalogSeedSource)
 
 
 class CatalogSourceAssetKeys(DataForgeModel):
@@ -216,7 +226,7 @@ def select_catalog_source_modules(
         if (wave is None or module.wave.upper() == wave.upper())
         and module.included_in_run_profile(run_profile)
     ]
-    return _with_seed_dependencies(selected_modules, selected)
+    return _resolve_catalog_source_dependencies(selected_modules, selected)
 
 
 def plan_catalog_source_modules(
@@ -278,14 +288,15 @@ def build_catalog_source_asset_group(
     return AssetGroup.from_specs(name, specs)
 
 
-def _with_seed_dependencies(
-    modules: tuple[CatalogSourceModuleSpec, ...],
-    selected: list[CatalogSourceModuleSpec],
-) -> tuple[CatalogSourceModuleSpec, ...]:
+def _resolve_catalog_source_dependencies(
+    modules: tuple[_CatalogSeedSourceT, ...],
+    selected: Sequence[_CatalogSeedSourceT],
+) -> tuple[_CatalogSeedSourceT, ...]:
+    """Resolve seed dependencies with one typed fail-closed policy."""
     selected_ids = {module.source_id for module in selected}
     by_id = {module.source_id: module for module in modules}
 
-    def resolve_seed(module: CatalogSourceModuleSpec, path: tuple[str, ...]) -> None:
+    def resolve_seed(module: _CatalogSeedSourceT, path: tuple[str, ...]) -> None:
         seed_id = module.seed_from
         if seed_id is None:
             return

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 
@@ -1304,10 +1305,19 @@ def run_benchmark(
     try:
         active_suite = _benchmark_suite_for_snapshot(con, suite)
         core_ingest_context = _load_core_ingest_context(config, con)
+        generation = resolve_embedding_generation(
+            config.index_dir,
+            legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+            legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+        )
         search_payload, search_metrics = _run_search_benchmark(
             graph,
             suite=active_suite,
-            vector_index_available=(config.index_dir / "ds_dataset_index.hnsw").exists(),
+            vector_index_available=bool(
+                generation is not None
+                and generation.status != "empty_generation"
+                and generation.index_path is not None
+            ),
         )
         retrieval_payload, retrieval_metrics = _run_retrieval_benchmark(graph, suite=active_suite)
         transport_payload, transport_metrics = _run_transport_benchmark(

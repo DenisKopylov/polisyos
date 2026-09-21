@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.contracts import SearchCandidate, SearchLedger
 from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 from polisyos.fabric import (
     ConnectorSchemaContract,
     DataSchema,
@@ -1286,9 +1287,16 @@ def build_g1_search_engineering_quality_report(
     query_trace_refs = tuple(
         dict.fromkeys(ledger.search_frontier_ref or ledger.ledger_id for ledger in ledgers)
     )
-    index_backed = (index_dir / "ds_dataset_index.hnsw").exists() and (
-        index_dir / "ds_dataset_embeddings.npz"
-    ).exists()
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    index_backed = bool(
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+    )
     issue_codes: list[str] = []
     if not catalog_path.exists() or not query_trace_refs:
         issue_codes.append("layer3_g1_search_engineering_quality_not_measured")
@@ -1653,9 +1661,16 @@ def _semantic_search_state(
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_index.hnsw",
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_embeddings.npz",
     )
-    if (index_dir / "ds_dataset_index.hnsw").exists() and (
-        index_dir / "ds_dataset_embeddings.npz"
-    ).exists():
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    if (
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+    ):
         return "enabled", hnsw_refs
     return "disabled_missing_index", hnsw_refs
 

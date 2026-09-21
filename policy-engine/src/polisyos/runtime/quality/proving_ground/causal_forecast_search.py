@@ -19,6 +19,7 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.contracts import SearchCandidate, SearchFrontier
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 from polisyos.method_requirement import MethodValidityRequirementSpec
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     build_g2_request_dict_from_data_home,
@@ -1068,8 +1069,25 @@ def build_g2_l2_skg_index_coverage(repo_root: Path) -> Layer3G2L2SkgIndexCoverag
 
     hnsw_path = index_dir / "ac_work_index.hnsw"
     embeddings_path = index_dir / "ac_work_embeddings.npz"
-    hnsw_index_path_status: Literal["pass", "fail"] = "pass" if hnsw_path.exists() else "fail"
-    embedding_path_status: Literal["pass", "fail"] = "pass" if embeddings_path.exists() else "fail"
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=embeddings_path,
+        legacy_index_path=hnsw_path,
+    )
+    hnsw_index_path_status: Literal["pass", "fail"] = (
+        "pass"
+        if generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+        else "fail"
+    )
+    embedding_path_status: Literal["pass", "fail"] = (
+        "pass"
+        if generation is not None
+        and generation.status != "empty_generation"
+        and generation.embeddings_path.is_file()
+        else "fail"
+    )
     index_dir_status: Literal["pass", "fail"] = (
         "pass"
         if index_dir.name == "academic"
@@ -1442,7 +1460,17 @@ def build_g2_search_recall_freshness(
 
     hnsw_index_path = index_dir / "ac_work_index.hnsw"
     embeddings_path = index_dir / "ac_work_embeddings.npz"
-    hnsw_assets_exist = hnsw_index_path.exists() and embeddings_path.exists()
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=embeddings_path,
+        legacy_index_path=hnsw_index_path,
+    )
+    hnsw_assets_exist = bool(
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+        and generation.embeddings_path.is_file()
+    )
     if hnsw_required:
         hnsw_freshness_status: Literal["pass", "fail", "not_required_for_request"] = (
             "pass" if hnsw_assets_exist else "fail"
@@ -1617,11 +1645,21 @@ def build_g2_search_engineering_quality_report(
     hnsw_required = semantic_retrieval_required or bool(
         ledger and ledger.semantic_retrieval_required
     )
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
+        legacy_index_path=index_dir / "ac_work_index.hnsw",
+    )
+    hnsw_assets_exist = bool(
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+        and generation.embeddings_path.is_file()
+    )
     hnsw_index_backed_status: Literal["pass", "fail", "not_required_for_request"] = (
         "pass"
         if hnsw_required
-        and (index_dir / "ac_work_index.hnsw").exists()
-        and (index_dir / "ac_work_embeddings.npz").exists()
+        and hnsw_assets_exist
         else "fail"
         if hnsw_required
         else "not_required_for_request"

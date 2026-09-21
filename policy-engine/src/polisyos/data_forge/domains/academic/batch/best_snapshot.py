@@ -35,6 +35,10 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     adapt_legacy_claim_occurrence_transport,
     admit_candidate_claim_vocabulary,
 )
+from polisyos.data_forge.kernel.embeddings import (
+    embedding_generation_manifest,
+    resolve_embedding_generation,
+)
 from polisyos.data_forge.kernel.io import sha256_file
 from polisyos.ir.analytics import VersionedClaimVocabularyEnvelope
 from polisyos.ir.analytics.cross_graph import AcademicBenchmarkSuite, load_benchmark_suite
@@ -1337,20 +1341,25 @@ def _seal_snapshot(
     )
 
     run_embed(config, thermal=thermal)
-    _record_rebuilt_entry(
-        assembly_entries,
-        path="academic/ac_work_embeddings.npz",
-        source_snapshot="candidate_runtime",
-        authoritative_for_runtime=True,
-        notes="embeddings rebuilt from assembled ac_works table",
+    generation = embedding_generation_manifest(
+        config.index_dir,
+        legacy_embeddings_path=config.index_dir / "ac_work_embeddings.npz",
+        legacy_index_path=config.index_dir / "ac_work_index.hnsw",
     )
-    _record_rebuilt_entry(
-        assembly_entries,
-        path="academic/ac_work_index.hnsw",
-        source_snapshot="candidate_runtime",
-        authoritative_for_runtime=True,
-        notes="HNSW index rebuilt from assembled ac_works table",
-    )
+    if generation is None:
+        raise RuntimeError("academic embedding generation was not published")
+    generation_metadata, generation_artifacts = generation
+    for artifact_path in generation_artifacts:
+        _record_rebuilt_entry(
+            assembly_entries,
+            path=artifact_path.relative_to(config.snapshot_root).as_posix(),
+            source_snapshot="candidate_runtime",
+            authoritative_for_runtime=True,
+            notes=(
+                "selected embedding generation artifact: "
+                f"{generation_metadata['generation_id']} ({generation_metadata['status']})"
+            ),
+        )
     _record_rebuilt_entry(
         assembly_entries,
         path="academic/manifests/embed.json",
@@ -1759,7 +1768,10 @@ def _evaluate_promotion(
         "review_queue_bounded": candidate_review_queue <= 100.0,
         "family_edges_improved": candidate_family_edges > original_family_edges,
         "scenario_runtime_no_regression": not scenario_regressions,
-        "runtime_files_complete": _paths_exist(candidate["component_dir"], _REQUIRED_RUNTIME_FILES),
+        "runtime_files_complete": (
+            _paths_exist(candidate["component_dir"], _REQUIRED_RUNTIME_FILES)
+            and _embedding_runtime_complete(candidate["component_dir"])
+        ),
         "evidence_files_complete": _paths_exist(
             candidate["component_dir"], _REQUIRED_EVIDENCE_FILES
         ),
@@ -2109,6 +2121,22 @@ def _scenario_runtime_regressions(
 def _paths_exist(component_dir: str | Path, relative_paths: tuple[str, ...]) -> bool:
     root = Path(component_dir)
     return all((root / rel).exists() for rel in relative_paths)
+
+
+def _embedding_runtime_complete(component_dir: str | Path) -> bool:
+    """Return whether the selected academic generation provides a readable index."""
+
+    root = Path(component_dir)
+    generation = resolve_embedding_generation(
+        root,
+        legacy_embeddings_path=root / "ac_work_embeddings.npz",
+        legacy_index_path=root / "ac_work_index.hnsw",
+    )
+    return bool(
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+    )
 
 
 __all__ = [

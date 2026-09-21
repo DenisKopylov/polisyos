@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass, field
+from collections.abc import Mapping as MappingABC
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal, cast
 
@@ -111,6 +112,14 @@ class ExplanationRequest:
     artifact_refs: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class _CachedAdapterRun:
+    """One effective adapter run reusable by compatible requested aliases."""
+
+    method: MethodExplanation
+    vector: AttributionVector | None
+
+
 class ExplanationOrchestrator:
     """Run method adapters, held-out infidelity checks, and bundle validation."""
 
@@ -142,6 +151,7 @@ class ExplanationOrchestrator:
                 "lime_radius": request.perturbation_radius,
             },
         )
+        effective_cache: dict[tuple[object, ...], _CachedAdapterRun] = {}
         redundancy = self._build_redundancy(request)
         perturbations = sample_local_perturbations(
             x=request.x,
@@ -158,14 +168,35 @@ class ExplanationOrchestrator:
             if adapter is None:
                 methods.append(_diagnostic_method(method_id, "adapter_not_registered"))
                 continue
-            method, vector = self._run_adapter(
+            effective_method_id = _effective_method_id(adapter)
+            cache_key = _effective_request_key(
                 model=model,
                 request=request,
                 context=context,
                 adapter=adapter,
-                redundancy=redundancy,
-                perturbations=perturbations,
+                effective_method_id=effective_method_id,
             )
+            cached = effective_cache.get(cache_key)
+            if cached is None:
+                method, vector = self._run_adapter(
+                    model=model,
+                    request=request,
+                    context=context,
+                    adapter=adapter,
+                    requested_method_id=method_id,
+                    effective_method_id=effective_method_id,
+                    redundancy=redundancy,
+                    perturbations=perturbations,
+                )
+                cached = _CachedAdapterRun(method=method, vector=vector)
+                effective_cache[cache_key] = cached
+            else:
+                method = _reidentify_method(
+                    cached.method,
+                    requested_method_id=method_id,
+                    effective_method_id=effective_method_id,
+                )
+                vector = None
             methods.append(method)
             if vector is not None:
                 attribution_vectors.append(vector)
@@ -246,6 +277,8 @@ class ExplanationOrchestrator:
         request: ExplanationRequest,
         context: ExplanationContext,
         adapter: ExplanationAdapter,
+        requested_method_id: str,
+        effective_method_id: str,
         redundancy: RedundancyContext,
         perturbations: Sequence[PerturbedPoint],
     ) -> tuple[MethodExplanation, AttributionVector | None]:
@@ -264,9 +297,33 @@ class ExplanationOrchestrator:
                 residual_cap=request.residual_cap,
             )
         except (AdapterUnavailableError, TypeError, ValueError, RuntimeError) as exc:
-            return _diagnostic_method(adapter.method_id, str(exc)), None
+            return (
+                _diagnostic_method(
+                    requested_method_id,
+                    str(exc),
+                    effective_method_id=effective_method_id,
+                ),
+                None,
+            )
 
         uncertainty = adapter.estimator_uncertainty(raw)
+        raw_effective_method_id = (
+            raw.effective_method_id
+            or _string_param(raw.params, "effective_method_id")
+            or effective_method_id
+        )
+        raw_fallback = raw.fallback or raw.params.get("fallback") is True
+        raw_fallback_reason = raw.fallback_reason or _string_param(
+            raw.params,
+            "fallback_reason",
+        )
+        params = dict(raw.params)
+        params["requested_method_id"] = requested_method_id
+        params["effective_method_id"] = raw_effective_method_id
+        if raw_fallback:
+            params["fallback"] = True
+        if raw_fallback_reason is not None:
+            params["fallback_reason"] = raw_fallback_reason
         feature_attributions = [
             FeatureAttribution(
                 feature=feature,
@@ -281,11 +338,15 @@ class ExplanationOrchestrator:
             list(detect_redundancy_clusters_from_bundle(redundancy)),
         )
         method = MethodExplanation(
-            method_id=raw.method_id,
+            method_id=requested_method_id,
+            requested_method_id=requested_method_id,
+            effective_method_id=raw_effective_method_id,
+            fallback=raw_fallback,
+            fallback_reason=raw_fallback_reason,
             library="polisyos.berl",
             library_version="1.0.0",
             scope=_scope_from_raw(raw),
-            params=dict(raw.params),
+            params=params,
             assumptions=dict(raw.assumptions),
             attributions=feature_attributions,
             group_attributions=[
@@ -304,7 +365,7 @@ class ExplanationOrchestrator:
         return (
             method,
             AttributionVector(
-                raw.method_id,
+                raw_effective_method_id,
                 raw.attributions,
                 uncertainty.confidence_intervals,
             ),
@@ -408,12 +469,137 @@ def detect_redundancy_clusters_from_bundle(
     )
 
 
-def _diagnostic_method(method_id: str, reason: str) -> MethodExplanation:
+def _effective_method_id(adapter: ExplanationAdapter) -> str:
+    candidate = getattr(adapter, "effective_method_id", None)
+    if isinstance(candidate, str) and candidate:
+        return candidate
+    return adapter.method_id
+
+
+def _effective_request_key(
+    *,
+    model: ScalarModel,
+    request: ExplanationRequest,
+    context: ExplanationContext,
+    adapter: ExplanationAdapter,
+    effective_method_id: str,
+) -> tuple[object, ...]:
+    """Return the complete identity needed to reuse one effective adapter run."""
+
+    return (
+        "berl-effective-request-v1",
+        _adapter_cache_identity(adapter, effective_method_id),
+        id(model),
+        request.model_id,
+        request.model_hash,
+        request.model_class,
+        request.training_data_hash,
+        request.calibration_ref,
+        _freeze(request.x),
+        _freeze(request.feature_names),
+        _freeze(request.background_rows),
+        _freeze(request.adapter_params),
+        _freeze(request.constraints),
+        context.output_scale,
+        context.perturbation_distribution,
+        context.feature_dependence_policy,
+        context.confidence,
+        context.random_seed,
+        request.n_eval_perturbations,
+        request.perturbation_radius,
+        request.residual_cap,
+        request.include_redundancy,
+    )
+
+
+def _adapter_cache_identity(
+    adapter: ExplanationAdapter,
+    effective_method_id: str,
+) -> tuple[object, ...]:
+    if not is_dataclass(adapter):
+        return (type(adapter).__module__, type(adapter).__qualname__, effective_method_id)
+    configuration = tuple(
+        (item.name, _freeze(getattr(adapter, item.name)))
+        for item in fields(adapter)
+        if item.name != "method_id"
+    )
+    return (
+        type(adapter).__module__,
+        type(adapter).__qualname__,
+        effective_method_id,
+        configuration,
+    )
+
+
+def _freeze(value: object) -> object:
+    if isinstance(value, MappingABC):
+        return tuple(
+            sorted(
+                ((str(key), _freeze(item)) for key, item in value.items()),
+                key=lambda item: item[0],
+            )
+        )
+    if isinstance(value, (tuple, list)):
+        return tuple(_freeze(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        frozen = tuple(_freeze(item) for item in value)
+        return tuple(sorted(frozen, key=repr))
+    if is_dataclass(value):
+        return (
+            type(value).__module__,
+            type(value).__qualname__,
+            tuple(
+                (item.name, _freeze(getattr(value, item.name)))
+                for item in fields(value)
+            ),
+        )
+    if isinstance(value, (str, int, float, bool, type(None))):
+        return value
+    return (type(value).__module__, type(value).__qualname__, repr(value))
+
+
+def _string_param(params: Mapping[str, object], name: str) -> str | None:
+    value = params.get(name)
+    return value if isinstance(value, str) else None
+
+
+def _reidentify_method(
+    method: MethodExplanation,
+    *,
+    requested_method_id: str,
+    effective_method_id: str,
+) -> MethodExplanation:
+    params = dict(method.params)
+    params["requested_method_id"] = requested_method_id
+    params["effective_method_id"] = effective_method_id
+    return method.model_copy(
+        update={
+            "method_id": requested_method_id,
+            "requested_method_id": requested_method_id,
+            "effective_method_id": effective_method_id,
+            "params": params,
+        }
+    )
+
+
+def _diagnostic_method(
+    method_id: str,
+    reason: str,
+    *,
+    effective_method_id: str | None = None,
+) -> MethodExplanation:
+    effective = effective_method_id or method_id
     return MethodExplanation(
         method_id=method_id,
+        requested_method_id=method_id,
+        effective_method_id=effective,
         library="polisyos.berl",
         scope="diagnostic",
-        params={"diagnostic": reason},
+        params={
+            "diagnostic": reason,
+            "requested_method_id": method_id,
+            "effective_method_id": effective,
+        },
         assumptions={"faithfulness_claim": "unbounded", "display_policy": "diagnostic_only"},
     )
 

@@ -42,6 +42,10 @@ class RawExplanation:
     params: Mapping[str, object] = field(default_factory=dict)
     assumptions: Mapping[str, object] = field(default_factory=dict)
     estimator_uncertainty: Mapping[str, object] = field(default_factory=dict)
+    requested_method_id: str | None = None
+    effective_method_id: str | None = None
+    fallback: bool = False
+    fallback_reason: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

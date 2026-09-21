@@ -158,3 +158,26 @@ class TestAnalyticalRouting:
             PropagationMethod.DELTA_METHOD,
             PropagationMethod.MONTE_CARLO,
         }
+
+    def test_auto_selects_delta_for_full_effective_jax_response(self) -> None:
+        """An affine response with fixed inputs does not fall back to Monte Carlo."""
+        calls: list[dict[str, float]] = []
+
+        def scaled_sim(**params: float) -> dict[str, float]:
+            calls.append(params)
+            return {"y": params["x"] * params["scale"]}
+
+        results = PropagationDispatcher(
+            PropagationConfig(preferred_method="auto", mc_n_samples=100, mc_batch_size=100)
+        ).propagate(
+            scaled_sim,
+            {"x": 10.0, "scale": 2.0},
+            {"x": _normal_env(10.0, 1.0)},
+            ["y"],
+        )
+
+        assert len(results) == 1
+        assert results[0].method_used == PropagationMethod.DELTA_METHOD
+        assert results[0].envelope.point_estimate == pytest.approx(20.0)
+        assert {call.get("scale") for call in calls} == {2.0}
+        assert len(calls) < 10

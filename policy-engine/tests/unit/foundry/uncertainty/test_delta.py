@@ -69,6 +69,52 @@ class TestDeltaMethodPropagator:
         actual_std = ci_width / (2 * z_val)
         npt.assert_allclose(actual_std, expected_std, rtol=0.05)
 
+    def test_delta_preserves_fixed_nominal_parameters(self) -> None:
+        """Delta samples vary x while retaining the fixed nominal scale."""
+        calls: list[dict[str, float]] = []
+
+        def scaled_sim(**params: float) -> dict[str, float]:
+            calls.append(params)
+            return {"y": params["x"] * params["scale"]}
+
+        result = DeltaMethodPropagator(
+            PropagationConfig(delta_use_full_covariance=False)
+        ).propagate(
+            scaled_sim,
+            {"x": 10.0, "scale": 2.0},
+            {"x": _normal_env(10.0, 1.0)},
+            ["y"],
+        )[0]
+
+        assert result.envelope.point_estimate == 20.0
+        assert {call.get("scale") for call in calls} == {2.0}
+
+    def test_delta_marks_missing_output_unknown_but_accepts_true_zero(self) -> None:
+        """A missing metric is not a valid zero-valued delta result."""
+        propagator = DeltaMethodPropagator(PropagationConfig())
+        envelopes = {"x": _normal_env(0.0, 1.0)}
+
+        missing = propagator.propagate(
+            lambda **params: {"actual": params["x"]},
+            {"x": 0.0},
+            envelopes,
+            ["missing"],
+        )[0].envelope
+        genuine_zero = propagator.propagate(
+            lambda **params: {"zero": 0.0},
+            {"x": 0.0},
+            envelopes,
+            ["zero"],
+        )[0].envelope
+
+        assert missing.distribution_family == DistributionFamily.UNKNOWN
+        assert missing.confidence_level is None
+        assert missing.gate_eligible is False
+        assert missing.confidence_interval != (0.0, 0.0)
+        assert genuine_zero.point_estimate == 0.0
+        assert genuine_zero.confidence_interval == (0.0, 0.0)
+        assert genuine_zero.gate_eligible is True
+
     def test_delta_nonlinear_approximation(self) -> None:
         """For y=x^2, at x=2 Jacobian=4, so output_std ≈ 4*input_std."""
         config = PropagationConfig(delta_use_full_covariance=False)

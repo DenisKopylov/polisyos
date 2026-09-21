@@ -452,7 +452,7 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
     ).read_text(encoding="utf-8")
     assert all(full_name in witness_text for full_name in legacy_modules.values())
     assert all(
-        f"tools/research/benchmarks/{name}.py" in witness_text
+        f"tools/research/benchmarks/{name}.py" in file_tokens
         for name in legacy_modules
     )
 

@@ -10,6 +10,7 @@ import pytest
     [
         "polisyos.foundry.base",
         "polisyos.foundry.types",
+        "polisyos.foundry.domain.schema",
         "polisyos.foundry.domain.state",
         "polisyos.foundry.domain.mechanisms.fiscal",
         "polisyos.foundry.domain.mechanisms.labor",
@@ -21,8 +22,6 @@ def test_legacy_foundry_compat_facades_are_not_importable(module_name: str) -> N
         importlib.import_module(module_name)
 
 
-def test_domain_mechanisms_package_has_no_legacy_reexports() -> None:
-    module = importlib.import_module("polisyos.foundry.domain.mechanisms")
-    assert not hasattr(module, "IncomeTax")
-    assert not hasattr(module, "LaborMarketMechanism")
-    assert not hasattr(module, "build_treasury_plan")
+def test_domain_mechanisms_compatibility_root_is_not_importable() -> None:
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("polisyos.foundry.domain.mechanisms")

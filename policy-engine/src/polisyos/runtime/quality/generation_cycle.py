@@ -776,6 +776,14 @@ class GenerationCycleRecord(_StrictModel):
 
     cycle_index: int = Field(ge=0)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    # ``design_problem_ref`` is the stable subject binding exposed by a
+    # recursive leaf.  A revised execution may carry a different problem
+    # snapshot (for example, changed runtime grammar or owner inputs); keep
+    # that active basis explicit instead of silently rebinding the subject.
+    design_problem_basis_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     grammar_elements: tuple[str, ...]
     candidate_ids: tuple[str, ...]
     selected_candidate_ref: str = Field(..., min_length=1)
@@ -827,7 +835,8 @@ class GenerationCycleRecord(_StrictModel):
         if (
             binding.get("candidate_id") != selected
             or binding.get("candidate_content_hash") != self.selected_candidate_content_hash
-            or binding.get("design_problem_ref") != self.design_problem_ref
+            or binding.get("design_problem_ref")
+            != (self.design_problem_basis_ref or self.design_problem_ref)
         ):
             raise ValueError("cycle_acquisition_candidate_binding_mismatch")
         return self
@@ -3105,7 +3114,7 @@ class GenerationCycleController:
         cycles = {cycle.cycle_index: cycle for cycle in original_run.cycles}
         self._source_expected_identities = [
             (
-                cycles[summary.cycle_index].design_problem_ref,
+                _cycle_basis_ref(cycles[summary.cycle_index]),
                 summary.candidate_id, summary.content_hash,
             )
             for summary in original_run.candidate_summaries
@@ -3148,12 +3157,16 @@ class GenerationCycleController:
         budget_state: BudgetState,
         min_cycles: int = 2,
         max_cycles: int = 3,
+        stable_design_problem_ref: str | None = None,
     ) -> GenerationCycleRun:
         """Run generate-ground-value-revise cycles until VOI or a blocker stops."""
 
         if max_cycles < 1:
             raise GenerationCycleError("max_cycles_must_be_positive")
         design_problem_ref = _problem_ref(problem)
+        subject_ref = stable_design_problem_ref or design_problem_ref
+        if subject_ref != design_problem_ref:
+            raise GenerationCycleError("generation_cycle_subject_binding_mismatch")
         run_id = f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}"
         self._begin_source_run(run_id)
         current_problem = problem
@@ -3176,6 +3189,7 @@ class GenerationCycleController:
                 cycle_index=cycle_index,
                 budget_state=budget_state,
                 previous_cycle=previous,
+                stable_design_problem_ref=stable_design_problem_ref,
             )
             if previous is not None:
                 fake_reason = _fake_cycle_reason(previous, cycle)
@@ -3212,6 +3226,7 @@ class GenerationCycleController:
                     cycle_summaries=cycle_summaries,
                     acquisition_receipt=acquisition_receipt,
                     budget_state=budget_state,
+                    stable_design_problem_ref=stable_design_problem_ref,
                 )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
@@ -3293,7 +3308,7 @@ class GenerationCycleController:
         problem_ref = _problem_ref(problem)
         if (
             original_run.design_problem_ref != problem_ref
-            or source_cycle.design_problem_ref != problem_ref
+            or _cycle_basis_ref(source_cycle) != problem_ref
             or tuple(
                 row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
             )
@@ -3438,9 +3453,10 @@ class GenerationCycleController:
             budget_state=budget_state,
             previous_cycle=source_cycle,
             value_port_override=reentry_value_port,
+            stable_design_problem_ref=original_run.design_problem_ref,
         )
         if (
-            new_cycle.design_problem_ref != problem_ref
+            _cycle_basis_ref(new_cycle) != problem_ref
             or new_cycle.cycle_index != next_cycle_index
             or any(summary.cycle_index != next_cycle_index for summary in summaries)
         ):
@@ -3653,6 +3669,7 @@ class GenerationCycleController:
         budget_state: BudgetState,
         previous_cycle: GenerationCycleRecord | None,
         value_port_override: ValuePort | None = None,
+        stable_design_problem_ref: str | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         state: dict[str, Any] = {
             "problem": problem,
@@ -3660,6 +3677,7 @@ class GenerationCycleController:
             "budget_state": budget_state,
             "previous_cycle": previous_cycle,
             "value_port_override": value_port_override,
+            "stable_design_problem_ref": stable_design_problem_ref,
         }
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
@@ -3844,6 +3862,7 @@ class GenerationCycleController:
         cycle_summaries: tuple[CandidateSummary, ...],
         acquisition_receipt: AcquisitionReceipt,
         budget_state: BudgetState,
+        stable_design_problem_ref: str | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         if not acquisition_receipt_has_verified_emission(acquisition_receipt):
             raise GenerationCycleError(
@@ -3931,6 +3950,7 @@ class GenerationCycleController:
             counterexample=counterexample,
             revision=revision,
             voi_decision=voi_decision,
+            stable_design_problem_ref=stable_design_problem_ref,
         ).model_copy(update={"acquisition_receipt": receipt_payload})
         return reentered, _n7_reentered_summaries(
             cycle_summaries,
@@ -4138,6 +4158,7 @@ class GenerationCycleController:
                 next_action="blocked",
                 reason="pending",
             ),
+            stable_design_problem_ref=state.get("stable_design_problem_ref"),
         )
         revision = self._revision_policy(
             problem=problem,
@@ -4363,12 +4384,18 @@ def validate_generation_cycle_run(
         and run.cycles[-1].voi_decision.next_action == "advance"
     ):
         issues.append({"code": "voi_scheduler_ignored_fixed_cycle_count"})
-    all_ids = tuple(summary.candidate_id for summary in run.candidate_summaries)
+    occurrence_keys = tuple(
+        _candidate_occurrence_key(summary) for summary in run.candidate_summaries
+    )
+    if len(occurrence_keys) != len(set(occurrence_keys)):
+        issues.append({"code": "candidate_occurrence_denominator_mismatch"})
+    current_summaries = _current_candidate_summaries(run.candidate_summaries)
+    all_ids = tuple(summary.candidate_id for summary in current_summaries)
     front_map = run.fronts.candidate_ids_by_front()
     front_ids = tuple(candidate_id for ids in front_map.values() for candidate_id in ids)
     if sorted(front_ids) != sorted(all_ids) or len(set(front_ids)) != len(front_ids):
         issues.append({"code": "fronts_do_not_cover_full_candidate_set"})
-    summary_by_id = {summary.candidate_id: summary for summary in run.candidate_summaries}
+    summary_by_id = {summary.candidate_id: summary for summary in current_summaries}
     for candidate_id in run.fronts.decision.candidate_ids:
         summary = summary_by_id.get(candidate_id)
         if summary is None:
@@ -6649,7 +6676,9 @@ def _cycle_record(
     counterexample: CounterexampleRecord,
     revision: DesignRevisionRequest,
     voi_decision: LoopVOIDecision,
+    stable_design_problem_ref: str | None = None,
 ) -> GenerationCycleRecord:
+    basis_ref = _problem_ref(problem)
     decision = _refinement_decision(
         problem=problem,
         cycle_index=cycle_index,
@@ -6668,7 +6697,8 @@ def _cycle_record(
     )
     return GenerationCycleRecord(
         cycle_index=cycle_index,
-        design_problem_ref=_problem_ref(problem),
+        design_problem_ref=stable_design_problem_ref or basis_ref,
+        design_problem_basis_ref=basis_ref,
         grammar_elements=tuple(
             str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
         ),
@@ -6685,6 +6715,17 @@ def _cycle_record(
         voi_decision=voi_decision,
         revision_request=revision,
     )
+
+
+def _cycle_basis_ref(cycle: GenerationCycleRecord) -> str:
+    """Return the active problem basis for one cycle record.
+
+    Recursive routing keeps ``design_problem_ref`` stable at the leaf subject
+    boundary.  The optional basis field carries the concrete revised snapshot;
+    historical records without it use the original field as their basis.
+    """
+
+    return cycle.design_problem_basis_ref or cycle.design_problem_ref
 
 
 def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCycleRecord:
@@ -6777,6 +6818,38 @@ def _fake_cycle_reason(
     return None
 
 
+def _candidate_occurrence_key(summary: CandidateSummary) -> tuple[str, str, int]:
+    """Return the concrete appearance identity retained in cycle history."""
+
+    return (summary.candidate_id, summary.content_hash, summary.cycle_index)
+
+
+def _current_candidate_summaries(
+    summaries: tuple[CandidateSummary, ...],
+) -> tuple[CandidateSummary, ...]:
+    """Project one latest occurrence per stable candidate subject.
+
+    The full summary tuple is append-only history.  A current front is a
+    projection over that history: later cycle occurrences supersede earlier
+    ones for the same candidate subject, while their distinct occurrence keys
+    remain available to replay and downstream binding.
+    """
+
+    latest: dict[str, tuple[int, tuple[str, str, int], CandidateSummary]] = {}
+    for position, summary in enumerate(summaries):
+        occurrence = _candidate_occurrence_key(summary)
+        previous = latest.get(summary.candidate_id)
+        if previous is None or (summary.cycle_index, position) >= (
+            previous[2].cycle_index,
+            previous[0],
+        ):
+            latest[summary.candidate_id] = (position, occurrence, summary)
+    return tuple(
+        summary
+        for _, _, summary in sorted(latest.values(), key=lambda row: row[0])
+    )
+
+
 def _derive_fronts(summaries: tuple[CandidateSummary, ...]) -> GenerationCycleFronts:
     by_front: dict[FrontKind, list[str]] = {
         "decision": [],
@@ -6784,7 +6857,7 @@ def _derive_fronts(summaries: tuple[CandidateSummary, ...]) -> GenerationCycleFr
         "quarantine": [],
         "portfolio": [],
     }
-    for summary in summaries:
+    for summary in _current_candidate_summaries(summaries):
         by_front[summary.front].append(summary.candidate_id)
     return GenerationCycleFronts(
         decision=CandidateFront(
@@ -6819,10 +6892,15 @@ def _apply_promotion_to_summaries(
     promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
+    current_occurrences = {
+        _candidate_occurrence_key(summary)
+        for summary in _current_candidate_summaries(summaries)
+    }
     result: list[CandidateSummary] = []
     for summary in summaries:
         can_promote = (
             summary.candidate_id in certified
+            and _candidate_occurrence_key(summary) in current_occurrences
             and promotion.status == "certified_current_valid"
             and _promotion_receipt_allows_decision_front(
                 promotion,

@@ -110,7 +110,7 @@ def test_inventory_records_sunset_metadata_and_schema_residue() -> None:
         for finding in _inventory()["findings"]
     }
 
-    for finding_id in ("LM-006", "LM-010", "LM-012"):
+    for finding_id in ("LM-006", "LM-010"):
         finding = by_id[finding_id]
         assert "sunset" in finding
         assert set(finding["sunset"]) >= {
@@ -123,10 +123,19 @@ def test_inventory_records_sunset_metadata_and_schema_residue() -> None:
     assert by_id["LM-006"]["current_status"] == "not_observed"
     assert by_id["LM-006"]["sunset"]["sunset_date"] is None
     assert by_id["LM-010"]["sunset"]["source"] is None
-    assert by_id["LM-012"]["sunset"]["source"] == "frontend/README.md"
-    for finding_id in ("LM-010", "LM-012"):
+    for finding_id in ("LM-006", "LM-010"):
         sunset = by_id[finding_id]["sunset"]
         assert sunset["metadata_present"] == (sunset["sunset_date"] is not None)
+
+    assert by_id["LM-012"]["count"] == 0
+    assert by_id["LM-012"]["current_status"] == "not_observed"
+    assert by_id["LM-012"]["paths"] == []
+    assert by_id["LM-012"]["sunset"] == {
+        "metadata_present": False,
+        "rows": [],
+        "source": None,
+        "sunset_date": None,
+    }
 
     schemas = by_id["LM-022"]
     assert schemas["kind"] == "top_level_schema_python_cache_residue"

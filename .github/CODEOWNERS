@@ -58,7 +58,6 @@
 /policy-engine/src/polisyos/method_requirement/** @DenisKopylov
 /policy-engine/src/polisyos/participation_requirement/** @DenisKopylov
 /policy-engine/src/polisyos/evidence/** @DenisKopylov
-/policy-engine/frontend/README.md        @DenisKopylov
 /policy-engine/apps/**                    @DenisKopylov
 /policy-engine/packages/**                @DenisKopylov
 /policy-engine/tests/**                   @DenisKopylov

@@ -74,7 +74,6 @@ RUNTIME_EVIDENCE_PATTERNS = (
     "docs/how-to/deploy-runtime.md",
     "docs/how-to/use-control-plane.md",
     "docs/runbooks/runtime-api-outage.md",
-    "frontend/README.md",
     "packages/runtime-api-client/README.md",
     "apps/runtime-dashboard/README.md",
     IMPACT_NOTE,
@@ -98,7 +97,6 @@ FOUNDRY_EVIDENCE_PATTERNS = (
     IMPACT_NOTE,
 )
 FRONTEND_EVIDENCE_PATTERNS = (
-    "frontend/README.md",
     "packages/runtime-api-client/README.md",
     "apps/runtime-dashboard/README.md",
     "apps/runtime-reference-shell/README.md",

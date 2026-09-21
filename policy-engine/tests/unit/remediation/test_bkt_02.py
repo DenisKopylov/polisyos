@@ -11,6 +11,7 @@ import math
 
 import pytest
 
+from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
@@ -28,9 +29,39 @@ def test_wrong_key_comparison_does_not_qualify_for_grade_a() -> None:
         y_true={"metric": [1.0, 2.0]},
     )
 
-    _score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
+    score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
 
     assert scenario.compared_count == 0
+    assert score == pytest.approx(0.0)
+    assert grade != "A"
+
+
+def test_incomplete_or_empty_report_is_not_trust_eligible(tmp_path) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text('{"metric": [0.0, 0.0]}', encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="wrong-key-report",
+        historical_data_path=str(history_path),
+        ground_truth_outcomes={"metric": [1.0, 2.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"wrong_metric": [1.0, 2.0]},
+    )
+
+    report = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos")).run([plan])
+
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.trust_grade is None
+
+
+def test_zero_evidence_does_not_receive_trust_grade() -> None:
+    score, grade = TrustScorer().compute(
+        scenarios=[BacktestScenario(scenario_id="empty", scenario_label="empty")],
+        biases=[],
+    )
+
+    assert score == pytest.approx(0.0)
     assert grade != "A"
 
 
@@ -157,6 +188,30 @@ def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
     assert scenario.compared_count == 2
     assert scenario.missing_count == 0
     assert scenario.invalid_count == 0
+    assert score == pytest.approx(1.0)
+    assert grade == "A"
+
+
+def test_coverage_score_uses_persisted_nominal_confidence_level() -> None:
+    scenario = BacktestScenario(
+        scenario_id="nominal-coverage",
+        scenario_label="nominal coverage",
+        outcome_comparisons=[
+            OutcomeComparison(
+                metric_name="metric",
+                y_pred=1.0,
+                y_true=1.0,
+                absolute_error=0.0,
+            )
+        ],
+        coverage_probability=0.80,
+        nominal_confidence_level=0.80,
+        requested_count=1,
+        compared_count=1,
+    )
+
+    score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
+
     assert score == pytest.approx(1.0)
     assert grade == "A"
 

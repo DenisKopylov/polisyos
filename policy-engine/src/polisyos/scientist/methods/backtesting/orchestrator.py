@@ -598,7 +598,20 @@ class BacktestOrchestrator:
 
         biases = self._detect_systematic_biases(scenarios)
         degraded = bool(degraded_reasons)
-        trust_eligible = not degraded
+
+        def has_complete_point_comparisons(scenario: BacktestScenario) -> bool:
+            return bool(
+                scenario.requested_count > 0
+                and scenario.compared_count > 0
+                and scenario.compared_count == scenario.requested_count
+                and scenario.missing_count == 0
+                and scenario.invalid_count == 0
+                and len(scenario.outcome_comparisons) == scenario.compared_count
+            )
+
+        trust_eligible = bool(scenarios) and not degraded and all(
+            has_complete_point_comparisons(scenario) for scenario in scenarios
+        )
         trust_score, trust_grade = (None, None)
         if trust_eligible:
             trust_score, trust_grade = self._trust_scorer.compute(

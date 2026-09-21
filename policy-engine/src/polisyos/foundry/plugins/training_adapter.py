@@ -15,6 +15,8 @@ loop here.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from decimal import Decimal
+from math import isfinite
 from pathlib import Path
 
 import equinox as eqx
@@ -524,7 +526,7 @@ class EconomicsTrainingAdapter:
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
         if output_dir is not None:
             cas = FileSystemCAS(output_dir / "artifacts")
-            artifact_refs = store_policy_artifact(cas, artifact)
+            artifact_refs = store_policy_artifact(cas, _artifact_for_cas(artifact))
             trained_policy, _ = load_policy_artifact(
                 cas,
                 artifact_refs[1],
@@ -550,6 +552,45 @@ class EconomicsTrainingAdapter:
             artifact=artifact,
             artifact_refs=artifact_refs,
         )
+
+
+def _artifact_for_cas(
+    artifact: AgentPolicyArtifact[ActorCritic],
+) -> AgentPolicyArtifact[ActorCritic]:
+    """Prepare artifact metrics for the strict canonical CAS profile.
+
+    The native artifact producer records training metrics as runtime floats,
+    while the shared CAS profile represents persisted real numbers as
+    ``Decimal`` tagged values.  Keep the runtime artifact unchanged and use a
+    storage-only dataclass copy so readback still goes through the existing
+    ``store_policy_artifact`` contract.
+    """
+
+    metrics = artifact.metrics
+    return replace(
+        artifact,
+        metrics=replace(
+            metrics,
+            final_loss=_canonical_metric(metrics.final_loss),
+            best_loss=_canonical_metric(metrics.best_loss),
+            wall_clock_seconds=_canonical_metric(metrics.wall_clock_seconds),
+            gpu_hours=_canonical_metric(metrics.gpu_hours),
+            learning_rate=_canonical_metric(metrics.learning_rate),
+        ),
+    )
+
+
+def _canonical_metric(value: float | None) -> Decimal | None:
+    """Encode a finite runtime metric using the canonical Decimal form."""
+
+    if value is None:
+        return None
+    if not isfinite(value):
+        raise TrainingBridgeError(
+            "training_artifact_metric_nonfinite",
+            "Training artifact metrics must be finite before canonical persistence.",
+        )
+    return Decimal(str(value))
 
 
 def _parameter_delta(before: ActorCritic, after: ActorCritic) -> jnp.ndarray:

@@ -11,10 +11,13 @@ import pytest
 from polisyos.data_forge.domains.ukraine.demography import load_demography_artifacts
 from polisyos.data_forge.read_api.ukraine import (
     build_static_aging_state,
+)
+from polisyos.data_forge.read_api.ukraine import (
     load_demography_artifacts as load_demography_from_read_api,
+)
+from polisyos.data_forge.read_api.ukraine import (
     load_reconciled_targets as load_targets_from_read_api,
 )
-
 
 _LAYOUT_PATHS = {
     "new": {

@@ -104,7 +104,8 @@ class AnalyticalPropagator:
             propagation_method=PropagationMethod.ANALYTICAL,
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
             is_heuristic_ci=False,
-            gate_eligible=True,
+            # Propagation cannot promote a non-gate-eligible input into a gate.
+            gate_eligible=all(envelope.gate_eligible for envelope in ordered_inputs),
             metadata={
                 "formula": "linear_combination_normal",
                 "weights": dict(weights),

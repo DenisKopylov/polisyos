@@ -673,7 +673,10 @@ class MonteCarloPropagator:
             has_missing_output = missing_count > 0
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
-            gate_eligible = True
+            # Sampling cannot promote a non-gate-eligible input into a gate.
+            gate_eligible = all(
+                envelope.gate_eligible for envelope in input_envelopes.values()
+            )
             exactness = ExactnessKind.APPROXIMATION
             scope = ("expectation", "interval", "quantile", "cdf")
             sample_size_value: int | None = n_valid

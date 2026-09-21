@@ -324,7 +324,10 @@ def test_apply_nodes_skips_inactive_emitter_and_preserves_active_gradient(monkey
 
     inactive_gradient = jax.grad(inactive_objective)(jnp.zeros(2, dtype=jnp.float32))
     assert jnp.all(jnp.isfinite(inactive_gradient))
-    assert jnp.allclose(inactive_gradient, jnp.zeros(2, dtype=jnp.float32))
+    # The inactive path is the identity map for the incoming state.  Its
+    # gradient is therefore one, while the deferred log emitter contributes
+    # no NaN/Inf derivative.
+    assert jnp.allclose(inactive_gradient, jnp.ones(2, dtype=jnp.float32))
 
     active = inactive.replace(
         agents=inactive.agents.replace(income=jnp.full((2,), 2.0, dtype=jnp.float32))

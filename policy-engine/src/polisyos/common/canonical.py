@@ -17,9 +17,16 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import Any, NoReturn
+from typing import NoReturn
 
 from pydantic import BaseModel
+
+# Inputs remain intentionally polymorphic (dataclasses, Pydantic models, and
+# custom values are runtime-dispatched); the recursive alias describes the
+# JSON-safe value produced by the encoder without changing that boundary.
+type _CanonicalValue = (
+    None | bool | int | float | str | dict[str, "_CanonicalValue"] | list["_CanonicalValue"]
+)
 
 _ALL_CANONICAL_TYPES = frozenset(
     {
@@ -82,19 +89,19 @@ def _canonical_float_repr(value: float) -> str:
 
 
 def _canonicalize_mapping(
-    obj: Mapping[Any, Any],
+    obj: Mapping[object, object],
     spec: CanonSpec,
     depth: int,
     *,
     violation_type: type[ValueError],
     canonical_types: Collection[str],
-) -> dict[str, Any]:
+) -> dict[str, _CanonicalValue]:
     if "_type" in obj:
         kind = obj.get("_type")
         if not isinstance(kind, str) or kind not in canonical_types:
             _raise_violation(violation_type, f"Unknown canonical _type: {kind!r}")
 
-    out: dict[str, Any] = {}
+    out: dict[str, _CanonicalValue] = {}
     for key, value in obj.items():
         if not isinstance(key, str):
             _raise_violation(violation_type, f"JSON keys must be str, got: {type(key)}")
@@ -109,14 +116,14 @@ def _canonicalize_mapping(
 
 
 def _canonicalize_dataclass(
-    obj: Any,
+    obj: object,
     spec: CanonSpec,
     depth: int,
     *,
     violation_type: type[ValueError],
     canonical_types: Collection[str],
-) -> dict[str, Any]:
-    out: dict[str, Any] = {}
+) -> dict[str, _CanonicalValue]:
+    out: dict[str, _CanonicalValue] = {}
     for field in dataclasses.fields(obj):
         value = getattr(obj, field.name)
         if spec.exclude_none and value is None:
@@ -132,13 +139,13 @@ def _canonicalize_dataclass(
 
 
 def _canonicalize_obj(
-    obj: Any,
+    obj: object,
     spec: CanonSpec,
     depth: int = 0,
     *,
     violation_type: type[ValueError],
     canonical_types: Collection[str],
-) -> Any:
+) -> _CanonicalValue:
     _check_depth(depth, spec.max_depth, violation_type)
 
     if isinstance(obj, BaseModel):
@@ -214,7 +221,7 @@ def _canonicalize_obj(
 
 
 def to_canonical_bytes(
-    obj: Any,
+    obj: object,
     spec: CanonSpec | None = None,
     *,
     violation_type: type[ValueError] = CanonicalError,
@@ -248,13 +255,13 @@ def _parse_datetime(value: str) -> datetime:
 
 
 def from_canonical_obj(
-    obj: Any,
+    obj: object,
     *,
     max_depth: int = 128,
     _depth: int = 0,
     violation_type: type[ValueError] = CanonicalError,
     canonical_types: Collection[str] = _ALL_CANONICAL_TYPES,
-) -> Any:
+) -> object:
     """Decode canonical objects under an explicit typed-tag profile."""
     _check_depth(_depth, max_depth, violation_type)
     if isinstance(obj, Mapping):
@@ -312,7 +319,7 @@ def from_canonical_bytes(
     max_depth: int = 128,
     violation_type: type[ValueError] = CanonicalError,
     canonical_types: Collection[str] = _ALL_CANONICAL_TYPES,
-) -> Any:
+) -> object:
     """Decode canonical bytes under an explicit typed-tag profile."""
     payload = json.loads(data)
     return from_canonical_obj(

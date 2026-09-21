@@ -21,8 +21,8 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
-from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
+from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 if TYPE_CHECKING:

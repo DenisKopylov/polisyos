@@ -235,7 +235,7 @@ def test_requirement_cycle_is_rejected_before_execution() -> None:
     composer.add("tests.cmp01.first@1.0.0")
     composer.add("tests.cmp01.second@1.0.0")
 
-    with pytest.raises(CyclicDependencyError, match="tests.cmp01"):
+    with pytest.raises(CyclicDependencyError, match=r"tests\.cmp01"):
         composer.build(validate_semantics=False)
 
 

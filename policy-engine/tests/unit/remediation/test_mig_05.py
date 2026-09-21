@@ -8,8 +8,9 @@ here.  Data Forge graph migration is deliberately outside this corpus (LK25).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 import pytest
 
@@ -36,7 +37,7 @@ def _register_common(
     callback: Callback,
 ) -> None:
     common_migrations.register_migration(artifact, from_version, to_version)(
-        cast(common_migrations.MigrationFn, callback)
+        cast("common_migrations.MigrationFn", callback)
     )
 
 
@@ -51,7 +52,7 @@ def _register_ir(
         from_version,
         to_version,
         compatibility=ir_migrations.CompatibilityMode.FULL,
-    )(cast(ir_migrations.MigrationFn, callback))
+    )(cast("ir_migrations.MigrationFn", callback))
 
 
 def _two_step_corpus(

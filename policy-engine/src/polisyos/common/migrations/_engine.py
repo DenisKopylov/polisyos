@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 PayloadT = TypeVar("PayloadT")
 EdgeT = TypeVar("EdgeT")
 
 
 @dataclass(frozen=True)
-class LinearMigrationProfile(Generic[PayloadT, EdgeT]):
+class LinearMigrationProfile[PayloadT, EdgeT]:
     """Define the observable policy around one shared linear traversal."""
 
     prepare: Callable[[PayloadT, str], tuple[PayloadT, str]]

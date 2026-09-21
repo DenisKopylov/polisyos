@@ -72,6 +72,7 @@ def test_canonical_d4_owner_preserves_exact_bytes_and_artifact_contract(tmp_path
     )
     assert actual_bytes == expected_bytes
     assert json.loads(actual_bytes) == EXPECTED_D4_PAYLOAD
+    assert isinstance(result, contracts.StageBuildResult)
     assert set(result.outputs) == {D4_OUTPUT}
     assert isinstance(record, ArtifactRecord)
     assert Path(record.path) == output_path

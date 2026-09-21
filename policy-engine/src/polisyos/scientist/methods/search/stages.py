@@ -405,6 +405,10 @@ class CorrelationTracker:
         window_size: int | None = None,
     ) -> list[DriftAlert]:
         records = self._window(window_size)
+        if not records:
+            # No observations are an unestablished calibration state, not a
+            # measured zero-correlation drift event.
+            return []
         metrics = self._metrics_for_records(records)
         sentinel_pass_rate = self.sentinel_pass_rate(window_size=len(records))
         alerts: list[DriftAlert] = []
@@ -460,13 +464,20 @@ class CorrelationTracker:
 
         return alerts
 
-    def promotion_ban_active(self) -> bool:
-        return any(alert.code == "PROMOTION_BAN" for alert in self.drift_alerts())
+    def promotion_ban_active(self, *, window_size: int | None = None) -> bool:
+        return any(
+            alert.code == "PROMOTION_BAN"
+            for alert in self.drift_alerts(window_size=window_size)
+        )
 
-    def routing_mode(self) -> str:
-        if self.promotion_ban_active():
+    def routing_mode(self, *, window_size: int | None = None) -> str:
+        if not self._records:
+            # Keep the explicit no-promotion route aligned with compute_metrics
+            # while reporting the reason as not-established rather than drift.
             return "no_promotion"
-        if self.drift_alerts():
+        if self.promotion_ban_active(window_size=window_size):
+            return "no_promotion"
+        if self.drift_alerts(window_size=window_size):
             return "conservative_routing"
         return "normal"
 
@@ -489,7 +500,8 @@ class CorrelationTracker:
                 "sentinel_pass_rate": None,
                 "alert_count": 0,
                 "promotion_ban_active": False,
-                "routing_mode": "normal",
+                "calibration_state": "not_established",
+                "routing_mode": self.routing_mode(window_size=window_size),
             }
 
         full_metrics = self._metrics_for_records(self._records)
@@ -510,7 +522,8 @@ class CorrelationTracker:
             "sentinel_pass_rate": sentinel_rate,
             "alert_count": len(alerts),
             "promotion_ban_active": any(alert.code == "PROMOTION_BAN" for alert in alerts),
-            "routing_mode": self.routing_mode(),
+            "calibration_state": "observed",
+            "routing_mode": self.routing_mode(window_size=window_size),
         }
 
     def records(self) -> list[CorrelationRecord]:

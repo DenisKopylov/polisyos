@@ -378,6 +378,8 @@ class TestCachingLLMClient:
 
         assert len(base_client.calls) == 3
         assert cache.size == 2
+        for _, call_kwargs in base_client.calls:
+            assert "content" not in call_kwargs["metadata"]["cache_reuse"]["snapshot"]
 
     @pytest.mark.asyncio
     async def test_lost_permission_and_model_change_cannot_hit(self):

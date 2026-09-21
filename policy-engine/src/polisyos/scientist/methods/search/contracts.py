@@ -1,25 +1,24 @@
-"""Canonical ask/tell and funnel contracts plus adapters for legacy search runtimes.
+"""Canonical ask/tell and funnel contracts for search runtimes.
 
-Use these contracts when Layer A code wants to separate candidate proposal,
-evaluation feedback, and multi-fidelity routing from concrete controller or
-funnel implementations. `LegacySearchServiceAdapter` preserves the old
-`SearchController` loop while exposing the same ask/tell surface as newer
-services.
+This module intentionally contains only DTOs and protocols.  The concrete
+bridges for the legacy controller and funnel live in :mod:`adapters` and are
+resolved lazily for the historical imports that remain part of the supported
+surface.  Keeping the bridge out of this module makes contract-only imports
+safe for planners and import-boundary checks.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Protocol
+import importlib
+from typing import TYPE_CHECKING, Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.methods.search.controller import SearchController, SearchIteration, SearchResult
-from polisyos.scientist.methods.search.funnel.orchestrator import (
-    FunnelOrchestrator,
-    FunnelOutcome,
-    FunnelTicket,
-)
+if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.funnel.orchestrator import (
+        FunnelOutcome,
+        FunnelTicket,
+    )
 
 
 class CandidateProposal(BaseModel):
@@ -90,115 +89,22 @@ class FunnelService(Protocol):
     def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome: ...
 
 
-@dataclass(slots=True)
-class LegacySearchServiceAdapter:
-    """Wrap the legacy `SearchController` behind a canonical Layer A contract.
-
-    The adapter keeps the existing controller runtime intact while giving Layer B/C
-    a contract-first entry point. `run_search()` remains available for workflows
-    that still expect a full `SearchResult`.
-    """
-
-    controller: SearchController
-    _pending_candidates: dict[str, dict[str, Any]] = field(default_factory=dict, init=False)
-    _ask_iteration: int = field(default=0, init=False)
-
-    def ask(
-        self,
-        goal: dict[str, Any] | None,
-        search_space: dict[str, Any] | None,
-        context: dict[str, Any],
-    ) -> list[CandidateProposal]:
-        del goal, search_space
-        payloads = self.controller._generate_candidates(
-            iteration=self._ask_iteration,
-            initial_candidate=None,
-            context=context,
-        )
-        proposals: list[CandidateProposal] = []
-        for index, payload in enumerate(payloads):
-            candidate_id = (
-                str(payload.get("candidate_id"))
-                if isinstance(payload, dict) and payload.get("candidate_id")
-                else f"candidate_{self._ask_iteration}_{index}"
-            )
-            self._pending_candidates[candidate_id] = dict(payload)
-            proposals.append(
-                CandidateProposal(
-                    candidate_id=candidate_id,
-                    payload=dict(payload),
-                    metadata={"iteration": self._ask_iteration},
-                )
-            )
-        self._ask_iteration += 1
-        return proposals
-
-    def tell(
-        self,
-        candidate_id: str,
-        evaluation: EvaluationBundle,
-    ) -> TellResult:
-        candidate = self._pending_candidates.pop(candidate_id, {})
-        record = SearchIteration(
-            iteration=len(self.controller._history),
-            candidate=candidate,
-            objective_value=float(evaluation.objective_value),
-            objective_details=list(evaluation.objective_details),
-            is_promising=bool(evaluation.is_promising),
-            stage_a_passed=bool(evaluation.stage_a_passed),
-            stage_b_result=evaluation.stage_b_result,
-            duration_seconds=float(evaluation.duration_seconds),
-            policy_evaluation=evaluation.policy_evaluation,
-        )
-        self.controller._history.append(record)
-        if evaluation.objective_value < self.controller._best_objective:
-            self.controller._best_objective = float(evaluation.objective_value)
-            self.controller._best_candidate = dict(candidate)
-        return TellResult(
-            best_candidate=self.controller._best_candidate,
-            best_objective=(
-                None
-                if self.controller._best_objective == float("inf")
-                else float(self.controller._best_objective)
-            ),
-            history_length=len(self.controller._history),
-            registry_update={"search_id": self.controller._search_id},
-            frontier_delta=list(getattr(self.controller, "_pareto_front", [])),
-        )
-
-    def run_search(
-        self,
-        *,
-        initial_context: dict[str, Any],
-        initial_candidate: dict[str, Any] | None = None,
-    ) -> SearchResult:
-        """Compatibility helper for existing call sites migrating off SearchController."""
-
-        return self.controller.run(
-            initial_context=initial_context,
-            initial_candidate=initial_candidate,
-        )
+_LAZY_ADAPTER_EXPORTS = frozenset(
+    {
+        "LegacySearchServiceAdapter",
+        "OrchestratorFunnelService",
+    }
+)
 
 
-@dataclass(slots=True)
-class OrchestratorFunnelService:
-    """Wrap `FunnelOrchestrator` behind the canonical `FunnelService` contract."""
-
-    orchestrator: FunnelOrchestrator
-
-    def submit(
-        self,
-        candidate: CandidateProposal,
-        *,
-        context: dict[str, Any] | None = None,
-    ) -> FunnelTicket:
-        return self.orchestrator.submit(candidate.payload, context or {})
-
-    def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome:
-        outcome = self.orchestrator.get_outcome(ticket)
-        if not outcome.completed and outcome.final_result is None:
-            return self.orchestrator.advance(ticket, policy="full")
-        return outcome
+def __getattr__(name: str) -> Any:
+    """Resolve legacy bridge names without importing runtime implementations eagerly."""
+    if name in _LAZY_ADAPTER_EXPORTS:
+        module = importlib.import_module("polisyos.scientist.methods.search.adapters")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = [

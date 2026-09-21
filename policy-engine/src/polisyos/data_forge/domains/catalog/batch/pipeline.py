@@ -64,10 +64,7 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
         "graph_load": [config.db_path],
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
-        "embed": [
-            config.index_dir / "ds_dataset_index.hnsw",
-            config.index_dir / "ds_dataset_embeddings.npz",
-        ],
+        "embed": [config.index_dir / "embedding_generation.json"],
         "benchmark": [config.benchmark_report_path],
         "qc": [config.qc_report_path],
         "publish": [config.publish_manifest_path, config.consumer_readiness_path],

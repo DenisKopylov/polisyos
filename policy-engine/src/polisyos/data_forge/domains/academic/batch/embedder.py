@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.kernel.embeddings import build_embedding_index
+from polisyos.data_forge.kernel.embeddings import (
+    build_embedding_generation,
+    embedding_generation_manifest,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 if TYPE_CHECKING:
@@ -36,24 +39,24 @@ def build_hnsw_index(
     finally:
         con.close()
 
-    if not rows:
-        return 0, int(embedding_dimension)
-
     prepared_rows: list[tuple[object, str]] = []
     for row in rows:
         title = row[1] or ""
         abstract = (row[2] or "")[:1200]
         prepared_rows.append((row[0], f"{title}. {abstract}".strip()))
 
-    count, dim = build_embedding_index(
+    count, dim = build_embedding_generation(
         rows=prepared_rows,
-        embeddings_path=index_dir / "ac_work_embeddings.npz",
-        index_path=index_dir / "ac_work_index.hnsw",
+        index_dir=index_dir,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
         embedding_dimension=embedding_dimension,
         embedding_batch_size=embedding_batch_size,
         thermal_pause_seconds=thermal_pause_seconds,
+        basis_kind="academic_work_embedding",
+        projection_rule_version="policyos.academic_work_embedding_projection.v1",
+        legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
+        legacy_index_path=index_dir / "ac_work_index.hnsw",
     )
 
     logger.info("Academic embeddings complete: %d vectors", count)
@@ -73,21 +76,26 @@ def run_embed(config: AcademicBatchConfig, *, thermal: bool = False) -> int:
         embedding_device=config.embedding_device,
         thermal_pause_seconds=pause_s,
     )
+    generation = embedding_generation_manifest(
+        config.index_dir,
+        legacy_embeddings_path=config.index_dir / "ac_work_embeddings.npz",
+        legacy_index_path=config.index_dir / "ac_work_index.hnsw",
+    )
+    generation_metrics = generation[0] if generation else {}
+    generation_artifacts = generation[1] if generation else ()
     write_stage_manifest(
         manifest_path=config.manifests_dir / "embed.json",
         stage="embed",
-        status="ok",
+        status=("empty_generation" if count == 0 else "ok"),
         metrics={
             "embedded": count,
             "thermal": thermal,
             "embedding_model": config.embedding_model,
             "embedding_dimension": built_dimension,
             "embedding_device": config.embedding_device,
+            "embedding_generation": generation_metrics,
         },
-        artifacts=[
-            config.index_dir / "ac_work_embeddings.npz",
-            config.index_dir / "ac_work_index.hnsw",
-        ],
+        artifacts=list(generation_artifacts),
         started_at=started_at,
     )
     return count

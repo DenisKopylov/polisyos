@@ -21,7 +21,6 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
-
 PAYLOAD_A = b"cas-02-generation-a"
 PAYLOAD_B = b"cas-02-generation-b"
 

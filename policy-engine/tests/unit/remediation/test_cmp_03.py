@@ -10,6 +10,7 @@ linking apply the same semantic and completeness gates.
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,

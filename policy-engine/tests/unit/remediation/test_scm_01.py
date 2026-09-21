@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 
@@ -73,6 +75,18 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         100.0,
     ]
 
+    non_empirical_root = mechanisms["Z"].model_copy(
+        update={"family": MechanismFamily.LINEAR}
+    )
+    with pytest.raises(ValueError, match="require an EMPIRICAL mechanism"):
+        StructuralCausalModelSpec(
+            graph=spec.graph,
+            mechanisms=[mechanism for mechanism in spec.mechanisms if mechanism.variable != "Z"]
+            + [non_empirical_root],
+            fitted=True,
+            fit_method="gcm",
+        )
+
     broken_root = mechanisms["Z"].model_copy(
         update={
             "family_params": {
@@ -109,7 +123,12 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         for value in query_result.result_distribution
     )
     expected_mean = float(3.0 + 2.0 * np.mean(root))
-    assert query_result.result_ci[0] <= expected_mean <= query_result.result_ci[1]
+    sample_range = max(expected_support) - min(expected_support)
+    confidence = 0.99
+    hoeffding_epsilon = sample_range * math.sqrt(
+        math.log(2.0 / (1.0 - confidence)) / (2.0 * len(query_result.result_distribution))
+    )
+    assert abs(query_result.result_mean - expected_mean) <= hoeffding_epsilon
 
     # The non-intervened root is sampled from aligned observed rows, retaining
     # the observed joint carrier rather than independent Normal draws.
@@ -336,6 +355,33 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
         TwinNetworkQuery.pure_step(
             TwinNetworkQueryData(
                 scm_spec=invalid_spec,
+                treatment_variable="X",
+                outcome_variable="Y",
+                factual_treatment_value=1.0,
+                counterfactual_treatment_value=2.0,
+                n_samples=32,
+            ),
+            params={"__seed__": 23},
+        )
+
+    fractional_polynomial = spec.mechanisms[1].model_copy(
+        update={
+            "family_params": {
+                **spec.mechanisms[1].family_params,
+                "poly_degree": 2.5,
+            }
+        }
+    )
+    fractional_spec = StructuralCausalModelSpec(
+        graph=spec.graph,
+        mechanisms=[spec.mechanisms[0], fractional_polynomial],
+        fitted=True,
+        fit_method="gcm",
+    )
+    with pytest.raises(ValueError, match="invalid additive_noise polynomial payload"):
+        TwinNetworkQuery.pure_step(
+            TwinNetworkQueryData(
+                scm_spec=fractional_spec,
                 treatment_variable="X",
                 outcome_variable="Y",
                 factual_treatment_value=1.0,

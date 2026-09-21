@@ -129,6 +129,18 @@ class StructuralCausalModelSpec(BaseModel):
             raise ValueError(f"Non-root nodes without mechanisms: {missing_non_roots}")
 
         roots = graph_vars - non_roots
+        invalid_root_carriers = sorted(
+            mechanism.variable
+            for mechanism in self.mechanisms
+            if mechanism.variable in roots
+            and "observed_samples" in mechanism.family_params
+            and mechanism.family is not MechanismFamily.EMPIRICAL
+        )
+        if invalid_root_carriers:
+            raise ValueError(
+                "Observed root samples require an EMPIRICAL mechanism: "
+                f"{invalid_root_carriers}"
+            )
         root_carriers = [
             mechanism
             for mechanism in self.mechanisms

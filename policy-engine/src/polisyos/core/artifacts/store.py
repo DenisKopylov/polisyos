@@ -25,6 +25,9 @@ from ._integrity_ops import (
     validate_manifest_identity as _validate_manifest_identity,
 )
 from ._integrity_ops import (
+    validate_read_integrity as _validate_read_integrity,
+)
+from ._integrity_ops import (
     verify_filesystem_artifact as _verify_filesystem_artifact,
 )
 from ._layout import CASPathLayout as _CASPathLayout
@@ -99,6 +102,8 @@ if TYPE_CHECKING:
 
 
 PutOptions = ArtifactWriteOptions
+
+_ARTIFACT_LOCK_STRIPES = 64
 
 
 def _default_tracer() -> PolicyOSTracer:
@@ -194,7 +199,12 @@ class FileSystemCAS:
         self._signing_config = signing_config or SigningConfig.from_env()
         self._default_signer: Ed25519Signer | None = None
         self._signer_lock = threading.Lock()
-        self._artifact_locks: dict[str, threading.Lock] = {}
+        # Fixed striping bounds resident lock state without ever evicting a
+        # lock that may still have holders or waiters.  Collisions serialize
+        # unrelated artifact IDs, but preserve the first-writer invariant.
+        self._artifact_locks = tuple(
+            threading.Lock() for _ in range(_ARTIFACT_LOCK_STRIPES)
+        )
         self._artifact_locks_guard = threading.Lock()
         self._tenant_id = tenant_id
         self._cell_id = cell_id
@@ -290,11 +300,11 @@ class FileSystemCAS:
 
     def _artifact_lock(self, artifact_id: ArtifactID) -> threading.Lock:
         with self._artifact_locks_guard:
-            lock = self._artifact_locks.get(artifact_id.hex)
-            if lock is None:
-                lock = threading.Lock()
-                self._artifact_locks[artifact_id.hex] = lock
-            return lock
+            # ArtifactID is a validated SHA-256 digest, so using its complete
+            # integer value gives a stable in-process stripe selection without
+            # relying on Python's randomized string hash.
+            stripe = int(artifact_id.hex, 16) % _ARTIFACT_LOCK_STRIPES
+            return self._artifact_locks[stripe]
 
     def _record_integrity_failure(self, *, reason: str) -> None:
         recorder = getattr(self._metrics, "record_artifact_integrity_failure", None)
@@ -623,19 +633,63 @@ class FileSystemCAS:
         blob, manp = self._paths(aid)
         with self._artifact_lock(aid):
             blob_preexisted = blob.exists()
+            existing_manifest = (
+                self._manifests.read(manp) if manp.exists() else None
+            )
+
+            if existing_manifest is not None:
+                _validate_manifest_identity(aid, existing_manifest)
+                self._manifests.validate_profile(
+                    existing_manifest,
+                    data_size=len(data),
+                    opts=opts,
+                )
+
             if not blob_preexisted:
+                # A false result means another writer won the atomic create;
+                # the bytes are validated below before they are reused.
                 self._files.write_once(blob, data)
 
-            if manp.exists():
-                _validate_manifest_identity(aid, self._manifests.read(manp))
+            if existing_manifest is not None:
+                existing_data = blob.read_bytes()
+                _validate_read_integrity(aid, existing_data, existing_manifest)
+            elif manp.exists():
+                # A different process may have published the sidecar between
+                # the initial existence check and our blob create.  Re-read
+                # and validate both its identity and complete write profile.
+                existing_manifest = self._manifests.read(manp)
+                _validate_manifest_identity(aid, existing_manifest)
+                self._manifests.validate_profile(
+                    existing_manifest,
+                    data_size=len(data),
+                    opts=opts,
+                )
+                existing_data = blob.read_bytes()
+                _validate_read_integrity(aid, existing_data, existing_manifest)
             else:
+                # A blob without a sidecar can be completed, but only after
+                # proving that the existing bytes really match this address.
+                existing_data = blob.read_bytes()
+                actual_sha = content_hash(existing_data)
+                if actual_sha != sha:
+                    raise ArtifactIntegrityError(
+                        f"Blob sha256 mismatch for {aid}: {actual_sha}"
+                    )
                 manifest = self._manifests.build(
                     artifact_id=aid,
                     data=data,
                     sha=sha,
                     opts=opts,
                 )
-                self._manifests.write_once(manp, manifest)
+                if not self._manifests.write_once(manp, manifest):
+                    existing_manifest = self._manifests.read(manp)
+                    _validate_manifest_identity(aid, existing_manifest)
+                    self._manifests.validate_profile(
+                        existing_manifest,
+                        data_size=len(data),
+                        opts=opts,
+                    )
+                    _validate_read_integrity(aid, existing_data, existing_manifest)
 
         return blob_preexisted
 

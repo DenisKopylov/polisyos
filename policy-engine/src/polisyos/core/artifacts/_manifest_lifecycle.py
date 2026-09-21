@@ -60,6 +60,54 @@ class ManifestLifecycle:
         return self._files.write_once(path, self.to_bytes(manifest))
 
     @staticmethod
+    def profile_mismatches(
+        manifest: ArtifactManifest,
+        *,
+        data_size: int,
+        opts: ArtifactWriteOptions,
+    ) -> tuple[str, ...]:
+        """Return persisted manifest fields that disagree with write options.
+
+        A content-addressed blob may be shared only when its complete persisted
+        write profile is the same.  The creation timestamp and content identity
+        are deliberately excluded: they describe the already-persisted object,
+        rather than the caller's requested profile.
+        """
+        expected = {
+            "kind": opts.kind,
+            "media_type": opts.media_type,
+            "byte_size": data_size,
+            "artifact_schema": opts.schema,
+            "canon": opts.canon,
+            "inputs": list(opts.inputs or []),
+            "producer": opts.producer,
+            "env": opts.env,
+            "governance": getattr(opts, "governance", None),
+            "tenant_context": getattr(opts, "tenant_context", None),
+            "same_input_closure": getattr(opts, "same_input_closure", None),
+            "authority": getattr(opts, "authority", None),
+        }
+        return tuple(
+            field
+            for field, expected_value in expected.items()
+            if getattr(manifest, field) != expected_value
+        )
+
+    @classmethod
+    def validate_profile(
+        cls,
+        manifest: ArtifactManifest,
+        *,
+        data_size: int,
+        opts: ArtifactWriteOptions,
+    ) -> None:
+        """Fail closed when reuse would return a profile absent from storage."""
+        mismatches = cls.profile_mismatches(manifest, data_size=data_size, opts=opts)
+        if mismatches:
+            fields = ", ".join(mismatches)
+            raise ValueError(f"Existing artifact manifest profile conflict: {fields}")
+
+    @staticmethod
     def read(path: Path) -> ArtifactManifest:
         return ArtifactManifest.model_validate_json(path.read_text("utf-8"))
 

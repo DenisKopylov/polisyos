@@ -41,11 +41,6 @@ from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
 
-try:
-    from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
-except Exception:  # pragma: no cover - fallback when optional deps are missing
-    AsyncChainExecutor = None  # type: ignore[assignment]
-
 _log = get_foundry_logger("foundry.backends.chain")
 
 
@@ -455,9 +450,15 @@ def _can_fuse_pair(chain, node_a_id: UUID, node_b_id: UUID) -> bool:
         return False
     if not signature_a.supports_jit or not signature_b.supports_jit:
         return False
-    if chain.dag.predecessors.get(node_b_id) != {node_a_id}:
+    dataflow_predecessors = {
+        source_id for source_id, target_id in chain.dag.edges if target_id == node_b_id
+    }
+    if dataflow_predecessors != {node_a_id}:
         return False
-    if chain.dag.successors.get(node_a_id) != {node_b_id}:
+    dataflow_successors = {
+        target_id for source_id, target_id in chain.dag.edges if source_id == node_a_id
+    }
+    if dataflow_successors != {node_b_id}:
         return False
     if len(signature_a.output_slot_names) != 1:
         return False
@@ -927,8 +928,8 @@ def _execute_async_chain(
     fx_rate_provider: FxRateProvider | None = None,
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
-    if AsyncChainExecutor is None:
-        raise RuntimeError("AsyncChainExecutor is unavailable in this environment.")
+    from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
+
     params_per_node = params_per_node or {}
     reg = registry or MethodRegistry.get_instance()
     disp = dispatcher or MethodDispatcher.get_instance()
@@ -964,8 +965,8 @@ async def execute_heterogeneous_chain_async(
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
     """Execute heterogeneous chain async."""
-    if AsyncChainExecutor is None:
-        raise RuntimeError("AsyncChainExecutor is unavailable in this environment.")
+    from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
+
     reg = registry or MethodRegistry.get_instance()
     disp = dispatcher or MethodDispatcher.get_instance()
     executor = AsyncChainExecutor(registry=reg, dispatcher=disp)

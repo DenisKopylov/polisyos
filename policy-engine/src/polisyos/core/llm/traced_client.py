@@ -112,7 +112,10 @@ class TracedLLMClient:
         tracer: PolicyOSTracer | Any | None = None,
         metrics: MetricsRegistry | Any | None = None,
         required_accounting: Callable[[dict[str, Any]], None] | None = None,
+        prompt_mode: str = "auto",
     ) -> None:
+        if prompt_mode not in {"auto", "native", "user"}:
+            raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
         self._client = client
         self._model_name = model_name or self._detect_model_name()
         self._capture_prompt = capture_prompt
@@ -131,6 +134,9 @@ class TracedLLMClient:
             except Exception:
                 self._metrics = None
         self._required_accounting = required_accounting
+        self._prompt_mode = (
+            self._detect_prompt_mode(client) if prompt_mode == "auto" else prompt_mode
+        )
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -159,6 +165,36 @@ class TracedLLMClient:
             if value:
                 return str(value)
         return "unknown"
+
+    @staticmethod
+    def _detect_prompt_mode(client: Any) -> str:
+        """Use the Gateway chat contract when a known gateway is wrapped."""
+
+        current = client
+        visited: set[int] = set()
+        while id(current) not in visited:
+            visited.add(id(current))
+            client_type = type(current)
+            if client_type.__module__ == "unittest.mock":
+                return "native"
+            if client_type.__name__ in {
+                "FallbackRouter",
+                "GatewayLLMClient",
+                "SimulatedGatewayLLMClient",
+            }:
+                return "user"
+            module = client_type.__module__
+            if module.endswith(".gateway_client") or module.endswith(".simulated_gateway"):
+                return "user"
+            nested = getattr(current, "_client", None)
+            if (
+                nested is None
+                or nested is current
+                or type(nested).__module__ == "unittest.mock"
+            ):
+                break
+            current = nested
+        return "native"
 
     def _detect_provider(self, parsed_provider: str | None = None) -> str:
         if parsed_provider:
@@ -255,18 +291,33 @@ class TracedLLMClient:
         provider: str,
         response: Any,
     ) -> None:
-        prompt_tokens = parsed.prompt_tokens
-        completion_tokens = parsed.completion_tokens
+        prompt_tokens = parsed.origin_prompt_tokens
+        if prompt_tokens is None:
+            prompt_tokens = parsed.prompt_tokens
+        completion_tokens = parsed.origin_completion_tokens
+        if completion_tokens is None:
+            completion_tokens = parsed.completion_tokens
         estimated_cost_usd = self._estimate_cost_usd(
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
         )
-        origin_cost_usd = parsed.cost_usd if parsed.cost_usd is not None else estimated_cost_usd
+        origin_cost_usd = parsed.origin_cost_usd
         provider_call = not parsed.cache_hit
-        billable_prompt_tokens = prompt_tokens if provider_call else 0
-        billable_completion_tokens = completion_tokens if provider_call else 0
-        billable_cost_usd = float(origin_cost_usd) if provider_call else 0.0
-        cost_delta_usd = float(origin_cost_usd) - float(estimated_cost_usd)
+        billable_prompt_tokens = parsed.prompt_tokens if provider_call else 0
+        billable_completion_tokens = parsed.completion_tokens if provider_call else 0
+        if provider_call:
+            billable_cost_usd = (
+                float(parsed.cost_usd)
+                if parsed.cost_usd is not None
+                else float(estimated_cost_usd)
+            )
+        else:
+            billable_cost_usd = 0.0
+        cost_delta_usd = (
+            float(origin_cost_usd) - float(estimated_cost_usd)
+            if origin_cost_usd is not None
+            else None
+        )
 
         event = {
             "model": self._model_name,
@@ -279,9 +330,11 @@ class TracedLLMClient:
             "origin_completion_tokens": completion_tokens,
             "origin_total_tokens": prompt_tokens + completion_tokens,
             "cost_usd": billable_cost_usd,
-            "origin_cost_usd": float(origin_cost_usd),
+            "origin_cost_usd": (
+                float(origin_cost_usd) if origin_cost_usd is not None else None
+            ),
             "estimated_cost_usd": float(estimated_cost_usd),
-            "cost_delta_usd": float(cost_delta_usd),
+            "cost_delta_usd": cost_delta_usd,
             "latency_ms": latency_ms,
             "run_id": self._run_id,
             "model_variant_id": self._model_variant_id,
@@ -289,6 +342,9 @@ class TracedLLMClient:
             "cache_hit": parsed.cache_hit,
             "provider_call": provider_call,
             "usage_origin": parsed.usage_origin,
+            "reuse_event_id": parsed.reuse_event_id,
+            "cache_key": parsed.cache_key,
+            "event_identity": parsed.reuse_event_id or parsed.request_id,
         }
 
         if self._required_accounting is not None:
@@ -304,11 +360,19 @@ class TracedLLMClient:
         span.set_attribute("polisyos.llm.tokens.prompt", prompt_tokens)
         span.set_attribute("polisyos.llm.tokens.completion", completion_tokens)
         span.set_attribute("polisyos.llm.tokens.total", prompt_tokens + completion_tokens)
+        span.set_attribute("polisyos.llm.billable_tokens.prompt", billable_prompt_tokens)
+        span.set_attribute("polisyos.llm.billable_tokens.completion", billable_completion_tokens)
+        span.set_attribute(
+            "polisyos.llm.billable_tokens.total",
+            billable_prompt_tokens + billable_completion_tokens,
+        )
         span.set_attribute("polisyos.llm.latency_ms", latency_ms)
         span.set_attribute("polisyos.llm.cost_usd", billable_cost_usd)
-        span.set_attribute("polisyos.llm.origin_cost_usd", float(origin_cost_usd))
+        if origin_cost_usd is not None:
+            span.set_attribute("polisyos.llm.origin_cost_usd", float(origin_cost_usd))
         span.set_attribute("polisyos.llm.estimated_cost_usd", float(estimated_cost_usd))
-        span.set_attribute("polisyos.llm.cost_delta_usd", float(cost_delta_usd))
+        if cost_delta_usd is not None:
+            span.set_attribute("polisyos.llm.cost_delta_usd", float(cost_delta_usd))
         span.set_attribute("polisyos.llm.cache_hit", parsed.cache_hit)
         span.set_attribute("polisyos.llm.provider_call", provider_call)
         span.set_attribute("polisyos.llm.usage_origin", parsed.usage_origin)
@@ -478,8 +542,8 @@ class TracedLLMClient:
                 )
                 raise
 
-    @staticmethod
     def _normalize_generate_call(
+        self,
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> tuple[tuple[Any, ...], dict[str, Any]]:
@@ -488,13 +552,33 @@ class TracedLLMClient:
         if len(args) > 1:
             raise TypeError("generate() accepts at most one positional prompt")
         normalized_kwargs = dict(kwargs)
-        if not args or "prompt" not in normalized_kwargs:
+        has_named_prompt = "prompt" in normalized_kwargs
+        if args and has_named_prompt:
+            positional_prompt = args[0]
+            named_prompt = normalized_kwargs["prompt"]
+            if positional_prompt != named_prompt:
+                raise TypeError("generate() received conflicting prompt values")
+            prompt_value = positional_prompt
+        elif args:
+            prompt_value = args[0]
+        elif has_named_prompt:
+            prompt_value = normalized_kwargs["prompt"]
+        else:
             return args, normalized_kwargs
-        positional_prompt = args[0]
-        named_prompt = normalized_kwargs["prompt"]
-        if positional_prompt != named_prompt:
-            raise TypeError("generate() received conflicting prompt values")
-        normalized_kwargs["prompt"] = positional_prompt
+
+        if self._prompt_mode == "user":
+            if (
+                normalized_kwargs.get("user") is not None
+                or normalized_kwargs.get("messages") is not None
+            ):
+                raise TypeError("prompt cannot be combined with user or messages")
+            normalized_kwargs.pop("prompt", None)
+            normalized_kwargs["user"] = prompt_value
+            return (), normalized_kwargs
+
+        if not args or not has_named_prompt:
+            return args, normalized_kwargs
+        normalized_kwargs["prompt"] = prompt_value
         return (), normalized_kwargs
 
     def _record_error_metric(self, *, provider: str, latency_ms: int) -> None:

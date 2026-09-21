@@ -25,10 +25,12 @@ from polisyos.data_forge.kernel.io import ensure_dirs
 from .common import (
     StageBuildResult,
     _coerce_string_series,
-    _directory_file_size_gib,
     _edge_weight_by_node,
     _ensure_agent_numeric_columns,
     _sanitize_numeric_series,
+)
+from .io import (
+    _directory_file_size_gib,
     _stage_dir,
     _write_json,
     _write_npz,

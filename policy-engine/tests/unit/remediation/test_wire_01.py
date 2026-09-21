@@ -109,9 +109,10 @@ def _encode_state(state: ExperimentState, wire_kind: str) -> bytes:
     raise AssertionError(f"unknown wire kind: {wire_kind}")
 
 
-@pytest.mark.parametrize("wire_kind", ("plain", "safe", "outcome"))
+@pytest.mark.usefixtures("_wire_backend")
+@pytest.mark.parametrize("wire_kind", ["plain", "safe", "outcome"])
 def test_typed_state_round_trip_preserves_decimal_and_bytes(
-    _wire_backend: str, wire_kind: str
+    wire_kind: str,
 ) -> None:
     """Decimal and bytes retain their exact typed values on every state boundary."""
     state = _typed_state()
@@ -128,7 +129,8 @@ def test_typed_state_round_trip_preserves_decimal_and_bytes(
     _assert_typed_state(restored)
 
 
-def test_nested_user_mapping_with_reserved_type_key_is_escaped(_wire_backend: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+def test_nested_user_mapping_with_reserved_type_key_is_escaped() -> None:
     tag_like_decimal = {"_type": "decimal", "value": "12.3400"}
     tag_like_bytes = {"_type": "bytes", "encoding": "base64", "data": "AA=="}
     state = ExperimentState(
@@ -142,9 +144,10 @@ def test_nested_user_mapping_with_reserved_type_key_is_escaped(_wire_backend: st
     assert restored.params["nested"] == {"bytes": tag_like_bytes}
 
 
-@pytest.mark.parametrize("raw_value", ("NaN", "Infinity", "-Infinity"))
+@pytest.mark.usefixtures("_wire_backend")
+@pytest.mark.parametrize("raw_value", ["NaN", "Infinity", "-Infinity"])
 def test_legacy_decimal_budget_strings_reject_non_finite_values(
-    _wire_backend: str, raw_value: str
+    raw_value: str,
 ) -> None:
     payload = json.dumps(
         {"run_id": "wire-01-legacy-non-finite", "budgets": {"compute": raw_value}}
@@ -154,9 +157,10 @@ def test_legacy_decimal_budget_strings_reject_non_finite_values(
         deserialize_state(payload)
 
 
-@pytest.mark.parametrize("raw_value", ("NaN", "Infinity"))
+@pytest.mark.usefixtures("_wire_backend")
+@pytest.mark.parametrize("raw_value", ["NaN", "Infinity"])
 def test_legacy_outcome_budget_strings_reject_non_finite_values(
-    _wire_backend: str, raw_value: str
+    raw_value: str,
 ) -> None:
     payload = json.dumps(
         {
@@ -172,10 +176,11 @@ def test_legacy_outcome_budget_strings_reject_non_finite_values(
         deserialize_outcome(payload)
 
 
-@pytest.mark.parametrize("value", (float("nan"), float("inf"), float("-inf")))
-@pytest.mark.parametrize("wire_kind", ("plain", "safe", "outcome"))
+@pytest.mark.usefixtures("_wire_backend")
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+@pytest.mark.parametrize("wire_kind", ["plain", "safe", "outcome"])
 def test_nested_non_finite_values_are_rejected(
-    _wire_backend: str, wire_kind: str, value: float
+    wire_kind: str, value: float
 ) -> None:
     state = ExperimentState(run_id="wire-01-non-finite", params={"nested": [value]})
 
@@ -183,8 +188,9 @@ def test_nested_non_finite_values_are_rejected(
         _encode_state(state, wire_kind)
 
 
-@pytest.mark.parametrize("wire_kind", ("plain", "safe", "outcome"))
-def test_nested_unsupported_values_are_rejected(_wire_backend: str, wire_kind: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+@pytest.mark.parametrize("wire_kind", ["plain", "safe", "outcome"])
+def test_nested_unsupported_values_are_rejected(wire_kind: str) -> None:
     state = ExperimentState(
         run_id="wire-01-unsupported",
         params={"nested": {"unsupported": object()}},
@@ -194,7 +200,8 @@ def test_nested_unsupported_values_are_rejected(_wire_backend: str, wire_kind: s
         _encode_state(state, wire_kind)
 
 
-def test_safe_digest_binds_the_exact_typed_wire_bytes(_wire_backend: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+def test_safe_digest_binds_the_exact_typed_wire_bytes() -> None:
     payload, hex_digest = serialize_state_safe(_typed_state())
     body = payload[1:-32]
 
@@ -216,7 +223,8 @@ def test_legacy_v0_and_v1_readers_remain_compatible() -> None:
     assert deserialize_state(versioned).run_id == "wire-01-v1"
 
 
-def test_real_artifact_ref_and_output_aware_outcome_round_trip(_wire_backend: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+def test_real_artifact_ref_and_output_aware_outcome_round_trip() -> None:
     ref = _artifact_ref()
     outcome = OutputAwareNodeOutcome(
         status="ok",
@@ -241,7 +249,8 @@ def test_real_artifact_ref_and_output_aware_outcome_round_trip(_wire_backend: st
     _assert_typed_state(restored.state)
 
 
-def test_artifact_ref_and_artifact_id_tags_are_compatible(_wire_backend: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:
     ref = _artifact_ref()
     state = ExperimentState(run_id="wire-01-artifact-tags", inputs={"input": ref})
 
@@ -262,7 +271,8 @@ def test_artifact_ref_and_artifact_id_tags_are_compatible(_wire_backend: str) ->
     assert type(restored.inputs["input"].artifact_id) is ArtifactID
 
 
-def test_naive_datetime_tag_normalizes_to_utc(_wire_backend: str) -> None:
+@pytest.mark.usefixtures("_wire_backend")
+def test_naive_datetime_tag_normalizes_to_utc() -> None:
     blocker = SkippedNodeBlocker(
         node_id="wire-01-node",
         node_kind="causal",

@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 
 import pytest
+
 import polisyos.data_forge as data_forge
 import polisyos.data_forge.kernel.schemas as canonical_schemas
 from polisyos.data_forge.errors import SchemaCompatibilityError

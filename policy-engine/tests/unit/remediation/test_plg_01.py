@@ -6,6 +6,10 @@ assertions describe the intended Core-discovery behavior and are expected to be
 red until the adapter is migrated.
 """
 
+# Resource profile: L. These witnesses stop at discovery, metadata, and registry
+# lifecycle; they do not construct JAX arrays, enter native pools, install packages,
+# or run a simulation.
+
 from __future__ import annotations
 
 import sys
@@ -20,6 +24,10 @@ from polisyos.foundry.plugins.core import (
     PluginMetadata,
     PluginRegistry,
 )
+
+
+_NO_MATCHING_PACKAGE_PREFIX = "plg01_no_matching_distribution_"
+_CORE_PLUGIN_MODULE_PREFIX = "_polisyos_plugins_scan_"
 
 
 _PLUGIN_SOURCE_TEMPLATE = """
@@ -75,14 +83,12 @@ def _write_broken_plugin(root: Path, directory: str, message: str) -> Path:
     return plugin_dir
 
 
-def _isolate_non_dev_sources(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Keep the test focused on the explicitly supplied development source."""
+def _isolate_core_entry_points(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep tests focused while exercising the Core metadata seam."""
 
-    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [])
     monkeypatch.setattr(
-        plugin_discovery,
-        "_discover_installed_plugins",
-        lambda _prefix: [],
+        "polisyos.core.discovery.base.metadata.entry_points",
+        lambda *args, **kwargs: [],
     )
 
 
@@ -106,15 +112,65 @@ def test_dev_plugins_preserve_domain_plugin_abi_and_stable_order(
 ) -> None:
     """Directory discovery returns DomainPlugins in reproducible source order."""
 
-    _isolate_non_dev_sources(monkeypatch)
-    _write_dev_plugin(tmp_path, "alpha", "alpha")
-    _write_dev_plugin(tmp_path, "zeta", "zeta")
+    _isolate_core_entry_points(monkeypatch)
+    _write_dev_plugin(tmp_path, "alpha", "plg01-alpha")
+    _write_dev_plugin(tmp_path, "zeta", "plg01-zeta")
     _reverse_root_iteration(monkeypatch, tmp_path)
 
-    plugins = plugin_discovery.discover_plugins(search_paths=[tmp_path])
+    plugins = [
+        plugin
+        for plugin in plugin_discovery.discover_plugins(
+            search_paths=[tmp_path],
+            package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+        )
+        if plugin.metadata.name.startswith("plg01-")
+    ]
 
-    assert [plugin.metadata.name for plugin in plugins] == ["alpha", "zeta"]
+    assert [plugin.metadata.name for plugin in plugins] == [
+        "plg01-alpha",
+        "plg01-zeta",
+    ]
     assert all(isinstance(plugin, DomainPlugin) for plugin in plugins)
+
+
+def test_dev_plugin_loading_uses_the_core_file_loader_seam(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The adapter delegates source-file loading to Core's shared primitive."""
+
+    from types import ModuleType
+
+    from polisyos.core import discovery as core_discovery
+
+    _isolate_core_entry_points(monkeypatch)
+    plugin_file = _write_dev_plugin(tmp_path, "selected", "plg01-selected") / "plugin.py"
+    calls: list[tuple[Path, str]] = []
+    original_loader = core_discovery.load_module_from_file
+
+    def recording_loader(path: Path, *, module_name: str) -> ModuleType:
+        calls.append((path, module_name))
+        return original_loader(path, module_name=module_name)
+
+    monkeypatch.setattr(core_discovery, "load_module_from_file", recording_loader)
+
+    plugins = [
+        plugin
+        for plugin in plugin_discovery.discover_plugins(
+            search_paths=[tmp_path],
+            package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+        )
+        if plugin.metadata.name == "plg01-selected"
+    ]
+    expected_module_name = core_discovery.discovery_module_name(
+        plugin_file,
+        prefix=_CORE_PLUGIN_MODULE_PREFIX,
+        algorithm="sha1",
+        digest_length=40,
+    )
+
+    assert [plugin.metadata.name for plugin in plugins] == ["plg01-selected"]
+    assert calls == [(plugin_file, expected_module_name)]
 
 
 def test_import_errors_are_reported_in_stable_source_order(
@@ -123,25 +179,57 @@ def test_import_errors_are_reported_in_stable_source_order(
 ) -> None:
     """A bad source remains visible and error ordering does not depend on readdir."""
 
-    _isolate_non_dev_sources(monkeypatch)
-    _write_broken_plugin(tmp_path, "alpha-broken", "alpha-import-error")
-    _write_broken_plugin(tmp_path, "zeta-broken", "zeta-import-error")
+    _isolate_core_entry_points(monkeypatch)
+    alpha_dir = _write_broken_plugin(
+        tmp_path,
+        "plg01-alpha-broken",
+        "plg01-alpha-import-error",
+    )
+    zeta_dir = _write_broken_plugin(
+        tmp_path,
+        "plg01-zeta-broken",
+        "plg01-zeta-import-error",
+    )
     _reverse_root_iteration(monkeypatch, tmp_path)
     modules_before = set(sys.modules)
 
     with pytest.warns(RuntimeWarning) as caught:
-        plugins = plugin_discovery.discover_plugins(search_paths=[tmp_path])
+        plugins = plugin_discovery.discover_plugins(
+            search_paths=[tmp_path],
+            package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+        )
 
-    assert plugins == []
-    messages = [str(record.message) for record in caught]
+    assert [plugin for plugin in plugins if plugin.metadata.name.startswith("plg01-")] == []
+    messages = [
+        str(record.message)
+        for record in caught
+        if "plg01-" in str(record.message)
+    ]
     assert len(messages) == 2
     assert messages == sorted(messages)
-    assert "alpha-import-error" in messages[0]
-    assert "zeta-import-error" in messages[1]
-    leaked_modules = {
-        name for name in set(sys.modules) - modules_before if name.startswith("plugin_")
+    assert "plg01-alpha-import-error" in messages[0]
+    assert "plg01-zeta-import-error" in messages[1]
+
+    from polisyos.core.discovery import discovery_module_name
+
+    broken_files = {alpha_dir / "plugin.py", zeta_dir / "plugin.py"}
+    core_candidate_names = {
+        discovery_module_name(
+            path,
+            prefix=_CORE_PLUGIN_MODULE_PREFIX,
+            algorithm="sha1",
+            digest_length=40,
+        )
+        for path in broken_files
     }
-    assert leaked_modules == set()
+    assert core_candidate_names.isdisjoint(sys.modules)
+    leaked_file_modules = {
+        name
+        for name in set(sys.modules) - modules_before
+        if getattr(sys.modules[name], "__file__", None)
+        and Path(sys.modules[name].__file__).resolve() in broken_files
+    }
+    assert leaked_file_modules == set()
 
 
 def test_duplicate_ids_keep_deterministic_winner_and_visible_registration_error(
@@ -150,22 +238,22 @@ def test_duplicate_ids_keep_deterministic_winner_and_visible_registration_error(
 ) -> None:
     """Duplicate DomainPlugin IDs do not silently depend on filesystem order."""
 
-    _isolate_non_dev_sources(monkeypatch)
-    _write_dev_plugin(tmp_path, "alpha-source", "shared")
-    _write_dev_plugin(tmp_path, "zeta-source", "shared")
+    _isolate_core_entry_points(monkeypatch)
+    _write_dev_plugin(tmp_path, "alpha-source", "plg01-shared")
+    _write_dev_plugin(tmp_path, "zeta-source", "plg01-shared")
     _reverse_root_iteration(monkeypatch, tmp_path)
 
     registry = PluginRegistry()
     registry.clear()
 
-    with pytest.warns(RuntimeWarning, match="Could not register shared"):
+    with pytest.warns(RuntimeWarning, match="Could not register plg01-shared"):
         registered = plugin_discovery.auto_register_plugins(
             registry,
             search_paths=[tmp_path],
         )
 
-    assert registered == ["shared"]
-    assert getattr(registry.get("shared"), "source") == "alpha-source"
+    assert "plg01-shared" in registered
+    assert getattr(registry.get("plg01-shared"), "source") == "alpha-source"
     registry.clear()
 
 
@@ -235,7 +323,6 @@ def test_legacy_entry_point_group_and_domain_plugin_abi_are_preserved(
 ) -> None:
     """Declared ``polisyos.plugins`` entry points still construct DomainPlugins."""
 
-    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [])
     seen_groups: list[str] = []
 
     class EntryPointPlugin(DomainPlugin):
@@ -261,28 +348,61 @@ def test_legacy_entry_point_group_and_domain_plugin_abi_are_preserved(
 
     class EntryPoint:
         name = "entrypoint"
+        value = "plg01_entrypoint:EntryPointPlugin"
 
         def load(self):
             return EntryPointPlugin
 
-    class FakePkgResources:
-        working_set: tuple[object, ...] = ()
+    def fake_entry_points(*, group: str):
+        seen_groups.append(group)
+        return [EntryPoint()]
 
-        @staticmethod
-        def iter_entry_points(group: str):
-            seen_groups.append(group)
-            return [EntryPoint()]
+    monkeypatch.setattr(
+        "polisyos.core.discovery.base.metadata.entry_points",
+        fake_entry_points,
+    )
 
-    monkeypatch.setitem(sys.modules, "pkg_resources", FakePkgResources())
-    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [])
-    monkeypatch.setattr(plugin_discovery, "_discover_directory_plugins", lambda _path: [])
-
-    plugins = plugin_discovery.discover_plugins()
+    plugins = plugin_discovery.discover_plugins(
+        package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+    )
 
     assert seen_groups == ["polisyos.plugins"]
-    assert [plugin.metadata.name for plugin in plugins] == ["entrypoint"]
-    assert isinstance(plugins[0], DomainPlugin)
+    entrypoint_plugins = [
+        plugin for plugin in plugins if plugin.metadata.name == "entrypoint"
+    ]
+    assert len(entrypoint_plugins) == 1
+    assert isinstance(entrypoint_plugins[0], DomainPlugin)
     assert plugin_discovery.CANONICAL_METHOD_ENTRY_POINT_GROUP != seen_groups[0]
+
+
+def test_builtin_economics_plugin_preserves_domain_abi_and_lifecycle(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real builtin plugin remains a DomainPlugin through registry lifecycle."""
+
+    from polisyos.foundry.plugins.economics import EconomicsPlugin
+
+    _isolate_core_entry_points(monkeypatch)
+    plugins = plugin_discovery.discover_plugins(
+        package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+    )
+    economics = next(plugin for plugin in plugins if isinstance(plugin, EconomicsPlugin))
+
+    assert isinstance(economics, DomainPlugin)
+    assert economics.metadata.name == "economics"
+    assert callable(economics.get_reward_function)
+    assert callable(economics.get_objectives)
+
+    lifecycle: list[str] = []
+    monkeypatch.setattr(economics, "on_load", lambda: lifecycle.append("load"))
+    monkeypatch.setattr(economics, "on_unload", lambda: lifecycle.append("unload"))
+
+    registry = PluginRegistry()
+    registry.clear()
+    registry.register(economics)
+    assert registry.get("economics") is economics
+    registry.unregister("economics")
+    assert lifecycle == ["load", "unload"]
 
 
 def test_explicit_dev_root_does_not_import_unselected_sibling(
@@ -291,7 +411,7 @@ def test_explicit_dev_root_does_not_import_unselected_sibling(
 ) -> None:
     """A declared dev root is bounded; sibling files are not an environment scan."""
 
-    _isolate_non_dev_sources(monkeypatch)
+    _isolate_core_entry_points(monkeypatch)
     declared_root = tmp_path / "declared"
     unselected_root = tmp_path / "unselected"
     declared_root.mkdir()
@@ -304,7 +424,14 @@ def test_explicit_dev_root_does_not_import_unselected_sibling(
         encoding="utf-8",
     )
 
-    plugins = plugin_discovery.discover_plugins(search_paths=[declared_root])
+    plugins = plugin_discovery.discover_plugins(
+        search_paths=[declared_root],
+        package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
+    )
 
-    assert [plugin.metadata.name for plugin in plugins] == ["selected"]
+    assert [
+        plugin.metadata.name
+        for plugin in plugins
+        if plugin.metadata.name == "selected"
+    ] == ["selected"]
     assert not marker.exists()

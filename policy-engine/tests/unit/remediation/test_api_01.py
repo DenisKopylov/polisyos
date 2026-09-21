@@ -12,7 +12,6 @@ from importlib import import_module, reload
 
 import pytest
 
-
 CAUSAL_ENGINE_MODULE = "polisyos.foundry.methods.catalog.causal.causal_engine"
 INTERFERENCE_MODULE = "polisyos.foundry.methods.catalog.causal.interference"
 

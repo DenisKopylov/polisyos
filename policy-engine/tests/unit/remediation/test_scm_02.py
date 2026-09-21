@@ -72,6 +72,51 @@ def _empirical_root_chain() -> StructuralCausalModelSpec:
     return scm.model_copy(update={"mechanisms": [empirical_root, scm.mechanisms[1]]})
 
 
+def _empirical_covariate_scm() -> StructuralCausalModelSpec:
+    """Build X,Z -> Y with an empirical non-treatment root Z."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Z", "Y"],
+        edges=[CausalEdge(src="X", dst="Y"), CausalEdge(src="Z", dst="Y")],
+    )
+    return StructuralCausalModelSpec(
+        graph=graph,
+        mechanisms=[
+            NodeMechanism(
+                variable="X",
+                parents=[],
+                family=MechanismFamily.LINEAR,
+                family_params={"intercept": 0.0, "coefficients": {}, "noise_std": 1.0},
+                source=MechanismSource.DATA_FITTED,
+            ),
+            NodeMechanism(
+                variable="Z",
+                parents=[],
+                family=MechanismFamily.EMPIRICAL,
+                family_params={
+                    "mean": 0.0,
+                    "std": 1.0,
+                    "observed_samples": [0.0, 1.0],
+                },
+                source=MechanismSource.DATA_FITTED,
+            ),
+            NodeMechanism(
+                variable="Y",
+                parents=["X", "Z"],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": 0.0,
+                    "coefficients": {"X": 1.0, "Z": 1.0},
+                    "noise_std": 0.0,
+                },
+                source=MechanismSource.DATA_FITTED,
+            ),
+        ],
+        fitted=True,
+        fit_method="gcm",
+    )
+
+
 def test_partial_gaussian_abduction_conditions_unobserved_parent() -> None:
     """Y=2 alone yields U_Y|Y=2 with mean 1 and variance 0.5 under do(X=0)."""
     output = _run_query(
@@ -204,3 +249,24 @@ def test_partial_unsupported_abduction_is_limited_not_gate_eligible() -> None:
     assert "abduction_limitation" in result.metadata
     assert output["envelope"].gate_eligible is False
     assert any("limited abduction" in str(item) for item in output["warnings"])
+
+
+def test_twin_empirical_factual_root_is_not_claimed_exact() -> None:
+    """Twin prediction must not gate an observed root it cannot pin."""
+    payload = TwinNetworkQueryData(
+        scm_spec=_empirical_covariate_scm(),
+        factual_condition={"X": 1.0, "Z": 50.0, "Y": 51.0},
+        treatment_variable="X",
+        factual_treatment_value=1.0,
+        counterfactual_treatment_value=0.0,
+        outcome_variable="Y",
+        n_samples=128,
+    )
+
+    output = TwinNetworkQuery.pure_step(payload, params={"__seed__": 117})
+
+    result = output["twin_network_result"]
+    assert result.metadata["abduction_profile"] == "limited_unpinned_empirical_root"
+    assert result.metadata["abduction_gate_eligible"] is False
+    assert "cannot pin observed empirical root" in result.metadata["abduction_limitation"]
+    assert output["envelope"].gate_eligible is False

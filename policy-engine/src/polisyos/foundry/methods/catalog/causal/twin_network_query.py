@@ -469,6 +469,7 @@ class TwinNetworkQuery:
                 parents_map=parents_map,
                 mechanisms=mechanisms,
                 treatment_variable=payload.treatment_variable,
+                allow_observed_empirical_roots=False,
             )
             if abduction_posterior is None:
                 abduced_noises = _abduce_noises_unified(

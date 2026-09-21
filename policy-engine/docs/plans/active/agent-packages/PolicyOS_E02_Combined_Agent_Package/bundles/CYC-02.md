@@ -45,7 +45,7 @@ policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py
 
 **A02.** Эмпирические helpers открываются после scope/uncertainty/graph-binding EMP-01; S10 временная и calibration-семантика — FRC-01/FRC-02. Условный simulation-only путь не ждёт неиспользуемых empirical/calibration функций.
 
-**Ресурс:** N — один tiny native/numerical job, без других тестовых jobs. Общий агентный fan-out остаётся12–16; ожидание test slot не останавливает написание/review. Для загрузки зависимостей и широких builds обращаться к I1, не запускать их самостоятельно.
+**Ресурс:** N/C — I1 broker drains L and admits one exclusive native/numerical/build or checkpoint job using the full seven-unit budget; no other resource-bearing job runs concurrently. Общий fan-out — 15 direct leaf workers; чтение/код/review продолжаются без permit. Immutable argv/cwd/worktree/SHA/selectors/timeout/output root and named resources are fixed at admission; builds/installs через I1.
 
 **Передача:** source ID/phase и исход каждого; base/patch; exact writes; equivalent versus intended delta; actual commands/exit/log; native/fixture/deferred; reviewer; path-map/caller/lifecycle/activation остатки. Ни partial LA, ни explicit limitation не превращаются в full implemented capability.
 

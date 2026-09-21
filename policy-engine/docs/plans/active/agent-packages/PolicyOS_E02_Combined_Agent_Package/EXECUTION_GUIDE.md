@@ -14,13 +14,16 @@ Sol и Luna — выбранные пользователем роли; доку
 
 ## 2. Команда без дополнительных руководящих агентов
 
-| Режим | Исполнители | Независимые проверяющие | Интеграторы | Luna всего |
-|---|---:|---:|---:|---:|
-| Начальный/меньше готовой работы | 8 | 2 | 2 | 12 |
-| **Основной** | **9** | **3** | **2** | **14** |
-| Больше независимой ready-работы | 10 | 4 | 2 | 16 |
+| Роль | Целевое число | Эластичность |
+|---|---:|---|
+| Исполнители пакетов | 8 | preparer может стать девятым executor |
+| Независимые reviewers | 3 | executor/preparer может стать четвёртым при backlog=4 |
+| I2/preparers | 2 | число меняется по готовому буферу |
+| I1 broker | 1 | единственный владелец общей вычислительной очереди |
+| Integration writer | 1 | последовательная запись integration branch |
+| **Прямые leaf workers** | **15** | **без субагентов** |
 
-Sol диспетчеризует одну очередь B+LA, утверждает write-set, решения о совместимости и приёмку. Исполнитель получает один умеренный пакет и отдельный branch/worktree/base SHA; следующий пакет можно передать новому агенту без огромного накопленного контекста. Subagents — leaf workers, новых своих агентов не создают. Нет 127 одновременно открытых worktree.
+Sol диспетчеризует одну очередь B+LA, утверждает write-set, решения о совместимости и приёмку. Исполнитель получает один умеренный пакет и отдельный branch/worktree/base SHA; следующий пакет можно передать новому агенту без огромного накопленного контекста. Если runtime даёт меньше seats, используется максимум доступных с сохранением review independence/write isolation, а предел записывается. Subagents — leaf workers, новых своих агентов не создают. Нет 127 одновременно открытых worktree.
 
 **I1** единолично ведёт integration branch, merge queue, глобальную test queue, подготовку среды и CP-окна. **I2** проверяет cross-boundary contracts, совместимость миграций, path map, исторические readers и review общих DTO. I2 не правит production-файл параллельно его исполнителю; glue patch требует своего write-set и review. Проверяющий не автор принимаемого patch; другой агент обеспечивает процедурную независимость, не независимость ошибок моделей или внешнюю сертификацию.
 
@@ -48,20 +51,20 @@ Sol диспетчеризует одну очередь B+LA, утвержда�
 
 Physical `__module__`, serialization FQN, exception/class identity и saved symbol paths проверяются там, где поддержаны. Изменение Python-адреса не даёт права переписать CAS hashes, model identity, старые receipts или scientific profile.
 
-## 6. MacBook Air M2 / 16 GB: прежний бюджет, не больше проверок от большего реестра
+## 6. MacBook Air M2 / 16 GB: общий взвешенный бюджет
 
 Машина задана пользователем: Apple M2, 16 GB RAM, macOS Tahoe 26.6.2. Эти правила — **стартовая политика**, не измеренный оптимум и не гарантия пикового RSS.
 
 | Класс | Общий лимит на весь Mac | Назначение |
 |---|---|---|
-| E: чтение/редактирование/review | В рамках команды 12–16 | Работа продолжается при занятой test queue |
-| L: лёгкий адресный test/lint | **Не более двух jobs одновременно** | Малые dict/DTO/files/controlled events, выбранные тесты |
-| N: tiny native/numerical/build | **Один job, другие L/N/C ждут** | JAX/NumPy/SciPy/GP/HNSW, тяжёлые imports, небольшие subprocess tests |
-| C: окно укрупнённой приёмки | **Один последовательный набор** | CP1–CP6; без других test/build/install jobs |
+| E: чтение/редактирование/review | До15 direct leaf workers | Работа продолжается при занятой test queue; permit не требуется |
+| L: лёгкий адресный test/lint | **До7 resource-bearing process groups и7 L-equivalent units** | micro=0.5, standard=1, измеренный medium обычно2–3 |
+| N/C: native/numerical/build/install/checkpoint | **Один эксклюзивный job, полный бюджет7** | Сначала drain L; другие resource-bearing jobs ждут |
+| Named shared resources | Один владелец на ресурс | ports, browser/Playwright, DuckDB/DB, CAS/scratch и governed artifacts |
 
-Это не «два теста на каждого агента». Каждый job включает свои дочерние процессы и native pools. Малый массив не делает тяжёлый import лёгким. Для intended race допустимы два участника внутри одного контролируемого job; для fail-fast — несколько маленьких coroutines. Глобальное workers=1 не должно уничтожать сам проверяемый race.
+Это не «семь тестов на каждого агента». Каждый job включает свои дочерние процессы и native pools; намеренные дети одного admitted race входят в его permit. Малый массив не делает тяжёлый import лёгким. Для intended race допустимы два участника внутри одного контролируемого job; для fail-fast — несколько маленьких coroutines. Глобальное workers=1 не должно уничтожать сам проверяемый race.
 
-**I1 настраивает очередь один раз.** Исполнитель передаёт команду, exact commit/worktree и класс, затем продолжает работу. Никто не обязан запускать `top`, проверять memory pressure или повторять environment inspection перед каждой правкой. Отдельная система мониторинга нагрузки не входит в deliverables. Реакция — на OOM, зависший собственный test process, устойчивую потерю отзывчивости либо сообщение пользователя; I1 останавливает новые тесты, разбирает известный job и понижает его класс/объём.
+**I1 — единственный broker очереди.** Исполнитель передаёт immutable request: executable, exact argv, cwd/worktree, code SHA, selectors/identities, timeout, class/cost, named resources, output root и basetemp. Submission атомарно копирует bytes в unique ready entry и сохраняет SHA; короткая `fcntl.flock`-критическая секция единственного queue writer-а атомарно claim-ит ready entry, проверяет capacity/resources и обновляет projection; pytest/review внутри lock не выполняются. Permit освобождается после завершения process group, установленного cleanup и сохранения receipt/artifact, не после review. Никто не обязан запускать `top`, проверять memory pressure или повторять environment inspection перед каждой правкой. Отдельная система мониторинга нагрузки не входит в deliverables. Реакция — на OOM, зависший собственный test process, устойчивую потерю отзывчивости либо сообщение пользователя; I1 останавливает новые тесты, разбирает известный job и понижает его класс/объём.
 
 Нельзя запускать полные pytest/coverage после каждого пакета, `-n auto`, скрытые test watchers, параллельные `sync/install`, несколько Node builds или service clusters. Для OpenBLAS/OpenMP сохранить прежний test-launch профиль `OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1` до импорта; он **не является доказанным cap всех JAX/Apple native threads**. Не добавлять случайные XLA-флаги. Не менять production defaults и число научных folds/draws ради скорости тестовой машины.
 
@@ -73,9 +76,9 @@ Physical `__module__`, serialization FQN, exception/class identity и saved symb
 
 Один SETUP-01: зафиксировать HEAD, прочитать repository AGENTS/правила, определить project Python/lock/extras и существующие проверочные команды, подготовить macOS arm64 environment, базовый import smoke и test queue. Не сверять автоматически Linux/Python versions исторических probes как требования проекта.
 
-Отдельный linked worktree/branch для каждого активного writer, не независимые полные clones. У reviewer свой read-only snapshot либо agreed test branch. Пока job читает worktree, его checkout/source/dependencies не меняются. После сохранённого commit/handoff ненужный worktree освобождается штатно; пользовательские uncommitted changes не удаляются и `reset --hard` не применяется.
+Отдельный linked worktree/branch для каждого активного writer, не независимые полные clones. У reviewer свой read-only snapshot либо agreed test branch; `.venv`, `node_modules` и caches не копируются. Пока job читает worktree, его checkout/source/dependencies не меняются. После сохранённого commit/handoff ненужный worktree освобождается штатно; пользовательские uncommitted changes не удаляются и `reset --hard` не применяется.
 
-Общее неизменяемое dependency environment допустимо только с доказанной привязкой импортов к тестируемому worktree; shared editable install на другом checkout недопустима. Путь изменённого импортируемого модуля проверяется при создании/первом native запуске worktree, не перед каждой командой. Каждому job свои tmp, CAS/DB fixtures и port при необходимости; production user storage не используется для fault injection.
+Общее неизменяемое dependency environment допустимо только с доказанной привязкой импортов к тестируемому worktree; shared editable install на другом checkout недопустима. Перед новым worktree/environment/install/build должно оставаться минимум20 GiB свободного диска. Путь изменённого импортируемого модуля проверяется при создании/первом native запуске worktree, не перед каждой командой. Каждому job свои tmp, CAS/DB fixtures и port при необходимости; production user storage не используется для fault injection.
 
 Workspace lockfile, actual generated outputs, новые proposed paths разрешаются один раз при выдаче соответствующего пакета; в lease добавляются точные пути. Одновременные обновления общей registry/lockfile делает назначенный владелец последовательными небольшими дельтами, не конкурирующие implementers.
 
@@ -83,9 +86,9 @@ Workspace lockfile, actual generated outputs, новые proposed paths разр
 
 **Первый набор девяти writers:** CYC-01, SEL-01, STA-01, ING-01, OPT-01, FRY-01, DDM-01, GRF-01, UDF-01. Он проверен по статической карте E02 на отсутствие packet prerequisites и пересечений leased paths. Это не подтверждение независимости неизвестного текущего checkout; фактические дополнительные paths сверяются при dispatch. При восьми отложить UDF-01; десятым добавить SCL-01 после проверки review/test queue.
 
-Освободился writer → Sol выбирает следующий ready пакет из **общей B+LA очереди**. Предпочитать продолжение уже начатой migration lane, когда оно снимает двойную правку hotspot, но не ждать занятого файла при наличии полезного независимого пакета. Широкая read-only подготовка допустима заранее; production patch потребляет принятый предшествующий контракт.
+Освободился writer → Sol выбирает следующий ready пакет из **общей B+LA очереди**. Держи минимум пять полностью специфицированных ready-пакетов помимо активных; если активных0–1 и буфер пуст, временно усиливай preparers до3–4, а при здоровом буфере оставляй не более одного preparer. Предпочитать продолжение уже начатой migration lane, когда оно снимает двойную правку hotspot, но не ждать занятого файла при наличии полезного независимого пакета. Широкая read-only подготовка допустима заранее; production patch потребляет принятый предшествующий контракт.
 
-Условия: необходимые контракты присутствуют на base или удовлетворены доказанным existing solution; write lease не конфликтует; назначены reviewer, base и resource class; задача продвигает полезный путь, сохраняет данные/смысл или убирает повторную работу. Свободный slot не повод создавать новый refactor. Ориентир — не больше четырёх patches без первого review; при очереди свободный агент помогает проверке, не создаёт десятый неподтверждённый patch.
+Условия: необходимые контракты присутствуют на base или удовлетворены доказанным existing solution; write lease не конфликтует; назначены reviewer, base и resource class; задача продвигает полезный путь, сохраняет данные/смысл или убирает повторную работу. Свободный slot не повод создавать новый refactor. Один executor не сдаёт более одного patch сверх текущей работы; максимум четыре кандидата ждут первый review как ориентир review-backlog, не как потолок активных executors. При backlog=4 перераспредели свободного агента на review/closeout.
 
 ## 9. Четыре вида связей
 

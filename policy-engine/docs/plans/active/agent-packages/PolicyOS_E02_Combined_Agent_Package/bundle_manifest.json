@@ -66,51 +66,67 @@
     }
   },
   "roles": {
-    "12": [
+    "15": [
       8,
-      2,
-      2
-    ],
-    "14": [
-      9,
       3,
-      2
-    ],
-    "16": [
-      10,
-      4,
-      2
+      2,
+      1,
+      1
     ]
   },
   "local_execution": {
-    "light_max_jobs": 2,
+    "light_max_jobs": 7,
+    "light_equivalent_budget": 7,
+    "max_resource_processes": 7,
     "native_max_jobs": 1,
     "native_exclusive": true,
+    "n_c_exclusive": true,
     "checkpoint_max_jobs": 1,
     "checkpoint_exclusive": true,
+    "ready_buffer_min": 5,
+    "ready_excludes_active": true,
     "routine_load_polling": false,
     "parallel_installs": false,
-    "default_luna": 14,
-    "implementers": 9,
+    "storage_reserve_gib": 20,
+    "agent_concurrency_independent": true,
+    "immutable_request_admission": true,
+    "immutable_request_fields": [
+      "executable",
+      "argv",
+      "cwd",
+      "worktree",
+      "code_sha",
+      "selectors",
+      "identities",
+      "timeout",
+      "class",
+      "cost",
+      "named_resources",
+      "output_root",
+      "basetemp"
+    ],
+    "single_queue_writer": true,
+    "queue_writers": 1,
+    "permit_release_after_cleanup_receipt": true,
+    "runtime_cap_fallback": true,
+    "executor_min": 8,
+    "executor_max": 9,
+    "reviewer_min": 3,
+    "reviewer_max": 4,
+    "review_releases_compute": true,
+    "resource_costs": {
+      "micro": 0.5,
+      "standard": 1,
+      "measured_medium_min": 2,
+      "measured_medium_max": 3
+    },
+    "requested_direct_workers": 15,
+    "executors": 8,
     "reviewers": 3,
-    "integrators": 2,
-    "modes": {
-      "12": [
-        8,
-        2,
-        2
-      ],
-      "14": [
-        9,
-        3,
-        2
-      ],
-      "16": [
-        10,
-        4,
-        2
-      ]
-    }
+    "preparers": 2,
+    "brokers": 1,
+    "integrators": 1,
+    "direct_workers": 15
   },
   "main_document": "PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
   "first_dispatch": [

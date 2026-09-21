@@ -145,6 +145,12 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
             "data_valid_time": data_valid_time.isoformat(),
             "calibration_window_start": window_start.isoformat(),
             "calibration_window_end": window_end.isoformat(),
+            "observed_outcome_ref": "outcome://frc01/observed",
+            "historical_implementation_ref": "implementation://frc01/history",
+            "evaluation_design_ref": "evaluation://frc01/design",
+            "credible_evaluation_evidence_ref": "evidence://frc01/credible",
+            "source_lineage_refs": ["lineage://frc01/source"],
+            "method_lineage_refs": ["lineage://frc01/method"],
         },
     )
     record = inputs["forecast_calibration_record"]
@@ -155,6 +161,12 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
     assert record.data_valid_time == data_valid_time
     assert record.calibration_window_start == window_start
     assert record.calibration_window_end == window_end
+    assert record.observed_outcome_ref == "outcome://frc01/observed"
+    assert record.historical_implementation_ref == "implementation://frc01/history"
+    assert record.evaluation_design_ref == "evaluation://frc01/design"
+    assert record.credible_evaluation_evidence_ref == "evidence://frc01/credible"
+    assert record.source_lineage_refs == ["lineage://frc01/source"]
+    assert record.method_lineage_refs == ["lineage://frc01/method"]
     assert len({
         record.prediction_time,
         record.observation_time,
@@ -163,6 +175,53 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
         record.calibration_window_start,
         record.calibration_window_end,
     }) == 6
+
+
+def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
+    """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+
+    build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+    timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+    world_record = SimpleNamespace(
+        world_model_record_id="world_model_record_frc01",
+        content_hash="sha256:" + "a" * 64,
+        valid_time_scope="2025-Q2",
+        region_or_jurisdiction="UA",
+    )
+    problem = SimpleNamespace(
+        design_problem_id="frc01-problem",
+        outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+    )
+    candidate = SimpleNamespace(candidate_id="frc01-candidate")
+    method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+
+    inputs = build_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        method_result=method_result,
+        selected_method_fqn="foundry.methods.example",
+        forecast_tier="observable_calibrated",
+        calibration_status="limit",
+        policy_context_ref="policy-context://world_model_record_frc01",
+        expected_policy_context_ref="policy-context://world_model_record_frc01",
+        false_clear_counts={},
+        calibration_evidence={
+            "counterfactual_credibility": "insufficient_history",
+            "prediction_time": timestamp,
+            "observation_time": timestamp,
+            "policy_effective_time": timestamp,
+            "data_valid_time": timestamp,
+            "calibration_window_start": timestamp,
+            "calibration_window_end": timestamp,
+        },
+    )
+
+    support = inputs["forecast_support"]
+    assert inputs["forecast_calibration_record"] is None
+    assert support.forecast_tier == "blocked"
+    assert support.calibration_record_ref is None
+    assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
 
 
 def test_s10_authority_boundary_keeps_purpose_denials() -> None:

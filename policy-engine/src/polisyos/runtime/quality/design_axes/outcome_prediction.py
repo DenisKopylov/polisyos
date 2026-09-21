@@ -438,7 +438,10 @@ def build_forecast_support(**payload: object) -> ForecastSupport:
     if tier == "equilibrium_contested_blocked":
         _validate_equilibrium_block(payload)
     if payload.get("s5_base_origin") == "validated_local_model":
-        _require_validated_local_model_refs(payload)
+        _require_validated_local_model_refs(
+            payload,
+            require_calibration=tier == "observable_calibrated",
+        )
     if payload.get("s5_base_origin") == "transported_scholar_estimate" and not _sequence(
         payload.get("limitation_refs")
     ):
@@ -626,11 +629,15 @@ def _require_observable_calibration(payload: Mapping[str, object]) -> None:
         raise ValueError("observable calibration requires calibration and observable refs")
 
 
-def _require_validated_local_model_refs(payload: dict[str, object]) -> None:
+def _require_validated_local_model_refs(
+    payload: dict[str, object], *, require_calibration: bool = True
+) -> None:
     if not payload.get("source_contract_ref") or not payload.get("method_validity_ref"):
         raise ValueError("source_contract and method_validity refs are required")
-    if not payload.get("sensitivity_analysis_ref") or not payload.get("calibration_record_ref"):
-        raise ValueError("validated local model requires sensitivity and calibration refs")
+    if not payload.get("sensitivity_analysis_ref"):
+        raise ValueError("validated local model requires sensitivity ref")
+    if require_calibration and not payload.get("calibration_record_ref"):
+        raise ValueError("observable calibrated model requires calibration ref")
     if "source_lineage_refs" in payload and not _sequence(payload.get("source_lineage_refs")):
         raise ValueError("validated local model requires source lineage refs")
     if "method_lineage_refs" in payload and not _sequence(payload.get("method_lineage_refs")):

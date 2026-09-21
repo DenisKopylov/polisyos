@@ -21,15 +21,11 @@ from polisyos.data_forge.kernel.schemas import (
 from polisyos.data_forge.kernel.schemas.evolution import (
     SchemaEvolutionRule as EvolutionSchemaEvolutionRule,
 )
-from polisyos.data_forge.kernel.schemas.migrations import (
-    SchemaMigrationPlan as MigrationSchemaMigrationPlan,
-    SchemaMigrationRegistry as MigrationSchemaMigrationRegistry,
-)
-from polisyos.data_forge.kernel.schemas.registry import (
-    CompatibilityMode as RegistryCompatibilityMode,
-    SchemaRegistry as RegistrySchemaRegistry,
-    SchemaVersion as RegistrySchemaVersion,
-)
+from polisyos.data_forge.kernel.schemas.migrations import SchemaMigrationPlan as MigrationSchemaMigrationPlan
+from polisyos.data_forge.kernel.schemas.migrations import SchemaMigrationRegistry as MigrationSchemaMigrationRegistry
+from polisyos.data_forge.kernel.schemas.registry import CompatibilityMode as RegistryCompatibilityMode
+from polisyos.data_forge.kernel.schemas.registry import SchemaRegistry as RegistrySchemaRegistry
+from polisyos.data_forge.kernel.schemas.registry import SchemaVersion as RegistrySchemaVersion
 
 
 def test_dfk_01_canonical_schema_exports_preserve_registry_identity() -> None:

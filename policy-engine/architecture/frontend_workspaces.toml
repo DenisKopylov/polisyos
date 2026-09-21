@@ -18,13 +18,16 @@ package_json = "packages/runtime-api-client/package.json"
 lockfile = "pnpm-lock.yaml"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 public_entrypoints = [
-  "runtimeApiClient.ts",
-  "runtimeApiClient.js",
+  "canonicalRuntimeApiClient.ts",
+  "canonicalRuntimeApiClient.js",
 ]
 schema_inputs = ["schemas/runtime_api_v1.openapi.json"]
 generated_outputs = [
+  "types.ts",
   "runtimeApiClient.ts",
   "runtimeApiClient.js",
+  "canonicalRuntimeApiClient.ts",
+  "canonicalRuntimeApiClient.js",
 ]
 ignored_outputs = [
   "node_modules/",
@@ -77,12 +80,12 @@ path = "apps/runtime-reference-shell"
 owner = "team-runtime"
 package_json = "apps/runtime-reference-shell/package.json"
 lockfile = "pnpm-lock.yaml"
-source_of_truth = "packages/runtime-api-client/runtimeApiClient.js"
+source_of_truth = "packages/runtime-api-client/canonicalRuntimeApiClient.js"
 public_entrypoints = [
   "index.html",
   "app.js",
 ]
-schema_inputs = ["packages/runtime-api-client/runtimeApiClient.js"]
+schema_inputs = ["packages/runtime-api-client/canonicalRuntimeApiClient.js"]
 generated_outputs = []
 ignored_outputs = [
   "node_modules/",

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { RuntimeApiClient } from "./canonicalRuntimeApiClient.js";
+import { RuntimeApiClient as GeneratedCompatibilityRuntimeApiClient } from "./runtimeApiClient.js";
 
 function createClient(calls, payload = { ok: true }) {
   return new RuntimeApiClient({
@@ -72,6 +73,27 @@ test("batch POST methods forward request bodies to fetch", async () => {
   assert.equal(calls[1].url, "https://runtime.test/api/v1/runs/batch");
   assert.equal(calls[1].init.method, "POST");
   assert.equal(calls[1].init.body, JSON.stringify({ run_ids: ["run-1"] }));
+});
+
+test("raw generated client remains a compatibility artifact", async () => {
+  const calls = [];
+  const client = new GeneratedCompatibilityRuntimeApiClient({
+    baseUrl: "https://runtime.test/",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return Response.json({ ok: true });
+    },
+  });
+
+  await client.getArtifactBatch({ body: { artifact_ids: ["artifact-compat"] } });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://runtime.test/api/v1/artifacts/batch");
+  assert.equal(calls[0].init.method, "POST");
+  assert.equal(
+    calls[0].init.body,
+    JSON.stringify({ artifact_ids: ["artifact-compat"] }),
+  );
 });
 
 test("cycle board static operation forwards both complete replay identities", async () => {

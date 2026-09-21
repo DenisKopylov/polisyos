@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 OUTPUT_ROOT="${PROJECT_ROOT}"
+OPENAPI_FILE="${PROJECT_ROOT}/schemas/runtime_api_v1.openapi.json"
 
 while (($#)); do
   case "$1" in
@@ -18,6 +19,14 @@ while (($#)); do
       OUTPUT_ROOT="$2"
       shift 2
       ;;
+    --openapi)
+      if (($# < 2)); then
+        echo "--openapi requires a value" >&2
+        exit 2
+      fi
+      OPENAPI_FILE="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown argument: $1" >&2
       exit 2
@@ -29,7 +38,10 @@ if [[ "${OUTPUT_ROOT}" != /* ]]; then
   OUTPUT_ROOT="${PWD}/${OUTPUT_ROOT}"
 fi
 
-OPENAPI_FILE="schemas/runtime_api_v1.openapi.json"
+if [[ "${OPENAPI_FILE}" != /* ]]; then
+  OPENAPI_FILE="${PROJECT_ROOT}/${OPENAPI_FILE}"
+fi
+
 TYPES_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/types.ts"
 RUNTIME_TS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/runtimeApiClient.ts"
 RUNTIME_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/runtimeApiClient.js"
@@ -39,7 +51,8 @@ CANONICAL_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApi
 mkdir -p "$(dirname "${TYPES_OUT}")"
 cd "${PROJECT_ROOT}"
 
-npx --yes openapi-typescript@7.13.0 "${OPENAPI_FILE}" -o "${TYPES_OUT}"
+corepack pnpm --dir "${PROJECT_ROOT}/packages/runtime-api-client" exec \
+  openapi-typescript "${OPENAPI_FILE}" -o "${TYPES_OUT}"
 node packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs \
   --types "${TYPES_OUT}"
 PYTHONPATH=src:. "${PROJECT_ROOT}/.venv/bin/python" \

@@ -830,6 +830,8 @@ output_probe_command = [
   "run",
   "generate",
   "--",
+  "--openapi",
+  "schemas/runtime_api_v1.openapi.json",
   "--output-root",
   "{output_root}",
 ]
@@ -868,6 +870,8 @@ output_probe_command = [
   "run",
   "generate:api",
   "--",
+  "--openapi",
+  "schemas/runtime_api_v1.openapi.json",
   "--output-root",
   "{output_root}",
 ]

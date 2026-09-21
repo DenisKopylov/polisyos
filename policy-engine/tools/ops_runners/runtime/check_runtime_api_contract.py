@@ -83,12 +83,10 @@ def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines:
     return violations
 
 
-def _check_runtime_client_drift(*, repo_root: Path) -> list[str]:
+def _check_runtime_client_drift(*, repo_root: Path, openapi_path: Path) -> list[str]:
     generator = repo_root / "tools" / "ops_runners" / "runtime" / "generate_runtime_client.py"
     committed_ts = repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts"
     committed_js = repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.js"
-    openapi = repo_root / "schemas" / "runtime_api_v1.openapi.json"
-
     violations: list[str] = []
     with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as tmp_dir_name:
         tmp_dir = Path(tmp_dir_name)
@@ -99,7 +97,7 @@ def _check_runtime_client_drift(*, repo_root: Path) -> list[str]:
                 sys.executable,
                 str(generator),
                 "--openapi",
-                str(openapi),
+                str(openapi_path),
                 "--out-ts",
                 str(tmp_ts),
                 "--out-js",
@@ -136,7 +134,9 @@ def main() -> int:
         max_diff_lines=args.max_diff_lines,
     )
     if not args.skip_client_drift:
-        violations.extend(_check_runtime_client_drift(repo_root=repo_root))
+        violations.extend(
+            _check_runtime_client_drift(repo_root=repo_root, openapi_path=openapi_path)
+        )
 
     if violations:
         print("Runtime API contract check FAILED:")

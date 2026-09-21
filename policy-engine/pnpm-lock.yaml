@@ -471,6 +471,9 @@ importers:
       globals:
         specifier: ^17.4.0
         version: 17.6.0
+      openapi-typescript:
+        specifier: 7.13.0
+        version: 7.13.0(typescript@5.9.3)
       prettier:
         specifier: ^3.8.1
         version: 3.8.3

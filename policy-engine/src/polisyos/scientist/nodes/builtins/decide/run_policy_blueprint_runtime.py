@@ -669,6 +669,9 @@ class RunPolicyBlueprintRuntimeNode:
                 calibration_report,
             ),
             "funnel_degradation_mode": degradation_mode,
+            # Ephemeral runtime permission; the owner callback rechecks the
+            # evidence/candidate/run binding immediately before the write path.
+            "promotion_write_allowed": degradation_mode == "normal",
             "promotion_evidence_bundle_ref": evidence_ref,
             "calibration_report_ref": calibration_ref,
             "calibration_report": calibration_report,
@@ -1106,7 +1109,7 @@ def _resolve_runtime_correlation_metrics(
             sample_count = int(raw_sample_count) if raw_sample_count is not None else None
         except (TypeError, ValueError):
             sample_count = None
-        if sample_count == 0:
+        if sample_count is None or sample_count <= 0:
             # Preserve the existing projection, but do not let an old
             # ``normal`` default turn an empty corpus into measured health.
             metrics["calibration_state"] = "not_established"
@@ -1118,12 +1121,20 @@ def _resolve_runtime_correlation_metrics(
     if calibration_report is None:
         return {}
     metrics = dict(getattr(calibration_report, "routing_health", {}) or {})
-    sample_count = int(metrics.get("sample_count", 0) or 0)
-    metrics.setdefault("promotion_ban_active", False)
-    metrics["calibration_state"] = "not_established" if sample_count == 0 else "observed"
-    metrics["routing_mode"] = str(
-        getattr(calibration_report, "current_mode", None) or "no_promotion"
-    )
+    try:
+        sample_count = int(metrics.get("sample_count", 0) or 0)
+    except (TypeError, ValueError):
+        sample_count = 0
+    if sample_count <= 0:
+        metrics["calibration_state"] = "not_established"
+        metrics["promotion_ban_active"] = False
+        metrics["routing_mode"] = "no_promotion"
+    else:
+        metrics["calibration_state"] = "observed"
+        metrics.setdefault("promotion_ban_active", False)
+        metrics["routing_mode"] = str(
+            getattr(calibration_report, "current_mode", None) or "no_promotion"
+        )
     return metrics
 
 
@@ -2037,7 +2048,7 @@ def _policy_promotion_owner_recheck(
         "auto_cap",
     }:
         return False
-    if context.get("promotion_write_allowed") is False:
+    if context.get("promotion_write_allowed") is not True:
         return False
     context_candidate_ref = context.get("policy_candidate_ref")
     if isinstance(context_candidate_ref, ArtifactRef) and context_candidate_ref != candidate_ref:

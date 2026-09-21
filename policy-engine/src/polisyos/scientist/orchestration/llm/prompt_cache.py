@@ -288,7 +288,9 @@ class CachingLLMClient:
         )
         if reason is not None:
             _record_cache_skip(self._cache, reason)
-            return await _maybe_await(self._client.generate(*args, **kwargs))
+            return await _maybe_await(
+                self._client.generate(*args, **_provider_kwargs(kwargs))
+            )
 
         cache_key = compute_cache_key(
             prompt=args[0] if args else kwargs.get("prompt"),

@@ -27,7 +27,8 @@ def run():
           ('missing_late_amendment','source/amendment_index.json',lambda r:json_change(r,'source/amendment_index.json',lambda x:x.pop(2)),'Late amendments'),
           ('dependency_cycle','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:next(b for b in x['bundles'] if b['id']=='CYC-01')['depends_on'].append('CYC-02')),'cycle'),
           ('source_changed','source/LA_r09_original.md',lambda r:(r/'source/LA_r09_original.md').write_bytes((r/'source/LA_r09_original.md').read_bytes()+b'\nCHANGED\n'),'source integrity'),
-          ('excess_parallel_tests','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('light_max_jobs',8)),'Mac resource'),
+          ('excess_parallel_tests','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('max_resource_processes',8)),'Mac resource'),
+          ('excess_weighted_budget','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('light_equivalent_budget',8)),'Mac resource'),
           ('DDM_schema_protection_removed','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:[b['protected_controls'].remove('LK35') for b in x['bundles'] if 'LK35' in b['protected_controls']]),'Protected LK'),
           ('move_target_not_leased','relocation_map.json',lambda r:json_change(r,'relocation_map.json',lambda x:x['moves'][0]['proposed_target_paths'].append('policy-engine/src/polisyos/unleased_target.py')),'lease both'),
         ]
@@ -46,5 +47,8 @@ def run():
     result={'status':'PASS','scope':'verifier negative controls only','cases':report,'count':len(report),'PolicyOS_execution':False}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     return result
+
+def test_verifier_controls():
+    run()
 
 if __name__=='__main__':run()

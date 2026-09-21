@@ -61,10 +61,66 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require('LA-057' in bm['RUN-01']['legacy_cards'] and 'LA-045' in bm['REQ-01']['legacy_cards'], 'Exact cleanup owners lost')
     require(len(m['evolution']) == 8 and {e['source_direction'] for e in m['evolution']} == {f'S{x:02d}' for x in range(1,9)}, 'S directions not preserved')
     r = m['local_execution']
-    require(r['light_max_jobs'] == 2 and r['native_max_jobs'] == 1 and r['native_exclusive'] is True and r['checkpoint_exclusive'] is True and r['checkpoint_max_jobs'] == 1, 'Mac resource limits changed')
+    require(
+        r['light_max_jobs'] == 7
+        and r['light_equivalent_budget'] == 7
+        and r['max_resource_processes'] == 7
+        and r['native_max_jobs'] == 1
+        and r['native_exclusive'] is True
+        and r['n_c_exclusive'] is True
+        and r['checkpoint_exclusive'] is True
+        and r['checkpoint_max_jobs'] == 1
+        and r['ready_buffer_min'] == 5,
+        'Adaptive Mac resource policy changed',
+    )
     require(r['routine_load_polling'] is False and r['parallel_installs'] is False, 'Monitoring/install anti-pattern introduced')
-    require((r['implementers'],r['reviewers'],r['integrators'],r['default_luna']) == (9,3,2,14), 'Default team mismatch')
-    require(r['modes'] == {'12':[8,2,2],'14':[9,3,2],'16':[10,4,2]}, 'Team ranges mismatch')
+    require(
+        r['requested_direct_workers'] == 15
+        and r['executor_min'] == 8
+        and r['executor_max'] == 9
+        and r['reviewer_min'] == 3
+        and r['reviewer_max'] == 4
+        and r['runtime_cap_fallback'] is True
+        and r['ready_excludes_active'] is True
+        and r['single_queue_writer'] is True
+        and r['queue_writers'] == 1
+        and r['permit_release_after_cleanup_receipt'] is True
+        and r['immutable_request_admission'] is True
+        and r['review_releases_compute'] is True
+        and r['storage_reserve_gib'] >= 20
+        and r['resource_costs'] == {
+            'micro': 0.5,
+            'standard': 1,
+            'measured_medium_min': 2,
+            'measured_medium_max': 3,
+        }
+        and set(r['immutable_request_fields'])
+        == {
+            'executable', 'argv', 'cwd', 'worktree', 'code_sha',
+            'selectors', 'identities', 'timeout', 'class', 'cost',
+            'named_resources', 'output_root', 'basetemp',
+        },
+        'Adaptive admission invariants changed',
+    )
+    require(
+        (
+            r['executors'],
+            r['reviewers'],
+            r['preparers'],
+            r['brokers'],
+            r['integrators'],
+            r['direct_workers'],
+        )
+        == (8, 3, 2, 1, 1, 15),
+        'Adaptive team target mismatch',
+    )
+    require(
+        r['executor_min'] <= r['executors'] <= r['executor_max']
+        and r['reviewer_min'] <= r['reviewers'] <= r['reviewer_max']
+        and r['executors'] + r['reviewers'] + r['preparers'] + r['brokers'] + r['integrators']
+        == r['requested_direct_workers'],
+        'Elastic staffing projection mismatch',
+    )
     graph = {b['id']: b['depends_on'] for b in bundles}
     require(all(x in bm for deps in graph.values() for x in deps), 'Unknown dependency')
     try:

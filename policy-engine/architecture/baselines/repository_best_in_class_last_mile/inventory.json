@@ -2523,8 +2523,8 @@
   "summary": {
     "finding_count": 26,
     "needs_review_count": 8,
-    "not_observed_count": 7,
-    "observed_count": 11,
+    "not_observed_count": 8,
+    "observed_count": 10,
     "path_count": 305
   }
 }

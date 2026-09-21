@@ -5,8 +5,15 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
+import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 
@@ -34,8 +41,31 @@ def _synthetic_artifact_id(index: int) -> ArtifactID:
     return ArtifactID.from_sha256_hex(f"{index:064x}")
 
 
+def _assert_manifest_profile(
+    manifest: ArtifactManifest,
+    options: PutOptions,
+    *,
+    data: bytes,
+) -> None:
+    """Assert every persisted write-option field, not only the ref projection."""
+    assert manifest.kind == options.kind
+    assert manifest.media_type == options.media_type
+    assert manifest.byte_size == len(data)
+    assert manifest.artifact_schema == options.schema
+    assert manifest.canon == options.canon
+    assert manifest.inputs == list(options.inputs or [])
+    assert manifest.producer == options.producer
+    assert manifest.env == options.env
+    assert manifest.governance == options.governance
+    assert manifest.tenant_context == options.tenant_context
+    assert manifest.same_input_closure == options.same_input_closure
+    assert manifest.authority == options.authority
+    assert manifest.integrity.sha256 == manifest.artifact_id.hex
+    assert manifest.warnings == []
+
+
 def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path) -> None:
-    """A content hit cannot claim a second persisted kind or provenance profile."""
+    """A content hit cannot silently discard a second schema or producer profile."""
     store = FileSystemCAS(tmp_path / "cas")
     first_options = _options(
         "cas.first_writer",
@@ -44,8 +74,8 @@ def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path
         schema_name="cas.first.v1",
     )
     second_options = _options(
-        "cas.second_writer",
-        "text/plain",
+        "cas.first_writer",
+        "application/json",
         producer_version="second",
         schema_name="cas.second.v1",
     )
@@ -53,19 +83,11 @@ def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path
     first_ref = store.put_bytes(PAYLOAD, first_options)
     first_manifest = store.get_manifest(first_ref.artifact_id)
 
-    try:
-        second_ref = store.put_bytes(PAYLOAD, second_options)
-    except ValueError as exc:
-        # An explicit profile conflict is an allowed fail-closed outcome.
-        detail = str(exc).casefold()
-        assert "profile" in detail or "manifest" in detail
-    else:
-        assert (second_ref.kind, second_ref.media_type) == (
-            first_manifest.kind,
-            first_manifest.media_type,
-        )
+    with pytest.raises(ValueError):
+        store.put_bytes(PAYLOAD, second_options)
 
-    # Content identity does not authorize rewriting the first writer's provenance.
+    _assert_manifest_profile(first_manifest, first_options, data=PAYLOAD)
+    # Content identity does not authorize rewriting the complete first manifest.
     assert store.get_manifest(first_ref.artifact_id) == first_manifest
 
 
@@ -110,47 +132,80 @@ def test_existing_corrupt_blob_is_not_confirmed_by_successful_retry(tmp_path: Pa
 def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
     tmp_path: Path,
 ) -> None:
-    """Concurrent same-content writers cannot return mutually inconsistent refs."""
+    """Concurrent same-content writers cannot discard the first schema or producer."""
     store = FileSystemCAS(tmp_path / "cas")
-    options = (
-        _options("cas.concurrent_a", "application/json", producer_version="a"),
-        _options("cas.concurrent_b", "text/plain", producer_version="b"),
+    first_options = _options(
+        "cas.concurrent",
+        "application/json",
+        producer_version="first",
+        schema_name="cas.concurrent.first.v1",
     )
-    barrier = threading.Barrier(len(options))
+    second_options = _options(
+        "cas.concurrent",
+        "application/json",
+        producer_version="second",
+        schema_name="cas.concurrent.second.v1",
+    )
+    first_blob_write_started = threading.Event()
+    release_first_blob_write = threading.Event()
+    second_writer_started = threading.Event()
     outcome_guard = threading.Lock()
-    outcomes: list[ArtifactRef | Exception] = []
+    outcomes: dict[str, ArtifactRef | Exception] = {}
 
-    def _writer(write_options: PutOptions) -> None:
+    original_write_once = store._files.write_once
+
+    def _gated_write_once(path: Path, data: bytes) -> bool:
+        if path.suffix == ".blob" and threading.current_thread().name == "cas-first":
+            first_blob_write_started.set()
+            release_first_blob_write.wait(timeout=5)
+        return original_write_once(path, data)
+
+    store._files.write_once = _gated_write_once  # type: ignore[method-assign]
+
+    def _writer(name: str, write_options: PutOptions, started: threading.Event) -> None:
+        started.set()
         try:
-            barrier.wait(timeout=5)
             result = store.put_bytes(PAYLOAD, write_options)
         except Exception as exc:  # pragma: no cover - asserted through outcomes below
             result = exc
         with outcome_guard:
-            outcomes.append(result)
+            outcomes[name] = result
 
-    threads = [threading.Thread(target=_writer, args=(item,), daemon=True) for item in options]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join(timeout=5)
-
-    assert all(not thread.is_alive() for thread in threads)
-    assert len(outcomes) == len(options)
-    successes = [item for item in outcomes if isinstance(item, ArtifactRef)]
-    failures = [item for item in outcomes if isinstance(item, Exception)]
-    assert successes
-    assert all(isinstance(item, ValueError) for item in failures)
-
-    artifact_id = successes[0].artifact_id
-    manifest = store.get_manifest(artifact_id)
-    assert all(
-        (item.kind, item.media_type) == (manifest.kind, manifest.media_type)
-        for item in successes
+    first_thread_started = threading.Event()
+    first_thread = threading.Thread(
+        target=_writer,
+        args=("cas-first", first_options, first_thread_started),
+        name="cas-first",
+        daemon=True,
     )
-    assert (manifest.kind, manifest.media_type) in {
-        (item.kind, item.media_type) for item in options
-    }
+    second_thread = threading.Thread(
+        target=_writer,
+        args=("cas-second", second_options, second_writer_started),
+        name="cas-second",
+        daemon=True,
+    )
+    first_thread.start()
+    try:
+        assert first_thread_started.wait(timeout=2)
+        assert first_blob_write_started.wait(timeout=2)
+        second_thread.start()
+        assert second_writer_started.wait(timeout=2)
+    finally:
+        release_first_blob_write.set()
+    first_thread.join(timeout=5)
+    second_thread.join(timeout=5)
+
+    assert not first_thread.is_alive()
+    assert not second_thread.is_alive()
+    assert set(outcomes) == {"cas-first", "cas-second"}
+    assert isinstance(outcomes["cas-first"], ArtifactRef)
+    assert isinstance(outcomes["cas-second"], ValueError)
+
+    first_ref = outcomes["cas-first"]
+    assert isinstance(first_ref, ArtifactRef)
+    artifact_id = first_ref.artifact_id
+    manifest = store.get_manifest(artifact_id)
+    _assert_manifest_profile(manifest, first_options, data=PAYLOAD)
 
 
 def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path) -> None:

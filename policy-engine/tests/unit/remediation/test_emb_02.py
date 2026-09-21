@@ -10,8 +10,12 @@ import duckdb
 import numpy as np
 import pytest
 
+from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.embedder import (
     build_hnsw_index as build_academic_hnsw_index,
+)
+from polisyos.data_forge.domains.academic.batch.publish import (
+    run_publish as run_academic_publish,
 )
 from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
@@ -165,6 +169,7 @@ def test_failed_generation_keeps_previous_selection_and_generation_intact(
     assert _selector(index_dir) == before
     assert (before_generation / "inventory.json").read_bytes() == before_inventory
 
+    monkeypatch.setattr(hnswlib, "Index", real_index)
     store = ScholarKnowledgeStore(db_path, index_dir)
     try:
         store._load_work_index()
@@ -210,6 +215,14 @@ def test_empty_build_selects_typed_empty_generation_without_reusing_old_files(
     assert not (
         index_dir / "embedding_generations" / str(selector["generation_id"]) / "index.hnsw"
     ).exists()
+
+    store = ScholarKnowledgeStore(empty_db, index_dir)
+    try:
+        store._load_work_index()
+        assert store._work_index is None
+        assert store._work_ids is None
+    finally:
+        store.close()
 
 
 def test_model_revision_selects_new_generation_and_keeps_id_vector_binding(
@@ -312,6 +325,34 @@ def test_reader_fails_closed_when_selected_generation_member_is_missing(
     selector = _selector(index_dir)
     generation_dir = index_dir / "embedding_generations" / str(selector["generation_id"])
     (generation_dir / "index.hnsw").unlink()
+
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        store._load_work_index()
+        assert store._work_index is None
+        assert store._work_ids is None
+    finally:
+        store.close()
+
+
+@pytest.mark.parametrize("member_name", ["basis.json", "ids.json"])
+def test_reader_fails_closed_when_selected_generation_member_is_tampered(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, member_name: str
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "academic.duckdb"
+    index_dir = tmp_path / "academic"
+    index_dir.mkdir()
+    _prepare_db(db_path, [("a-1", "First", "a")])
+    build_academic_hnsw_index(
+        db_path=db_path,
+        index_dir=index_dir,
+        embedding_model="fake-model@v1",
+        embedding_dimension=4,
+    )
+    selector = _selector(index_dir)
+    generation_dir = index_dir / "embedding_generations" / str(selector["generation_id"])
+    (generation_dir / member_name).write_text("{}\n", encoding="utf-8")
 
     store = ScholarKnowledgeStore(db_path, index_dir)
     try:
@@ -431,11 +472,77 @@ def test_catalog_reader_and_publish_manifest_bind_to_selected_inventory(
     store = DatasetCatalogStore(config.db_path, config.index_dir)
     try:
         assert store.has_vector_index() is True
+        selector = _selector(config.index_dir)
+        generation_dir = config.index_dir / "embedding_generations" / str(selector["generation_id"])
+        with np.load(generation_dir / "embeddings.npz", allow_pickle=True) as payload:
+            query_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+        results = store.search_by_vector(query_vector, top_k=1, min_similarity=0.0)
+        assert [result.id for result in results] == ["ds-1"]
     finally:
         store.close()
 
     _write_catalog_publish_inputs(config)
     manifest_path = run_publish(config)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    selector = _selector(config.index_dir)
+    generation_id = str(selector["generation_id"])
+    assert manifest["extra"]["embedding_generation"]["generation_id"] == generation_id
+    assert any(
+        f"embedding_generations/{generation_id}/inventory.json" in item["path"]
+        for item in manifest["artifacts"]
+    )
+
+
+def test_catalog_empty_generation_reader_does_not_reuse_legacy_files(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "catalog.duckdb"
+    index_dir = tmp_path / "catalog"
+    index_dir.mkdir()
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "CREATE TABLE ds_datasets ("
+            "id VARCHAR, title VARCHAR, description VARCHAR, "
+            "keywords VARCHAR[], variables VARCHAR[])"
+        )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+
+    assert (
+        build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_dimension=4,
+        )
+        == 0
+    )
+
+    store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        assert store.has_vector_index() is False
+        assert store.search_by_vector(np.ones(4, dtype=np.float32)) == []
+    finally:
+        store.close()
+
+
+def test_academic_publish_manifest_binds_to_selected_generation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snapshot")
+    config.db_path.parent.mkdir(parents=True, exist_ok=True)
+    config.index_dir.mkdir(parents=True, exist_ok=True)
+    _prepare_db(config.db_path, [("a-1", "First", "a")])
+    build_academic_hnsw_index(
+        db_path=config.db_path,
+        index_dir=config.index_dir,
+        embedding_model="fake-model@v1",
+        embedding_dimension=4,
+    )
+
+    manifest_path = run_academic_publish(config)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     selector = _selector(config.index_dir)
     generation_id = str(selector["generation_id"])

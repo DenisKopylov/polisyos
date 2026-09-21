@@ -40,6 +40,8 @@ from polisyos.data_forge.domains.ukraine.resources import (
     write_stage_metrics,
 )
 from polisyos.data_forge.domains.ukraine.server import (
+    BootstrapScriptRenderer,
+    PartAGateRunner,
     assert_server_execution_allowed,
     build_bootstrap_script,
     probe_local_server_capabilities,
@@ -82,6 +84,23 @@ def load_pipeline_config(
     return payload
 
 
+def _discover_workspace_root() -> Path | None:
+    """Find the checked-out product root for source-tree execution.
+
+    A wheel installation intentionally has no repository checkout.  Returning
+    ``None`` there lets the Part A gate emit a typed ``unavailable`` result
+    instead of guessing from a package directory's parent depth.
+    """
+
+    for candidate in Path(__file__).resolve().parents:
+        if (
+            (candidate / "pyproject.toml").is_file()
+            and (candidate / "src" / "polisyos").is_dir()
+        ):
+            return candidate
+    return None
+
+
 class UkraineDataOrchestrator:
     """Server-only, resumable orchestration facade for Part B stages."""
 
@@ -90,12 +109,22 @@ class UkraineDataOrchestrator:
         config: PipelineConfig | None = None,
         *,
         repo_root: Path | None = None,
+        workspace_root: Path | None = None,
         adapter_registry: dict[str, Any] | None = None,
+        part_a_gate_runner: PartAGateRunner | None = None,
+        bootstrap_script_renderer: BootstrapScriptRenderer | None = None,
     ) -> None:
+        if repo_root is not None and workspace_root is not None and repo_root != workspace_root:
+            raise ValueError("repo_root and workspace_root must refer to the same path")
         self.config = config or build_default_pipeline_config()
-        self.repo_root = repo_root or Path(__file__).resolve().parents[3]
+        self.workspace_root = workspace_root or repo_root or _discover_workspace_root()
+        # ``repo_root`` remains a compatibility alias for existing callers and
+        # receipts; new composition code should use the explicit name.
+        self.repo_root = self.workspace_root
         self.adapter_registry = adapter_registry or build_default_adapter_registry()
         self.source_ctx = SourceExecutionContext(self.config.build_root)
+        self.part_a_gate_runner = part_a_gate_runner
+        self.bootstrap_script_renderer = bootstrap_script_renderer
 
     def ensure_layout(self) -> None:
         build_root = self.config.build_root
@@ -121,8 +150,9 @@ class UkraineDataOrchestrator:
     def write_bootstrap_script(self) -> Path:
         self.ensure_layout()
         path = self.bootstrap_script_path()
+        renderer = self.bootstrap_script_renderer or build_bootstrap_script
         path.write_text(
-            build_bootstrap_script(self.config.server, self.config.build_root),
+            renderer(self.config.server, self.config.build_root),
             encoding="utf-8",
         )
         path.chmod(0o755)
@@ -402,7 +432,11 @@ class UkraineDataOrchestrator:
         self.ensure_layout()
         tracker = ResourceTracker(self.config.build_root.root)
         started_at = utc_now_iso()
-        gate = run_part_a_gate(self.config.server, self.repo_root)
+        gate = run_part_a_gate(
+            self.config.server,
+            self.workspace_root,
+            runner=self.part_a_gate_runner,
+        )
         gate_path = write_manifest(self.config.build_root.part_a_gate_manifest_path, gate)
         manifest = BuildRunManifest(
             run_id=f"{StageId.VALIDATE_PART_A.value}_{int(time.time())}",

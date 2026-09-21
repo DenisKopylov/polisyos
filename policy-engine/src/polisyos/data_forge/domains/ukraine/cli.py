@@ -38,6 +38,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override build root for manifests and artifacts.",
     )
+    parser.add_argument(
+        "--workspace-root",
+        type=Path,
+        default=None,
+        help="Repository checkout used for server-only gates; distinct from --root.",
+    )
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -85,7 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     config = load_pipeline_config(args.config, root=args.root)
-    orchestrator = UkraineDataOrchestrator(config)
+    orchestrator = UkraineDataOrchestrator(config, workspace_root=args.workspace_root)
 
     if args.command == "bootstrap-server":
         summary = orchestrator.bootstrap_server(write_capabilities=args.write_capabilities)

@@ -1,0 +1,34 @@
+id = "2026-09-21-mig-02-manifest-path-rewrite"
+title = "Preserve RunManifest artifact identity during path-only migration"
+type = "fixed"
+component = "runtime"
+owner = "team-runtime"
+summary = "RunManifest migration now resolves artifact references against the declared run_root, preserves nested paths, and fails closed before publication when identity cannot be established."
+evidence = [
+  "tests/unit/remediation/test_mig_02.py",
+  "src/polisyos/runtime/manifest_migrations.py",
+  "ops/migrations/runtime_state/README.md",
+]
+compatibility = "Path-only normalization remains compatible with historical schema-1.0 manifests when their artifact sources are present under run_root. Missing, escaping, conflicting, or external references now receive an explicit failure instead of basename substitution."
+change_class = "runtime-state-format"
+surface_classification = "internal: polisyos.runtime persisted RunManifest and operator migration CLI"
+migration = "Use the canonical run_manifest migration with its declared run_root. Treat a typed rejection as an unresolved source identity; do not infer a basename or copy an external file. Version changes require a separate reviewed profile because --to is rejected by the path-only command."
+limitations = "This change does not relocate files, migrate user runs in place, or provide a versioned RunManifest schema converter. Existing historical inputs are not rewritten automatically; each output is published to the requested destination only after complete preflight."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["ops/migrations/runtime_state/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "run-manifest-path-only-identity"
+change_class = "runtime-state-format"
+impact = "compatible_with_migration"
+surface = "internal: persisted RunManifest artifact references and migration CLI"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "Historical manifests remain readable; path-only output is opt-in via the migration CLI."
+release_note = "RunManifest path normalization preserves nested artifact identity under run_root and rejects missing, escaping, conflicting, or external references instead of guessing a basename."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["ops/migrations/runtime_state/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]

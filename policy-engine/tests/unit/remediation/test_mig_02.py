@@ -161,12 +161,12 @@ def test_repeated_migration_preserves_bytes_and_is_idempotent(tmp_path: Path) ->
 
     assert canonical_main(["run_manifest", str(input_path), str(first_output)]) == 0
     first_bytes = first_output.read_bytes()
-    migrated = _read_manifest(first_output)
-    assert migrated["run_root"] == str(run_root)
-    assert migrated["artifacts"][0]["relative_path"] == "sub/data.json"
 
     assert canonical_main(["run_manifest", str(first_output), str(second_output)]) == 0
     assert second_output.read_bytes() == first_bytes
+    migrated = _read_manifest(second_output)
+    assert migrated["run_root"] == str(run_root)
+    assert migrated["artifacts"][0]["relative_path"] == "sub/data.json"
 
 
 def test_path_only_run_manifest_rejects_explicit_target_version(tmp_path: Path) -> None:
@@ -210,8 +210,8 @@ def test_path_only_does_not_copy_external_file_implicitly(tmp_path: Path) -> Non
     assert not (run_root / external.name).exists()
 
 
-def test_external_same_basenames_are_not_collapsed_into_one_reference(tmp_path: Path) -> None:
-    """Distinct external objects with one basename cannot share one migrated path."""
+def test_external_paths_fail_closed_without_implicit_copy(tmp_path: Path) -> None:
+    """Distinct external objects are rejected rather than copied or relabeled."""
     run_root = tmp_path / "run-root"
     first = tmp_path / "external-a" / "data.json"
     second = tmp_path / "external-b" / "data.json"

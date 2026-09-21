@@ -26,6 +26,7 @@ from polisyos.common.migrations import (
     migrate_artifact as migrate_common_artifact,
 )
 from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION, migrate_policy_ir
+from polisyos.runtime.manifest_migrations import migrate_run_manifest_paths
 from tools.ops_runners.migrations.contracts import validate_helper_binding
 
 
@@ -64,29 +65,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     data, fmt = _load(args.input)
     if args.artifact == "run_manifest":
-        # Convert absolute paths to relative and attach run_root
-        manifest_dir = args.input.parent
-        base_dir = manifest_dir.parent
-        artifacts = data.get("artifacts", [])
-        if not isinstance(artifacts, list):
-            raise ValueError("run_manifest artifacts must be a list")
-        new_artifacts = []
-        for art in artifacts:
-            if not isinstance(art, dict):
-                raise ValueError("run_manifest artifact entries must be objects")
-            path_val = art.get("path")
-            rel = art.get("relative_path")
-            if rel is None and path_val:
-                try:
-                    rel_path = str(Path(path_val).relative_to(base_dir))
-                except ValueError:
-                    rel_path = Path(path_val).name
-                art["relative_path"] = rel_path
-                art["path"] = rel_path
-            new_artifacts.append(art)
-        data["artifacts"] = new_artifacts
-        data.setdefault("run_root", str(base_dir))
-        _dump(args.output, data, fmt)
+        migrated = migrate_run_manifest_paths(
+            data,
+            manifest_path=args.input,
+            target_version=args.target_version,
+        )
+        _dump(args.output, migrated, fmt)
         return 0
 
     if args.target_version:

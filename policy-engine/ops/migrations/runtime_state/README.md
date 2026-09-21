@@ -41,3 +41,19 @@ persisted state require owner approval before destructive cleanup.
 `ops/release/promotion-gates.toml#runtime_state_migration_review` blocks
 runtime-state format promotion unless the changed slot has current guidance and
 `docs/runbooks/migration-release-promotion.md` covers the operator action.
+
+## RunManifest path migration
+
+`polisyos-tools migrations migrate run_manifest` is a path-only normalization
+profile. It resolves each artifact against the persisted `run_root`, preserves
+nested relative identity, and publishes the converted manifest atomically only
+after every artifact reference has been checked. Missing sources, broken or
+escaping symlinks, path/relative-path identity conflicts, and absolute paths
+outside `run_root` fail closed without changing the requested output.
+
+The profile rejects `--to` with a typed error because it has no versioned
+RunManifest schema conversion. It never copies external files implicitly; an
+explicit relocation profile must be selected and reviewed before any such
+operation. Existing manifests and historical bytes remain untouched because
+the CLI writes a separate output path. Re-running the path-only profile is
+idempotent for the canonical path representation.

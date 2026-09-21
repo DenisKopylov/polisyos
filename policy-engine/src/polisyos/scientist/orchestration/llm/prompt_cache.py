@@ -646,6 +646,14 @@ def _normalize_cache_metadata(value: Any) -> Any:
                     )
                     for key, item in value.items()
                 }
+            return {
+                str(key): (
+                    _normalize_invalid_reuse_context(item)
+                    if key == "cache_reuse"
+                    else _normalize_cache_metadata(item)
+                )
+                for key, item in value.items()
+            }
         return {
             str(key): _normalize_cache_metadata(item) for key, item in value.items()
         }
@@ -656,6 +664,24 @@ def _normalize_cache_metadata(value: Any) -> Any:
     if isinstance(value, (bytes, bytearray, memoryview)):
         return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
     return value
+
+
+def _normalize_invalid_reuse_context(value: Any) -> Any:
+    """Strip non-JSON snapshot bytes from a rejected reuse proof."""
+
+    if not isinstance(value, Mapping):
+        return _normalize_cache_metadata(value)
+    normalized: dict[str, Any] = {}
+    for key, item in value.items():
+        if key == "snapshot" and isinstance(item, Mapping):
+            normalized[str(key)] = {
+                str(snapshot_key): _normalize_cache_metadata(snapshot_value)
+                for snapshot_key, snapshot_value in item.items()
+                if snapshot_key != "content"
+            }
+        else:
+            normalized[str(key)] = _normalize_cache_metadata(item)
+    return normalized
 
 
 def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse:

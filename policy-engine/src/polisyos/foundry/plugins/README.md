@@ -28,6 +28,8 @@ under `examples/extensions/foundry_method/`.
 - [discovery.py](discovery.py) for built-in and entry-point plugin discovery.
 - [api.py](api.py) for `PolisySimulator`, simulation config, and high-level run
   / train / visualize flows.
+- [training_adapter.py](training_adapter.py) for the bounded Economics bridge to
+  the native agent-sim trainer.
 
 - [composite.py](composite.py) for cross-domain state and executor wiring.
 - [economics/plugin.py](economics/plugin.py) for the built-in reference plugin.

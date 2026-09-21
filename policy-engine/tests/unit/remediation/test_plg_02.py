@@ -17,21 +17,24 @@ from polisyos.foundry.plugins.economics import EconomicsPlugin
 
 @pytest.fixture
 def simulator() -> PolisySimulator:
-    """Build a real composite simulator with no compatible trainer adapter."""
+    """Build a composite with labor-market training intentionally unsupported."""
 
     registry = PluginRegistry()
     registry.clear()
     registry.register(EconomicsPlugin())
     return PolisySimulator(registry, auto_discover=False).add_domain(
         "economics",
-        DomainConfig(n_agents=10),
+        DomainConfig(
+            n_agents=10,
+            enabled_mechanisms=("taxation", "transfers", "consumption", "savings"),
+        ),
     )
 
 
-def test_train_without_execution_adapter_is_typed_bridge_pending(
+def test_train_with_labor_market_disabled_is_typed_bridge_pending(
     simulator: PolisySimulator,
 ) -> None:
-    """Preserve rollout evaluation without claiming a learned policy or loss."""
+    """Preserve rollout evaluation for an unsupported composite profile."""
 
     rollout = simulator.run(n_steps=2, seed=7)
     result = simulator.train(
@@ -49,20 +52,34 @@ def test_train_without_execution_adapter_is_typed_bridge_pending(
     reason = getattr(result, "reason", None)
     assert reason is not None
     assert getattr(reason, "status", None) == "bridge_pending"
-    assert getattr(reason, "code", None) == "training_execution_adapter_missing"
+    assert getattr(reason, "code", None) == "training_composite_profile_unsupported"
     assert result.trained_policy is None
     assert result.loss_history == []
 
 
-def test_cmd_train_does_not_report_success_for_bridge_pending_training(
+def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """CLI output must expose the capability boundary, not fake completion metrics."""
+    """CLI exposes an unsupported labor-market profile without fake metrics."""
 
     config_path = tmp_path / "config.json"
     config_path.write_text(
-        json.dumps({"domains": {"economics": {"n_agents": 10}}}),
+        json.dumps(
+            {
+                "domains": {
+                    "economics": {
+                        "n_agents": 10,
+                        "enabled_mechanisms": [
+                            "taxation",
+                            "transfers",
+                            "consumption",
+                            "savings",
+                        ],
+                    }
+                }
+            }
+        ),
         encoding="utf-8",
     )
     output_dir = tmp_path / "output"
@@ -80,4 +97,4 @@ def test_cmd_train_does_not_report_success_for_bridge_pending_training(
     assert "Training complete!" not in output
     assert "Final loss:" not in output
     assert "bridge_pending" in output
-    assert "training_execution_adapter_missing" in output
+    assert "training_composite_profile_unsupported" in output

@@ -186,6 +186,9 @@ def _native_to_composite(
     """Project the complete native training state into EconomicState."""
 
     native_agents = state.agents
+    # AgentState has no wage or hours_worked fields.  The bounded temporal
+    # executor leaves savings_target and education_years untouched, so they
+    # provide lossless per-agent transport slots for the Economics bridge.
     economic_agents = EconomicAgentState(
         active=native_agents.active,
         age=native_agents.age,
@@ -196,7 +199,7 @@ def _native_to_composite(
         savings=native_agents.savings,
         employed=native_agents.employed,
         wage=native_agents.savings_target,
-        hours_worked=native_agents.hours_worked,
+        hours_worked=native_agents.education_years,
         discount_rate=native_agents.discount_factor,
         risk_aversion=native_agents.risk_aversion,
         consumption_preference=native_agents.consumption_target,
@@ -239,11 +242,10 @@ def _composite_to_native(state: CompositeState, template: GlobalState) -> Global
         consumption=economic_agents.consumption,
         savings=economic_agents.savings,
         employed=economic_agents.employed,
-        wage=economic_agents.wage,
-        hours_worked=economic_agents.hours_worked,
         discount_factor=economic_agents.discount_rate,
         risk_aversion=economic_agents.risk_aversion,
         consumption_target=economic_agents.consumption_preference,
+        education_years=economic_agents.hours_worked,
         savings_target=economic_agents.wage,
     )
     native_policy = template.policy.replace(
@@ -393,11 +395,10 @@ class EconomicsTrainingAdapter:
             consumption=economic_state.agents.consumption,
             savings=economic_state.agents.savings,
             employed=economic_state.agents.employed,
-            wage=economic_state.agents.wage,
-            hours_worked=economic_state.agents.hours_worked,
             discount_factor=economic_state.agents.discount_rate,
             risk_aversion=economic_state.agents.risk_aversion,
             consumption_target=economic_state.agents.consumption_preference,
+            education_years=economic_state.agents.hours_worked,
             savings_target=economic_state.agents.wage,
             expected_income_growth=jnp.full_like(
                 native.agents.expected_income_growth,

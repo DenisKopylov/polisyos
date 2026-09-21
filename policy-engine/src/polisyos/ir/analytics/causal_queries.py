@@ -309,7 +309,17 @@ class CausalQueryResult(BaseModel):
         source_version = str(payload["schema_version"])
         if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
             metadata = dict(payload.get("metadata") or {})
-            metadata.setdefault("source_schema_version", source_version)
+            claimed_source_version = metadata.get("source_schema_version")
+            if claimed_source_version is not None and claimed_source_version != source_version:
+                raise ValueError(
+                    "legacy causal query result provenance conflicts with its schema version: "
+                    f"payload={claimed_source_version}, expected={source_version}"
+                )
+            if metadata.get("source_schema_name") is not None:
+                raise ValueError(
+                    "legacy causal query result source schema name requires a CAS manifest"
+                )
+            metadata["source_schema_version"] = source_version
             payload["metadata"] = metadata
             payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
         return payload
@@ -490,6 +500,7 @@ def load_causal_query_result(
                     f"payload={claimed_schema_name}, manifest={authoritative_schema_name}"
                 )
             metadata["source_schema_name"] = authoritative_schema_name
+        normalized_payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
         normalized_payload["metadata"] = metadata
     return CausalQueryResult.model_validate(normalized_payload)
 

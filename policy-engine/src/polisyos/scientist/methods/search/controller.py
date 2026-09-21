@@ -376,6 +376,128 @@ class SearchController:
     def _sentinel_evaluations(self, value: int) -> None:
         self._run_state.sentinel_evaluations = value
 
+    def _prepare_service_run(self) -> None:
+        """Ensure the ask/tell bridge has one explicit run-state owner.
+
+        The compatibility ``run()`` path always starts a fresh state.  The
+        contract adapter, however, may receive several ask/tell transitions
+        before a full loop is invoked.  This small owner operation gives that
+        path a stable search identity and makes a later ask an explicit
+        continuation of the same state rather than an accidental new ledger.
+        """
+        if self._run_state.status in {None, SearchStatus.NOT_STARTED}:
+            self._run_state = SearchRunState(
+                search_id=str(uuid4())[:8],
+                status=SearchStatus.RUNNING,
+            )
+            self._config.stopping.reset()
+            self._reset_diversity_tracker(operation="prepare_service_run")
+            return
+        if self._run_state.status is not SearchStatus.RUNNING:
+            self._run_state.status = SearchStatus.RUNNING
+
+    def _accept_tell(
+        self,
+        *,
+        candidate: CandidatePayload,
+        objective_value: float,
+        objective_details: list[Any],
+        is_promising: bool,
+        stage_a_passed: bool,
+        stage_b_result: dict[str, Any],
+        duration_seconds: float,
+    ) -> SearchIteration:
+        """Accept one ask/tell result through the controller-owned transition.
+
+        This is an internal bridge for ``LegacySearchServiceAdapter``.  It
+        reuses the typed-evaluation resolver and frontier owner from the full
+        controller loop, preserving the distinction between absent and
+        malformed typed results (B123) without exposing private fields to the
+        adapter.
+        """
+        self._prepare_service_run()
+        policy_resolution = self._resolve_policy_evaluation_with_status(
+            candidate,
+            stage_b_result,
+        )
+        policy_evaluation = policy_resolution.value
+        effective_objective = float(objective_value)
+        effective_details: list[ObjectiveValue] = [
+            detail for detail in objective_details if isinstance(detail, ObjectiveValue)
+        ]
+        if policy_resolution.status == "invalid":
+            self._run_state.policy_evaluation_errors += 1
+            effective_objective = float("inf")
+            effective_details = []
+        elif policy_evaluation is not None:
+            effective_objective = policy_evaluation.legacy_scalar_proxy
+            effective_details = policy_evaluation.as_legacy_objectives()
+
+        is_sentinel = extract_sentinel_metadata(candidate) is not None
+        feedback = stage_b_result.get("feedback")
+        verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+        accepted = (
+            bool(is_promising)
+            and bool(stage_a_passed)
+            and policy_resolution.status != "invalid"
+            and (policy_evaluation is None or policy_evaluation.feasible)
+            and verdict == "APPROVE"
+        )
+        if stage_a_passed and not is_sentinel and policy_resolution.status != "invalid":
+            if effective_objective < self._best_objective:
+                self._best_objective = effective_objective
+                self._best_candidate = deepcopy(candidate)
+            if effective_details:
+                self._update_policy_or_legacy_frontier(
+                    candidate=candidate,
+                    objective_details=effective_details,
+                    policy_evaluation=policy_evaluation,
+                    stage_b_result=stage_b_result,
+                )
+
+        record = SearchIteration(
+            iteration=self._run_state.evaluation_iterations,
+            candidate=deepcopy(candidate),
+            objective_value=effective_objective,
+            objective_details=deepcopy(effective_details),
+            is_promising=accepted,
+            stage_a_passed=bool(stage_a_passed),
+            stage_b_result=deepcopy(stage_b_result),
+            duration_seconds=float(duration_seconds),
+            policy_evaluation=deepcopy(policy_evaluation),
+            policy_evaluation_status=policy_resolution.status,
+            policy_evaluation_error=policy_resolution.reason,
+        )
+        transition = _EvaluationTransition(
+            disposition=(
+                _EvaluationDisposition.SENTINEL
+                if is_sentinel
+                else _EvaluationDisposition.ORDINARY
+            ),
+            record=record,
+        )
+        self._run_state.apply_tell_transition(
+            transition,
+            stage_a_evaluated=True,
+        )
+        return record
+
+    def _service_tell_snapshot(self) -> dict[str, Any]:
+        """Return detached state feedback for the ask/tell compatibility bridge."""
+        snapshot = self._run_state.snapshot()
+        return {
+            "best_candidate": deepcopy(snapshot.best_candidate),
+            "best_objective": (
+                None
+                if snapshot.best_objective == float("inf")
+                else float(snapshot.best_objective)
+            ),
+            "history_length": snapshot.history_size,
+            "registry_update": {"search_id": snapshot.search_id},
+            "lesson_cards": [],
+            "frontier_delta": deepcopy(snapshot.pareto_front),
+        }
+
     @_non_reentrant_run
     def run(
         self,

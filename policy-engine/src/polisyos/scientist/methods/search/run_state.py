@@ -110,6 +110,24 @@ class SearchRunState:
         self.history.append(transition.record)
         self.evaluation_iterations += 1
 
+    def apply_tell_transition(
+        self,
+        transition: _EvaluationTransition,
+        *,
+        stage_a_evaluated: bool,
+    ) -> None:
+        """Apply one externally evaluated candidate through this state owner.
+
+        Ask/tell adapters report a completed Stage B evaluation rather than
+        invoking the controller's full loop.  Counters and history still enter
+        through the same transition owner used by ``SearchController.run``;
+        adapters must not maintain a second mutable ledger.
+        """
+        if stage_a_evaluated:
+            self.stage_a_evaluations += 1
+        self.stage_b_evaluations += 1
+        self.apply_evaluation_transition(transition)
+
     def snapshot(self) -> SearchRunState:
         """Return a deep snapshot that cannot be changed by a later run."""
         return deepcopy(self)

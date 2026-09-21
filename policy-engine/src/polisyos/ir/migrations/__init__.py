@@ -17,6 +17,7 @@ from polisyos.ir.migrations.base import (
 )
 from polisyos.ir.migrations.base import register_migration as _register_migration
 from polisyos.ir.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
+from polisyos.ir.trinity import TrinityBundle
 
 from . import schema_registry as _schema_registry  # noqa: F401
 
@@ -80,6 +81,15 @@ def migrate_policy_ir(
         raise ValueError(
             f"Major version change requires allow_major=True: {current_version} -> {target}"
         )
+
+    if current_version == target:
+        # The shared engine intentionally preserves its no-op identity and
+        # therefore cannot run the registered 1.0 -> 1.0 self-edge.  Validate
+        # the canonical payload at this public boundary before returning the
+        # unchanged mapping so a version field is never mistaken for Trinity
+        # admission.
+        TrinityBundle.model_validate(data)
+        return data
 
     return migrate_artifact(data, IR_ARTIFACT, target)
 

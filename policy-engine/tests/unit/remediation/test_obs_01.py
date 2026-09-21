@@ -238,3 +238,23 @@ def test_builder_facade_exports_only_the_declared_stage_surface() -> None:
         "date",
         "TimeFrequency",
     }.isdisjoint(builders.__all__)
+
+
+def test_legacy_runner_private_facade_aliases_remain_explicit_only() -> None:
+    """Ops-runner compatibility names remain available without public leakage."""
+    _, common, _, _, builders = _load_builder_surface()
+    compatibility_names = (
+        "_ensure_agent_numeric_columns",
+        "_extract_unresolved_identity_rows",
+        "_link_participants",
+        "_load_source_frame",
+        "_read_parquet_frame",
+        "_resolve_agent_lookup",
+        "_select_procurement_frame",
+        "_write_frame",
+        "_write_json",
+    )
+
+    for name in compatibility_names:
+        assert getattr(builders, name) is getattr(common, name)
+        assert name not in builders.__all__

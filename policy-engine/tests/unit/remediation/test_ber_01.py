@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,7 @@ from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
 from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
+from polisyos.berl.metrics.empirical_bounds import adjust_confidence_for_union
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -326,6 +327,52 @@ def test_effective_request_changes_keep_model_and_background_distinct() -> None:
     assert zero_result.attributions != changed_model_result.attributions
 
 
+def test_orchestrator_cache_key_includes_model_background_and_adapter_parameters() -> None:
+    orchestrator = ExplanationOrchestrator()
+    base_request = _request(methods=("kernel_shap",))
+    base_model = _CountingModel()
+    base_bundle = orchestrator.explain(base_model, base_request)
+    base_method = base_bundle.methods[0]
+    base_attributions = base_method.attributions
+    base_baseline_values = base_method.params["baseline_values"]
+
+    changed_model_bundle = orchestrator.explain(
+        _CountingModel(x1_weight=4.0),
+        replace(
+            base_request,
+            model_id="fake-model-changed",
+            model_hash="sha256:fake-model-changed",
+        ),
+    )
+    changed_model_method = changed_model_bundle.methods[0]
+
+    changed_background_request = replace(
+        base_request,
+        background_rows=(
+            {"x1": 10.0, "x2": 10.0},
+            {"x1": 11.0, "x2": 11.0},
+        ),
+    )
+    changed_background_bundle = orchestrator.explain(base_model, changed_background_request)
+    changed_background_method = changed_background_bundle.methods[0]
+
+    changed_parameter_bundle = orchestrator.explain(
+        base_model,
+        replace(
+            base_request,
+            adapter_params={"max_exact_shap_features": 1},
+        ),
+    )
+    changed_parameter_method = changed_parameter_bundle.methods[0]
+
+    assert changed_model_bundle.model.model_hash == "sha256:fake-model-changed"
+    assert changed_model_method.attributions != base_attributions
+    assert changed_background_method.params["baseline_values"] != base_baseline_values
+    assert changed_background_method.attributions != base_attributions
+    assert changed_parameter_method.scope == "diagnostic"
+    assert "exponential" in str(changed_parameter_method.params["diagnostic"])
+
+
 def test_kernel_shap_preserves_feature_count_and_empty_background_guards() -> None:
     adapter = KernelSHAPAdapter()
     with pytest.raises(ValueError, match="exponential"):
@@ -401,6 +448,51 @@ def test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods() ->
     assert len(two_alias_model.calls) == len(one_alias_model.calls)
     assert two_alias_bundle.disagreement is None
     assert one_alias_bundle.methods[0].method_id == "kernel_shap"
+
+
+def test_alias_dedup_preserves_requested_claim_confidence_and_validation_posture() -> None:
+    one_claim_request = replace(
+        _request(methods=("kernel_shap",)),
+        n_eval_perturbations=5,
+        residual_cap=0.019,
+    )
+    two_claim_request = replace(
+        _request(methods=("kernel_shap", "kernel_shap_conditional")),
+        n_eval_perturbations=5,
+        residual_cap=0.019,
+    )
+
+    one_claim_bundle = ExplanationOrchestrator().explain(
+        _CountingModel(),
+        one_claim_request,
+    )
+    two_claim_bundle = ExplanationOrchestrator().explain(
+        _CountingModel(),
+        two_claim_request,
+    )
+
+    one_claim_confidence = adjust_confidence_for_union(
+        global_confidence=one_claim_request.confidence,
+        claim_count=1,
+    )
+    two_claim_confidence = adjust_confidence_for_union(
+        global_confidence=two_claim_request.confidence,
+        claim_count=2,
+    )
+    one_claim_method = one_claim_bundle.methods[0]
+
+    assert one_claim_method.infidelity is not None
+    assert one_claim_method.infidelity.confidence == pytest.approx(one_claim_confidence)
+    assert all(method.infidelity is not None for method in two_claim_bundle.methods)
+    assert all(
+        method.infidelity is not None
+        and method.infidelity.confidence == pytest.approx(two_claim_confidence)
+        for method in two_claim_bundle.methods
+    )
+    assert one_claim_bundle.faithfulness_claim == "bounded"
+    assert one_claim_bundle.display_policy == "analyst_display"
+    assert two_claim_bundle.faithfulness_claim == "unbounded"
+    assert two_claim_bundle.display_policy == "diagnostic_only"
 
 
 def test_unsupported_backend_keeps_requested_id_and_existing_diagnostic() -> None:

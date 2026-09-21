@@ -5,9 +5,13 @@ from __future__ import annotations
 from . import artifacts as _artifacts
 from .api import CausalEngine
 
-globals().update(
-    {name: getattr(_artifacts, name) for name in dir(_artifacts) if not name.startswith("__")}
-)
-globals()["CausalEngine"] = CausalEngine
+DataReadinessBlockedError = _artifacts.DataReadinessBlockedError
+_make_dummy_identification_result = _artifacts._make_dummy_identification_result
+id_star_algorithm = _artifacts.id_star_algorithm
+id_with_oracle_fallback = _artifacts.id_with_oracle_fallback
+idc_star_algorithm = _artifacts.idc_star_algorithm
+mz_id_algorithm = _artifacts.mz_id_algorithm
 
-__all__ = [name for name in globals() if not name.startswith("__") and name != "_artifacts"]
+del _artifacts
+
+__all__ = ["CausalEngine", "DataReadinessBlockedError"]

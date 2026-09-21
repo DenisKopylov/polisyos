@@ -10,7 +10,6 @@ linking apply the same semantic and completeness gates.
 from __future__ import annotations
 
 import pytest
-
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -26,7 +25,6 @@ from polisyos.foundry.methods.exceptions import (
     SlotConnectionError,
     UnitMismatchError,
 )
-
 
 _NEUTRAL_UNIT = Unit(dimension="cmp03", symbol="unit")
 

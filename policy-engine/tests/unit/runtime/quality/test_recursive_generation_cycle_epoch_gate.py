@@ -1409,15 +1409,15 @@ async def test_http_recursive_route_without_owner_context_fails_closed_before_bo
 async def test_recursive_leaf_preserves_history_and_current_problem_binding() -> None:
     """A leaf retains prior cycles while its current binding follows the leaf head."""
 
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        _AlwaysLowGrounding,
-        _CounterexampleAwareGenerator,
-        _budget,
-        _problem,
-    )
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         PendingN8ValuePort,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _AlwaysLowGrounding,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _problem,
     )
 
     problem = _problem("recursive_leaf_history_current")

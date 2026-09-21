@@ -116,7 +116,7 @@ def test_missing_source_fails_closed_without_basename_substitution(tmp_path: Pat
         output_sentinel="previous-output\n",
     )
 
-    with pytest.raises(ValueError, match="(?i)(missing|exist|source|identity)"):
+    with pytest.raises(ValueError, match=r"(?i)(missing|exist|source|identity)"):
         canonical_main(["run_manifest", str(input_path), str(output_path)])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
@@ -142,7 +142,7 @@ def test_symlink_escape_fails_closed_before_output_write(tmp_path: Path) -> None
         output_sentinel="previous-output\n",
     )
 
-    with pytest.raises(ValueError, match="(?i)(escape|outside|contain|symlink|identity)"):
+    with pytest.raises(ValueError, match=r"(?i)(escape|outside|contain|symlink|identity)"):
         canonical_main(["run_manifest", str(input_path), str(output_path)])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
@@ -182,7 +182,7 @@ def test_path_only_run_manifest_rejects_explicit_target_version(tmp_path: Path) 
         output_sentinel="previous-output\n",
     )
 
-    with pytest.raises(ValueError, match="(?i)(--to|target|path.only|version)"):
+    with pytest.raises(ValueError, match=r"(?i)(--to|target|path.only|version)"):
         canonical_main(["run_manifest", str(input_path), str(output_path), "--to", "2.0"])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
@@ -202,7 +202,7 @@ def test_path_only_does_not_copy_external_file_implicitly(tmp_path: Path) -> Non
         output_sentinel="previous-output\n",
     )
 
-    with pytest.raises(ValueError, match="(?i)(external|outside|relocat|source|root)"):
+    with pytest.raises(ValueError, match=r"(?i)(external|outside|relocat|source|root)"):
         canonical_main(["run_manifest", str(input_path), str(output_path)])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
@@ -233,7 +233,7 @@ def test_external_paths_fail_closed_without_implicit_copy(tmp_path: Path) -> Non
         output_sentinel="previous-output\n",
     )
 
-    with pytest.raises(ValueError, match="(?i)(external|ambiguous|outside|relocat|root)"):
+    with pytest.raises(ValueError, match=r"(?i)(external|ambiguous|outside|relocat|root)"):
         canonical_main(["run_manifest", str(input_path), str(output_path)])
 
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"

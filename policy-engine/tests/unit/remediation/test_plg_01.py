@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterator
-from types import ModuleType
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -28,7 +28,6 @@ from polisyos.foundry.plugins.core import (
     PluginRegistry,
 )
 from polisyos.foundry.plugins.economics import EconomicsPlugin
-
 
 _NO_MATCHING_PACKAGE_PREFIX = "plg01_no_matching_distribution_"
 _CORE_PLUGIN_MODULE_PREFIX = "_polisyos_plugins_scan_"

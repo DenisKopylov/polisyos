@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from . import _interference_contracts as _contracts
+from .. import _interference_contracts as _contracts
 from .api import (
     BipartiteInterferenceEstimator,
     NetworkAIPWEstimator,

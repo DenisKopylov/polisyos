@@ -5,12 +5,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
+from polisyos.foundry.agent_sim.executor import PureExecutor
+from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
 from polisyos.foundry.agent_sim.training import TrainingConfig
 from polisyos.foundry.plugins.composite import (
     CompositeExecutor,
@@ -166,6 +168,23 @@ class PolisySimulator:
         if self._state is None:
             self.initialize(seed)
 
+        if not self._has_compatible_training_execution_adapter():
+            assert self._state is not None
+            return TrainingResult(
+                trained_policy=None,
+                loss_history=[],
+                final_state=self._state,
+                status="bridge_pending",
+                reason=TrainingCapabilityReason(
+                    code="training_execution_adapter_missing",
+                    status="bridge_pending",
+                    message=(
+                        "PolisySimulator has no compatible PureExecutor with "
+                        "TemporalConsumptionMechanism; training bridge is pending."
+                    ),
+                ),
+            )
+
         first_domain = list(self.domains.keys())[0]
         plugin = self.registry.get(first_domain)
         obs_builder = plugin.get_observation_builder()
@@ -217,6 +236,15 @@ class PolisySimulator:
             trained_policy=self._agent_policy,
             loss_history=loss_history,
             final_state=self._state,
+        )
+
+    def _has_compatible_training_execution_adapter(self) -> bool:
+        """Return whether the current executor satisfies the trainer contract."""
+
+        executor = self._executor
+        return isinstance(executor, PureExecutor) and any(
+            isinstance(mechanism, TemporalConsumptionMechanism)
+            for mechanism in executor.mechanisms
         )
 
     def get_state(self) -> CompositeState:
@@ -298,13 +326,24 @@ class SimulationResult:
         raise KeyError(f"Metric '{metric}' not found in domain '{domain}'")
 
 
+@dataclass(frozen=True)
+class TrainingCapabilityReason:
+    """Typed reason for a training capability that remains unavailable."""
+
+    code: Literal["training_execution_adapter_missing"]
+    status: Literal["bridge_pending"]
+    message: str
+
+
 @dataclass
 class TrainingResult:
     """Result of training."""
 
-    trained_policy: ActorCritic
+    trained_policy: ActorCritic | None
     loss_history: list[float]
     final_state: CompositeState
+    status: Literal["trained", "bridge_pending"] = "trained"
+    reason: TrainingCapabilityReason | None = None
 
     def plot_losses(self, save_path: str | None = None):
         from polisyos.foundry.agent_sim.visualization import TrainingVisualizer

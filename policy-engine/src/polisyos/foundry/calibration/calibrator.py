@@ -228,23 +228,52 @@ class CalibrationMetricsCollector:
 
 
 def _compute_scale_local(
-    arr: jnp.ndarray, target_cfg: CalibrationTarget, default_eps: float = 1e-8
+    arr: jnp.ndarray,
+    target_cfg: CalibrationTarget,
+    default_eps: float = 1e-8,
+    *,
+    observed_mask: jnp.ndarray | None = None,
+    training_mask: jnp.ndarray | None = None,
 ) -> float:
+    values = np.asarray(arr)
+    eligible = np.isfinite(values)
+    if observed_mask is not None:
+        observed = np.asarray(observed_mask, dtype=bool)
+        if observed.shape != values.shape:
+            raise ValueError(
+                "Observed mask must match target shape: "
+                f"values={values.shape}, observed_mask={observed.shape}"
+            )
+        eligible &= observed
+    if training_mask is not None:
+        training = np.asarray(training_mask, dtype=bool)
+        if training.shape != values.shape:
+            raise ValueError(
+                "Training mask must match target shape: "
+                f"values={values.shape}, training_mask={training.shape}"
+            )
     if not target_cfg.loss.relative:
         return 1.0
+    if training_mask is not None:
+        eligible &= training
+    selected = values[eligible]
+    if selected.size == 0:
+        return float(default_eps)
     method = target_cfg.loss.scale
-    abs_arr = jnp.abs(arr)
+    abs_arr = np.abs(selected)
     if method == "std":
-        scale = jnp.std(arr)
+        scale = float(np.std(selected))
     elif method == "max":
-        scale = jnp.max(abs_arr)
+        scale = float(np.max(abs_arr))
     elif method == "p95":
-        scale = jnp.quantile(abs_arr, 0.95)
+        scale = float(np.quantile(abs_arr, 0.95))
     elif method == "none":
-        scale = jnp.array(1.0)
+        scale = 1.0
     else:
-        scale = jnp.mean(abs_arr)
-    return float(jnp.maximum(scale, default_eps))
+        scale = float(np.mean(abs_arr))
+    if not np.isfinite(scale):
+        return float(default_eps)
+    return float(max(scale, default_eps))
 
 
 def _measurement_time_axis(values: Sequence[Any] | None) -> list[float] | None:
@@ -571,6 +600,7 @@ class Calibrator:
                 metric_paths.append(handle.path)
 
         raw_targets: dict[str, object] = {}
+        scale_support: dict[str, bool] = {}
         measurement_bundle = self.inputs.measurement_bundle
         measurement_adapter = (
             self.inputs.measurement_loss_adapter or DefaultMeasurementAwareLossAdapter()
@@ -635,16 +665,85 @@ class Calibrator:
                     )
             if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
                 raise ValueError("controls_seq length must match calibration steps")
-            scales = {
-                target.target_id: _compute_scale_local(aligned_targets[target.target_id], target)
-                for target in targets
-            }
+            scales: dict[str, float] = {}
+            for target in targets:
+                target_id = target.target_id
+                coverage = jnp.asarray(
+                    measurement_bundle.coverage_estimate[target_id], dtype=jnp.float32
+                )
+                if coverage.shape != aligned_targets[target_id].shape:
+                    raise ValueError(
+                        "Coverage mask must match target shape: "
+                        f"target={aligned_targets[target_id].shape}, coverage={coverage.shape}"
+                    )
+                observed_mask = (coverage > 0.0) & jnp.isfinite(
+                    aligned_targets[target_id]
+                )
+                labels = measurement_bundle.split_label.get(target_id)
+                if labels is None:
+                    training_mask = jnp.ones_like(observed_mask, dtype=bool)
+                else:
+                    if observed_mask.ndim != 1 or len(labels) != int(observed_mask.shape[0]):
+                        raise ValueError(
+                            f"Training split for target '{target_id}' does not match target shape"
+                        )
+                    training_mask = jnp.asarray(
+                        [getattr(label, "value", label) == "train" for label in labels],
+                        dtype=bool,
+                    )
+                if training_mask.shape != observed_mask.shape:
+                    raise ValueError(
+                        f"Training split for target '{target_id}' does not match target shape"
+                    )
+                scales[target_id] = _compute_scale_local(
+                    aligned_targets[target_id],
+                    target,
+                    observed_mask=observed_mask,
+                    training_mask=training_mask,
+                )
+                scale_support[target_id] = bool(np.any(np.asarray(observed_mask & training_mask)))
+                if not scale_support[target_id]:
+                    diagnostics.append(f"no_training_scale_support:{target_id}")
             time_axes = {
                 target.target_id: _measurement_time_axis(
                     measurement_bundle.time_axis.get(target.target_id)
                 )
                 for target in targets
             }
+
+        measurement_support: dict[str, bool] = {}
+        if measurement_bundle is not None:
+            for target in targets:
+                target_id = target.target_id
+                adapted = measurement_adapter.adapt(
+                    targets=(measurement_targets[target_id],),
+                    base_weights=1.0,
+                    trust_weight=measurement_bundle.trust_weight[target_id],
+                    coverage_estimate=measurement_bundle.coverage_estimate[target_id],
+                    censoring_mask=measurement_bundle.censoring_mask.get(target_id),
+                    lag_days_estimate=measurement_bundle.lag_days_estimate.get(target_id),
+                    schema_regime_id=measurement_bundle.schema_regime_id.get(target_id),
+                    shock_mask=measurement_bundle.shock_mask.get(target_id),
+                    identification_mode=measurement_bundle.identification_mode.get(target_id),
+                    config=measurement_config,
+                )
+                quality = adapted.get("sample_quality_weight", adapted["effective_weight"])
+                quality_arr = np.asarray(quality, dtype=float)
+                if quality_arr.shape != np.asarray(aligned_targets[target_id]).shape:
+                    raise ValueError(
+                        "Measurement quality weights must match target shape: "
+                        f"target={np.asarray(aligned_targets[target_id]).shape}, "
+                        f"weights={quality_arr.shape}"
+                    )
+                measurement_support[target_id] = bool(
+                    np.any(np.isfinite(quality_arr) & (quality_arr > 0.0))
+                )
+                if not measurement_support[target_id]:
+                    diagnostics.append(f"no_effective_support:{target_id}")
+            if not any(measurement_support.values()):
+                raise ValueError(
+                    "Calibration blocked: no_effective_support for any target"
+                )
 
         loss_configs = {t.target_id: t.loss for t in targets}
         target_ids = [t.target_id for t in targets]
@@ -770,7 +869,6 @@ class Calibrator:
         def _target_loss_vec(
             u: Sequence[jnp.ndarray],
             step_idx: jax.Array,
-            weights_vec: jnp.ndarray | None = None,
         ) -> jnp.ndarray:
             theta_groups = from_unconstrained(u, group_bijectors)
             theta = _expand_group_values(theta_groups)
@@ -783,15 +881,13 @@ class Calibrator:
                 metric_paths=metric_paths,
                 controls_seq=self.inputs.controls_seq,
             )
-            return _base_vec_from_traces(traces, weights_vec=weights_vec)
+            return _base_vec_from_traces(traces)
 
         def _base_vec_from_traces(
             traces: Mapping[str, jnp.ndarray],
-            *,
-            weights_vec: jnp.ndarray | None = None,
         ) -> jnp.ndarray:
             losses = []
-            for idx, target in enumerate(targets):
+            for target in targets:
                 trace = traces[path_by_target[target.target_id]]
                 predicted = _apply_aggregation(trace, target.aggregation)
                 cfg_loss = loss_configs[target.target_id]
@@ -810,14 +906,12 @@ class Calibrator:
                     cfg_loss,
                     scale,
                 )
-                base_weight = (
-                    weights_vec[idx]
-                    if weights_vec is not None
-                    else jnp.array(target.loss.weight, dtype=jnp.float32)
-                )
                 adapted = measurement_adapter.adapt(
                     targets=(measurement_targets[target.target_id],),
-                    base_weights=base_weight,
+                    # Sample-quality is normalized within the target.  The
+                    # inter-target priority is applied by ``loss_fn`` after
+                    # this reduction so it cannot cancel in the denominator.
+                    base_weights=1.0,
                     trust_weight=measurement_bundle.trust_weight[target.target_id],
                     coverage_estimate=measurement_bundle.coverage_estimate[target.target_id],
                     censoring_mask=measurement_bundle.censoring_mask.get(target.target_id),
@@ -829,10 +923,13 @@ class Calibrator:
                     ),
                     config=measurement_config,
                 )
+                sample_quality = adapted.get(
+                    "sample_quality_weight", adapted["effective_weight"]
+                )
                 losses.append(
                     reduce_weighted_loss(
                         pointwise,
-                        adapted["effective_weight"],
+                        sample_quality,
                         epsilon=cfg_loss.epsilon,
                     )
                 )
@@ -861,12 +958,8 @@ class Calibrator:
             )
             base_vec = _base_vec_from_traces(
                 traces,
-                weights_vec=weights_vec if measurement_enabled else None,
             )
-            if measurement_enabled:
-                total = jnp.sum(base_vec) if base_vec.size else jnp.array(0.0)
-            else:
-                total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
+            total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
             constraint_penalty = _constraint_penalty(traces)
             prior_penalty = _prior_penalty(theta_groups)
             aux_penalty = _aux_penalty(traces)
@@ -913,10 +1006,7 @@ class Calibrator:
                 losses = _target_loss_vec(
                     params,
                     step_idx,
-                    weights_state if measurement_enabled else None,
                 )
-                if measurement_enabled:
-                    return losses
                 return losses * weights_state
 
             jac = jax.jacrev(weighted_losses)(u_state)
@@ -983,10 +1073,9 @@ class Calibrator:
                 )
                 base_vec = _base_vec_from_traces(
                     traces_local,
-                    weights_vec=weights_vec if measurement_enabled else None,
                 )
                 total = (
-                    (jnp.sum(base_vec) if measurement_enabled else jnp.sum(base_vec * weights_vec))
+                    jnp.sum(base_vec * weights_vec)
                     if base_vec.size
                     else jnp.array(0.0)
                 )
@@ -1212,17 +1301,11 @@ class Calibrator:
         final_target_losses = _target_loss_vec(
             u_state,
             jnp.array(0, dtype=jnp.int32),
-            weights_state if measurement_enabled else None,
         )
-        if measurement_enabled:
-            per_target_final = {
-                tid: float(final_target_losses[idx]) for idx, tid in enumerate(target_ids)
-            }
-        else:
-            per_target_final = {
-                tid: float(final_target_losses[idx] * weights_state[idx])
-                for idx, tid in enumerate(target_ids)
-            }
+        per_target_final = {
+            tid: float(final_target_losses[idx] * weights_state[idx])
+            for idx, tid in enumerate(target_ids)
+        }
         target_weights = {tid: float(weights_state[idx]) for idx, tid in enumerate(target_ids)}
         final_total_loss, _ = loss_fn(u_state, weights_state, jnp.array(0, dtype=jnp.int32))
         final_total_loss = float(final_total_loss)
@@ -1315,14 +1398,9 @@ class Calibrator:
                     )
                     base_vec = _base_vec_from_traces(
                         traces_local,
-                        weights_vec=weights_state if measurement_enabled else None,
                     )
                     total = (
-                        (
-                            jnp.sum(base_vec)
-                            if measurement_enabled
-                            else jnp.sum(base_vec * weights_state)
-                        )
+                        jnp.sum(base_vec * weights_state)
                         if base_vec.size
                         else jnp.array(0.0)
                     )
@@ -1423,6 +1501,18 @@ class Calibrator:
                 "jax_platform": _jax_platform(),
                 "timestamp": datetime.now(UTC).isoformat(),
                 "fidelity_stats": fidelity_stats,
+                "support_status": {
+                    target_id: (
+                        "supported" if measurement_support.get(target_id, True) else "no_support"
+                    )
+                    for target_id in target_ids
+                },
+                "scale_support": {
+                    target_id: (
+                        "supported" if scale_support.get(target_id, True) else "no_training_support"
+                    )
+                    for target_id in target_ids
+                },
             },
         )
         if report.uncertainties is not None:

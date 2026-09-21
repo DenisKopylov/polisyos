@@ -538,6 +538,11 @@ def _as_1d_array(value: Any, *, dtype: Any) -> jnp.ndarray:
     arr = jnp.asarray(value, dtype=dtype)
     if arr.ndim == 0:
         arr = arr.reshape(1)
+    elif arr.ndim != 1:
+        raise ValueError(
+            "Measurement weights and metadata must be one-dimensional, "
+            f"got {arr.shape}"
+        )
     return arr
 
 
@@ -580,9 +585,11 @@ def compute_effective_weight(
 ) -> Mapping[str, jnp.ndarray]:
     """Combine trust, coverage, lag, censoring, shock, and regime discounts.
 
-    The returned `effective_weight` is the product of the base weight and each
-    measurement-quality adjustment, with zeroing for anchors that have no
-    usable coverage.
+    ``sample_quality_weight`` contains only within-target measurement quality.
+    ``effective_weight`` retains the legacy product with ``base_weights`` for
+    callers that need it. Calibration reduces with the former and applies the
+    inter-target priority after reduction, so target priorities cannot cancel
+    in a within-target denominator.
     Args:
         base_weights: Scalar or vector base target weights from
             `CalibrationConfig`.
@@ -597,8 +604,9 @@ def compute_effective_weight(
         config: Discount hyperparameters.
 
     Returns:
-        Mapping with `effective_weight` and intermediate discount arrays used
-        by diagnostics/reporting.
+        Mapping with `sample_quality_weight`, `effective_weight`, an explicit
+        `has_effective_support` flag, and intermediate discount arrays used by
+        diagnostics/reporting.
 
     Raises:
         ValueError: If any broadcasted metadata vector has a length that is
@@ -617,19 +625,25 @@ def compute_effective_weight(
     if lag_days_estimate is None:
         lag = jnp.zeros_like(normalized_trust)
     else:
-        lag = _broadcast_to(_as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0]))
+        lag = _broadcast_to(
+            _as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0])
+        )
     lag_discount = jnp.power(0.5, lag / float(config.lag_half_life_days))
 
     if censoring_mask is None:
         censor = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        censor = _broadcast_to(_as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0]))
+        censor = _broadcast_to(
+            _as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0])
+        )
     censor_discount = jnp.where(censor, config.censoring_discount, 1.0)
 
     if shock_mask is None:
         shock = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        shock = _broadcast_to(_as_1d_array(shock_mask, dtype=bool), int(trust.shape[0]))
+        shock = _broadcast_to(
+            _as_1d_array(shock_mask, dtype=bool), int(trust.shape[0])
+        )
     shock_discount = jnp.where(shock, config.shock_discount, 1.0)
 
     boundary_mask = _schema_regime_boundary_mask(schema_regime_id)
@@ -639,18 +653,23 @@ def compute_effective_weight(
         boundary_mask = _broadcast_to(boundary_mask, int(trust.shape[0]))
     regime_discount = jnp.where(boundary_mask, config.regime_boundary_discount, 1.0)
 
-    effective_weight = (
-        base
-        * normalized_trust
+    sample_quality_weight = (
+        normalized_trust
         * coverage
         * lag_discount
         * censor_discount
         * shock_discount
         * regime_discount
     )
-    effective_weight = jnp.where(coverage <= 0.0, 0.0, effective_weight)
+    sample_quality_weight = jnp.where(coverage <= 0.0, 0.0, sample_quality_weight)
+    effective_weight = base * sample_quality_weight
+    has_effective_support = jnp.any(
+        jnp.isfinite(sample_quality_weight) & (sample_quality_weight > 0.0)
+    )
     return {
         "effective_weight": effective_weight,
+        "sample_quality_weight": sample_quality_weight,
+        "has_effective_support": has_effective_support,
         "normalized_trust": normalized_trust,
         "lag_discount": lag_discount,
         "censor_discount": censor_discount,

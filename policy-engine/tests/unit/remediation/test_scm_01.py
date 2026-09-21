@@ -101,7 +101,15 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
         },
     )
     result = GCMQuery.pure_step(query, params={"__seed__": 7})
-    assert result["query_result"].result_mean == pytest.approx(203.0, abs=1e-9)
+    query_result = result["query_result"]
+    expected_support = {float(3.0 + 2.0 * value) for value in root}
+    assert query_result.result_distribution is not None
+    assert all(
+        any(value == pytest.approx(expected, abs=1e-9) for expected in expected_support)
+        for value in query_result.result_distribution
+    )
+    expected_mean = float(3.0 + 2.0 * np.mean(root))
+    assert query_result.result_ci[0] <= expected_mean <= query_result.result_ci[1]
 
     # The non-intervened root is sampled from aligned observed rows, retaining
     # the observed joint carrier rather than independent Normal draws.

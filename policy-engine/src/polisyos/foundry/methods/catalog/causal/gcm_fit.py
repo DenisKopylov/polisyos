@@ -49,6 +49,8 @@ def _pag_to_dag_projection(graph: CausalGraphModel) -> tuple[CausalGraphModel, l
 def _parents_by_node(graph: CausalGraphModel) -> dict[str, list[str]]:
     parents: dict[str, list[str]] = {node: [] for node in graph.nodes}
     for edge in graph.edges:
+        if edge.lag not in (None, 0):
+            continue
         parents.setdefault(edge.dst, []).append(edge.src)
     return parents
 
@@ -326,6 +328,11 @@ class HybridSCMFit:
             if isinstance(payload.graph, CausalGraphModel)
             else CausalGraphModel.model_validate(payload.graph)
         )
+        if any(edge.lag not in (None, 0) for edge in graph.edges):
+            raise ValueError(
+                "gcm_fit is a static consumer; temporal edges require a temporal "
+                "fit/expansion before GCM fitting"
+            )
         threshold = float(params.get("latent_sensitivity_threshold", 0.3))
         ridge = float(params.get("bayes_ridge", 1e-6))
         warnings: list[str] = []

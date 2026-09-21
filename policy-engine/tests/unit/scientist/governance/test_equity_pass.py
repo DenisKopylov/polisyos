@@ -12,7 +12,7 @@ from polisyos.ir.analytics.distributional import (
     WinnersLosersTable,
     persist_distributional_report,
 )
-from polisyos.scientist.governance.passes.base import IssueSeverity, PassContext
+from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.scientist.governance.passes.equity_pass import EquityPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 

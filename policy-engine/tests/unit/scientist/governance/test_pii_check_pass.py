@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.contracts.lex import IssueSeverity
-from polisyos.scientist.governance.passes.base import PassContext
+from polisyos.core.governance.passes.base import PassContext
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 

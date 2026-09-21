@@ -12,7 +12,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     persist_uncertainty_envelope,
 )
-from polisyos.scientist.governance.passes.base import IssueSeverity, PassContext
+from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
 from polisyos.scientist.governance.profiles import ValidationProfile
 

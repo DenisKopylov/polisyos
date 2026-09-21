@@ -20,7 +20,7 @@ from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec
 from polisyos.ir.kernel.units import UnitRef
 from polisyos.ir.loading.fact_log import FactProvenance
 from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
-from polisyos.lex.factlog import load_world_facts
+from polisyos.fabric.world import load_world_facts
 
 pytestmark = pytest.mark.integration
 

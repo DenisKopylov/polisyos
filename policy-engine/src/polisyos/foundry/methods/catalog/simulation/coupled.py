@@ -49,8 +49,13 @@ def _vector(
     return arr
 
 
-def _metric_names(params: Mapping[str, Any], default: tuple[str, ...]) -> tuple[str, ...]:
-    raw = params.get("metric_names", default)
+def _metric_names(
+    params: Mapping[str, Any],
+    default: tuple[str, ...],
+    *,
+    parameter_name: str = "metric_names",
+) -> tuple[str, ...]:
+    raw = params.get(parameter_name, default)
     if isinstance(raw, str):
         return tuple(item.strip() for item in raw.split(",") if item.strip())
     return tuple(str(item) for item in raw)
@@ -411,6 +416,7 @@ class CoupledSMMEstimator:
         moment_names = _metric_names(
             params,
             ("completed_count", "final_queue_length"),
+            parameter_name="moment_names",
         )
         observed_values = _vector(state, "observed_moments")
         if observed_values.shape[0] != len(moment_names):

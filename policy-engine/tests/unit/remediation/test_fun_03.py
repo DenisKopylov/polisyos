@@ -75,7 +75,7 @@ def _stage_result(level: int, envelope: UncertaintyEnvelope) -> FunnelStageResul
 
 
 def _uncertainty_level(payload: dict[str, Any], uncertainty_type: UncertaintyType) -> float:
-    return float(payload[uncertainty_type.value]["level"])
+    return float(payload["uncertainties"][uncertainty_type.value]["level"])
 
 
 def _artifact_ref(hex_digit: str) -> ArtifactRef:

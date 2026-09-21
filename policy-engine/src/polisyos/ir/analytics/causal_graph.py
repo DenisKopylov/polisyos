@@ -265,7 +265,16 @@ class CausalGraphModel(BaseModel):
             if edge.dst not in node_set:
                 raise ValueError(f"Edge dst '{edge.dst}' not in nodes")
             if edge.src == edge.dst:
-                raise ValueError("self-loops are not allowed in CausalGraphModel")
+                if not (
+                    edge.lag is not None
+                    and edge.lag > 0
+                    and edge.mark_src is EdgeMark.TAIL
+                    and edge.mark_dst is EdgeMark.ARROW
+                ):
+                    raise ValueError(
+                        "zero-lag self-loop is not allowed; self-loops require a "
+                        "positive lagged directed edge"
+                    )
 
         if self.graph_type is GraphType.DAG:
             for edge in self.edges:
@@ -335,7 +344,18 @@ class CausalGraphModel(BaseModel):
         for edge in self.edges:
             if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
                 raise ValueError("to_dot() requires fully oriented edges (tail->arrow)")
-            lines.append(f'  "{self._dot_escape(edge.src)}" -> "{self._dot_escape(edge.dst)}";')
+            src = self._dot_escape(edge.src)
+            dst = self._dot_escape(edge.dst)
+            if edge.lag is None:
+                lines.append(f'  "{src}" -> "{dst}";')
+            else:
+                # Keep compact temporal edges distinguishable in the serialized
+                # representation. Static consumers must reject these edges before
+                # handing the DOT text to a backend that ignores attributes.
+                lines.append(
+                    f'  "{src}" -> "{dst}" '
+                    f'[lag="{edge.lag}", temporal="true"];'
+                )
         lines.append("}")
         return "\n".join(lines)
 

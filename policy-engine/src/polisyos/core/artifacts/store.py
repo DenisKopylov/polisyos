@@ -102,7 +102,7 @@ from .signing import (
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
 
     from ..observability import MetricsRegistry, PolicyOSTracer
     from .backends.config import ArtifactStoreConfig
@@ -597,7 +597,7 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
-        ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
+        ids = artifact_ids if artifact_ids is not None else self._iter_artifact_ids_lazy()
         return _sign_all_artifacts(
             signer=signer,
             artifact_ids=ids,
@@ -624,7 +624,7 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
-        ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
+        ids = artifact_ids if artifact_ids is not None else self._iter_artifact_ids_lazy()
         return _verify_all_signatures(
             verifier=verifier,
             artifact_ids=ids,
@@ -1082,8 +1082,11 @@ class FileSystemCAS:
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         """List all artifact IDs that have manifest sidecars under this CAS root."""
-        ids: list[ArtifactID] = []
-        for manifest_path in sorted(self.base.rglob("*.manifest.json")):
+        return sorted(self._iter_artifact_ids_lazy(), key=lambda artifact_id: artifact_id.hex)
+
+    def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
+        """Yield owned manifest IDs lazily for bounded batch operations."""
+        for manifest_path in self.base.rglob("*.manifest.json"):
             name = manifest_path.name
             if not name.endswith(".manifest.json"):
                 continue
@@ -1101,8 +1104,7 @@ class FileSystemCAS:
                     cell_id=cell_id,
                 ):
                     continue
-            ids.append(artifact_id)
-        return ids
+            yield artifact_id
 
     def export_subgraph(
         self,

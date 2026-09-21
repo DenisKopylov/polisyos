@@ -252,6 +252,7 @@ def test_random_mc_preserves_shared_empirical_rows_and_axis() -> None:
     assert payload.sample_axis == "row"
     assert set(payload.samples) == {0.0}
     assert result.envelope.gate_eligible is False
+    assert result.envelope.metadata["empirical_joint_id"] == "uqp-test-shared-rows"
     assert result.envelope.metadata["empirical_joint_identity_status"] == (
         "declared_non_authoritative"
     )

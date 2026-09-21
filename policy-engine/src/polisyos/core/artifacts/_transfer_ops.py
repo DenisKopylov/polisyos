@@ -17,10 +17,10 @@ from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
 from .ids import ArtifactID
 from .signing import (
-    DetachedSignature,
     SIGNATURE_ALGORITHM,
     SIGNATURE_FORMAT_VERSION,
     SIGNATURE_STATEMENT_TYPE,
+    DetachedSignature,
 )
 
 if TYPE_CHECKING:
@@ -179,7 +179,8 @@ def _prepare_directory_export(target: Path) -> None:
         marker.read_bytes(),
         require_inventory=True,
     )
-    assert previous_members is not None
+    if previous_members is None:
+        raise ValueError("Owned export directory marker has no members inventory")
     owned_paths = {
         target / Path(*PurePosixPath(member).parts) for member in previous_members
     }
@@ -594,6 +595,7 @@ def import_subgraph(
                     verification_failed.append(artifact_ref)
 
         verification_failed = sorted(set(verification_failed) | binding_failures)
+        _validate_staged_signatures(staging_root, imported_artifacts, staged_members)
         if verification_failed:
             return ImportReport(
                 imported_files=0,
@@ -604,7 +606,6 @@ def import_subgraph(
                 verification_failed=verification_failed,
             )
 
-        _validate_staged_signatures(staging_root, imported_artifacts, staged_members)
         publish_staged(staging_root, staged_members, imported_artifacts)
         return ImportReport(
             imported_files=len(staged_members),

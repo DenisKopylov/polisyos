@@ -382,13 +382,9 @@ def test_apply_nodes_keeps_active_refusal_on_invalid_input(monkeypatch) -> None:
     class _RefusingMechanism:
         def emit_patches(self, state, key, *, target_mask=None):
             del target_mask
-            if not is_jax_tracer(state.agents.income) and bool(
-                jnp.any(state.agents.income <= 0)
-            ):
+            if not is_jax_tracer(state.agents.income) and bool(jnp.any(state.agents.income <= 0)):
                 raise ValueError("income must be positive for active log mechanism")
-            return {
-                "agents.income": [{"delta": jnp.log(state.agents.income)}]
-            }, key
+            return {"agents.income": [{"delta": jnp.log(state.agents.income)}]}, key
 
     monkeypatch.setattr(
         "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",
@@ -430,9 +426,7 @@ def test_apply_nodes_vmap_preserves_neutral_patch_structure(monkeypatch) -> None
     class _ScheduledLog:
         def emit_patches(self, state, key, *, target_mask=None):
             del target_mask
-            return {
-                "agents.income": [{"delta": jnp.log(state.agents.income)}]
-            }, key
+            return {"agents.income": [{"delta": jnp.log(state.agents.income)}]}, key
 
     monkeypatch.setattr(
         "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",
@@ -504,9 +498,7 @@ def test_run_pure_scan_preserves_inactive_gradient_path(monkeypatch) -> None:
     class _ScheduledLog:
         def emit_patches(self, state, key, *, target_mask=None):
             del target_mask
-            return {
-                "agents.income": [{"delta": jnp.log(state.agents.income)}]
-            }, key
+            return {"agents.income": [{"delta": jnp.log(state.agents.income)}]}, key
 
     monkeypatch.setattr(
         "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",

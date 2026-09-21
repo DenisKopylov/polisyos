@@ -545,6 +545,31 @@ def test_legacy_result_rejects_self_attested_provenance_conflict(tmp_path: Path)
         load_causal_query_result(store, typed_legacy_ref)
 
 
+def test_raw_legacy_result_rejects_self_attested_provenance_without_cas() -> None:
+    """Raw legacy DTO validation cannot bless provenance without a CAS manifest."""
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+    )
+    result = CausalQueryResult(
+        query=query,
+        result_mean=6.0,
+        result_std=0.0,
+        result_ci=(6.0, 6.0),
+    )
+    legacy_payload = result.model_dump(mode="json")
+    legacy_payload["schema_version"] = "1.0"
+    legacy_payload["metadata"] = {
+        "source_schema_version": "9.9",
+        "source_schema_name": "attacker.claimed.schema",
+    }
+
+    with pytest.raises(ValueError, match="provenance|manifest"):
+        CausalQueryResult.model_validate(legacy_payload)
+
+
 def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

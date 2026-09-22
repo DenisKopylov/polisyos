@@ -80,7 +80,7 @@ def test_changed_output_bytes_do_not_reuse_merge_stage(tmp_path) -> None:
     normalized.parent.mkdir(parents=True, exist_ok=True)
     normalized.write_text("input\n", encoding="utf-8")
     output = config.merged_records_path
-    output.parent.mkdir(parents=True)
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("output\n", encoding="utf-8")
     _save_state(config, "merge_dedup", [output])
 

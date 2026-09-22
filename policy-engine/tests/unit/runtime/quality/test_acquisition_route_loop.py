@@ -32,6 +32,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.runtime.quality.test_generation_cycle import (
+    REPO_ROOT,
     _CgfGenerationPort,
     _CostedDataGapValuePort,
     _problem,
@@ -59,9 +60,11 @@ async def _compiled() -> CompiledRecursiveGenerationCycleRun:
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
     recursive = RecursiveGenerationCycleController.for_contract_testing(
+        repo_root=REPO_ROOT,
         cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
             generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
             value_port=_CostedDataGapValuePort(),
+            repo_root=REPO_ROOT,
         )
     )
     recursive_run = await recursive.run(

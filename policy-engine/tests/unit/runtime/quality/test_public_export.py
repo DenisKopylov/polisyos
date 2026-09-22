@@ -598,6 +598,7 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         run=run,
         design_problem=problem,
         resolver=runtime.resolver,
+        repo_root=REPO_ROOT,
     )
     assert len(limitations) == 1
     limitation = limitations[0]
@@ -644,6 +645,7 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
             run=transplanted,
             design_problem=foreign_problem,
             resolver=runtime.resolver,
+            repo_root=REPO_ROOT,
         )
 
 

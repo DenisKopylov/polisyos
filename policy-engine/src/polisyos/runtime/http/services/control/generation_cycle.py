@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -46,7 +47,6 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -200,13 +200,16 @@ class NormativeRunDisposition(BaseModel):
 
 
 def normative_owner_for_runtime_store(
-    store: object, trust: NormativeAuthorityTrust
+    store: object,
+    trust: NormativeAuthorityTrust,
+    *,
+    repo_root: Path | None = None,
 ) -> NormativeValueScheduleOwner:
-    """Reuse the canonical ambient filesystem target, preserving tenant ownership checks."""
+    """Reuse the canonical filesystem target and explicit source checkout."""
     target = store._target if type(store) is GuardedDependencyProxy else store
     if type(target) is not artifacts.FileSystemCAS:
         raise P20NormativeChoiceError("p20_normative_signed_store_unavailable")
-    return NormativeValueScheduleOwner(store=target, trust=trust)
+    return NormativeValueScheduleOwner(store=target, trust=trust, repo_root=repo_root)
 
 
 def _read_normative_source(
@@ -554,6 +557,14 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_epoch_owner_binding_mismatch",
                 "The HTTP composition derives every epoch dependency from one runtime.",
             )
+        controller_repo_root = getattr(controller, "_repo_root", None)
+        caller_repo_root = repo_root.resolve() if repo_root is not None else None
+        if controller_repo_root != caller_repo_root:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_repo_root_mismatch",
+                "The injected recursive controller must retain the exact source checkout "
+                "identity supplied by the HTTP composition.",
+            )
         resolved_controller = controller
     else:
         resolved_controller = build_default_recursive_generation_cycle_controller(
@@ -598,6 +609,7 @@ async def compile_and_run_recursive_generation_cycle(
                 run=cycle_run,
                 design_problem=problem,
                 resolver=promotion_runtime.resolver,
+                repo_root=repo_root,
             ):
                 vector_key = str(limitation.vector_artifact_ref.artifact_id)
                 if vector_key in seen_vector_refs:
@@ -679,7 +691,9 @@ def _build_cycle_substrate_context_from_owner(
         build_substrate_registry_from_existing_catalogs,
     )
 
-    root = (repo_root or Path.cwd()).resolve()
+    if repo_root is None:
+        return None
+    root = repo_root.resolve()
     try:
         world = production_composed_world_model_record(root)
         registry = build_substrate_registry_from_existing_catalogs(root)

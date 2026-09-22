@@ -1234,6 +1234,10 @@ class ControlPlaneService(
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        # The source checkout is a separate trust input from the CAS root.  It
+        # is resolved from this owner module, never inferred from the CAS or
+        # process cwd, and is passed to source-bound receipt consumers.
+        self._repo_root = Path(__file__).resolve().parents[6]
         self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
         if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")
@@ -1382,11 +1386,11 @@ class ControlPlaneService(
             from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
             curated_dir = _resolve_curated_dir()
-            catalog_paths = default_substrate_catalog_paths(Path.cwd())
+            catalog_paths = default_substrate_catalog_paths(self._repo_root)
             self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
                 catalog_paths.l1_dcat_path,
                 catalog_paths.l1_dcat_path.parent,
-                overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
             )
             self._retrieval = RetrievalService(
                 curated_dir=curated_dir,
@@ -1456,7 +1460,7 @@ class ControlPlaneService(
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
-            repo_root=Path.cwd(),
+            repo_root=self._repo_root,
         )
 
     @property
@@ -1478,7 +1482,9 @@ class ControlPlaneService(
         )
 
         owner = normative_owner_for_runtime_store(
-            self._artifact_store, self._normative_authority_trust
+            self._artifact_store,
+            self._normative_authority_trust,
+            repo_root=self._repo_root,
         )
         return produce_normative_run_disposition(
             store=self._artifact_store,
@@ -1623,7 +1629,9 @@ class ControlPlaneService(
             if disposition_ref is None or compiled_run_ref is None:
                 raise P20NormativeChoiceError("p20_normative_generation_disposition_missing")
             owner = normative_owner_for_runtime_store(
-                self._artifact_store, self._normative_authority_trust
+                self._artifact_store,
+                self._normative_authority_trust,
+                repo_root=self._repo_root,
             )
             return project_normative_run_disposition(
                 store=self._artifact_store,
@@ -2282,7 +2290,9 @@ class ControlPlaneService(
                     ):
                         raise ValueError("normative_head_source_binding_mismatch")
                     owner = normative_owner_for_runtime_store(
-                        self._artifact_store, self._normative_authority_trust
+                        self._artifact_store,
+                        self._normative_authority_trust,
+                        repo_root=self._repo_root,
                     )
                     historical = project_normative_run_disposition(
                         store=self._artifact_store,

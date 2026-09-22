@@ -19,7 +19,8 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackWorkflowRunner,
-    HealthFailureDisposition,
+    _HealthFailureDisposition,
+    _HealthFailureSample,
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 
@@ -175,10 +176,15 @@ def test_transient_pre_dispatch_probe_failure_allows_local_fallback() -> None:
         )
     )
     primary.execute_workflow = AsyncMock()
+    sample = _HealthFailureSample(
+        health=primary.health_check.return_value,
+        disposition=_HealthFailureDisposition.ALLOW,
+        probe_id=1,
+    )
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_failure_classifier=lambda _health: HealthFailureDisposition.ALLOW,
+        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
@@ -194,17 +200,21 @@ def test_access_or_contract_probe_failure_does_not_grant_fallback_authority() ->
     """Access/contract failures are limited, not permission to execute elsewhere."""
 
     primary = MagicMock()
-    primary.health_check = AsyncMock(
-        return_value=RunnerHealth(
-            backend="remote",
-            healthy=False,
-            message="probe failed: connection refused; tenant access denied by contract",
-        )
+    health = RunnerHealth(
+        backend="remote",
+        healthy=False,
+        message="probe failed: connection refused; tenant access denied by contract",
+    )
+    primary.health_check = AsyncMock(return_value=health)
+    sample = _HealthFailureSample(
+        health=health,
+        disposition=_HealthFailureDisposition.BLOCK,
+        probe_id=1,
     )
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_failure_classifier=lambda _health: HealthFailureDisposition.BLOCK,
+        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)

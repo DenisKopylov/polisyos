@@ -11,6 +11,7 @@ from polisyos.core.contracts.foundry import LoweredConstraint
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_attr_fact,
+    load_world_facts,
     validate_world_facts,
     write_world_fact_segment,
 )
@@ -20,7 +21,6 @@ from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec
 from polisyos.ir.kernel.units import UnitRef
 from polisyos.ir.loading.fact_log import FactProvenance
 from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
-from polisyos.lex.factlog import load_world_facts
 
 pytestmark = pytest.mark.integration
 

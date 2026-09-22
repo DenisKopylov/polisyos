@@ -45,8 +45,8 @@ FOUNDRY_DOMAIN_TARGETS: tuple[DomainTarget, ...] = (
         name="core_mechanisms",
         minimum_percent=85.0,
         patterns=(
-            "**/src/polisyos/foundry/mechanisms/fiscal.py",
-            "**/src/polisyos/foundry/mechanisms/labor.py",
+            "**/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+            "**/src/polisyos/foundry/execute/mechanisms/labor.py",
             "**/src/polisyos/foundry/mechanisms/treasury.py",
         ),
     ),

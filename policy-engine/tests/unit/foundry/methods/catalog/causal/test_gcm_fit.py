@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from polisyos.foundry.methods.catalog.causal import gcm_fit as gcm_fit_module
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit, _pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
@@ -8,28 +9,17 @@ from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, Edg
 from polisyos.ir.analytics.structural_causal_model import MechanismFamily, MechanismSource
 
 
-def test_pag_projection_adds_latent_u_node_and_orients_uncertain_edges() -> None:
+def test_pag_projection_rejects_unresolved_orientation() -> None:
     graph = CausalGraphModel(
         graph_type=GraphType.PAG,
-        nodes=["X", "Y", "Z"],
+        nodes=["Z", "Y"],
         edges=[
-            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW),
             CausalEdge(src="Z", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW),
         ],
     )
 
-    dag, latent_vars = _pag_to_dag_projection(graph)
-    assert dag.graph_type is GraphType.DAG
-    assert latent_vars == ["U_0"]
-    assert "U_0" in dag.nodes
-
-    edge_pairs = {(edge.src, edge.dst) for edge in dag.edges}
-    assert ("U_0", "X") in edge_pairs
-    assert ("U_0", "Y") in edge_pairs
-    assert ("Z", "Y") in edge_pairs
-
-    uncertain_edge = next(edge for edge in dag.edges if edge.src == "Z" and edge.dst == "Y")
-    assert uncertain_edge.metadata.get("orientation_uncertain") is True
+    with pytest.raises(ValueError, match="cannot project unresolved partial orientation"):
+        _pag_to_dag_projection(graph)
 
 
 def test_hybrid_scm_fit_assigns_all_mechanism_sources(monkeypatch) -> None:

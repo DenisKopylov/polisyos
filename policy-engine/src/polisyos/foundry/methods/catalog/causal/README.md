@@ -110,6 +110,26 @@ uv run pytest tests/unit/foundry/methods/test_registry.py tests/unit/foundry/met
   budgeted modules requires a deprecation record, compatibility tests, and a
   registry snapshot check before deletion.
 
+## RDD Runtime Support Boundary
+
+The runtime `RegressionDiscontinuity` method currently supports the ordinary
+uncorrected local-polynomial estimator. Its omitted `bias_correction` value is
+therefore equivalent to the explicit `False` profile and is reported as such
+in `method_params`.
+
+An explicit `bias_correction=True` request is a typed non-success until a
+validated RBC backend is available. The method does not relabel the ordinary
+fit as robust bias corrected, and a quadratic local fit is not an RBC
+implementation. The refusal keeps the missing `rdrobust` capability visible;
+it does not block the supported uncorrected estimator.
+
+Local WLS uses vector weighting and a small Gram matrix rather than materializing
+an observation-sized diagonal matrix. This preserves the existing residual
+covariance convention and point/standard-error semantics while keeping the
+fixed-order fit linear in the number of observations. The separate causal
+statistical-validity benchmark contract must not be read as evidence that the
+runtime default provides RBC or finite-sample coverage.
+
 ## Current State
 
 - Last updated: 2026-05-06

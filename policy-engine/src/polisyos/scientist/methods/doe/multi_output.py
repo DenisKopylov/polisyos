@@ -22,6 +22,9 @@ class MultiOutputSensitivityResult:
     aggregate_ranking: list[str] = field(default_factory=list)
     n_components_used: int = 0
     total_variance_explained: float = 0.0
+    pca_variance_threshold: float = 0.95
+    pca_variance_threshold_status: str = "met"
+    metadata: dict[str, object] = field(default_factory=dict)
 
 
 class MultiOutputAnalyzer:
@@ -59,7 +62,7 @@ class MultiOutputAnalyzer:
             Output array ``(n_samples, n_outputs)``.  If 1-D, treated as
             single-output fallback.
         """
-        from .analysis import analyze_sensitivity
+        from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if outputs.ndim == 1:
             single = analyze_sensitivity(plan, samples, outputs)
@@ -69,15 +72,27 @@ class MultiOutputAnalyzer:
                 aggregate_ranking=list(single.ranking),
                 n_components_used=1,
                 total_variance_explained=1.0,
+                pca_variance_threshold=self._min_variance,
+                pca_variance_threshold_status="not_applicable",
+                metadata=dict(single.metadata),
             )
 
         if outputs.ndim != 2:
             raise ValueError("outputs must be 1-D or 2-D")
 
-        # Remove non-finite values
-        valid_mask = np.all(np.isfinite(outputs), axis=1) & np.all(np.isfinite(samples), axis=1)
-        clean_samples = samples[valid_mask]
-        clean_outputs = outputs[valid_mask]
+        if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
+            raise ValueError("samples and outputs must have the same row count")
+
+        # Apply the plan's failure policy to the original run matrix before
+        # PCA.  In particular, complete-case filtering must not erase the
+        # denominator or make FAIL_FAST/min_success_rate unreachable.
+        prepared = _prepare_analysis_inputs(
+            plan,
+            np.asarray(samples, dtype=float),
+            np.asarray(outputs, dtype=float),
+        )
+        clean_samples = prepared.samples
+        clean_outputs = prepared.outputs
 
         if clean_outputs.shape[0] < 3:
             raise ValueError("Too few valid samples for multi-output analysis")
@@ -95,19 +110,68 @@ class MultiOutputAnalyzer:
 
         # Analyze each component
         per_component: list[SensitivityResult] = []
+        total_variance_explained = float(sum(variance_ratio))
+        variance_threshold_met = (
+            total_variance_explained + 1e-12 >= self._min_variance
+        )
+        variance_threshold_status = "met" if variance_threshold_met else "unmet_limited"
         for i, pc_scores in enumerate(components):
-            result = analyze_sensitivity(plan, clean_samples, pc_scores)
+            result = analyze_sensitivity(
+                plan,
+                clean_samples,
+                pc_scores,
+                preparation_context=prepared,
+            )
+            # The component is derived from the policy-prepared matrix, so
+            # restore the original run accounting rather than reporting the
+            # imputed/PCA representation as a fresh all-successful experiment.
+            result.total_runs = int(outputs.shape[0])
+            result.successful_runs = prepared.successful_runs
+            result.failed_runs = prepared.failed_runs
+            result.metadata.update(prepared.metadata)
+            result.metadata.update(
+                {
+                    "pca_sample_count": int(clean_outputs.shape[0]),
+                    "pca_output_count": int(active_outputs.shape[1]),
+                    "pca_rank_cap": max(
+                        min(clean_outputs.shape[0] - 1, active_outputs.shape[1]),
+                        0,
+                    ),
+                    "pca_scientific_sufficiency": "not_established",
+                    "pca_variance_explained": total_variance_explained,
+                    "pca_variance_threshold": self._min_variance,
+                    "pca_variance_threshold_status": variance_threshold_status,
+                }
+            )
             per_component.append(result)
 
         # Aggregate ranking weighted by explained variance
         aggregate = self._aggregate_rankings(per_component, variance_ratio, plan)
+        metadata = dict(prepared.metadata)
+        metadata.update(
+            {
+                "pca_sample_count": int(clean_outputs.shape[0]),
+                "pca_output_count": int(active_outputs.shape[1]),
+                "pca_rank_cap": max(
+                    min(clean_outputs.shape[0] - 1, active_outputs.shape[1]),
+                    0,
+                ),
+                "pca_scientific_sufficiency": "not_established",
+                "pca_variance_explained": total_variance_explained,
+                "pca_variance_threshold": self._min_variance,
+                "pca_variance_threshold_status": variance_threshold_status,
+            }
+        )
 
         return MultiOutputSensitivityResult(
             per_component=per_component,
             explained_variance_ratio=variance_ratio,
             aggregate_ranking=aggregate,
             n_components_used=len(components),
-            total_variance_explained=sum(variance_ratio),
+            total_variance_explained=total_variance_explained,
+            pca_variance_threshold=self._min_variance,
+            pca_variance_threshold_status=variance_threshold_status,
+            metadata=metadata,
         )
 
     def _run_pca(
@@ -116,12 +180,16 @@ class MultiOutputAnalyzer:
     ) -> tuple[list[np.ndarray], list[float]]:
         """Run PCA and return (list of score arrays, variance ratios)."""
         n_outputs = outputs.shape[1]
-        n_components = self._max_components or n_outputs
+        rank_cap = max(min(outputs.shape[0] - 1, n_outputs), 0)
+        requested_components = self._max_components or n_outputs
+        n_components = min(requested_components, n_outputs, rank_cap)
+        if n_components < 1:
+            raise ValueError("Too few valid samples for PCA")
 
         try:
             from sklearn.decomposition import PCA  # type: ignore[import-untyped]
 
-            pca = PCA(n_components=min(n_components, n_outputs))
+            pca = PCA(n_components=n_components)
             scores = pca.fit_transform(outputs)
             var_ratio = pca.explained_variance_ratio_.tolist()
         except ImportError:

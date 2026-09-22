@@ -332,7 +332,7 @@ class AsyncWorkflowExecutor:
                                 reason="single_node_fail_fast",
                             )
                             abort = True
-                    else:
+                    elif record.status == "ok":
                         completed_nodes.append(alias)
                 else:
                     # Backpressure metrics
@@ -344,7 +344,12 @@ class AsyncWorkflowExecutor:
                             workflow_id=workflow.workflow_id,
                         )
 
-                    tier_records, state, tier_failed = await self._run_parallel_tier(
+                    (
+                        tier_records,
+                        state,
+                        tier_failed,
+                        tier_cache_entry_refs,
+                    ) = await self._run_parallel_tier(
                         runnable,
                         invocations,
                         state,
@@ -356,9 +361,7 @@ class AsyncWorkflowExecutor:
                     records.extend(tier_records)
                     for alias in tier_failed:
                         failed.add(alias)
-                    for rec in tier_records:
-                        if rec.status == "ok":
-                            completed_nodes.append(rec.alias)
+                    tier_completed = [rec.alias for rec in tier_records if rec.status == "ok"]
                     if tier_failed and workflow.error_policy == "fail_fast":
                         state = tier_savepoint
                         self._emit_rollback_compensation(
@@ -371,6 +374,25 @@ class AsyncWorkflowExecutor:
                             reason="parallel_tier_fail_fast",
                         )
                         abort = True
+                    elif tier_completed:
+                        completed_before_tier = list(completed_nodes)
+                        completed_nodes.extend(tier_completed)
+                        checkpoint_alias = tier_completed[-1]
+                        state = await self._handle_tier_checkpoint(
+                            state,
+                            aliases=tier_completed,
+                            alias=checkpoint_alias,
+                            node_id=str(invocations[checkpoint_alias].node_id),
+                            node_ids={
+                                alias: str(invocations[alias].node_id)
+                                for alias in tier_completed
+                            },
+                            completed_nodes_before_tier=completed_before_tier,
+                            completed_nodes=completed_nodes,
+                            workflow=workflow,
+                            workflow_fingerprint=workflow_fingerprint,
+                            cache_entry_refs_by_alias=tier_cache_entry_refs,
+                        )
 
                 tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
                 if self._ctx.metrics is not None:
@@ -559,7 +581,7 @@ class AsyncWorkflowExecutor:
         workflow_fingerprint: str,
         completed_nodes: list[str],
         tier_index: int = 0,
-    ) -> tuple[list[NodeRunRecord], ExperimentState, set[str]]:
+    ) -> tuple[list[NodeRunRecord], ExperimentState, set[str], dict[str, ArtifactRef]]:
         """Execute a parallel tier using asyncio.TaskGroup."""
         semaphore = asyncio.Semaphore(self._max_parallelism)
         results: dict[str, tuple[NodeOutcome, int, bool, ArtifactRef | None]] = {}
@@ -707,7 +729,7 @@ class AsyncWorkflowExecutor:
                     if conflict_ref is not None:
                         record.artifacts.append(conflict_ref)
                     tier_failed.add(record.alias)
-                return records, state, tier_failed
+                return records, state, tier_failed, {}
 
             state = merge_result.state
             if merge_result.resolved_conflicts:
@@ -716,23 +738,7 @@ class AsyncWorkflowExecutor:
                     self._merge_conflict_policy.value,
                     [str(conflict) for conflict in merge_result.resolved_conflicts],
                 )
-            if self._checkpoint_hook is not None:
-                checkpoint_completed = list(completed_nodes)
-                for alias in aliases:
-                    if alias not in ok_outcomes:
-                        continue
-                    checkpoint_completed.append(alias)
-                    state = await self._handle_checkpoint(
-                        state,
-                        alias,
-                        str(invocations[alias].node_id),
-                        checkpoint_completed,
-                        workflow,
-                        workflow_fingerprint,
-                        cache_entry_ref=cache_entry_refs.get(alias),
-                    )
-
-        return records, state, tier_failed
+        return records, state, tier_failed, cache_entry_refs
 
     async def _execute_node(
         self,
@@ -1070,6 +1076,105 @@ class AsyncWorkflowExecutor:
             )
 
         return outcome, duration_ms, cache_hit, cache_entry_ref
+
+    async def _handle_tier_checkpoint(
+        self,
+        state: ExperimentState,
+        *,
+        aliases: list[str],
+        alias: str,
+        node_id: str,
+        node_ids: dict[str, str],
+        completed_nodes_before_tier: list[str],
+        completed_nodes: list[str],
+        workflow: WorkflowSpec,
+        workflow_fingerprint: str,
+        cache_entry_refs_by_alias: dict[str, ArtifactRef],
+    ) -> ExperimentState:
+        """Publish a merged tier frontier through the available hook contract."""
+        if self._checkpoint_hook is None:
+            return state
+
+        async_checkpoint = getattr(self._checkpoint_hook, "on_tier_complete_async", None)
+        sync_checkpoint = getattr(self._checkpoint_hook, "on_tier_complete", None)
+        if callable(async_checkpoint) or callable(sync_checkpoint):
+            cache_entry_refs = [
+                cache_entry_refs_by_alias[successful_alias]
+                for successful_alias in aliases
+                if successful_alias in cache_entry_refs_by_alias
+            ]
+            if callable(async_checkpoint):
+                result = await async_checkpoint(
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=list(completed_nodes),
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_refs=list(cache_entry_refs),
+                )
+            else:
+                result = await run_blocking_async(
+                    sync_checkpoint,
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=list(completed_nodes),
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_refs=list(cache_entry_refs),
+                )
+            if result is not None:
+                state = state.model_copy(
+                    update={"last_checkpoint_ref": result.checkpoint_ref},
+                )
+                if self._ctx.audit is not None:
+                    self._ctx.audit.append(
+                        run_id=state.run_id,
+                        actor="engine",
+                        action="CHECKPOINT_CREATED",
+                        artifact_refs=[result.checkpoint_ref],
+                        metadata={
+                            "sequence_number": result.sequence_number,
+                            "alias": alias,
+                            "aliases": list(aliases),
+                            "tier_atomic": True,
+                        },
+                    )
+                if self._provenance_dag is not None:
+                    try:
+                        self._provenance_dag.record_checkpoint(
+                            alias=alias,
+                            checkpoint_ref=result.checkpoint_ref,
+                            sequence_number=result.sequence_number,
+                        )
+                    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                        _executor_degraded(
+                            operation="record_tier_checkpoint_provenance",
+                            reason="provenance_record_failed",
+                            exc=exc,
+                            details={
+                                "alias": alias,
+                                "node_id": node_id,
+                                "aliases": list(aliases),
+                            },
+                        )
+            return state
+
+        # Legacy node-level hooks retain the former per-success callback contract.
+        legacy_completed = list(completed_nodes_before_tier)
+        for successful_alias in aliases:
+            legacy_completed.append(successful_alias)
+            state = await self._handle_checkpoint(
+                state,
+                successful_alias,
+                node_ids[successful_alias],
+                list(legacy_completed),
+                workflow,
+                workflow_fingerprint,
+                cache_entry_ref=cache_entry_refs_by_alias.get(successful_alias),
+            )
+        return state
 
     async def _handle_checkpoint(
         self,

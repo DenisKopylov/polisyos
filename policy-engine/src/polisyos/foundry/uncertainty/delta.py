@@ -22,7 +22,7 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 from .config import PropagationConfig
-from .covariance import build_covariance_matrix
+from .covariance import build_covariance_matrix, has_unknown_dependency
 from .protocol import PropagationResult
 
 
@@ -57,6 +57,13 @@ class DeltaMethodPropagator:
 
         effective_nominal = dict(nominal_params)
         param_names = sorted(input_envelopes.keys())
+        if has_unknown_dependency(input_envelopes):
+            return _unknown_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unknown_dependency",
+            )
+
         n_params = len(param_names)
         vector_nominal = jnp.asarray(
             [float(effective_nominal[name]) for name in param_names],
@@ -76,12 +83,19 @@ class DeltaMethodPropagator:
             metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
         ]
 
-        cov = build_covariance_matrix(
-            param_names,
-            input_envelopes,
-            use_full_covariance=self._config.delta_use_full_covariance,
-            jitter=self._config.delta_covariance_jitter,
-        )
+        try:
+            cov = build_covariance_matrix(
+                param_names,
+                input_envelopes,
+                use_full_covariance=self._config.delta_use_full_covariance,
+                jitter=self._config.delta_covariance_jitter,
+            )
+        except ValueError:
+            return _unknown_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="incompatible_dependency",
+            )
 
         def _vectorized_fn(theta: jnp.ndarray) -> jnp.ndarray:
             params = dict(effective_nominal)
@@ -126,7 +140,10 @@ class DeltaMethodPropagator:
                 propagation_method=PropagationMethod.DELTA_METHOD,
                 interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
                 is_heuristic_ci=False,
-                gate_eligible=True,
+                # Preserve the weakest input authority through push-forward.
+                gate_eligible=all(
+                    envelope.gate_eligible for envelope in input_envelopes.values()
+                ),
                 metadata={
                     "n_input_params": n_params,
                     "input_param_names": param_names,
@@ -201,3 +218,36 @@ def _missing_output_result(
         method_used=PropagationMethod.DELTA_METHOD,
         diagnostics={"missing_output": True},
     )
+
+
+def _unknown_dependency_results(
+    output_metric_ids: list[str],
+    *,
+    input_param_names: list[str],
+    failure: str,
+) -> list[PropagationResult]:
+    """Return non-authoritative results when no joint input law is established."""
+    return [
+        PropagationResult(
+            metric_id=metric_id,
+            envelope=UncertaintyEnvelope(
+                point_estimate=0.0,
+                confidence_interval=(-1.0, 1.0),
+                confidence_level=None,
+                distribution_family=DistributionFamily.UNKNOWN,
+                source=UncertaintySource.ENSEMBLE,
+                propagation_method=PropagationMethod.DELTA_METHOD,
+                interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+                is_heuristic_ci=True,
+                gate_eligible=False,
+                metadata={
+                    "failure": failure,
+                    "input_param_names": input_param_names,
+                },
+            ),
+            input_envelopes_used=input_param_names,
+            method_used=PropagationMethod.DELTA_METHOD,
+            diagnostics={failure: True},
+        )
+        for metric_id in output_metric_ids
+    ]

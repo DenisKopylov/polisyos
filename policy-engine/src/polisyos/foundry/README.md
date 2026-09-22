@@ -29,6 +29,13 @@ agent-sim tooling.
   [mechanisms/treasury.py](mechanisms/treasury.py) path is a direct
   compatibility facade for existing callers.
 
+- [execute/mechanisms/](execute/mechanisms/) for the canonical fiscal and
+  labor patch-emission mechanisms. The retained
+  [mechanisms/fiscal.py](mechanisms/fiscal.py) and
+  [mechanisms/labor.py](mechanisms/labor.py) paths are forwarding facades that
+  preserve existing imports; runtime method descriptors resolve the canonical
+  execution owner.
+
 - [execute/api.py](execute/api.py) for `execute()`, input bindings, and replay
   behavior.
 

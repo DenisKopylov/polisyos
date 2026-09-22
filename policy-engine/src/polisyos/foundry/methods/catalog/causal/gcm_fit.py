@@ -49,6 +49,8 @@ def _pag_to_dag_projection(graph: CausalGraphModel) -> tuple[CausalGraphModel, l
 def _parents_by_node(graph: CausalGraphModel) -> dict[str, list[str]]:
     parents: dict[str, list[str]] = {node: [] for node in graph.nodes}
     for edge in graph.edges:
+        if edge.lag not in (None, 0):
+            continue
         parents.setdefault(edge.dst, []).append(edge.src)
     return parents
 
@@ -326,6 +328,11 @@ class HybridSCMFit:
             if isinstance(payload.graph, CausalGraphModel)
             else CausalGraphModel.model_validate(payload.graph)
         )
+        if any(edge.lag not in (None, 0) for edge in graph.edges):
+            raise ValueError(
+                "gcm_fit is a static consumer; temporal edges require a temporal "
+                "fit/expansion before GCM fitting"
+            )
         threshold = float(params.get("latent_sensitivity_threshold", 0.3))
         ridge = float(params.get("bayes_ridge", 1e-6))
         warnings: list[str] = []
@@ -353,17 +360,26 @@ class HybridSCMFit:
         source_summary = {source.value: 0 for source in MechanismSource}
         hybrid_fallback_count = 0
         unstable_due_to_latent = False
+        observed_root_count = 0
+        missing_root_count = 0
 
         latent_set = set(latent_vars)
         for variable in projected_graph.nodes:
-            if variable not in non_roots:
-                continue
+            is_root = variable not in non_roots
 
             parents = list(parents_map.get(variable, []))
             has_node_data = variable in column_index
             has_parent_data = all(parent in column_index for parent in parents)
             prior_spec = payload.literature_priors.get(variable, {})
             has_prior = bool(prior_spec)
+
+            if is_root and not has_node_data and not has_prior:
+                missing_root_count += 1
+                warnings.append(
+                    f"missing root mechanism for '{variable}'; query will use a declared "
+                    "hypothesis only when explicitly requested"
+                )
+                continue
 
             if has_node_data and has_parent_data and has_prior:
                 source = MechanismSource.HYBRID
@@ -385,7 +401,19 @@ class HybridSCMFit:
 
             family = MechanismFamily.EMPIRICAL
             family_params: dict[str, Any]
-            if source is MechanismSource.DATA_FITTED:
+            if is_root and has_node_data:
+                observed_root_count += 1
+                family = MechanismFamily.EMPIRICAL
+                family_params = _empirical_params(y)
+                family_params.update(
+                    {
+                        "observed_samples": y.tolist(),
+                        "observed_samples_source": "SCMFitData.data",
+                        "observed_sample_alignment": "column_row_order",
+                        "joint_sample_group": "SCMFitData.observed_roots",
+                    }
+                )
+            elif source is MechanismSource.DATA_FITTED:
                 if parents:
                     family = MechanismFamily.LINEAR
                     family_params = _fit_linear_ols(y, x, parents)
@@ -461,6 +489,8 @@ class HybridSCMFit:
             "n_hybrid": float(source_summary[MechanismSource.HYBRID.value]),
             "n_default": float(source_summary[MechanismSource.DEFAULT.value]),
             "n_hybrid_fallback": float(hybrid_fallback_count),
+            "n_observed_roots": float(observed_root_count),
+            "n_missing_roots": float(missing_root_count),
             "latent_vars_count": float(len(latent_vars)),
             "unstable_due_to_latent": 1.0 if unstable_due_to_latent else 0.0,
         }

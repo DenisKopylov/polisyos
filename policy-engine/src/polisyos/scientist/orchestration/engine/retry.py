@@ -13,10 +13,15 @@ delegate directly to ``node.execute()`` with minimal overhead.
 from __future__ import annotations
 
 import asyncio
+import contextvars
+import dataclasses
 import logging
 import multiprocessing as mp
+import os
 import queue
 import random
+import signal
+import threading
 import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from datetime import UTC, datetime
@@ -52,6 +57,40 @@ if TYPE_CHECKING:
 
 _logger = logging.getLogger(__name__)
 
+# A process timeout bounds node computation.  Queue delivery is a separate,
+# short grace period: a worker may have exited while its multiprocessing.Queue
+# feeder is still flushing a result.  Keeping the windows distinct prevents a
+# large result from consuming an unbounded extension of the node deadline.
+_PROCESS_RESULT_POLL_S = 0.01
+_PROCESS_GROUP_READY_S = 0.05
+_PROCESS_DELIVERY_GRACE_S = 1.0
+_PROCESS_CLEANUP_GRACE_S = 1.0
+
+
+class _WorkerComputeTimeout(Exception):
+    """The worker did not finish computation before the node deadline."""
+
+
+class _WorkerDeliveryTimeout(Exception):
+    """The worker finished, but its result was not delivered in bounded time."""
+
+
+@dataclasses.dataclass
+class _WorkerLifecycle:
+    """Shared state for one forked worker's compute and cleanup lifetimes."""
+
+    compute_deadline: float
+    completion_time: Any
+    process_group_id: int | None = None
+
+    def completed_before_deadline(self) -> bool:
+        """Return whether the worker marked node execution complete in time."""
+        return _completion_before_deadline(
+            self.completion_time,
+            self.compute_deadline,
+        )
+
+
 _RETRY_RUNTIME_ERRORS = (
     ArithmeticError,
     AssertionError,
@@ -72,6 +111,344 @@ _DEAD_LETTER_PERSIST_ERRORS = (
     ValidationError,
     ValueError,
 )
+
+
+# The typed engine store exposes these two persistence calls.  The ownership
+# hook is included because RunContext invokes it on the same store during a
+# run write; FileSystemCAS-only signing/import helpers are outside this lease.
+_STORE_WRITE_METHODS = frozenset(
+    {
+        "put_bytes",
+        "put_json",
+        "record_artifact_owner",
+    }
+)
+_RUN_WRITE_METHODS = frozenset(
+    {
+        "_emit_record",
+        "_record_ref_owner",
+        "add_input",
+        "add_output",
+        "emit",
+        "finalize",
+    }
+)
+_TRACE_WRITE_METHODS = frozenset({"emit", "close"})
+_AUDIT_WRITE_METHODS = frozenset({"append", "close"})
+_CLAIM_WRITE_METHODS = frozenset(
+    {
+        "advance_verified_batch",
+        "append_verified_owner_event",
+        "finalize_initial_root",
+        "migrate_legacy_roots",
+        "persist_candidate_ledger",
+        "prepare_initial_ledger",
+        "produce_owner_event_candidate",
+    }
+)
+
+
+class _AttemptAuthority:
+    """Serialize attempt-owned writes and revoke them after a timeout.
+
+    The lock is deliberately shared by every facade for one attempt.  A write
+    that has acquired it is linearized before ``revoke``; every later write is
+    denied.  This is a local authority boundary, not a process sandbox.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.RLock()
+        self._active = True
+
+    def invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+        """Run one authorized operation, or deny it after revocation."""
+        with self._lock:
+            if not self._active:
+                return None
+            return operation(*args, **kwargs)
+
+    def revoke(self) -> None:
+        """Make all subsequent attempt-owned writes no-ops."""
+        with self._lock:
+            self._active = False
+
+
+class _AttemptFacade:
+    """Delegate reads while gating the named mutating methods."""
+
+    def __init__(
+        self,
+        target: Any,
+        authority: _AttemptAuthority,
+        *,
+        write_methods: frozenset[str],
+    ) -> None:
+        self._target = target
+        self._authority = authority
+        self._write_methods = write_methods
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in self._write_methods:
+            return lambda *args, **kwargs: self._authority.invoke(
+                value,
+                *(_unwrap_manifest_value(arg) for arg in args),
+                **{
+                    key: _unwrap_manifest_value(item)
+                    for key, item in kwargs.items()
+                },
+            )
+        return value
+
+
+_MUTATING_COLLECTION_METHODS = frozenset(
+    {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "pop",
+        "remove",
+        "reverse",
+        "sort",
+        "update",
+        "setdefault",
+    }
+)
+
+
+class _AttemptCollectionFacade:
+    """Gate mutation of a list/dict nested in the run manifest."""
+
+    def __init__(self, target: Any, authority: _AttemptAuthority) -> None:
+        self._target = target
+        self._authority = authority
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in _MUTATING_COLLECTION_METHODS:
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                self._authority.invoke(
+                    value,
+                    *(_unwrap_manifest_value(arg) for arg in args),
+                    **{
+                        key: _unwrap_manifest_value(item)
+                        for key, item in kwargs.items()
+                    },
+                ),
+                self._authority,
+            )
+        if callable(value) and name == "get":
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(*args, **kwargs), self._authority
+            )
+        if callable(value) and name == "items":
+            return lambda *args, **kwargs: (
+                (key, _wrap_manifest_value(item, self._authority))
+                for key, item in value(*args, **kwargs)
+            )
+        if callable(value) and name == "values":
+            return lambda *args, **kwargs: (
+                _wrap_manifest_value(item, self._authority)
+                for item in value(*args, **kwargs)
+            )
+        if callable(value) and name == "copy":
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(*args, **kwargs), self._authority
+            )
+        return value
+
+    def __getitem__(self, key: Any) -> Any:
+        return _wrap_manifest_value(self._target[key], self._authority)
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self._authority.invoke(
+            self._target.__setitem__, key, _unwrap_manifest_value(value)
+        )
+
+    def __delitem__(self, key: Any) -> None:
+        self._authority.invoke(self._target.__delitem__, key)
+
+    def __iter__(self):
+        return (_wrap_manifest_value(item, self._authority) for item in self._target)
+
+    def __len__(self) -> int:
+        return len(self._target)
+
+    def __contains__(self, value: object) -> bool:
+        return value in self._target
+
+
+class _AttemptModelFacade:
+    """Gate mutable descendants that are Pydantic models in a manifest."""
+
+    def __init__(self, target: BaseModel, authority: _AttemptAuthority) -> None:
+        object.__setattr__(self, "_target", target)
+        object.__setattr__(self, "_authority", authority)
+
+    @property
+    def __class__(self) -> type[Any]:
+        return type(self._target)
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in {"copy", "model_copy"}:
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(
+                    *(_unwrap_manifest_value(arg) for arg in args),
+                    **{
+                        key: _unwrap_manifest_value(item)
+                        for key, item in kwargs.items()
+                    },
+                ),
+                self._authority,
+            )
+        return _wrap_manifest_value(value, self._authority)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name.startswith("_"):
+            object.__setattr__(self, name, value)
+            return
+        self._authority.invoke(
+            setattr,
+            self._target,
+            name,
+            _unwrap_manifest_value(value),
+        )
+
+
+class _AttemptManifestFacade(_AttemptModelFacade):
+    """Preserve direct on-time manifest writes while denying revoked writes."""
+
+
+def _wrap_manifest_value(value: Any, authority: _AttemptAuthority) -> Any:
+    """Wrap mutable manifest descendants without changing scalar values."""
+    if isinstance(value, (list, dict)):
+        return _AttemptCollectionFacade(value, authority)
+    if isinstance(value, BaseModel):
+        return _AttemptModelFacade(value, authority)
+    if isinstance(value, tuple):
+        return tuple(_wrap_manifest_value(item, authority) for item in value)
+    return value
+
+
+def _unwrap_manifest_value(value: Any) -> Any:
+    """Recover the underlying object when a gated value is passed to a write."""
+    if isinstance(value, (_AttemptFacade, _AttemptCollectionFacade, _AttemptModelFacade)):
+        return value._target
+    if isinstance(value, tuple):
+        return tuple(_unwrap_manifest_value(item) for item in value)
+    return value
+
+
+class _AttemptRunFacade(_AttemptFacade):
+    """Run facade with isolated manifest and trace sink references."""
+
+    def __init__(
+        self,
+        target: Any,
+        authority: _AttemptAuthority,
+        store: Any,
+    ) -> None:
+        super().__init__(target, authority, write_methods=_RUN_WRITE_METHODS)
+        object.__setattr__(self, "store", store)
+        manifest = getattr(target, "run_manifest", None)
+        object.__setattr__(
+            self,
+            "run_manifest",
+            _AttemptManifestFacade(manifest, authority) if manifest is not None else None,
+        )
+        for name in ("trace", "_audit_sink"):
+            sink = getattr(target, name, None)
+            if sink is not None:
+                setattr(
+                    self,
+                    name,
+                    _AttemptFacade(
+                        sink,
+                        authority,
+                        write_methods=_TRACE_WRITE_METHODS,
+                    ),
+                )
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if "_target" in self.__dict__:
+            target_value = _unwrap_manifest_value(value)
+            if name in {"store", "trace", "_audit_sink"}:
+                self._authority.invoke(setattr, self._target, name, target_value)
+                if target_value is None:
+                    value = None
+                else:
+                    write_methods = (
+                        _STORE_WRITE_METHODS
+                        if name == "store"
+                        else _TRACE_WRITE_METHODS
+                    )
+                    value = _AttemptFacade(
+                        target_value,
+                        self._authority,
+                        write_methods=write_methods,
+                    )
+            elif name == "run_manifest":
+                self._authority.invoke(
+                    setattr,
+                    self._target,
+                    name,
+                    target_value,
+                )
+                value = _AttemptManifestFacade(target_value, self._authority)
+        object.__setattr__(self, name, value)
+
+
+class _AttemptContext:
+    """Private worker context preserving the public context attribute surface."""
+
+    def __init__(self, target: Any, authority: _AttemptAuthority) -> None:
+        self._target = target
+        self.store = _AttemptFacade(
+            target.store,
+            authority,
+            write_methods=_STORE_WRITE_METHODS,
+        )
+        self.run = _AttemptRunFacade(target.run, authority, self.store)
+        audit = getattr(target, "audit", None)
+        if audit is not None:
+            self.audit = _AttemptFacade(
+                audit,
+                authority,
+                write_methods=_AUDIT_WRITE_METHODS,
+            )
+        claim_owner = getattr(target, "claim_ledger_owner", None)
+        if claim_owner is not None:
+            self.claim_ledger_owner = _AttemptFacade(
+                claim_owner,
+                authority,
+                write_methods=_CLAIM_WRITE_METHODS,
+            )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._target, name)
+
+
+def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
+    """Build a gated context without changing its concrete public type."""
+    proxy = _AttemptContext(target, authority)
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    if not isinstance(target, ExecutionContext):
+        return proxy
+    field_names = {field.name for field in dataclasses.fields(target)}
+    replacements = {
+        name: getattr(proxy, name)
+        for name in field_names
+        if name in {"store", "run", "audit", "claim_ledger_owner"}
+    }
+    try:
+        return dataclasses.replace(target, **replacements)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            "failed to preserve ExecutionContext type for timed attempt"
+        ) from exc
 
 
 class RetryPolicy(BaseModel):
@@ -313,14 +690,30 @@ def _execute_with_timeout_sync(
     *,
     timeout_s: float,
 ) -> NodeOutcome:
+    authority = _AttemptAuthority()
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
     if _can_use_forked_timeout_worker():
-        return _execute_with_timeout_process(node, ctx, state, timeout_s=timeout_s)
+        return _execute_with_timeout_process(
+            node,
+            worker_ctx,
+            worker_state,
+            timeout_s=timeout_s,
+            authority=authority,
+        )
 
-    future = get_shared_executor().submit(node.execute, ctx, state)
+    context = contextvars.copy_context()
+    future = get_shared_executor().submit(
+        context.run,
+        node.execute,
+        worker_ctx,
+        worker_state,
+    )
     try:
         return future.result(timeout=timeout_s)
     except FuturesTimeoutError:
         future.cancel()
+        authority.revoke()
         raise NodeTimeoutError(
             f"Node exceeded timeout of {timeout_s}s",
         ) from None
@@ -333,43 +726,300 @@ def _can_use_forked_timeout_worker() -> bool:
         return False
 
 
+def _delivery_deadline() -> float:
+    """Return a bounded deadline for Queue feeder delivery."""
+    return time.monotonic() + _PROCESS_DELIVERY_GRACE_S
+
+
+def _completion_before_deadline(
+    completion_time: Any,
+    compute_deadline: float,
+) -> bool:
+    """Require an explicit worker completion mark before draining delivery."""
+    if completion_time is None:
+        return False
+    try:
+        completed_at = float(completion_time.value)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return 0.0 < completed_at <= compute_deadline
+
+
+def _owned_process_group_id(
+    process: mp.Process,
+    group_ready: Any,
+    *,
+    deadline: float,
+) -> int | None:
+    """Resolve a worker-owned process group without ever targeting our own.
+
+    The worker creates its own session before executing user code.  The parent
+    waits only briefly for that handshake; if it is unavailable, cleanup falls
+    back to the owned ``multiprocessing.Process`` handle rather than guessing
+    at a process group.  A group is accepted only when its id is the worker
+    pid and it differs from the parent's group.
+    """
+    if group_ready is not None and not group_ready.is_set():
+        remaining = max(0.0, deadline - time.monotonic())
+        group_ready.wait(timeout=min(_PROCESS_GROUP_READY_S, remaining))
+    if group_ready is not None and not group_ready.is_set():
+        return None
+    if not process.is_alive():
+        return None
+    try:
+        process_group_id = os.getpgid(process.pid)
+    except OSError:
+        return None
+    if process_group_id != process.pid or process_group_id == os.getpgrp():
+        return None
+    return process_group_id
+
+
+def _owned_process_group_is_alive(process_group_id: int | None) -> bool:
+    """Check only a validated non-parent process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return False
+    if process_group_id == os.getpgrp():
+        return False
+    try:
+        os.killpg(process_group_id, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _signal_owned_process_group(process_group_id: int | None, signum: int) -> None:
+    """Signal an owned group, never the caller's process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return
+    if process_group_id == os.getpgrp():
+        return
+    try:
+        os.killpg(process_group_id, signum)
+    except OSError:
+        return
+
+
+def _wait_for_owned_process_group_exit(process_group_id: int | None) -> bool:
+    """Bounded wait for descendants after the worker itself has stopped."""
+    deadline = time.monotonic() + _PROCESS_CLEANUP_GRACE_S
+    while _owned_process_group_is_alive(process_group_id):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(_PROCESS_RESULT_POLL_S)
+    return True
+
+
+def _terminate_owned_process(
+    process: mp.Process,
+    process_group_id: int | None,
+) -> bool:
+    """Terminate one worker and any descendants in its owned process group."""
+    _signal_owned_process_group(process_group_id, signal.SIGTERM)
+    if process.is_alive():
+        process.terminate()
+    process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
+
+    if process.is_alive():
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        process.kill()
+        process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
+
+    group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if not group_clean:
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if process_group_id is None:
+        # A direct Process handle proves only worker termination; descendant
+        # absence is not established without the owned-group handshake.
+        return False
+    return not process.is_alive() and group_clean
+
+
+def _close_worker_process(process: mp.Process) -> None:
+    """Release process resources after the owned process has stopped."""
+    if process.is_alive():
+        return
+    process.join(timeout=0.0)
+    process.close()
+
+
+def _close_result_queue(result_queue: Any) -> None:
+    """Close the result queue after all needed bytes have been drained."""
+    result_queue.close()
+    result_queue.join_thread()
+
+
+def _drain_result_sync(
+    process: mp.Process,
+    result_queue: mp.Queue[Any],
+    *,
+    compute_deadline: float,
+    completion_time: Any = None,
+) -> tuple[str, Any]:
+    """Receive a worker result without joining before Queue drain."""
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        remaining = compute_deadline - time.monotonic()
+        if remaining <= 0:
+            raise _WorkerComputeTimeout
+        try:
+            result = result_queue.get(
+                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
+            )
+        except queue.Empty:
+            continue
+        if not _completion_before_deadline(completion_time, compute_deadline):
+            raise _WorkerComputeTimeout
+        return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
+
+    delivery_deadline = _delivery_deadline()
+    while time.monotonic() < delivery_deadline:
+        remaining = delivery_deadline - time.monotonic()
+        try:
+            return result_queue.get(
+                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
+            )
+        except queue.Empty:
+            continue
+    raise _WorkerDeliveryTimeout
+
+
+async def _drain_result_async(
+    process: mp.Process,
+    result_queue: mp.Queue[Any],
+    *,
+    compute_deadline: float,
+    completion_time: Any = None,
+) -> tuple[str, Any]:
+    """Async counterpart of :func:`_drain_result_sync`."""
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        try:
+            result = result_queue.get_nowait()
+        except queue.Empty:
+            remaining = compute_deadline - time.monotonic()
+            if remaining <= 0:
+                raise _WorkerComputeTimeout
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+        else:
+            if not _completion_before_deadline(completion_time, compute_deadline):
+                raise _WorkerComputeTimeout
+            return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
+
+    delivery_deadline = _delivery_deadline()
+    while time.monotonic() < delivery_deadline:
+        try:
+            return result_queue.get_nowait()
+        except queue.Empty:
+            remaining = delivery_deadline - time.monotonic()
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+    raise _WorkerDeliveryTimeout
+
+
+def _join_worker_until(process: mp.Process, *, deadline: float) -> None:
+    """Wait for a result-producing worker to exit before decoding it."""
+    while process.is_alive():
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise _WorkerDeliveryTimeout
+        process.join(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+
+
+async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> None:
+    """Async wait for a result-producing worker to exit."""
+    while process.is_alive():
+        if deadline - time.monotonic() <= 0:
+            raise _WorkerDeliveryTimeout
+        process.join(timeout=0.0)
+        await asyncio.sleep(
+            min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic()))
+        )
+
+
+def _worker_timeout_error(
+    timeout_s: float,
+    *,
+    cleanup_complete: bool,
+) -> NodeTimeoutError:
+    suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
+    return NodeTimeoutError(f"Node exceeded timeout of {timeout_s}s{suffix}")
+
+
 def _execute_with_timeout_process(
     node: Any,
-    ctx: ExecutionContext,
+    ctx: Any,
     state: ExperimentState,
     *,
     timeout_s: float,
+    authority: _AttemptAuthority | None = None,
 ) -> NodeOutcome:
+    authority = authority or _AttemptAuthority()
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    process.start()
-    process.join(timeout=timeout_s)
-    if process.is_alive():
-        process.terminate()
-        process.join(timeout=1.0)
-        if process.is_alive():
-            process.kill()
-            process.join(timeout=1.0)
-        result_queue.close()
-        result_queue.join_thread()
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
-
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
-        status, payload = result_queue.get_nowait()
-    except queue.Empty as exc:
+        process.start()
+        lifecycle.process_group_id = _owned_process_group_id(
+            process,
+            group_ready,
+            deadline=lifecycle.compute_deadline,
+        )
+        status, payload = _drain_result_sync(
+            process,
+            result_queue,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
+        )
+        _join_worker_until(process, deadline=_delivery_deadline())
+    except _WorkerComputeTimeout:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        raise _worker_timeout_error(
+            timeout_s,
+            cleanup_complete=cleanup_complete,
+        ) from None
+    except _WorkerDeliveryTimeout as exc:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        cleanup_suffix = (
+            "" if cleanup_complete else "; owned process cleanup incomplete"
+        )
         raise RuntimeError(
-            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+            "Node timeout worker result delivery exceeded bounded grace "
+            f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        result_queue.close()
-        result_queue.join_thread()
+        if process.is_alive():
+            _terminate_owned_process(process, lifecycle.process_group_id)
+        _close_worker_process(process)
+        _close_result_queue(result_queue)
 
     if status == "ok":
         return decode_node_outcome(payload)
@@ -380,43 +1030,71 @@ def _execute_with_timeout_process(
 
 async def _execute_with_timeout_process_async(
     node: Any,
-    ctx: ExecutionContext,
+    ctx: Any,
     state: ExperimentState,
     *,
     timeout_s: float,
+    authority: _AttemptAuthority | None = None,
 ) -> NodeOutcome:
+    if authority is None:
+        authority = _AttemptAuthority()
+        ctx = _build_attempt_context(ctx, authority)
+        state = state.model_copy(deep=True)
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    process.start()
-    deadline = time.monotonic() + timeout_s
-    while process.is_alive() and time.monotonic() < deadline:
-        await asyncio.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
-    if process.is_alive():
-        process.terminate()
-        process.join(timeout=1.0)
-        if process.is_alive():
-            process.kill()
-            process.join(timeout=1.0)
-        result_queue.close()
-        result_queue.join_thread()
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
-
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
-        status, payload = result_queue.get_nowait()
-    except queue.Empty as exc:
+        process.start()
+        lifecycle.process_group_id = _owned_process_group_id(
+            process,
+            group_ready,
+            deadline=lifecycle.compute_deadline,
+        )
+        status, payload = await _drain_result_async(
+            process,
+            result_queue,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
+        )
+        await _join_worker_until_async(process, deadline=_delivery_deadline())
+    except _WorkerComputeTimeout:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        raise _worker_timeout_error(
+            timeout_s,
+            cleanup_complete=cleanup_complete,
+        ) from None
+    except _WorkerDeliveryTimeout as exc:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        cleanup_suffix = (
+            "" if cleanup_complete else "; owned process cleanup incomplete"
+        )
         raise RuntimeError(
-            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+            "Node timeout worker result delivery exceeded bounded grace "
+            f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        result_queue.close()
-        result_queue.join_thread()
+        if process.is_alive():
+            _terminate_owned_process(process, lifecycle.process_group_id)
+        _close_worker_process(process)
+        _close_result_queue(result_queue)
 
     if status == "ok":
         return decode_node_outcome(payload)
@@ -425,20 +1103,89 @@ async def _execute_with_timeout_process_async(
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
 
 
+def _consume_finished_task(task: asyncio.Task[Any]) -> None:
+    """Consume a detached attempt result so timeout cleanup is observable only once."""
+    try:
+        task.exception()
+    except asyncio.CancelledError:
+        pass
+
+
+async def _execute_with_timeout_async(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    timeout_s: float,
+) -> NodeOutcome:
+    """Run an async attempt with a revocable authority boundary."""
+    authority = _AttemptAuthority()
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
+    task = asyncio.create_task(node.execute_async(worker_ctx, worker_state))
+    try:
+        return await asyncio.wait_for(asyncio.shield(task), timeout=timeout_s)
+    except TimeoutError:
+        authority.revoke()
+        task.add_done_callback(_consume_finished_task)
+        raise NodeTimeoutError(
+            f"Node exceeded timeout of {timeout_s}s",
+        ) from None
+    except asyncio.CancelledError:
+        authority.revoke()
+        task.add_done_callback(_consume_finished_task)
+        raise
+
+
 def _node_execute_worker(
     node: Any,
     ctx: ExecutionContext,
     state: ExperimentState,
     result_queue: mp.Queue[Any],
+    group_ready: Any = None,
+    completion_time: Any = None,
 ) -> None:
+    if group_ready is not None:
+        try:
+            os.setsid()
+        except OSError:
+            # Parent-side validation refuses to target an unowned group.
+            pass
+        finally:
+            group_ready.set()
+
+    def _send(status: str, payload: Any) -> None:
+        try:
+            result_queue.put((status, payload))
+        except _RETRY_RUNTIME_ERRORS as send_exc:
+            try:
+                result_queue.put(
+                    (
+                        "error",
+                        "failed to send result: "
+                        f"{type(send_exc).__name__}: {send_exc}",
+                    )
+                )
+            except _RETRY_RUNTIME_ERRORS as fallback_exc:
+                raise RuntimeError(
+                    "failed to send result: "
+                    f"{type(send_exc).__name__}: {send_exc}"
+                ) from fallback_exc
+
+    def _mark_completion() -> None:
+        if completion_time is not None:
+            completion_time.value = time.monotonic()
+
     try:
         outcome = node.execute(ctx, state)
+        _mark_completion()
         if hasattr(outcome, "model_dump"):
-            result_queue.put(("ok", outcome.model_dump(mode="python")))
+            _send("ok", outcome.model_dump(mode="python"))
         else:
-            result_queue.put(("error", f"invalid node outcome: {type(outcome).__name__}"))
+            _send("error", f"invalid node outcome: {type(outcome).__name__}")
     except _RETRY_RUNTIME_ERRORS as exc:
-        result_queue.put(("error", f"{type(exc).__name__}: {exc}"))
+        _mark_completion()
+        _send("error", f"{type(exc).__name__}: {exc}")
 
 
 async def execute_with_retry_async(
@@ -455,7 +1202,7 @@ async def execute_with_retry_async(
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
-    * Timeout: ``asyncio.wait_for(asyncio.to_thread(...), timeout=...)``.
+    * Timeout: a bounded async task or worker with a revocable attempt authority.
     * Retry: loop + ``asyncio.sleep()``.
     """
     retry_policy = _apply_bounded_liveness_retry_ceiling(
@@ -472,7 +1219,14 @@ async def execute_with_retry_async(
 
     async def _invoke() -> NodeOutcome:
         if _has_async:
-            return await node.execute_async(ctx, state)
+            if timeout_s is None:
+                return await node.execute_async(ctx, state)
+            return await _execute_with_timeout_async(
+                node,
+                ctx,
+                state,
+                timeout_s=timeout_s,
+            )
         if timeout_s is not None:
             if _can_use_forked_timeout_worker():
                 return await _execute_with_timeout_process_async(
@@ -508,16 +1262,7 @@ async def execute_with_retry_async(
             )
 
         try:
-            if timeout_s is not None and _has_async:
-                coro = _invoke()
-                try:
-                    outcome = await asyncio.wait_for(coro, timeout=timeout_s)
-                except TimeoutError:
-                    raise NodeTimeoutError(
-                        f"Node exceeded timeout of {timeout_s}s",
-                    ) from None
-            else:
-                outcome = await _invoke()
+            outcome = await _invoke()
 
             if outcome.status != "fail":
                 if circuit_breaker is not None:

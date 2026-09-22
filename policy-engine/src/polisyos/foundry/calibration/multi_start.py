@@ -43,6 +43,8 @@ def select_best(
     """
     if not runs:
         raise ValueError("No runs to select from")
+    if not any(_finite_loss(r) is not None for r in runs):
+        raise ValueError("No run has a finite loss")
     if len(runs) == 1:
         return 0, "single_run"
 
@@ -51,30 +53,76 @@ def select_best(
     return _select_best_loss(runs, config.condition_threshold)
 
 
+def _finite_loss(run: SingleRunResult) -> float | None:
+    """Return a finite scalar loss, or ``None`` for malformed results."""
+    try:
+        loss = float(run.loss)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return loss if np.isfinite(loss) else None
+
+
+def _condition_status(run: SingleRunResult, condition_threshold: float) -> str:
+    """Classify Hessian evidence without collapsing missing and known failures."""
+    if run.hessian_result is None:
+        return "missing"
+    try:
+        condition = float(run.hessian_result.condition_number)
+    except (TypeError, ValueError, OverflowError):
+        return "nonfinite"
+    if condition == float("inf"):
+        return "inf"
+    if not np.isfinite(condition):
+        return "nonfinite"
+    if condition < 0.0:
+        return "invalid"
+    if condition < condition_threshold:
+        return "acceptable"
+    return "finite_large"
+
+
 def _select_best_loss(
     runs: list[SingleRunResult],
     condition_threshold: float,
 ) -> tuple[int, str]:
     """Select run with min loss among those with acceptable Hessian condition."""
-    # Filter runs with acceptable condition number
+    finite_runs = [
+        (i, loss)
+        for i, run in enumerate(runs)
+        if (loss := _finite_loss(run)) is not None
+    ]
+    if not finite_runs:
+        raise ValueError("No run has a finite loss")
+
+    # A missing Hessian is an explicitly limited loss-only mode.  A present
+    # non-finite or over-threshold Hessian is known bad evidence and must not
+    # be silently reclassified as missing.
     acceptable: list[tuple[int, float]] = []
-    for i, r in enumerate(runs):
-        if r.hessian_result is not None and np.isfinite(r.hessian_result.condition_number):
-            if r.hessian_result.condition_number < condition_threshold:
-                acceptable.append((i, r.loss))
-        else:
-            # No Hessian info — accept by loss only
-            acceptable.append((i, r.loss))
+    for index, loss in finite_runs:
+        status = _condition_status(runs[index], condition_threshold)
+        if status in {"acceptable", "missing"}:
+            acceptable.append((index, loss))
 
     if acceptable:
         best_idx, best_loss = min(acceptable, key=lambda t: t[1])
-        return best_idx, f"best_loss={best_loss:.6g} (condition<{condition_threshold:.1g})"
+        statuses = {_condition_status(runs[index], condition_threshold) for index, _ in acceptable}
+        if statuses == {"missing"}:
+            reason = "missing_hessian"
+        elif statuses == {"acceptable"}:
+            reason = f"condition<{condition_threshold:.1g}"
+        else:
+            reason = f"condition<{condition_threshold:.1g} or hessian_missing"
+        return best_idx, f"best_loss={best_loss:.6g} ({reason})"
 
-    # All exceed threshold — fall back to absolute min loss
-    best_idx = min(range(len(runs)), key=lambda i: runs[i].loss)
+    # Every finite-loss candidate is diagnostic-limited.  Preserve the
+    # computed result, but say exactly which limitation forced the fallback.
+    best_idx, best_loss = min(finite_runs, key=lambda t: t[1])
+    statuses = sorted(
+        {_condition_status(runs[index], condition_threshold) for index, _ in finite_runs}
+    )
     return (
         best_idx,
-        f"best_loss={runs[best_idx].loss:.6g} (all condition>{condition_threshold:.1g})",
+        f"best_loss={best_loss:.6g} (fallback: condition_status={','.join(statuses)})",
     )
 
 
@@ -83,23 +131,47 @@ def _select_best_identifiability(
 ) -> tuple[int, str]:
     """Select run with most identified parameters; break ties by condition then loss."""
 
-    def _score(r: SingleRunResult) -> tuple[int, float, float]:
+    finite_runs = [
+        (index, loss)
+        for index, run in enumerate(runs)
+        if (loss := _finite_loss(run)) is not None
+    ]
+    if not finite_runs:
+        raise ValueError("No run has a finite loss")
+
+    def _score(item: tuple[int, float]) -> tuple[int, float, float, int]:
+        index, loss = item
+        r = runs[index]
         n_id = r.identifiability.n_identified if r.identifiability else 0
         condition = (
-            r.hessian_result.condition_number
-            if r.hessian_result is not None and np.isfinite(r.hessian_result.condition_number)
+            float(r.hessian_result.condition_number)
+            if r.hessian_result is not None
+            and _finite_condition(r.hessian_result.condition_number)
             else float("inf")
         )
-        return (-n_id, condition, r.loss)  # maximize identified, minimize condition, minimize loss
+        return (-n_id, condition, loss, index)  # maximize identified, then minimize condition/loss
 
-    best_idx = min(range(len(runs)), key=lambda i: _score(runs[i]))
+    best_idx = min(finite_runs, key=_score)[0]
     r = runs[best_idx]
     n_id = r.identifiability.n_identified if r.identifiability else 0
     condition = (
-        r.hessian_result.condition_number
-        if r.hessian_result is not None and np.isfinite(r.hessian_result.condition_number)
+        float(r.hessian_result.condition_number)
+        if r.hessian_result is not None
+        and _finite_condition(r.hessian_result.condition_number)
         else float("inf")
     )
+    condition_status = _condition_status(r, float("inf"))
+    loss = _finite_loss(r)
+    assert loss is not None  # selected from finite_runs above
     return best_idx, (
-        f"best_identifiability: {n_id} identified, condition={condition:.6g}, loss={r.loss:.6g}"
+        f"best_identifiability: {n_id} identified, condition={condition:.6g}, "
+        f"loss={loss:.6g}, condition_status={condition_status}"
     )
+
+
+def _finite_condition(value: object) -> bool:
+    """Return whether a condition number is a finite scalar."""
+    try:
+        return bool(np.isfinite(float(value)))
+    except (TypeError, ValueError, OverflowError):
+        return False

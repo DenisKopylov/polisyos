@@ -4,19 +4,35 @@ from __future__ import annotations
 
 import asyncio
 import time
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import dataclass, field, replace
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from polisyos.data_forge.domains.catalog.batch.checkpoints import (
+    OUTPUT_INVENTORY_SCHEMA_VERSION,
+    build_content_basis,
+    build_output_inventory,
     fingerprint_paths,
     save_stage_state,
     stage_can_skip,
     write_json,
 )
+from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.runtime import cooldown
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+
+
+_CONTENT_BOUND_STAGES = frozenset({"harvest", "normalize", "merge_dedup", "embed"})
+_NON_EMPTY_BOUND_STAGES = frozenset({"harvest", "normalize", "merge_dedup"})
+_STAGE_RULE_VERSIONS = {
+    "harvest": "policyos.catalog.harvest.v1",
+    "normalize": "policyos.catalog.normalize.v1",
+    "merge_dedup": "policyos.catalog.merge_dedup.v1",
+    "embed": "policyos.catalog.embed.v2",
+}
 
 
 @dataclass
@@ -30,6 +46,8 @@ class PipelineStats:
 
 
 def _stage_input_fingerprint(config: DatasetBatchConfig, stage: str) -> str:
+    if stage in _CONTENT_BOUND_STAGES:
+        return str(_stage_input_basis(config, stage)["basis_digest"])
     if stage == "harvest":
         return config.run_signature
     if stage == "normalize":
@@ -56,18 +74,74 @@ def _stage_input_fingerprint(config: DatasetBatchConfig, stage: str) -> str:
     return config.run_signature
 
 
+def _stage_input_basis(config: DatasetBatchConfig, stage: str) -> dict[str, object]:
+    """Build the selected, content-bound input basis for a resumable stage."""
+    if stage == "harvest":
+        inputs: dict[str, Path | list[Path] | None] = {
+            "source_registry": config.registry_path or config.default_registry_path,
+            "metrics_map": config.resolved_metrics_map_path,
+        }
+        settings: dict[str, object] = {
+            "run_signature": config.run_signature,
+            "run_profile": config.run_profile,
+            "max_datasets_per_source": config.max_datasets_per_source,
+            "promoted_sources": list(config.promoted_sources),
+            "date_start": config.date_start,
+            "date_end": config.date_end,
+            "harvest_timeout": config.harvest_timeout,
+        }
+    elif stage == "normalize":
+        inputs = {
+            "raw_manifests": sorted(config.raw_dir.rglob("manifest.json")),
+            "raw_payloads": sorted(config.raw_dir.rglob("payload.jsonl")),
+            "source_registry": config.registry_path or config.default_registry_path,
+            "metrics_map": config.resolved_metrics_map_path,
+        }
+        settings = {
+            "run_signature": config.run_signature,
+            "run_profile": config.run_profile,
+            "observation_mode": config.observation_mode,
+        }
+    elif stage == "merge_dedup":
+        inputs = {
+            "normalized_records": sorted(config.normalized_dir.glob("*.jsonl")),
+        }
+        settings = {"run_signature": config.run_signature}
+    elif stage == "embed":
+        inputs = {"graph_database": config.db_path}
+        settings = {
+            "run_signature": config.run_signature,
+            "embedding_model": config.embedding_model,
+            "embedding_device": config.resolved_embedding_device,
+            "embedding_dimension": config.embedding_dimension,
+            "embedding_batch_size": config.embedding_batch_size,
+            "projection_rule_version": "policyos.catalog_dataset_embedding_projection.v1",
+        }
+        return build_content_basis(
+            stage=stage,
+            rule_version=_STAGE_RULE_VERSIONS[stage],
+            config=settings,
+            inputs=inputs,
+        )
+    else:
+        raise ValueError(f"content-bound basis is not defined for stage {stage!r}")
+    return build_content_basis(
+        stage=stage,
+        rule_version=_STAGE_RULE_VERSIONS[stage],
+        config=settings,
+        inputs=inputs,
+    )
+
+
 def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
     mapping = {
         "harvest": [config.raw_dir],
         "normalize": [config.normalized_dir],
-        "merge_dedup": [config.merged_records_path],
+        "merge_dedup": [config.merged_records_path, config.duplicates_report_path],
         "graph_load": [config.db_path],
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
-        "embed": [
-            config.index_dir / "ds_dataset_index.hnsw",
-            config.index_dir / "ds_dataset_embeddings.npz",
-        ],
+        "embed": [config.index_dir / "embedding_generation.json"],
         "benchmark": [config.benchmark_report_path],
         "qc": [config.qc_report_path],
         "publish": [config.publish_manifest_path, config.consumer_readiness_path],
@@ -75,9 +149,77 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
     return mapping.get(stage, [])
 
 
+def _stage_output_inventory(config: DatasetBatchConfig, stage: str) -> dict[str, object]:
+    """Build the stage-specific output inventory used for a resume decision."""
+    if stage == "embed":
+        try:
+            generation = embedding_generation_manifest(
+                config.index_dir,
+                legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+                legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+            )
+            if generation is None or generation[0].get("status") not in {
+                "complete",
+                "empty_generation",
+            }:
+                return {
+                    "schema_version": OUTPUT_INVENTORY_SCHEMA_VERSION,
+                    "status": "unavailable",
+                    "entries": [],
+                }
+            metadata, artifacts = generation
+            return {
+                "schema_version": OUTPUT_INVENTORY_SCHEMA_VERSION,
+                "status": str(metadata["status"]),
+                "generation": metadata,
+                "artifacts": build_output_inventory(artifacts),
+            }
+        except (OSError, TypeError, ValueError, KeyError, AttributeError, IndexError):
+            return {
+                "schema_version": OUTPUT_INVENTORY_SCHEMA_VERSION,
+                "status": "unavailable",
+                "entries": [],
+            }
+    return build_output_inventory(_stage_outputs(config, stage))
+
+
+def _has_material_output(inventory: Mapping[str, object]) -> bool:
+    """Return whether a directory inventory contains a published member."""
+    entries = inventory.get("entries")
+    if not isinstance(entries, list):
+        return False
+    for raw_entry in entries:
+        if not isinstance(raw_entry, Mapping):
+            continue
+        if raw_entry.get("kind") == "file" and raw_entry.get("exists") is True:
+            return True
+        if raw_entry.get("kind") == "directory" and raw_entry.get("members"):
+            return True
+    return False
+
+
 def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
     if not config.resume or config.resume_mode == "off":
         return False
+    if stage in _CONTENT_BOUND_STAGES:
+        input_basis = _stage_input_basis(config, stage)
+        output_inventory = _stage_output_inventory(config, stage)
+        if stage == "embed" and output_inventory.get("status") not in {
+            "complete",
+            "empty_generation",
+        }:
+            return False
+        if stage in _NON_EMPTY_BOUND_STAGES and not _has_material_output(output_inventory):
+            return False
+        return stage_can_skip(
+            config.stage_state_path,
+            stage=stage,
+            input_fingerprint=str(input_basis["basis_digest"]),
+            required_outputs=_stage_outputs(config, stage),
+            expected_input_basis=input_basis,
+            expected_output_inventory=output_inventory,
+            require_content_bound=True,
+        )
     fingerprint = _stage_input_fingerprint(config, stage)
     return stage_can_skip(
         config.stage_state_path,
@@ -87,16 +229,28 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
     )
 
 
+def _uncached_content_stage_config(config: DatasetBatchConfig) -> DatasetBatchConfig:
+    """Disable inner stat-based checkpoints after outer content validation misses."""
+    return replace(config, resume=False) if config.resume else config
+
+
 def _record_stage_completion(
     config: DatasetBatchConfig, stage: str, *, metadata: dict[str, object] | None = None
 ) -> None:
+    stage_metadata = dict(metadata or {})
+    input_basis = _stage_input_basis(config, stage) if stage in _CONTENT_BOUND_STAGES else None
+    output_inventory = (
+        _stage_output_inventory(config, stage) if stage in _CONTENT_BOUND_STAGES else None
+    )
     save_stage_state(
         config.stage_state_path,
         stage=stage,
         status="complete",
         input_fingerprint=_stage_input_fingerprint(config, stage),
         outputs=_stage_outputs(config, stage),
-        metadata=metadata or {},
+        metadata=stage_metadata,
+        input_basis=input_basis,
+        output_inventory=output_inventory,
     )
 
 
@@ -105,7 +259,7 @@ async def run_dataset_pipeline(
 ) -> PipelineStats:
     """Run selected stages sequentially (used by `run` CLI wrapper)."""
     from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
-    from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         run_core_sources_ingest_async,
     )
     from polisyos.data_forge.domains.catalog.batch.dedup import merge_and_dedup
@@ -139,7 +293,7 @@ async def run_dataset_pipeline(
                 stats.skipped_stages.append("harvest")
             else:
                 st = time.monotonic()
-                harvested = await harvest_sources(config)
+                harvested = await harvest_sources(_uncached_content_stage_config(config))
                 stats.stage_times["harvest"] = time.monotonic() - st
                 stats.metrics["harvest_records"] = sum(len(v) for v in harvested.values())
                 _record_stage_completion(
@@ -152,7 +306,7 @@ async def run_dataset_pipeline(
                 stats.skipped_stages.append("normalize")
             else:
                 st = time.monotonic()
-                norm_counts = normalize_raw_sources(config)
+                norm_counts = normalize_raw_sources(_uncached_content_stage_config(config))
                 stats.stage_times["normalize"] = time.monotonic() - st
                 stats.metrics["normalized_records"] = sum(norm_counts.values())
                 _record_stage_completion(

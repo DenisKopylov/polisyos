@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+
 from polisyos.foundry.coupling.estimation import (
     calibrate_coupled_smm,
     estimate_queue_mle,
@@ -73,3 +75,13 @@ def test_particle_filter_and_paired_monte_carlo_return_stable_shapes() -> None:
 
     assert paired.mean_effects["welfare"] == 2.0
     assert paired.standard_errors["welfare"] == 0.0
+    assert paired.standard_error_status["welfare"] == "estimated"
+
+
+def test_explicit_empty_required_moment_set_is_not_replaced_by_observed_keys() -> None:
+    with pytest.raises(ValueError, match="required_moment_names must not be empty"):
+        summary_distance(
+            {"welfare": 0.0},
+            {"welfare": 0.0},
+            required_moment_names=(),
+        )

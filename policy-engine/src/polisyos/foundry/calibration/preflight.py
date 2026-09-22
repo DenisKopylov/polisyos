@@ -69,6 +69,12 @@ def _resample_series(
     method: str,
     fill_value: float | None,
 ) -> np.ndarray:
+    if time is not None:
+        time_array = np.asarray(time)
+        if time_array.ndim == 0:
+            time_array = time_array.reshape(1)
+        if time_array.shape[0] != values.shape[0]:
+            raise ValueError("Observed values and time coordinates must have equal lengths")
     if values.size == 0:
         if target_time is None and (steps is None or steps == values.shape[0]):
             return values
@@ -78,7 +84,7 @@ def _resample_series(
     if target_time is None:
         return _align_by_length(values, steps=steps or values.shape[0], fill_value=fill_value)
     src_time = (
-        np.asarray(time, dtype=float)
+        np.asarray(time_array, dtype=float)
         if time is not None
         else np.arange(values.shape[0], dtype=float)
     )
@@ -267,6 +273,8 @@ def prepare_targets(
                 f"Configured alignment time column '{target_cfg.align.time_column}' "
                 f"is missing for target '{target_id}'"
             )
+        if time is not None and time.shape[0] != values.shape[0]:
+            raise ValueError("Observed values and time coordinates must have equal lengths")
         if time_axis is not None:
             if target_cfg.align.steps is not None and target_cfg.align.steps != len(time_axis):
                 raise ValueError(

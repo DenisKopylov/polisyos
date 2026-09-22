@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import tarfile
@@ -151,8 +152,8 @@ def _parse_inventory(
     return members, bindings
 
 
-def _prepare_directory_export(target: Path) -> None:
-    """Prepare only an owned export directory without deleting user files."""
+def _validate_directory_export(target: Path) -> set[Path]:
+    """Validate a reusable export directory and return its owned members."""
     if target.is_symlink():
         raise ValueError(f"Export target must not be a symlink: {target}")
     if target.exists() and not target.is_dir():
@@ -164,7 +165,7 @@ def _prepare_directory_export(target: Path) -> None:
     if not marker.exists():
         if any(target.rglob("*")):
             raise ValueError("Refusing to reuse an unowned non-empty export directory")
-        return
+        return set()
 
     try:
         marker_payload = json.loads(marker.read_text("utf-8"))
@@ -191,16 +192,53 @@ def _prepare_directory_export(target: Path) -> None:
             raise ValueError(f"Owned export member is missing: {member}")
         if previous_bindings[member] != _member_digest(path):
             raise ValueError(f"Owned export member changed: {member}")
-    foreign_files = [
-        path
-        for path in target.rglob("*")
-        if path.is_file() and path not in owned_paths and path != marker
+    owned_entries = owned_paths | {marker}
+    for owned_path in tuple(owned_paths):
+        parent = owned_path.parent
+        while parent != target:
+            owned_entries.add(parent)
+            parent = parent.parent
+    foreign_entries = [
+        path for path in target.rglob("*") if path not in owned_entries
     ]
-    if foreign_files:
-        raise ValueError("Refusing to remove unowned files from an export directory")
-    for path in owned_paths | {marker}:
+    if foreign_entries:
+        raise ValueError(
+            "Refusing to remove unowned files or entries from an export directory"
+        )
+    return owned_paths | {marker}
+
+
+def _prepare_directory_export(target: Path) -> None:
+    """Prepare only an owned export directory without deleting user files."""
+    owned_paths = _validate_directory_export(target)
+    for path in owned_paths:
         if path.is_file() or path.is_symlink():
             path.unlink()
+
+
+def _publish_directory_generation(staging_root: Path, target: Path) -> None:
+    """Publish a complete staged directory while retaining rollback on swap failure."""
+    if not target.exists():
+        os.replace(staging_root, target)
+        return
+
+    previous_root = Path(
+        tempfile.mkdtemp(prefix=f".{target.name}.previous-", dir=target.parent)
+    )
+    previous_root.rmdir()
+    os.replace(target, previous_root)
+    try:
+        os.replace(staging_root, target)
+    except BaseException:
+        try:
+            os.replace(previous_root, target)
+        except OSError as restore_error:
+            raise OSError(
+                "Failed to restore the previous directory export after publication failure"
+            ) from restore_error
+        raise
+    if previous_root.exists():
+        shutil.rmtree(previous_root, ignore_errors=True)
 
 
 def _reject_symlink_components(path: Path, root: Path, *, member: str) -> None:
@@ -402,52 +440,62 @@ def export_subgraph(
             total_bytes += len(meta_bytes)
         output_path = archive_path
     else:
-        _prepare_directory_export(target)
-        for artifact_id in sorted_ids:
-            blob_path, manifest_path = get_paths(artifact_id)
-            if not blob_path.exists():
-                missing_artifacts.append(str(artifact_id))
-                continue
-            dst_blob = target / blob_path.relative_to(root)
-            dst_blob.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(blob_path, dst_blob)
-            arc_blob = str(blob_path.relative_to(root))
-            member_bindings[arc_blob] = _member_digest(dst_blob)
-            total_bytes += member_bindings[arc_blob][1]
-
-            if include_manifests:
-                if not manifest_path.exists():
-                    missing_manifests.append(str(artifact_id))
-                else:
-                    dst_manifest = target / manifest_path.relative_to(root)
-                    dst_manifest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(manifest_path, dst_manifest)
-                    arc_manifest = str(manifest_path.relative_to(root))
-                    member_bindings[arc_manifest] = _member_digest(dst_manifest)
-                    total_bytes += member_bindings[arc_manifest][1]
-            sig_path = get_sig_path(artifact_id)
-            if sig_path.exists():
-                dst_sig = target / sig_path.relative_to(root)
-                dst_sig.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(sig_path, dst_sig)
-                arc_sig = str(sig_path.relative_to(root))
-                member_bindings[arc_sig] = _member_digest(dst_sig)
-                total_bytes += member_bindings[arc_sig][1]
-            exported += 1
-
-        meta_path = target / "export_manifest.json"
-        meta_path.write_text(
-            fast_json_dumps(
-                _inventory_payload(
-                    exported=exported,
-                    requested=len(sorted_ids),
-                    members=member_bindings,
-                ),
-                sort_keys=True,
-            ),
-            encoding="utf-8",
+        _validate_directory_export(target)
+        target_mode = target.stat().st_mode & 0o7777
+        staging_root = Path(
+            tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent)
         )
-        total_bytes += meta_path.stat().st_size
+        try:
+            for artifact_id in sorted_ids:
+                blob_path, manifest_path = get_paths(artifact_id)
+                if not blob_path.exists():
+                    missing_artifacts.append(str(artifact_id))
+                    continue
+                dst_blob = staging_root / blob_path.relative_to(root)
+                dst_blob.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(blob_path, dst_blob)
+                arc_blob = str(blob_path.relative_to(root))
+                member_bindings[arc_blob] = _member_digest(dst_blob)
+                total_bytes += member_bindings[arc_blob][1]
+
+                if include_manifests:
+                    if not manifest_path.exists():
+                        missing_manifests.append(str(artifact_id))
+                    else:
+                        dst_manifest = staging_root / manifest_path.relative_to(root)
+                        dst_manifest.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(manifest_path, dst_manifest)
+                        arc_manifest = str(manifest_path.relative_to(root))
+                        member_bindings[arc_manifest] = _member_digest(dst_manifest)
+                        total_bytes += member_bindings[arc_manifest][1]
+                sig_path = get_sig_path(artifact_id)
+                if sig_path.exists():
+                    dst_sig = staging_root / sig_path.relative_to(root)
+                    dst_sig.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(sig_path, dst_sig)
+                    arc_sig = str(sig_path.relative_to(root))
+                    member_bindings[arc_sig] = _member_digest(dst_sig)
+                    total_bytes += member_bindings[arc_sig][1]
+                exported += 1
+
+            meta_path = staging_root / "export_manifest.json"
+            meta_path.write_text(
+                fast_json_dumps(
+                    _inventory_payload(
+                        exported=exported,
+                        requested=len(sorted_ids),
+                        members=member_bindings,
+                    ),
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
+            total_bytes += meta_path.stat().st_size
+            staging_root.chmod(target_mode)
+            _publish_directory_generation(staging_root, target)
+        finally:
+            if staging_root.exists():
+                shutil.rmtree(staging_root, ignore_errors=True)
         output_path = target
 
     return ExportReport(

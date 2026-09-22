@@ -2,13 +2,25 @@
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
 import multiprocessing as mp
+import os
+import signal
+import subprocess
+import sys
+import threading
 import time as _time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import BoundedLivenessConfig
+from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunManifest
+from polisyos.scientist.orchestration.engine import retry as retry_module
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
@@ -152,6 +164,253 @@ class TestBackoffDelay:
 
 
 class TestExecuteWithRetrySync:
+    def test_attempt_context_preserves_claim_capable_context_type(self):
+        target = ClaimCapableExecutionContext(
+            store=MagicMock(),
+            run=MagicMock(),
+            logger=MagicMock(),
+            claim_ledger_owner=MagicMock(),
+        )
+        authority = retry_module._AttemptAuthority()
+
+        attempt = retry_module._build_attempt_context(target, authority)
+
+        assert isinstance(attempt, ClaimCapableExecutionContext)
+        assert attempt.claim_ledger_owner is not target.claim_ledger_owner
+        authority.revoke()
+        attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+        target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
+
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(
+        self, state, monkeypatch
+    ):
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_json_calls: list[tuple[object, object]] = []
+
+            def put_json(self, payload: object, options: object) -> object:
+                self.put_json_calls.append((payload, options))
+                return object()
+
+        class _RecordingAudit:
+            def __init__(self) -> None:
+                self.append_calls: list[dict[str, object]] = []
+                self.emit_calls: list[object] = []
+
+            def append(self, **kwargs: object) -> None:
+                self.append_calls.append(kwargs)
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingRun:
+            def __init__(self, audit_sink: _RecordingAudit) -> None:
+                self.emit_calls: list[tuple[object, ...]] = []
+                self.run_manifest = type(
+                    "_Manifest",
+                    (),
+                    {
+                        "status": "running",
+                        "errors": [{"nested": {"events": []}}],
+                    },
+                )()
+                self._audit_sink = audit_sink
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.emit_calls.append((*args, kwargs))
+
+        class _RecordingClaimOwner:
+            def __init__(self) -> None:
+                self.persist_calls: list[dict[str, object]] = []
+
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                self.persist_calls.append(kwargs)
+                return object()
+
+        store = _RecordingStore()
+        run_audit = _RecordingAudit()
+        run = _RecordingRun(run_audit)
+        audit = _RecordingAudit()
+        claim_owner = _RecordingClaimOwner()
+        ctx = ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=MagicMock(),
+            audit=audit,
+            claim_ledger_owner=claim_owner,
+        )
+        started = threading.Event()
+        release = threading.Event()
+        completed = threading.Event()
+
+        class _LateClaimNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                started.set()
+                release.wait(timeout=1.0)
+                passed_ctx.run.run_manifest.status = "late"
+                passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("late")
+                passed_ctx.store.put_json({"late": "write"}, object())
+                passed_ctx.run.emit("late", "LATE_WRITE")
+                passed_ctx.run._audit_sink.emit({"late": "audit"})
+                passed_ctx.audit.append(action="late")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                completed.set()
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+        try:
+            with pytest.raises(NodeTimeoutError):
+                execute_with_retry_sync(
+                    _LateClaimNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=0.01,
+                    alias="late-claim",
+                )
+            assert started.wait(timeout=0.5)
+            release.set()
+            assert completed.wait(timeout=0.5)
+        finally:
+            release.set()
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert run.run_manifest.status == "running"
+        assert run.run_manifest.errors == [{"nested": {"events": []}}]
+        assert store.put_json_calls == []
+        assert run.emit_calls == []
+        assert run_audit.emit_calls == []
+        assert audit.append_calls == []
+        assert claim_owner.persist_calls == []
+
+        class _OnTimeClaimNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                passed_ctx.run.run_manifest.status = "on_time"
+                passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("on_time")
+                passed_ctx.store.put_json({"on_time": True}, object())
+                passed_ctx.run.emit("on-time", "ON_TIME")
+                passed_ctx.run._audit_sink.emit({"on_time": "audit"})
+                passed_ctx.audit.append(action="on_time")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        try:
+            result = execute_with_retry_sync(
+                _OnTimeClaimNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time-claim",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert result.status == "ok"
+        assert run.run_manifest.status == "on_time"
+        assert run.run_manifest.errors == [{"nested": {"events": ["on_time"]}}]
+        assert store.put_json_calls
+        assert run.emit_calls
+        assert run_audit.emit_calls
+        assert audit.append_calls
+        assert claim_owner.persist_calls == [{"ledger": "on_time"}]
+
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(
+        self, state, monkeypatch
+    ):
+        class _RecordingStore:
+            def put_json(self, payload: object, options: object) -> object:
+                return object()
+
+        class _RecordingTrace:
+            def __init__(self) -> None:
+                self.emit_calls: list[object] = []
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+        class _RecordingAuditSink:
+            def __init__(self) -> None:
+                self.emit_calls: list[object] = []
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingClaimOwner:
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                return object()
+
+        store = _RecordingStore()
+        trace = _RecordingTrace()
+        audit_sink = _RecordingAuditSink()
+        run = RunContext(
+            store=store,
+            trace=trace,
+            run_manifest=RunManifest(
+                run_id="run",
+                registry_bundle=ArtifactRef(
+                    artifact_id="sha256:" + "0" * 64,
+                    kind="registry",
+                    media_type="application/json",
+                ),
+            ),
+            _audit_sink=audit_sink,
+        )
+        ctx = ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=MagicMock(),
+            claim_ledger_owner=_RecordingClaimOwner(),
+        )
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+
+        class _OnTimeRunNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                passed_ctx.run.emit("on-time", "ON_TIME")
+                return _ok_outcome(passed_state)
+
+        try:
+            result = execute_with_retry_sync(
+                _OnTimeRunNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time-run",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert result.status == "ok"
+        assert len(trace.emit_calls) == 1
+        assert len(audit_sink.emit_calls) == 1
+
     def test_fast_path_no_retry_no_timeout(self, ctx, state):
         """With default policy, delegates directly to node.execute()."""
         node = MagicMock()
@@ -281,6 +540,229 @@ class TestExecuteWithRetrySync:
                 alias="a",
             )
 
+    def test_timeout_revokes_late_state_and_owner_writes(self, ctx, state, monkeypatch):
+        """A timed-out thread cannot publish after its caller stops waiting."""
+
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_json_calls: list[object] = []
+
+            def put_json(self, payload: object, options: object) -> object:
+                self.put_json_calls.append((payload, options))
+                return object()
+
+        class _RecordingRun:
+            def __init__(self) -> None:
+                self.emit_calls: list[tuple[object, ...]] = []
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.emit_calls.append((*args, kwargs))
+
+        class _RecordingAudit:
+            def __init__(self) -> None:
+                self.append_calls: list[dict[str, object]] = []
+
+            def append(self, **kwargs: object) -> None:
+                self.append_calls.append(kwargs)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingClaimOwner:
+            def __init__(self) -> None:
+                self.persist_calls: list[dict[str, object]] = []
+
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                self.persist_calls.append(kwargs)
+                return object()
+
+        recording_store = _RecordingStore()
+        recording_run = _RecordingRun()
+        recording_run.run_manifest = type("_Manifest", (), {"status": "running"})()
+        recording_audit = _RecordingAudit()
+        recording_claim_owner = _RecordingClaimOwner()
+        ctx.store = recording_store
+        ctx.run = recording_run
+        ctx.audit = recording_audit
+        ctx.claim_ledger_owner = recording_claim_owner
+
+        started = threading.Event()
+        release = threading.Event()
+        completed = threading.Event()
+
+        class _LateAuthorityNode:
+            def execute(self, passed_ctx, passed_state):
+                started.set()
+                release.wait(timeout=1.0)
+                passed_state.params["late_write"] = "unauthorised"
+                passed_ctx.run.run_manifest.status = "late"
+                passed_ctx.store.put_json({"late": "write"}, object())
+                passed_ctx.run.emit("late-authority", "LATE_WRITE")
+                passed_ctx.audit.append(run_id="run", actor="node", action="late")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                completed.set()
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+
+        try:
+            with pytest.raises(NodeTimeoutError):
+                execute_with_retry_sync(
+                    _LateAuthorityNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=0.01,
+                    alias="late-write",
+                )
+            assert started.wait(timeout=0.5)
+            release.set()
+            assert completed.wait(timeout=0.5)
+        finally:
+            release.set()
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert state.params == {}
+        assert recording_run.run_manifest.status == "running"
+        assert recording_store.put_json_calls == []
+        assert recording_run.emit_calls == []
+        assert recording_audit.append_calls == []
+        assert recording_claim_owner.persist_calls == []
+
+        class _SuccessfulAuthorityNode:
+            def execute(self, passed_ctx, passed_state):
+                passed_state.params["on_time"] = True
+                passed_ctx.run.run_manifest.status = "on_time"
+                passed_ctx.store.put_json({"on_time": True}, object())
+                passed_ctx.run.emit("on-time", "ON_TIME")
+                passed_ctx.audit.append(run_id="run", actor="node", action="on_time")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        try:
+            result = execute_with_retry_sync(
+                _SuccessfulAuthorityNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert result.status == "ok"
+        assert recording_run.run_manifest.status == "on_time"
+        assert recording_store.put_json_calls
+        assert recording_run.emit_calls
+        assert recording_audit.append_calls
+        assert recording_claim_owner.persist_calls
+
+    @pytest.mark.asyncio
+    async def test_async_timeout_revokes_late_owner_writes(self, ctx, state):
+        """A non-cooperative async attempt loses write authority on timeout."""
+
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_json_calls: list[object] = []
+
+            def put_json(self, payload: object, options: object) -> object:
+                self.put_json_calls.append((payload, options))
+                return object()
+
+        class _RecordingRun:
+            def __init__(self) -> None:
+                self.emit_calls: list[tuple[object, ...]] = []
+                self.run_manifest = type("_Manifest", (), {"status": "running"})()
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.emit_calls.append((*args, kwargs))
+
+        class _RecordingAudit:
+            def __init__(self) -> None:
+                self.append_calls: list[dict[str, object]] = []
+
+            def append(self, **kwargs: object) -> None:
+                self.append_calls.append(kwargs)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingClaimOwner:
+            def __init__(self) -> None:
+                self.persist_calls: list[dict[str, object]] = []
+
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                self.persist_calls.append(kwargs)
+                return object()
+
+        recording_store = _RecordingStore()
+        recording_run = _RecordingRun()
+        recording_audit = _RecordingAudit()
+        recording_claim_owner = _RecordingClaimOwner()
+        ctx.store = recording_store
+        ctx.run = recording_run
+        ctx.audit = recording_audit
+        ctx.claim_ledger_owner = recording_claim_owner
+
+        started = asyncio.Event()
+        release = asyncio.Event()
+        completed = asyncio.Event()
+
+        class _LateAsyncAuthorityNode:
+            async def execute_async(self, passed_ctx, passed_state):
+                started.set()
+                try:
+                    await release.wait()
+                except asyncio.CancelledError:
+                    await release.wait()
+                passed_state.params["late_write"] = "unauthorised"
+                passed_ctx.run.run_manifest.status = "late"
+                passed_ctx.store.put_json({"late": "write"}, object())
+                passed_ctx.run.emit("late-authority", "LATE_WRITE")
+                passed_ctx.audit.append(run_id="run", actor="node", action="late")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                completed.set()
+                return _ok_outcome(passed_state)
+
+        result_task = asyncio.create_task(
+            execute_with_retry_async(
+                _LateAsyncAuthorityNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.01,
+                alias="late-async-write",
+            )
+        )
+        async def _release_later() -> None:
+            await asyncio.sleep(0.05)
+            release.set()
+
+        release_task = asyncio.create_task(_release_later())
+        await started.wait()
+        assert started.is_set()
+        with pytest.raises(NodeTimeoutError):
+            await result_task
+        await release_task
+        await asyncio.wait_for(completed.wait(), timeout=0.5)
+
+        assert state.params == {}
+        assert recording_run.run_manifest.status == "running"
+        assert recording_store.put_json_calls == []
+        assert recording_run.emit_calls == []
+        assert recording_audit.append_calls == []
+        assert recording_claim_owner.persist_calls == []
+
     def test_timeout_path_uses_shared_executor(self, ctx, state, monkeypatch):
         class _FakeFuture:
             def __init__(self, outcome):
@@ -327,8 +809,11 @@ class TestExecuteWithRetrySync:
         assert result.status == "ok"
         assert len(fake_executor.submissions) == 1
         submitted_fn, submitted_args = fake_executor.submissions[0]
-        assert submitted_fn == node.execute
-        assert submitted_args == (ctx, state)
+        assert submitted_fn.__self__ is not None
+        assert len(submitted_args) == 3
+        assert submitted_args[1] is not ctx
+        assert submitted_args[2] is not state
+        assert submitted_args[0] is node.execute
 
     def test_default_policy_zero_retries_no_retry(self, ctx, state):
         node = MagicMock()
@@ -521,6 +1006,231 @@ class TestRetryTimeoutWorker:
             _node_execute_worker(node, ctx, state, result_queue)
 
         result_queue.put.assert_not_called()
+
+
+class _PayloadTransportNode:
+    """Return a deterministic result large enough to exercise Queue backpressure."""
+
+    def __init__(self, payload_size: int) -> None:
+        self.payload_size = payload_size
+
+    def execute(self, _ctx, passed_state):
+        result_state = passed_state.model_copy(deep=True)
+        result_state.params["payload"] = "x" * self.payload_size
+        return _ok_outcome(result_state)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("payload_size", [64, 1024 * 1024], ids=["small", "one-mib"])
+def test_fork_transport_drains_small_and_large_outcomes(ctx, state, mode, payload_size) -> None:
+    """A fork worker delivers results without joining before Queue drain."""
+    node = _PayloadTransportNode(payload_size)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 2.0, "alias": "payload-wire"}
+
+    if mode == "sync":
+        result = execute_with_retry_sync(node, ctx, state, **kwargs)
+    else:
+        result = asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+
+    assert result.status == "ok"
+    assert result.state.params["payload"] == "x" * payload_size
+
+
+class _BrokenResultQueue:
+    """A result channel that fails every send; success must never be fabricated."""
+
+    def __init__(self) -> None:
+        self.attempts = 0
+
+    def put(self, _value) -> None:
+        self.attempts += 1
+        raise OSError("result channel closed")
+
+
+def test_worker_send_failure_is_fail_closed(ctx, state) -> None:
+    node = _PayloadTransportNode(64)
+    result_queue = _BrokenResultQueue()
+
+    with pytest.raises(RuntimeError, match="failed to send result"):
+        _node_execute_worker(node, ctx, state, result_queue)
+
+    assert result_queue.attempts >= 2
+
+
+class _SerializationFailureOutcome:
+    def model_dump(self, *, mode: str):
+        raise TypeError(f"cannot serialize in {mode} mode")
+
+
+class _SerializationFailureNode:
+    def execute(self, _ctx, _state):
+        return _SerializationFailureOutcome()
+
+
+def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
+    """A worker serialization error reaches the caller as a transport failure."""
+    with pytest.raises(RuntimeError, match="TypeError: cannot serialize"):
+        retry_module._execute_with_timeout_process(
+            _SerializationFailureNode(),
+            ctx,
+            state,
+            timeout_s=2.0,
+        )
+
+
+class _ExitedWorker:
+    """Minimal process double for a result arriving after the compute window."""
+
+    def is_alive(self) -> bool:
+        return False
+
+
+class _StoppedProcessHandle:
+    def is_alive(self) -> bool:
+        return False
+
+    def join(self, *, timeout: float) -> None:
+        _ = timeout
+
+
+def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
+    """A stopped worker without a group cannot prove descendants are gone."""
+    assert (
+        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
+    )
+
+
+class _ImmediateResultQueue:
+    def get(self, *, timeout: float):
+        _ = timeout
+        return ("ok", {})
+
+    def get_nowait(self):
+        return ("ok", {})
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_late_worker_completion_is_not_delivery_success(mode) -> None:
+    """A dead worker alone cannot prove computation met its deadline."""
+    process = _ExitedWorker()
+    result_queue = _ImmediateResultQueue()
+    compute_deadline = _time.monotonic() - 1.0
+
+    with pytest.raises(retry_module._WorkerComputeTimeout):
+        if mode == "sync":
+            retry_module._drain_result_sync(
+                process,
+                result_queue,
+                compute_deadline=compute_deadline,
+            )
+        else:
+            asyncio.run(
+                retry_module._drain_result_async(
+                    process,
+                    result_queue,
+                    compute_deadline=compute_deadline,
+                )
+            )
+
+
+class _DescendantProcessNode:
+    """Keep an owned descendant alive long enough to exercise group cleanup."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        _time.sleep(30)
+        raise AssertionError("timeout should terminate the worker first")
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+    """Timeout cleanup owns the worker group and does not leave descendants."""
+    pid_path = tmp_path / "descendant-pid"
+    node = _DescendantProcessNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(NodeTimeoutError):
+            kwargs = {
+                "retry_policy": RetryPolicy(),
+                "timeout_s": 0.5,
+                "alias": "descendant-cleanup",
+            }
+            if mode == "sync":
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+            else:
+                asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        with pytest.raises(ProcessLookupError):
+            os.kill(descendant_pid, 0)
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+
+class _ExitedWorkerWithDescendantNode:
+    """Exit the worker while leaving a descendant in its owned process group."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        os._exit(0)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
+    """Cleanup must still reap an owned group after its worker has exited."""
+    pid_path = tmp_path / "exited-worker-descendant-pid"
+    node = _ExitedWorkerWithDescendantNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(NodeTimeoutError):
+            retry_module._execute_with_timeout_process(
+                node,
+                ctx,
+                state,
+                timeout_s=0.5,
+            )
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        for _ in range(20):
+            try:
+                os.kill(descendant_pid, 0)
+            except ProcessLookupError:
+                break
+            _time.sleep(0.05)
+        else:
+            pytest.fail("owned descendant survived worker cleanup")
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 
 class _OutputAwareTransportNode:

@@ -330,6 +330,18 @@ class CheckpointHook(Protocol):
         cache_entry_ref: ArtifactRef | None,
     ) -> CheckpointWriteResult | None: ...
 
+    def on_tier_complete(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> CheckpointWriteResult | None: ...
+
 
 class AsyncCheckpointHook(Protocol):
     """Async checkpoint hook contract for non-blocking executor integrations."""
@@ -344,6 +356,18 @@ class AsyncCheckpointHook(Protocol):
         workflow_id: str,
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
+    ) -> CheckpointWriteResult | None: ...
+
+    async def on_tier_complete_async(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
     ) -> CheckpointWriteResult | None: ...
 
 
@@ -635,6 +659,200 @@ class CASCheckpointHook:
         self._previous_state = deepcopy(initial_state) if initial_state is not None else None
         self._previous_chain_depth = max(0, int(initial_chain_depth))
 
+    def _append_cache_entry_refs(self, refs: list[ArtifactRef | None]) -> None:
+        """Retain every cache entry reference represented by one commit."""
+        self._cache_entry_refs.extend(
+            ref
+            for ref in refs
+            if ref is not None and ref.kind == "scientist.node_cache_entry"
+        )
+
+    def _write_checkpoint(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef | None],
+        sequence_advance: int,
+    ) -> CheckpointWriteResult:
+        """Create one durable checkpoint for a node or an atomically merged tier."""
+        self._append_cache_entry_refs(cache_entry_refs)
+        sequence_number = self._sequence + max(0, sequence_advance - 1)
+        current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
+        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        created = create_checkpoint(
+            self._store,
+            run_id=state.run_id,
+            state=current_state,
+            sequence_number=sequence_number,
+            completed_node_alias=alias,
+            completed_node_id=node_id,
+            completed_nodes=merged_completed_nodes,
+            workflow_id=workflow_id,
+            workflow_fingerprint=workflow_fingerprint,
+            fsm_phase=str(state.params.get("phase", "UNKNOWN")),
+            cache_entry_refs=list(self._cache_entry_refs),
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            previous_state=self._previous_state,
+            previous_checkpoint_ref=self._previous_checkpoint_ref,
+            previous_chain_depth=self._previous_chain_depth,
+            max_incremental_chain=self._gc_policy.max_incremental_chain,
+        )
+        update_checkpoint_head(
+            self._run_dir,
+            run_id=state.run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=sequence_number,
+            node_alias=alias,
+            snapshot_mode=created.snapshot_mode,
+            base_checkpoint_ref=created.base_checkpoint_ref,
+            chain_depth=created.chain_depth,
+            writer_pid=os.getpid(),
+            writer_hostname=socket.gethostname(),
+        )
+        self._previous_checkpoint_ref = created.checkpoint_ref
+        self._previous_state = deepcopy(current_state)
+        self._previous_chain_depth = created.chain_depth
+        self._completed_nodes = list(merged_completed_nodes)
+        self._sequence = sequence_number + 1
+        return CheckpointWriteResult(
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=sequence_number,
+            duration_ms=created.duration_ms,
+            snapshot_mode=created.snapshot_mode,
+            base_checkpoint_ref=created.base_checkpoint_ref,
+            chain_depth=created.chain_depth,
+            changed_paths=created.changed_paths,
+        )
+
+    async def _write_checkpoint_async(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef | None],
+        sequence_advance: int,
+    ) -> CheckpointWriteResult:
+        """Async counterpart of :meth:`_write_checkpoint`."""
+        self._append_cache_entry_refs(cache_entry_refs)
+        sequence_number = self._sequence + max(0, sequence_advance - 1)
+        current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
+        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        created = await create_checkpoint_async(
+            self._async_store,
+            run_id=state.run_id,
+            state=current_state,
+            sequence_number=sequence_number,
+            completed_node_alias=alias,
+            completed_node_id=node_id,
+            completed_nodes=merged_completed_nodes,
+            workflow_id=workflow_id,
+            workflow_fingerprint=workflow_fingerprint,
+            fsm_phase=str(state.params.get("phase", "UNKNOWN")),
+            cache_entry_refs=list(self._cache_entry_refs),
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            previous_state=self._previous_state,
+            previous_checkpoint_ref=self._previous_checkpoint_ref,
+            previous_chain_depth=self._previous_chain_depth,
+            max_incremental_chain=self._gc_policy.max_incremental_chain,
+        )
+        await run_blocking_async(
+            update_checkpoint_head,
+            self._run_dir,
+            run_id=state.run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=sequence_number,
+            node_alias=alias,
+            snapshot_mode=created.snapshot_mode,
+            base_checkpoint_ref=created.base_checkpoint_ref,
+            chain_depth=created.chain_depth,
+            writer_pid=os.getpid(),
+            writer_hostname=socket.gethostname(),
+        )
+        self._previous_checkpoint_ref = created.checkpoint_ref
+        self._previous_state = deepcopy(current_state)
+        self._previous_chain_depth = created.chain_depth
+        self._completed_nodes = list(merged_completed_nodes)
+        self._sequence = sequence_number + 1
+        return CheckpointWriteResult(
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=sequence_number,
+            duration_ms=created.duration_ms,
+            snapshot_mode=created.snapshot_mode,
+            base_checkpoint_ref=created.base_checkpoint_ref,
+            chain_depth=created.chain_depth,
+            changed_paths=created.changed_paths,
+        )
+
+    def _tier_sequence_advance(self, completed_nodes: list[str]) -> int:
+        """Preserve node-sequence compatibility while writing one tier checkpoint."""
+        merged = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        return max(1, len(merged) - len(self._completed_nodes))
+
+    def _gc_after_checkpoint(self, result: CheckpointWriteResult, *, run_id: str) -> None:
+        if self._gc_policy is None:
+            return
+        try:
+            gc_checkpoints(
+                self._run_dir,
+                policy=self._gc_policy,
+                current_head_ref=result.checkpoint_ref,
+            )
+        except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError) as exc:
+            emit_degraded_path(
+                component="scientist.checkpoint",
+                operation="gc_checkpoints",
+                reason="checkpoint_gc_failed",
+                exc=exc,
+                retryable=True,
+                details={
+                    "run_id": run_id,
+                    "sequence_number": result.sequence_number,
+                    "checkpoint_ref": str(result.checkpoint_ref.artifact_id),
+                },
+                log=logger,
+            )
+
+    async def _gc_after_checkpoint_async(
+        self,
+        result: CheckpointWriteResult,
+        *,
+        run_id: str,
+    ) -> None:
+        if self._gc_policy is None:
+            return
+        try:
+            await run_blocking_async(
+                gc_checkpoints,
+                self._run_dir,
+                policy=self._gc_policy,
+                current_head_ref=result.checkpoint_ref,
+            )
+        except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError, TimeoutError) as exc:
+            emit_degraded_path(
+                component="scientist.checkpoint",
+                operation="gc_checkpoints_async",
+                reason="checkpoint_gc_failed",
+                exc=exc,
+                retryable=True,
+                details={
+                    "run_id": run_id,
+                    "sequence_number": result.sequence_number,
+                    "checkpoint_ref": str(result.checkpoint_ref.artifact_id),
+                },
+                log=logger,
+            )
+
     def on_node_complete(
         self,
         *,
@@ -646,66 +864,49 @@ class CASCheckpointHook:
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
     ) -> CheckpointWriteResult | None:
+        """Persist one successful node frontier."""
+        return self.on_tier_complete(
+            state=state,
+            alias=alias,
+            node_id=node_id,
+            completed_nodes=completed_nodes,
+            workflow_id=workflow_id,
+            workflow_fingerprint=workflow_fingerprint,
+            cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [],
+        )
+
+    def on_tier_complete(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> CheckpointWriteResult | None:
+        """Persist one atomically merged tier as one checkpoint frontier."""
         if self._policy == "off":
             return None
 
-        if cache_entry_ref is not None and cache_entry_ref.kind == "scientist.node_cache_entry":
-            self._cache_entry_refs.append(cache_entry_ref)
-
-        sequence_number = self._sequence
-        current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
-        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        sequence_number = self._sequence + max(0, self._tier_sequence_advance(completed_nodes) - 1)
         try:
-            created = create_checkpoint(
-                self._store,
-                run_id=state.run_id,
-                state=current_state,
-                sequence_number=sequence_number,
-                completed_node_alias=alias,
-                completed_node_id=node_id,
-                completed_nodes=merged_completed_nodes,
+            result = self._write_checkpoint(
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
                 workflow_id=workflow_id,
                 workflow_fingerprint=workflow_fingerprint,
-                fsm_phase=str(state.params.get("phase", "UNKNOWN")),
-                cache_entry_refs=list(self._cache_entry_refs),
-                tenant_id=self._tenant_id,
-                cell_id=self._cell_id,
-                previous_state=self._previous_state,
-                previous_checkpoint_ref=self._previous_checkpoint_ref,
-                previous_chain_depth=self._previous_chain_depth,
-                max_incremental_chain=self._gc_policy.max_incremental_chain,
-            )
-            update_checkpoint_head(
-                self._run_dir,
-                run_id=state.run_id,
-                checkpoint_ref=created.checkpoint_ref,
-                sequence_number=sequence_number,
-                node_alias=alias,
-                snapshot_mode=created.snapshot_mode,
-                base_checkpoint_ref=created.base_checkpoint_ref,
-                chain_depth=created.chain_depth,
-                writer_pid=os.getpid(),
-                writer_hostname=socket.gethostname(),
-            )
-            self._previous_checkpoint_ref = created.checkpoint_ref
-            self._previous_state = deepcopy(current_state)
-            self._previous_chain_depth = created.chain_depth
-            self._completed_nodes = list(merged_completed_nodes)
-            self._sequence += 1
-            result = CheckpointWriteResult(
-                checkpoint_ref=created.checkpoint_ref,
-                sequence_number=sequence_number,
-                duration_ms=created.duration_ms,
-                snapshot_mode=created.snapshot_mode,
-                base_checkpoint_ref=created.base_checkpoint_ref,
-                chain_depth=created.chain_depth,
-                changed_paths=created.changed_paths,
+                cache_entry_refs=list(cache_entry_refs),
+                sequence_advance=self._tier_sequence_advance(completed_nodes),
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError) as exc:
             if self._policy == "best_effort":
                 emit_degraded_path(
                     component="scientist.checkpoint",
-                    operation="write_checkpoint",
+                    operation="write_tier_checkpoint",
                     reason="best_effort_checkpoint_write_failed",
                     exc=exc,
                     retryable=True,
@@ -714,32 +915,13 @@ class CASCheckpointHook:
                         "alias": alias,
                         "node_id": node_id,
                         "sequence_number": sequence_number,
+                        "completed_nodes": list(completed_nodes),
                     },
                     log=logger,
                 )
                 return None
             raise
-        if self._gc_policy is not None:
-            try:
-                gc_checkpoints(
-                    self._run_dir,
-                    policy=self._gc_policy,
-                    current_head_ref=result.checkpoint_ref,
-                )
-            except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError) as exc:
-                emit_degraded_path(
-                    component="scientist.checkpoint",
-                    operation="gc_checkpoints",
-                    reason="checkpoint_gc_failed",
-                    exc=exc,
-                    retryable=True,
-                    details={
-                        "run_id": state.run_id,
-                        "sequence_number": sequence_number,
-                        "checkpoint_ref": str(result.checkpoint_ref.artifact_id),
-                    },
-                    log=logger,
-                )
+        self._gc_after_checkpoint(result, run_id=state.run_id)
         return result
 
     async def on_node_complete_async(
@@ -753,67 +935,50 @@ class CASCheckpointHook:
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
     ) -> CheckpointWriteResult | None:
+        """Persist one successful node frontier without blocking the event loop."""
+        return await self.on_tier_complete_async(
+            state=state,
+            alias=alias,
+            node_id=node_id,
+            completed_nodes=completed_nodes,
+            workflow_id=workflow_id,
+            workflow_fingerprint=workflow_fingerprint,
+            cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [],
+        )
+
+    async def on_tier_complete_async(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> CheckpointWriteResult | None:
+        """Persist one atomically merged tier asynchronously."""
         if self._policy == "off":
             return None
 
-        if cache_entry_ref is not None and cache_entry_ref.kind == "scientist.node_cache_entry":
-            self._cache_entry_refs.append(cache_entry_ref)
-
-        sequence_number = self._sequence
-        current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
-        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        sequence_advance = self._tier_sequence_advance(completed_nodes)
+        sequence_number = self._sequence + max(0, sequence_advance - 1)
         try:
-            created = await create_checkpoint_async(
-                self._async_store,
-                run_id=state.run_id,
-                state=current_state,
-                sequence_number=sequence_number,
-                completed_node_alias=alias,
-                completed_node_id=node_id,
-                completed_nodes=merged_completed_nodes,
+            result = await self._write_checkpoint_async(
+                state=state,
+                alias=alias,
+                node_id=node_id,
+                completed_nodes=completed_nodes,
                 workflow_id=workflow_id,
                 workflow_fingerprint=workflow_fingerprint,
-                fsm_phase=str(state.params.get("phase", "UNKNOWN")),
-                cache_entry_refs=list(self._cache_entry_refs),
-                tenant_id=self._tenant_id,
-                cell_id=self._cell_id,
-                previous_state=self._previous_state,
-                previous_checkpoint_ref=self._previous_checkpoint_ref,
-                previous_chain_depth=self._previous_chain_depth,
-                max_incremental_chain=self._gc_policy.max_incremental_chain,
-            )
-            await run_blocking_async(
-                update_checkpoint_head,
-                self._run_dir,
-                run_id=state.run_id,
-                checkpoint_ref=created.checkpoint_ref,
-                sequence_number=sequence_number,
-                node_alias=alias,
-                snapshot_mode=created.snapshot_mode,
-                base_checkpoint_ref=created.base_checkpoint_ref,
-                chain_depth=created.chain_depth,
-                writer_pid=os.getpid(),
-                writer_hostname=socket.gethostname(),
-            )
-            self._previous_checkpoint_ref = created.checkpoint_ref
-            self._previous_state = deepcopy(current_state)
-            self._previous_chain_depth = created.chain_depth
-            self._completed_nodes = list(merged_completed_nodes)
-            self._sequence += 1
-            result = CheckpointWriteResult(
-                checkpoint_ref=created.checkpoint_ref,
-                sequence_number=sequence_number,
-                duration_ms=created.duration_ms,
-                snapshot_mode=created.snapshot_mode,
-                base_checkpoint_ref=created.base_checkpoint_ref,
-                chain_depth=created.chain_depth,
-                changed_paths=created.changed_paths,
+                cache_entry_refs=list(cache_entry_refs),
+                sequence_advance=sequence_advance,
             )
         except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError, TimeoutError) as exc:
             if self._policy == "best_effort":
                 emit_degraded_path(
                     component="scientist.checkpoint",
-                    operation="write_checkpoint_async",
+                    operation="write_tier_checkpoint_async",
                     reason="best_effort_checkpoint_write_failed",
                     exc=exc,
                     retryable=True,
@@ -822,33 +987,13 @@ class CASCheckpointHook:
                         "alias": alias,
                         "node_id": node_id,
                         "sequence_number": sequence_number,
+                        "completed_nodes": list(completed_nodes),
                     },
                     log=logger,
                 )
                 return None
             raise
-        if self._gc_policy is not None:
-            try:
-                await run_blocking_async(
-                    gc_checkpoints,
-                    self._run_dir,
-                    policy=self._gc_policy,
-                    current_head_ref=result.checkpoint_ref,
-                )
-            except (*_CHECKPOINT_OPERATION_ERRORS, CheckpointError, TimeoutError) as exc:
-                emit_degraded_path(
-                    component="scientist.checkpoint",
-                    operation="gc_checkpoints_async",
-                    reason="checkpoint_gc_failed",
-                    exc=exc,
-                    retryable=True,
-                    details={
-                        "run_id": state.run_id,
-                        "sequence_number": sequence_number,
-                        "checkpoint_ref": str(result.checkpoint_ref.artifact_id),
-                    },
-                    log=logger,
-                )
+        await self._gc_after_checkpoint_async(result, run_id=state.run_id)
         return result
 
     def export_runtime_metadata(self) -> dict[str, Any] | None:

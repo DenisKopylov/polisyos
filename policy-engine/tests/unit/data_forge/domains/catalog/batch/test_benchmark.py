@@ -202,6 +202,33 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert "source_preflight" in payload
 
 
+def test_run_benchmark_does_not_use_stale_flat_index_after_empty_selection(tmp_path) -> None:
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+    _build_benchmark_fixture(config)
+    (config.index_dir / "ds_dataset_embeddings.npz").write_bytes(b"stale-embeddings")
+    (config.index_dir / "ds_dataset_index.hnsw").write_bytes(b"stale-index")
+    build_embedding_generation(
+        rows=(),
+        index_dir=config.index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+    )
+
+    outcome = run_benchmark(
+        config,
+        suite=BenchmarkSuite(
+            search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()
+        ),
+    )
+
+    assert outcome.metrics["benchmark_search_vector_index_available"] == 0
+
+
 def test_run_benchmark_accepts_alias_metrics_for_retrieval_transport_and_foundry(tmp_path) -> None:
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
     build_graph(

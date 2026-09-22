@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 
@@ -41,6 +41,7 @@ class RunFingerprint(BaseModel):
     best_params: dict[str, Any] | None = None
     best_score: float | None = None
     num_evaluations: int = 0
+    history_ref: ArtifactRef | None = None
 
 
 class TransferLearningManager:
@@ -145,6 +146,10 @@ class TransferLearningManager:
         for key, _, meta in results:
             if key == fingerprint.run_id:
                 continue
+            history_ref = self._history_ref_from_metadata(meta)
+            if history_ref is None:
+                logger.warning("Skipping run %s without a valid history ArtifactRef", key)
+                continue
             # Similarity is discovery only; numeric reuse requires full binding.
             obj_names = meta.get("objective_names", [])
             if set(obj_names) != set(fingerprint.objective_names):
@@ -164,6 +169,7 @@ class TransferLearningManager:
                     tenant_id=meta.get("tenant_id"),
                     objective_directions=meta.get("objective_directions", {}),
                     best_score=meta.get("best_score"),
+                    history_ref=history_ref,
                 ),
             ):
                 continue
@@ -179,6 +185,7 @@ class TransferLearningManager:
                     tenant_id=meta.get("tenant_id"),
                     objective_directions=meta.get("objective_directions", {}),
                     best_score=meta.get("best_score"),
+                    history_ref=history_ref,
                 )
             )
             if len(similar) >= top_k:
@@ -208,7 +215,7 @@ class TransferLearningManager:
             ):
                 continue
 
-            rows = self._load_run_evaluations(fp.run_id)
+            rows = self._load_run_evaluations(fp)
             evaluations = [self._deserialize_evaluation(row, fp.run_id) for row in rows]
             evaluations.sort(key=self._evaluation_sort_key)
             if evaluations:
@@ -278,6 +285,21 @@ class TransferLearningManager:
             and target.tenant_id == source.tenant_id
             and target.objective_directions == source.objective_directions
         )
+
+    @staticmethod
+    def _history_ref_from_metadata(meta: dict[str, Any]) -> ArtifactRef | None:
+        """Convert indexed history metadata into a typed immutable reference."""
+        artifact_id = meta.get("artifact_id")
+        if artifact_id is None:
+            return None
+        try:
+            return ArtifactRef(
+                artifact_id=artifact_id,
+                kind="search.transfer.history",
+                media_type="application/json",
+            )
+        except (TypeError, ValueError):
+            return None
 
     @staticmethod
     def _evaluation_sort_key(evaluation: Evaluation) -> tuple[int, float]:
@@ -366,25 +388,62 @@ class TransferLearningManager:
             ),
         )
 
-    def _load_run_evaluations(self, run_id: str) -> list[dict[str, Any]]:
-        """Load persisted evaluations for a run."""
-        if run_id in self._eval_cache:
-            return self._eval_cache[run_id]
+    def _load_run_evaluations(
+        self,
+        source: RunFingerprint | str,
+    ) -> list[dict[str, Any]]:
+        """Load persisted evaluations from an exact snapshot reference.
 
-        # Find the artifact via vector memory metadata
+        The string form is retained for legacy callers and old in-memory cache
+        entries.  Discovery results carry ``history_ref`` and never use the
+        ANN fallback, so changing ``top_k`` cannot change addressability.
+        """
+        if isinstance(source, RunFingerprint):
+            run_id = source.run_id
+            history_ref = source.history_ref
+        else:
+            run_id = source
+            history_ref = None
+
+        cache_key = str(history_ref.artifact_id) if history_ref is not None else run_id
+        if cache_key in self._eval_cache:
+            return list(self._eval_cache[cache_key])
+
+        if history_ref is not None:
+            evals = self._read_history(history_ref)
+            self._eval_cache[cache_key] = evals
+            return list(evals)
+
+        # Legacy callers may only have a run_id.  Keep this compatibility path
+        # while ensuring newly discovered snapshots use the direct path above.
         results = self._index.query(
             [0.0] * self._index.dim,
             top_k=1000,
         )
         for key, _, meta in results:
-            if key == run_id and "artifact_id" in meta:
-                try:
-                    import json as _json
-
-                    data = _json.loads(self._store.get_bytes(meta["artifact_id"]))
-                    evals = data.get("evaluations", [])
-                    self._eval_cache[run_id] = evals
-                    return evals
-                except Exception:
-                    pass
+            if key == run_id:
+                history_ref = self._history_ref_from_metadata(meta)
+                if history_ref is None:
+                    continue
+                evals = self._read_history(history_ref)
+                self._eval_cache[str(history_ref.artifact_id)] = evals
+                return list(evals)
         return []
+
+    def _read_history(self, ref: ArtifactRef) -> list[dict[str, Any]]:
+        """Read one validated JSON history payload from its exact CAS ref."""
+        import json as _json
+
+        raw = self._store.get_bytes(ref.artifact_id)
+        try:
+            data = _json.loads(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
+        if not isinstance(data, dict):
+            raise ValueError(f"Transfer history artifact {ref.artifact_id} is not an object")
+        evals = data.get("evaluations")
+        if not isinstance(evals, list):
+            raise ValueError(
+                f"Transfer history artifact {ref.artifact_id} has no evaluations list"
+            )
+        return list(evals)

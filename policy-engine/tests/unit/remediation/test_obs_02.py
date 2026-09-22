@@ -277,7 +277,9 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
     panel_path = config.build_root.calibration_dir / "d2" / "observation_panel_monthly.parquet"
     panel = pd.read_parquet(panel_path)
 
-    assert result.outputs["observation_panel_monthly.parquet"].row_count == 8
+    output = result.outputs["observation_panel_monthly.parquet"]
+    assert Path(output.path) == panel_path
+    assert output.size_bytes == panel_path.stat().st_size
     assert result.metrics["n_monthly_records"] == 8
     assert len(panel) == 8
     assert panel["observation_id"].is_unique

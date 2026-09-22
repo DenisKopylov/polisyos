@@ -1438,6 +1438,10 @@ def _iter_observation_metric_frames(
                 batch_index += 1
                 resumed_row_offset = batch_end
                 del frame
+            if resumed_row_offset < row_offset:
+                raise RuntimeError(
+                    "stream restart ended before the confirmed observation cursor"
+                )
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

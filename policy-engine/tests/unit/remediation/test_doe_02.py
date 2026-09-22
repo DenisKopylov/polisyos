@@ -47,33 +47,15 @@ def _numpy_state_equal(left: tuple[object, ...], right: tuple[object, ...]) -> b
     )
 
 
-def test_sampler_and_analyzer_pass_one_distribution_mapping_to_backend(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Sampling and analysis must not silently disagree about a non-uniform plan."""
-    from SALib.sample import morris as morris_sampler
-
-    captured: dict[str, dict[str, object]] = {}
-
-    def fake_sample(
-        problem: dict[str, object],
-        *,
-        N: int,
-        num_levels: int,
-        seed: object = None,
-    ) -> np.ndarray:
-        captured["sampling"] = dict(problem)
-        captured["sampling_seed"] = {"value": seed}
-        return np.zeros((N * 2, 1), dtype=float)
-
-    monkeypatch.setattr(morris_sampler, "sample", fake_sample)
-
+def test_legacy_nonuniform_plan_fails_closed_without_typed_distribution_spec() -> None:
+    """Physical bounds must not be silently reinterpreted as SALib parameters."""
     plan = _morris_plan(seed=13, distribution=ParameterDist.NORMAL)
-    sampling_module.generate_sensitivity_samples(plan)
-    analyzed_problem = analysis_module._plan_to_salib_problem(plan)
 
-    assert captured["sampling"] == analyzed_problem
-    assert captured["sampling"]["dists"] == ["norm"]
+    with pytest.raises(ValueError, match="DistributionSpecV1"):
+        sampling_module.generate_sensitivity_samples(plan)
+
+    with pytest.raises(ValueError, match="DistributionSpecV1"):
+        analysis_module._plan_to_salib_problem(plan)
 
 
 def test_sampling_forwards_seed_without_resetting_external_numpy_state(

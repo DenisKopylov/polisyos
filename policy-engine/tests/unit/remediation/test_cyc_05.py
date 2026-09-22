@@ -2,10 +2,25 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
+import pytest
+
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleController,
+    GenerationCycleError,
+    validate_generation_cycle_run,
+)
 from polisyos.runtime.quality.recursive_generation_cycle import (
     recompute_depth_n_strangle_receipt,
+)
+from tests.unit.runtime.quality.test_generation_cycle import (
+    _CgfGenerationPort,
+    _DataGapValuePort,
+    _budget,
+    _problem,
 )
 
 
@@ -88,3 +103,45 @@ def test_depth_n_strangle_receipt_binds_available_slice_and_invalidates_on_chang
     assert changed.source_state == "available"
     assert changed.source_content_hash is not None
     assert changed.source_content_hash != original_hash
+
+
+@pytest.mark.asyncio
+async def test_generation_cycle_consumer_rejects_stale_source_receipt(tmp_path: Path) -> None:
+    """The actual N6 run consumer must reject a receipt after source drift."""
+
+    source = _source_root(tmp_path)
+    (source / "owner.py").write_text("def owner():\n    return None\n", encoding="utf-8")
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    )
+
+    run = await controller.run(
+        _problem("cyc_05_source_bound_run"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    receipt = run.strangle_receipt
+    source_files = {
+        path.relative_to(tmp_path).as_posix(): "sha256:"
+        + hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted((tmp_path / "src" / "polisyos").rglob("*.py"))
+    }
+    assert receipt.status == "strangled"
+    assert receipt.source_state == "available"
+    assert receipt.source_file_count == len(source_files)
+    assert receipt.source_content_hash == gy_content_hash(
+        {"scope": "src/polisyos", "files": source_files}
+    )
+    assert validate_generation_cycle_run(run, repo_root=tmp_path) == ()
+
+    (source / "owner.py").write_text(
+        "def owner():\n    return 'changed'\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(GenerationCycleError, match="generation_cycle_strangle_receipt_stale"):
+        run.strangle_receipt.verify_current(tmp_path)
+    issues = validate_generation_cycle_run(run, repo_root=tmp_path)
+    assert {issue["code"] for issue in issues} >= {"strangle_receipt_stale"}

@@ -620,6 +620,32 @@ def test_legacy_provenance_is_manifest_bound_across_result_versions(tmp_path: Pa
         load_causal_query_result(store, typed_v11_ref)
 
 
+def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
+    """A CAS artifact without schema metadata cannot promote payload self-attestation."""
+    store = FileSystemCAS(tmp_path / "cas")
+    query = CausalQuery(
+        query_type=QueryType.ATTRIBUTION,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+    )
+    result_payload = CausalQueryResult(
+        query=query,
+        result_mean=6.0,
+        result_std=0.0,
+        result_ci=(6.0, 6.0),
+    ).model_dump(mode="json")
+    result_payload["schema_version"] = "1.0"
+    ref = store.put_json(
+        result_payload,
+        PutOptions(kind="ir.causal_query_result", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+    with pytest.raises(ValueError, match="manifest|schema"):
+        load_causal_query_result(store, CausalQueryResultRef.model_validate(ref))
+
+
 def test_causal_query_producer_reconciles_envelope_with_result(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -742,6 +768,20 @@ def test_attribution_comparator_is_typed_and_legacy_atomic_value_is_preserved() 
     assert legacy.contrast is not None
     assert legacy.contrast.target.value == pytest.approx(2.0)
     assert legacy.contrast.comparator.kind == "observational"
+
+    legacy_instance = CausalQuery.model_validate(
+        {
+            "query_type": "attribution",
+            "treatment_variable": "X",
+            "treatment_value": 2.0,
+            "outcome_variable": "Y",
+            "intervention_spec": InterventionSpec(type=InterventionType.ATOMIC),
+        }
+    )
+    assert legacy_instance.intervention_spec is not None
+    assert legacy_instance.intervention_spec.value == pytest.approx(2.0)
+    assert legacy_instance.contrast is not None
+    assert legacy_instance.contrast.target.value == pytest.approx(2.0)
 
 
 def test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest(

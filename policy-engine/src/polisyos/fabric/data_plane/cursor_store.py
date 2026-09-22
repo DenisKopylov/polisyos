@@ -88,6 +88,16 @@ class CursorStore:
             self._index = latest
         return ref
 
+    def remove_cursor(self, cursor_id: str) -> None:
+        """Remove one cursor from the latest index without deleting its CAS artifact."""
+        if not isinstance(cursor_id, str) or not cursor_id:
+            raise ValueError("cursor_id must be a non-empty string")
+        with self._lock, file_lock(self._lock_path):
+            latest = self._load_index_unlocked()
+            latest.pop(cursor_id, None)
+            self._save_index_unlocked(latest)
+            self._index = latest
+
     def save_stream_checkpoint(self, checkpoint: StreamCheckpoint) -> ArtifactRef:
         """Persist one stream checkpoint and update the latest index."""
         ref = self._store.put_json(
@@ -595,6 +605,13 @@ class AsyncCursorStoreAdapter:
         return await run_blocking_async(
             self.store.save_cursor,
             cursor,
+            timeout_seconds=self.timeout_seconds,
+        )
+
+    async def remove_cursor(self, cursor_id: str) -> None:
+        await run_blocking_async(
+            self.store.remove_cursor,
+            cursor_id,
             timeout_seconds=self.timeout_seconds,
         )
 

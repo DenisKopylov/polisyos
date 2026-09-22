@@ -553,7 +553,7 @@ class StreamWindowAccumulator:
         contributor_refs: tuple[str, ...],
     ) -> list[_WindowEmission]:
         """Add rows and return assignments with their actual source refs."""
-        refs = tuple(dict.fromkeys(str(ref) for ref in contributor_refs if ref))
+        refs = self._validate_refs(contributor_refs)
         emissions: list[_WindowEmission] = []
         for row in rows:
             self._set_row_refs(row, refs)
@@ -1363,6 +1363,7 @@ async def _restore_local_frontier(
     async_cursor_store: AsyncCursorStoreAdapter,
     previous_checkpoint: StreamCheckpoint | None,
     previous_cursor: CursorState | None,
+    target_cursor: CursorState,
     empty_frontier: StreamCheckpoint,
 ) -> None:
     """Restore the last local pair, or the explicit empty frontier."""
@@ -1372,6 +1373,10 @@ async def _restore_local_frontier(
             checkpoint=previous_checkpoint,
         )
         return
+    # A first-pair failure can leave the cursor index advanced even when the
+    # paired checkpoint write failed.  Remove only that unpaired index entry;
+    # the immutable CAS artifact remains available for diagnosis/reconciliation.
+    await async_cursor_store.remove_cursor(target_cursor.cursor_id)
     await async_cursor_store.save_stream_checkpoint(previous_checkpoint or empty_frontier)
 
 
@@ -1395,7 +1400,10 @@ async def _commit_stream_frontier(
     cross-system exactly-once transaction.
     """
     try:
-        await session.commit(checkpoint)
+        # Source adapters receive the source-neutral prepared representation;
+        # the local ``frontier_committed`` marker is promoted only after both
+        # local indices are persisted and verified.
+        await session.commit(prepared_checkpoint)
     except Exception as exc:
         await _save_unresolved_frontier(
             async_cursor_store=async_cursor_store,
@@ -1425,6 +1433,7 @@ async def _commit_stream_frontier(
                 async_cursor_store=async_cursor_store,
                 previous_checkpoint=previous_checkpoint,
                 previous_cursor=previous_cursor,
+                target_cursor=cursor,
                 empty_frontier=empty_frontier,
             )
         except Exception as compensation_exc:

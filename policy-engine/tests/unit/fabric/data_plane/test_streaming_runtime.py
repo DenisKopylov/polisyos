@@ -1019,6 +1019,8 @@ async def test_stream_source_commit_failure_does_not_promote_local_frontier(
         )
 
     assert len(source_commits) == 1
+    assert source_commits[0].metadata["frontier_committed"] is False
+    assert source_commits[0].metadata["frontier_intent"]["state"] == "prepared"
     assert cursor_store.find_latest_cursor("stream.jsonl", "source-commit-failure") is None
     paused = cursor_store.find_latest_stream_checkpoint(
         "stream.jsonl",
@@ -1509,6 +1511,20 @@ def test_stream_window_restore_rejects_empty_contributor_ref() -> None:
         accumulator.restore(state)
     assert exc_info.value.__cause__ is not None
     assert "row contributor refs cannot be empty" in str(exc_info.value.__cause__)
+
+
+def test_stream_window_add_rows_with_refs_rejects_empty_contributor_ref() -> None:
+    """Lineage intake rejects an empty ref instead of filtering it out."""
+
+    accumulator = StreamWindowAccumulator(
+        WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+    )
+
+    with pytest.raises(ValueError, match="row contributor refs cannot be empty"):
+        accumulator.add_rows_with_refs(
+            [{"value": 1}],
+            ("chunk-valid", ""),
+        )
 
 
 @pytest.mark.asyncio

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
 from polisyos.data_forge.domains.catalog.batch.checkpoints import (
-    fingerprint_paths,
     save_stage_state,
 )
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
@@ -102,7 +102,22 @@ def test_legacy_directory_state_without_output_inventory_is_cache_miss(tmp_path)
     manifest.parent.mkdir(parents=True)
     manifest.write_text("{}\n", encoding="utf-8")
     config.normalized_dir.mkdir(parents=True)
-    _save_state(config, "normalize", [config.normalized_dir])
+    config.stage_state_path.parent.mkdir(parents=True, exist_ok=True)
+    config.stage_state_path.write_text(
+        json.dumps(
+            {
+                "normalize": {
+                    "status": "complete",
+                    "input_fingerprint": _stage_input_fingerprint(config, "normalize"),
+                    "outputs": [str(config.normalized_dir)],
+                    "metadata": {},
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
 
     assert not _should_skip_stage(config, "normalize")
-

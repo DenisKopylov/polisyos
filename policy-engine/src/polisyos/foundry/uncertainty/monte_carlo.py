@@ -406,7 +406,12 @@ class MonteCarloPropagator:
             actual_replicates += 1
 
             while generated_this_replicate < replicate_size:
-                this_batch = min(batch_size, replicate_size - generated_this_replicate)
+                this_batch = self._adaptive_batch_size(
+                    generated=generated,
+                    batch_size=batch_size,
+                    remaining=replicate_size - generated_this_replicate,
+                    adaptive=adaptive,
+                )
                 uniform_samples, sampler_state = self._next_qmc_uniform_chunk(
                     sampler_state,
                     this_batch,
@@ -490,7 +495,12 @@ class MonteCarloPropagator:
         failed = 0
 
         while generated < n_samples:
-            this_batch = min(batch_size, n_samples - generated)
+            this_batch = self._adaptive_batch_size(
+                generated=generated,
+                batch_size=batch_size,
+                remaining=n_samples - generated,
+                adaptive=adaptive,
+            )
             batch_samples: dict[str, jnp.ndarray] = {}
             shared_indices: jnp.ndarray | None = None
             if empirical_spec is not None:
@@ -574,6 +584,28 @@ class MonteCarloPropagator:
     # ------------------------------------------------------------------
     # Adaptive stopping
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _adaptive_batch_size(
+        *,
+        generated: int,
+        batch_size: int,
+        remaining: int,
+        adaptive: Any,
+    ) -> int:
+        """Split a batch at the next adaptive stopping checkpoint.
+
+        Adaptive evaluation is defined at generated-sample boundaries.  A
+        batch may cross such a boundary, so cap it before sampling instead of
+        silently skipping the checkpoint when the batch and interval differ.
+        """
+        this_batch = min(batch_size, remaining)
+        if not adaptive.enabled:
+            return this_batch
+
+        interval = adaptive.check_interval
+        next_boundary = ((generated // interval) + 1) * interval
+        return min(this_batch, next_boundary - generated)
 
     def _check_adaptive_stop(
         self,

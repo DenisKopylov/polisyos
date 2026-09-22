@@ -131,10 +131,14 @@ def test_bounded_distribution_shapes_match_scipy_and_not_uniform() -> None:
     """Pinned SciPy quantiles distinguish each bounded mapping from uniform."""
     from scipy.stats import triang, truncnorm, uniform
 
+    # Morris rows are stratified trajectory points on a finite grid, not iid
+    # draws.  Use the pinned Sobol QMC backend for this quantile witness so the
+    # reference comparison tests the distribution transform rather than the
+    # trajectory design's discrete empirical shape.
     quantile_levels = np.array([0.1, 0.5, 0.9])
 
     normal_plan = SensitivityPlan(
-        method=SensitivityMethod.MORRIS,
+        method=SensitivityMethod.SOBOL,
         parameter_specs=[
             ParameterSpec(
                 name="x",
@@ -148,7 +152,7 @@ def test_bounded_distribution_shapes_match_scipy_and_not_uniform() -> None:
         seed=71,
     )
     triangular_plan = SensitivityPlan(
-        method=SensitivityMethod.MORRIS,
+        method=SensitivityMethod.SOBOL,
         parameter_specs=[
             ParameterSpec(
                 name="x",

@@ -21,7 +21,11 @@ from pydantic import ValidationError
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
@@ -175,7 +179,11 @@ class AsyncWorkflowExecutor:
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
-        self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
+        self._cache = NodeResultCache(
+            self._ctx.store,
+            run_id=state.run_id,
+            tenant_context=self._run_tenant_context(),
+        )
         restored = self._cache.seed_from_trace(self._ctx.run.trace_path)
         restored_cp = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
         if restored:
@@ -785,6 +793,46 @@ class AsyncWorkflowExecutor:
                 )
         return records, state, tier_failed, cache_entry_refs
 
+    def _run_tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Capture tenant/cell ownership from the existing run context."""
+        run = self._ctx.run
+        tenant_id = getattr(run, "tenant_id", None)
+        cell_id = getattr(run, "cell_id", None)
+        if not isinstance(tenant_id, str) or not tenant_id:
+            run_manifest = getattr(run, "run_manifest", None)
+            manifest_tenant_id = getattr(run_manifest, "tenant_id", None)
+            manifest_cell_id = getattr(run_manifest, "cell_id", None)
+            tenant_id = manifest_tenant_id if isinstance(manifest_tenant_id, str) else None
+            cell_id = manifest_cell_id if isinstance(manifest_cell_id, str) else None
+        elif cell_id is not None and not isinstance(cell_id, str):
+            cell_id = None
+        if tenant_id is None:
+            return None
+        return ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+
+    def _cache_deadline(
+        self,
+        inv: NodeInvocation,
+        *,
+        started_at: float | None = None,
+    ) -> float | None:
+        """Return one absolute deadline shared by cache and node admission."""
+        started = time.perf_counter() if started_at is None else started_at
+        deadlines: list[float] = []
+        if inv.timeout_s is not None:
+            deadlines.append(started + inv.timeout_s)
+        if self._workflow_deadline is not None:
+            deadlines.append(self._workflow_deadline)
+        elif self._workflow_timeout_s is not None:
+            deadlines.append(started + self._workflow_timeout_s)
+        return min(deadlines) if deadlines else None
+
+    @staticmethod
+    def _remaining_deadline_seconds(deadline: float | None) -> float | None:
+        if deadline is None:
+            return None
+        return max(0.001, deadline - time.perf_counter())
+
     def _cache_timeout_seconds(
         self,
         inv: NodeInvocation,
@@ -800,21 +848,9 @@ class AsyncWorkflowExecutor:
         deadline is represented by its smallest bounded slice and reported as
         the normal timeout/degraded path.
         """
-        now = time.perf_counter()
-        elapsed = max(0.0, now - started_at) if started_at is not None else 0.0
-        deadlines: list[float] = []
-        if inv.timeout_s is not None:
-            deadlines.append(inv.timeout_s - elapsed)
-        if self._workflow_deadline is not None:
-            deadlines.append(self._workflow_deadline - now)
-        elif self._workflow_timeout_s is not None:
-            # `_execute_node` is also used directly by focused callers and
-            # can therefore run without `execute()` having established the
-            # absolute workflow deadline.
-            deadlines.append(self._workflow_timeout_s - elapsed)
-        if not deadlines:
-            return None
-        return max(0.001, min(deadlines))
+        return self._remaining_deadline_seconds(
+            self._cache_deadline(inv, started_at=started_at)
+        )
 
     def _check_budget(self, alias: str, *, budget_key: str) -> None:
         """Check one action-specific budget and emit its threshold alerts."""
@@ -835,6 +871,7 @@ class AsyncWorkflowExecutor:
         node_id: str,
         outcome: NodeOutcome,
         timeout_seconds: float | None,
+        deadline_monotonic: float | None,
     ) -> ArtifactRef:
         """Publish a cache entry off-loop and quarantine it if cancelled."""
         cache = self._cache
@@ -849,6 +886,7 @@ class AsyncWorkflowExecutor:
                     cache_key,
                     node_id=node_id,
                     outcome=outcome,
+                    deadline_monotonic=deadline_monotonic,
                 )
             finally:
                 # A timeout/cancellation only cancels the awaitable; the
@@ -952,6 +990,7 @@ class AsyncWorkflowExecutor:
             )
 
         started = time.perf_counter()
+        cache_deadline = self._cache_deadline(inv, started_at=started)
         cache_hit = False
         cache_entry_ref: ArtifactRef | None = None
 
@@ -998,7 +1037,8 @@ class AsyncWorkflowExecutor:
                 cached_outcome = await run_blocking_async(
                     self._cache.get,
                     cache_key,
-                    timeout_seconds=self._cache_timeout_seconds(inv, started_at=started),
+                    deadline_monotonic=cache_deadline,
+                    timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                 )
             except _EXECUTOR_DEGRADED_ERRORS as exc:
                 _executor_degraded(
@@ -1078,7 +1118,7 @@ class AsyncWorkflowExecutor:
                     self._ctx,
                     node_state,
                     retry_policy=retry_policy,
-                    timeout_s=inv.timeout_s,
+                    timeout_s=self._remaining_deadline_seconds(cache_deadline),
                     alias=alias,
                     retry_stats=retry_stats,
                 )
@@ -1132,7 +1172,8 @@ class AsyncWorkflowExecutor:
                         cache_key,
                         node_id=node_id,
                         outcome=outcome,
-                        timeout_seconds=self._cache_timeout_seconds(inv, started_at=started),
+                        timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                        deadline_monotonic=cache_deadline,
                     )
                 except _EXECUTOR_DEGRADED_ERRORS as exc:
                     self._cache.discard(cache_key)

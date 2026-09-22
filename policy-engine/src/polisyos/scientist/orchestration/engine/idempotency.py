@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
@@ -13,11 +14,21 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.common.timestamps import utc_now
-from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     NodeSpec,
@@ -74,6 +85,29 @@ _JOURNAL_PROOF_CANON = CanonSpec(
 )
 
 
+def _active_tenant_context() -> ArtifactTenantContextInfo | None:
+    """Resolve the active tenant/cell binding using the existing scope contract."""
+    access_scope = get_current_access_scope_or_none()
+    tenant_id = get_current_tenant_id_or_none()
+    cell_id = get_current_cell_id()
+    if access_scope is not None:
+        if tenant_id is not None and tenant_id != access_scope.tenant_id:
+            raise ValueError("cache_entry: active_tenant_scope_mismatch")
+        if (
+            cell_id is not None
+            and access_scope.cell_id is not None
+            and cell_id != access_scope.cell_id
+        ):
+            raise ValueError("cache_entry: active_tenant_scope_mismatch")
+        tenant_id = tenant_id or access_scope.tenant_id
+        cell_id = cell_id if cell_id is not None else access_scope.cell_id
+    if cell_id is not None and tenant_id is None:
+        raise ValueError("cache_entry: active_tenant_scope_mismatch")
+    if tenant_id is None:
+        return None
+    return ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+
+
 class NodeCacheEntry(BaseModel):
     """Artifact record linking a run-scoped idempotency key to a cached node outcome."""
 
@@ -83,6 +117,7 @@ class NodeCacheEntry(BaseModel):
     run_id: str
     node_id: str
     idempotency_key: str = Field(..., min_length=64, max_length=64)
+    tenant_context: ArtifactTenantContextInfo | None = None
     # ``outcome_ref`` is retained solely for reading the predecessor v1
     # two-artifact wire shape. New entries bind the decoded outcome bytes into
     # this same immutable CAS record so publication cannot leave an orphan
@@ -111,9 +146,13 @@ def _journal_payload(entry: NodeCacheEntry) -> dict[str, Any]:
         exclude={"journal_proof"},
     )
     # v1 entries predate the embedded payload field. Omitting the field here
-    # preserves their original proof bytes while the v2 writer binds it.
+    # preserves their original proof bytes while the v2 writer binds it. An
+    # unscoped v2 entry also omits the optional scope field so existing v2
+    # proofs remain readable; bound v2 entries include the tenant context.
     if entry.schema_version == LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION:
         payload.pop("outcome_payload", None)
+    if entry.tenant_context is None:
+        payload.pop("tenant_context", None)
     return payload
 
 
@@ -219,10 +258,17 @@ class NodeResultCache:
         run_id: str,
         *,
         max_entries: int | None = None,
+        tenant_context: ArtifactTenantContextInfo | None = None,
     ) -> None:
         self._store = store
         self._run_id = run_id
         self._max_entries = max_entries
+        active_context = _active_tenant_context()
+        if tenant_context is None:
+            tenant_context = active_context
+        elif active_context is not None and tenant_context != active_context:
+            raise ValueError("cache_entry: active_tenant_scope_mismatch")
+        self._tenant_context = tenant_context
         self._index: LRUCache[str, ArtifactRef] = LRUCache(max_size=max_entries)
         self._mutation_journals: dict[str, StateMutationJournal] = {}
         self._lock = RLock()
@@ -230,6 +276,21 @@ class NodeResultCache:
     @property
     def run_id(self) -> str:
         return self._run_id
+
+    @property
+    def tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Return the immutable tenant/cell binding for this cache instance."""
+        return self._tenant_context
+
+    @staticmethod
+    def _check_deadline(deadline_monotonic: float | None) -> None:
+        if deadline_monotonic is not None and time.perf_counter() >= deadline_monotonic:
+            raise TimeoutError("cache deadline exceeded")
+
+    def _assert_active_scope(self) -> None:
+        active_context = _active_tenant_context()
+        if active_context is not None and active_context != self._tenant_context:
+            raise ValueError("cache_entry: active_tenant_scope_mismatch")
 
     @property
     def size(self) -> int:
@@ -267,10 +328,13 @@ class NodeResultCache:
         output_aware: bool,
         entry: bool = False,
         schema_version: str | None = None,
+        deadline_monotonic: float | None = None,
     ) -> None:
         """Read back the actual immutable cache epoch, including reused CAS bytes."""
+        self._check_deadline(deadline_monotonic)
         if not self._store.verify(ref.artifact_id).ok:
             raise ValueError("cache_custody: artifact_integrity_failed")
+        self._check_deadline(deadline_monotonic)
         manifest = self._store.get_manifest(ref.artifact_id)
         kind = "scientist.node_cache_entry" if entry else "scientist.node_outcome"
         schema_name = (
@@ -303,6 +367,7 @@ class NodeResultCache:
         *,
         entry: bool = False,
         schema_version: str | None = None,
+        deadline_monotonic: float | None = None,
     ) -> None:
         """Read back an output-aware cache artifact under its immutable epoch."""
         try:
@@ -311,6 +376,7 @@ class NodeResultCache:
                 output_aware=True,
                 entry=entry,
                 schema_version=schema_version,
+                deadline_monotonic=deadline_monotonic,
             )
         except ValueError as exc:
             raise ValueError(f"output_aware_cache_custody: {exc}") from exc
@@ -318,11 +384,17 @@ class NodeResultCache:
     def _read_entry(
         self,
         entry_ref: ArtifactRef,
+        *,
+        deadline_monotonic: float | None = None,
     ) -> tuple[NodeCacheEntry, NodeOutcome, bool]:
         """Decode one entry, verify its custody, and check its replay proof."""
+        self._check_deadline(deadline_monotonic)
         payload = from_canonical_bytes(self._store.get_bytes(entry_ref.artifact_id))
+        self._check_deadline(deadline_monotonic)
         entry = NodeCacheEntry.model_validate(payload)
+        self._check_deadline(deadline_monotonic)
         entry_manifest = self._store.get_manifest(entry_ref.artifact_id)
+        self._validate_entry_scope(entry, entry_manifest)
         known_schema = entry.schema_version in {
             LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION,
             NODE_CACHE_ENTRY_SCHEMA_VERSION,
@@ -334,12 +406,20 @@ class NodeResultCache:
         if entry.outcome_payload is not None:
             decoded = decode_node_outcome(entry.outcome_payload)
         elif entry.outcome_ref is not None:
+            self._check_deadline(deadline_monotonic)
             offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
             decoded = decode_node_outcome(offered)
             if isinstance(decoded, OutputAwareNodeOutcome):
-                self._verify_output_aware_cache_artifact(entry.outcome_ref)
+                self._verify_output_aware_cache_artifact(
+                    entry.outcome_ref,
+                    deadline_monotonic=deadline_monotonic,
+                )
             else:
-                self._verify_cache_artifact(entry.outcome_ref, output_aware=False)
+                self._verify_cache_artifact(
+                    entry.outcome_ref,
+                    output_aware=False,
+                    deadline_monotonic=deadline_monotonic,
+                )
         else:
             raise ValueError("cache_entry: missing_outcome")
 
@@ -354,6 +434,7 @@ class NodeResultCache:
             # Unknown payload versions are rejected below, but custody is
             # still checked against the immutable manifest actually offered.
             schema_version=entry.schema_version if known_schema else manifest_schema_version,
+            deadline_monotonic=deadline_monotonic,
         )
         if entry.schema_version == NODE_CACHE_ENTRY_SCHEMA_VERSION:
             if entry.outcome_payload is None or entry.outcome_ref is not None:
@@ -368,6 +449,22 @@ class NodeResultCache:
             output_aware=output_aware,
         )
         return entry, decoded, proof_valid
+
+    def _validate_entry_scope(self, entry: NodeCacheEntry, manifest: Any) -> None:
+        """Require cache payload, manifest, and cache owner to share one scope."""
+        self._assert_active_scope()
+        if entry.tenant_context != manifest.tenant_context:
+            raise ValueError("cache_entry: tenant_manifest_scope_mismatch")
+        if self._tenant_context is None:
+            if entry.tenant_context is not None:
+                raise ValueError("cache_entry: scoped_artifact_on_unbound_cache")
+            return
+        if entry.tenant_context is None:
+            if entry.schema_version == LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION:
+                raise ValueError("cache_entry: unbound_legacy_entry")
+            raise ValueError("cache_entry: tenant_scope_mismatch")
+        if entry.tenant_context != self._tenant_context:
+            raise ValueError("cache_entry: tenant_scope_mismatch")
 
     def _replay_proof_valid(
         self,
@@ -405,7 +502,14 @@ class NodeResultCache:
             )
         )
 
-    def get(self, key: str) -> NodeOutcome | None:
+    def get(
+        self,
+        key: str,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> NodeOutcome | None:
+        self._check_deadline(deadline_monotonic)
+        self._assert_active_scope()
         with self._lock:
             entry_ref = self._index.get(key)
             journal = self._mutation_journals.get(key)
@@ -417,7 +521,10 @@ class NodeResultCache:
                 self.discard(key)
                 return None
             try:
-                entry, outcome, proof_valid = self._read_entry(entry_ref)
+                entry, outcome, proof_valid = self._read_entry(
+                    entry_ref,
+                    deadline_monotonic=deadline_monotonic,
+                )
                 if (
                     not proof_valid
                     or entry.idempotency_key != key
@@ -426,6 +533,8 @@ class NodeResultCache:
                 ):
                     raise ValueError("cache_entry: replay_contract_mismatch")
                 object.__setattr__(outcome.state, "_polisyos_state_mutation_journal", journal)
+            except TimeoutError:
+                raise
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                 logger.debug(
                     "Cache miss for key %s, evicting: %s",
@@ -436,8 +545,17 @@ class NodeResultCache:
                 return None
             return outcome
 
-    def put(self, key: str, node_id: str, outcome: NodeOutcome) -> ArtifactRef:
+    def put(
+        self,
+        key: str,
+        node_id: str,
+        outcome: NodeOutcome,
+        *,
+        deadline_monotonic: float | None = None,
+    ) -> ArtifactRef:
+        self._check_deadline(deadline_monotonic)
         with self._lock:
+            self._assert_active_scope()
             output_aware = isinstance(outcome, OutputAwareNodeOutcome)
             cache_producer = _cache_producer(output_aware=output_aware)
             journal = mutation_journal_for_state(outcome.state)
@@ -446,6 +564,7 @@ class NodeResultCache:
                 run_id=self._run_id,
                 node_id=node_id,
                 idempotency_key=key,
+                tenant_context=self._tenant_context,
                 outcome_payload=outcome.model_dump(
                     mode="python", by_alias=True, exclude_none=False
                 ),
@@ -468,7 +587,10 @@ class NodeResultCache:
             )
             # The outcome and replay journal are one typed CAS payload. There
             # is no preceding outcome write that can survive a failed entry
-            # publication as an orphan artifact.
+            # publication as an orphan artifact. Deadline checks bound
+            # admission and readback; they cannot interrupt a synchronous CAS
+            # already inside the backend.
+            self._check_deadline(deadline_monotonic)
             entry_ref = self._store.put_json(
                 entry.model_dump(mode="python", by_alias=True, exclude_none=False),
                 PutOptions(
@@ -476,13 +598,25 @@ class NodeResultCache:
                     media_type="application/json",
                     schema=_CACHE_ENTRY_SCHEMA,
                     producer=cache_producer,
+                    tenant_context=self._tenant_context,
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
             )
+            self._check_deadline(deadline_monotonic)
             if output_aware:
-                self._verify_output_aware_cache_artifact(entry_ref, entry=True)
+                self._verify_output_aware_cache_artifact(
+                    entry_ref,
+                    entry=True,
+                    deadline_monotonic=deadline_monotonic,
+                )
             else:
-                self._verify_cache_artifact(entry_ref, output_aware=False, entry=True)
+                self._verify_cache_artifact(
+                    entry_ref,
+                    output_aware=False,
+                    entry=True,
+                    deadline_monotonic=deadline_monotonic,
+                )
+            self._check_deadline(deadline_monotonic)
             if journal is not None:
                 self._index.set(key, entry_ref)
                 self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)

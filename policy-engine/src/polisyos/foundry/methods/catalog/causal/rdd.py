@@ -256,6 +256,53 @@ class RegressionDiscontinuity:
             )
             return wrap_causal_output(report, warnings=[reason])
 
+        polynomial_order = params.get("polynomial_order", 1)
+        if (
+            isinstance(polynomial_order, bool)
+            or not isinstance(polynomial_order, int)
+            or polynomial_order not in {1, 2}
+        ):
+            reason = "polynomial_order must be an integer in {1, 2}"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"polynomial_order": polynomial_order},
+                metadata={"capability": "unsupported_polynomial_order"},
+            )
+            return wrap_causal_output(report, warnings=[reason])
+
+        kernel_value = params.get("kernel", "triangular")
+        if not isinstance(kernel_value, str) or kernel_value.lower() not in {
+            "triangular",
+            "epanechnikov",
+            "uniform",
+        }:
+            reason = "kernel must be one of: triangular, epanechnikov, uniform"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"kernel": kernel_value},
+                metadata={"capability": "unsupported_kernel"},
+            )
+            return wrap_causal_output(report, warnings=[reason])
+        kernel = kernel_value.lower()
+
         if bias_correction:
             reason = (
                 "unsupported RBC: bias-corrected RDD inference requires a validated "
@@ -281,8 +328,7 @@ class RegressionDiscontinuity:
             )
             return wrap_causal_output(report, warnings=[reason])
 
-        poly_order = int(params.get("polynomial_order", 1))
-        kernel = str(params.get("kernel", "triangular")).lower()
+        poly_order = polynomial_order
         bandwidth = params.get("bandwidth")
         bandwidth_value = float(bandwidth) if bandwidth is not None else _auto_bandwidth(x_centered)
         if bandwidth_value <= 0:

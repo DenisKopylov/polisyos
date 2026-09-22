@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
@@ -8,7 +9,7 @@ import pytest
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.cursor import StreamLifecycleState, WindowStrategy
+from polisyos.core.contracts.cursor import StreamCheckpoint, StreamLifecycleState, WindowStrategy
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -178,6 +179,120 @@ async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails
     assert session._closed is True
     assert session.handle is None
     assert connector.disconnect_calls == [failed_handle_id] * 3
+
+
+@pytest.mark.asyncio
+async def test_net01_checkpoint_lookup_failure_closes_owned_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Checkpoint preparation errors still finalize an acquired stream session."""
+
+    connector = _Net01StreamingConnector()
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="checkpoint-failure",
+        pool=pool,
+        request=FetchRequest(dataset_id="checkpoint-failure"),
+    )
+    await session.subscribe()
+
+    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls, kwargs
+        return session
+
+    async def fail_lookup(self, *args: Any, **kwargs: Any) -> None:
+        del self, args, kwargs
+        raise RuntimeError("controlled checkpoint lookup failure")
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        fail_lookup,
+    )
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    with pytest.raises(RuntimeError, match="controlled checkpoint lookup failure"):
+        await process_stream_dataset(
+            connector_id="net01-stream",
+            dataset_id="checkpoint-failure",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+        )
+
+    assert session._closed is True
+    assert session.handle is None
+    assert len(connector.disconnect_calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_net01_rewind_failure_closes_owned_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Rewind preparation errors cannot bypass the session finalizer."""
+
+    connector = _Net01StreamingConnector()
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="rewind-failure",
+        pool=pool,
+        request=FetchRequest(dataset_id="rewind-failure"),
+    )
+    await session.subscribe()
+    checkpoint = StreamCheckpoint(
+        checkpoint_id="net01-stream:rewind-failure:default:1",
+        stream_id="net01-stream:rewind-failure:default",
+        connector_id="net01-stream",
+        dataset_id="rewind-failure",
+        offset=1,
+        created_at=datetime.now(UTC),
+    )
+
+    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls, kwargs
+        return session
+
+    async def fake_lookup(self, *args: Any, **kwargs: Any) -> StreamCheckpoint:
+        del self, args, kwargs
+        return checkpoint
+
+    async def fail_rewind(_checkpoint: StreamCheckpoint) -> None:
+        raise RuntimeError("controlled rewind failure")
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        fake_lookup,
+    )
+    monkeypatch.setattr(session, "rewind", fail_rewind)
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    with pytest.raises(RuntimeError, match="controlled rewind failure"):
+        await process_stream_dataset(
+            connector_id="net01-stream",
+            dataset_id="rewind-failure",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+        )
+
+    assert session._closed is True
+    assert session.handle is None
+    assert len(connector.disconnect_calls) == 1
 
 
 @pytest.mark.asyncio

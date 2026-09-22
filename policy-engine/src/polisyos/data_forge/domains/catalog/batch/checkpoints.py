@@ -190,7 +190,11 @@ def stage_can_skip(
             expected_output_inventory
         ):
             return False
-    outputs = required_outputs or [Path(item) for item in current.get("outputs", []) if item]
+    outputs = (
+        [Path(item) for item in current.get("outputs", []) if item]
+        if required_outputs is None
+        else required_outputs
+    )
     return all(path.exists() for path in outputs)
 
 

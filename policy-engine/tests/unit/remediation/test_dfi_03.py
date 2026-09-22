@@ -6,8 +6,14 @@ import json
 import os
 from pathlib import Path
 
-from polisyos.data_forge.domains.catalog.batch import embedder as catalog_embedder
-from polisyos.data_forge.domains.catalog.batch.checkpoints import save_stage_state
+from polisyos.data_forge.domains.catalog.batch import (
+    embedder as catalog_embedder,
+    normalizer as catalog_normalizer,
+)
+from polisyos.data_forge.domains.catalog.batch.checkpoints import (
+    save_stage_state,
+    stage_can_skip,
+)
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
     _record_stage_completion,
@@ -121,6 +127,58 @@ def test_legacy_directory_state_without_output_inventory_is_cache_miss(tmp_path)
     assert not _should_skip_stage(config, "normalize")
 
 
+def test_empty_normalize_output_directory_is_not_reusable(tmp_path) -> None:
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"normalize"}),
+        resume=True,
+    )
+    manifest = config.raw_dir / "source" / "manifest.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text("{}\n", encoding="utf-8")
+    _record_stage_completion(config, "normalize")
+
+    assert not _should_skip_stage(config, "normalize")
+
+
+def test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs(tmp_path) -> None:
+    state_path = tmp_path / "state.json"
+    output = tmp_path / "output.txt"
+    output.write_text("published\n", encoding="utf-8")
+    save_stage_state(
+        state_path,
+        stage="fixture",
+        status="complete",
+        input_fingerprint="fixture-input",
+        outputs=[output],
+    )
+
+    assert not stage_can_skip(
+        state_path,
+        stage="fixture",
+        input_fingerprint="fixture-input",
+        required_outputs=[],
+    )
+
+
+def test_content_stage_recompute_disables_inner_resume_checkpoint(monkeypatch, tmp_path) -> None:
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"normalize"}),
+        resume=True,
+    )
+    observed_resume: list[bool] = []
+
+    def fake_normalize(stage_config) -> dict[str, int]:
+        observed_resume.append(stage_config.resume)
+        return {}
+
+    monkeypatch.setattr(catalog_normalizer, "normalize_raw_sources", fake_normalize)
+    run_dataset_pipeline_sync(config)
+
+    assert observed_resume == [False]
+
+
 def test_selected_empty_generation_is_reused_without_reencoding(
     monkeypatch, tmp_path
 ) -> None:
@@ -188,6 +246,8 @@ def test_embed_resume_rejects_config_rule_and_selected_output_changes(
     )
     generation_dir = config.index_dir / "embedding_generations" / str(selector["generation_id"])
     (generation_dir / "embeddings.npz").unlink()
+    assert not _should_skip_stage(config, "embed")
+    _record_stage_completion(config, "embed")
     assert not _should_skip_stage(config, "embed")
 
 

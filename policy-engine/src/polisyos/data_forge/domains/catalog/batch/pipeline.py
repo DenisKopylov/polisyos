@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,13 +14,11 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     build_content_basis,
     build_output_inventory,
     fingerprint_paths,
-    load_stage_state,
     save_stage_state,
     stage_can_skip,
     write_json,
 )
 from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
-from polisyos.data_forge.kernel.io.hashing import sha256_file
 from polisyos.data_forge.kernel.runtime import cooldown
 
 if TYPE_CHECKING:
@@ -28,6 +26,7 @@ if TYPE_CHECKING:
 
 
 _CONTENT_BOUND_STAGES = frozenset({"harvest", "normalize", "merge_dedup", "embed"})
+_NON_EMPTY_BOUND_STAGES = frozenset({"harvest", "normalize", "merge_dedup"})
 _STAGE_RULE_VERSIONS = {
     "harvest": "policyos.catalog.harvest.v1",
     "normalize": "policyos.catalog.normalize.v1",
@@ -118,13 +117,11 @@ def _stage_input_basis(config: DatasetBatchConfig, stage: str) -> dict[str, obje
             "embedding_batch_size": config.embedding_batch_size,
             "projection_rule_version": "policyos.catalog_dataset_embedding_projection.v1",
         }
-        trusted = _graph_load_immutable_receipt(config)
         return build_content_basis(
             stage=stage,
             rule_version=_STAGE_RULE_VERSIONS[stage],
             config=settings,
             inputs=inputs,
-            trusted_inputs={"graph_database": trusted} if trusted else None,
         )
     else:
         raise ValueError(f"content-bound basis is not defined for stage {stage!r}")
@@ -186,48 +183,19 @@ def _stage_output_inventory(config: DatasetBatchConfig, stage: str) -> dict[str,
     return build_output_inventory(_stage_outputs(config, stage))
 
 
-def _graph_load_immutable_receipt(config: DatasetBatchConfig) -> Mapping[str, object] | None:
-    """Return a validated one-time graph-load receipt for the large DB input."""
-    state = load_stage_state(config.stage_state_path).get("graph_load")
-    if not isinstance(state, Mapping):
-        return None
-    metadata = state.get("metadata")
-    if not isinstance(metadata, Mapping):
-        return None
-    receipts = metadata.get("immutable_outputs")
-    if not isinstance(receipts, list):
-        return None
-    resolved = str(config.db_path.resolve())
-    for raw in receipts:
-        if not isinstance(raw, Mapping):
+def _has_material_output(inventory: Mapping[str, object]) -> bool:
+    """Return whether a directory inventory contains a published member."""
+    entries = inventory.get("entries")
+    if not isinstance(entries, list):
+        return False
+    for raw_entry in entries:
+        if not isinstance(raw_entry, Mapping):
             continue
-        if (
-            raw.get("source") == "pipeline_owned_immutable_output"
-            and str(raw.get("path")) == resolved
-            and raw.get("kind") == "file"
-            and raw.get("exists") is True
-            and isinstance(raw.get("size"), int)
-            and isinstance(raw.get("mtime_ns"), int)
-            and isinstance(raw.get("sha256"), str)
-            and raw.get("sha256")
-        ):
-            return raw
-    return None
-
-
-def _immutable_output_receipt(path: Path) -> dict[str, object] | None:
-    if not path.is_file():
-        return None
-    stat = path.stat()
-    return {
-        "path": str(path.resolve()),
-        "kind": "file",
-        "exists": True,
-        "size": int(stat.st_size),
-        "mtime_ns": int(stat.st_mtime_ns),
-        "sha256": sha256_file(path),
-        "source": "pipeline_owned_immutable_output",
-    }
+        if raw_entry.get("kind") == "file" and raw_entry.get("exists") is True:
+            return True
+        if raw_entry.get("kind") == "directory" and raw_entry.get("members"):
+            return True
+    return False
 
 
 def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
@@ -235,13 +203,21 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
         return False
     if stage in _CONTENT_BOUND_STAGES:
         input_basis = _stage_input_basis(config, stage)
+        output_inventory = _stage_output_inventory(config, stage)
+        if stage == "embed" and output_inventory.get("status") not in {
+            "complete",
+            "empty_generation",
+        }:
+            return False
+        if stage in _NON_EMPTY_BOUND_STAGES and not _has_material_output(output_inventory):
+            return False
         return stage_can_skip(
             config.stage_state_path,
             stage=stage,
             input_fingerprint=str(input_basis["basis_digest"]),
             required_outputs=_stage_outputs(config, stage),
             expected_input_basis=input_basis,
-            expected_output_inventory=_stage_output_inventory(config, stage),
+            expected_output_inventory=output_inventory,
             require_content_bound=True,
         )
     fingerprint = _stage_input_fingerprint(config, stage)
@@ -253,14 +229,15 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
     )
 
 
+def _uncached_content_stage_config(config: DatasetBatchConfig) -> DatasetBatchConfig:
+    """Disable inner stat-based checkpoints after outer content validation misses."""
+    return replace(config, resume=False) if config.resume else config
+
+
 def _record_stage_completion(
     config: DatasetBatchConfig, stage: str, *, metadata: dict[str, object] | None = None
 ) -> None:
     stage_metadata = dict(metadata or {})
-    if stage == "graph_load":
-        receipt = _immutable_output_receipt(config.db_path)
-        if receipt is not None:
-            stage_metadata["immutable_outputs"] = [receipt]
     input_basis = _stage_input_basis(config, stage) if stage in _CONTENT_BOUND_STAGES else None
     output_inventory = (
         _stage_output_inventory(config, stage) if stage in _CONTENT_BOUND_STAGES else None
@@ -316,7 +293,7 @@ async def run_dataset_pipeline(
                 stats.skipped_stages.append("harvest")
             else:
                 st = time.monotonic()
-                harvested = await harvest_sources(config)
+                harvested = await harvest_sources(_uncached_content_stage_config(config))
                 stats.stage_times["harvest"] = time.monotonic() - st
                 stats.metrics["harvest_records"] = sum(len(v) for v in harvested.values())
                 _record_stage_completion(
@@ -329,7 +306,7 @@ async def run_dataset_pipeline(
                 stats.skipped_stages.append("normalize")
             else:
                 st = time.monotonic()
-                norm_counts = normalize_raw_sources(config)
+                norm_counts = normalize_raw_sources(_uncached_content_stage_config(config))
                 stats.stage_times["normalize"] = time.monotonic() - st
                 stats.metrics["normalized_records"] = sum(norm_counts.values())
                 _record_stage_completion(

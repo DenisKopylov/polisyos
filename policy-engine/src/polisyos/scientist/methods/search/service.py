@@ -181,111 +181,128 @@ class _NativeSearchServiceDriver:
     ) -> SearchResult:
         start_time = self.controller._begin_native_run(initial_context)
         stopping_reason: str | None = None
-        initial_candidate_pending = initial_candidate is not None
+        candidate_to_seed = initial_candidate
 
         while (
             self.controller._run_state.evaluation_iterations
             < self.controller._config.max_iterations_hard_limit
         ):
-            self.controller._refresh_budget_snapshot(initial_context)
-            stop_check = self.controller._config.stopping.check(
-                [self.controller._to_history_dict(item) for item in self.controller._history],
-                self.controller._stopping_state(),
-            )
-            if stop_check.should_stop:
-                stopping_reason = stop_check.reason
-                self.controller._status = SearchStatus.STOPPED
-                logger.info("Stopping: %s", stopping_reason)
+            stopping_reason = self._stopping_reason(initial_context)
+            if stopping_reason is not None:
+                self._stop(stopping_reason)
                 break
 
-            batch = self.controller._generate_candidates(
-                iteration=self.controller._run_state.evaluation_iterations,
-                initial_candidate=(
-                    initial_candidate if initial_candidate_pending else None
-                ),
-                context=initial_context,
+            batch, generated, stopping_reason = self._prepare_batch(
+                initial_context=initial_context,
+                initial_candidate=candidate_to_seed,
             )
-            generated = not initial_candidate_pending
-            initial_candidate_pending = False
-            if generated:
-                self.controller._run_state.generation_attempts += 1
-                self.controller._refresh_budget_snapshot(initial_context)
-                generation_stop = self.controller._config.stopping.check(
-                    [
-                        self.controller._to_history_dict(item)
-                        for item in self.controller._history
-                    ],
-                    self.controller._stopping_state(),
-                )
-                if generation_stop.should_stop:
-                    stopping_reason = generation_stop.reason
-                    self.controller._status = SearchStatus.STOPPED
-                    logger.info("Stopping: %s", stopping_reason)
-                    break
+            candidate_to_seed = None
+            if stopping_reason is not None:
+                self._stop(stopping_reason)
+                break
 
             if not batch:
-                self.controller._run_state.empty_generation_attempts += 1
-                if (
-                    self.controller._run_state.empty_generation_attempts
-                    >= self.controller._config.max_empty_generation_attempts
-                ):
-                    self.controller._run_state.generation_transition = (
-                        GenerationTransition.EXHAUSTED
-                    )
-                    stopping_reason = "generation_exhausted"
-                    self.controller._status = SearchStatus.STOPPED
-                    logger.info("Stopping: generation exhausted")
+                stopping_reason = self._handle_empty_generation()
+                if stopping_reason is not None:
                     break
                 continue
 
-            if self.controller._run_state.empty_generation_attempts:
-                self.controller._run_state.generation_transition = (
-                    GenerationTransition.TRANSIENT_EMPTY
-                )
-                self.controller._run_state.empty_generation_attempts = 0
-
-            for candidate in batch:
-                if (
-                    self.controller._run_state.evaluation_iterations
-                    >= self.controller._config.max_iterations_hard_limit
-                ):
-                    break
-                transition = self.controller._evaluate_candidate(
-                    candidate,
-                    iteration=self.controller._run_state.evaluation_iterations,
-                    context=initial_context,
-                )
-                self.controller._run_state.apply_evaluation_transition(transition)
-                self.controller._refresh_budget_snapshot(initial_context)
-
-                if (
-                    transition.disposition is _EvaluationDisposition.SENTINEL
-                    and not generated
-                ):
-                    self.controller._status = SearchStatus.STOPPED
-                    stopping_reason = "Initial sentinel evaluated"
-                    break
-
-                stop_check = self.controller._config.stopping.check(
-                    [
-                        self.controller._to_history_dict(item)
-                        for item in self.controller._history
-                    ],
-                    self.controller._stopping_state(),
-                )
-                if stop_check.should_stop:
-                    stopping_reason = stop_check.reason
-                    self.controller._status = SearchStatus.STOPPED
-                    logger.info("Stopping: %s", stopping_reason)
-                    break
-
-            if self.controller._status == SearchStatus.STOPPED:
+            self._mark_nonempty_generation()
+            stopping_reason = self._evaluate_batch(
+                batch=batch,
+                generated=generated,
+                initial_context=initial_context,
+            )
+            if stopping_reason is not None:
                 break
 
         return self.controller._finish_native_run(
             start_time=start_time,
             stopping_reason=stopping_reason,
         )
+
+    def _stopping_reason(self, context: dict[str, Any]) -> str | None:
+        self.controller._refresh_budget_snapshot(context)
+        stop_check = self.controller._config.stopping.check(
+            [self.controller._to_history_dict(item) for item in self.controller._history],
+            self.controller._stopping_state(),
+        )
+        return stop_check.reason if stop_check.should_stop else None
+
+    def _prepare_batch(
+        self,
+        *,
+        initial_context: dict[str, Any],
+        initial_candidate: dict[str, Any] | None,
+    ) -> tuple[list[dict[str, Any]], bool, str | None]:
+        generated = initial_candidate is None
+        batch = self.controller._generate_candidates(
+            iteration=self.controller._run_state.evaluation_iterations,
+            initial_candidate=initial_candidate,
+            context=initial_context,
+        )
+        if not generated:
+            return batch, False, None
+
+        self.controller._run_state.generation_attempts += 1
+        stopping_reason = self._stopping_reason(initial_context)
+        return batch, True, stopping_reason
+
+    def _handle_empty_generation(self) -> str | None:
+        self.controller._run_state.empty_generation_attempts += 1
+        if (
+            self.controller._run_state.empty_generation_attempts
+            < self.controller._config.max_empty_generation_attempts
+        ):
+            return None
+        self.controller._run_state.generation_transition = GenerationTransition.EXHAUSTED
+        self._stop("generation_exhausted")
+        return "generation_exhausted"
+
+    def _mark_nonempty_generation(self) -> None:
+        if self.controller._run_state.empty_generation_attempts:
+            self.controller._run_state.generation_transition = (
+                GenerationTransition.TRANSIENT_EMPTY
+            )
+            self.controller._run_state.empty_generation_attempts = 0
+
+    def _evaluate_batch(
+        self,
+        *,
+        batch: list[dict[str, Any]],
+        generated: bool,
+        initial_context: dict[str, Any],
+    ) -> str | None:
+        for candidate in batch:
+            if (
+                self.controller._run_state.evaluation_iterations
+                >= self.controller._config.max_iterations_hard_limit
+            ):
+                break
+            transition = self.controller._evaluate_candidate(
+                candidate,
+                iteration=self.controller._run_state.evaluation_iterations,
+                context=initial_context,
+            )
+            self.controller._run_state.apply_evaluation_transition(transition)
+            self.controller._refresh_budget_snapshot(initial_context)
+
+            if (
+                transition.disposition is _EvaluationDisposition.SENTINEL
+                and not generated
+            ):
+                self._stop("Initial sentinel evaluated")
+                return "Initial sentinel evaluated"
+
+            stopping_reason = self._stopping_reason(initial_context)
+            if stopping_reason is not None:
+                self._stop(stopping_reason)
+                return stopping_reason
+        return None
+
+    def _stop(self, reason: str) -> None:
+        self.controller._status = SearchStatus.STOPPED
+        logger.info("Stopping: %s", reason)
 
 
 __all__ = ["_NativeSearchServiceDriver"]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from statistics import NormalDist
 
 import numpy as np
@@ -319,10 +320,14 @@ def test_cau_01_dedicated_metadata_survives_deprecated_metadata_mutation(
     """Changing the deprecated owner's assumptions cannot rewrite the dedicated owner."""
 
     dedicated_assumptions = dict(StandardDifferenceInDifferences.metadata.assumptions)
-    monkeypatch.setattr(
+    mutated_legacy_metadata = replace(
         DifferenceInDifferences.metadata,
-        "assumptions",
-        {"legacy_mutation": "not a dedicated contract"},
+        assumptions={"legacy_mutation": "not a dedicated contract"},
+    )
+    monkeypatch.setattr(
+        DifferenceInDifferences,
+        "metadata",
+        mutated_legacy_metadata,
     )
 
     assert dict(StandardDifferenceInDifferences.metadata.assumptions) == dedicated_assumptions

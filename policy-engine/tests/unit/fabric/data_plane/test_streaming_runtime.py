@@ -14,6 +14,7 @@ from polisyos.core.contracts.cursor import StreamCheckpoint, StreamLifecycleStat
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
@@ -72,36 +73,6 @@ class _Net01StreamingConnector:
         if self.close_failures:
             self.close_failures -= 1
             raise RuntimeError("controlled close failure")
-
-
-class _Net01StartupRegistry:
-    """Small registry seam exposing only the private startup-owner handoff."""
-
-    def __init__(self, connector: _Net01StreamingConnector) -> None:
-        self._connector = connector
-        self._pending_startup_cleanup: dict[int, ConnectionPool] = {}
-        self._entry = SimpleNamespace(
-            factory=lambda: connector,
-            default_config=ConnectionConfig(
-                url="https://stream.example",
-                max_connections=1,
-            ),
-        )
-
-    def get_entry(self, _connector_id: str) -> SimpleNamespace:
-        return self._entry
-
-    def _retain_pending_startup_cleanup(
-        self,
-        _connector_id: str,
-        pool: ConnectionPool,
-    ) -> None:
-        self._pending_startup_cleanup[id(pool)] = pool
-
-    async def shutdown_async(self) -> None:
-        for pool in tuple(self._pending_startup_cleanup.values()):
-            await pool.close_all()
-            self._pending_startup_cleanup.pop(id(pool), None)
 
 
 def _valid_rows(batch, **kwargs):
@@ -204,6 +175,7 @@ async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails
     assert session.handle is not None
     failed_handle_id = session.handle.session_id
     assert connector.disconnect_calls == [failed_handle_id, failed_handle_id]
+    assert pool._pending_cleanup[failed_handle_id].pending_permit is True
 
     await session.close()
 
@@ -248,20 +220,32 @@ async def test_net01_create_transfers_unresolved_startup_owner_to_registry() -> 
         fail_subscribe=True,
         disconnect_failures=4,
     )
-    registry = _Net01StartupRegistry(connector)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    registry.register(
+        EventStreamConnector,
+        config=ConnectionConfig(
+            url="https://stream.example",
+            max_connections=1,
+        ),
+        factory=lambda: connector,
+    )
 
     with pytest.raises(RuntimeError, match="controlled subscribe failure"):
         await StreamingSourceSession.create(
-            connector_id="net01-stream",
+            connector_id="stream.jsonl",
             dataset_id="registry-owned-startup-cleanup",
             registry=registry,
         )
 
     assert len(registry._pending_startup_cleanup) == 1
-    pending_pool = next(iter(registry._pending_startup_cleanup.values()))
+    pending_pool = next(iter(registry._pending_startup_cleanup.values()))[1]
     pending_session_ids = tuple(pending_pool._pending_cleanup)
     assert pending_session_ids
+    assert pending_pool._pending_cleanup[pending_session_ids[0]].pending_permit is True
     assert len(set(connector.disconnect_calls)) == 1
+    with pytest.raises(PoolClosedError):
+        await pending_pool.acquire()
 
     with pytest.raises(RuntimeError):
         await registry.shutdown_async()
@@ -272,6 +256,7 @@ async def test_net01_create_transfers_unresolved_startup_owner_to_registry() -> 
     assert registry._pending_startup_cleanup == {}
     assert tuple(pending_pool._pending_cleanup) == ()
     assert connector.disconnect_calls == [pending_session_ids[0]] * 5
+    ConnectorRegistry.reset_instance()
 
 
 @pytest.mark.asyncio
@@ -386,6 +371,53 @@ async def test_net01_rewind_failure_closes_owned_session(
     assert session._closed is True
     assert session.handle is None
     assert len(connector.disconnect_calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_net01_stream_cleanup_does_not_mask_primary_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A finalizer failure is evidence on, not a replacement for, the run error."""
+
+    connector = _Net01StreamingConnector()
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="primary-and-cleanup-failure",
+        pool=pool,
+        request=FetchRequest(dataset_id="primary-and-cleanup-failure"),
+    )
+
+    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls, kwargs
+        return session
+
+    async def fail_poll() -> None:
+        raise RuntimeError("controlled primary stream failure")
+
+    async def fail_close() -> None:
+        raise RuntimeError("controlled cleanup failure")
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
+    monkeypatch.setattr(session, "poll", fail_poll)
+    monkeypatch.setattr(session, "close", fail_close)
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    with pytest.raises(RuntimeError, match="controlled primary stream failure") as exc_info:
+        await process_stream_dataset(
+            connector_id="net01-stream",
+            dataset_id="primary-and-cleanup-failure",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+        )
+
+    assert any("controlled cleanup failure" in note for note in exc_info.value.__notes__)
 
 
 @pytest.mark.asyncio

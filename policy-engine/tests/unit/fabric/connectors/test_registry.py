@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from typing import ClassVar
 
 import pytest
+
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -113,13 +114,23 @@ class MockConnectorA(BaseConnector[list[dict]]):
 class _Net01LifecycleConnector(MockConnectorA):
     """Connector with deterministic disconnect gates for NET-01 ownership probes."""
 
-    def __init__(self, *, disconnect_failures: int = 0, block_disconnect: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        disconnect_failures: int = 0,
+        block_disconnect: bool = False,
+        block_health_check: bool = False,
+    ) -> None:
         self.disconnect_failures = disconnect_failures
         self.disconnect_calls: list[str] = []
         self.disconnect_started = asyncio.Event()
         self.allow_disconnect = asyncio.Event()
         if not block_disconnect:
             self.allow_disconnect.set()
+        self.health_check_started = asyncio.Event()
+        self.allow_health_check = asyncio.Event()
+        if not block_health_check:
+            self.allow_health_check.set()
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         self.disconnect_calls.append(handle.session_id)
@@ -128,6 +139,11 @@ class _Net01LifecycleConnector(MockConnectorA):
             self.disconnect_failures -= 1
             raise RuntimeError("controlled disconnect failure")
         await self.allow_disconnect.wait()
+
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        self.health_check_started.set()
+        await self.allow_health_check.wait()
+        return await super().health_check(handle)
 
 
 class _Net01ConnectGateConnector(MockConnectorA):
@@ -1125,30 +1141,31 @@ class TestConnectionPool:
         self,
         sample_config: ConnectionConfig,
     ) -> None:
-        """Concurrent release callers share one owner transition and one permit."""
+        """Concurrent release callers share one validated owner transition and permit."""
 
         async def _run() -> None:
-            connector = _Net01LifecycleConnector(block_disconnect=True)
+            connector = _Net01LifecycleConnector(block_health_check=True)
             pool = ConnectionPool(
                 connector_factory=lambda: connector,
                 config=sample_config,
                 pool_config=PoolConfig(
                     max_size=1,
-                    max_connection_uses=1,
+                    max_connection_uses=10,
                     validate_on_acquire=False,
+                    validate_on_release=True,
                     acquire_timeout_seconds=0.02,
                 ),
             )
             handle = await pool.acquire()
             first = asyncio.create_task(pool.release(handle))
-            await connector.disconnect_started.wait()
+            await connector.health_check_started.wait()
             second = asyncio.create_task(pool.release(handle))
             await asyncio.sleep(0)
             assert handle.session_id in pool._pending_cleanup
-            connector.allow_disconnect.set()
+            connector.allow_health_check.set()
             results = await asyncio.gather(first, second, return_exceptions=True)
             assert all(not isinstance(result, BaseException) for result in results)
-            assert connector.disconnect_calls == [handle.session_id]
+            assert pool.get_stats().idle_connections == 1
 
             replacement = await pool.acquire()
             await pool.release(replacement)
@@ -1430,6 +1447,65 @@ class TestRegistryIntegration:
             await registry.unregister_async("mock_a")
             assert id(pool) not in registry._pending_startup_cleanup
             assert connector.disconnect_calls == [handle.session_id] * 3
+
+        asyncio.run(_run())
+
+    def test_shutdown_retains_normal_pool_owner_when_disconnect_fails(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Shutdown keeps an evicted normal owner reachable for a later retry."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(disconnect_failures=1)
+            registry.register(
+                _Net01LifecycleConnector,
+                config=sample_config,
+                factory=lambda: connector,
+            )
+            handle = await registry.get_connection("mock_a")
+            await registry.release_connection("mock_a", handle)
+
+            with pytest.raises(RuntimeError, match="cleanup remains pending"):
+                await registry.shutdown_async()
+            assert len(registry._pending_startup_cleanup) == 1
+            assert registry._connection_pools == {}
+            assert connector.disconnect_calls == [handle.session_id]
+
+            await registry.shutdown_async()
+            assert registry._pending_startup_cleanup == {}
+            assert connector.disconnect_calls == [handle.session_id] * 2
+
+        asyncio.run(_run())
+
+    def test_trim_retains_evicted_pool_owner_when_disconnect_fails(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        alt_config: ConnectionConfig,
+    ) -> None:
+        """LRU trim keeps a failed eviction reachable for the next lifecycle retry."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(disconnect_failures=1)
+            registry.register(
+                _Net01LifecycleConnector,
+                config=sample_config,
+                factory=lambda: connector,
+            )
+            registry._max_connection_pools = 1
+            first = await registry.get_connection("mock_a")
+            await registry.release_connection("mock_a", first)
+
+            with pytest.raises(RuntimeError, match="cleanup remains pending"):
+                await registry.get_connection("mock_a", config=alt_config)
+            assert len(registry._pending_startup_cleanup) == 1
+            assert connector.disconnect_calls == [first.session_id]
+
+            await registry.shutdown_async()
+            assert registry._pending_startup_cleanup == {}
+            assert connector.disconnect_calls == [first.session_id] * 2
 
         asyncio.run(_run())
 

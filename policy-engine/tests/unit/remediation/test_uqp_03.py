@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from itertools import cycle
 
 from polisyos.foundry.uncertainty.config import (
     AdaptiveStoppingConfig,
@@ -61,7 +62,7 @@ def test_adaptive_stopping_reaches_non_divisible_check_boundary() -> None:
 def test_adaptive_distribution_width_does_not_shrink_for_stable_wide_outputs() -> None:
     """More draws do not make a 99/101 output range satisfy a 1% width target."""
 
-    outputs = iter((99.0, 101.0))
+    outputs = cycle((99.0, 101.0))
 
     def wide_sim(**_: float) -> Mapping[str, float]:
         return {"y": next(outputs)}

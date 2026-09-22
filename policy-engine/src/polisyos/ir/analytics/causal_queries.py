@@ -196,6 +196,19 @@ class CausalQuery(BaseModel):
             ):
                 legacy_intervention["value"] = payload["treatment_value"]
                 payload["intervention_spec"] = legacy_intervention
+        elif isinstance(legacy_intervention, InterventionSpec):
+            if (
+                legacy_intervention.type is InterventionType.ATOMIC
+                and legacy_intervention.value is None
+                and payload.get("treatment_value") is not None
+            ):
+                legacy_intervention = InterventionSpec.model_validate(
+                    {
+                        **legacy_intervention.model_dump(mode="python"),
+                        "value": payload["treatment_value"],
+                    }
+                )
+                payload["intervention_spec"] = legacy_intervention
         payload["contrast"] = {
             "target": legacy_intervention,
             "comparator": {"kind": "observational"},
@@ -480,6 +493,10 @@ def load_causal_query_result(
     payload = get_json_artifact(store, ref.artifact_id)
     manifest = store.get_manifest(ref.artifact_id)
     schema = getattr(manifest, "artifact_schema", None)
+    if schema is None:
+        raise ValueError(
+            "causal query result CAS manifest is missing artifact schema metadata"
+        )
     payload_version = payload.get("schema_version") if isinstance(payload, Mapping) else None
     manifest_version = getattr(schema, "version", None)
     if manifest_version is not None and payload_version not in (None, manifest_version):

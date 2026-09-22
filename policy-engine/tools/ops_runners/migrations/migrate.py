@@ -20,9 +20,6 @@ except ImportError:
     yaml = None
 
 from polisyos.common.migrations import (
-    MANIFEST_CURRENT_VERSION,
-)
-from polisyos.common.migrations import (
     migrate_artifact as migrate_common_artifact,
 )
 from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION, migrate_policy_ir
@@ -73,17 +70,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         _dump(args.output, migrated, fmt)
         return 0
 
-    if args.target_version:
-        target = args.target_version
-    else:
-        if args.artifact == "policy_ir":
-            target = POLICY_IR_CURRENT_VERSION
-        else:
-            target = MANIFEST_CURRENT_VERSION
-
     if args.artifact == "policy_ir":
+        target = args.target_version or POLICY_IR_CURRENT_VERSION
         migrated = migrate_policy_ir(data, target)
     else:
+        from polisyos.fabric.identity.migrations import (
+            MANIFEST_CURRENT_VERSION,
+            register_manifest_migration,
+        )
+
+        register_manifest_migration()
+        target = args.target_version or MANIFEST_CURRENT_VERSION
         migrated = migrate_common_artifact(data, args.artifact, target)
     _dump(args.output, migrated, fmt)
     return 0

@@ -9,12 +9,19 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
-
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamCheckpoint, StreamLifecycleState, WindowStrategy
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.contracts import (
+    ConnectorSchemaContract,
+    ContractRegistry,
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
@@ -23,11 +30,13 @@ from polisyos.fabric.data_plane.cursor_store import (
     CursorStore,
     CursorStoreError,
 )
+from polisyos.fabric.data_plane.modes import _sanitize_stream_rows
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
-    StreamWindowAccumulator,
     StreamRuntimeOptions,
+    StreamSchemaBinding,
+    StreamWindowAccumulator,
     iter_record_batches,
     process_stream_dataset,
 )
@@ -87,6 +96,40 @@ class _Net01StreamingConnector:
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+
+
+def _register_optional_stream_contract(
+    registry: ConnectorRegistry,
+    *,
+    dataset_id: str,
+) -> tuple[ContractRegistry, ConnectorSchemaContract]:
+    schema = DataSchema(
+        schema_id="test.stream.events",
+        version=SchemaVersion(1, 0, 0),
+        fields=(
+            FieldSpec(name="_message_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
+            FieldSpec(
+                name="note",
+                data_type=SchemaType.STRING,
+                nullable=False,
+                presence="optional",
+            ),
+        ),
+        primary_key=("_message_id",),
+        required_completeness=0.0,
+    )
+    contracts = ContractRegistry()
+    contract = ConnectorSchemaContract(
+        contract_id="test.stream.events.contract",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema=schema,
+        created_by="B86-tests",
+    )
+    contracts.register(contract)
+    registry.configure_contracts(contracts)
+    return contracts, contract
 
 
 def _collect_state_refs(value: Any) -> set[str]:
@@ -2555,6 +2598,114 @@ async def test_streaming_source_session_create_uses_registry_provider(
         assert chunk.row_count == 1
     finally:
         await session.close()
+
+
+@pytest.mark.asyncio
+async def test_bound_optional_presence_does_not_emit_removal_cdc(
+    tmp_path: Path,
+) -> None:
+    """Declared optional absence is not a breaking field removal."""
+    stream_path = tmp_path / "optional-cdc-stream.jsonl"
+    stream_path.write_text(
+        "\n".join(
+            [
+                '{"_message_id":"m1","value":1,"note":"first"}',
+                '{"_message_id":"m2","value":2}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+    contracts, contract = _register_optional_stream_contract(
+        registry,
+        dataset_id="optional-cdc-events",
+    )
+    binding = StreamSchemaBinding.from_contract(
+        contract,
+        registry_revision=contracts.revision,
+    )
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+
+    def _bound_sanitizer(batch: Any, **kwargs: Any):
+        return _sanitize_stream_rows(
+            batch,
+            schema=binding.schema,
+            schema_binding=binding,
+            **kwargs,
+        )
+
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="optional-cdc-events",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_bound_sanitizer,
+        runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+        registry=registry,
+        schema_binding=binding,
+    )
+
+    assert result.rows_emitted == 2
+    assert result.cdc_event_refs == []
+    assert result.final_checkpoint is not None
+    assert result.final_checkpoint.schema_fingerprint == binding.fingerprint
+    assert result.final_checkpoint.metadata["schema_binding"] == binding.snapshot()
+    assert result.final_checkpoint.metadata["visible_fields"] == [
+        "_message_id",
+        "value",
+    ]
+
+
+def test_stream_schema_binding_rejects_registry_revision_change() -> None:
+    """A changed contract revision cannot be reused for a frozen stream run."""
+    from polisyos.fabric.data_plane.streaming import _assert_stream_schema_binding_current
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    contracts, contract = _register_optional_stream_contract(
+        registry,
+        dataset_id="binding-revision-events",
+    )
+    binding = StreamSchemaBinding.from_contract(
+        contract,
+        registry_revision=contracts.revision,
+    )
+
+    updated_schema = DataSchema(
+        schema_id=contract.schema.schema_id,
+        version=SchemaVersion(1, 1, 0),
+        fields=contract.schema.fields
+        + (FieldSpec(name="extra", data_type=SchemaType.STRING, presence="optional"),),
+        primary_key=contract.schema.primary_key,
+        required_completeness=0.0,
+    )
+    contracts.register(
+        ConnectorSchemaContract(
+            contract_id=contract.contract_id,
+            connector_id=contract.connector_id,
+            dataset_id=contract.dataset_id,
+            schema=updated_schema,
+            created_by="B86-tests",
+        )
+    )
+
+    with pytest.raises(CursorStoreError, match="binding changed"):
+        _assert_stream_schema_binding_current(
+            registry,
+            binding,
+            connector_id="stream.jsonl",
+            dataset_id="binding-revision-events",
+        )
 
 
 @pytest.mark.asyncio

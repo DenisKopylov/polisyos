@@ -7,6 +7,12 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from polisyos.fabric.connectors.contracts import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 
 
 def _fake_evidence_ref() -> SimpleNamespace:
@@ -375,3 +381,255 @@ def test_connector_is_registered_uses_explicit_registry_without_default_helper(
     )
 
     assert modes_mod._connector_is_registered("stream.injected", registry=registry) is True
+
+
+def test_stream_sanitizer_optional_field_membership_is_independent_of_batch_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unknown-schema rows are not made poisonous by technical batching."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+    from polisyos.fabric.data_plane.streaming import iter_record_batches
+
+    rows = [
+        {"id": "a", "value": 1.0, "note": "first"},
+        {"id": "b", "value": 2.0, "note": "second"},
+        {"id": "c", "value": 3.0},
+    ]
+    quarantine_records: list[tuple[str, dict[str, Any]]] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        quarantine_records.append((str(record.reason), dict(record.context)))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    async def _run(batch_size: int) -> tuple[list[str], int]:
+        accepted_ids: list[str] = []
+        quarantined = 0
+        async for batch in iter_record_batches(rows, batch_size=batch_size):
+            valid_rows, _warnings, batch_quarantined = modes_mod._sanitize_stream_rows(
+                batch,
+                connector_id="test.stream",
+                dataset_id="events",
+                store=object(),
+                chunk_index=0,
+            )
+            accepted_ids.extend(str(row["id"]) for row in valid_rows)
+            quarantined += batch_quarantined
+        return accepted_ids, quarantined
+
+    observed = {batch_size: asyncio.run(_run(batch_size)) for batch_size in (1, 3)}
+
+    # Without an admitted schema, shape variance is diagnostic rather than
+    # evidence that the minority row is a poison message.
+    expected = (["a", "b", "c"], 0)
+    assert observed[1] == expected
+    assert observed[3] == expected
+    assert quarantine_records == []
+
+
+def _presence_schema() -> DataSchema:
+    return DataSchema(
+        schema_id="test.stream.events",
+        version=SchemaVersion(1, 0, 0),
+        fields=(
+            FieldSpec(name="id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
+            FieldSpec(
+                name="note",
+                data_type=SchemaType.STRING,
+                nullable=False,
+                presence="optional",
+            ),
+        ),
+        primary_key=("id",),
+        required_completeness=0.0,
+    )
+
+
+def test_stream_sanitizer_bound_presence_accepts_missing_optional_and_rejects_null(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Optional absence is distinct from an explicit null value."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    records: list[tuple[str, dict[str, Any]]] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        records.append((str(record.reason), dict(record.context)))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    valid_rows, _warnings, quarantined = modes_mod._sanitize_stream_rows(
+        [
+            {"id": "missing", "value": 1.0},
+            {"id": "null", "value": 2.0, "note": None},
+            {"id": "present", "value": 3.0, "note": "ok"},
+        ],
+        connector_id="test.stream",
+        dataset_id="events",
+        store=object(),
+        chunk_index=0,
+        schema=_presence_schema(),
+    )
+
+    assert [row["id"] for row in valid_rows] == ["missing", "present"]
+    assert quarantined == 1
+    assert records == [
+        (
+            "poison_stream_message",
+            {
+                "chunk_index": 0,
+                "row_index": 1,
+                "non_nullable_fields": ["note"],
+            },
+        )
+    ]
+
+
+def test_stream_sanitizer_bound_presence_is_batch_invariant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A fixed contract, not batch majority, determines accepted membership."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+    from polisyos.fabric.data_plane.streaming import iter_record_batches
+
+    rows = [
+        {"id": "a", "value": 1.0, "note": "first"},
+        {"id": "b", "value": 2.0, "note": "second"},
+        {"id": "c", "value": 3.0},
+    ]
+    quarantine_records: list[dict[str, Any]] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        quarantine_records.append(dict(record.context))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    async def _run(batch_size: int) -> tuple[list[str], int]:
+        accepted_ids: list[str] = []
+        quarantined = 0
+        async for batch in iter_record_batches(rows, batch_size=batch_size):
+            valid_rows, _warnings, batch_quarantined = modes_mod._sanitize_stream_rows(
+                batch,
+                connector_id="test.stream",
+                dataset_id="events",
+                store=object(),
+                chunk_index=0,
+                schema=_presence_schema(),
+            )
+            accepted_ids.extend(str(row["id"]) for row in valid_rows)
+            quarantined += batch_quarantined
+        return accepted_ids, quarantined
+
+    observed = {batch_size: asyncio.run(_run(batch_size)) for batch_size in (1, 3)}
+
+    assert observed == {1: (["a", "b", "c"], 0), 3: (["a", "b", "c"], 0)}
+    assert quarantine_records == []
+
+
+def test_stream_sanitizer_bound_presence_rejects_missing_required(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A required field omission remains a quarantined schema violation."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    records: list[dict[str, Any]] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        records.append(dict(record.context))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    valid_rows, _warnings, quarantined = modes_mod._sanitize_stream_rows(
+        [{"id": "missing-value"}, {"id": "valid", "value": 1.0}],
+        connector_id="test.stream",
+        dataset_id="events",
+        store=object(),
+        chunk_index=2,
+        schema=_presence_schema(),
+    )
+
+    assert [row["id"] for row in valid_rows] == ["valid"]
+    assert quarantined == 1
+    assert records == [
+        {
+            "chunk_index": 2,
+            "row_index": 0,
+            "missing_required_fields": ["value"],
+        }
+    ]
+
+
+def test_stream_sanitizer_keeps_non_finite_metric_guard_across_batch_sizes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Batch invariance must not weaken quarantine of non-finite metrics."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+    from polisyos.fabric.data_plane.streaming import iter_record_batches
+
+    rows = [
+        {"id": "ok", "value": 1.0},
+        {"id": "bad", "value": float("nan")},
+    ]
+    quarantine_reasons: list[str] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        quarantine_reasons.append(str(record.reason))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    async def _run(batch_size: int) -> tuple[list[str], int]:
+        accepted_ids: list[str] = []
+        quarantined = 0
+        async for batch in iter_record_batches(rows, batch_size=batch_size):
+            valid_rows, _warnings, batch_quarantined = modes_mod._sanitize_stream_rows(
+                batch,
+                connector_id="test.stream",
+                dataset_id="events",
+                store=object(),
+                chunk_index=0,
+                schema=_presence_schema(),
+            )
+            accepted_ids.extend(str(row["id"]) for row in valid_rows)
+            quarantined += batch_quarantined
+        return accepted_ids, quarantined
+
+    observed = {batch_size: asyncio.run(_run(batch_size)) for batch_size in (1, 3)}
+
+    assert observed == {1: (["ok"], 1), 3: (["ok"], 1)}
+    assert quarantine_reasons == ["non_finite_metric", "non_finite_metric"]

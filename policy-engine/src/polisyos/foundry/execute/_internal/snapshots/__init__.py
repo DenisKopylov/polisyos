@@ -34,6 +34,10 @@ _SNAPSHOT_FORMAT_VERSION = "npz-v2"
 _SNAPSHOT_CODEC = "numpy-npz"
 
 
+class _SnapshotStateLayoutError(ValueError):
+    """State bytes are valid, but do not reconstruct the canonical GlobalState."""
+
+
 @dataclasses.dataclass(frozen=True)
 class _SnapshotLeaf:
     key: str
@@ -66,10 +70,15 @@ def load_state_snapshot(
             cpu_devices = list(jax.devices("cpu"))
         except (RuntimeError, TypeError, ValueError):
             cpu_devices = []
-        if cpu_devices:
-            with jax.default_device(cpu_devices[0]):
-                return _build_dataclass(GlobalState, nested, blob=blob)
-        return _build_dataclass(GlobalState, nested, blob=blob)
+        try:
+            if cpu_devices:
+                with jax.default_device(cpu_devices[0]):
+                    return _build_dataclass(GlobalState, nested, blob=blob)
+            return _build_dataclass(GlobalState, nested, blob=blob)
+        except Exception as exc:
+            raise _SnapshotStateLayoutError(
+                "Snapshot state layout is incompatible with canonical GlobalState"
+            ) from exc
 
 
 def _validate_snapshot_lineage(
@@ -79,8 +88,10 @@ def _validate_snapshot_lineage(
     snapshot: StateSnapshot,
 ) -> None:
     """Fail closed when a v2.1 wrapper payload disagrees with its manifest lineage."""
-    if snapshot.schema_version != "2.1":
+    if snapshot.schema_version == "2.0":
         return
+    if snapshot.schema_version != "2.1":
+        raise ValueError(f"Unsupported StateSnapshot schema_version: {snapshot.schema_version}")
     if snapshot.lineage_inputs is None:
         raise ValueError("StateSnapshot 2.1 payload missing lineage_inputs")
     expected_state_blob = InputRef(

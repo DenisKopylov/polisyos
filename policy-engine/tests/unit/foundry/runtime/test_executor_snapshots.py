@@ -271,8 +271,11 @@ def test_legacy_state_snapshot_2_0_without_lineage_remains_readable(tmp_path) ->
     prior_manifest_bytes = store.get_manifest_bytes(legacy_ref.artifact_id)
 
     restored = load_state_snapshot(store, snapshot_ref=legacy_ref)
+    persisted_legacy = load_model(store, legacy_ref, StateSnapshot)
 
     assert legacy_snapshot.lineage_inputs is None
+    assert persisted_legacy.schema_version == "2.0"
+    assert persisted_legacy.lineage_inputs is None
     assert b"lineage_inputs" not in store.get_bytes(legacy_ref.artifact_id)
     assert int(np.asarray(restored.step)) == int(np.asarray(state.step))
     assert store.get_manifest_bytes(legacy_ref.artifact_id) == prior_manifest_bytes
@@ -306,6 +309,45 @@ def test_state_snapshot_2_1_readback_requires_lineage_payload(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="lineage_inputs"):
         load_state_snapshot(store, snapshot_ref=incomplete_ref)
+
+
+@pytest.mark.parametrize("schema_version", ["2.2", "9.9"])
+def test_unknown_state_snapshot_schema_fails_closed_before_lineage_bypass(
+    tmp_path, schema_version: str
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    source_ref = put_state_snapshot(store, state=state, step=0)
+    source_snapshot = load_model(store, source_ref, StateSnapshot)
+    state_blob_input = InputRef(
+        artifact_id=source_snapshot.state_ref.artifact_id,
+        role="state_blob",
+    )
+    unknown_snapshot = StateSnapshot(
+        schema_version=schema_version,
+        state_ref=source_snapshot.state_ref,
+        step=source_snapshot.step,
+        format_version=source_snapshot.format_version,
+        checksum_sha256=source_snapshot.checksum_sha256,
+        entry_count=source_snapshot.entry_count,
+        codec=source_snapshot.codec,
+        lineage_inputs=[state_blob_input],
+        notes=source_snapshot.notes,
+    )
+    unknown_ref = store.put_json(
+        unknown_snapshot,
+        PutOptions(
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.StateSnapshot", version=f"{schema_version}.0"
+            ),
+            inputs=[state_blob_input],
+        ),
+    )
+
+    with pytest.raises(ValueError, match="Unsupported StateSnapshot schema_version"):
+        load_state_snapshot(store, snapshot_ref=unknown_ref)
 
 
 def test_legacy_state_blob_reuse_preserves_manifest_and_wrapper_lineage(tmp_path) -> None:

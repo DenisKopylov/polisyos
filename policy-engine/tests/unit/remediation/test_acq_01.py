@@ -682,7 +682,9 @@ async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
         else foreign_hash
     )
     binding_slots = (
-        ("forged_panel",) if binding_mode == "foreign_target_slots" else ("fixture_panel",)
+        ("fixture_panel", "forged_panel")
+        if binding_mode == "foreign_target_slots"
+        else ("fixture_panel",)
     )
     expected_error = (
         "n7_reentry_candidate_target_world_slots_mismatch"

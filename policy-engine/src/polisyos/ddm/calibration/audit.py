@@ -18,6 +18,12 @@ if TYPE_CHECKING:
 
 CALIBRATION_VALIDITY_VERIFIER_ID = "polisyos.ddm.calibration.check_calibration_validity"
 CALIBRATION_VALIDITY_VERIFIER_VERSION = "1"
+_IMMUTABLE_VALIDITY_PROJECTION_FIELDS = (
+    "calibration_id",
+    "detector_id",
+    "stationarity_regime_id",
+    "report_digest",
+)
 
 
 class CalibrationInvalidationStatus(BaseModel):
@@ -101,6 +107,9 @@ def build_calibration_validity_projection(
             projection_status = "expired"
         else:
             projection_status = "valid"
+    projection_reasons = list(status.reasons)
+    if observation_status != "observed":
+        projection_reasons.append("invalidation_observation_unavailable")
     return CalibrationValidityProjection(
         calibration_id=calibration_id,
         detector_id=report.detector_id,
@@ -114,9 +123,7 @@ def build_calibration_validity_projection(
         observed_invalidation_triggers=observed_invalidation_triggers,
         observation_status=observation_status,
         status=projection_status,
-        reasons=status.reasons if observation_status == "observed" else [
-            "invalidation_observation_unavailable"
-        ],
+        reasons=projection_reasons,
     )
 
 
@@ -162,6 +169,9 @@ def _check_bound_calibration_validity(
     not allowed to declare current validity; the monitor must supply the
     source report so this helper can execute the existing checker and compare
     every field that the public audit currently projects from that report.
+    During rebind, only the report identity and canonical digest are
+    immutable; effective time and observed-trigger fields are recomputed for
+    the current context.
     """
 
     status = check_calibration_validity(
@@ -192,9 +202,7 @@ def _check_bound_calibration_validity(
         projection_payload = projection.model_dump(mode="json")
         binding_reasons.extend(
             f"calibration_validity_{field}_mismatch"
-            for field in sorted(
-                set(expected_projection_payload) | set(projection_payload)
-            )
+            for field in _IMMUTABLE_VALIDITY_PROJECTION_FIELDS
             if expected_projection_payload.get(field) != projection_payload.get(field)
         )
     return _CalibrationValidityEvidence(

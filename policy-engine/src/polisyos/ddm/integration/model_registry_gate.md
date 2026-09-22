@@ -27,10 +27,14 @@ The projection is an inspectable persisted record, not a self-authenticating
 permission. A reloaded record can become current only through
 `rebind_calibration_validity` with the exact `CalibrationReport`, matching
 `CalibrationAudit`, effective `now`, and observed-trigger context. The rebind
-recomputes the canonical report digest and validity result, then compares every
-projection field before attaching fresh private checker evidence. Missing
-context, tampered identity/digest, unavailable observations, or a mismatch
-remain fail-closed.
+recomputes the canonical report digest and validity result, compares the
+persisted report identity/digest, and emits a current projection before
+attaching fresh private checker evidence. Effective time, observed triggers,
+status, and reasons therefore reflect the new rebind context rather than a
+stale payload. Missing context, tampered identity/digest, unavailable
+observations, or a mismatch remain fail-closed; an unavailable observation
+still preserves the deterministic `calibration_expired` reason when the
+current time is past `valid_until`.
 
 Promotion rules:
 

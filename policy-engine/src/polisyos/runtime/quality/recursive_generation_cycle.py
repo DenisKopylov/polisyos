@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 from collections.abc import Callable, Mapping
+from contextvars import ContextVar
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -11,6 +12,8 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    ModelWrapValidatorHandler,
+    PrivateAttr,
     SerializerFunctionWrapHandler,
     model_serializer,
     model_validator,
@@ -63,6 +66,24 @@ RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generati
 RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController"
 )
+# These are the complete set of ref-less v1 recursive-run identities currently
+# tracked in the repository.  A self-computed hash is integrity evidence only;
+# it is not permission to reopen pre-CAS numeric evidence.
+_AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES = frozenset(
+    {
+        "sha256:b72e66af7330f57830ca9c70c348051e53b858e02a5b82893988855823c7a3c1",
+        "sha256:13647b6958aac56b004faded5752b31cc7d53fde67c9476f1f899051b4edab50",
+        "sha256:47cf94dbe46aa90e0a9a9b3208459f4687a0ea1c651ef5d8dbce8a738db09f6d",
+        "sha256:17a29992ae4ce1720290a40e1a7651bf5949176e718520824d74b80c2b8a2328",
+        "sha256:23ad1413786ccf1e3c1d13c09d33a9df87bb3a18c798570be245206c352d72ec",
+        "sha256:027db04a69e899eb80c911de9df7432d31fa8afd480baf0dae8f49ca62362137",
+        "sha256:d6ddaacf81d9cc4c48b049c4070149026d1fd8e07a118890a5abc1745c952535",
+    }
+)
+_LEGACY_RECURSIVE_V1_CONTEXT: ContextVar[bool] = ContextVar(
+    "polisyos_legacy_recursive_v1_context",
+    default=False,
+)
 _LEGACY_RECURSIVE_FIXTURE_SYMBOLS = frozenset(
     {
         "run_recursive_case",
@@ -71,6 +92,27 @@ _LEGACY_RECURSIVE_FIXTURE_SYMBOLS = frozenset(
     }
 )
 _DEFAULT_RECURSIVE_ROUTE_SYMBOL = "build_default_recursive_generation_cycle_controller"
+
+
+def _is_authenticated_legacy_v1(value: object) -> bool:
+    """Return whether value is one exact tracked pre-CAS recursive artifact."""
+
+    if not isinstance(value, Mapping):
+        return False
+    if value.get("schema_version") != RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION:
+        return False
+    raw_nodes = value.get("nodes")
+    if not isinstance(raw_nodes, (list, tuple)) or not raw_nodes:
+        return False
+    if any(not isinstance(node, Mapping) for node in raw_nodes):
+        return False
+    if any("joint_simulation_ref" in node for node in raw_nodes):
+        return False
+    raw_content_hash = value.get("content_hash")
+    if raw_content_hash not in _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES:
+        return False
+    legacy_payload = {key: item for key, item in value.items() if key != "content_hash"}
+    return gy_content_hash(legacy_payload) == raw_content_hash
 
 
 def _joint_simulation_is_unsupported(result: JointSimulationResult) -> bool:
@@ -161,22 +203,21 @@ class RecursiveCycleNode(_StrictModel):
     cycle_run: GenerationCycleRun | None = None
     joint_simulation: JointSimulationResult | None = None
     joint_simulation_ref: CASArtifactRef | None = None
-    legacy_v1_missing_joint_simulation_ref: bool = Field(
-        default=False,
-        exclude=True,
-        repr=False,
-    )
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
+    _legacy_v1_missing_joint_simulation_ref: bool = PrivateAttr(default=False)
 
     @model_validator(mode="after")
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:
+        legacy_v1 = _LEGACY_RECURSIVE_V1_CONTEXT.get()
+        if legacy_v1:
+            object.__setattr__(self, "_legacy_v1_missing_joint_simulation_ref", True)
         if self.joint_simulation is None and self.joint_simulation_ref is not None:
             raise ValueError("recursive_simulation_ref_without_result")
         if (
             self.joint_simulation is not None
             and self.joint_simulation_ref is None
-            and not self.legacy_v1_missing_joint_simulation_ref
+            and not legacy_v1
         ):
             raise ValueError("recursive_simulation_result_requires_cas_ref")
         if self.joint_simulation_ref is not None and (
@@ -219,7 +260,7 @@ class RecursiveCycleNode(_StrictModel):
         """Keep v1 identity bytes stable while omitting empty ref defaults."""
 
         payload = handler(self)
-        if self.legacy_v1_missing_joint_simulation_ref:
+        if self._legacy_v1_missing_joint_simulation_ref:
             supplied = _legacy_supplied_field_tree(self, payload)
             if not isinstance(supplied, dict):
                 raise TypeError("historical_recursive_payload_invalid")
@@ -247,40 +288,20 @@ class RecursiveGenerationCycleRun(_StrictModel):
     terminal: SearchTerminalState
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
-    @model_validator(mode="before")
+    @model_validator(mode="wrap")
     @classmethod
-    def _admit_authentic_legacy_v1_nodes(cls, value: object) -> object:
-        """Mark only content-bound pre-CAS v1 nodes for compatibility loading."""
+    def _admit_authenticated_legacy_v1(
+        cls,
+        value: object,
+        handler: ModelWrapValidatorHandler,
+    ) -> RecursiveGenerationCycleRun:
+        """Scope legacy ref omission to exact tracked identities during validation."""
 
-        if not isinstance(value, Mapping):
-            return value
-        if value.get("schema_version") != RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION:
-            return value
-        raw_nodes = value.get("nodes")
-        if not isinstance(raw_nodes, (list, tuple)) or not raw_nodes:
-            return value
-        if any(not isinstance(node, Mapping) for node in raw_nodes):
-            return value
-        if any("joint_simulation_ref" in node for node in raw_nodes):
-            return value
-        raw_content_hash = value.get("content_hash")
-        legacy_payload = {
-            key: item for key, item in value.items() if key != "content_hash"
-        }
-        if (
-            not isinstance(raw_content_hash, str)
-            or gy_content_hash(legacy_payload) != raw_content_hash
-        ):
-            return value
-        normalized = dict(value)
-        normalized["nodes"] = [
-            {
-                **dict(node),
-                "legacy_v1_missing_joint_simulation_ref": True,
-            }
-            for node in raw_nodes
-        ]
-        return normalized
+        token = _LEGACY_RECURSIVE_V1_CONTEXT.set(_is_authenticated_legacy_v1(value))
+        try:
+            return handler(value)
+        finally:
+            _LEGACY_RECURSIVE_V1_CONTEXT.reset(token)
 
     @property
     def leaf_nodes(self) -> tuple[RecursiveCycleNode, ...]:

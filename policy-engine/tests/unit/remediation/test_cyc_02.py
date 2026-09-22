@@ -72,7 +72,11 @@ def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -
     assert replayed_payload["content_hash"] == legacy_hash
     assert all("joint_simulation_ref" not in node for node in replayed_payload["nodes"])
 
-    legacy_parent = next(node for node in payload["nodes"] if node["joint_simulation"])
+    legacy_parent_index, legacy_parent = next(
+        (index, node)
+        for index, node in enumerate(payload["nodes"])
+        if node["joint_simulation"]
+    )
     with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
         RecursiveCycleNode.model_validate(legacy_parent)
 
@@ -80,6 +84,24 @@ def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -
     tampered["content_hash"] = "sha256:" + "0" * 64
     with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
         RecursiveGenerationCycleRun.model_validate(tampered)
+
+    recomputed = json.loads(json.dumps(payload))
+    recomputed["run_id"] = "recursive:untrusted-recomputed-v1"
+    recomputed["content_hash"] = gy_content_hash(
+        {key: value for key, value in recomputed.items() if key != "content_hash"}
+    )
+    with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
+        RecursiveGenerationCycleRun.model_validate(recomputed)
+
+    injected_root = json.loads(json.dumps(payload))
+    injected_root["nodes"][legacy_parent_index]["legacy_v1_missing_joint_simulation_ref"] = True
+    with pytest.raises(ValueError, match="extra_forbidden"):
+        RecursiveGenerationCycleRun.model_validate(injected_root)
+
+    injected_node = dict(legacy_parent)
+    injected_node["legacy_v1_missing_joint_simulation_ref"] = True
+    with pytest.raises(ValueError, match="extra_forbidden"):
+        RecursiveCycleNode.model_validate(injected_node)
 
 
 def _real_n5_observation(tmp_path: Path):

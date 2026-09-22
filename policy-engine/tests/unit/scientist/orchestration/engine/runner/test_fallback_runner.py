@@ -265,6 +265,27 @@ def test_synthetic_connection_error_sample_allows_generic_backend_without_classi
     fallback.assert_awaited_once()
 
 
+def test_synthetic_connection_error_sample_cannot_override_legacy_block() -> None:
+    """A legacy BLOCK remains a limiting decision over a typed ALLOW witness."""
+
+    primary = SimpleNamespace(
+        health_check=AsyncMock(side_effect=ConnectionError("transport unavailable")),
+        execute_workflow=AsyncMock(),
+    )
+    runner = FallbackWorkflowRunner(
+        primary,
+        health_ttl_s=0,
+        health_failure_classifier=lambda _health: HealthFailureDisposition.BLOCK,
+    )
+    fallback = AsyncMock(return_value="local-result")
+    runner._fallback = SimpleNamespace(execute_workflow=fallback)
+
+    with pytest.raises(FallbackNotAuthorizedError, match="fallback"):
+        asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
+
+    fallback.assert_not_awaited()
+
+
 def test_returned_unhealthy_health_retains_legacy_classifier_without_probe_sample() -> None:
     """A backend-returned health result still supports the existing classifier API."""
 

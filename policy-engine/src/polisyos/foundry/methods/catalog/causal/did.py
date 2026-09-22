@@ -659,14 +659,14 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         treated_outcome=atts,
         control_outcome=np.zeros_like(atts),
     )
-    report = build_success_report(
+    report = build_failure_report(
         method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        status=EstimationStatus.ASSUMPTION_FAILED,
+        reason="staggered bootstrap coverage and null calibration are not established",
         estimand="ATT",
         point_estimate=att,
-        confidence_interval=ci,
-        confidence_level=confidence_level,
+        confidence_level=None,
         p_value=None,
-        inference_method="bootstrap",
         n_bootstrap_samples=n_bootstrap,
         effect_size_cohen_d=effect_size,
         diagnostics=diagnostics,
@@ -684,7 +684,8 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             "bootstrap_independence": "panel_unit",
             "bootstrap_shared_draw": True,
             "bootstrap_unit_identity": unit_identity,
-            "confidence_procedure": "unit_multiplier_percentile",
+            "descriptive_interval": ci,
+            "descriptive_interval_procedure": "unit_multiplier_percentile",
             "coverage_status": "not_established",
             "p_value_status": "not_established",
         },

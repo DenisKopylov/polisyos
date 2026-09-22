@@ -4,6 +4,7 @@ import math
 
 import pytest
 
+from polisyos.scientist.methods.search.strategies import bayesian as bayesian_module
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
@@ -274,6 +275,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
 def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     simple_space: SearchSpace,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A pre-refit-interval observation conditions the fitted GP instead of resetting it."""
     strategy = BayesianOptimizer(
@@ -286,6 +288,15 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
             seed=22,
         ),
     )
+    fit_calls = 0
+    original_fit = bayesian_module.fit_gpytorch_mll
+
+    def observe_fit(mll):
+        nonlocal fit_calls
+        fit_calls += 1
+        return original_fit(mll)
+
+    monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", observe_fit)
     initial = [
         make_evaluation(
             candidate_id=f"initial-{index}",
@@ -320,6 +331,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     ]
     strategy.suggest(expanded)
 
+    assert fit_calls == 1
     assert strategy._model is not None
     model_train_X = strategy._model.train_inputs[0]
     model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])

@@ -32,19 +32,7 @@ class AggregationStrategy(str, Enum):
     BAYESIAN_COMBINATION = "bayesian_combination"
 
 
-_UNKNOWN_DEPENDENCY_VALUES = frozenset(
-    {
-        "unknown",
-        "unverified",
-        "not_established",
-        "incompatible",
-        "dependent",
-        "correlated",
-        "shared",
-        "same_artifact",
-        "not_independent",
-    }
-)
+_ESTABLISHED_INDEPENDENCE_VALUES = frozenset({"independent"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,26 +47,56 @@ class _AggregationContext:
 
 
 def _origin_key(envelope: UncertaintyEnvelope) -> tuple[str, ...] | str | None:
-    """Return an explicit provenance key, never a key derived from numeric values."""
+    """Return a content-bound provenance key, excluding numeric fallback IDs."""
     provenance = envelope.composition_provenance
     if provenance is not None and provenance.origin_envelope_ids:
-        return ("composition", *provenance.origin_envelope_ids)
+        origin_ids = tuple(provenance.origin_envelope_ids)
+        if all(_is_content_bound_origin_id(origin_id) for origin_id in origin_ids):
+            return ("composition", *origin_ids)
     for field in ("envelope_id", "artifact_id", "ref_id", "origin_id"):
         value = envelope.metadata.get(field)
-        if isinstance(value, str) and value:
+        if _is_content_bound_origin_id(value):
             return value
     return None
 
 
+def _is_content_bound_origin_id(value: object) -> bool:
+    """Reject IR's numeric-derived inline identity surrogate at this boundary."""
+    if not isinstance(value, str):
+        return False
+    normalized = value.strip().lower()
+    return bool(normalized) and not normalized.startswith("inline:")
+
+
+def _is_established_independence_value(value: object) -> bool:
+    """Accept only explicit canonical independence evidence."""
+    if value is True:
+        return True
+    return (
+        isinstance(value, str)
+        and value.strip().lower().replace("-", "_")
+        in _ESTABLISHED_INDEPENDENCE_VALUES
+    )
+
+
 def _has_unknown_dependency(envelopes: Sequence[UncertaintyEnvelope]) -> bool:
-    """Return whether a producer explicitly withheld the dependency relation."""
+    """Return whether independence is absent, conflicting, or unrecognized."""
     for envelope in envelopes:
-        raw = envelope.metadata.get("dependency")
-        if raw is None:
-            raw = envelope.metadata.get("dependence")
-        if raw is None and envelope.metadata.get("independence") is False:
+        dependency_values = [
+            envelope.metadata[key]
+            for key in ("dependency", "dependence")
+            if key in envelope.metadata
+        ]
+        independence = envelope.metadata.get("independence")
+        if independence is False:
             return True
-        if raw is not None and str(raw).strip().lower().replace("-", "_") in _UNKNOWN_DEPENDENCY_VALUES:
+        if dependency_values:
+            if not all(_is_established_independence_value(value) for value in dependency_values):
+                return True
+            if independence is not None and not _is_established_independence_value(independence):
+                return True
+            continue
+        if not _is_established_independence_value(independence):
             return True
     return False
 
@@ -256,7 +274,11 @@ def _widest(
         level = None
         gate_eligible = False
 
-    if force_fail_closed or context.dependency_unknown:
+    if (
+        force_fail_closed
+        or context.dependency_unknown
+        or context.effective_information_count is None
+    ):
         semantics = (
             IntervalSemantics.HEURISTIC_RANGE
             if any_heuristic
@@ -275,7 +297,7 @@ def _widest(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=semantics,
-        sample_size=context.effective_information_count or len(envelopes),
+        sample_size=context.effective_information_count,
         is_heuristic_ci=any_heuristic,
         gate_eligible=gate_eligible,
         composition_provenance=build_composition_provenance(
@@ -309,7 +331,7 @@ def _precision_weighted(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.dependency_unknown or any(
+    if context.effective_information_count is None or context.dependency_unknown or any(
         env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
         or env.is_heuristic_ci
         for env in envelopes
@@ -318,7 +340,7 @@ def _precision_weighted(
             envelopes,
             confidence_level,
             context=context,
-            force_fail_closed=context.dependency_unknown,
+            force_fail_closed=True,
         )
 
     stds = [extract_std(env) for env in envelopes]
@@ -348,7 +370,7 @@ def _precision_weighted(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-        sample_size=context.effective_information_count or len(envelopes),
+        sample_size=context.effective_information_count,
         is_heuristic_ci=False,
         gate_eligible=(
             all(env.gate_eligible for env in envelopes)
@@ -386,7 +408,7 @@ def _bayesian_combination(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.dependency_unknown or any(
+    if context.effective_information_count is None or context.dependency_unknown or any(
         env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
         or env.is_heuristic_ci
         for env in envelopes
@@ -395,7 +417,7 @@ def _bayesian_combination(
             envelopes,
             confidence_level,
             context=context,
-            force_fail_closed=context.dependency_unknown,
+            force_fail_closed=True,
         )
 
     stds = [extract_std(env) for env in envelopes]
@@ -425,7 +447,7 @@ def _bayesian_combination(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
-        sample_size=context.effective_information_count or len(envelopes),
+        sample_size=context.effective_information_count,
         is_heuristic_ci=False,
         gate_eligible=(
             all(env.gate_eligible for env in envelopes)

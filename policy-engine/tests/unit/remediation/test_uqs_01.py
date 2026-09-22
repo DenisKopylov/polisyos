@@ -12,11 +12,15 @@ from polisyos.foundry.uncertainty.aggregator import (
 )
 from polisyos.foundry.uncertainty.covariance import extract_std
 from polisyos.ir.analytics.uncertainty import (
+    CertificateKind,
+    ComposedFlavour,
     DistributionFamily,
+    ExactnessKind,
     IntervalSemantics,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    build_composition_provenance,
 )
 
 pytestmark = pytest.mark.unit
@@ -47,6 +51,28 @@ def _normal_env(
         gate_eligible=True,
         metadata=metadata,
     )
+
+
+def _inline_provenance_env(point: float, std: float) -> UncertaintyEnvelope:
+    """Build an envelope whose only origin is IR's numeric inline fallback."""
+    envelope = _normal_env(
+        point,
+        std,
+        origin_id="",
+        dependency="independent",
+    )
+    provenance = build_composition_provenance(
+        input_envelopes=(envelope,),
+        op="compress",
+        stage_name="tests.uqs_01.inline",
+        output_flavour=ComposedFlavour.ANALYTICAL,
+        exactness=ExactnessKind.APPROXIMATION,
+        certificate_kind=CertificateKind.WASSERSTEIN_1,
+        certificate_radius=None,
+        confidence_level=envelope.confidence_level,
+        scope=("expectation", "interval", "quantile"),
+    )
+    return envelope.model_copy(update={"composition_provenance": provenance})
 
 
 def test_widest_preserves_declared_level_and_semantics_for_duplicate_origin() -> None:
@@ -144,3 +170,76 @@ def test_unknown_dependency_does_not_narrow_or_remain_gate_eligible() -> None:
     assert result.gate_eligible is False
     assert result.metadata["effective_information_count"] is None
     assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
+
+
+@pytest.mark.parametrize(
+    "method",
+    [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
+)
+@pytest.mark.parametrize("dependency", [None, "maybe_independent"])
+def test_unestablished_dependency_does_not_enable_formula(
+    method: AggregationStrategy,
+    dependency: str | None,
+) -> None:
+    """Missing or unrecognized independence evidence remains fail-closed."""
+    left = _normal_env(10.0, 1.0, origin_id="origin-a", dependency=dependency)
+    right = _normal_env(10.0, 1.0, origin_id="origin-b", dependency=dependency)
+
+    result = aggregate_envelopes([left, right], method=method)
+
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
+    assert result.gate_eligible is False
+    assert result.sample_size is None
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+
+
+@pytest.mark.parametrize(
+    "method",
+    [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
+)
+def test_unbound_origins_do_not_enable_formula(method: AggregationStrategy) -> None:
+    """Independent labels cannot repair absent content-bound information units."""
+    left = _normal_env(10.0, 1.0, origin_id="", dependency="independent")
+    right = _normal_env(10.0, 1.0, origin_id="", dependency="independent")
+
+    result = aggregate_envelopes([left, right], method=method)
+
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
+    assert result.gate_eligible is False
+    assert result.sample_size is None
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+
+
+@pytest.mark.parametrize(
+    "method",
+    [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
+)
+def test_numeric_inline_provenance_does_not_authorize_deduplication(
+    method: AggregationStrategy,
+) -> None:
+    """IR's numeric-derived inline IDs cannot masquerade as origin identity."""
+    left = _inline_provenance_env(10.0, 1.0)
+    right = _inline_provenance_env(10.0, 1.0)
+
+    result = aggregate_envelopes([left, right], method=method)
+
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
+    assert result.sample_size is None
+    assert result.metadata["source_count"] == 2
+    assert result.metadata["duplicate_source_count"] == 0
+    assert result.metadata["effective_information_count"] is None

@@ -7115,11 +7115,20 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         )
         predecessor_references = set(self._live_references(json.loads(predecessor)))
         original = REGISTER_PATH.read_text(encoding="utf-8")
+        historical_aliases = {
+            # C07b moved its structured owner from the dashboard manifest to
+            # the package-owned generator dependency; preserve the predecessor
+            # as history while asserting the current writer's canonical key.
+            "packages/runtime-api-client/package.json:36": (
+                "apps/runtime-dashboard/package.json:166"
+            ),
+        }
         for legacy_reference, structured_identity in (
             checker._C21C_FROZEN_STRUCTURED_IDENTITIES.items()
         ):
             self.assertIn(  # noqa: PT009
-                legacy_reference, predecessor_references
+                historical_aliases.get(legacy_reference, legacy_reference),
+                predecessor_references,
             )
             encoded_identity = json.dumps(structured_identity, ensure_ascii=False)
             encoded_legacy = json.dumps(legacy_reference, ensure_ascii=False)

@@ -107,14 +107,20 @@ def _prepare_inputs(
             )
 
     normalized = tuple(unique)
+    dependency_unknown = _has_unknown_dependency(normalized)
+    effective_information_count = (
+        len(normalized)
+        if all_origins_bound and not dependency_unknown
+        else None
+    )
     context = _AggregationContext(
         source_count=len(envelopes),
-        effective_information_count=len(normalized) if all_origins_bound else None,
+        effective_information_count=effective_information_count,
         effective_information_count_status=(
-            "recomputed" if all_origins_bound else "not_established"
+            "recomputed" if effective_information_count is not None else "not_established"
         ),
         duplicate_source_count=len(envelopes) - len(normalized),
-        dependency_unknown=_has_unknown_dependency(normalized),
+        dependency_unknown=dependency_unknown,
     )
     return normalized, context
 

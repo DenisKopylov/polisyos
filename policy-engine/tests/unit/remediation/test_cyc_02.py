@@ -441,6 +441,7 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
         world_model_record=context.world_model_record,
     )
     controller = _recursive_contract_testing_controller(tmp_path)
+    subdesigns = _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
 
     run = await controller.run(
         graph,
@@ -455,10 +456,21 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
             max_cycles_per_leaf=1,
         ),
         joint_simulation_requests_by_node={root: request},
-        subdesign_contracts_by_node={
-            root: _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
-        },
+        subdesign_contracts_by_node={root: subdesigns},
     )
+
+    routed_by_ref = {node.node_ref: node for node in run.nodes}
+    supplied_by_ref = {subdesign.workspace_id: subdesign for subdesign in subdesigns}
+    for child_ref in child_refs:
+        assert supplied_by_ref[child_ref].search_exit.terminal_state == routed_by_ref[
+            child_ref
+        ].terminal, {
+            "child_ref": child_ref,
+            "supplied_terminal": supplied_by_ref[child_ref].search_exit.terminal_state.model_dump(
+                mode="json"
+            ),
+            "routed_terminal": routed_by_ref[child_ref].terminal.model_dump(mode="json"),
+        }
 
     root_node = next(node for node in run.nodes if node.node_ref == root)
     assert root_node.joint_simulation is not None

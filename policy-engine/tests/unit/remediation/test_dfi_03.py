@@ -6,14 +6,16 @@ import json
 import os
 from pathlib import Path
 
-from polisyos.data_forge.domains.catalog.batch.checkpoints import (
-    save_stage_state,
-)
+from polisyos.data_forge.domains.catalog.batch import embedder as catalog_embedder
+from polisyos.data_forge.domains.catalog.batch.checkpoints import save_stage_state
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
+    _record_stage_completion,
     _should_skip_stage,
     _stage_input_fingerprint,
+    run_dataset_pipeline_sync,
 )
+from polisyos.data_forge.kernel.embeddings import build_embedding_generation
 
 
 def _restore_stat(path: Path, stat_result: os.stat_result) -> None:
@@ -21,13 +23,8 @@ def _restore_stat(path: Path, stat_result: os.stat_result) -> None:
 
 
 def _save_state(config: DatasetBatchConfig, stage: str, outputs: list[Path]) -> None:
-    save_stage_state(
-        config.stage_state_path,
-        stage=stage,
-        status="complete",
-        input_fingerprint=_stage_input_fingerprint(config, stage),
-        outputs=outputs,
-    )
+    del outputs
+    _record_stage_completion(config, stage)
 
 
 def test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage(tmp_path) -> None:
@@ -121,3 +118,90 @@ def test_legacy_directory_state_without_output_inventory_is_cache_miss(tmp_path)
     )
 
     assert not _should_skip_stage(config, "normalize")
+
+
+def test_selected_empty_generation_is_reused_without_reencoding(
+    monkeypatch, tmp_path
+) -> None:
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"embed"}),
+        resume=True,
+        embedding_dimension=4,
+    )
+    assert build_embedding_generation(
+        rows=[],
+        index_dir=config.index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=4,
+    ) == (0, 4)
+    _record_stage_completion(config, "embed")
+
+    def fail_if_reembedded(*_args, **_kwargs):
+        raise AssertionError("selected generation was unnecessarily re-encoded")
+
+    monkeypatch.setattr(catalog_embedder, "run_embed", fail_if_reembedded)
+    stats = run_dataset_pipeline_sync(config)
+
+    assert stats.skipped_stages == ["embed"]
+
+
+def test_embed_resume_rejects_config_rule_and_selected_output_changes(
+    monkeypatch, tmp_path
+) -> None:
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"embed"}),
+        resume=True,
+        embedding_dimension=4,
+    )
+    assert build_embedding_generation(
+        rows=[],
+        index_dir=config.index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=4,
+    ) == (0, 4)
+    _record_stage_completion(config, "embed")
+    assert _should_skip_stage(config, "embed")
+
+    config.embedding_model = "changed-model"
+    assert not _should_skip_stage(config, "embed")
+    config.embedding_model = "intfloat/multilingual-e5-large"
+
+    from polisyos.data_forge.domains.catalog.batch import pipeline as pipeline_module
+
+    monkeypatch.setitem(
+        pipeline_module._STAGE_RULE_VERSIONS, "embed", "policyos.catalog.embed.changed"
+    )
+    assert not _should_skip_stage(config, "embed")
+
+    monkeypatch.setitem(
+        pipeline_module._STAGE_RULE_VERSIONS, "embed", "policyos.catalog.embed.v2"
+    )
+    selector = json.loads(
+        (config.index_dir / "embedding_generation.json").read_text(encoding="utf-8")
+    )
+    generation_dir = config.index_dir / "embedding_generations" / str(selector["generation_id"])
+    (generation_dir / "embeddings.npz").unlink()
+    assert not _should_skip_stage(config, "embed")
+
+
+def test_interrupted_embed_state_is_never_reusable(tmp_path) -> None:
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"embed"}),
+        resume=True,
+    )
+    save_stage_state(
+        config.stage_state_path,
+        stage="embed",
+        status="running",
+        input_fingerprint=_stage_input_fingerprint(config, "embed"),
+        outputs=[config.index_dir / "embedding_generation.json"],
+        input_basis={},
+        output_inventory={},
+    )
+
+    assert not _should_skip_stage(config, "embed")

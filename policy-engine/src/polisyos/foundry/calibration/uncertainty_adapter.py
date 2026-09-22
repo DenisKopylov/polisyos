@@ -15,6 +15,7 @@ from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -116,6 +117,10 @@ def envelope_from_calibration_param(
         confidence_interval=(ci_lower, ci_upper),
         confidence_level=None,
         distribution_family=DistributionFamily.NORMAL,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": float(point), "std": std},
+        ),
         source=UncertaintySource.CALIBRATION,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.HEURISTIC_RANGE,

@@ -20,6 +20,7 @@ from polisyos.scientist.orchestration.engine.errors import RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
+    _preserve_retry_spend,
     execute_with_retry_async,
     execute_with_retry_sync,
 )
@@ -350,3 +351,26 @@ def test_typed_transient_and_validation_categories_control_raised_retry() -> Non
                 alias="run-03-validation-classified",
             )
     assert validation.calls == 1
+
+
+def test_terminal_spend_projection_excludes_failed_state_mutation() -> None:
+    """Executor recovery carries spend, not a failed branch wholesale."""
+    base = ExperimentState(
+        run_id="run-03-terminal-projection",
+        params={"keep": "baseline"},
+        budgets={"prior_spent_usd": Decimal("1.00")},
+    )
+    terminal = base.model_copy(deep=True)
+    terminal.params["counter"] = 1
+    terminal.params["attempt_history"] = [1, 2]
+    terminal.budgets["run_spent_usd"] = Decimal("0.50")
+
+    preserved = _preserve_retry_spend(base, terminal)
+
+    assert preserved.params == {"keep": "baseline"}
+    assert preserved.budgets == {
+        "prior_spent_usd": Decimal("1.00"),
+        "run_spent_usd": Decimal("0.50"),
+    }
+    assert base.params == {"keep": "baseline"}
+    assert base.budgets == {"prior_spent_usd": Decimal("1.00")}

@@ -163,7 +163,11 @@ class TestRetryIntegration:
 
     def test_terminal_raised_retry_preserves_only_spend_in_final_result(self, tmp_path):
         """Terminal retry keeps failed cost/history, not ordinary failed writes."""
-        state = ExperimentState(run_id="retry-test-terminal")
+        state = ExperimentState(
+            run_id="retry-test-terminal",
+            params={"keep": "baseline"},
+            budgets={"prior_spent_usd": Decimal("1.00")},
+        )
         node = MagicMock()
         node.spec.state_reads = []
         node.spec.state_writes = [
@@ -212,10 +216,11 @@ class TestRetryIntegration:
         assert result.report.status == "fail"
         assert result.report.nodes[0].status == "fail"
         assert calls["n"] == 2
-        assert result.state.params == {}
+        assert result.state.params == {"keep": "baseline"}
+        assert result.state.budgets["prior_spent_usd"] == Decimal("1.00")
         assert result.state.budgets["run_spent_usd"] == Decimal("0.50")
-        assert state.params == {}
-        assert state.budgets == {}
+        assert state.params == {"keep": "baseline"}
+        assert state.budgets == {"prior_spent_usd": Decimal("1.00")}
 
         records = [
             TraceRecord.model_validate_json(line)

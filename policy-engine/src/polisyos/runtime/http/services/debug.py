@@ -18,6 +18,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineStep,
@@ -43,6 +44,7 @@ from polisyos.core.contracts.runtime import (
     RunWorkflowNodeView,
     RunWorkflowSummary,
     RunWorkflowView,
+    SimulationResultCandidateView,
 )
 from polisyos.core.trace import TraceRecord
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
@@ -105,6 +107,21 @@ _MATERIALIZATION_REF_KINDS = {
 logger = get_logger(__name__)
 
 AgentStepStatus = Literal["ok", "warn", "fail", "info"]
+
+_SIMULATION_RESULT_KIND = "foundry.simulation_result"
+_SIMULATION_RESULT_MEDIA_TYPE = "application/json"
+_SIMULATION_RESULT_SCHEMA_NAME = "polisyos.core.SimulationResult"
+_SIMULATION_RESULT_SCHEMA_VERSIONS = frozenset({"1.1", "1.2", "1.3"})
+_SIMULATION_RESULT_STATE_KEY = "simulation_result_ref"
+
+
+class SimulationResultProjectionError(RuntimeError):
+    """Fail-closed error raised when a candidate result cannot be reconciled."""
+
+    def __init__(self, code: str, detail: str) -> None:
+        super().__init__(detail)
+        self.code = code
+        self.detail = detail
 
 
 class DebugService:
@@ -174,6 +191,177 @@ class DebugService:
             cache_stores=cache_stores,
             cache_bypasses=cache_bypasses,
             notes=[],
+        )
+
+    def get_simulation_result_candidate(
+        self,
+        run: IndexedRunRecord,
+        *,
+        alias: str,
+        artifact_id: str | None = None,
+    ) -> SimulationResultCandidateView:
+        """Read a verified, candidate-only simulation result bound to one node.
+
+        The route deliberately resolves the result through the persisted final
+        state and the named workflow node.  It does not use the generic
+        artifact inspector because this debug projection is reference-only and
+        must preserve the authority-surface ``409`` behavior for generic
+        artifact routes.
+
+        Raises:
+            KeyError: If ``alias`` is not present in the persisted workflow.
+            SimulationResultProjectionError: If the state/node/ref, manifest,
+                payload, tenant binding, or CAS integrity cannot be reconciled.
+        """
+        state_payload = self._load_verified_binding_json(
+            run.experiment_state_ref,
+            expected_kind="scientist.experiment_state",
+            expected_schema_name="polisyos.scientist.orchestration.engine.ExperimentState",
+            expected_run_id=run.run_id,
+        )
+        report_payload = self._load_verified_binding_json(
+            run.workflow_report_ref,
+            expected_kind="scientist.workflow_report",
+            expected_schema_name="polisyos.scientist.orchestration.engine.WorkflowReport",
+            expected_run_id=run.run_id,
+        )
+        record = {
+            node.alias: node
+            for node in self._load_workflow_nodes(run.workflow_report_ref, payload=report_payload)
+        }.get(alias)
+        if record is None:
+            raise KeyError(alias)
+
+        state_ref = _simulation_result_ref_from_state_payload(state_payload)
+        node_bound_ids = _simulation_result_ids_bound_to_node(record)
+        requested_id = _artifact_id_from_string(artifact_id)
+        if artifact_id is not None and requested_id is None:
+            raise SimulationResultProjectionError(
+                "simulation_result_ref_invalid",
+                "The requested simulation result reference is malformed",
+            )
+
+        if requested_id is None:
+            if state_ref is None:
+                raise SimulationResultProjectionError(
+                    "simulation_result_ref_missing",
+                    "The run state has no persisted simulation result reference",
+                )
+            if str(state_ref.artifact_id) not in node_bound_ids:
+                raise SimulationResultProjectionError(
+                    "simulation_result_node_binding_missing",
+                    "The named workflow node is not bound to the run simulation result",
+                )
+            requested_id = state_ref.artifact_id
+        elif str(requested_id) not in node_bound_ids:
+            raise SimulationResultProjectionError(
+                "simulation_result_node_binding_mismatch",
+                "The requested reference is not bound to the named workflow node",
+            )
+
+        if state_ref is None or requested_id != state_ref.artifact_id:
+            raise SimulationResultProjectionError(
+                "simulation_result_run_binding_mismatch",
+                "The requested reference is not bound to the persisted run state",
+            )
+        if (
+            state_ref.kind != _SIMULATION_RESULT_KIND
+            or state_ref.media_type != _SIMULATION_RESULT_MEDIA_TYPE
+        ):
+            raise SimulationResultProjectionError(
+                "simulation_result_ref_manifest_mismatch",
+                "The persisted run state does not describe a SimulationResult artifact",
+            )
+
+        try:
+            verification = self._store.verify(requested_id)
+            if not verification.ok:
+                raise SimulationResultProjectionError(
+                    "simulation_result_integrity_failed",
+                    "The persisted simulation result failed CAS integrity verification",
+                )
+            manifest = self._store.get_manifest(requested_id)
+            payload_bytes = self._store.get_bytes(requested_id)
+        except SimulationResultProjectionError:
+            raise
+        except (
+            FileNotFoundError,
+            OSError,
+            PermissionError,
+            TypeError,
+            ValueError,
+            UnicodeDecodeError,
+        ) as exc:
+            raise SimulationResultProjectionError(
+                "simulation_result_unavailable",
+                "The persisted simulation result is unavailable or not owned by this run",
+            ) from exc
+
+        if manifest.kind != _SIMULATION_RESULT_KIND:
+            raise SimulationResultProjectionError(
+                "simulation_result_kind_mismatch",
+                "The bound artifact is not a Foundry SimulationResult",
+            )
+        if manifest.media_type != _SIMULATION_RESULT_MEDIA_TYPE:
+            raise SimulationResultProjectionError(
+                "simulation_result_media_type_mismatch",
+                "The bound simulation result is not JSON",
+            )
+        schema = manifest.artifact_schema
+        if (
+            schema is None
+            or schema.name != _SIMULATION_RESULT_SCHEMA_NAME
+            or schema.version not in _SIMULATION_RESULT_SCHEMA_VERSIONS
+        ):
+            raise SimulationResultProjectionError(
+                "simulation_result_schema_mismatch",
+                "The bound artifact does not carry a supported SimulationResult schema",
+            )
+        tenant_context = manifest.tenant_context
+        if tenant_context is None:
+            raise SimulationResultProjectionError(
+                "simulation_result_tenant_unscoped",
+                "The bound simulation result has no persisted tenant ownership context",
+            )
+        if (
+            tenant_context.tenant_id != run.details.tenant_id
+            or tenant_context.cell_id != run.details.cell_id
+        ):
+            raise SimulationResultProjectionError(
+                "simulation_result_tenant_binding_mismatch",
+                "The simulation result belongs to a different tenant",
+            )
+
+        try:
+            simulation_result = SimulationResult.model_validate(
+                from_canonical_bytes(payload_bytes)
+            )
+        except (TypeError, ValueError, ValidationError, UnicodeDecodeError) as exc:
+            raise SimulationResultProjectionError(
+                "simulation_result_payload_invalid",
+                "The bound artifact is not a valid persisted SimulationResult",
+            ) from exc
+        if schema.version != simulation_result.schema_version:
+            raise SimulationResultProjectionError(
+                "simulation_result_schema_binding_mismatch",
+                "The manifest schema version is not bound to the SimulationResult payload",
+            )
+
+        return SimulationResultCandidateView(
+            run_id=run.run_id,
+            node_alias=alias,
+            node_id=record.node_id,
+            artifact_ref=ArtifactRef(
+                artifact_id=requested_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            ),
+            simulation_result=simulation_result,
+            notes=[
+                "candidate_reference_only",
+                "not_an_authority_envelope",
+                "generic_artifact_authority_routes_remain_blocked",
+            ],
         )
 
     def get_governance_debug(self, run: IndexedRunRecord) -> GovernanceDebugView:
@@ -945,8 +1133,13 @@ class DebugService:
             notes=notes,
         )
 
-    def _load_workflow_nodes(self, workflow_report_ref: ArtifactRef | None) -> list[RunNodeRecord]:
-        payload = self._load_json_artifact(workflow_report_ref)
+    def _load_workflow_nodes(
+        self,
+        workflow_report_ref: ArtifactRef | None,
+        *,
+        payload: dict[str, Any] | None = None,
+    ) -> list[RunNodeRecord]:
+        payload = payload if payload is not None else self._load_json_artifact(workflow_report_ref)
         rows = payload.get("nodes")
         if not isinstance(rows, list):
             return []
@@ -991,6 +1184,66 @@ class DebugService:
 
     def _load_experiment_state_payload(self, ref: ArtifactRef | None) -> dict[str, Any]:
         return self._load_json_artifact(ref)
+
+    def _load_verified_binding_json(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        expected_kind: str,
+        expected_schema_name: str,
+        expected_run_id: str,
+    ) -> dict[str, Any]:
+        """Load a verified workflow binding artifact before authorizing a result."""
+        if ref is None:
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_missing",
+                "The run has no persisted workflow binding artifact",
+            )
+        try:
+            verification = self._store.verify(ref.artifact_id)
+            if not verification.ok:
+                raise SimulationResultProjectionError(
+                    "simulation_result_binding_integrity_failed",
+                    "A persisted workflow binding artifact failed CAS integrity verification",
+                )
+            manifest = self._store.get_manifest(ref.artifact_id)
+            schema = manifest.artifact_schema
+            if (
+                manifest.kind != expected_kind
+                or manifest.media_type != _SIMULATION_RESULT_MEDIA_TYPE
+                or schema is None
+                or schema.name != expected_schema_name
+            ):
+                raise SimulationResultProjectionError(
+                    "simulation_result_binding_mismatch",
+                    "A persisted workflow binding artifact has an unexpected manifest",
+                )
+            payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+        except SimulationResultProjectionError:
+            raise
+        except (
+            FileNotFoundError,
+            OSError,
+            PermissionError,
+            TypeError,
+            ValueError,
+            UnicodeDecodeError,
+        ) as exc:
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_unavailable",
+                "A persisted workflow binding artifact is unavailable",
+            ) from exc
+        if not isinstance(payload, dict):
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_invalid",
+                "A persisted workflow binding artifact is not a JSON object",
+            )
+        if payload.get("run_id") != expected_run_id:
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_run_mismatch",
+                "A persisted workflow binding artifact belongs to another run",
+            )
+        return payload
 
     def _load_json_artifact(self, ref: ArtifactRef | None) -> dict[str, Any]:
         if ref is None:
@@ -1119,6 +1372,27 @@ def _artifact_ids_from_report_node(row: dict[str, Any] | None) -> list[str]:
         if artifact_id:
             ids.append(artifact_id)
     return sorted(set(ids))
+
+
+def _simulation_result_ref_from_state_payload(payload: dict[str, Any]) -> ArtifactRef | None:
+    """Resolve the persisted simulation ref from a verified state payload."""
+    artifacts_index = payload.get("artifacts_index")
+    if not isinstance(artifacts_index, dict):
+        return None
+    return _artifact_ref_from_payload(artifacts_index.get(_SIMULATION_RESULT_STATE_KEY))
+
+
+def _simulation_result_ids_bound_to_node(record: RunNodeRecord) -> set[str]:
+    """Collect artifact ids explicitly emitted by one producing node."""
+    # Only producer-owned artifact/output fields authorize a projection.
+    # Error details are diagnostic context and may repeat an upstream ref
+    # without proving that this node produced or retained it.
+    bound_ids = set(record.artifact_ids).union(record.output_artifact_ids)
+    return {
+        artifact_id
+        for artifact_id in bound_ids
+        if _artifact_id_from_string(artifact_id) is not None
+    }
 
 
 def _workflow_edges_from_nodes(nodes: list[RunWorkflowNodeView]) -> list[RunWorkflowEdgeView]:

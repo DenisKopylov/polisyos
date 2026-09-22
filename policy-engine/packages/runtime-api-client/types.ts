@@ -942,6 +942,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Node Simulation Result Candidate
+         * @description Read a verified candidate result without opening generic authority surfaces.
+         */
+        get: operations["get_node_simulation_result_candidate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exports/channel-registry": {
         parameters: {
             query?: never;
@@ -2446,7 +2466,7 @@ export interface components {
          *     The `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI
          *     used in manifests, runtime URLs, CLI arguments, and signature statements.
          */
-        ArtifactID: string;
+        "ArtifactID-Input": string;
         /**
          * ArtifactLineageEdge
          * @description Artifact lineage edge public type.
@@ -2740,7 +2760,7 @@ export interface components {
          * @description Reference an artifact across service, registry, and governance boundaries.
          */
         "ArtifactRef-Input": {
-            artifact_id: components["schemas"]["ArtifactID"];
+            artifact_id: components["schemas"]["ArtifactID-Input"];
             /** Kind */
             kind: string;
             /** Media Type */
@@ -7455,6 +7475,25 @@ export interface components {
             source_lane: "fastlane" | "explorelane" | "catalog";
         };
         /**
+         * DistributionalReportRef
+         * @description Stable handle for persisted distributional-impact reports read by equity and policy-governance workflows.
+         */
+        DistributionalReportRef: {
+            artifact_id: components["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
+            /**
+             * Kind
+             * @default ir.distributional_report
+             * @constant
+             */
+            kind: "ir.distributional_report";
+            /**
+             * Media Type
+             * @default application/json
+             * @constant
+             */
+            media_type: "application/json";
+        };
+        /**
          * EngineCensusPayload
          * @description Engine census summary without the row table.
          */
@@ -7558,6 +7597,23 @@ export interface components {
             platform: string;
             /** Python */
             python: string;
+        };
+        /**
+         * EnvironmentManifestRef
+         * @description Typed reference to EnvironmentManifest artifact.
+         */
+        EnvironmentManifestRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.environment_manifest
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
         };
         /**
          * EpochBoundaryLineageView
@@ -8353,7 +8409,7 @@ export interface components {
          * @description Artifact reference for the resolved Foundry execution plan and runtime posture.
          */
         "ExecPlanRef-Input": {
-            artifact_id: components["schemas"]["ArtifactID"];
+            artifact_id: components["schemas"]["ArtifactID-Input"];
             /**
              * Kind
              * @default foundry.exec_plan
@@ -8666,6 +8722,23 @@ export interface components {
             };
         };
         /**
+         * FairnessAuditReportRef
+         * @description Reference to a stored validation-stage fairness audit report artifact.
+         */
+        FairnessAuditReportRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default scientist.fairness_audit_report
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
+        };
+        /**
          * FeedbackActionResponse
          * @description Outcome payload returned after evaluating feedback or reissuing a decision.
          */
@@ -8697,7 +8770,7 @@ export interface components {
          * @description Artifact reference for Jacobian diagnostics around the solved fixed point.
          */
         FeedbackJacobianDiagnosticsRef: {
-            artifact_id: components["schemas"]["ArtifactID"];
+            artifact_id: components["schemas"]["ArtifactID-Input"];
             /**
              * Kind
              * @default foundry.feedback_jacobian_diagnostics
@@ -8714,7 +8787,7 @@ export interface components {
          * @description Artifact reference for the top-level feedback solve result.
          */
         "FeedbackResultRef-Input": {
-            artifact_id: components["schemas"]["ArtifactID"];
+            artifact_id: components["schemas"]["ArtifactID-Input"];
             /**
              * Kind
              * @default foundry.feedback_result
@@ -9974,6 +10047,23 @@ export interface components {
             selector: components["schemas"]["HumanDecisionPA2ReplaySelector"] | components["schemas"]["HumanDecisionProductionReplaySelector"];
         };
         /**
+         * IdentifiabilityDiagnosticRef
+         * @description Artifact reference for aggregate-moment identifiability diagnostics.
+         */
+        IdentifiabilityDiagnosticRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.identifiability_diagnostic
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
+        };
+        /**
          * IndexStats
          * @description Report catalog index size, source coverage, and last-update counters.
          */
@@ -11177,6 +11267,57 @@ export interface components {
              * @default 0.5
              */
             trust_score: number;
+        };
+        /**
+         * MetricObservationBundleRef
+         * @description Artifact reference for per-example observations required for formal metric validation.
+         */
+        MetricObservationBundleRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.metric_observation_bundle
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
+        };
+        /**
+         * MetricValidationReportRef
+         * @description Reference to a stored formal metric-validation report artifact.
+         */
+        MetricValidationReportRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default scientist.metric_validation_report
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
+        };
+        /**
+         * MetricsRef
+         * @description Artifact reference for the scalar metrics emitted by a Foundry execution.
+         */
+        MetricsRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.metrics
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
         };
         /**
          * MobilityBoundsRequest
@@ -15465,11 +15606,95 @@ export interface components {
         /** @enum {string} */
         SessionAuthorityProvenance: "canonical_repo" | "verification";
         /**
+         * SimulationResult
+         * @description Top-level execution artifact tying plans, metrics, traces, and optional reports together.
+         */
+        SimulationResult: {
+            distributional_report_ref?: components["schemas"]["DistributionalReportRef"] | null;
+            /** Environment Fingerprint */
+            environment_fingerprint?: string | null;
+            environment_ref?: components["schemas"]["EnvironmentManifestRef"] | null;
+            exec_plan_ref: components["schemas"]["ExecPlanRef-Output"];
+            fairness_audit_report_ref?: components["schemas"]["FairnessAuditReportRef"] | null;
+            feedback_result_ref?: components["schemas"]["FeedbackResultRef-Output"] | null;
+            identifiability_diagnostic_ref?: components["schemas"]["IdentifiabilityDiagnosticRef"] | null;
+            metric_observation_bundle_ref?: components["schemas"]["MetricObservationBundleRef"] | null;
+            metric_validation_report_ref?: components["schemas"]["MetricValidationReportRef"] | null;
+            metrics_ref: components["schemas"]["MetricsRef"];
+            /** Notes */
+            notes?: string[];
+            propagation_config_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            propagation_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Schema Version
+             * @default 1.3
+             */
+            schema_version: string;
+            state_snapshot_ref?: components["schemas"]["StateSnapshotRef"] | null;
+            trace_slice_ref?: components["schemas"]["TraceSliceRef"] | null;
+            /** Uncertainty Envelopes */
+            uncertainty_envelopes?: {
+                [key: string]: components["schemas"]["UncertaintyEnvelopeRef"];
+            } | null;
+            /** Welfare Bound Refs */
+            welfare_bound_refs?: {
+                [key: string]: components["schemas"]["WelfareBoundReportRef"];
+            } | null;
+            welfare_bundle_ref?: components["schemas"]["WelfareBundleRef"] | null;
+        };
+        /**
+         * SimulationResultCandidateResponse
+         * @description Response envelope for the candidate-only simulation-result debug route.
+         */
+        SimulationResultCandidateResponse: {
+            debug: components["schemas"]["SimulationResultCandidateView"];
+            meta: components["schemas"]["ApiMeta"];
+        };
+        /**
+         * SimulationResultCandidateView
+         * @description Candidate-only simulation result bound to one persisted run node.
+         *
+         *     This projection is intentionally not an authority envelope.  It exposes a
+         *     content-addressed ``SimulationResult`` for debugging a later node failure
+         *     only after the run state, workflow node, expected artifact manifest, and
+         *     CAS bytes have been reconciled.
+         */
+        SimulationResultCandidateView: {
+            artifact_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Authority Status
+             * @default non_authority
+             * @constant
+             */
+            authority_status: "non_authority";
+            /**
+             * Integrity Status
+             * @default verified
+             * @constant
+             */
+            integrity_status: "verified";
+            /** Node Alias */
+            node_alias: string;
+            /** Node Id */
+            node_id?: string | null;
+            /** Notes */
+            notes?: string[];
+            /**
+             * Projection Class
+             * @default candidate_reference_only
+             * @constant
+             */
+            projection_class: "candidate_reference_only";
+            /** Run Id */
+            run_id: string;
+            simulation_result: components["schemas"]["SimulationResult"];
+        };
+        /**
          * SimulationResultRef
          * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
          */
         "SimulationResultRef-Input": {
-            artifact_id: components["schemas"]["ArtifactID"];
+            artifact_id: components["schemas"]["ArtifactID-Input"];
             /**
              * Kind
              * @default foundry.simulation_result
@@ -15663,6 +15888,23 @@ export interface components {
             meta: components["schemas"]["ApiMeta"];
             /** Profiles */
             profiles?: components["schemas"]["SourceProfileInfo"][];
+        };
+        /**
+         * StateSnapshotRef
+         * @description Artifact reference for a persisted state snapshot emitted by a simulation.
+         */
+        StateSnapshotRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.state_snapshot
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
         };
         /**
          * StructuralRouteProjection
@@ -15943,6 +16185,23 @@ export interface components {
             step_count?: number | null;
         };
         /**
+         * TraceSliceRef
+         * @description Artifact reference for the structured execution trace slice captured during a run.
+         */
+        TraceSliceRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.trace_slice
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/jsonl
+             */
+            media_type: string;
+        };
+        /**
          * TypedGap
          * @description Typed gap state for explicit waivers and unknowns in the trust envelope.
          */
@@ -16039,6 +16298,25 @@ export interface components {
              * @default verified run manifest carries no trace reference
              */
             reason: string;
+        };
+        /**
+         * UncertaintyEnvelopeRef
+         * @description Stable handle for a persisted uncertainty envelope produced by estimators and read by reporting layers.
+         */
+        UncertaintyEnvelopeRef: {
+            artifact_id: components["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
+            /**
+             * Kind
+             * @default ir.uncertainty_envelope
+             * @constant
+             */
+            kind: "ir.uncertainty_envelope";
+            /**
+             * Media Type
+             * @default application/json
+             * @constant
+             */
+            media_type: "application/json";
         };
         /**
          * UnitRef
@@ -16165,6 +16443,42 @@ export interface components {
             verified_by?: string | null;
         };
         /**
+         * WelfareBoundReportRef
+         * @description Artifact reference for a mechanism-level welfare-loss certificate.
+         */
+        WelfareBoundReportRef: {
+            artifact_id: string;
+            /**
+             * Kind
+             * @default foundry.welfare_bound_report
+             */
+            kind: string;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type: string;
+        };
+        /**
+         * WelfareBundleRef
+         * @description Stable handle for persisted welfare aggregation summaries.
+         */
+        WelfareBundleRef: {
+            artifact_id: components["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
+            /**
+             * Kind
+             * @default ir.welfare_bundle
+             * @constant
+             */
+            kind: "ir.welfare_bundle";
+            /**
+             * Media Type
+             * @default application/json
+             * @constant
+             */
+            media_type: "application/json";
+        };
+        /**
          * WorkflowRunRequest
          * @description POST /api/v1/control/runs — launch a workflow run.
          */
@@ -16204,6 +16518,14 @@ export interface components {
             /** Trinity Bundle Ref */
             trinity_bundle_ref?: string | null;
         };
+        /**
+         * ArtifactID
+         * @description Represent a normalized CAS identifier in `sha256:<64hex>` form.
+         *
+         *     The `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI
+         *     used in manifests, runtime URLs, CLI arguments, and signature statements.
+         */
+        polisyos__core__artifacts__ids__ArtifactID: string;
         /**
          * LineageRef
          * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
@@ -16331,6 +16653,11 @@ export interface components {
              */
             system: string;
         };
+        /**
+         * ArtifactID
+         * @description IR-local artifact ID model compatible with CAS interfaces.
+         */
+        polisyos__ir__artifacts__contracts__ArtifactID: string;
     };
     responses: never;
     parameters: never;
@@ -21093,6 +21420,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NodeDebugResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_node_simulation_result_candidate: {
+        parameters: {
+            query?: {
+                artifact_id?: string | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+                alias: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResultCandidateResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

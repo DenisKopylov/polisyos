@@ -310,6 +310,14 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async getNodeSimulationResultCandidate(params) {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}/simulation-result`;
+    const query = this.buildQuery({
+      artifact_id: params?.artifact_id,
+    });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async getRuntimeChannelRegistry() {
     const path = `/api/v1/exports/channel-registry`;
     const query = undefined;

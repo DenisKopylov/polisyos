@@ -3350,6 +3350,41 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
             "notes": [],
         },
     },
+    "get_node_simulation_result_candidate": {
+        "meta": _META_CORE_RUN,
+        "debug": {
+            "run_id": _RUN_ID_SAMPLE,
+            "node_alias": "run_simulation",
+            "node_id": "scientist.node_run_simulation@1.0.0",
+            "artifact_ref": {
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "foundry.simulation_result",
+                "media_type": "application/json",
+            },
+            "simulation_result": {
+                "schema_version": "1.3",
+                "exec_plan_ref": {
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "foundry.exec_plan",
+                    "media_type": "application/json",
+                },
+                "metrics_ref": {
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "foundry.metrics",
+                    "media_type": "application/json",
+                },
+                "notes": ["candidate reference only"],
+            },
+            "projection_class": "candidate_reference_only",
+            "authority_status": "non_authority",
+            "integrity_status": "verified",
+            "notes": [
+                "candidate_reference_only",
+                "not_an_authority_envelope",
+                "generic_artifact_authority_routes_remain_blocked",
+            ],
+        },
+    },
     "get_governance_debug": {
         "meta": _META_CORE_RUN,
         "debug": {

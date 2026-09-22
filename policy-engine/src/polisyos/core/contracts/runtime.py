@@ -25,7 +25,7 @@ from .feedback import (
     DecisionMonitoringReport,
     DecisionReissuePlan,
 )
-from .foundry import EquilibriumMultiplicityReport
+from .foundry import EquilibriumMultiplicityReport, SimulationResult
 from .policy_design_case_projection import PolicyDesignCaseProjection
 
 PolicyLayerLevel = governance.PolicyLayerLevel
@@ -1992,6 +1992,28 @@ class NodeDebugView(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class SimulationResultCandidateView(BaseModel):
+    """Candidate-only simulation result bound to one persisted run node.
+
+    This projection is intentionally not an authority envelope.  It exposes a
+    content-addressed ``SimulationResult`` for debugging a later node failure
+    only after the run state, workflow node, expected artifact manifest, and
+    CAS bytes have been reconciled.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    node_alias: str
+    node_id: str | None = None
+    artifact_ref: ArtifactRef
+    simulation_result: SimulationResult
+    projection_class: Literal["candidate_reference_only"] = "candidate_reference_only"
+    authority_status: Literal["non_authority"] = "non_authority"
+    integrity_status: Literal["verified"] = "verified"
+    notes: list[str] = Field(default_factory=list)
+
+
 class GovernanceDebugView(BaseModel):
     """Detailed governance payload exposing verdicts, report refs, and contract warnings."""
 
@@ -2661,6 +2683,15 @@ class NodeDebugResponse(BaseModel):
     debug: NodeDebugView
 
 
+class SimulationResultCandidateResponse(BaseModel):
+    """Response envelope for the candidate-only simulation-result debug route."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    debug: SimulationResultCandidateView
+
+
 class GovernanceDebugResponse(BaseModel):
     """Response envelope returned by the governance debug endpoint."""
 
@@ -3057,6 +3088,8 @@ __all__ = [
     "ScenarioRef",
     "ScenarioStatus",
     "ScenarioSurfaceSupport",
+    "SimulationResultCandidateResponse",
+    "SimulationResultCandidateView",
     "SourceKind",
     "TemporalCapabilitiesResponse",
     "TemporalCapabilitiesView",

@@ -16,7 +16,7 @@ import numpy as np
 from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
@@ -343,7 +343,79 @@ def _put_snapshot_blob_two_phase(
     data: bytes,
     options: PutOptions,
 ) -> ArtifactRef:
-    blob_ref = store.put_bytes(data, options)
+    blob_ref = _reuse_legacy_snapshot_blob(store, data, options)
+    if blob_ref is None:
+        blob_ref = store.put_bytes(data, options)
     if not store.has(blob_ref.artifact_id):
         raise ValueError(f"Snapshot blob was not fully persisted: {blob_ref.artifact_id}")
     return blob_ref
+
+
+def _reuse_legacy_snapshot_blob(
+    store: FileSystemCAS,
+    data: bytes,
+    options: PutOptions,
+) -> ArtifactRef | None:
+    """Reuse one verified legacy raw snapshot without relaxing generic CAS rules.
+
+    Older snapshot writers persisted contextual lineage directly on the raw
+    ``foundry.state_blob`` manifest.  That profile is immutable, so the
+    snapshot boundary may read it only when every profile field except the
+    historical non-empty ``inputs`` matches the current content-only profile.
+    Any absent or malformed sidecar, integrity failure, or other profile
+    mismatch remains on the ordinary strict ``put_bytes`` path.
+    """
+    if (
+        options.kind != "foundry.state_blob"
+        or options.media_type != "application/x-npz"
+        or options.inputs
+    ):
+        return None
+
+    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
+    try:
+        manifest = store.get_manifest(artifact_id)
+    except FileNotFoundError:
+        return None
+
+    if not _matches_legacy_snapshot_profile(
+        manifest,
+        data_size=len(data),
+        options=options,
+    ):
+        return None
+
+    # get_bytes verifies manifest identity, byte size, and the actual digest;
+    # the old sidecar is never rewritten or treated as current lineage.
+    store.get_bytes(artifact_id)
+    return ArtifactRef(
+        artifact_id=artifact_id,
+        kind=options.kind,
+        media_type=options.media_type,
+    )
+
+
+def _matches_legacy_snapshot_profile(
+    manifest: ArtifactManifest,
+    *,
+    data_size: int,
+    options: PutOptions,
+) -> bool:
+    """Return whether only the historical raw-blob inputs differ."""
+    if not manifest.inputs:
+        return False
+
+    expected = {
+        "kind": options.kind,
+        "media_type": options.media_type,
+        "byte_size": data_size,
+        "artifact_schema": options.schema,
+        "canon": options.canon,
+        "producer": options.producer,
+        "env": options.env,
+        "governance": options.governance,
+        "tenant_context": options.tenant_context,
+        "same_input_closure": options.same_input_closure,
+        "authority": options.authority,
+    }
+    return all(getattr(manifest, field) == value for field, value in expected.items())

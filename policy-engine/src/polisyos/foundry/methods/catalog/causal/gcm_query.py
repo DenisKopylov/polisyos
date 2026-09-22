@@ -906,6 +906,8 @@ _INTERVENTION_UNSET = object()
 def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     if query.intervention_spec is not None:
         return query.intervention_spec
+    if query.query_type is QueryType.ATTRIBUTION and query.contrast is not None:
+        return query.contrast.target
     if query.query_type in {QueryType.INTERVENTIONAL, QueryType.COUNTERFACTUAL}:
         return InterventionSpec(type=InterventionType.ATOMIC, value=query.treatment_value)
     if query.query_type is QueryType.ATTRIBUTION and query.treatment_value is not None:
@@ -913,20 +915,32 @@ def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     return None
 
 
+def _attribution_comparator(query: CausalQuery) -> InterventionSpec | None:
+    """Return the explicit comparator intervention, or natural observation."""
+    if query.contrast is None or query.contrast.comparator.kind == "observational":
+        return None
+    return query.contrast.comparator.intervention
+
+
 def _required_missing_root_nodes(
     scm_spec: StructuralCausalModelSpec,
     query: CausalQuery,
 ) -> list[str]:
-    """Find roots whose natural law is required but has no fitted carrier."""
+    """Find roots whose natural law is required by any simulated query arm."""
     roots = set(scm_spec.graph.nodes) - {
         edge.dst for edge in scm_spec.graph.edges if edge.lag in (None, 0)
     }
     mechanisms = _mechanism_map(scm_spec)
-    intervention = _effective_intervention(query)
+    interventions: list[InterventionSpec | None] = [_effective_intervention(query)]
+    if query.query_type is QueryType.ATTRIBUTION:
+        interventions.append(_attribution_comparator(query))
+    all_arms_atomic = all(
+        intervention is not None and intervention.type is InterventionType.ATOMIC
+        for intervention in interventions
+    )
     directly_intervened_root = (
         query.treatment_variable in roots
-        and intervention is not None
-        and intervention.type is InterventionType.ATOMIC
+        and all_arms_atomic
     )
     return sorted(
         root
@@ -1345,7 +1359,7 @@ class GCMQuery:
                 n_samples=query.n_samples,
                 rng=rng,
                 warnings=warnings,
-                intervention_override=None,
+                intervention_override=_attribution_comparator(query),
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
                 return_diagnostic=True,

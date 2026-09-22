@@ -18,20 +18,6 @@ from polisyos.runtime.quality.generation_cycle import (
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
 )
-from polisyos.runtime.quality.recursive_generation_cycle import (
-    RecursiveCycleBudget,
-    RecursiveGenerationCycleController,
-)
-from polisyos.runtime.quality.design_axes.coupling_composition import (
-    derive_recursive_design_graph,
-)
-from tests.unit.runtime.quality.test_depth_n_universality import (
-    _lane0_coupled_request,
-    _lane0_cycle_controller_factory,
-    _lane0_subdesigns,
-    _recursive_budget_state,
-    _recursive_problem,
-)
 from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
@@ -80,8 +66,8 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
     input_ref = simulation_evaluation_input_ref(simulation)
 
     assert input_ref is not None
-    assert input_ref.content_hash == simulation.simulation_ref
     assert simulation.simulation_result_ref is not None
+    assert input_ref.content_hash == str(simulation.simulation_result_ref.artifact_id)
 
 
 def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
@@ -132,47 +118,11 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     assert effect == produced_trajectory.points[0].effect[outcome]
 
 
-@pytest.mark.asyncio
-async def test_recursive_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
-    """The recursive parent keeps a typed CAS ref to the complete N5 result."""
+def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
+    """The real N5 adapter keeps a typed CAS ref to its complete result."""
 
-    root = "design://cyc-02/root"
-    child_refs = ("design://cyc-02/a", "design://cyc-02/b")
-    graph = derive_recursive_design_graph(
-        design_ref=root,
-        module_refs=child_refs,
-        parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
-        rule_version_ref="repo://rules/cyc-02-cas-result",
-    )
-    problems = {node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)}
-    request = _lane0_coupled_request(
-        parent_ref=root,
-        child_refs=child_refs,
-        problem=problems[root],
-    )
-    controller = RecursiveGenerationCycleController.for_contract_testing(
-        cycle_controller_factory=_lane0_cycle_controller_factory,
-        repo_root=tmp_path,
-    )
-
-    run = await controller.run(
-        graph,
-        problems_by_node=problems,
-        budget_state=_recursive_budget_state(),
-        recursive_budget=RecursiveCycleBudget(
-            max_depth=1,
-            max_nodes=3,
-            min_cycles_per_leaf=1,
-            max_cycles_per_leaf=2,
-        ),
-        joint_simulation_requests_by_node={root: request},
-        subdesign_contracts_by_node={
-            root: _lane0_subdesigns(parent_ref=root, child_refs=child_refs)
-        },
-    )
-
-    root_node = next(node for node in run.nodes if node.node_ref == root)
-    result_ref = root_node.joint_simulation_ref
+    _problem, context, _candidate, simulation, produced = _real_n5_observation(tmp_path)
+    result_ref = simulation.simulation_result_ref
     assert result_ref is not None
     assert result_ref.kind == "polisyos.runtime.joint_simulation_result"
 
@@ -181,7 +131,7 @@ async def test_recursive_n5_result_has_reopenable_cas_reference(tmp_path: Path) 
     payload = json.loads(store.get_bytes(result_ref.artifact_id))
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == "policyos.runtime.n5.joint_simulation_result"
-    assert payload["receipt"]["payload_hash"] == root_node.joint_simulation.receipt.payload_hash
+    assert payload["receipt"]["payload_hash"] == produced.receipt.payload_hash
     assert payload["trajectories"]
 
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
@@ -190,13 +140,13 @@ async def test_recursive_n5_result_has_reopenable_cas_reference(tmp_path: Path) 
         result_ref,
         repo_root=tmp_path,
         expected_world_model_record_content_hash=(
-            root_node.joint_simulation.world_model_record_content_hash
+            produced.world_model_record_content_hash
         ),
-        expected_atom_ids=root_node.joint_simulation.atom_ids,
+        expected_atom_ids=produced.atom_ids,
     )
-    assert reopened.trajectories == root_node.joint_simulation.trajectories
+    assert reopened.trajectories == produced.trajectories
     assert reopened.world_model_record_content_hash == (
-        root_node.joint_simulation.world_model_record_content_hash
+        produced.world_model_record_content_hash
     )
 
     missing_ref = CASArtifactRef(

@@ -88,13 +88,35 @@ class CursorStore:
             self._index = latest
         return ref
 
-    def remove_cursor(self, cursor_id: str) -> None:
-        """Remove one cursor from the latest index without deleting its CAS artifact."""
+    def remove_cursor(
+        self,
+        cursor_id: str,
+        *,
+        expected_cursor: CursorState,
+    ) -> None:
+        """Compare-and-remove one cursor index entry without deleting its CAS artifact."""
         if not isinstance(cursor_id, str) or not cursor_id:
             raise ValueError("cursor_id must be a non-empty string")
+        if expected_cursor.cursor_id != cursor_id:
+            raise ValueError("expected_cursor does not match cursor_id")
         with self._lock, file_lock(self._lock_path):
             latest = self._load_index_unlocked()
-            latest.pop(cursor_id, None)
+            artifact_id_str = latest.get(cursor_id)
+            if artifact_id_str is None:
+                # A pair failure may happen before the cursor index write;
+                # there is then no orphan to remove and the empty frontier
+                # can be restored by the caller.
+                self._index = latest
+                return
+            try:
+                current_cursor = self.load_cursor(ArtifactID.model_validate(artifact_id_str))
+            except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                raise CursorStoreError(
+                    "cursor index expected artifact cannot be loaded"
+                ) from exc
+            if current_cursor.model_dump(mode="json") != expected_cursor.model_dump(mode="json"):
+                raise CursorStoreError("cursor index changed before rollback")
+            latest.pop(cursor_id)
             self._save_index_unlocked(latest)
             self._index = latest
 
@@ -608,10 +630,16 @@ class AsyncCursorStoreAdapter:
             timeout_seconds=self.timeout_seconds,
         )
 
-    async def remove_cursor(self, cursor_id: str) -> None:
+    async def remove_cursor(
+        self,
+        cursor_id: str,
+        *,
+        expected_cursor: CursorState,
+    ) -> None:
         await run_blocking_async(
             self.store.remove_cursor,
             cursor_id,
+            expected_cursor=expected_cursor,
             timeout_seconds=self.timeout_seconds,
         )
 

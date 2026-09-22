@@ -1376,7 +1376,10 @@ async def _restore_local_frontier(
     # A first-pair failure can leave the cursor index advanced even when the
     # paired checkpoint write failed.  Remove only that unpaired index entry;
     # the immutable CAS artifact remains available for diagnosis/reconciliation.
-    await async_cursor_store.remove_cursor(target_cursor.cursor_id)
+    await async_cursor_store.remove_cursor(
+        target_cursor.cursor_id,
+        expected_cursor=target_cursor,
+    )
     await async_cursor_store.save_stream_checkpoint(previous_checkpoint or empty_frontier)
 
 

@@ -18,6 +18,7 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -26,13 +27,14 @@ from polisyos.fabric.connectors.federation.types import (
     ConflictCandidate,
     ConflictContext,
     ConflictPolicy,
+    ConflictResolutionError,
     FederationError,
     MergeLogEntry,
     MergeLogSummary,
     SchemaIncompatibilityError,
     SourceMetadata,
 )
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.numerics.finite import is_finite_number
 
 logger = get_logger(__name__)
 
@@ -62,6 +64,32 @@ def _unique_preserve_order(values: Iterable[str]) -> list[str]:
     return ordered
 
 
+def _fresh_internal_name(columns: Iterable[Any], prefix: str) -> str:
+    """Return a temporary column name that cannot shadow user data."""
+    occupied = set(columns)
+    candidate = prefix
+    suffix = 0
+    while candidate in occupied:
+        suffix += 1
+        candidate = f"{prefix}_{suffix}"
+    return candidate
+
+
+def _is_missing_scalar(value: Any) -> bool:
+    """Return whether a scalar value is a pandas missing value."""
+    try:
+        return bool(pd.isna(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def _lineage_map(value: Any) -> dict[str, SourceMetadata | None]:
+    """Copy one internal per-row lineage map without exposing it to callers."""
+    if isinstance(value, dict):
+        return dict(value)
+    return {}
+
+
 @dataclass
 class _SampleEntry:
     hash_value: int
@@ -84,7 +112,8 @@ class MergeLogCollector:
         self.seed = seed or ""
         self.entries: list[MergeLogEntry] = []
         self.summary = MergeLogSummary(sample_seed=self.seed)
-        self._sample_heap: list[tuple[int, MergeLogEntry]] = []
+        self._sample_heap: list[tuple[int, int, MergeLogEntry]] = []
+        self._sample_sequence = 0
         self._dropped_entries = 0
 
     def record(self, entry: MergeLogEntry) -> None:
@@ -108,13 +137,15 @@ class MergeLogCollector:
 
     def _sample(self, entry: MergeLogEntry) -> None:
         hash_value = self._stable_hash(entry)
+        sequence = self._sample_sequence
+        self._sample_sequence += 1
         if len(self._sample_heap) < self.sample_size:
-            heapq.heappush(self._sample_heap, (-hash_value, entry))
+            heapq.heappush(self._sample_heap, (-hash_value, sequence, entry))
             return
 
         current_max = -self._sample_heap[0][0]
         if hash_value < current_max:
-            heapq.heapreplace(self._sample_heap, (-hash_value, entry))
+            heapq.heapreplace(self._sample_heap, (-hash_value, sequence, entry))
 
     def finalize(self) -> None:
         self.summary.extra["audit_entries_retained"] = len(self.entries)
@@ -123,10 +154,13 @@ class MergeLogCollector:
         if self.audit_level != AuditLevel.SUMMARY or self.sample_size == 0:
             return
         samples = sorted(
-            [(-hash_value, entry) for hash_value, entry in self._sample_heap],
-            key=lambda item: item[0],
+            [
+                (-hash_value, sequence, entry)
+                for hash_value, sequence, entry in self._sample_heap
+            ],
+            key=lambda item: (item[0], item[1]),
         )
-        self.summary.sample_entries = [entry for _, entry in samples]
+        self.summary.sample_entries = [entry for _, _, entry in samples]
 
     def _stable_hash(self, entry: MergeLogEntry) -> int:
         payload = {
@@ -283,8 +317,6 @@ class DataComposer:
         if not key_columns:
             raise FederationError("UNION strategy requires key_columns or schema")
 
-        merge_log: list[MergeLogEntry] = []
-
         # Validate key columns exist in all sources
         for df, metadata in sources:
             missing_keys = [k for k in key_columns if k not in df.columns]
@@ -293,10 +325,16 @@ class DataComposer:
                     f"Key columns {missing_keys} not found in source {metadata.connector_id}"
                 )
 
+        input_columns = [column for df, _ in sources for column in df.columns]
+        source_column = _fresh_internal_name(input_columns, "__policyos_source_id")
         all_rows = []
         for df, metadata in sources:
             df_copy = df.copy()
-            df_copy["__source_id"] = metadata.connector_id
+            # Keep transport provenance out of the user namespace.  The
+            # generated name is local to this operation and is removed before
+            # the result is returned, so a real ``__source_id`` column is
+            # ordinary data rather than an implementation detail.
+            df_copy[source_column] = metadata.connector_id
             all_rows.append(df_copy)
 
         combined = pd.concat(all_rows, ignore_index=True)
@@ -308,17 +346,17 @@ class DataComposer:
         for key_values, group in combined.groupby(key_columns, sort=True, dropna=False):
             row_key = self._row_key_from_group(key_columns, key_values)
             if len(group) == 1:
-                resolved_rows.append(group.iloc[0].drop(labels=["__source_id"]))
+                resolved_rows.append(group.iloc[0].drop(labels=[source_column]))
                 continue
 
             candidates = []
             for _, row in group.iterrows():
-                source_id = row["__source_id"]
+                source_id = row[source_column]
                 metadata = source_lookup[source_id]
                 candidates.append(
                     ConflictCandidate(
                         source_id=source_id,
-                        value=row.drop(labels=["__source_id"]).to_dict(),
+                        value=row.drop(labels=[source_column]).to_dict(),
                         metadata=metadata,
                         row_key=row_key,
                     )
@@ -339,9 +377,11 @@ class DataComposer:
 
             if resolution.log_entry:
                 collector.record(resolution.log_entry)
-                merge_log.append(resolution.log_entry)
 
             resolved_rows.append(pd.Series(resolution.chosen_candidate.value))
+
+        if not resolved_rows:
+            return combined.drop(columns=[source_column]).iloc[:0].copy()
 
         result = pd.DataFrame(resolved_rows)
         result = result.sort_values(by=key_columns, kind="mergesort").reset_index(drop=True)
@@ -376,17 +416,41 @@ class DataComposer:
                 )
 
         result_df, first_metadata = sources[0]
-        result_df = result_df.copy()
-
-        column_sources: dict[str, SourceMetadata | None] = dict.fromkeys(
-            result_df.columns, first_metadata
-        )
+        result_df = result_df.copy().reset_index(drop=True)
+        lineage_column = _fresh_internal_name(result_df.columns, "__policyos_lineage")
+        result_df[lineage_column] = [
+            {
+                column: first_metadata
+                for column in result_df.columns
+                if column not in join_keys
+            }
+            for _ in range(len(result_df))
+        ]
 
         for df, metadata in sources[1:]:
-            df_copy = df.copy()
+            df_copy = df.copy().reset_index(drop=True)
 
-            overlapping_cols = set(result_df.columns) & set(df_copy.columns)
-            overlapping_cols -= set(join_keys)
+            # A caller may legitimately use the generated-looking lineage
+            # name.  Move our sidecar before considering user columns so it
+            # can never become part of the public result or a conflict set.
+            if lineage_column in df_copy.columns:
+                replacement = _fresh_internal_name(
+                    [*result_df.columns, *df_copy.columns], "__policyos_lineage"
+                )
+                result_df = result_df.rename(columns={lineage_column: replacement})
+                lineage_column = replacement
+
+            self._validate_join_cardinality(
+                left=result_df,
+                right=df_copy,
+                join_keys=join_keys,
+                request=request,
+                right_source_id=metadata.connector_id,
+            )
+
+            overlapping_cols = (
+                set(result_df.columns) & set(df_copy.columns)
+            ) - set(join_keys) - {lineage_column}
 
             if overlapping_cols:
                 logger.info(
@@ -394,46 +458,228 @@ class DataComposer:
                     columns=sorted(overlapping_cols),
                 )
 
-            result_df = result_df.merge(
-                df_copy,
-                on=join_keys,
-                how=request.join_how,
-                suffixes=("_left", "_right"),
-                sort=True,
+            used_names = set(result_df.columns) | set(df_copy.columns)
+            right_renames: dict[str, str] = {}
+            right_key_aliases: dict[str, str] = {}
+            for key in join_keys:
+                alias = _fresh_internal_name(used_names, "__policyos_right_key")
+                used_names.add(alias)
+                right_renames[key] = alias
+                right_key_aliases[key] = alias
+            for column in sorted(overlapping_cols):
+                alias = _fresh_internal_name(used_names, "__policyos_right_column")
+                used_names.add(alias)
+                right_renames[column] = alias
+
+            right_work = df_copy.rename(columns=right_renames)
+            right_lineage_column = _fresh_internal_name(
+                [*result_df.columns, *right_work.columns],
+                "__policyos_right_lineage",
             )
+            right_work[right_lineage_column] = [
+                {
+                    column: metadata
+                    for column in df_copy.columns
+                    if column not in join_keys
+                }
+                for _ in range(len(df_copy))
+            ]
+
+            left_work = result_df.copy()
+            merge_keys: list[str] = []
+            for key in join_keys:
+                merge_key = _fresh_internal_name(
+                    [*left_work.columns, *right_work.columns], "__policyos_join_key"
+                )
+                merge_keys.append(merge_key)
+                left_work[merge_key] = self._join_key_values(
+                    left_work[key], side="left", match_nulls=request.join_nulls_match
+                )
+                right_work[merge_key] = self._join_key_values(
+                    right_work[right_key_aliases[key]],
+                    side="right",
+                    match_nulls=request.join_nulls_match,
+                )
+
+            result_df = left_work.merge(
+                right_work,
+                on=merge_keys,
+                how=request.join_how,
+                sort=False,
+            )
+
+            # An outer JOIN carries the right key under an internal alias.
+            # Reconstitute the user key without allowing a temporary name to
+            # leak into the result.
+            for key, right_key in right_key_aliases.items():
+                result_df[key] = result_df[key].combine_first(result_df[right_key])
+
+            right_only_columns = [
+                column
+                for column in df_copy.columns
+                if column not in join_keys and column not in overlapping_cols
+            ]
+            merged_lineage: list[dict[str, SourceMetadata | None]] = []
+            for _, row in result_df.iterrows():
+                row_lineage = _lineage_map(row.get(lineage_column))
+                right_lineage = _lineage_map(row.get(right_lineage_column))
+                for column in right_only_columns:
+                    row_lineage.setdefault(column, right_lineage.get(column, metadata))
+                merged_lineage.append(row_lineage)
+
+            drop_columns = [
+                *merge_keys,
+                right_lineage_column,
+                *right_key_aliases.values(),
+            ]
+            result_df = result_df.drop(columns=drop_columns)
+            result_df[lineage_column] = merged_lineage
 
             # Resolve duplicate columns
             for col in sorted(overlapping_cols):
-                left_meta = column_sources.get(col)
-                if left_meta is None:
-                    left_meta = first_metadata
-                    logger.warning(
-                        "Missing column source mapping; defaulting left metadata",
-                        column=col,
-                    )
-
-                resolved_col, chosen_meta = self._resolve_duplicate_column(
+                resolved_col, chosen_lineage = self._resolve_duplicate_column(
                     df=result_df,
                     column_name=col,
-                    left_meta=left_meta,
+                    left_meta=None,
                     right_meta=metadata,
                     request=request,
                     join_keys=join_keys,
                     collector=collector,
+                    left_column=col,
+                    right_column=right_renames[col],
+                    left_lineage=result_df[lineage_column],
                 )
 
                 result_df[col] = resolved_col
-                result_df = result_df.drop(columns=[f"{col}_left", f"{col}_right"])
-                column_sources[col] = chosen_meta
+                result_df = result_df.drop(columns=[right_renames[col]])
+                for index, source in chosen_lineage.items():
+                    row_lineage = _lineage_map(result_df.at[index, lineage_column])
+                    row_lineage[col] = source
+                    result_df.at[index, lineage_column] = row_lineage
 
-            # Track newly added columns
-            for col in df_copy.columns:
-                if col in join_keys or col in overlapping_cols:
-                    continue
-                if col not in column_sources:
-                    column_sources[col] = metadata
+        result_df = result_df.drop(columns=[lineage_column])
 
         return result_df
+
+    def _validate_join_cardinality(
+        self,
+        *,
+        left: pd.DataFrame,
+        right: pd.DataFrame,
+        join_keys: list[str],
+        request: CompositionRequest,
+        right_source_id: str,
+    ) -> None:
+        """Reject undeclared expansion before pandas materializes a JOIN."""
+        relation = request.join_validate or "many_to_one"
+        valid_relations = {"one_to_one", "one_to_many", "many_to_one", "many_to_many"}
+        if relation not in valid_relations:
+            raise SchemaIncompatibilityError(
+                f"Unsupported JOIN cardinality {relation!r}; "
+                f"expected one of {sorted(valid_relations)}"
+            )
+
+        if request.join_max_rows is not None and request.join_max_rows < 0:
+            raise SchemaIncompatibilityError("join_max_rows must be non-negative")
+
+        left_keys = self._join_key_frame(left, join_keys, request.join_nulls_match)
+        right_keys = self._join_key_frame(right, join_keys, request.join_nulls_match)
+        left_duplicates = bool(left_keys.duplicated(join_keys, keep=False).any())
+        right_duplicates = bool(right_keys.duplicated(join_keys, keep=False).any())
+
+        if relation in {"one_to_one", "one_to_many"} and left_duplicates:
+            raise SchemaIncompatibilityError(
+                f"JOIN cardinality {relation} rejects duplicate left keys "
+                f"before materialization (source={right_source_id})"
+            )
+        if relation in {"one_to_one", "many_to_one"} and right_duplicates:
+            raise SchemaIncompatibilityError(
+                f"JOIN cardinality {relation} rejects duplicate right keys "
+                f"before materialization (source={right_source_id})"
+            )
+
+        if request.join_max_rows is not None:
+            estimated_rows = self._estimate_join_rows(
+                left=left,
+                right=right,
+                join_keys=join_keys,
+                join_how=request.join_how,
+                match_nulls=request.join_nulls_match,
+            )
+            if estimated_rows > request.join_max_rows:
+                raise SchemaIncompatibilityError(
+                    "JOIN exceeds declared join_max_rows before materialization: "
+                    f"estimated={estimated_rows}, limit={request.join_max_rows}"
+                )
+
+    @staticmethod
+    def _join_key_frame(
+        frame: pd.DataFrame,
+        join_keys: list[str],
+        match_nulls: bool,
+    ) -> pd.DataFrame:
+        keys = frame.loc[:, join_keys]
+        if match_nulls:
+            return keys
+        return keys.loc[~keys.isna().any(axis=1)]
+
+    @staticmethod
+    def _join_key_values(
+        values: pd.Series,
+        *,
+        side: str,
+        match_nulls: bool,
+    ) -> pd.Series:
+        if match_nulls:
+            return values.copy()
+        # Distinct per-side sentinels preserve the pandas merge path while
+        # ensuring two unknown identities never become the same entity.
+        sentinel = object()
+        return pd.Series(
+            [sentinel if _is_missing_scalar(value) else value for value in values],
+            index=values.index,
+            dtype=object,
+            name=f"{side}_join_key",
+        )
+
+    @staticmethod
+    def _estimate_join_rows(
+        *,
+        left: pd.DataFrame,
+        right: pd.DataFrame,
+        join_keys: list[str],
+        join_how: str,
+        match_nulls: bool,
+    ) -> int:
+        """Estimate result rows from key frequencies without a data merge."""
+        left_keys = DataComposer._join_key_frame(left, join_keys, match_nulls)
+        right_keys = DataComposer._join_key_frame(right, join_keys, match_nulls)
+        left_counts = left_keys.value_counts(sort=False)
+        right_counts = right_keys.value_counts(sort=False)
+        matching = 0
+        left_unmatched = 0
+        right_unmatched = 0
+        for key, left_count in left_counts.items():
+            right_count = right_counts.get(key, 0)
+            if right_count:
+                matching += int(left_count) * int(right_count)
+            else:
+                left_unmatched += int(left_count)
+        for key, right_count in right_counts.items():
+            if key not in left_counts:
+                right_unmatched += int(right_count)
+
+        if join_how == "inner":
+            return matching
+        if join_how == "left":
+            return matching + left_unmatched + (
+                len(left) - len(left_keys) if not match_nulls else 0
+            )
+        return matching + left_unmatched + right_unmatched + (
+            len(left) - len(left_keys) + len(right) - len(right_keys)
+            if not match_nulls
+            else 0
+        )
 
     def _overlay(
         self,
@@ -485,42 +731,47 @@ class DataComposer:
             if col not in result_df.columns:
                 result_df[col] = pd.NA
 
+        indexed_secondaries: dict[int, pd.DataFrame] = {}
         for col in result_df.columns:
             null_mask = result_df[col].isna()
             if not null_mask.any():
                 continue
 
-            for secondary_df, secondary_meta in secondaries:
+            for secondary_index, (secondary_df, secondary_meta) in enumerate(secondaries):
                 if col not in secondary_df.columns:
                     continue
 
-                secondary_indexed = secondary_df.set_index(key_columns, drop=True)
+                secondary_indexed = indexed_secondaries.get(secondary_index)
+                if secondary_indexed is None:
+                    secondary_indexed = secondary_df.set_index(key_columns, drop=True)
+                    indexed_secondaries[secondary_index] = secondary_indexed
                 aligned = secondary_indexed[col].reindex(result_df.index)
 
                 fill_mask = null_mask & aligned.notna()
                 if fill_mask.any():
-                    for idx in result_df.index[fill_mask]:
-                        row_key = self._row_key_from_index(key_columns, idx)
-                        entry = MergeLogEntry(
-                            row_index=None,
-                            row_key=row_key,
-                            column=col,
-                            conflict_type="null_fill",
-                            source_a_id=primary_metadata.connector_id,
-                            source_a_value=None,
-                            source_a_trust=primary_metadata.metadata.trust_level,
-                            source_b_id=secondary_meta.connector_id,
-                            source_b_value=aligned.loc[idx],
-                            source_b_trust=secondary_meta.metadata.trust_level,
-                            chosen_source=secondary_meta.connector_id,
-                            chosen_value=aligned.loc[idx],
-                            resolution_reason=(
-                                f"OVERLAY: fill null from {secondary_meta.connector_id}"
-                            ),
-                            resolution_policy=ConflictPolicy.FIRST_AVAILABLE.value,
-                            timestamp=None,
-                        )
-                        collector.record(entry)
+                    if request.audit_level != AuditLevel.NONE:
+                        for idx in result_df.index[fill_mask]:
+                            row_key = self._row_key_from_index(key_columns, idx)
+                            entry = MergeLogEntry(
+                                row_index=None,
+                                row_key=row_key,
+                                column=col,
+                                conflict_type="null_fill",
+                                source_a_id=primary_metadata.connector_id,
+                                source_a_value=None,
+                                source_a_trust=primary_metadata.metadata.trust_level,
+                                source_b_id=secondary_meta.connector_id,
+                                source_b_value=aligned.loc[idx],
+                                source_b_trust=secondary_meta.metadata.trust_level,
+                                chosen_source=secondary_meta.connector_id,
+                                chosen_value=aligned.loc[idx],
+                                resolution_reason=(
+                                    f"OVERLAY: fill null from {secondary_meta.connector_id}"
+                                ),
+                                resolution_policy=ConflictPolicy.FIRST_AVAILABLE.value,
+                                timestamp=None,
+                            )
+                            collector.record(entry)
 
                     result_df.loc[fill_mask, col] = aligned[fill_mask]
                     null_mask = result_df[col].isna()
@@ -589,43 +840,14 @@ class DataComposer:
                 or "median"
             )
 
-            consensus_col = self._apply_consensus(values_df, agg_func)
-
-            # Handle non-numeric fallback when needed
-            non_numeric_mask = consensus_col.isna() & values_df.notna().any(axis=1)
-            if non_numeric_mask.any():
-                for idx in values_df.index[non_numeric_mask]:
-                    row_key = self._row_key_from_index(key_columns, idx)
-                    candidates = []
-                    for source_idx, (_indexed, metadata) in enumerate(indexed_sources):
-                        value = values_df.iloc[values_df.index.get_loc(idx), source_idx]
-                        candidates.append(
-                            ConflictCandidate(
-                                source_id=metadata.connector_id,
-                                value=value,
-                                metadata=metadata,
-                                row_key=row_key,
-                                column=col,
-                            )
-                        )
-                    context = ConflictContext(
-                        request=request,
-                        row_key=row_key,
-                        column=col,
-                        conflict_type="consensus",
-                    )
-                    policy_override = (request.column_policies or {}).get(
-                        col, request.conflict_policy
-                    )
-                    resolution = self.resolver.resolve_conflict(
-                        candidates,
-                        context,
-                        policy_override=policy_override,
-                        record_log=request.audit_level != AuditLevel.NONE,
-                    )
-                    consensus_col.loc[idx] = resolution.chosen_candidate.value
-                    if resolution.log_entry:
-                        collector.record(resolution.log_entry)
+            consensus_col, admissibility = self._apply_consensus(
+                values_df=values_df,
+                agg_func=agg_func,
+                request=request,
+                indexed_sources=indexed_sources,
+                key_columns=key_columns,
+                column=col,
+            )
 
             # Logging conflicts where values differ
             if request.audit_level != AuditLevel.NONE:
@@ -634,21 +856,40 @@ class DataComposer:
                 if conflict_mask.any():
                     for idx in values_df.index[conflict_mask]:
                         row_key = self._row_key_from_index(key_columns, idx)
+                        row_id = json.dumps(row_key, sort_keys=True, default=str)
+                        participants = admissibility["participant_sources"].get(row_id, [])
+                        exclusions = admissibility["exclusions"].get(row_id, [])
+                        source_a_id = participants[0] if participants else (
+                            exclusions[0]["source_id"]
+                            if exclusions
+                            else indexed_sources[0][1].connector_id
+                        )
+                        source_a_index = next(
+                            (
+                                source_idx
+                                for source_idx, (_indexed, metadata) in enumerate(indexed_sources)
+                                if metadata.connector_id == source_a_id
+                            ),
+                            0,
+                        )
                         entry = MergeLogEntry(
                             row_index=None,
                             row_key=row_key,
                             column=col,
                             conflict_type="consensus",
-                            source_a_id=indexed_sources[0][1].connector_id,
-                            source_a_value=values_df.iloc[values_df.index.get_loc(idx), 0],
-                            source_a_trust=indexed_sources[0][1].metadata.trust_level,
+                            source_a_id=source_a_id,
+                            source_a_value=values_df.iloc[
+                                values_df.index.get_loc(idx), source_a_index
+                            ],
+                            source_a_trust=indexed_sources[source_a_index][1].metadata.trust_level,
                             source_b_id="consensus",
                             source_b_value=consensus_col.loc[idx],
                             source_b_trust=indexed_sources[0][1].metadata.trust_level,
                             chosen_source="consensus",
                             chosen_value=consensus_col.loc[idx],
                             resolution_reason=(
-                                f"CONSENSUS: {agg_func} of {len(indexed_sources)} sources"
+                                f"CONSENSUS: {agg_func} of {len(participants)} "
+                                f"admissible participants; excluded={len(exclusions)}"
                             ),
                             resolution_policy=agg_func,
                             timestamp=None,
@@ -660,6 +901,11 @@ class DataComposer:
                 "rows": len(consensus_col),
                 "conflicts": int(values_df.nunique(axis=1, dropna=True).gt(1).sum()),
                 "sources": len(indexed_sources),
+                "participants": admissibility["participants"],
+                "excluded": admissibility["excluded"],
+                "excluded_by_reason": admissibility["excluded_by_reason"],
+                "participant_sources": admissibility["participant_sources"],
+                "exclusions": admissibility["exclusions"],
             }
 
             result[col] = consensus_col
@@ -670,54 +916,183 @@ class DataComposer:
         result = result.reset_index()
         return result
 
-    def _apply_consensus(self, values_df: pd.DataFrame, agg_func: str) -> pd.Series:
-        if agg_func == "mean":
-            numeric_df = values_df.apply(pd.to_numeric, errors="coerce")
-            return numeric_df.mean(axis=1)
-        if agg_func == "median":
-            numeric_df = values_df.apply(pd.to_numeric, errors="coerce")
-            return numeric_df.median(axis=1)
+    def _apply_consensus(
+        self,
+        *,
+        values_df: pd.DataFrame,
+        agg_func: str,
+        request: CompositionRequest,
+        indexed_sources: list[tuple[pd.DataFrame, SourceMetadata]],
+        key_columns: list[str],
+        column: str,
+    ) -> tuple[pd.Series, dict[str, Any]]:
+        """Aggregate only admissible values and retain participant evidence."""
+        participant_sources: dict[str, list[str]] = {}
+        exclusions: dict[str, list[dict[str, str]]] = {}
+        excluded_by_reason: dict[str, int] = {}
+        participant_count = 0
+        excluded_count = 0
+
         if agg_func == "mode":
             modes = values_df.mode(axis=1, dropna=True)
-            if modes.empty:
-                return pd.Series([pd.NA] * len(values_df), index=values_df.index)
-            return modes.iloc[:, 0]
-        raise FederationError(f"Unknown aggregation function: {agg_func}")
+            result = (
+                modes.iloc[:, 0]
+                if not modes.empty
+                else pd.Series([pd.NA] * len(values_df), index=values_df.index)
+            )
+            for idx, row in values_df.iterrows():
+                row_key = self._row_key_from_index(key_columns, idx)
+                row_id = json.dumps(row_key, sort_keys=True, default=str)
+                sources = [
+                    indexed_sources[source_idx][1].connector_id
+                    for source_idx, value in enumerate(row)
+                    if not _is_missing_scalar(value)
+                ]
+                if sources:
+                    participant_sources[row_id] = sources
+                    participant_count += len(sources)
+            return result, {
+                "participants": participant_count,
+                "excluded": excluded_count,
+                "excluded_by_reason": excluded_by_reason,
+                "participant_sources": participant_sources,
+                "exclusions": exclusions,
+            }
+
+        if agg_func not in {"mean", "median"}:
+            raise FederationError(f"Unknown aggregation function: {agg_func}")
+
+        result_values: list[float] = []
+        for idx, row in values_df.iterrows():
+            row_key = self._row_key_from_index(key_columns, idx)
+            row_id = json.dumps(row_key, sort_keys=True, default=str)
+            numeric_values: list[float] = []
+            row_participants: list[str] = []
+            row_exclusions: list[dict[str, str]] = []
+            for source_idx, value in enumerate(row):
+                source_id = indexed_sources[source_idx][1].connector_id
+                if _is_missing_scalar(value):
+                    continue
+                try:
+                    numeric_value = float(value)
+                except (TypeError, ValueError):
+                    reason = "non_numeric"
+                else:
+                    reason = None if is_finite_number(numeric_value) else "non_finite"
+
+                if reason is not None:
+                    row_exclusions.append({"source_id": source_id, "reason": reason})
+                    excluded_count += 1
+                    excluded_by_reason[reason] = excluded_by_reason.get(reason, 0) + 1
+                    continue
+
+                numeric_values.append(numeric_value)
+                row_participants.append(source_id)
+                participant_count += 1
+
+            if row_participants:
+                participant_sources[row_id] = row_participants
+            if row_exclusions:
+                exclusions[row_id] = row_exclusions
+
+            if request.strict_conflicts and row_exclusions:
+                display_reasons = {
+                    "non_finite": "non-finite",
+                    "non_numeric": "non-numeric",
+                }
+                reasons = ", ".join(
+                    sorted(
+                        {
+                            display_reasons.get(item["reason"], item["reason"])
+                            for item in row_exclusions
+                        }
+                    )
+                )
+                raise ConflictResolutionError(
+                    f"CONSENSUS {agg_func} rejected {reasons} value(s) "
+                    f"for column {column} at row {row_key}"
+                )
+
+            if not numeric_values:
+                result_values.append(float("nan"))
+            elif agg_func == "mean":
+                result_values.append(float(pd.Series(numeric_values).mean()))
+            else:
+                result_values.append(float(pd.Series(numeric_values).median()))
+
+        return pd.Series(result_values, index=values_df.index), {
+            "participants": participant_count,
+            "excluded": excluded_count,
+            "excluded_by_reason": excluded_by_reason,
+            "participant_sources": participant_sources,
+            "exclusions": exclusions,
+        }
 
     def _resolve_duplicate_column(
         self,
         df: pd.DataFrame,
         column_name: str,
-        left_meta: SourceMetadata,
+        left_meta: SourceMetadata | None,
         right_meta: SourceMetadata,
         request: CompositionRequest,
         join_keys: list[str],
         collector: MergeLogCollector,
-    ) -> tuple[pd.Series, SourceMetadata | None]:
-        left_col = f"{column_name}_left"
-        right_col = f"{column_name}_right"
+        *,
+        left_column: str | None = None,
+        right_column: str | None = None,
+        left_lineage: pd.Series | None = None,
+    ) -> tuple[pd.Series, pd.Series]:
+        left_col = left_column or f"{column_name}_left"
+        right_col = right_column or f"{column_name}_right"
 
         resolved = df[left_col].copy()
-        chosen_sources: list[str] = []
+        chosen_lineage = pd.Series(index=df.index, dtype=object)
 
         for idx in df.index:
             left_val = df.at[idx, left_col]
             right_val = df.at[idx, right_col]
+            left_source = left_meta
+            if left_lineage is not None:
+                left_source = _lineage_map(left_lineage.at[idx]).get(column_name)
 
-            if pd.isna(left_val) and pd.isna(right_val):
+            left_missing = _is_missing_scalar(left_val)
+            right_missing = _is_missing_scalar(right_val)
+
+            if left_missing and right_missing:
+                chosen_lineage.at[idx] = None
                 continue
 
-            if not pd.isna(left_val) and not pd.isna(right_val) and left_val == right_val:
+            if not left_missing and right_missing:
+                if left_source is None:
+                    raise SchemaIncompatibilityError(
+                        f"JOIN provenance missing for non-null column {column_name!r}"
+                    )
+                chosen_lineage.at[idx] = left_source
+                continue
+
+            if left_missing and not right_missing:
+                resolved.at[idx] = right_val
+                chosen_lineage.at[idx] = right_meta
+                continue
+
+            if not left_missing and not right_missing and self._values_equal(left_val, right_val):
+                if left_source is None:
+                    left_source = right_meta
                 resolved.at[idx] = left_val
-                chosen_sources.append(left_meta.connector_id)
+                chosen_lineage.at[idx] = left_source
                 continue
+
+            if left_source is None:
+                raise SchemaIncompatibilityError(
+                    f"JOIN provenance missing for non-null column {column_name!r}"
+                )
 
             row_key = {k: df.at[idx, k] for k in join_keys}
             candidates = [
                 ConflictCandidate(
-                    source_id=left_meta.connector_id,
+                    source_id=left_source.connector_id,
                     value=left_val,
-                    metadata=left_meta,
+                    metadata=left_source,
                     row_key=row_key,
                     column=column_name,
                 ),
@@ -746,22 +1121,25 @@ class DataComposer:
                 record_log=request.audit_level != AuditLevel.NONE,
             )
             resolved.at[idx] = resolution.chosen_candidate.value
-            chosen_sources.append(resolution.chosen_candidate.source_id)
+            chosen_lineage.at[idx] = (
+                left_source
+                if resolution.chosen_candidate.source_id == left_source.connector_id
+                else right_meta
+            )
 
             if resolution.log_entry:
                 collector.record(resolution.log_entry)
 
-        chosen_meta: SourceMetadata | None = None
-        if chosen_sources:
-            unique_sources = set(chosen_sources)
-            if len(unique_sources) == 1:
-                chosen_source_id = unique_sources.pop()
-                if chosen_source_id == left_meta.connector_id:
-                    chosen_meta = left_meta
-                elif chosen_source_id == right_meta.connector_id:
-                    chosen_meta = right_meta
+        return resolved, chosen_lineage
 
-        return resolved, chosen_meta
+    @staticmethod
+    def _values_equal(left: Any, right: Any) -> bool:
+        """Compare scalar cells without leaking pandas' NA sentinel."""
+        try:
+            comparison = left == right
+            return bool(comparison)
+        except (TypeError, ValueError):
+            return False
 
     def _resolve_time_dimension(self, request: CompositionRequest) -> str | None:
         if request.time_dimension:

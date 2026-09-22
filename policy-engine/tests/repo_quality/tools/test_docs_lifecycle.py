@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import datetime as dt
 import re
 import tomllib
 from pathlib import Path
@@ -372,7 +371,7 @@ def test_phase1_4_directory_contract_declares_redirect_stub_sunset_policy() -> N
 
     assert policy["max_lifetime_days"] == 90
     assert policy["longer_compatibility_window_requires"] == "compatibility_adr"
-    assert set(policy["known_redirect_stub_paths"]) == {"frontend"}
+    assert set(policy["known_redirect_stub_paths"]) == set()
     assert {
         "owner",
         "target_path",
@@ -383,13 +382,8 @@ def test_phase1_4_directory_contract_declares_redirect_stub_sunset_policy() -> N
     } <= set(policy["required_readme_front_matter"])
 
 
-def test_phase1_4_wave6_frontend_redirect_stub_has_90_day_window() -> None:
-    metadata = check_docs_lifecycle._front_matter(REPO_ROOT / "frontend/README.md")
-    created = dt.date.fromisoformat(metadata["created_date"])
-    sunset = dt.date.fromisoformat(metadata["sunset_date"])
-
-    assert (sunset - created).days == 90
-    assert metadata["sunset_date"] == "2026-08-05"
+def test_phase1_4_wave6_frontend_redirect_stub_is_retired() -> None:
+    assert not (REPO_ROOT / "frontend" / "README.md").exists()
 
 
 def test_phase6_4_docs_freshness_baseline_is_docs_only_and_stable() -> None:

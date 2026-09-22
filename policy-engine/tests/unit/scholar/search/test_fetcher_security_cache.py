@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
+
 import pytest
 from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.scholar.discover.http_fetch import fetch_url
+from polisyos.scholar.discover.transport import fetch_raw
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page
 from polisyos.scholar.search.models import SearchConstraints
@@ -46,20 +49,20 @@ class _FakeOpener:
 @pytest.mark.asyncio
 async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_path):
     calls = 0
+    html = b"""
+    <html><head><title>Gov Report</title><script>ignore()</script></head>
+    <body>Child benefit increased employment.</body></html>
+    """
 
     def _fake_urlopen(request, timeout):
         nonlocal calls
         calls += 1
         assert timeout == 5
         assert request.full_url == "https://example.gov/report"
-        html = b"""
-        <html><head><title>Gov Report</title><script>ignore()</script></head>
-        <body>Child benefit increased employment.</body></html>
-        """
         return _FakeResponse(html)
 
     monkeypatch.setattr(
-        "polisyos.scholar.search.fetcher.urllib.request.build_opener",
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
         lambda *handlers: _FakeOpener(_fake_urlopen),
     )
     monkeypatch.setattr(
@@ -84,6 +87,7 @@ async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_pat
     assert first.status == "ok"
     assert first.title == "Gov Report"
     assert "Child benefit increased employment." in first.text
+    assert first.content_sha256 == hashlib.sha256(html).hexdigest()
     assert second.status == "cached"
     assert calls == 1
 
@@ -95,7 +99,7 @@ async def test_find_in_page_returns_stable_spans(monkeypatch):
         lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
     )
     monkeypatch.setattr(
-        "polisyos.scholar.search.fetcher.urllib.request.build_opener",
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
         lambda *handlers: _FakeOpener(
             lambda request, timeout: _FakeResponse(
                 b"<html><head><title>T</title></head><body>Tax credit reduced poverty and improved employment.</body></html>"
@@ -122,14 +126,24 @@ async def test_find_in_page_returns_stable_spans(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
-    class _RedirectingHandler:
+    class _RedirectingOpener:
+        def __init__(self, handlers):
+            self._handler = handlers[0]
+
         def open(self, request, timeout):
-            del request, timeout
-            raise ValueError("private network address blocked")
+            del timeout
+            return self._handler.redirect_request(
+                request,
+                None,
+                302,
+                "Found",
+                {},
+                "http://internal.service.localhost/private",
+            )
 
     monkeypatch.setattr(
-        "polisyos.scholar.search.fetcher.urllib.request.build_opener",
-        lambda *handlers: _RedirectingHandler(),
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _RedirectingOpener(handlers),
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
@@ -138,7 +152,7 @@ async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
 
     result = await fetch_open_page(
         "https://example.gov/report",
-        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+        constraints=SearchConstraints(),
         timeout_s=5,
     )
 
@@ -179,6 +193,147 @@ def test_legacy_fetch_url_rejects_blocked_private_network(monkeypatch):
 
     with pytest.raises(Exception, match="blocked URL fetch"):
         fetch_url(source, timeout_s=1.0, user_agent="test", max_bytes=1000)
+
+
+def test_shared_raw_transport_preserves_bytes_headers_and_identity(monkeypatch):
+    body = b"raw policy document"
+
+    def _fake_urlopen(request, timeout):
+        assert timeout == 3
+        assert request.full_url == "https://example.gov/report"
+        return _FakeResponse(body, content_type="text/plain; charset=utf-8")
+
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(_fake_urlopen),
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+    )
+
+    raw = fetch_raw(
+        "https://example.gov/report",
+        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+        timeout_s=3,
+        user_agent="test",
+        max_bytes=100,
+    )
+
+    assert raw.raw_bytes == body
+    assert raw.final_url == "https://example.gov/report"
+    assert raw.content_type == "text/plain; charset=utf-8"
+    assert raw.headers["Content-Type"] == "text/plain; charset=utf-8"
+    assert raw.redirect_chain == []
+
+
+def test_seed_fetch_uses_shared_raw_transport(monkeypatch):
+    body = b"seed bytes"
+
+    def _fake_urlopen(request, timeout):
+        assert timeout == 2
+        return _FakeResponse(body, content_type="text/plain")
+
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(_fake_urlopen),
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+    )
+    source = SourceSpec(
+        kind="url",
+        canonical_url="https://example.gov/report",
+        license="public",
+        url="https://example.gov/report",
+    )
+
+    result = fetch_url(
+        source,
+        timeout_s=2,
+        user_agent="test",
+        max_bytes=100,
+        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+    )
+
+    assert result.raw_bytes == body
+    assert result.mime == "text/plain"
+
+
+@pytest.mark.asyncio
+async def test_fetch_open_page_preserves_size_budget_failure(monkeypatch):
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(
+            lambda request, timeout: _FakeResponse(b"1234", content_type="text/plain")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+    )
+
+    result = await fetch_open_page(
+        "https://example.gov/report",
+        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+        max_bytes=3,
+    )
+
+    assert result.status == "error"
+    assert result.error == "page exceeds max_bytes=3"
+
+
+@pytest.mark.asyncio
+async def test_fetch_open_page_preserves_mime_guard_failure(monkeypatch):
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _FakeOpener(
+            lambda request, timeout: _FakeResponse(b"body", content_type="text/html")
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+    )
+
+    result = await fetch_open_page(
+        "https://example.gov/report",
+        constraints=SearchConstraints(
+            allowed_domains=["example.gov"],
+            allowed_content_types=["text/plain"],
+        ),
+    )
+
+    assert result.status == "error"
+    assert "content type blocked" in (result.error or "")
+
+
+@pytest.mark.asyncio
+async def test_fetch_open_page_preserves_timeout_failure(monkeypatch):
+    class _TimeoutOpener:
+        def open(self, request, timeout):
+            del request
+            assert timeout == 5
+            raise TimeoutError("response timed out")
+
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.build_opener",
+        lambda *handlers: _TimeoutOpener(),
+    )
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+    )
+
+    result = await fetch_open_page(
+        "https://example.gov/report",
+        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+        timeout_s=5,
+    )
+
+    assert result.status == "error"
+    assert result.error == "response timed out"
 
 
 @pytest.mark.asyncio

@@ -7,15 +7,24 @@ import json
 import shutil
 from datetime import date, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+import numpy as np
+import pandas as pd
+
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.data_forge.domains.ukraine.manifests import (
+    ArtifactRecord,
     CalibrationBundleManifest,
     RuntimeBundleManifest,
+    ValidationFinding,
     write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import SourceConfig
+from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
+from polisyos.data_forge.kernel.io import ensure_dirs, sha256_file
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,
@@ -44,7 +53,49 @@ from polisyos.ir.observation.measurement import (
     ShockCalendarEntry,
 )
 
-from .common import *
+from .bindings_validation import (
+    _augment_lookup_with_identity_bridge,
+    _build_edr_identity_bridge,
+    _build_synthetic_multiscale_payload,
+    _extract_unresolved_identity_rows,
+    _int_env,
+    _link_participants,
+    _normalize_identity_key,
+    _participant_resolution_coverage,
+    _resolve_agent_lookup,
+    _validation_subset,
+)
+from .common import (
+    OBSERVATION_FRAME_COLUMNS,
+    StageBuildResult,
+    _adjacency_from_edge_arrays,
+    _coerce_string_series,
+    _collect_graph_node_ids,
+    _compact_locator_value,
+    _ensure_agent_numeric_columns,
+    _graph_arrays_from_edges,
+    _kernel_safe_id,
+    _node_features_from_agent_registry,
+    _reindex_edge_arrays_to_node_subset,
+    _safe_numeric_series,
+    _sanitize_numeric_series,
+    _select_contract_graph_node_ids,
+    _stable_cell_id,
+)
+from .io import (
+    _cas_put_json,
+    _load_source_frame,
+    _read_parquet_frame,
+    _select_procurement_frame,
+    _stage_dir,
+    _write_frame,
+    _write_json,
+    _write_npz,
+)
+from .observation import _period_series_to_iso_bounds
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 _PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
 _DYNAMIC_TREATMENT_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
@@ -447,13 +498,13 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         geo_index["latitude"] = 0.0
 
     budget_arrays = _graph_arrays_from_edges(
-        spending_linked.fillna({"period_id": "2025-01"}),
+        spending_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="amount",
     )
     procurement_arrays = _graph_arrays_from_edges(
-        prozorro_linked.fillna({"period_id": "2025-01"}),
+        prozorro_linked,
         src_col="buyer_agent_id",
         dst_col="supplier_agent_id",
         weight_col="amount",
@@ -793,7 +844,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
         ],
     )
     trade_arrays = _graph_arrays_from_edges(
-        trade_linked.fillna({"period_id": "2025-01"}),
+        trade_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="trade_value",
@@ -805,7 +856,10 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
     distress["weight"] = _safe_numeric_series(distress, "tax_debt") + _safe_numeric_series(
         distress, "risk_score"
     )
-    distress["period_id"] = distress.get("period_id", "2025-01")
+    distress["period_id"] = distress.get(
+        "period_id",
+        pd.Series(pd.NA, index=distress.index, dtype="string"),
+    )
     node_ids = _collect_graph_node_ids(
         base_node_ids=node_ids,
         edge_frames=[
@@ -846,7 +900,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
         ],
     )
     public_service_arrays = _graph_arrays_from_edges(
-        public_service_linked.fillna({"period_id": "2025-01"}),
+        public_service_linked,
         src_col="source_agent_id",
         dst_col="target_agent_id",
         weight_col="payment_amount",
@@ -1039,9 +1093,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
             "trade_graph_nnz": outputs["trade_graph_sparse.npz"].nnz,
             "distress_graph_nnz": outputs["distress_graph_sparse.npz"].nnz,
             "public_service_graph_nnz": outputs["public_service_graph_sparse.npz"].nnz,
-            "proxy_identified_channels": sum(
-                1 for item in proxy_checks.values() if item["status"] == "identified"
-            ),
+            "proxy_declared_channels": len(proxy_bundle.proxy_channels),
             "full_node_count": full_node_count,
             "contract_node_count": len(contract_node_ids),
         },
@@ -1119,18 +1171,6 @@ def _compact_locator_series(
     return result
 
 
-def _period_series_to_iso_bounds(
-    values: pd.Series,
-    *,
-    time_grain: TimeFrequency,
-) -> tuple[pd.Series, pd.Series]:
-    raw = values.fillna("2025-01").astype(str)
-    mapping = {key: _period_to_dates(key, time_grain) for key in raw.unique().tolist()}
-    period_start = raw.map(lambda key: mapping[key][0].isoformat())
-    period_end = raw.map(lambda key: mapping[key][1].isoformat())
-    return period_start, period_end
-
-
 def _observation_metric_frames_from_frame(
     source: SourceConfig,
     frame: pd.DataFrame,
@@ -1144,7 +1184,7 @@ def _observation_metric_frames_from_frame(
         frame[source.period_column]
         if source.period_column in frame.columns
         else pd.Series(
-            ["2025-01"] * len(frame),
+            [pd.NA] * len(frame),
             index=frame.index,
             dtype="string",
         )
@@ -1327,6 +1367,8 @@ def _iter_observation_metric_frames(
                     requested_columns.append(column)
         batch_index = 0
         row_offset = 0
+        emitted_metric_ids: set[str] = set()
+        snapshot_sha256 = sha256_file(artifact_path)
         try:
             import pyarrow.parquet as pq
 
@@ -1339,16 +1381,71 @@ def _iter_observation_metric_frames(
                     row_offset=row_offset,
                 ):
                     yield source, metric_id, batch_index, metric_frame
+                    emitted_metric_ids.add(metric_id)
                 row_offset += len(frame)
                 batch_index += 1
+                emitted_metric_ids.clear()
                 del frame
-        except Exception:
-            frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-            for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                source, frame, row_offset=0
-            ):
-                yield source, metric_id, batch_index, metric_frame
-            del frame
+        except (ImportError, OSError):
+            if sha256_file(artifact_path) != snapshot_sha256:
+                raise RuntimeError(
+                    "normalized observation artifact changed during streaming; "
+                    "cannot resume from an unconfirmed snapshot"
+                )
+
+            if row_offset == 0 and not emitted_metric_ids:
+                # Before publication there is no cursor to preserve, so the
+                # established pandas reader remains an allowed fallback.
+                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source, frame, row_offset=0
+                ):
+                    yield source, metric_id, batch_index, metric_frame
+                del frame
+                continue
+
+            # A reader failure after publication must resume from the same
+            # immutable snapshot.  Re-open the streaming reader and discard
+            # complete batches already accounted for.  When the failure was
+            # between metric frames, the per-batch metric cursor removes only
+            # the metric(s) already yielded; equal values are never deduped.
+            resumed_row_offset = 0
+            pending_metric_ids = set(emitted_metric_ids)
+            parquet_file = pq.ParquetFile(artifact_path)
+            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+                frame = batch.to_pandas()
+                batch_start = resumed_row_offset
+                batch_end = batch_start + len(frame)
+                if batch_end <= row_offset:
+                    resumed_row_offset = batch_end
+                    del frame
+                    continue
+
+                effective_row_offset = batch_start
+                if batch_start < row_offset:
+                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                    effective_row_offset = row_offset
+
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source,
+                    frame,
+                    row_offset=effective_row_offset,
+                ):
+                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                        pending_metric_ids.remove(metric_id)
+                        continue
+                    yield source, metric_id, batch_index, metric_frame
+                batch_index += 1
+                resumed_row_offset = batch_end
+                del frame
+            if pending_metric_ids:
+                raise RuntimeError(
+                    "stream restart ended before the pending observation metric cursor"
+                )
+            if resumed_row_offset < row_offset:
+                raise RuntimeError(
+                    "stream restart ended before the confirmed observation cursor"
+                )
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:
@@ -2005,4 +2102,4 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     )
 
 
-__all__ = tuple(name for name in globals() if not name.startswith("__"))
+__all__ = ("build_d0_p0_stage", "build_d1_stage", "build_d2_stage")

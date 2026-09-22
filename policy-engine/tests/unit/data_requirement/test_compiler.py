@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
+import polisyos.data_requirement.compiler as compiler_module
 from polisyos.core.contracts.capability_resolution import RequirementToCapabilityQuery
 from polisyos.core.contracts.runtime import UniversalAuthorityProfile
 from polisyos.data_requirement import (
     DATA_REQUIREMENT_SPEC_SCHEMA_VERSION,
     DataRequirementCompiler,
+    DataRequirementScope,
     DataRequirementSpec,
     data_requirement_compilation_audit_surface,
     write_data_requirement_compilation_report,
@@ -84,6 +87,20 @@ def _fake_resolver(
     capability_index_ref: str = "capability-index:test-port",
 ) -> _FakeCapabilityResolver:
     return _FakeCapabilityResolver(capability_index_ref=capability_index_ref)
+
+
+class _RecordingCapabilityResolver(_FakeCapabilityResolver):
+    def __init__(self, *, capability_index_ref: str = "capability-index:recording") -> None:
+        super().__init__(capability_index_ref=capability_index_ref)
+        self.queries: list[RequirementToCapabilityQuery] = []
+
+    def resolve(self, query: RequirementToCapabilityQuery) -> _FakeCapabilityBinding:
+        normalized = RequirementToCapabilityQuery.model_validate(query)
+        self.queries.append(normalized)
+        return _FakeCapabilityBinding(
+            query=normalized,
+            capability_index_ref=self.capability_index_ref,
+        )
 
 
 def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compilation() -> None:
@@ -273,6 +290,158 @@ def test_compile_claim_ledger_requires_injected_resolver_when_configured() -> No
             obligation_graph=graph,
             authority_profile_refs=(case.authority_profile.profile_id,),
         )
+
+
+def test_opaque_scenario_id_is_not_semantic_input() -> None:
+    claim = SimpleNamespace(text="", metadata={})
+
+    constructs = compiler_module._required_constructs_from_semantics(
+        facets=(),
+        claims=(claim,),
+        scenario_id="parent-support",
+    )
+
+    assert constructs == ()
+
+
+def test_negated_topic_does_not_become_required_construct() -> None:
+    claim = SimpleNamespace(
+        text="No housing or rent intervention is requested.",
+        metadata={},
+    )
+
+    constructs = compiler_module._required_constructs_from_semantics(
+        facets=(),
+        claims=(claim,),
+        scenario_id="case-alpha",
+    )
+
+    assert constructs == ()
+
+
+def test_generic_scope_does_not_infer_pilot_jurisdiction_or_start() -> None:
+    facets = {
+        "facet:geography": {
+            "facet_type": "geography_predicate",
+            "value": "national",
+        },
+        "facet:time": {
+            "facet_type": "time_predicate",
+            "value": "annual",
+        },
+    }
+
+    scope = compiler_module._scope_from_facets(facets)
+
+    assert scope.jurisdiction is None
+    assert compiler_module._time_start_for_scope(scope) is None
+
+
+def test_explicit_constructs_are_not_replaced_by_semantic_proposals() -> None:
+    claim = SimpleNamespace(text="housing rent support", metadata={})
+    scope = DataRequirementScope(
+        population="population",
+        geography="geography",
+        time="time",
+    )
+
+    explicit_resolver = _RecordingCapabilityResolver()
+    compiler_module._capability_bindings_for_requirements(
+        facets=(),
+        claims=(claim,),
+        obligation_graph={
+            "blocking_frontier": [
+                {
+                    "metadata": {
+                        "required_evidence_constructs": ["firm_survival"],
+                    }
+                }
+            ]
+        },
+        scenario_id="parent-support",
+        scope=scope,
+        resolver=explicit_resolver,
+    )
+    assert [query.construct for query in explicit_resolver.queries] == ["firm_survival"]
+
+    proposal_resolver = _RecordingCapabilityResolver()
+    bindings = compiler_module._capability_bindings_for_requirements(
+        facets=(),
+        claims=(claim,),
+        obligation_graph={"blocking_frontier": []},
+        scenario_id="case-alpha",
+        scope=scope,
+        resolver=proposal_resolver,
+    )
+    assert bindings == ()
+    assert proposal_resolver.queries == []
+
+
+def test_semantic_topic_proposal_does_not_cross_capability_authority_boundary() -> None:
+    resolver = _RecordingCapabilityResolver()
+    claim = SimpleNamespace(text="housing rent support", metadata={})
+
+    bindings = compiler_module._capability_bindings_for_requirements(
+        facets=(),
+        claims=(claim,),
+        obligation_graph=None,
+        scenario_id="case-alpha",
+        scope=DataRequirementScope(
+            population="population",
+            geography="geography",
+            time="time",
+        ),
+        resolver=resolver,
+    )
+
+    assert bindings == ()
+    assert resolver.queries == []
+
+
+def test_scenario_adapter_accepts_text_request_and_domain_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: list[tuple[str, ProblemDomain]] = []
+
+    def capture_compile(
+        _self: object,
+        *,
+        intent: PolicyGrammarIntent,
+        authority_profile: UniversalAuthorityProfile,
+        concept_spine_refs: PolicyGrammarConceptSpineRefs,
+    ) -> SimpleNamespace:
+        del authority_profile, concept_spine_refs
+        captured.append((intent.text, intent.domain))
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", capture_compile)
+
+    compiler = DataRequirementCompiler()
+    compiler.compile_for_scenario(
+        {
+            "scenario_id": "opaque-case",
+            "text": "A neutral health policy statement.",
+            "domain": "healthcare",
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["health_panel"],
+            },
+        }
+    )
+    compiler.compile_for_scenario(
+        {
+            "scenario_id": "opaque-case-two",
+            "request": "A neutral fiscal policy request.",
+            "domain_hint": "fiscal",
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["fiscal_panel"],
+            },
+        }
+    )
+
+    assert captured == [
+        ("A neutral health policy statement.", ProblemDomain.HEALTHCARE),
+        ("A neutral fiscal policy request.", ProblemDomain.FISCAL),
+    ]
 
 
 def test_legacy_family_heuristic_only_runs_when_phase4_flag_is_enabled(

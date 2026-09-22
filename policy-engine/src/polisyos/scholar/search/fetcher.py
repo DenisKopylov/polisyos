@@ -5,13 +5,13 @@ from __future__ import annotations
 import hashlib
 import re
 import urllib.parse
-import urllib.request
 from html.parser import HTMLParser
 from io import BytesIO
 from typing import TYPE_CHECKING
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.canon import content_hash
+from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceSnippet
 from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
@@ -171,39 +171,23 @@ def _fetch_url_bytes_sync(
     user_agent: str,
     max_bytes: int,
 ) -> tuple[bytes, str, str, dict[str, str], list[str]]:
-    redirect_chain: list[str] = []
-    opener = urllib.request.build_opener(
-        _ValidatingRedirectHandler(
+    try:
+        raw = fetch_raw(
+            url,
             constraints=constraints,
-            redirect_chain=redirect_chain,
+            timeout_s=timeout_s,
+            user_agent=user_agent,
+            max_bytes=max_bytes,
         )
+    except RawFetchSizeError as exc:
+        raise ValueError(f"page exceeds max_bytes={exc.max_bytes}") from exc
+    return (
+        raw.raw_bytes,
+        raw.final_url,
+        raw.content_type,
+        raw.headers,
+        raw.redirect_chain,
     )
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent})
-    with opener.open(request, timeout=timeout_s) as response:
-        raw_bytes = response.read(max_bytes + 1)
-        if len(raw_bytes) > max_bytes:
-            raise ValueError(f"page exceeds max_bytes={max_bytes}")
-        content_type = response.headers.get("Content-Type") or "application/octet-stream"
-        final_url = getattr(response, "url", url) or url
-        headers = {str(key): str(value) for key, value in response.headers.items()}
-        return raw_bytes, final_url, content_type, headers, list(redirect_chain)
-
-
-class _ValidatingRedirectHandler(urllib.request.HTTPRedirectHandler):
-    def __init__(
-        self,
-        *,
-        constraints: SearchConstraints,
-        redirect_chain: list[str],
-    ) -> None:
-        super().__init__()
-        self._constraints = constraints
-        self._redirect_chain = redirect_chain
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[override]
-        validate_fetch_url(newurl, self._constraints)
-        self._redirect_chain.append(newurl)
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def _extract_title_and_text(raw_bytes: bytes, *, mime: str, final_url: str) -> tuple[str, str]:

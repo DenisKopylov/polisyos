@@ -1094,6 +1094,374 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
     assert http_subject_ids == direct_subject_ids
 
 
+@pytest.mark.asyncio
+async def test_http_recursive_route_carries_one_cycle_context_without_manual_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _CgfGenerationPort,
+        _budget,
+        _lane0_cycle_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+
+    problem, substrate_context = _lane0_cycle_context()
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    class _NeverCalledVerifier:
+        def require_admission(self, *_args, **_kwargs):
+            raise AssertionError("ordinary HTTP test unexpectedly called EvalSafety verifier")
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+
+    class _ContextFixtureN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self._delegate = _CgfGenerationPort()
+
+        async def __call__(self, problem, *, cycle_index):
+            return await self._delegate(problem, cycle_index=cycle_index)
+
+    recursive_budget = RecursiveCycleBudget(
+        max_depth=0,
+        max_nodes=1,
+        min_cycles_per_leaf=1,
+        max_cycles_per_leaf=1,
+    )
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=problem.nl_provenance.raw_request,
+        context={},
+        model_name="fixture-model",
+        compiler_gateway=object(),  # type: ignore[arg-type]
+        budget_state=_budget(),
+        recursive_budget=recursive_budget,
+        root_evaluation_context=None,
+        eval_safety_verifier=_NeverCalledVerifier(),
+        cycle_substrate_context=substrate_context,
+        root_n4_generation_port=_ContextFixtureN4Port(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )
+
+    assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+    assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
+    leaf = compiled.recursive_run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    assert leaf.cycle_run.cycles
+    leaf_simulation = leaf.cycle_run.cycles[0].simulation
+    assert leaf_simulation.world_model_record is substrate_context.world_model_record
+    assert leaf_simulation.world_model_record.content_hash == (
+        substrate_context.world_model_record_content_hash
+    )
+    assert leaf_simulation.world_model_record.world_model_record_id == (
+        substrate_context.world_model_record.world_model_record_id
+    )
+    assert leaf_simulation.k_world_ref_before == substrate_context.world_model_record_content_hash
+    assert leaf_simulation.k_world_ref_after == substrate_context.world_model_record_content_hash
+    assert leaf_simulation.diagnostics["world_model_record_id"] == (
+        substrate_context.world_model_record.world_model_record_id
+    )
+    assert leaf_simulation.diagnostics["world_model_record_content_hash"] == (
+        substrate_context.world_model_record_content_hash
+    )
+
+    foreign_problem = problem.model_copy(
+        update={"design_problem_id": "foreign_http_recursive_problem"}
+    )
+
+    async def compile_foreign(**kwargs):
+        del kwargs
+        return foreign_problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_foreign,
+    )
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=foreign_problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=recursive_budget,
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=_ContextFixtureN4Port(),
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    assert getattr(exc_info.value, "code", None) == "cycle_substrate_design_problem_mismatch"
+
+
+@pytest.mark.asyncio
+async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """HTTP → leaf → N5 must retain the one owner WMR on a typed NCM block."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _GenerationResult,
+        _GroundingDisposition,
+        _Ranking,
+        _cyc01_owner_bound_n5_case,
+        _budget,
+    )
+
+    problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    class _NeverCalledVerifier:
+        def require_admission(self, *_args, **_kwargs):
+            raise AssertionError("owner-blocked N5 path unexpectedly called EvalSafety verifier")
+
+    class _BoundN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self.calls = 0
+
+        async def __call__(self, problem, *, cycle_index):
+            del problem, cycle_index
+            self.calls += 1
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(
+                        candidate_id=candidate.candidate_id,
+                        score=0.91,
+                        voi_estimate=0.1,
+                    ),
+                ),
+                grounding_dispositions=(
+                    _GroundingDisposition(
+                        proposal_id=candidate.candidate_id,
+                        candidate_id=candidate.candidate_id,
+                        raw_candidate_hash=candidate.atom.content_hash,
+                        disposition="shadow_bound",
+                        selected_relation="exact",
+                        shadow_atom_content_hash=candidate.atom.content_hash,
+                    ),
+                ),
+            )
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    n4_port = _BoundN4Port()
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=problem.nl_provenance.raw_request,
+        context={},
+        model_name="fixture-model",
+        compiler_gateway=object(),  # type: ignore[arg-type]
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+        root_evaluation_context=None,
+        eval_safety_verifier=_NeverCalledVerifier(),
+        cycle_substrate_context=substrate_context,
+        root_n4_generation_port=n4_port,
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )
+
+    assert n4_port.calls == 1
+    assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+    leaf = compiled.recursive_run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    assert leaf.cycle_run.cycles
+    simulation = leaf.cycle_run.cycles[0].simulation
+    assert simulation.status == "simulation_blocked"
+    assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert simulation.world_model_record is substrate_context.world_model_record
+    assert simulation.diagnostics["world_model_record_id"] == (
+        substrate_context.world_model_record.world_model_record_id
+    )
+    assert simulation.diagnostics["world_model_record_content_hash"] == (
+        substrate_context.world_model_record.content_hash
+    )
+    assert simulation.k_world_ref_before == substrate_context.world_model_record.content_hash
+    assert simulation.k_world_ref_after == substrate_context.world_model_record.content_hash
+    assert simulation.simulation_ref is None
+
+
+@pytest.mark.asyncio
+async def test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Owner-context absence must not become an empty-map limited WMR route."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _GenerationResult,
+        _GroundingDisposition,
+        _Ranking,
+        _cyc01_owner_bound_n5_case,
+        _budget,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+
+    problem, _substrate_context, candidate = _cyc01_owner_bound_n5_case()
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    class _NeverCalledVerifier:
+        def require_admission(self, *_args, **_kwargs):
+            raise AssertionError("owner-context absence reached EvalSafety verifier")
+
+    class _BoundN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self.calls = 0
+
+        async def __call__(self, problem, *, cycle_index):
+            del problem, cycle_index
+            self.calls += 1
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(
+                        candidate_id=candidate.candidate_id,
+                        score=0.91,
+                        voi_estimate=0.1,
+                    ),
+                ),
+                grounding_dispositions=(
+                    _GroundingDisposition(
+                        proposal_id=candidate.candidate_id,
+                        candidate_id=candidate.candidate_id,
+                        raw_candidate_hash=candidate.atom.content_hash,
+                        disposition="shadow_bound",
+                        selected_relation="exact",
+                        shadow_atom_content_hash=candidate.atom.content_hash,
+                    ),
+                ),
+            )
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+    n4_port = _BoundN4Port()
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+
+    assert exc_info.value.code == "cycle_substrate_context_not_established"
+    assert n4_port.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_recursive_leaf_preserves_history_and_current_problem_binding() -> None:
+    """A leaf retains prior cycles while its current binding follows the leaf head."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        PendingN8ValuePort,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _AlwaysLowGrounding,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _problem,
+    )
+
+    problem = _problem("recursive_leaf_history_current")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    generator = _CounterexampleAwareGenerator()
+
+    def leaf_controller(_node_ref: str, _problem: object) -> GenerationCycleController:
+        return GenerationCycleController(
+            generation_port=generator,
+            grounding_port=_AlwaysLowGrounding(),
+            value_port=PendingN8ValuePort(),
+        )
+
+    controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=leaf_controller,
+        repo_root=Path(__file__).resolve().parents[4],
+    )
+    run = await controller.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=2,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    leaf = run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    assert len(leaf.cycle_run.cycles) == 2
+    assert leaf.cycle_run.design_problem_ref == leaf.design_problem_ref
+    assert leaf.cycle_run.cycles[0].design_problem_ref == leaf.design_problem_ref
+    assert leaf.cycle_run.cycles[-1].design_problem_ref == leaf.design_problem_ref
+
+
 def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     git_paths, filesystem_paths = _production_python_paths(repo_root)

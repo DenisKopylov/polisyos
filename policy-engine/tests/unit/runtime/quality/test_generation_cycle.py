@@ -389,6 +389,40 @@ class _CounterexampleAwareGenerator:
         )
 
 
+class _SameCandidateNewBasisGenerator:
+    """Return one candidate identity with a distinct content occurrence per cycle."""
+
+    def __init__(self) -> None:
+        self.problems: list[DesignProblem] = []
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        self.problems.append(problem)
+        candidate = _Candidate(
+            candidate_id="candidate_same_subject",
+            atom=_Atom(
+                "candidate_same_subject",
+                "sha256:" + ("1" if cycle_index == 0 else "2") * 64,
+            ),
+            diversity_key=("grant", "firms", "same_subject", f"cycle_{cycle_index}"),
+        )
+        return _GenerationResult(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                _Ranking(
+                    candidate_id=candidate.candidate_id,
+                    score=0.93 if cycle_index == 0 else 0.31,
+                    voi_estimate=0.82 if cycle_index == 0 else 0.41,
+                ),
+            ),
+        )
+
+
 class _AlwaysLowGrounding:
     def __call__(
         self,
@@ -2044,6 +2078,261 @@ def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     assert observation.k_world_ref_before == context.world_model_record.content_hash
 
 
+def _cyc01_owner_bound_n5_case(
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[DesignProblem, CycleSubstrateContext, object]:
+    """Build canonical atom/context inputs without granting an NCM source."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    hints = {
+        "joint_simulation_budget_ref": f"budget://cyc-01/{uuid4().hex}/n5",
+        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_resource": "ncm_parallel_worlds",
+    }
+    if runtime_hints:
+        hints.update(runtime_hints)
+    problem = _problem(f"cyc_n5_owner_boundary_{uuid4().hex}").model_copy(
+        update={"runtime_hints": hints}
+    )
+    registry = _lane0_registry(
+        domain=problem.domain,
+        source_id="l2_cyc:serializable_n5_builder.duckdb",
+    )
+    selected_hash = registry.entries[0].entry_content_hash
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="firm_survival",
+        policy_slot_ids=("agents.income", "government.balance", "firm_survival"),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = gy_content_hash(
+        {"domain": problem.domain, "registry": registry.content_hash}
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("cyc-n5-builder-pack"),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+    # The helper constructs strict InterventionAtomBinding DTOs in memory; it
+    # is not an owner/source bundle and its ready request never enters the port.
+    expected = _request(record=world, world_model_record_ref=world.world_model_record_id)
+    atoms = []
+    for atom in expected.intervention_atoms:
+        rebound = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        rebound = rebound.model_copy(
+            update={"content_hash": intervention_atom_content_hash(rebound)}
+        )
+        atoms.append(InterventionAtomBinding.model_validate(rebound.model_dump(mode="python")))
+    atoms = tuple(atoms)
+    candidate = SimpleNamespace(
+        candidate_id="candidate_cyc_n5_builder",
+        atom=atoms[0],
+        intervention_atoms=atoms,
+    )
+    return problem, context, candidate
+
+
+def test_joint_port_owner_missing_ncm_blocks_with_bound_wmr_provenance() -> None:
+    """Absent owner NCM blocks N5 without dropping the already-resolved WMR."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    controller_calls: list[JointSimulationRequest] = []
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request: JointSimulationRequest) -> object:
+            controller_calls.append(concrete_request)
+            raise AssertionError("owner-blocked NCM path must not invoke N5")
+
+    port = JointSimulationPort(
+        controller=_RecordingN5Controller(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )
+    observation = port(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert observation.diagnostics["world_model_record_id"] == (
+        context.world_model_record.world_model_record_id
+    )
+    assert observation.diagnostics["world_model_record_content_hash"] == (
+        context.world_model_record.content_hash
+    )
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+    assert observation.simulation_ref is None
+    assert controller_calls == []
+
+
+@pytest.mark.parametrize("hostile_location", ("runtime_hint", "engine_plan"))
+def test_joint_port_rejects_unverified_ncm_authority_sources(hostile_location: str) -> None:
+    """Neither caller hints nor nested plans can replace the owner NCM resolver."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationRequest,
+        JointSimulationResult,
+    )
+
+    # This payload is deliberately caller-provided and non-authoritative. Keep
+    # it inline so the rejection witness cannot depend on the N5 fixture helper
+    # or accidentally promote a test-built NCM into the owner boundary.
+    hostile_ncm_payload = {
+        "endogenous_vars": ["income_delta", "balance_delta", "firm_survival"],
+        "exogenous_specs": [
+            {
+                "variable": "u_income",
+                "associated_endogenous": "income_delta",
+            },
+            {
+                "variable": "u_balance",
+                "associated_endogenous": "balance_delta",
+            },
+            {
+                "variable": "u_survival",
+                "associated_endogenous": "firm_survival",
+            },
+        ],
+        "structural_equations": [
+            {
+                "variable": "income_delta",
+                "parents": [],
+                "exogenous": "u_income",
+                "equation_type": "linear",
+                "equation_params": {"intercept": 0.0, "coefficients": {}},
+            },
+            {
+                "variable": "balance_delta",
+                "parents": [],
+                "exogenous": "u_balance",
+                "equation_type": "linear",
+                "equation_params": {"intercept": 0.0, "coefficients": {}},
+            },
+            {
+                "variable": "firm_survival",
+                "parents": ["income_delta", "balance_delta"],
+                "exogenous": "u_survival",
+                "equation_type": "nonlinear",
+                "equation_params": {
+                    "noise_expression": (
+                        "1.0 + (2.0 * income_delta) + (3.0 * balance_delta) "
+                        "+ (5.0 * income_delta * balance_delta) + u"
+                    ),
+                },
+            },
+        ],
+        "is_acyclic": True,
+        "markov_condition_verified": True,
+        "independence_model": "dag_markov",
+        "fit_method": "caller_payload",
+    }
+    if hostile_location == "runtime_hint":
+        hostile_hints = {"joint_simulation_ncm_spec": hostile_ncm_payload}
+    else:
+        hostile_hints = {
+            "joint_simulation_engine_plan": {
+                "engine_kind": "ncm_parallel_worlds",
+                "objective_ref": "objective://firm_survival",
+                "ncm_spec": hostile_ncm_payload,
+                "variable_map": {
+                    "agents.income": "income_delta",
+                    "government.balance": "balance_delta",
+                    "firm_survival": "firm_survival",
+                },
+                "eligibility_conditions": ("acyclic", "counterfactual_do_worlds"),
+            }
+        }
+    problem, context, candidate = _cyc01_owner_bound_n5_case(runtime_hints=hostile_hints)
+    controller_calls: list[JointSimulationRequest] = []
+    real_n5 = JointSimulationHorizonController()
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request: JointSimulationRequest) -> JointSimulationResult:
+            controller_calls.append(concrete_request)
+            return real_n5.run(concrete_request)
+
+    observation = JointSimulationPort(
+        controller=_RecordingN5Controller(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert observation.world_model_record is context.world_model_record
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+    assert controller_calls == []
+
+
+def test_joint_port_rejects_changed_problem_and_catalog_after_owner_block() -> None:
+    """The owner-blocked path retains the existing identity refusal boundaries."""
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    port = JointSimulationPort(repo_root=REPO_ROOT, cycle_substrate_context=context)
+    problem_ref = context.design_problem_ref
+
+    foreign_problem = problem.model_copy(update={"domain": "foreign_cyc_domain"})
+    rejected_problem = port(candidate=candidate, problem=foreign_problem, cycle_index=0)
+    assert rejected_problem.status == "simulation_blocked"
+    assert "cycle_substrate_design_problem_mismatch" in rejected_problem.authority_blockers
+
+    foreign_registry = _lane0_registry(
+        domain=problem.domain,
+        source_id="l2_cyc:changed_catalog.duckdb",
+    )
+    foreign_hash = foreign_registry.entries[0].entry_content_hash
+    foreign_world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="firm_survival",
+        policy_slot_ids=("agents.income", "government.balance", "firm_survival"),
+        substrate_registry=foreign_registry,
+        selected_registry_entry_hashes=(foreign_hash,),
+    )
+    foreign_context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=foreign_registry,
+        selected_registry_entry_hashes=(foreign_hash,),
+        world_model_record=foreign_world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("cyc-n5-changed-catalog"),
+        substrate_input_content_hash=gy_content_hash(
+            {"domain": problem.domain, "registry": foreign_registry.content_hash}
+        ),
+    )
+    rejected_catalog = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=foreign_context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+    assert rejected_catalog.status == "simulation_blocked"
+    assert "world_identity_unresolved" in rejected_catalog.authority_blockers
+
+
 def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> None:
     """A real gated N5 receipt cannot be relabeled as a completed simulation."""
 
@@ -2805,6 +3094,151 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert validate_generation_cycle_run(run) == ()
 
 
+@pytest.mark.asyncio
+async def test_same_candidate_new_basis_preserves_history_and_current_front() -> None:
+    """A changed basis is a new occurrence, not a second current-front row."""
+
+    generator = _SameCandidateNewBasisGenerator()
+    problem = _problem("same_subject_new_basis")
+    run = await GenerationCycleController(
+        generation_port=generator,
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+    ).run(
+        problem,
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    assert len(run.candidate_summaries) == 2
+    assert tuple(summary.candidate_id for summary in run.candidate_summaries) == (
+        "candidate_same_subject",
+        "candidate_same_subject",
+    )
+    assert tuple(summary.content_hash for summary in run.candidate_summaries) == (
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+    )
+    assert len(
+        {
+            (summary.candidate_id, summary.content_hash, summary.cycle_index)
+            for summary in run.candidate_summaries
+        }
+    ) == 2
+    assert tuple(
+        cycle.revision_request.revised_problem.design_problem_id for cycle in run.cycles
+    ) == (problem.design_problem_id, problem.design_problem_id)
+    assert run.cycles[0].design_problem_ref != run.cycles[1].design_problem_ref
+    front_ids = tuple(
+        candidate_id
+        for candidate_ids in run.fronts.candidate_ids_by_front().values()
+        for candidate_id in candidate_ids
+    )
+    assert front_ids == ("candidate_same_subject",)
+    assert validate_generation_cycle_run(run) == ()
+
+
+@pytest.mark.asyncio
+async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The owner sees one current occurrence and the last executed basis."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    observed: dict[str, object] = {}
+    prepare = runtime._prepare_completed_generation
+
+    def capture_prepare(*, problem: DesignProblem, summaries: Any) -> Any:
+        observed["problem"] = problem
+        observed["summaries"] = tuple(summaries)
+        return prepare(problem=problem, summaries=summaries)
+
+    monkeypatch.setattr(runtime, "_prepare_completed_generation", capture_prepare)
+    run = await GenerationCycleController(
+        generation_port=_SameCandidateNewBasisGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        promotion_runtime=runtime,
+    ).run(
+        _problem("same_subject_owner_basis"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    owner_summaries = observed["summaries"]
+    assert isinstance(owner_summaries, tuple)
+    assert len(owner_summaries) == 1
+    assert owner_summaries[0].content_hash == "sha256:" + "2" * 64
+    owner_problem = observed["problem"]
+    assert isinstance(owner_problem, DesignProblem)
+    assert gy_content_hash(owner_problem.model_dump(mode="json")) == (
+        run.cycles[-1].design_problem_basis_ref
+    )
+    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    assert len(run.promotion_port.pre_n9_open_world_gates) == 1
+    assert validate_generation_cycle_run(run) == ()
+
+
+def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
+    tmp_path: Path,
+) -> None:
+    """A population/model change must not reuse the prior promotion basis."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("changed_basis_owner")
+    summary = _open_world_summary("changed_basis_candidate")
+    original = runtime._prepare_completed_generation(problem=problem, summaries=(summary,))
+    assert hasattr(original, "contexts")
+
+    changed_problem = problem.model_copy(
+        update={
+            "model_spec_ref": "sha256:" + "9" * 64,
+            "stakeholders": [
+                DesignStakeholder(
+                    stakeholder_id="large_firms",
+                    name="Large firms",
+                    role="target_population",
+                )
+            ],
+        }
+    )
+    changed = runtime._prepare_completed_generation(
+        problem=changed_problem,
+        summaries=(summary,),
+    )
+    assert hasattr(changed, "contexts")
+
+    original_statement = original.contexts.aggregate_context.statement
+    changed_statement = changed.contexts.aggregate_context.statement
+    assert (
+        original_statement.design_problem_binding_ref
+        != changed_statement.design_problem_binding_ref
+    )
+    assert (
+        original_statement.design_problem_binding_content_hash
+        != changed_statement.design_problem_binding_content_hash
+    )
+    original_occurrence = original.contexts.ordered_bound_members[0].statement
+    changed_occurrence = changed.contexts.ordered_bound_members[0].statement
+    assert (
+        original_occurrence.candidate_occurrence_ref
+        != changed_occurrence.candidate_occurrence_ref
+    )
+    original_occurrence_record = runtime.context_repository.resolve_occurrence(
+        occurrence_ref=original_occurrence.candidate_occurrence_ref
+    )
+    changed_occurrence_record = runtime.context_repository.resolve_occurrence(
+        occurrence_ref=changed_occurrence.candidate_occurrence_ref
+    )
+    assert (
+        core_contracts.c4_semantic_digest("candidate_occurrence", original_occurrence_record)
+        != core_contracts.c4_semantic_digest("candidate_occurrence", changed_occurrence_record)
+    )
+
+
 def test_no_retry_without_new_grammar_blocks_same_candidate_retry() -> None:
     with pytest.raises(GenerationCycleError, match="no_retry_without_new_grammar"):
         enforce_no_retry_without_new_grammar(
@@ -2873,6 +3307,50 @@ async def test_controller_refuses_live_retry_without_new_grammar() -> None:
     terminal = generation_cycle_terminal_state(run)
     assert terminal.kind.value == "recursive_blocked"
     assert terminal.blocking_obligations == ["no_retry_without_new_grammar"]
+
+
+@pytest.mark.asyncio
+async def test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress() -> None:
+    """Fresh technical identifiers do not launder an unchanged research basis."""
+
+    class _IdentifierOnlyRevision:
+        def __call__(self, **kwargs: Any) -> Any:
+            prior_cycle = kwargs["prior_cycle"]
+            problem = kwargs["problem"]
+            default = kwargs["default_revision"]
+            revised_problem = problem.model_copy(
+                update={
+                    "runtime_hints": {
+                        **problem.runtime_hints,
+                        "research_attempt_uuid": uuid4().hex,
+                        "research_attempt_at": "2026-09-21T00:00:00Z",
+                    }
+                }
+            )
+            return default.model_copy(
+                update={
+                    "next_candidate_ref": f"candidate://technical-retry/{uuid4().hex}",
+                    "new_grammar_elements": (),
+                    "next_grammar_elements": prior_cycle.revision_request.previous_grammar_elements,
+                    "revised_problem": revised_problem,
+                }
+            )
+
+    run = await GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        revision_policy=_IdentifierOnlyRevision(),
+    ).run(
+        _problem("technical_identifier_retry"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "no_retry_without_new_grammar"
+    assert len(run.cycles) == 1
 
 
 @pytest.mark.asyncio
@@ -3544,6 +4022,7 @@ def test_phase5_value_port_configuration_preserves_manifest_omission() -> None:
         )
 
 
+@_requires_owner_catalog
 def test_default_value_port_binds_the_actual_n5_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
+from statistics import NormalDist
 from typing import Any, ClassVar
 
 import numpy as np
@@ -31,6 +32,29 @@ from polisyos.foundry.methods.catalog.causal._common import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
+
+_DID_CITATIONS = (
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
+    "Angrist, J., & Pischke, J. (2009). Mostly Harmless Econometrics.",
+)
+_DID_EQUATIONS = {
+    "did_2x2": "ATT = (Y_treated_post - Y_treated_pre) - (Y_control_post - Y_control_pre)",
+    "regression": "Y_it = a + b*Post_t + c*Treat_i + d*(Post_t*Treat_i) + e_it",
+}
+_DID_ASSUMPTIONS = {
+    "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+    "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+    "stable_composition": "Group composition is stable over analysis horizon.",
+}
+
+
+def _normal_critical_value(confidence_level: float) -> float:
+    """Return the two-sided normal critical value for a validated confidence level."""
+
+    level = float(confidence_level)
+    if not math.isfinite(level) or not 0.0 < level < 1.0:
+        raise ValueError("confidence_level must be in (0, 1)")
+    return float(NormalDist().inv_cdf((1.0 + level) / 2.0))
 
 
 def _did_output_slots() -> frozenset[SlotSpec]:
@@ -69,6 +93,37 @@ def _materialize_did_data(
     payload = _did_payload(fallback_state)
     payload.update(bound_inputs)
     return PanelObservationalData.model_validate(payload)
+
+
+def _invalid_did_request_output(
+    data: PanelObservationalData,
+    reason: str,
+) -> dict[str, Any]:
+    """Return a typed failure for an ambiguous or unsupported DiD request."""
+
+    treated_mask = data.treatment == 1
+    report = build_failure_report(
+        method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        status=EstimationStatus.INPUT_INVALID,
+        reason=reason,
+        estimand="ATT",
+        sample_size=data.n_units * data.n_periods,
+        n_treated=int(treated_mask.sum()),
+        n_control=int((data.treatment == 0).sum()),
+        pre_periods=data.pre_periods,
+        post_periods=data.post_periods,
+        assumptions=dict(_DID_ASSUMPTIONS),
+    )
+    return wrap_causal_output(report, warnings=[reason])
+
+
+def _legacy_staggered_flag(params: Mapping[str, Any]) -> bool:
+    """Resolve the historical mode flag without truthiness-based coercion."""
+
+    value = params.get("staggered", False)
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    raise ValueError("staggered must be a boolean")
 
 
 def _standard_did_input_slots() -> frozenset[SlotSpec]:
@@ -128,6 +183,62 @@ def _ols_hc1(x_mat: np.ndarray, y_vec: np.ndarray) -> tuple[np.ndarray, np.ndarr
     return beta, se
 
 
+def _ols_cluster_cr0(
+    x_mat: np.ndarray,
+    y_vec: np.ndarray,
+    cluster_ids: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Fit OLS with the uncorrected cluster-robust (CR0) covariance."""
+
+    beta, *_ = np.linalg.lstsq(x_mat, y_vec, rcond=None)
+    residual = y_vec - x_mat @ beta
+    xtx_inv = np.linalg.pinv(x_mat.T @ x_mat)
+    meat = np.zeros((x_mat.shape[1], x_mat.shape[1]), dtype=float)
+    for cluster in np.unique(cluster_ids):
+        mask = cluster_ids == cluster
+        score = x_mat[mask].T @ residual[mask]
+        meat += np.outer(score, score)
+    covariance = xtx_inv @ meat @ xtx_inv
+    se = np.sqrt(np.maximum(np.diag(covariance), 0.0))
+    return beta, se
+
+
+def _unit_cluster_ids(data: PanelObservationalData, params: Mapping[str, Any]) -> np.ndarray:
+    """Return one cluster label per panel row, preserving unit membership."""
+
+    cluster_spec = params.get("cluster_var")
+    named_cluster = cluster_spec.strip().lower() if isinstance(cluster_spec, str) else None
+    uses_panel_unit_ids = cluster_spec is None or named_cluster in {"unit", "unit_id", "unit_ids"}
+    if uses_panel_unit_ids:
+        if data.unit_ids is None:
+            raise ValueError("cluster covariance requires unit_ids")
+        unit_clusters = np.asarray(data.unit_ids)
+    else:
+        candidate = np.asarray(cluster_spec)
+        if candidate.ndim != 1:
+            raise ValueError("cluster_var must be a one-dimensional array")
+        if candidate.size == data.n_units:
+            unit_clusters = candidate
+        elif candidate.size == data.n_units * data.n_periods:
+            candidate_by_unit = candidate.reshape(data.n_units, data.n_periods)
+            if not np.all(candidate_by_unit == candidate_by_unit[:, :1]):
+                raise ValueError("cluster_var must be constant within each unit")
+            unit_clusters = candidate_by_unit[:, 0]
+        else:
+            raise ValueError("cluster_var must have one label per unit or observation")
+
+    if unit_clusters.ndim != 1 or unit_clusters.size != data.n_units:
+        raise ValueError("cluster_var must have one label per unit")
+    if np.unique(unit_clusters).size != data.n_units:
+        if uses_panel_unit_ids:
+            raise ValueError("unit_ids must be unique for unit-cluster covariance")
+        raise ValueError("cluster_var must identify each unit uniquely")
+    cluster_ids = np.repeat(unit_clusters, data.n_periods)
+    if np.unique(cluster_ids).size < 2:
+        raise ValueError("cluster covariance requires at least two clusters")
+    return cluster_ids
+
+
 def _parallel_trend_diagnostic(
     outcome: np.ndarray,
     treatment: np.ndarray,
@@ -176,6 +287,20 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
     t0 = data.time_treatment
     treated_mask = data.treatment == 1
     control_mask = data.treatment == 0
+    if t0 <= 0:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.INPUT_INVALID,
+            reason="standard DiD requires at least one pre-treatment period",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int(treated_mask.sum()),
+            n_control=int(control_mask.sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
     if not treated_mask.any() or not control_mask.any():
         report = build_failure_report(
             method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
@@ -187,7 +312,46 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
             n_control=int(control_mask.sum()),
             pre_periods=data.pre_periods,
             post_periods=data.post_periods,
-            assumptions=dict(DifferenceInDifferences.metadata.assumptions),
+            assumptions=dict(_DID_ASSUMPTIONS),
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+
+    raw_cov_type = params.get("cov_type", "HC1")
+    cov_type = str(raw_cov_type).strip().lower()
+    if cov_type == "hc1":
+        covariance_procedure = "hc1"
+    elif cov_type in {"cluster", "clustered", "unit_cluster"}:
+        covariance_procedure = "unit_cluster_cr0"
+    else:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.INPUT_INVALID,
+            reason=f"unsupported covariance profile: {raw_cov_type}",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int(treated_mask.sum()),
+            n_control=int(control_mask.sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+
+    try:
+        confidence_level = float(params.get("confidence_level", 0.95))
+        z_critical = _normal_critical_value(confidence_level)
+    except (TypeError, ValueError) as exc:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.INPUT_INVALID,
+            reason=str(exc),
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int(treated_mask.sum()),
+            n_control=int(control_mask.sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
         )
         return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
@@ -197,11 +361,31 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
     interaction = post * treat
     x_mat = np.column_stack([np.ones_like(y), post, treat, interaction])
 
-    beta, se = _ols_hc1(x_mat, y)
+    try:
+        if covariance_procedure == "hc1":
+            beta, se = _ols_hc1(x_mat, y)
+            n_clusters = None
+        else:
+            cluster_ids = _unit_cluster_ids(data, params)
+            beta, se = _ols_cluster_cr0(x_mat, y, cluster_ids)
+            n_clusters = int(np.unique(cluster_ids).size)
+    except (TypeError, ValueError) as exc:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.INPUT_INVALID,
+            reason=str(exc),
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int(treated_mask.sum()),
+            n_control=int(control_mask.sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+
     att = float(beta[3])
     att_se = float(se[3]) if se.shape[0] > 3 else 0.0
-    confidence_level = float(params.get("confidence_level", 0.95))
-    z_critical = 1.959963984540054
     ci = (att - z_critical * att_se, att + z_critical * att_se)
     z_score = 0.0 if att_se <= 0 else att / att_se
     p_value = _normal_two_sided_pvalue(z_score)
@@ -244,27 +428,43 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
         n_control=int(control_mask.sum()),
         pre_periods=data.pre_periods,
         post_periods=data.post_periods,
-        assumptions=dict(DifferenceInDifferences.metadata.assumptions),
+        assumptions=dict(_DID_ASSUMPTIONS),
         method_params={
             "staggered": False,
-            "cov_type": str(params.get("cov_type", "HC1")),
+            "cov_type": str(raw_cov_type),
+            "covariance_procedure": covariance_procedure,
+            "confidence_procedure": "normal_two_sided",
+            "critical_value": z_critical,
             "delta_hat": att,
+            **({"n_clusters": n_clusters} if n_clusters is not None else {}),
         },
     )
     return wrap_causal_output(report)
 
 
-def _cohort_time_att(
+def _cohort_time_cells(
     data: PanelObservationalData,
     *,
     control_group: str,
     anticipation: int,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[list[dict[str, Any]], list[tuple[int, int]], list[int]]:
+    """Build ATT(g,t) cells with unit-level influence values.
+
+    The returned cell records retain the independent panel-unit membership of
+    both sides of each contrast.  Bootstrap draws can therefore apply one
+    multiplier to a unit everywhere it contributes, including shared controls.
+    The second return value records cells for which the declared control rule
+    has no admissible units; callers must not silently drop those cells.  The
+    third return value records cohorts whose requested anticipation window has
+    no valid baseline period.
+    """
+
     assert data.treatment_timing is not None
     timing = data.treatment_timing.astype(int)
     valid_groups = sorted(int(value) for value in np.unique(timing) if value >= 0)
-    att_values: list[float] = []
-    weights: list[float] = []
+    cells: list[dict[str, Any]] = []
+    no_control_cells: list[tuple[int, int]] = []
+    missing_baseline_groups: list[int] = []
 
     for group_start in valid_groups:
         if group_start <= 0 or group_start >= data.n_periods:
@@ -274,25 +474,58 @@ def _cohort_time_att(
             continue
         baseline_t = group_start - 1 - anticipation
         if baseline_t < 0:
+            missing_baseline_groups.append(group_start)
             continue
         for t in range(group_start, data.n_periods):
             if control_group == "not_yet_treated":
-                control_mask = (timing == -1) | (timing > t)
+                control_mask = (timing == -1) | (timing > t + anticipation)
             else:
                 control_mask = timing == -1
             if not control_mask.any():
+                no_control_cells.append((group_start, t))
                 continue
+            treated_indices = np.flatnonzero(group_mask)
+            control_indices = np.flatnonzero(control_mask)
             treated_delta = (
-                data.outcome[group_mask, t].mean() - data.outcome[group_mask, baseline_t].mean()
+                data.outcome[treated_indices, t] - data.outcome[treated_indices, baseline_t]
             )
             control_delta = (
-                data.outcome[control_mask, t].mean() - data.outcome[control_mask, baseline_t].mean()
+                data.outcome[control_indices, t] - data.outcome[control_indices, baseline_t]
             )
-            att_values.append(float(treated_delta - control_delta))
-            weights.append(float(group_mask.sum()))
+            cells.append(
+                {
+                    "treated_indices": treated_indices,
+                    "control_indices": control_indices,
+                    "treated_delta": np.asarray(treated_delta, dtype=float),
+                    "control_delta": np.asarray(control_delta, dtype=float),
+                    "weight": float(treated_indices.size),
+                }
+            )
 
-    if not att_values:
+    return cells, no_control_cells, missing_baseline_groups
+
+
+def _cohort_time_att(
+    data: PanelObservationalData,
+    *,
+    control_group: str,
+    anticipation: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return ATT(g,t) point estimates and treated-group weights."""
+
+    cells, _, _ = _cohort_time_cells(
+        data,
+        control_group=control_group,
+        anticipation=anticipation,
+    )
+    if not cells:
         return np.array([], dtype=float), np.array([], dtype=float)
+
+    att_values = [
+        float(cell["treated_delta"].mean() - cell["control_delta"].mean()) for cell in cells
+    ]
+    weights = [float(cell["weight"]) for cell in cells]
+
     return np.asarray(att_values, dtype=float), np.asarray(weights, dtype=float)
 
 
@@ -308,18 +541,69 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             n_control=int((data.treatment == 0).sum()),
             pre_periods=data.pre_periods,
             post_periods=data.post_periods,
-            assumptions=dict(DifferenceInDifferences.metadata.assumptions),
+            assumptions=dict(_DID_ASSUMPTIONS),
         )
         return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
-    control_group = str(params.get("control_group", "never_treated"))
+    raw_control_group = params.get("control_group", "never_treated")
+    if not isinstance(raw_control_group, str) or raw_control_group not in {
+        "never_treated",
+        "not_yet_treated",
+    }:
+        return _invalid_did_request_output(
+            data,
+            f"unsupported control_group: {raw_control_group}",
+        )
+    control_group = raw_control_group
     anticipation = int(params.get("anticipation", 0))
-    atts, weights = _cohort_time_att(
+    cells, no_control_cells, missing_baseline_groups = _cohort_time_cells(
         data,
         control_group=control_group,
         anticipation=anticipation,
     )
-    if atts.size == 0:
+    if missing_baseline_groups:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.ASSUMPTION_FAILED,
+            reason="no valid baseline for one or more staggered cohorts",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int((data.treatment == 1).sum()),
+            n_control=int((data.treatment == 0).sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+            method_params={
+                "staggered": True,
+                "control_group": control_group,
+                "anticipation": anticipation,
+                "missing_baseline_groups": sorted(set(missing_baseline_groups)),
+            },
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+
+    if no_control_cells:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.ASSUMPTION_FAILED,
+            reason="no admissible controls for one or more staggered ATT(g,t) cells",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int((data.treatment == 1).sum()),
+            n_control=int((data.treatment == 0).sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+            method_params={
+                "staggered": True,
+                "control_group": control_group,
+                "anticipation": anticipation,
+                "no_control_cells": [list(cell) for cell in no_control_cells],
+            },
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+
+    if not cells:
         report = build_failure_report(
             method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
             status=EstimationStatus.ASSUMPTION_FAILED,
@@ -330,23 +614,82 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             n_control=int((data.treatment == 0).sum()),
             pre_periods=data.pre_periods,
             post_periods=data.post_periods,
-            assumptions=dict(DifferenceInDifferences.metadata.assumptions),
+            assumptions=dict(_DID_ASSUMPTIONS),
         )
         return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
 
+    atts = np.asarray(
+        [float(cell["treated_delta"].mean() - cell["control_delta"].mean()) for cell in cells],
+        dtype=float,
+    )
+    weights = np.asarray([float(cell["weight"]) for cell in cells], dtype=float)
     weights = weights / weights.sum()
     att = float(np.sum(atts * weights))
+
+    if data.unit_ids is None:
+        unit_identity = "row_index"
+    else:
+        unit_ids = np.asarray(data.unit_ids)
+        if unit_ids.ndim != 1 or unit_ids.size != data.n_units:
+            report = build_failure_report(
+                method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+                status=EstimationStatus.INPUT_INVALID,
+                reason="staggered bootstrap requires one unit_id per panel row",
+                estimand="ATT",
+                sample_size=data.n_units * data.n_periods,
+                n_treated=int((data.treatment == 1).sum()),
+                n_control=int((data.treatment == 0).sum()),
+                pre_periods=data.pre_periods,
+                post_periods=data.post_periods,
+                assumptions=dict(_DID_ASSUMPTIONS),
+            )
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+        try:
+            unique_units = np.unique(unit_ids).size == data.n_units
+        except TypeError:
+            unique_units = False
+        if not unique_units:
+            report = build_failure_report(
+                method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason="staggered bootstrap requires unique unit_ids",
+                estimand="ATT",
+                sample_size=data.n_units * data.n_periods,
+                n_treated=int((data.treatment == 1).sum()),
+                n_control=int((data.treatment == 0).sum()),
+                pre_periods=data.pre_periods,
+                post_periods=data.post_periods,
+                assumptions=dict(_DID_ASSUMPTIONS),
+            )
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "assumption failed"]
+            )
+        unit_identity = "unit_ids"
 
     rng = params["__rng__"]
     n_bootstrap = int(params.get("n_bootstrap", 1000))
     boot = np.zeros(n_bootstrap, dtype=float)
-    idx = np.arange(atts.shape[0])
     for b in range(n_bootstrap):
-        sample = rng.choice(idx, size=idx.shape[0], replace=True)
-        boot[b] = float(np.sum(atts[sample] * weights[sample] / np.sum(weights[sample])))
+        unit_multiplier = rng.exponential(scale=1.0, size=data.n_units)
+        cell_bootstrap = np.asarray(
+            [
+                float(
+                    np.average(
+                        cell["treated_delta"],
+                        weights=unit_multiplier[cell["treated_indices"]],
+                    )
+                    - np.average(
+                        cell["control_delta"],
+                        weights=unit_multiplier[cell["control_indices"]],
+                    )
+                )
+                for cell in cells
+            ],
+            dtype=float,
+        )
+        boot[b] = float(np.sum(cell_bootstrap * weights))
     confidence_level = float(params.get("confidence_level", 0.95))
     ci = bootstrap_ci(boot, confidence_level=confidence_level)
-    p_value = float((np.sum(np.abs(boot) >= abs(att)) + 1) / (n_bootstrap + 1))
 
     pre_diag = _parallel_trend_diagnostic(data.outcome, data.treatment, t0=data.time_treatment)
     diagnostics = [pre_diag]
@@ -355,14 +698,14 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         treated_outcome=atts,
         control_outcome=np.zeros_like(atts),
     )
-    report = build_success_report(
+    report = build_failure_report(
         method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        status=EstimationStatus.ASSUMPTION_FAILED,
+        reason="staggered bootstrap coverage and null calibration are not established",
         estimand="ATT",
         point_estimate=att,
-        confidence_interval=ci,
-        confidence_level=confidence_level,
-        p_value=p_value,
-        inference_method="bootstrap",
+        confidence_level=None,
+        p_value=None,
         n_bootstrap_samples=n_bootstrap,
         effect_size_cohen_d=effect_size,
         diagnostics=diagnostics,
@@ -371,12 +714,19 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         n_control=int((data.treatment == 0).sum()),
         pre_periods=data.pre_periods,
         post_periods=data.post_periods,
-        assumptions=dict(DifferenceInDifferences.metadata.assumptions),
+        assumptions=dict(_DID_ASSUMPTIONS),
         method_params={
             "staggered": True,
             "control_group": control_group,
             "anticipation": anticipation,
             "n_cells": int(atts.shape[0]),
+            "bootstrap_independence": "panel_unit",
+            "bootstrap_shared_draw": True,
+            "bootstrap_unit_identity": unit_identity,
+            "descriptive_interval": ci,
+            "descriptive_interval_procedure": "unit_multiplier_percentile",
+            "coverage_status": "not_established",
+            "p_value_status": "not_established",
         },
     )
     return wrap_causal_output(report)
@@ -442,22 +792,9 @@ class DifferenceInDifferences:
             "staggered adoption aggregation (Callaway-Sant'Anna style)."
         ),
         tags=frozenset({"causal", "quasi-experimental", "difference-in-differences"}),
-        citations=(
-            "Callaway, B., & Sant'Anna, P. (2021). "
-            "Difference-in-Differences with Multiple Time Periods.",
-            "Angrist, J., & Pischke, J. (2009). Mostly Harmless Econometrics.",
-        ),
-        equations={
-            "did_2x2": "ATT = (Y_treated_post - Y_treated_pre) - (Y_control_post - Y_control_pre)",
-            "regression": "Y_it = a + b*Post_t + c*Treat_i + d*(Post_t*Treat_i) + e_it",
-        },
-        assumptions={
-            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
-            "no_anticipation": (
-                "No treatment effect before treatment start (unless explicitly modeled)."
-            ),
-            "stable_composition": "Group composition is stable over analysis horizon.",
-        },
+        citations=_DID_CITATIONS,
+        equations=dict(_DID_EQUATIONS),
+        assumptions=dict(_DID_ASSUMPTIONS),
         when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
         when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
         typical_min_obs=50,
@@ -473,16 +810,25 @@ class DifferenceInDifferences:
             if isinstance(state, PanelObservationalData)
             else PanelObservationalData.model_validate(state)
         )
-        staggered = bool(params.get("staggered", False))
+        try:
+            staggered = _legacy_staggered_flag(params)
+        except ValueError as exc:
+            return _invalid_did_request_output(data, str(exc))
         if staggered:
-            return _run_staggered_did(data, params)
-        return _run_standard_did(data, params)
+            return StaggeredDifferenceInDifferences.pure_step(data, params)
+        return StandardDifferenceInDifferences.pure_step(data, params)
 
     @staticmethod
     def materialize_input(
         bound_inputs: Mapping[str, Any],
         fallback_state: Any,
     ) -> PanelObservationalData:
+        for legacy_name, dedicated_name in (
+            ("outcome_panel", "outcome"),
+            ("treatment_indicator", "treatment"),
+        ):
+            if legacy_name in bound_inputs and dedicated_name in bound_inputs:
+                raise ValueError(f"{legacy_name} and {dedicated_name} cannot both be supplied")
         payload = _did_payload(fallback_state)
         if "outcome_panel" in bound_inputs and "outcome" not in bound_inputs:
             payload["outcome"] = bound_inputs["outcome_panel"]
@@ -531,9 +877,9 @@ class StandardDifferenceInDifferences:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Standard 2x2 DiD estimator.",
         tags=frozenset({"causal", "difference-in-differences"}),
-        citations=DifferenceInDifferences.metadata.citations,
-        equations={"did_2x2": DifferenceInDifferences.metadata.equations["did_2x2"]},
-        assumptions=DifferenceInDifferences.metadata.assumptions,
+        citations=_DID_CITATIONS,
+        equations={"did_2x2": _DID_EQUATIONS["did_2x2"]},
+        assumptions=dict(_DID_ASSUMPTIONS),
         when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
         when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
         typical_min_obs=50,
@@ -593,9 +939,9 @@ class StaggeredDifferenceInDifferences:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Staggered-adoption DiD estimator with ATT(g,t) aggregation.",
         tags=frozenset({"causal", "difference-in-differences"}),
-        citations=DifferenceInDifferences.metadata.citations,
-        equations=DifferenceInDifferences.metadata.equations,
-        assumptions=DifferenceInDifferences.metadata.assumptions,
+        citations=_DID_CITATIONS,
+        equations=dict(_DID_EQUATIONS),
+        assumptions=dict(_DID_ASSUMPTIONS),
         when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
         when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
         typical_min_obs=50,

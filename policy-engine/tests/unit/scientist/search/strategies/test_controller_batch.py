@@ -9,7 +9,10 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import (
+    CostBudgetStopping,
+    MaxIterations,
+)
 
 
 class SimpleObjective:
@@ -139,3 +142,98 @@ def test_controller_uses_resource_arbiter_for_stage_b() -> None:
     )
     _ = controller.run({"user_request": "arbiter"})
     assert arbiter.owners == ["jax", "jax"]
+
+
+def test_controller_bounds_transient_empty_generation_and_separates_budget_from_iterations() -> None:
+    class ScriptedBatchGenerator:
+        def __init__(self):
+            self.calls = 0
+
+        def generate_batch(self, history, current_best, context, batch_size):
+            del history, current_best, context, batch_size
+            self.calls += 1
+            if self.calls == 1:
+                return []
+            if self.calls == 2:
+                return [{"x": 1.0, "semantic": {"interventions": []}}]
+            return [{"x": 2.0, "semantic": {"interventions": []}}]
+
+    generator = ScriptedBatchGenerator()
+    objective = CompositeObjective([SimpleObjective()])
+    context = {"cumulative_cost_usd": 0.0}
+    stage_b_calls = {"count": 0}
+
+    def stage_b(candidate, stage_context):
+        stage_b_calls["count"] += 1
+        stage_context["cumulative_cost_usd"] += 1.0
+        return {
+            "simulation_results": {"x": candidate["x"]},
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=CostBudgetStopping(max_cost_usd=1.0),
+            objective=objective,
+            batch_size=2,
+            max_iterations_hard_limit=2,
+        ),
+        candidate_generator=generator,
+        stage_a_evaluator=lambda candidate, stage_context: (0.0, True),
+        stage_b_evaluator=stage_b,
+    )
+
+    result = controller.run(context)
+
+    assert generator.calls == 2
+    assert result.iterations_completed == 1
+    assert result.stage_b_evaluations == 1
+    assert stage_b_calls["count"] == 1
+    transition = result.telemetry["generation_transition"]
+    assert transition["kind"] == "transient_empty"
+    assert transition["generation_attempts"] == 2
+    assert transition["evaluation_iterations"] == 1
+    assert transition["budget_spent"] == 1.0
+
+
+def test_controller_reports_typed_exhaustion_for_persistent_empty_generation() -> None:
+    class PersistentEmptyGenerator:
+        def __init__(self):
+            self.calls = 0
+
+        def generate_batch(self, history, current_best, context, batch_size):
+            del history, current_best, context, batch_size
+            self.calls += 1
+            if self.calls > 3:
+                raise AssertionError(
+                    "persistent-empty watchdog: controller requested a fourth batch"
+                )
+            return []
+
+    generator = PersistentEmptyGenerator()
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([SimpleObjective()]),
+            batch_size=2,
+            max_iterations_hard_limit=1,
+            max_empty_generation_attempts=3,
+        ),
+        candidate_generator=generator,
+        stage_a_evaluator=lambda candidate, context: (0.0, True),
+        stage_b_evaluator=lambda candidate, context: {
+            "simulation_results": {"x": candidate["x"]},
+            "feedback": {"verdict": "APPROVE"},
+        },
+    )
+
+    result = controller.run({"user_request": "persistent-empty"})
+
+    assert generator.calls == 3
+    assert result.iterations_completed == 0
+    assert result.stage_b_evaluations == 0
+    transition = result.telemetry["generation_transition"]
+    assert transition["kind"] == "exhausted"
+    assert transition["generation_attempts"] == 3
+    assert transition["evaluation_iterations"] == 0

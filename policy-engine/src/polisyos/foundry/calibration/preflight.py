@@ -49,14 +49,15 @@ def _normalize_raw_target(raw: object) -> tuple[np.ndarray, np.ndarray | None]:
 def _align_by_length(values: np.ndarray, steps: int, fill_value: float | None) -> np.ndarray:
     if values.shape[0] == steps:
         return values
+    if values.size == 0:
+        raise ValueError("Cannot align an empty observed target to a non-empty horizon")
     if values.shape[0] > steps:
         return values[:steps]
-    pad_value = (
-        fill_value if fill_value is not None else float(values[-1]) if values.size > 0 else 0.0
-    )
+    pad_value = fill_value if fill_value is not None else values[-1]
     pad_len = steps - values.shape[0]
-    padding = np.full((pad_len,), pad_value, dtype=values.dtype)
-    return np.concatenate([values, padding], axis=0)
+    result_dtype = np.result_type(values.dtype, np.asarray(pad_value).dtype)
+    padding = np.full((pad_len,), pad_value, dtype=result_dtype)
+    return np.concatenate([values.astype(result_dtype, copy=False), padding], axis=0)
 
 
 def _resample_series(
@@ -68,14 +69,31 @@ def _resample_series(
     method: str,
     fill_value: float | None,
 ) -> np.ndarray:
+    if time is not None:
+        time_array = np.asarray(time)
+        if time_array.ndim == 0:
+            time_array = time_array.reshape(1)
+        if time_array.shape[0] != values.shape[0]:
+            raise ValueError("Observed values and time coordinates must have equal lengths")
+    if values.size == 0:
+        if target_time is None and (steps is None or steps == values.shape[0]):
+            return values
+        raise ValueError("Cannot resample an empty observed target")
     if target_time is None and (steps is None or steps == values.shape[0]):
         return values
     if target_time is None:
         return _align_by_length(values, steps=steps or values.shape[0], fill_value=fill_value)
-    src_time = np.asarray(time) if time is not None else np.arange(values.shape[0], dtype=float)
+    src_time = (
+        np.asarray(time_array, dtype=float)
+        if time is not None
+        else np.arange(values.shape[0], dtype=float)
+    )
     tgt_time = np.asarray(target_time, dtype=float)
-    if src_time.size == 0:
-        return np.full((tgt_time.shape[0],), fill_value if fill_value is not None else 0.0)
+    if src_time.shape[0] != values.shape[0]:
+        raise ValueError("Observed values and time coordinates must have equal lengths")
+    order = np.argsort(src_time, kind="stable")
+    src_time = src_time[order]
+    values = values[order]
     if method == "linear":
         left = fill_value if fill_value is not None else float(values[0])
         right = fill_value if fill_value is not None else float(values[-1])
@@ -166,9 +184,20 @@ def extract_fabric_series(
         ValueError: If a tabular result has multiple candidate metric columns
             and no metric can be inferred from `target` or `request`.
     """
+    time_col = target.align.time_column
     if isinstance(result, dict) and ("values" in result or "series" in result):
+        if time_col and result.get("time") is None:
+            raise ValueError(
+                f"Configured alignment time column '{time_col}' is missing "
+                "from Fabric result"
+            )
         return result
     if isinstance(result, tuple) and len(result) == 2:
+        if time_col and result[1] is None:
+            raise ValueError(
+                f"Configured alignment time column '{time_col}' is missing "
+                "from Fabric result"
+            )
         return result
     columns = getattr(result, "columns", None)
     if columns is not None:
@@ -185,11 +214,20 @@ def extract_fabric_series(
                 f"Unable to infer Fabric metric column for target '{target.target_id}'"
             )
         values = result[metric].to_numpy()
-        time_col = target.align.time_column
         if time_col and time_col in column_names:
             time = result[time_col].to_numpy()
             return {"values": values, "time": time}
+        if time_col:
+            raise ValueError(
+                f"Configured alignment time column '{time_col}' is missing "
+                "from Fabric result"
+            )
         return values
+    if time_col:
+        raise ValueError(
+            f"Configured alignment time column '{time_col}' is missing "
+            "from Fabric result"
+        )
     return result
 
 
@@ -230,6 +268,13 @@ def prepare_targets(
         if target_cfg is None:
             continue
         values, time = _normalize_raw_target(raw)
+        if target_cfg.align.time_column and time is None:
+            raise ValueError(
+                f"Configured alignment time column '{target_cfg.align.time_column}' "
+                f"is missing for target '{target_id}'"
+            )
+        if time is not None and time.shape[0] != values.shape[0]:
+            raise ValueError("Observed values and time coordinates must have equal lengths")
         if time_axis is not None:
             if target_cfg.align.steps is not None and target_cfg.align.steps != len(time_axis):
                 raise ValueError(

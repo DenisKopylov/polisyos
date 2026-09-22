@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
+import platform
 import random
 from dataclasses import dataclass, field
 from typing import Any
@@ -28,6 +30,16 @@ class SearchSpace:
         init=False,
         repr=False,
         default_factory=list,
+    )
+    _last_sobol_sampler_identity: str | None = field(
+        init=False,
+        repr=False,
+        default=None,
+    )
+    _last_sobol_sampler_version: str | None = field(
+        init=False,
+        repr=False,
+        default=None,
     )
 
     def __post_init__(self) -> None:
@@ -112,25 +124,123 @@ class SearchSpace:
             cursor += 1
         return params
 
+    def sobol_backend(self) -> str:
+        """Return the import-time backend preference for diagnostics only.
+
+        Checkpoints persist the effective implementation recorded by
+        :meth:`sample_sobol`, never this availability probe.
+        """
+
+        if torch is not None:  # pragma: no cover - environment dependent
+            return "torch"
+        try:
+            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]  # noqa: F401
+        except Exception:
+            return "python"
+        return "scipy"
+
+    def sobol_space_fingerprint(self) -> str:
+        """Return an identity for the bounds used by the Sobol stream."""
+
+        signature = tuple(
+            (
+                bound.name,
+                float(bound.lower),
+                float(bound.upper),
+                bound.dtype.value,
+                bool(bound.log_scale),
+                repr(bound.categories),
+            )
+            for bound in self.bounds
+        )
+        return hashlib.sha256(repr(signature).encode("utf-8")).hexdigest()
+
+    @property
+    def last_sobol_sampler_identity(self) -> str | None:
+        """Return the implementation that produced the most recent samples."""
+
+        return self._last_sobol_sampler_identity
+
+    @property
+    def last_sobol_sampler_version(self) -> str | None:
+        """Return the implementation version for the most recent samples."""
+
+        return self._last_sobol_sampler_version
+
+    def validate_sobol_sampler(
+        self,
+        *,
+        seed: int,
+        expected_identity: str,
+        expected_version: str,
+        expected_prefix: list[NormalizedVector],
+    ) -> None:
+        """Validate the effective sampler before resuming a persisted prefix.
+
+        Backend availability is not sufficient here: a library can import while
+        its runtime path fails and falls back to the standard-library stream.
+        Generate the complete persisted prefix once so both the identity and
+        every cached point reflect the implementation that actually executed.
+        """
+
+        generated = self.sample_sobol(n_samples=len(expected_prefix), seed=seed)
+        actual_identity = self.last_sobol_sampler_identity
+        actual_version = self.last_sobol_sampler_version
+        if actual_identity != expected_identity or actual_version != expected_version:
+            raise ValueError(
+                "Sobol checkpoint is incompatible: effective sampler identity changed"
+            )
+        if generated != expected_prefix:
+            raise ValueError(
+                "Sobol checkpoint is incompatible: cached prefix diverges"
+            )
+
     def sample_sobol(self, n_samples: int, seed: int = 42) -> list[NormalizedVector]:
         if n_samples <= 0:
             return []
 
         if torch is not None:  # pragma: no branch
-            local_torch = require_torch()
-            sobol_engine = local_torch.quasirandom.SobolEngine(self.dim, scramble=True, seed=seed)
-            tensor = sobol_engine.draw(n_samples).tolist()
-            return [tuple(float(v) for v in row) for row in tensor]
+            try:
+                local_torch = require_torch()
+                sobol_engine = local_torch.quasirandom.SobolEngine(
+                    self.dim,
+                    scramble=True,
+                    seed=seed,
+                )
+                tensor = sobol_engine.draw(n_samples).tolist()
+                self._record_sobol_sampler(
+                    "torch.quasirandom.SobolEngine",
+                    str(getattr(local_torch, "__version__", "unknown")),
+                )
+                return [tuple(float(v) for v in row) for row in tensor]
+            except Exception:
+                # A present import is not proof that the native sampler can
+                # execute.  Continue through the same identity-recording path
+                # as the other runtime fallbacks.
+                pass
 
         try:
+            import scipy  # type: ignore[import-not-found]
             from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]
 
             qmc = Sobol(d=self.dim, scramble=True, seed=seed)
             samples = qmc.random(n=n_samples).tolist()
+            self._record_sobol_sampler(
+                "scipy.stats.qmc.Sobol",
+                str(getattr(scipy, "__version__", "unknown")),
+            )
             return [tuple(float(v) for v in row) for row in samples]
         except Exception:
             rng = random.Random(seed)
+            self._record_sobol_sampler(
+                "python.random.Random",
+                platform.python_version(),
+            )
             return [tuple(rng.random() for _ in range(self.dim)) for _ in range(n_samples)]
+
+    def _record_sobol_sampler(self, identity: str, version: str) -> None:
+        self._last_sobol_sampler_identity = identity
+        self._last_sobol_sampler_version = version
 
     def to_botorch_bounds(self) -> Any:
         local_torch = require_torch()

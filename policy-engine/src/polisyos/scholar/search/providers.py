@@ -82,6 +82,8 @@ class ProviderFailoverPolicy:
                     max_results=max_results,
                     timeout_s=timeout_s,
                 )
+                if not hits:
+                    continue
                 return provider.name, hits, None
             except Exception as exc:
                 last_error = f"{provider.name}: {exc}"

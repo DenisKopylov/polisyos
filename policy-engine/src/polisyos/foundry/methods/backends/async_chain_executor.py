@@ -53,11 +53,12 @@ from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
+    _build_node_param_payload,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
-from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.components.io import materialize_method_input, validate_value_for_slot
+from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 _log = get_foundry_logger("foundry.backends.async_chain")
@@ -312,10 +313,8 @@ class AsyncChainExecutor:
         method_class = registry.get(node.method_fqn)
         signature = chain.get_signature(node_id)
 
-        # Merge node-level params with chain-level params
-        node_params = dict(node.params)
-        node_params.update(params)
-        node_params.setdefault("seed", seed)
+        # Reuse the sequential static -> dynamic -> override payload contract.
+        node_params = _build_node_param_payload(node, {node_id: params})
 
         bound_inputs: dict[str, Any] = {}
         for binding in chain.get_bindings_for_target(node_id):

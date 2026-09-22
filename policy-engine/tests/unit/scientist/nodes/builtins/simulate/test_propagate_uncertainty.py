@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import jax
+import jax.numpy as jnp
 import pytest
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
+    _build_propagation_fn,
     _collect_input_envelopes,
     _extract_numeric_metrics,
     _load_config,
@@ -153,3 +156,41 @@ def test_load_config_assertion_is_not_swallowed(
 
     with pytest.raises(AssertionError, match="propagation config invariant"):
         _load_config(state)
+
+
+def test_build_propagation_fn_is_jax_tracer_safe():
+    """The real node response can be differentiated without a Python cast."""
+    response, mapped = _build_propagation_fn(
+        {"propagation_sensitivity": {"y": {"x": 1.0}}},
+        base_metric_values={"y": 10.0},
+        nominal_params={"x": 2.0},
+    )
+
+    jacobian = jax.jacfwd(lambda x: response(x=x)["y"])(jnp.asarray(2.0))
+
+    assert mapped == {"x"}
+    assert float(jacobian) == pytest.approx(5.0)
+
+
+def test_build_propagation_fn_keeps_unknown_sensitivity_unmapped():
+    """Missing response evidence does not become an all-parameter mapping."""
+    response, mapped = _build_propagation_fn(
+        {},
+        base_metric_values={"y": 10.0, "z": 20.0},
+        nominal_params={"x": 2.0},
+    )
+
+    assert mapped == set()
+    assert response(x=3.0) == {"y": 10.0, "z": 20.0}
+
+
+def test_build_propagation_fn_preserves_zero_baseline_effect():
+    """An explicit affine response still varies when its baseline is zero."""
+    response, _ = _build_propagation_fn(
+        {"propagation_sensitivity": {"y": {"x": 1.0}}},
+        base_metric_values={"y": 0.0},
+        nominal_params={"x": 2.0},
+    )
+
+    assert response(x=3.0)["y"] == pytest.approx(1.0)
+    assert response(x=1.0)["y"] == pytest.approx(-1.0)

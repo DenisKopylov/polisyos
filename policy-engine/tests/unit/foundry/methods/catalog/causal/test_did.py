@@ -69,6 +69,8 @@ def test_did_staggered_bootstrap_runs():
         seed=11,
     )
     report = result.output["report"]
-    assert report.status == EstimationStatus.SUCCESS
-    assert report.inference_method == "bootstrap"
+    assert report.status == EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate is not None
+    assert report.confidence_interval is None
+    assert report.inference_method == "none"
     assert report.n_bootstrap_samples == 200

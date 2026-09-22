@@ -22,6 +22,7 @@ from pydantic import TypeAdapter
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal.numeric import is_jax_tracer
 from polisyos.foundry.methods.components.merge_engine import JAXMergeEngine
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.governance.selector_expr import (
@@ -455,6 +456,77 @@ def extract_trainable_values(bundle: StaticBundle) -> list[Any]:
     return values
 
 
+def _concrete_bool(value: Any) -> bool | None:
+    """Return a scalar predicate when it is concrete, otherwise ``None``.
+
+    ``apply_nodes`` is also called from a traced ``lax.scan``.  Converting a
+    tracer to ``bool`` would make the schedule Python-dependent and fail under
+    JIT/gradient transforms, so only eager scalar predicates take the direct
+    path.  The traced path below uses ``lax.cond`` instead.
+    """
+    if is_jax_tracer(value):
+        return None
+    try:
+        return bool(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _neutral_patch_map(
+    state: GlobalState,
+    node: PreparedNode,
+    *,
+    bundle: StaticBundle,
+) -> dict[str, list[dict[str, Any]]]:
+    """Build a shape-preserving, semantically inactive patch map.
+
+    The runtime emitter is intentionally not called on the inactive branch.
+    ``PreparedNode.outputs`` is the compile-time output contract, and the
+    corresponding slot state supplies the shape and dtype for a neutral
+    record.  Merge masks added by ``_patch_map_to_pending_records`` make these
+    records inert for every supported merge rule while keeping both branches
+    of ``lax.cond`` structurally identical.
+    """
+    patch_map: dict[str, list[dict[str, Any]]] = {}
+    for slot_id in node.outputs:
+        slot_spec = bundle.slot_registry.slots.get(slot_id)
+        if slot_spec is None or not slot_spec.state_path:
+            raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
+        base_value = _get_state_path(state, slot_spec.state_path)
+        rule = bundle.merge_registry.rules.get(slot_spec.merge_rule.rule_id)
+        if rule is None:
+            raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
+
+        if rule.kind == MergeRuleKind.SUM:
+            record = {"delta": jnp.zeros_like(base_value)}
+        else:
+            # OVERRIDE, PRIORITY, and ERROR all consume a value.  The record
+            # is masked inactive before merge, so the exact neutral value is
+            # never selected or counted as a writer.
+            record = {"value": jnp.zeros_like(base_value)}
+        patch_map.setdefault(slot_id, []).append(record)
+    return patch_map
+
+
+def _emit_node_patches(
+    state: GlobalState,
+    key: jax.Array,
+    node: PreparedNode,
+    *,
+    target_mask: jax.Array | None,
+) -> tuple[dict[str, Any], jax.Array]:
+    """Emit one active node's patches after deriving its deterministic subkey."""
+    _, sub = jax.random.split(key)
+    patch_map, next_key = node.mechanism.emit_patches(
+        state,
+        sub,
+        target_mask=target_mask,
+    )
+    if patch_map is None:
+        raise ValueError(f"Mechanism '{node.mechanism_type}' did not emit patches")
+    return patch_map, next_key
+
+
 def apply_nodes(
     state: GlobalState,
     key: jax.Array,
@@ -487,15 +559,52 @@ def apply_nodes(
         else:
             mask = None
             mask_scope = None
-        _, sub = jax.random.split(cur_key)
-        patch_map, next_key = node.mechanism.emit_patches(
-            visible_state,
-            sub,
-            target_mask=mask if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM} else None,
-        )
-        if patch_map is None:
-            raise ValueError(f"Mechanism '{node.mechanism_type}' did not emit patches")
-        cur_key = jax.lax.select(active, next_key, cur_key)
+        target_mask = mask if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM} else None
+        concrete_active = _concrete_bool(active)
+        if concrete_active is True:
+            # Keep eager execution observable: an active mechanism still gets
+            # its real refusal/finite guards and its real PRNG substream.
+            patch_map, next_key = _emit_node_patches(
+                visible_state,
+                cur_key,
+                node,
+                target_mask=target_mask,
+            )
+        elif concrete_active is False:
+            # A statically inactive node must not invoke the emitter at all.
+            patch_map, next_key = (
+                _neutral_patch_map(
+                    visible_state,
+                    node,
+                    bundle=bundle,
+                ),
+                cur_key,
+            )
+        else:
+            # Under scan/JIT ``active`` is a tracer.  Passing state and key as
+            # operands keeps the emitter tracer-safe while ``lax.cond``
+            # selects only one numerical branch.  Both branches return the
+            # same patch structure and preserve the inactive PRNG carry.
+            def _active_branch(operands: tuple[Any, jax.Array, jax.Array | None]):
+                branch_state, branch_key, branch_mask = operands
+                return _emit_node_patches(
+                    branch_state,
+                    branch_key,
+                    node,
+                    target_mask=branch_mask,
+                )
+
+            def _inactive_branch(operands: tuple[Any, jax.Array, jax.Array | None]):
+                branch_state, branch_key, _ = operands
+                return _neutral_patch_map(branch_state, node, bundle=bundle), branch_key
+
+            patch_map, next_key = jax.lax.cond(
+                active,
+                _active_branch,
+                _inactive_branch,
+                (visible_state, cur_key, target_mask),
+            )
+        cur_key = next_key
         pending_records = pending_records + _patch_map_to_pending_records(
             patch_map,
             node=node,

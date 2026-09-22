@@ -70,6 +70,7 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
 )
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
 NORMATIVE_RUN_DISPOSITION_SCHEMA = "policyos.normative_generation_composition.v1"
+_ROOT_EVALUATION_CONTEXT_UNSET = object()
 
 
 class NormativeRunEvidenceRefs(BaseModel):
@@ -435,7 +436,9 @@ async def compile_and_run_recursive_generation_cycle(
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
     recursive_budget: RecursiveCycleBudget,
-    root_evaluation_context: EvaluationExecutionContext | None = None,
+    root_evaluation_context: EvaluationExecutionContext | None = (
+        _ROOT_EVALUATION_CONTEXT_UNSET  # type: ignore[assignment]
+    ),
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
@@ -455,20 +458,26 @@ async def compile_and_run_recursive_generation_cycle(
             "eval_safety_verifier_not_established",
             "The production composition requires its verification-only EvalSafety port.",
         )
-    if root_evaluation_context is None:
+    if root_evaluation_context is _ROOT_EVALUATION_CONTEXT_UNSET:
         raise DesignProblemAuthorityError(
             "eval_safety_execution_context_not_established",
-            "The production composition requires an explicit EvalSafety execution context.",
+            "The caller must explicitly choose the ordinary simulation-only route "
+            "or provide an EvalSafety context.",
         )
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
 
-    if not isinstance(root_evaluation_context, EvaluationExecutionContext):
+    if root_evaluation_context is not None and not isinstance(
+        root_evaluation_context, EvaluationExecutionContext
+    ):
         raise DesignProblemAuthorityError(
             "eval_safety_execution_context_not_canonical",
             "The root EvalSafety context must be the canonical typed contract.",
         )
-    if root_evaluation_context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+    if (
+        root_evaluation_context is not None
+        and root_evaluation_context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID
+    ):
         raise DesignProblemAuthorityError(
             "eval_safety_evaluator_owner_mismatch",
             "The root EvalSafety context must name the canonical Foundry value owner.",
@@ -486,6 +495,22 @@ async def compile_and_run_recursive_generation_cycle(
             "compiled DesignProblem does not preserve the caller's raw request",
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if cycle_substrate_context is None:
+        cycle_substrate_context = _build_cycle_substrate_context_from_owner(
+            problem=problem,
+            problem_ref=problem_ref,
+            repo_root=repo_root,
+        )
+    # A plain request may not have enough canonical owner data in the current
+    # checkout to establish a CycleSubstrateContext.  Preserve that bounded
+    # absence and let the recursive controller's canonical ports emit typed
+    # pending/blocked observations; do not mint caller-owned context or WMR.
+    if cycle_substrate_context is None and root_n4_generation_port is not None:
+        raise DesignProblemAuthorityError(
+            "cycle_substrate_context_not_established",
+            "The HTTP composition rejects an explicit N4 producer without one "
+            "owner-bound CycleSubstrateContext.",
+        )
     if (
         cycle_substrate_context is not None
         and cycle_substrate_context.design_problem_ref != problem_ref
@@ -556,7 +581,11 @@ async def compile_and_run_recursive_generation_cycle(
         n4_generation_ports_by_node=(
             {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None
         ),
-        evaluation_contexts_by_node={root_ref: root_evaluation_context},
+        evaluation_contexts_by_node=(
+            {root_ref: root_evaluation_context}
+            if root_evaluation_context is not None
+            else ({} if cycle_substrate_context is None else None)
+        ),
     )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()
@@ -599,6 +628,10 @@ async def compile_and_run_recursive_generation_cycle(
                 raise PublicExportRedactionError("open_world_projection_duplicate")
             seen_vector_refs.add(vector_key)
             limitations.append(limitation)
+    recursive_run_payload = recursive_run.model_dump(
+        mode="json",
+        exclude={"leaf_nodes"},
+    )
     payload = {
         "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
         "design_problem_ref": problem_ref,
@@ -606,18 +639,78 @@ async def compile_and_run_recursive_generation_cycle(
         "cycle_substrate_context_ref": (
             cycle_substrate_context.content_hash if cycle_substrate_context is not None else None
         ),
-        "recursive_run": recursive_run.model_dump(
-            mode="json",
-            exclude={"leaf_nodes"},
-        ),
+        "recursive_run": recursive_run_payload,
     }
     if limitations:
         payload["open_world_risk_limitations"] = tuple(
             row.model_dump(mode="json") for row in limitations
         )
     return CompiledRecursiveGenerationCycleRun.model_validate(
-        {**payload, "content_hash": gy_content_hash(payload)}
+        {
+            **payload,
+            # Preserve the live recursive object so its leaf simulation keeps
+            # the exact owner WMR internal provenance handle.  The JSON
+            # projection above remains the content-hash/public-artifact view.
+            "recursive_run": recursive_run,
+            "content_hash": gy_content_hash(payload),
+        }
     )
+
+
+def _build_cycle_substrate_context_from_owner(
+    *,
+    problem: DesignProblem,
+    problem_ref: str,
+    repo_root: Path | None,
+) -> CycleSubstrateContext | None:
+    """Best-effort ordinary-route binding through the existing substrate owners.
+
+    A plain request may arrive without Python-owned context.  If the canonical
+    production catalogs are available, bind one context to their existing WMR;
+    if they are unavailable, retain the typed pending route instead of making a
+    fixture or a second world store look authoritative.
+    """
+
+    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.intervention_substrate import (
+        production_composed_world_model_record,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+
+    root = (repo_root or Path.cwd()).resolve()
+    try:
+        world = production_composed_world_model_record(root)
+        registry = build_substrate_registry_from_existing_catalogs(root)
+        if registry.content_hash != world.substrate_registry_ref.content_hash:
+            return None
+        selected_hashes = tuple(
+            entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
+        )
+        if not selected_hashes:
+            return None
+        return build_cycle_substrate_context(
+            design_problem_ref=problem_ref,
+            domain=problem.domain,
+            substrate_registry=registry,
+            selected_registry_entry_hashes=selected_hashes,
+            world_model_record=world,
+            intervention_substrate=None,
+            candidate_levers=(),
+            transport_context=None,
+            source_pack_content_hash=None,
+            substrate_input_content_hash=gy_content_hash(
+                {
+                    "design_problem_ref": problem_ref,
+                    "substrate_registry_content_hash": registry.content_hash,
+                    "world_model_record_content_hash": world.content_hash,
+                    "selected_registry_entry_hashes": selected_hashes,
+                }
+            ),
+        )
+    except (OSError, TypeError, ValueError):
+        return None
 
 
 __all__ = [

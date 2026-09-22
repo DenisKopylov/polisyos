@@ -57,6 +57,7 @@ def test_run_manifest_migration_writes_relative_paths_atomically(tmp_path: Path)
     artifact_path = tmp_path / "run" / "artifacts" / "result.json"
     manifest_dir.mkdir(parents=True)
     artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text("artifact-bytes", encoding="utf-8")
     source = manifest_dir / "run.json"
     target = tmp_path / "migrated.json"
     source.write_text(

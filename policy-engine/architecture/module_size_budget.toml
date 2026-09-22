@@ -281,17 +281,17 @@ path = "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py"
 package = "data_forge"
 owner = "team-data-forge"
 baseline_lines = 8236
-current_lines = 116
+current_lines = 184
 warning_lines = 1000
-report_only_limit_lines = 116
-next_ratchet_lines = 116
-target_lines = 116
+report_only_limit_lines = 184
+next_ratchet_lines = 184
+target_lines = 184
 sunset = "2026-12-31"
 issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-42---data-forge-ingest-god-module-splits"
 strategy = "keep the legacy core_sources_ingest.py path as a no-growth compatibility facade"
-shrink_plan = "Phase 4.2 moved core-source ingest implementation behind core_sources/{loaders,validators,transformers,registry,writers,api}. Keep this facade at 116 lines while the split leaves own behavior."
+shrink_plan = "Phase 4.2 moved core-source ingest implementation behind core_sources/{loaders,validators,transformers,registry,writers,api}. Keep this facade as an explicit bounded compatibility surface while the split leaves own behavior."
 extraction_sequence = ["serialization"]
-risk_notes = "The facade synchronizes legacy monkeypatch globals into split leaves; keep compatibility tests in place before shrinking it further."
+risk_notes = "The facade retains only explicit bounded bindings and scoped test overrides; split leaves must not receive arbitrary facade globals."
 characterization_tests = ["tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py"]
 
 [[budget]]

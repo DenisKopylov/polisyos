@@ -61,10 +61,87 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require('LA-057' in bm['RUN-01']['legacy_cards'] and 'LA-045' in bm['REQ-01']['legacy_cards'], 'Exact cleanup owners lost')
     require(len(m['evolution']) == 8 and {e['source_direction'] for e in m['evolution']} == {f'S{x:02d}' for x in range(1,9)}, 'S directions not preserved')
     r = m['local_execution']
-    require(r['light_max_jobs'] == 2 and r['native_max_jobs'] == 1 and r['native_exclusive'] is True and r['checkpoint_exclusive'] is True and r['checkpoint_max_jobs'] == 1, 'Mac resource limits changed')
+    ledger_resource_profile = load(root, 'templates/run_ledger.json')['resource_profile']
+    test_job_template = load(root, 'templates/test_job.json')
+    require(ledger_resource_profile == r, 'Ledger resource profile drift')
+    require(
+        set(r['immutable_request_fields']) <= set(test_job_template),
+        'Test-job template lacks immutable request fields',
+    )
+    require(
+        test_job_template['immutable_request_fields'] == r['immutable_request_fields'],
+        'Test-job immutable field declaration drift',
+    )
+    require(
+        r['light_max_jobs'] == 7
+        and r['light_equivalent_budget'] == 7
+        and r['max_resource_processes'] == 7
+        and r['native_max_jobs'] == 1
+        and r['native_exclusive'] is True
+        and r['n_c_exclusive'] is True
+        and r['checkpoint_exclusive'] is True
+        and r['checkpoint_max_jobs'] == 1
+        and r['ready_buffer_min'] == 5,
+        'Adaptive Mac resource policy changed',
+    )
     require(r['routine_load_polling'] is False and r['parallel_installs'] is False, 'Monitoring/install anti-pattern introduced')
-    require((r['implementers'],r['reviewers'],r['integrators'],r['default_luna']) == (9,3,2,14), 'Default team mismatch')
-    require(r['modes'] == {'12':[8,2,2],'14':[9,3,2],'16':[10,4,2]}, 'Team ranges mismatch')
+    require(
+        r['requested_direct_workers'] == 15
+        and r['executor_min'] == 8
+        and r['executor_max'] == 9
+        and r['reviewer_min'] == 3
+        and r['reviewer_max'] == 4
+        and r['runtime_cap_fallback'] is True
+        and r['ready_excludes_active'] is True
+        and r['single_queue_writer'] is True
+        and r['queue_writers'] == 1
+        and r['permit_release_after_cleanup_receipt'] is True
+        and r['immutable_request_admission'] is True
+        and r['review_releases_compute'] is True
+        and r['storage_reserve_gib'] >= 20
+        and r['resource_costs'] == {
+            'micro': 0.5,
+            'standard': 1,
+            'measured_medium_min': 2,
+            'measured_medium_max': 3,
+        }
+        and r['requested_direct_leaves'] == 15
+        and r['effective_runtime_direct_leaves'] == 15
+        and r['effective_runtime_cap_includes_sol'] is False
+        and r['runtime_cap_observed'] is True
+        and r['runtime_cap_basis'] == 'observed_current_platform_2026-09-21'
+        and r['fifteenth_role_rotation'] is False
+        and r['review_backlog_soft_target'] == 4
+        and r['review_backlog_is_executor_cap'] is False
+        and r['small_excess_global_stop'] is False
+        and set(r['immutable_request_fields'])
+        == {
+            'executable', 'argv', 'cwd', 'worktree', 'code_sha',
+            'selectors', 'identities', 'timeout', 'class', 'cost',
+            'named_resources', 'output_root', 'basetemp',
+        },
+        'Adaptive admission invariants changed',
+    )
+    require(
+        (
+            r['executors'],
+            r['reviewers'],
+            r['preparers'],
+            r['brokers'],
+            r['integrators'],
+            r['direct_workers'],
+        )
+        == (8, 3, 2, 1, 1, 15),
+        'Adaptive team target mismatch',
+    )
+    require(
+        r['executor_min'] <= r['executors'] <= r['executor_max']
+        and r['reviewer_min'] <= r['reviewers'] <= r['reviewer_max']
+        and r['effective_runtime_direct_leaves'] == r['requested_direct_leaves']
+        and r['executors'] + r['reviewers'] + r['preparers'] + r['brokers'] + r['integrators']
+        == r['requested_direct_workers'],
+        'Elastic staffing projection mismatch',
+    )
     graph = {b['id']: b['depends_on'] for b in bundles}
     require(all(x in bm for deps in graph.values() for x in deps), 'Unknown dependency')
     try:
@@ -91,10 +168,11 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
         require(b['initial_status']=='planned' and b['checkpoint_status']=='not_run', f'{bid} premature completion')
         require(b['checkpoint'] in {f'CP{x}' for x in range(1,7)}, f'{bid} ambiguous checkpoint ID')
         require(b['check_class'] in {'L','N'}, f'{bid} invalid local test class')
+    require(m['first_dispatch_status'] == 'historical_seed_only_not_current_queue', 'Historical seed was promoted to active dispatch')
     first=m['first_dispatch']
-    require(len(first)==9 and len(set(first))==9, 'Initial writer count mismatch')
-    require(all(not graph[x] for x in first), 'Initial dispatch waits for prerequisite')
-    require(not any(pair<=set(first) for pair in supplied), 'Initial dispatch conflict')
+    require(len(first)==9 and len(set(first))==9, 'Historical seed count mismatch')
+    require(all(not graph[x] for x in first), 'Historical seed dependency integrity changed')
+    require(not any(pair<=set(first) for pair in supplied), 'Historical seed conflict integrity changed')
     reloc=load(root,'relocation_map.json')['moves']
     require(len(reloc)==21, 'Relocation map count mismatch')
     for move in reloc:

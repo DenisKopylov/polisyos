@@ -9,6 +9,7 @@ from polisyos.scientist.methods.search.lessons import (
     LessonKind,
     LessonQuery,
     LessonRegistry,
+    LessonTrustLevel,
     lesson_from_failure_card,
 )
 
@@ -99,3 +100,36 @@ def test_lesson_from_failure_card_preserves_failure_metadata() -> None:
     assert lesson.failure_type == "non_identifiable"
     assert lesson.remediation_hint == "Add instruments or relax the estimand."
     assert "instrumental_variable" in lesson.tags
+
+
+def test_repeated_reads_do_not_restore_confidence_without_new_evidence(tmp_path) -> None:
+    _, registry = _make_registry(tmp_path)
+    registry.record(
+        LessonCard(
+            kind=LessonKind.FAILURE,
+            summary="Stale evidence must remain bounded.",
+            failure_type="stale_evidence",
+            stage_name="funnel_L1_heuristic",
+            fidelity_level=1,
+            candidate_hash="stale-candidate",
+            source_run_id="run-stale",
+            created_at=datetime.now(UTC) - timedelta(days=100),
+            confidence=0.9,
+            tags=["stale"],
+        )
+    )
+
+    cold = registry.query(LessonQuery(tags=["stale"], limit=1))
+    assert len(cold) == 1
+    assert cold[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert cold[0].confidence == 0.5
+
+    warm_strict = registry.query(
+        LessonQuery(
+            tags=["stale"],
+            trust_levels=[LessonTrustLevel.LOCAL],
+            min_confidence=0.8,
+            limit=1,
+        )
+    )
+    assert warm_strict == []

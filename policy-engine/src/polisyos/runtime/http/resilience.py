@@ -6,8 +6,11 @@ import asyncio
 import contextvars
 import os
 import sqlite3
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FutureTimeoutError
+from concurrent.futures import (
+    CancelledError as FutureCancelledError,
+    ThreadPoolExecutor,
+    TimeoutError as FutureTimeoutError,
+)
 from functools import wraps
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -94,12 +97,16 @@ class BlockingDependencyGuard:
             context = contextvars.copy_context()
             future = self._executor.submit(context.run, func, *args, **kwargs)
         except RuntimeError as exc:
+            self._release_cancelled_lease(lease)
             raise RuntimeDependencyUnavailableError(
                 self._dependency_name,
                 detail=f"{self._dependency_name} executor is unavailable",
             ) from exc
         try:
             result = future.result(timeout=self._timeout_seconds)
+        except (FutureCancelledError, asyncio.CancelledError):
+            self._release_cancelled_lease(lease)
+            raise
         except FutureTimeoutError as exc:
             future.cancel()
             self._breaker.record_failure(lease)
@@ -115,6 +122,13 @@ class BlockingDependencyGuard:
             raise
         self._breaker.record_success(lease)
         return result
+
+    def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
+        if lease is None:
+            return
+        release = getattr(self._breaker, "_release_cancelled_lease", None)
+        if callable(release):
+            release(lease)
 
     def record_failure(self) -> None:
         self._breaker.record_failure()
@@ -191,7 +205,7 @@ class AsyncDependencyGuard:
         return False
 
     def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
-        if lease is None or not lease.owns_half_open_slot:
+        if lease is None:
             return
         release = getattr(self._breaker, "_release_cancelled_lease", None)
         if callable(release):

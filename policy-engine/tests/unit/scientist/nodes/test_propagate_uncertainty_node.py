@@ -95,6 +95,14 @@ def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
         artifacts_index={
             ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref,
         },
+        params={
+            "propagation_mc_n_samples": 100,
+            "propagation_mc_batch_size": 100,
+            "propagation_sensitivity": {
+                "applied_nodes": {"data_snapshot": 1.0},
+                "step_latency_ms": {"data_snapshot": 1.0},
+            }
+        },
     )
 
     outcome = PropagateUncertaintyNode().execute(ctx, state)
@@ -107,3 +115,7 @@ def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
     assert updated_sim.uncertainty_envelopes is not None
     assert set(updated_sim.uncertainty_envelopes.keys()) == {"applied_nodes", "step_latency_ms"}
     assert ARTIFACT_PROPAGATION_REPORT_REF in outcome.state.artifacts_index
+
+    report_ref = outcome.state.artifacts_index[ARTIFACT_PROPAGATION_REPORT_REF]
+    report = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
+    assert report["methods"] == [PropagationMethod.DELTA_METHOD.value] * 2

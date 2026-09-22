@@ -203,6 +203,58 @@ def _target_id(record: ObservationRecord) -> str:
     )
 
 
+_SOURCE_CONFIDENCE_PRIORITY = {
+    "exploratory": 0,
+    "validated": 1,
+    "core": 2,
+}
+
+
+def _observation_selection_key(record: ObservationRecord) -> tuple[object, ...]:
+    """Rank duplicate observations by declared quality, not source identity.
+
+    Source and lineage fields are deliberately absent from this key.  When
+    quality signals tie, the caller must reject conflicting records rather
+    than silently collapsing them by a technical or source identifier.
+    """
+    return (
+        _SOURCE_CONFIDENCE_PRIORITY[record.source_confidence_tier.value],
+        int(not record.measurement_bias_flag),
+        int(not record.censoring_mask),
+        int(not record.shock_mask),
+        float(record.coverage_estimate),
+        float(record.trust_weight),
+        -int(record.lag_days_estimate),
+    )
+
+
+def _select_observation_for_period(
+    records: Sequence[ObservationRecord],
+    *,
+    target_id: str,
+    period_start: date,
+) -> ObservationRecord:
+    """Choose one duplicate by declared authority/content, or fail closed."""
+    ranked = sorted(records, key=_observation_selection_key, reverse=True)
+    winner = ranked[0]
+    winner_key = _observation_selection_key(winner)
+    tied = [
+        record for record in ranked if _observation_selection_key(record) == winner_key
+    ]
+    if len(tied) > 1:
+        winner_payload = winner.model_dump(exclude={"observation_id"})
+        if any(
+            record.model_dump(exclude={"observation_id"}) != winner_payload
+            for record in tied[1:]
+        ):
+            raise ValueError(
+                "Ambiguous observations for target "
+                f"'{target_id}' at period '{period_start.isoformat()}': "
+                "authority/content tie requires explicit aggregation"
+            )
+    return winner
+
+
 class CalibrationTargetBundleCompiler:
     """Compile observation panels into Foundry calibration target bundles."""
 
@@ -224,15 +276,12 @@ class CalibrationTargetBundleCompiler:
 
     def compile(self, panel: ObservationPanel) -> CalibrationTargetBundle:
         """Materialize one aligned JAX-backed target bundle from an IR panel."""
-        sorted_records = sorted(
-            panel.records, key=lambda item: (item.period_start, item.observation_id)
-        )
-        full_axis = tuple(sorted({record.period_start for record in sorted_records}))
+        full_axis = tuple(sorted({record.period_start for record in panel.records}))
         axis_index = {value: idx for idx, value in enumerate(full_axis)}
         grouped: dict[str, list[ObservationRecord]] = defaultdict(list)
         split_plan = self._splitter.plan_for_panel(panel)
 
-        for record in sorted_records:
+        for record in panel.records:
             grouped[_target_id(record)].append(record)
 
         targets: list[MeasurementAwareTarget] = []
@@ -250,7 +299,18 @@ class CalibrationTargetBundleCompiler:
         time_grain: dict[str, TimeFrequency] = {}
 
         for target_id, records in grouped.items():
-            first = records[0]
+            records_by_period: dict[date, list[ObservationRecord]] = defaultdict(list)
+            for record in records:
+                records_by_period[record.period_start].append(record)
+            selected_records = tuple(
+                _select_observation_for_period(
+                    period_records,
+                    target_id=target_id,
+                    period_start=period_start,
+                )
+                for period_start, period_records in sorted(records_by_period.items())
+            )
+            first = selected_records[0]
             values = [0.0] * len(full_axis)
             trust = [0.0] * len(full_axis)
             coverage = [0.0] * len(full_axis)
@@ -264,7 +324,7 @@ class CalibrationTargetBundleCompiler:
             split_labels = [split_plan.label_for_period(point, point).value for point in full_axis]
             routed_modes = [first.identification_mode] * len(full_axis)
 
-            for record in records:
+            for record in selected_records:
                 idx = axis_index[record.period_start]
                 route = self._identification_router.route_record(record)
                 values[idx] = float(record.observed_value)
@@ -473,6 +533,11 @@ def _as_1d_array(value: Any, *, dtype: Any) -> jnp.ndarray:
     arr = jnp.asarray(value, dtype=dtype)
     if arr.ndim == 0:
         arr = arr.reshape(1)
+    elif arr.ndim != 1:
+        raise ValueError(
+            "Measurement weights and metadata must be one-dimensional, "
+            f"got {arr.shape}"
+        )
     return arr
 
 
@@ -515,9 +580,11 @@ def compute_effective_weight(
 ) -> Mapping[str, jnp.ndarray]:
     """Combine trust, coverage, lag, censoring, shock, and regime discounts.
 
-    The returned `effective_weight` is the product of the base weight and each
-    measurement-quality adjustment, with zeroing for anchors that have no
-    usable coverage.
+    ``sample_quality_weight`` contains only within-target measurement quality.
+    ``effective_weight`` retains the legacy product with ``base_weights`` for
+    callers that need it. Calibration reduces with the former and applies the
+    inter-target priority after reduction, so target priorities cannot cancel
+    in a within-target denominator.
     Args:
         base_weights: Scalar or vector base target weights from
             `CalibrationConfig`.
@@ -532,8 +599,9 @@ def compute_effective_weight(
         config: Discount hyperparameters.
 
     Returns:
-        Mapping with `effective_weight` and intermediate discount arrays used
-        by diagnostics/reporting.
+        Mapping with `sample_quality_weight`, `effective_weight`, an explicit
+        `has_effective_support` flag, and intermediate discount arrays used by
+        diagnostics/reporting.
 
     Raises:
         ValueError: If any broadcasted metadata vector has a length that is
@@ -552,19 +620,25 @@ def compute_effective_weight(
     if lag_days_estimate is None:
         lag = jnp.zeros_like(normalized_trust)
     else:
-        lag = _broadcast_to(_as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0]))
+        lag = _broadcast_to(
+            _as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0])
+        )
     lag_discount = jnp.power(0.5, lag / float(config.lag_half_life_days))
 
     if censoring_mask is None:
         censor = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        censor = _broadcast_to(_as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0]))
+        censor = _broadcast_to(
+            _as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0])
+        )
     censor_discount = jnp.where(censor, config.censoring_discount, 1.0)
 
     if shock_mask is None:
         shock = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        shock = _broadcast_to(_as_1d_array(shock_mask, dtype=bool), int(trust.shape[0]))
+        shock = _broadcast_to(
+            _as_1d_array(shock_mask, dtype=bool), int(trust.shape[0])
+        )
     shock_discount = jnp.where(shock, config.shock_discount, 1.0)
 
     boundary_mask = _schema_regime_boundary_mask(schema_regime_id)
@@ -574,18 +648,23 @@ def compute_effective_weight(
         boundary_mask = _broadcast_to(boundary_mask, int(trust.shape[0]))
     regime_discount = jnp.where(boundary_mask, config.regime_boundary_discount, 1.0)
 
-    effective_weight = (
-        base
-        * normalized_trust
+    sample_quality_weight = (
+        normalized_trust
         * coverage
         * lag_discount
         * censor_discount
         * shock_discount
         * regime_discount
     )
-    effective_weight = jnp.where(coverage <= 0.0, 0.0, effective_weight)
+    sample_quality_weight = jnp.where(coverage <= 0.0, 0.0, sample_quality_weight)
+    effective_weight = base * sample_quality_weight
+    has_effective_support = jnp.any(
+        jnp.isfinite(sample_quality_weight) & (sample_quality_weight > 0.0)
+    )
     return {
         "effective_weight": effective_weight,
+        "sample_quality_weight": sample_quality_weight,
+        "has_effective_support": has_effective_support,
         "normalized_trust": normalized_trust,
         "lag_discount": lag_discount,
         "censor_discount": censor_discount,

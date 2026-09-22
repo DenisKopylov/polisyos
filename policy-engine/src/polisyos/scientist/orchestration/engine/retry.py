@@ -13,10 +13,13 @@ delegate directly to ``node.execute()`` with minimal overhead.
 from __future__ import annotations
 
 import asyncio
+import contextvars
+import dataclasses
 import logging
 import multiprocessing as mp
 import queue
 import random
+import threading
 import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from datetime import UTC, datetime
@@ -72,6 +75,344 @@ _DEAD_LETTER_PERSIST_ERRORS = (
     ValidationError,
     ValueError,
 )
+
+
+# The typed engine store exposes these two persistence calls.  The ownership
+# hook is included because RunContext invokes it on the same store during a
+# run write; FileSystemCAS-only signing/import helpers are outside this lease.
+_STORE_WRITE_METHODS = frozenset(
+    {
+        "put_bytes",
+        "put_json",
+        "record_artifact_owner",
+    }
+)
+_RUN_WRITE_METHODS = frozenset(
+    {
+        "_emit_record",
+        "_record_ref_owner",
+        "add_input",
+        "add_output",
+        "emit",
+        "finalize",
+    }
+)
+_TRACE_WRITE_METHODS = frozenset({"emit", "close"})
+_AUDIT_WRITE_METHODS = frozenset({"append", "close"})
+_CLAIM_WRITE_METHODS = frozenset(
+    {
+        "advance_verified_batch",
+        "append_verified_owner_event",
+        "finalize_initial_root",
+        "migrate_legacy_roots",
+        "persist_candidate_ledger",
+        "prepare_initial_ledger",
+        "produce_owner_event_candidate",
+    }
+)
+
+
+class _AttemptAuthority:
+    """Serialize attempt-owned writes and revoke them after a timeout.
+
+    The lock is deliberately shared by every facade for one attempt.  A write
+    that has acquired it is linearized before ``revoke``; every later write is
+    denied.  This is a local authority boundary, not a process sandbox.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.RLock()
+        self._active = True
+
+    def invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+        """Run one authorized operation, or deny it after revocation."""
+        with self._lock:
+            if not self._active:
+                return None
+            return operation(*args, **kwargs)
+
+    def revoke(self) -> None:
+        """Make all subsequent attempt-owned writes no-ops."""
+        with self._lock:
+            self._active = False
+
+
+class _AttemptFacade:
+    """Delegate reads while gating the named mutating methods."""
+
+    def __init__(
+        self,
+        target: Any,
+        authority: _AttemptAuthority,
+        *,
+        write_methods: frozenset[str],
+    ) -> None:
+        self._target = target
+        self._authority = authority
+        self._write_methods = write_methods
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in self._write_methods:
+            return lambda *args, **kwargs: self._authority.invoke(
+                value,
+                *(_unwrap_manifest_value(arg) for arg in args),
+                **{
+                    key: _unwrap_manifest_value(item)
+                    for key, item in kwargs.items()
+                },
+            )
+        return value
+
+
+_MUTATING_COLLECTION_METHODS = frozenset(
+    {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "pop",
+        "remove",
+        "reverse",
+        "sort",
+        "update",
+        "setdefault",
+    }
+)
+
+
+class _AttemptCollectionFacade:
+    """Gate mutation of a list/dict nested in the run manifest."""
+
+    def __init__(self, target: Any, authority: _AttemptAuthority) -> None:
+        self._target = target
+        self._authority = authority
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in _MUTATING_COLLECTION_METHODS:
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                self._authority.invoke(
+                    value,
+                    *(_unwrap_manifest_value(arg) for arg in args),
+                    **{
+                        key: _unwrap_manifest_value(item)
+                        for key, item in kwargs.items()
+                    },
+                ),
+                self._authority,
+            )
+        if callable(value) and name == "get":
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(*args, **kwargs), self._authority
+            )
+        if callable(value) and name == "items":
+            return lambda *args, **kwargs: (
+                (key, _wrap_manifest_value(item, self._authority))
+                for key, item in value(*args, **kwargs)
+            )
+        if callable(value) and name == "values":
+            return lambda *args, **kwargs: (
+                _wrap_manifest_value(item, self._authority)
+                for item in value(*args, **kwargs)
+            )
+        if callable(value) and name == "copy":
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(*args, **kwargs), self._authority
+            )
+        return value
+
+    def __getitem__(self, key: Any) -> Any:
+        return _wrap_manifest_value(self._target[key], self._authority)
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self._authority.invoke(
+            self._target.__setitem__, key, _unwrap_manifest_value(value)
+        )
+
+    def __delitem__(self, key: Any) -> None:
+        self._authority.invoke(self._target.__delitem__, key)
+
+    def __iter__(self):
+        return (_wrap_manifest_value(item, self._authority) for item in self._target)
+
+    def __len__(self) -> int:
+        return len(self._target)
+
+    def __contains__(self, value: object) -> bool:
+        return value in self._target
+
+
+class _AttemptModelFacade:
+    """Gate mutable descendants that are Pydantic models in a manifest."""
+
+    def __init__(self, target: BaseModel, authority: _AttemptAuthority) -> None:
+        object.__setattr__(self, "_target", target)
+        object.__setattr__(self, "_authority", authority)
+
+    @property
+    def __class__(self) -> type[Any]:
+        return type(self._target)
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self._target, name)
+        if callable(value) and name in {"copy", "model_copy"}:
+            return lambda *args, **kwargs: _wrap_manifest_value(
+                value(
+                    *(_unwrap_manifest_value(arg) for arg in args),
+                    **{
+                        key: _unwrap_manifest_value(item)
+                        for key, item in kwargs.items()
+                    },
+                ),
+                self._authority,
+            )
+        return _wrap_manifest_value(value, self._authority)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name.startswith("_"):
+            object.__setattr__(self, name, value)
+            return
+        self._authority.invoke(
+            setattr,
+            self._target,
+            name,
+            _unwrap_manifest_value(value),
+        )
+
+
+class _AttemptManifestFacade(_AttemptModelFacade):
+    """Preserve direct on-time manifest writes while denying revoked writes."""
+
+
+def _wrap_manifest_value(value: Any, authority: _AttemptAuthority) -> Any:
+    """Wrap mutable manifest descendants without changing scalar values."""
+    if isinstance(value, (list, dict)):
+        return _AttemptCollectionFacade(value, authority)
+    if isinstance(value, BaseModel):
+        return _AttemptModelFacade(value, authority)
+    if isinstance(value, tuple):
+        return tuple(_wrap_manifest_value(item, authority) for item in value)
+    return value
+
+
+def _unwrap_manifest_value(value: Any) -> Any:
+    """Recover the underlying object when a gated value is passed to a write."""
+    if isinstance(value, (_AttemptFacade, _AttemptCollectionFacade, _AttemptModelFacade)):
+        return value._target
+    if isinstance(value, tuple):
+        return tuple(_unwrap_manifest_value(item) for item in value)
+    return value
+
+
+class _AttemptRunFacade(_AttemptFacade):
+    """Run facade with isolated manifest and trace sink references."""
+
+    def __init__(
+        self,
+        target: Any,
+        authority: _AttemptAuthority,
+        store: Any,
+    ) -> None:
+        super().__init__(target, authority, write_methods=_RUN_WRITE_METHODS)
+        object.__setattr__(self, "store", store)
+        manifest = getattr(target, "run_manifest", None)
+        object.__setattr__(
+            self,
+            "run_manifest",
+            _AttemptManifestFacade(manifest, authority) if manifest is not None else None,
+        )
+        for name in ("trace", "_audit_sink"):
+            sink = getattr(target, name, None)
+            if sink is not None:
+                setattr(
+                    self,
+                    name,
+                    _AttemptFacade(
+                        sink,
+                        authority,
+                        write_methods=_TRACE_WRITE_METHODS,
+                    ),
+                )
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if "_target" in self.__dict__:
+            target_value = _unwrap_manifest_value(value)
+            if name in {"store", "trace", "_audit_sink"}:
+                self._authority.invoke(setattr, self._target, name, target_value)
+                if target_value is None:
+                    value = None
+                else:
+                    write_methods = (
+                        _STORE_WRITE_METHODS
+                        if name == "store"
+                        else _TRACE_WRITE_METHODS
+                    )
+                    value = _AttemptFacade(
+                        target_value,
+                        self._authority,
+                        write_methods=write_methods,
+                    )
+            elif name == "run_manifest":
+                self._authority.invoke(
+                    setattr,
+                    self._target,
+                    name,
+                    target_value,
+                )
+                value = _AttemptManifestFacade(target_value, self._authority)
+        object.__setattr__(self, name, value)
+
+
+class _AttemptContext:
+    """Private worker context preserving the public context attribute surface."""
+
+    def __init__(self, target: Any, authority: _AttemptAuthority) -> None:
+        self._target = target
+        self.store = _AttemptFacade(
+            target.store,
+            authority,
+            write_methods=_STORE_WRITE_METHODS,
+        )
+        self.run = _AttemptRunFacade(target.run, authority, self.store)
+        audit = getattr(target, "audit", None)
+        if audit is not None:
+            self.audit = _AttemptFacade(
+                audit,
+                authority,
+                write_methods=_AUDIT_WRITE_METHODS,
+            )
+        claim_owner = getattr(target, "claim_ledger_owner", None)
+        if claim_owner is not None:
+            self.claim_ledger_owner = _AttemptFacade(
+                claim_owner,
+                authority,
+                write_methods=_CLAIM_WRITE_METHODS,
+            )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._target, name)
+
+
+def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
+    """Build a gated context without changing its concrete public type."""
+    proxy = _AttemptContext(target, authority)
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    if not isinstance(target, ExecutionContext):
+        return proxy
+    field_names = {field.name for field in dataclasses.fields(target)}
+    replacements = {
+        name: getattr(proxy, name)
+        for name in field_names
+        if name in {"store", "run", "audit", "claim_ledger_owner"}
+    }
+    try:
+        return dataclasses.replace(target, **replacements)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            "failed to preserve ExecutionContext type for timed attempt"
+        ) from exc
 
 
 class RetryPolicy(BaseModel):
@@ -313,14 +654,30 @@ def _execute_with_timeout_sync(
     *,
     timeout_s: float,
 ) -> NodeOutcome:
+    authority = _AttemptAuthority()
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
     if _can_use_forked_timeout_worker():
-        return _execute_with_timeout_process(node, ctx, state, timeout_s=timeout_s)
+        return _execute_with_timeout_process(
+            node,
+            worker_ctx,
+            worker_state,
+            timeout_s=timeout_s,
+            authority=authority,
+        )
 
-    future = get_shared_executor().submit(node.execute, ctx, state)
+    context = contextvars.copy_context()
+    future = get_shared_executor().submit(
+        context.run,
+        node.execute,
+        worker_ctx,
+        worker_state,
+    )
     try:
         return future.result(timeout=timeout_s)
     except FuturesTimeoutError:
         future.cancel()
+        authority.revoke()
         raise NodeTimeoutError(
             f"Node exceeded timeout of {timeout_s}s",
         ) from None
@@ -335,11 +692,13 @@ def _can_use_forked_timeout_worker() -> bool:
 
 def _execute_with_timeout_process(
     node: Any,
-    ctx: ExecutionContext,
+    ctx: Any,
     state: ExperimentState,
     *,
     timeout_s: float,
+    authority: _AttemptAuthority | None = None,
 ) -> NodeOutcome:
+    authority = authority or _AttemptAuthority()
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
     process = mp_ctx.Process(
@@ -357,6 +716,7 @@ def _execute_with_timeout_process(
             process.join(timeout=1.0)
         result_queue.close()
         result_queue.join_thread()
+        authority.revoke()
         raise NodeTimeoutError(
             f"Node exceeded timeout of {timeout_s}s",
         ) from None
@@ -380,11 +740,16 @@ def _execute_with_timeout_process(
 
 async def _execute_with_timeout_process_async(
     node: Any,
-    ctx: ExecutionContext,
+    ctx: Any,
     state: ExperimentState,
     *,
     timeout_s: float,
+    authority: _AttemptAuthority | None = None,
 ) -> NodeOutcome:
+    if authority is None:
+        authority = _AttemptAuthority()
+        ctx = _build_attempt_context(ctx, authority)
+        state = state.model_copy(deep=True)
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
     process = mp_ctx.Process(
@@ -404,6 +769,7 @@ async def _execute_with_timeout_process_async(
             process.join(timeout=1.0)
         result_queue.close()
         result_queue.join_thread()
+        authority.revoke()
         raise NodeTimeoutError(
             f"Node exceeded timeout of {timeout_s}s",
         ) from None
@@ -423,6 +789,40 @@ async def _execute_with_timeout_process_async(
     if status == "error":
         raise RuntimeError(str(payload))
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
+
+
+def _consume_finished_task(task: asyncio.Task[Any]) -> None:
+    """Consume a detached attempt result so timeout cleanup is observable only once."""
+    try:
+        task.exception()
+    except asyncio.CancelledError:
+        pass
+
+
+async def _execute_with_timeout_async(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    timeout_s: float,
+) -> NodeOutcome:
+    """Run an async attempt with a revocable authority boundary."""
+    authority = _AttemptAuthority()
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
+    task = asyncio.create_task(node.execute_async(worker_ctx, worker_state))
+    try:
+        return await asyncio.wait_for(asyncio.shield(task), timeout=timeout_s)
+    except TimeoutError:
+        authority.revoke()
+        task.add_done_callback(_consume_finished_task)
+        raise NodeTimeoutError(
+            f"Node exceeded timeout of {timeout_s}s",
+        ) from None
+    except asyncio.CancelledError:
+        authority.revoke()
+        task.add_done_callback(_consume_finished_task)
+        raise
 
 
 def _node_execute_worker(
@@ -455,7 +855,7 @@ async def execute_with_retry_async(
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
-    * Timeout: ``asyncio.wait_for(asyncio.to_thread(...), timeout=...)``.
+    * Timeout: a bounded async task or worker with a revocable attempt authority.
     * Retry: loop + ``asyncio.sleep()``.
     """
     retry_policy = _apply_bounded_liveness_retry_ceiling(
@@ -472,7 +872,14 @@ async def execute_with_retry_async(
 
     async def _invoke() -> NodeOutcome:
         if _has_async:
-            return await node.execute_async(ctx, state)
+            if timeout_s is None:
+                return await node.execute_async(ctx, state)
+            return await _execute_with_timeout_async(
+                node,
+                ctx,
+                state,
+                timeout_s=timeout_s,
+            )
         if timeout_s is not None:
             if _can_use_forked_timeout_worker():
                 return await _execute_with_timeout_process_async(
@@ -508,16 +915,7 @@ async def execute_with_retry_async(
             )
 
         try:
-            if timeout_s is not None and _has_async:
-                coro = _invoke()
-                try:
-                    outcome = await asyncio.wait_for(coro, timeout=timeout_s)
-                except TimeoutError:
-                    raise NodeTimeoutError(
-                        f"Node exceeded timeout of {timeout_s}s",
-                    ) from None
-            else:
-                outcome = await _invoke()
+            outcome = await _invoke()
 
             if outcome.status != "fail":
                 if circuit_breaker is not None:

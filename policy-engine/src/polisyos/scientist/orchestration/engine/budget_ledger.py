@@ -6,8 +6,10 @@ import hashlib
 import json
 import os
 import socket
+import tempfile
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -135,6 +137,7 @@ class FileBudgetLedger:
     ) -> None:
         self._path = Path(path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
         self._thread_lock = threading.Lock()
         self._ledger_id = str(ledger_id or _default_ledger_id(self._path))
         resolved_host_id = str(
@@ -150,48 +153,45 @@ class FileBudgetLedger:
         self._mutation_history_limit = max(int(mutation_history_limit), 1)
 
     def load(self) -> BudgetState:
-        snapshot = self._load_snapshot()
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
         return snapshot.state if snapshot is not None else BudgetState()
 
     def snapshot(self) -> BudgetLedgerSnapshot:
-        snapshot = self._load_snapshot()
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
         if snapshot is None:
             return self._build_snapshot(state=BudgetState())
         return self._normalize_snapshot(snapshot)
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:
-            try:
-                import fcntl
-            except ImportError as exc:  # pragma: no cover
-                raise RuntimeError("fcntl is required for file budget ledger locking") from exc
-
-            fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
-            try:
-                fcntl.flock(fd, fcntl.LOCK_EX)
-                snapshot = self._read_snapshot_from_fd(fd)
-                if snapshot is None:
-                    snapshot = self._persist_snapshot(
-                        fd,
-                        self._build_snapshot(
-                            state=initial_state,
-                            recent_mutations=(
-                                self._build_mutation(
-                                    revision=0,
-                                    operation="bootstrap",
+            with self._file_lock(exclusive=True):
+                existed = self._path.exists()
+                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
+                try:
+                    snapshot = self._read_snapshot_from_fd(fd) if existed else None
+                    if snapshot is None:
+                        snapshot = self._persist_snapshot(
+                            fd,
+                            self._build_snapshot(
+                                state=initial_state,
+                                recent_mutations=(
+                                    self._build_mutation(
+                                        revision=0,
+                                        operation="bootstrap",
+                                    ),
                                 ),
                             ),
-                        ),
-                    )
-                else:
-                    needs_upgrade = self._needs_contract_upgrade(snapshot)
-                    snapshot = self._normalize_snapshot(snapshot)
-                    if needs_upgrade:
-                        snapshot = self._persist_snapshot(fd, snapshot)
-                return snapshot.state
-            finally:
-                fcntl.flock(fd, fcntl.LOCK_UN)
-                os.close(fd)
+                        )
+                    else:
+                        needs_upgrade = self._needs_contract_upgrade(snapshot)
+                        snapshot = self._normalize_snapshot(snapshot)
+                        if needs_upgrade:
+                            snapshot = self._persist_snapshot(fd, snapshot)
+                    return snapshot.state
+                finally:
+                    os.close(fd)
 
     def record_spend(
         self,
@@ -262,6 +262,22 @@ class FileBudgetLedger:
             operation=apply,
         )
 
+    @contextmanager
+    def _file_lock(self, *, exclusive: bool) -> Iterator[None]:
+        """Hold the stable lockfile for one complete read or publication."""
+        try:
+            import fcntl
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("fcntl is required for file budget ledger locking") from exc
+
+        fd = os.open(str(self._lock_path), os.O_RDWR | os.O_CREAT, 0o644)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+            yield
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
+
     def _mutate(
         self,
         mutation_kind: Literal[
@@ -277,55 +293,50 @@ class FileBudgetLedger:
         operation: Callable[[BudgetState], BudgetLedgerMutationResult],
     ) -> BudgetLedgerMutationResult:
         with self._thread_lock:
-            try:
-                import fcntl
-            except ImportError as exc:  # pragma: no cover
-                raise RuntimeError("fcntl is required for file budget ledger locking") from exc
-
-            fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
-            try:
-                fcntl.flock(fd, fcntl.LOCK_EX)
-                snapshot = self._normalize_snapshot(
-                    self._read_snapshot_from_fd(fd) or BudgetLedgerSnapshot()
-                )
-                state = _branch_budget_state(snapshot.state)
-                result = operation(state)
-                revision = snapshot.revision + 1
-                mutations = list(snapshot.recent_mutations)
-                mutations.append(
-                    self._build_mutation(
-                        revision=revision,
-                        operation=mutation_kind,
-                        key=key,
-                        amount=amount,
+            with self._file_lock(exclusive=True):
+                existed = self._path.exists()
+                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
+                try:
+                    snapshot = self._normalize_snapshot(
+                        self._read_snapshot_from_fd(fd) if existed else BudgetLedgerSnapshot()
+                    )
+                    state = _branch_budget_state(snapshot.state)
+                    result = operation(state)
+                    revision = snapshot.revision + 1
+                    mutations = list(snapshot.recent_mutations)
+                    mutations.append(
+                        self._build_mutation(
+                            revision=revision,
+                            operation=mutation_kind,
+                            key=key,
+                            amount=amount,
+                            applied_amount=result.applied_amount,
+                            provider=provider,
+                            reserved=result.reserved,
+                        )
+                    )
+                    written = self._persist_snapshot(
+                        fd,
+                        self._build_snapshot(
+                            revision=revision,
+                            state=state,
+                            recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
+                        ),
+                    )
+                    return BudgetLedgerMutationResult(
+                        state=written.state,
+                        revision=written.revision,
                         applied_amount=result.applied_amount,
-                        provider=provider,
                         reserved=result.reserved,
                     )
-                )
-                written = self._persist_snapshot(
-                    fd,
-                    self._build_snapshot(
-                        revision=revision,
-                        state=state,
-                        recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
-                    ),
-                )
-                return BudgetLedgerMutationResult(
-                    state=written.state,
-                    revision=written.revision,
-                    applied_amount=result.applied_amount,
-                    reserved=result.reserved,
-                )
-            finally:
-                fcntl.flock(fd, fcntl.LOCK_UN)
-                os.close(fd)
+                finally:
+                    os.close(fd)
 
     def _read_snapshot_from_fd(self, fd: int) -> BudgetLedgerSnapshot | None:
         os.lseek(fd, 0, os.SEEK_SET)
         raw = os.read(fd, 1_000_000).decode("utf-8").strip()
         if not raw:
-            return None
+            raise ValueError("existing budget ledger is empty")
         return BudgetLedgerSnapshot.model_validate(json.loads(raw))
 
     def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
@@ -333,7 +344,7 @@ class FileBudgetLedger:
             return None
         raw = self._path.read_text(encoding="utf-8").strip()
         if not raw:
-            return None
+            raise ValueError("existing budget ledger is empty")
         return BudgetLedgerSnapshot.model_validate(json.loads(raw))
 
     def _persist_snapshot(self, fd: int, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
@@ -341,12 +352,27 @@ class FileBudgetLedger:
         payload = normalized.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode(
             "utf-8"
         )
-        os.ftruncate(fd, 0)
-        os.lseek(fd, 0, os.SEEK_SET)
-        os.write(fd, payload)
-        os.fsync(fd)
-        _fsync_dir(self._path.parent)
-        return normalized
+        temp_fd, temp_name = tempfile.mkstemp(
+            prefix=f".{self._path.name}.tmp-",
+            dir=self._path.parent,
+        )
+        try:
+            offset = 0
+            while offset < len(payload):
+                written = os.write(temp_fd, payload[offset:])
+                if written <= 0:
+                    raise OSError("budget ledger temporary write made no progress")
+                offset += written
+            os.fsync(temp_fd)
+            os.close(temp_fd)
+            temp_fd = -1
+            os.replace(temp_name, self._path)
+            _fsync_dir(self._path.parent)
+            return normalized
+        finally:
+            if temp_fd >= 0:
+                os.close(temp_fd)
+            Path(temp_name).unlink(missing_ok=True)
 
     def _build_snapshot(
         self,

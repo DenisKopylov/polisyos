@@ -41,7 +41,7 @@ explanation_requirement = "The local document must explain why the single-module
 status = "active"
 owner = "team-docs"
 max_lifetime_days = 90
-known_redirect_stub_paths = ["frontend"]
+known_redirect_stub_paths = []
 required_readme_front_matter = [
   "owner",
   "target_path",
@@ -575,7 +575,7 @@ evidence_or_generated_artifact_promotion_path = "examples/<example-name>/README.
 
 [[contract]]
 path = "frontend"
-status = "legacy_handoff"
+status = "reserved_future"
 role = "Contributor handoff for the former JavaScript workspace root. Active apps live under apps/ and shared JavaScript packages live under packages/."
 owner = "team-frontend"
 lifecycle_class = "frontend_handoff"

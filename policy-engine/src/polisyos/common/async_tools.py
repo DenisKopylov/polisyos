@@ -139,5 +139,12 @@ async def run_blocking_async[T](
     try:
         return await asyncio.wait_for(future, timeout=timeout)
     except TimeoutError as exc:
+        # ``asyncio.TimeoutError`` is the built-in ``TimeoutError`` on the
+        # supported Python versions, so this handler also catches a timeout
+        # raised by the blocking callable itself. Preserve that inner error
+        # when the executor future completed; only rewrite a wait timeout
+        # after asyncio cancelled the future.
+        if future.done() and not future.cancelled():
+            raise
         future.cancel()
         raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc

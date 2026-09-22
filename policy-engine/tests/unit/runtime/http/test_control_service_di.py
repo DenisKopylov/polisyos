@@ -447,6 +447,72 @@ async def test_recursive_http_eval_safety_inputs_fail_typed_before_compilation(
 
 
 @pytest.mark.asyncio
+async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_context(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A plain request must not require a caller-built EvalSafety Python object."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+    problem = _problem(f"plain_http_without_python_context_{uuid4().hex}")
+    compiler_calls = 0
+
+    async def compile_problem(**kwargs):
+        nonlocal compiler_calls
+        assert kwargs["nl_request"] == problem.nl_provenance.raw_request
+        assert kwargs["context"] == {}
+        compiler_calls += 1
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+
+    # This is the ordinary HTTP boundary: no CycleSubstrateContext or
+    # EvaluationExecutionContext is supplied by the caller.  N4 is deliberately
+    # not replaced with a fixture bundle.  If the canonical owner producer is
+    # unavailable in this checkout, the existing recursive ports must preserve
+    # typed blocked observations instead of raising at the HTTP boundary.
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=problem.nl_provenance.raw_request,
+        context={},
+        model_name="fixture-model",
+        compiler_gateway=object(),  # type: ignore[arg-type]
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+        promotion_runtime=runtime,
+        eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
+        root_evaluation_context=None,
+        repo_root=REPO_ROOT,
+    )
+
+    assert compiler_calls == 1
+    assert compiled.recursive_run.leaf_nodes
+    if compiled.cycle_substrate_context_ref is None:
+        leaf = compiled.recursive_run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.cycles
+        cycle = leaf.cycle_run.cycles[0]
+        assert cycle.simulation.status == "simulation_blocked"
+        assert cycle.simulation.simulation_ref is None
+        assert cycle.value_port.status == "value_blocked"
+        assert cycle.value_port.value_ref is None
+
+
+@pytest.mark.asyncio
 async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,

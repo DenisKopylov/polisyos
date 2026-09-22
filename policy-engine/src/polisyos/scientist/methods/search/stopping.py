@@ -5,6 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
+from math import isfinite
 from typing import Any
 
 
@@ -48,6 +50,10 @@ class StoppingCriterion(ABC):
         """Reset any internal state (e.g., timers)."""
         pass
 
+    def state_keys(self) -> tuple[str, ...]:
+        """Return externally-owned state keys required by this criterion."""
+        return ()
+
 
 class MaxIterations(StoppingCriterion):
     """Stop after a fixed number of iterations."""
@@ -62,7 +68,7 @@ class MaxIterations(StoppingCriterion):
         return "max_iterations"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
-        current = len(history)
+        current = int(state.get("evaluation_iterations", len(history)))
         if current >= self._max_iter:
             return StoppingCondition(
                 should_stop=True,
@@ -143,11 +149,15 @@ class ImprovementPlateau(StoppingCriterion):
 
         best_recent = min(recent_values)
         best_historical = min(historical_values)
+        signed_improvement = best_historical - best_recent
 
         if abs(best_historical) < 1e-10:
-            improvement = 0.0 if abs(best_recent) < 1e-10 else float("inf")
+            # A zero baseline has no meaningful relative denominator.  Keep
+            # the signed gain in the objective's absolute scale so a positive
+            # loss remains a regression instead of becoming infinite progress.
+            improvement = signed_improvement
         else:
-            improvement = (best_historical - best_recent) / abs(best_historical)
+            improvement = signed_improvement / abs(best_historical)
 
         if improvement < self._min_improvement:
             return StoppingCondition(
@@ -213,14 +223,54 @@ class CostBudgetStopping(StoppingCriterion):
         return "cost_budget"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
-        cost = state.get(self._cost_key, 0.0)
+        del history
+        raw_cost = state.get(self._cost_key)
+        if not isinstance(raw_cost, (int, float, Decimal)) or isinstance(raw_cost, bool):
+            return StoppingCondition(
+                should_stop=True,
+                reason=f"Cost budget unavailable for key {self._cost_key!r}",
+                details={
+                    "budget": self._max_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": False,
+                },
+            )
+        cost = float(raw_cost)
+        if not isfinite(cost):
+            return StoppingCondition(
+                should_stop=True,
+                reason=f"Cost budget unavailable for key {self._cost_key!r}",
+                details={
+                    "budget": self._max_cost,
+                    "cost": raw_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": False,
+                },
+            )
         if cost >= self._max_cost:
             return StoppingCondition(
                 should_stop=True,
                 reason=f"Cost budget ({self._max_cost} USD) exhausted",
-                details={"cost": cost, "budget": self._max_cost},
+                details={
+                    "cost": cost,
+                    "budget": self._max_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": True,
+                },
             )
-        return StoppingCondition(should_stop=False)
+        return StoppingCondition(
+            should_stop=False,
+            details={
+                "cost": cost,
+                "budget": self._max_cost,
+                "cost_key": self._cost_key,
+                "budget_available": True,
+            },
+        )
+
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the exact budget key this criterion reads."""
+        return (self._cost_key,)
 
 
 class CompositeStoppingCriterion(StoppingCriterion):
@@ -250,6 +300,14 @@ class CompositeStoppingCriterion(StoppingCriterion):
         for criterion in self._criteria:
             criterion.reset()
 
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the de-duplicated state keys required by child criteria."""
+        return tuple(
+            dict.fromkeys(
+                key for criterion in self._criteria for key in criterion.state_keys()
+            )
+        )
+
 
 class AllStoppingCriteria(StoppingCriterion):
     """Stop only when ALL contained criteria trigger (AND logic)."""
@@ -277,6 +335,14 @@ class AllStoppingCriteria(StoppingCriterion):
     def reset(self) -> None:
         for criterion in self._criteria:
             criterion.reset()
+
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the de-duplicated state keys required by child criteria."""
+        return tuple(
+            dict.fromkeys(
+                key for criterion in self._criteria for key in criterion.state_keys()
+            )
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

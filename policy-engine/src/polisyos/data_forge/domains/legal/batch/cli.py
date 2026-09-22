@@ -903,6 +903,7 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
 
 def _cmd_embed_local(args: argparse.Namespace) -> None:
     from polisyos.data_forge.domains.legal.batch.embedder import build_local_embeddings_and_indexes
+    from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 
     db_path = (
         args.db_path if args.db_path is not None else args.output_dir / "lex_knowledge_graph.duckdb"
@@ -922,6 +923,26 @@ def _cmd_embed_local(args: argparse.Namespace) -> None:
         fp16=args.fp16,
     )
 
+    projection_names = (
+        "lex_entity_embeddings",
+        "lex_fact_embeddings",
+        "lex_provision_embeddings",
+    )
+    generation_artifacts: list[Path] = []
+    generation_metadata: dict[str, object] = {}
+    for projection_name in projection_names:
+        generation = embedding_generation_manifest(
+            args.output_dir / ".legal_embedding_generations" / projection_name,
+            legacy_embeddings_path=args.output_dir / f"{projection_name}.npz",
+            legacy_index_path=args.output_dir
+            / f"{projection_name.replace('_embeddings', '_index')}.hnsw",
+        )
+        if generation is None:
+            continue
+        metadata, artifacts = generation
+        generation_metadata[projection_name] = metadata
+        generation_artifacts.extend(artifacts)
+
     write_stage_manifest(
         manifest_path=args.output_dir / "manifests" / "embed_local.json",
         stage="embed_local",
@@ -937,6 +958,7 @@ def _cmd_embed_local(args: argparse.Namespace) -> None:
             "incremental": bool(args.incremental),
             "fp16": bool(args.fp16),
             "thermal": bool(args.thermal),
+            "embedding_generations": generation_metadata,
         },
         artifacts=[
             args.output_dir / "lex_entity_embeddings.npz",
@@ -945,6 +967,7 @@ def _cmd_embed_local(args: argparse.Namespace) -> None:
             args.output_dir / "lex_fact_index.hnsw",
             args.output_dir / "lex_provision_embeddings.npz",
             args.output_dir / "lex_provision_index.hnsw",
+            *generation_artifacts,
         ],
         started_at=datetime.now(UTC).isoformat(),
     )

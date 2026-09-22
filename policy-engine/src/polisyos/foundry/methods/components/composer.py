@@ -21,8 +21,8 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
-from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
+from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 if TYPE_CHECKING:
@@ -297,13 +297,32 @@ class CompositionDAG:
 
         return levels
 
-    def freeze(self) -> FrozenCompositionDAG:
+    def freeze(
+        self,
+        extra_predecessors: Mapping[UUID, set[UUID]] | None = None,
+    ) -> FrozenCompositionDAG:
+        effective_predecessors = {
+            node_id: set(self.predecessors.get(node_id, set())) for node_id in self.nodes
+        }
+        effective_successors = {
+            node_id: set(self.successors.get(node_id, set())) for node_id in self.nodes
+        }
+        if extra_predecessors:
+            for target_id, predecessor_ids in extra_predecessors.items():
+                if target_id not in self.nodes:
+                    continue
+                for predecessor_id in predecessor_ids:
+                    if predecessor_id not in self.nodes:
+                        continue
+                    effective_predecessors[target_id].add(predecessor_id)
+                    effective_successors[predecessor_id].add(target_id)
+
         nodes = MappingProxyType(dict(self.nodes))
         successors = MappingProxyType(
-            {nid: frozenset(succs) for nid, succs in self.successors.items()}
+            {nid: frozenset(succs) for nid, succs in effective_successors.items()}
         )
         predecessors = MappingProxyType(
-            {nid: frozenset(preds) for nid, preds in self.predecessors.items()}
+            {nid: frozenset(preds) for nid, preds in effective_predecessors.items()}
         )
         edges = MappingProxyType(dict(self.edges))
         return FrozenCompositionDAG(
@@ -325,7 +344,11 @@ class FrozenCompositionDAG:
     """
     Immutable snapshot of a composition DAG.
 
-    Provides read-only access to nodes, edges, and adjacency lists.
+    Provides read-only access to nodes, edges, and effective adjacency lists.
+
+    ``predecessors`` and ``successors`` include both data-flow edges and
+    ordering-only requirement edges captured when the graph was frozen.
+    ``edges`` remains the data-flow edge mapping used for slot bindings.
     """
 
     nodes: Mapping[UUID, MethodNode]
@@ -357,6 +380,76 @@ class FrozenCompositionDAG:
             )
         )
         return leaves
+
+    def _stable_key(self, node_id: UUID) -> tuple[NodeKey, int, int]:
+        node = self.nodes[node_id]
+        node_key = node.node_key or NodeKey(node.method_fqn, "")
+        return (node_key, node.instance_index, node._insertion_order)
+
+    def _sort_ready(self, ready: Sequence[UUID]) -> list[UUID]:
+        if len(ready) <= 1:
+            return list(ready)
+
+        ready_set = set(ready)
+
+        def mut_commutes(a: UUID, b: UUID) -> bool:
+            node_a = self.nodes[a]
+            node_b = self.nodes[b]
+            return (
+                node_b.method_fqn in node_a.commutes_with
+                and node_a.method_fqn in node_b.commutes_with
+            )
+
+        def commutes_with_all(node_id: UUID) -> bool:
+            for other in ready_set:
+                if other == node_id:
+                    continue
+                if not mut_commutes(node_id, other):
+                    return False
+            return True
+
+        order_sensitive: list[UUID] = []
+        commuting: list[UUID] = []
+        for node_id in ready:
+            if commutes_with_all(node_id):
+                commuting.append(node_id)
+            else:
+                order_sensitive.append(node_id)
+
+        order_sensitive.sort(
+            key=lambda nid: (self.nodes[nid]._insertion_order, self._stable_key(nid))
+        )
+        commuting.sort(key=self._stable_key)
+        return order_sensitive + commuting
+
+    def compute_parallel_levels(self) -> list[list[UUID]]:
+        """Partition the frozen effective DAG into executable levels."""
+        in_degree = {
+            node_id: len(self.predecessors.get(node_id, frozenset()))
+            for node_id in self.nodes
+        }
+        levels: list[list[UUID]] = []
+        ready: list[UUID] = [node_id for node_id, degree in in_degree.items() if degree == 0]
+        processed = 0
+
+        while ready:
+            batch = self._sort_ready(ready)
+            levels.append(batch)
+            processed += len(batch)
+            next_ready: list[UUID] = []
+            for node_id in batch:
+                for successor_id in self.successors.get(node_id, frozenset()):
+                    in_degree[successor_id] -= 1
+                    if in_degree[successor_id] == 0:
+                        next_ready.append(successor_id)
+            ready = next_ready
+
+        if processed != len(self.nodes):
+            remaining = [node_id for node_id, degree in in_degree.items() if degree > 0]
+            cycle_fqns = [self.nodes[node_id].method_fqn for node_id in remaining[:5]]
+            raise CyclicDependencyError(cycle_fqns)
+
+        return levels
 
     def __len__(self) -> int:
         return len(self.nodes)
@@ -516,6 +609,18 @@ class MethodComposer:
         req_predecessors, req_warnings = self._requirement_edges(level=level)
         warnings.extend(req_warnings)
 
+        # Validate concrete target occurrences at the composition boundary.  The
+        # linker already owns this predicate; keeping the call here means both
+        # sequential and async executors consume the same validated chain and
+        # cannot silently fall back to last-write-wins for one input slot.
+        link_issues = self._linker.validate_chain(
+            tuple(self._signatures.values()),
+            tuple(self._dag.edges.values()),
+        )
+        if link_issues and level == SemanticValidationLevel.STRICT:
+            raise ValueError("Chain failed slot validation:\n  " + "\n  ".join(link_issues))
+        warnings.extend(f"[slot] {issue}" for issue in link_issues)
+
         try:
             self._dag.topological_order(extra_predecessors=req_predecessors)
         except CyclicDependencyError as exc:
@@ -586,7 +691,7 @@ class MethodComposer:
         )
 
         # Compute composition-aware cache keys (includes upstream context)
-        frozen_dag = self._dag.freeze()
+        frozen_dag = self._dag.freeze(extra_predecessors=req_predecessors)
         cache_keys = self._compute_composition_cache_keys(
             frozen_dag,
             req_predecessors,

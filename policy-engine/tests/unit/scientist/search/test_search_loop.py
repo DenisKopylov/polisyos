@@ -4,6 +4,8 @@ Verification tests for Phase 17: Search Loop + Two-Stage + Engine Abstraction.
 
 from __future__ import annotations
 
+import math
+from threading import Event, Thread
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -24,6 +26,7 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stages import CheapStage, ExpensiveStage
 from polisyos.scientist.methods.search.stopping import (
     CompositeStoppingCriterion,
+    CostBudgetStopping,
     ImprovementPlateau,
     MaxIterations,
     MaxWallTime,
@@ -164,6 +167,313 @@ class TestOptimizationFlow:
         assert result.iterations_completed == 5
         assert "Maximum iterations" in result.stopping_reason
 
+    def test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable(
+        self,
+        quadratic_objective,
+    ):
+        """A controller run owns its state and returns a stable result snapshot."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 10.0, "semantic": {"interventions": []}}
+
+        def stage_a(candidate, context):
+            del candidate, context
+            return 0.0, True
+
+        def stage_b(candidate, context):
+            del context
+            return {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+                initial_evaluations=[],
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+
+        first_candidate = {"x": 1.0, "semantic": {"interventions": []}}
+        first = controller.run({"request": "first"}, initial_candidate=first_candidate)
+        first_candidate["x"] = 99.0
+
+        second = controller.run(
+            {"request": "second"},
+            initial_candidate={"x": 2.0, "semantic": {"interventions": []}},
+        )
+
+        assert second.search_id != first.search_id
+        assert second.stage_a_evaluations == 1
+        assert second.stage_b_evaluations == 1
+        assert len(second.history) == 1
+        assert second.history[0].candidate["x"] == 2.0
+        assert second.best_candidate is not None
+        assert second.best_candidate["x"] == 2.0
+
+        assert len(first.history) == 1
+        assert first.history[0].candidate["x"] == 1.0
+        assert first.best_candidate is not None
+        assert first.best_candidate["x"] == 1.0
+        assert first.stage_a_evaluations == 1
+        assert first.stage_b_evaluations == 1
+
+        sentinel = controller.run(
+            {"request": "sentinel"},
+            initial_candidate={
+                "x": 3.0,
+                "semantic": {"interventions": []},
+                "__sentinel__": {"sentinel_id": "ctl-01"},
+            },
+        )
+        assert sentinel.history == []
+        assert sentinel.best_candidate is None
+        assert sentinel.stage_a_evaluations == 1
+        assert sentinel.stage_b_evaluations == 1
+        assert sentinel.telemetry["sentinel_evaluations"] == 1
+
+        warm_evaluation = {
+            "candidate": {"x": 0.5, "semantic": {"interventions": []}},
+            "objective_value": 0.5,
+        }
+        warm_controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(2),
+                objective=quadratic_objective,
+                initial_evaluations=[warm_evaluation],
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+        warm = warm_controller.run(
+            {"request": "compatible-warm-start"},
+            initial_candidate={"x": 4.0, "semantic": {"interventions": []}},
+        )
+        warm_evaluation["candidate"]["x"] = 8.0
+
+        assert warm.history[0].iteration == -1
+        assert warm.history[0].candidate["x"] == 0.5
+        assert warm.telemetry["training_evaluations"] == 1
+        assert warm.telemetry["history_size"] == 3
+        assert warm.telemetry["new_evaluations"] == 2
+        assert warm.telemetry["evaluation_count"] == 2
+        assert warm.telemetry["scientific_evaluations"] == 2
+
+    def test_cost_budget_snapshot_stops_after_owner_spend_and_is_reported(
+        self,
+        quadratic_objective,
+    ):
+        """The owner spend is shared by both stopping checks and the result report."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        context = {"cumulative_cost_usd": 0.0}
+
+        def stage_b(candidate, stage_context):
+            del candidate
+            stage_context["cumulative_cost_usd"] += 1.0
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=CostBudgetStopping(max_cost_usd=1.0),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, stage_context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+
+        result = controller.run(context)
+
+        assert result.iterations_completed == 1
+        assert result.stage_b_evaluations == 1
+        assert result.telemetry["budget_available"] is True
+        assert result.telemetry["budget_snapshot"] == {"cumulative_cost_usd": 1.0}
+        assert result.telemetry["budget_spent"] == 1.0
+        assert "Cost budget" in result.stopping_reason
+
+    def test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective(
+        self,
+        quadratic_objective,
+    ):
+        """A present invalid typed result remains blocked at the consumer boundary."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": -10.0},
+                "feedback": {"verdict": "APPROVE"},
+                "policy_evaluation": {"unexpected": "typed payload"},
+            },
+        )
+
+        result = controller.run({"user_request": "malformed typed"})
+
+        assert result.best_candidate is None
+        assert result.history[0].objective_value == float("inf")
+        assert result.history[0].policy_evaluation is None
+        assert result.history[0].policy_evaluation_status == "invalid"
+        assert result.history[0].policy_evaluation_error == "policy_evaluation_parse_failed"
+        assert result.history[0].is_promising is False
+        assert result.telemetry["policy_evaluation_errors"] == 1
+
+    def test_valid_infeasible_typed_evaluation_remains_typed(self, quadratic_objective):
+        """A valid blocking vector is not converted into the legacy scalar path."""
+        from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": -10.0, "semantic": {"interventions": []}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": -10.0},
+                "feedback": {"verdict": "REJECT"},
+                "policy_evaluation": PolicyEvaluationVector(
+                    feasible=False,
+                    blocking_reasons=["budget_constraint"],
+                ),
+            },
+        )
+
+        result = controller.run({"user_request": "infeasible typed"})
+
+        evaluation = result.history[0].policy_evaluation
+        assert evaluation is not None
+        assert evaluation.feasible is False
+        assert result.history[0].policy_evaluation_status == "valid"
+        assert result.history[0].is_promising is False
+        assert result.history[0].objective_value >= 1_000_000.0
+
+    def test_concurrent_runs_are_rejected_as_non_reentrant(self, quadratic_objective):
+        """One mutable controller rejects a second run while the first is active."""
+
+        first_entered_stage_b = Event()
+        release_first_stage_b = Event()
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best
+                return {"x": context["run_id"], "semantic": {"interventions": []}}
+
+        def stage_a(candidate, context):
+            del candidate, context
+            return 0.0, True
+
+        def stage_b(candidate, context):
+            del context
+            if candidate["x"] == "first":
+                first_entered_stage_b.set()
+                release_first_stage_b.wait(timeout=2.0)
+            return {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+        outcomes: dict[str, Any] = {}
+        errors: dict[str, Exception] = {}
+
+        def invoke(label: str, run_id: str) -> None:
+            try:
+                outcomes[label] = controller.run(
+                    {"run_id": run_id},
+                    initial_candidate={
+                        "x": run_id,
+                        "semantic": {"interventions": []},
+                    },
+                )
+            except Exception as exc:
+                errors[label] = exc
+
+        first_thread = Thread(target=invoke, args=("first", "first"))
+        second_thread = Thread(target=invoke, args=("second", "second"))
+        first_thread.start()
+        assert first_entered_stage_b.wait(timeout=2.0)
+        second_thread.start()
+        second_thread.join(timeout=2.0)
+        release_first_stage_b.set()
+        first_thread.join(timeout=2.0)
+
+        assert not first_thread.is_alive()
+        assert not second_thread.is_alive()
+        assert "first" in outcomes
+        assert "second" not in outcomes
+        second_error = errors.get("second")
+        assert isinstance(second_error, RuntimeError)
+        assert str(second_error) == "SearchController.run is not reentrant"
+
+    def test_diversity_telemetry_is_scoped_to_each_run(self, quadratic_objective, monkeypatch):
+        """Fresh runs reset diversity telemetry without a cross-run contract."""
+
+        monkeypatch.setenv("POLISYOS_SEARCH_DIVERSITY_ENABLED", "true")
+
+        class ContextGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best
+                return {
+                    "x": 1.0,
+                    "semantic": {
+                        "interventions": [{"mechanism_type": context["run_id"]}],
+                    },
+                }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=ContextGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+
+        first = controller.run({"run_id": "first-mechanism"})
+        second = controller.run({"run_id": "second-mechanism"})
+
+        assert first.telemetry["diversity_unique_mechanisms_total"] == 1
+        assert second.telemetry["diversity_unique_mechanisms_total"] == 1
+        assert second.telemetry["diversity_ratio"] == 1.0
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test: Stopping Criteria
@@ -201,6 +511,54 @@ class TestStoppingCriteria:
         result = criterion.check(history, {})
         assert result.should_stop
         assert "plateau" in result.reason.lower()
+
+    def test_improvement_plateau_stops_after_zero_then_positive_loss(self):
+        """A positive loss after a zero minimum is not infinite improvement."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 0.0},
+                {"objective_value": 1.0},
+                {"objective_value": 1.0},
+            ],
+            {},
+        )
+
+        assert result.should_stop
+        improvement = result.details["improvement"]
+        assert math.isfinite(improvement)
+        assert improvement == pytest.approx(-1.0)
+
+    def test_improvement_plateau_preserves_negative_gain_after_zero(self):
+        """A negative objective after zero remains a real improvement."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 0.0},
+                {"objective_value": -1.0},
+                {"objective_value": -1.0},
+            ],
+            {},
+        )
+
+        assert not result.should_stop
+
+    def test_improvement_plateau_keeps_real_progress_open(self):
+        """A normal positive relative gain still prevents an early stop."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 2.0},
+                {"objective_value": 1.0},
+                {"objective_value": 1.0},
+            ],
+            {},
+        )
+
+        assert not result.should_stop
 
     def test_composite_stops_on_first_trigger(self):
         """Composite should stop when ANY criterion triggers."""

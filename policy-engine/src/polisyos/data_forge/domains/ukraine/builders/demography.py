@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
+from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
+from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
+from polisyos.data_forge.kernel.io import ensure_dirs
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
@@ -9,8 +18,23 @@ from polisyos.ir.observation.contracts import (
     SourceConfidenceTier,
 )
 
-from .common import *
-from .sources import _period_series_to_iso_bounds
+from .common import (
+    OBSERVATION_FRAME_COLUMNS,
+    StageBuildResult,
+    _coerce_string_series,
+    _normalize_region_code_value,
+    _regime_for_period_id,
+    _safe_numeric_series,
+)
+from .io import (
+    _load_optional_source_frame,
+    _load_source_frame,
+    _manifest_path,
+    _stage_dir,
+    _write_frame,
+    _write_json,
+)
+from .observation import _period_series_to_iso_bounds
 
 
 def _weighted_average_series(values: pd.Series, weights: pd.Series) -> float:
@@ -41,7 +65,7 @@ def _aggregate_labor_micro_panel(labor: pd.DataFrame) -> pd.DataFrame:
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["participation_rate"] = pd.to_numeric(
         frame.get("participation_rate", 0.0), errors="coerce"
@@ -85,7 +109,7 @@ def _aggregate_household_income_panel(household: pd.DataFrame) -> pd.DataFrame:
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["income"] = pd.to_numeric(frame.get("income", 0.0), errors="coerce").fillna(0.0)
     rows: list[dict[str, Any]] = []
@@ -116,7 +140,7 @@ def _aggregate_employment_admin_panel(employment_service: pd.DataFrame) -> pd.Da
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     frame["employment_count"] = pd.to_numeric(
         frame.get("employment_count", 0.0), errors="coerce"
     ).fillna(0.0)
@@ -146,7 +170,7 @@ def _extract_macro_labor_panel(macro: pd.DataFrame) -> pd.DataFrame:
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     frame["observed_value"] = pd.to_numeric(frame["observed_value"], errors="coerce").fillna(0.0)
     return frame.groupby(["region_code", "period_id"], as_index=False).agg(
         macro_labor_signal=("observed_value", "mean")
@@ -175,7 +199,7 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["income"] = pd.to_numeric(frame.get("income", 0.0), errors="coerce").fillna(0.0)
     frame["market_income"] = pd.to_numeric(
@@ -221,7 +245,7 @@ def _build_household_distribution_observation_panel(
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
+    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
     period_start, period_end = _period_series_to_iso_bounds(
         frame["period_id"], time_grain=TimeFrequency.MONTH
     )
@@ -679,4 +703,4 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
     )
 
 
-__all__ = tuple(name for name in globals() if not name.startswith("__"))
+__all__ = ("build_d3_stage",)

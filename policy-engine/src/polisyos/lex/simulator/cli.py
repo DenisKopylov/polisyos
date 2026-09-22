@@ -12,8 +12,7 @@ from polisyos.ir.loading.norm_pack import NormPack
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
-
-    from .report import NormImpactReport
+    from polisyos.lex.legal_evaluation.impact_diff import NormImpactReport
 
 
 def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
@@ -65,7 +64,7 @@ def render_impact_markdown(report: NormImpactReport) -> str:
         lines.append("")
 
     if report.affected_kpis:
-        lines.extend(["## Affected KPIs", ""])
+        lines.extend(["## Candidate Impact Topics", ""])
         for item in report.affected_kpis:
             norm_ids = ", ".join(item.affected_norm_ids)
             lines.append(f"- `{item.kpi_id}`: {item.description} ({norm_ids})")

@@ -3,24 +3,26 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import shlex
 import shutil
 import socket
 import subprocess
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from pathlib import Path
 
 from polisyos.data_forge.domains.ukraine.manifests import (
     PartAGateManifest,
     ServerCapabilityManifest,
     utc_now_iso,
 )
+from polisyos.data_forge.domains.ukraine.models import BuildRootConfig, ServerConfig
 from polisyos.data_forge.domains.ukraine.resources import free_disk_gib, total_ram_gib
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from polisyos.data_forge.domains.ukraine.models import BuildRootConfig, ServerConfig
+PartAGateRunner = Callable[[ServerConfig, Path | None], PartAGateManifest]
+BootstrapScriptRenderer = Callable[[ServerConfig, BuildRootConfig], str]
+ServerCapabilityProbe = Callable[[ServerConfig], ServerCapabilityManifest]
 
 
 class LocalExecutionBlockedError(RuntimeError):
@@ -36,7 +38,7 @@ def assert_server_execution_allowed(config: ServerConfig) -> None:
         raise LocalExecutionBlockedError(f"Missing python executable: {config.python_bin}")
     if sys.platform.startswith("linux") and socket.gethostname():
         marker = config.server_marker_env
-        if str(__import__("os").environ.get(marker, "")).strip() == "1":
+        if str(os.environ.get(marker, "")).strip() == "1":
             return
     raise LocalExecutionBlockedError(
         f"Server-only command blocked. Export {config.server_marker_env}=1 on the target server."
@@ -86,6 +88,26 @@ def build_bootstrap_script(config: ServerConfig, build_root: BuildRootConfig) ->
     )
 
 
+def is_repository_checkout(repo_root: Path | None) -> bool:
+    """Return whether ``repo_root`` contains the repository gate inputs.
+
+    The Ukraine domain may be imported from an installed wheel, where the
+    package has no checkout or repository integration tests beside it.  Keep
+    this check structural and local: a caller must provide both the product
+    workspace marker and the exact gate test before the gate can claim to have
+    run.  This function deliberately does not infer a repository from a
+    package's ``src/polisyos`` directory.
+    """
+
+    if repo_root is None or not repo_root.is_dir():
+        return False
+    return (
+        (repo_root / "pyproject.toml").is_file()
+        and (repo_root / "src" / "polisyos").is_dir()
+        and (repo_root / "tests" / "integration" / "test_c7_synthetic_full_pipeline.py").is_file()
+    )
+
+
 def probe_local_server_capabilities(config: ServerConfig) -> ServerCapabilityManifest:
     """Probe local packages and binary prerequisites for the server manifest."""
 
@@ -106,10 +128,42 @@ def probe_local_server_capabilities(config: ServerConfig) -> ServerCapabilityMan
     )
 
 
-def run_part_a_gate(config: ServerConfig, repo_root: Path) -> PartAGateManifest:
-    """Run the C7 integration gate and return a typed manifest payload."""
+def _unavailable_part_a_gate(repo_root: Path | None) -> PartAGateManifest:
+    """Return a typed non-result when no repository gate is available."""
 
+    if repo_root is None:
+        reason = "repository checkout is unavailable for the installed package"
+    else:
+        reason = f"repository checkout is unavailable at {repo_root}"
+    return PartAGateManifest(
+        status="unavailable",
+        command=[],
+        server_only=True,
+        passed=False,
+        skipped=False,
+        notes=[reason],
+    )
+
+
+def run_part_a_gate(
+    config: ServerConfig,
+    repo_root: Path | None,
+    *,
+    runner: PartAGateRunner | None = None,
+) -> PartAGateManifest:
+    """Run or delegate the C7 gate and return its typed manifest.
+
+    The installed-package path fails closed as ``unavailable`` because it has
+    no repository test corpus.  ``runner`` is the composition seam used by
+    the ops runner; the local subprocess path remains a narrow compatibility
+    fallback for existing callers and characterization tests.
+    """
+
+    if repo_root is None or not is_repository_checkout(repo_root):
+        return _unavailable_part_a_gate(repo_root)
     assert_server_execution_allowed(config)
+    if runner is not None:
+        return runner(config, repo_root)
     command = [
         config.uv_bin,
         "run",
@@ -117,7 +171,7 @@ def run_part_a_gate(config: ServerConfig, repo_root: Path) -> PartAGateManifest:
         "-q",
         "tests/integration/test_c7_synthetic_full_pipeline.py",
     ]
-    env = dict(__import__("os").environ)
+    env = dict(os.environ)
     env["POLISYOS_RUN_INTEGRATION"] = "1"
     completed = subprocess.run(
         command,
@@ -139,6 +193,7 @@ def run_part_a_gate(config: ServerConfig, repo_root: Path) -> PartAGateManifest:
     return PartAGateManifest(
         status="passed" if passed else ("skipped" if skipped else "failed"),
         command=command,
+        server_only=True,
         passed=passed,
         skipped=skipped,
         created_at=utc_now_iso(),
@@ -147,9 +202,13 @@ def run_part_a_gate(config: ServerConfig, repo_root: Path) -> PartAGateManifest:
 
 
 __all__ = [
+    "BootstrapScriptRenderer",
     "LocalExecutionBlockedError",
+    "PartAGateRunner",
+    "ServerCapabilityProbe",
     "assert_server_execution_allowed",
     "build_bootstrap_script",
+    "is_repository_checkout",
     "probe_local_server_capabilities",
     "run_part_a_gate",
 ]

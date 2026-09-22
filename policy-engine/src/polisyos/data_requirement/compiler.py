@@ -7,6 +7,7 @@ import importlib
 import json
 import os
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -94,21 +95,37 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 _GOVERNED_CAPABILITY_ROWS_PATH = (
     _REPO_ROOT / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
 )
-_DATA_FAMILY_ORDER: tuple[str, ...] = (
-    "production_msme_panel",
-    "credit_program_registry",
-    "regional_displacement_indicators",
-    "labor_force_panel",
-    "employment_registry",
-    "regional_vulnerability_index",
-    "tax_admin_panel",
-    "fiscal_revenue_series",
-    "housing_beneficiary_registry",
-    "rent_market_panel",
-    "service_delivery_registry",
-    "vaccination_coverage_panel",
-    "rural_access_indicators",
-)
+
+
+@dataclass(frozen=True)
+class _ScenarioScopeProfile:
+    """Explicit, versioned scope context owned by the scenario adapter."""
+
+    profile_id: str
+    jurisdiction: str | None = None
+    time_start: str | None = None
+    time_end: str | None = None
+    required_constructs: tuple[str, ...] = ()
+    candidate_construct_proposals: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class _ScenarioAdapterInput:
+    """Semantic inputs handed from a scenario mapping to the compiler."""
+
+    scenario_id: str
+    text: str
+    domain: governance.ProblemDomain
+    authority_type: governance.PolicyLayerLevel
+    scope_profile: _ScenarioScopeProfile | None = None
+
+
+@dataclass(frozen=True)
+class _ConstructResolutionInputs:
+    """Separate declared authority inputs from candidate semantic proposals."""
+
+    required_constructs: tuple[str, ...] = ()
+    candidate_construct_proposals: tuple[str, ...] = ()
 
 
 def _data_requirement_family_fallback_enabled() -> bool:
@@ -183,6 +200,7 @@ class DataRequirementCompiler:
         obligation_graph: object | Mapping[str, Any] | None = None,
         scenario_id: str | None = None,
         authority_profile_refs: Sequence[str] = (),
+        scope_profile: _ScenarioScopeProfile | None = None,
     ) -> DataRequirementCompilationReport:
         """Compile data requirements for decision-bearing claims.
 
@@ -193,6 +211,8 @@ class DataRequirementCompiler:
             obligation_graph: Optional W6.C graph used for obligation refs.
             scenario_id: Optional scenario id for legacy bridge projections.
             authority_profile_refs: Additional authority refs from the run carrier.
+            scope_profile: Explicit named-pilot scope context from the scenario
+                adapter. Generic callers leave this unset.
 
         Returns:
             A claim-bound data requirement compilation report.
@@ -201,7 +221,18 @@ class DataRequirementCompiler:
         claims = _ledger_claims(claim_ledger)
         facets = tuple(dict(facet) for facet in facet_snapshots)
         facet_index = _facet_index(facets)
-        scope = _scope_from_facets(facet_index)
+        resolution_inputs = _construct_resolution_inputs(
+            facets=facets,
+            claims=claims,
+            obligation_graph=obligation_graph,
+            scenario_id=scenario_id,
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+            declared_constructs=(scope_profile.required_constructs if scope_profile else ()),
+            candidate_construct_proposals=(
+                scope_profile.candidate_construct_proposals if scope_profile else ()
+            ),
+        )
+        scope = _scope_from_facets(facet_index, scope_profile=scope_profile)
         capability_bindings = _capability_bindings_for_requirements(
             facets=facets,
             claims=claims,
@@ -210,6 +241,8 @@ class DataRequirementCompiler:
             scope=scope,
             resolver=self._resolver_for_compilation(),
             scenario_family_construct_rows=self._scenario_family_construct_rows,
+            scope_profile=scope_profile,
+            resolution_inputs=resolution_inputs,
         )
         family_rules = tuple(
             dict.fromkeys(
@@ -265,6 +298,7 @@ class DataRequirementCompiler:
                     or tuple(claim.authority_profile_refs),
                     capability_binding=bindings_by_family.get(family),
                     family_derivation=family_derivation,
+                    scope_profile=scope_profile,
                 )
                 specs.append(spec)
         if not specs and family_rules:
@@ -280,6 +314,7 @@ class DataRequirementCompiler:
                     or _authority_refs_from_facets(facets),
                     capability_binding=bindings_by_family.get(family),
                     family_derivation=family_derivation,
+                    scope_profile=scope_profile,
                 )
                 for family in family_rules
             )
@@ -305,6 +340,7 @@ class DataRequirementCompiler:
                         if binding.capability_index_ref
                     )
                 ),
+                "candidate_construct_proposals": resolution_inputs.candidate_construct_proposals,
             },
         )
 
@@ -314,9 +350,10 @@ class DataRequirementCompiler:
     ) -> DataRequirementCompilationReport:
         """Compile data requirements for a golden scenario without reading legacy families."""
 
-        scenario_id = _text(scenario.get("scenario_id")) or "scenario"
-        text = _scenario_text(scenario)
-        domain = _problem_domain_for_scenario(scenario)
+        adapter_input = _scenario_adapter_input(scenario)
+        scenario_id = adapter_input.scenario_id
+        text = adapter_input.text
+        domain = adapter_input.domain
         case = PolicyGrammarCompiler().compile(
             intent=PolicyGrammarIntent(
                 intent_id=scenario_id,
@@ -325,7 +362,7 @@ class DataRequirementCompiler:
             ),
             authority_profile=contracts.UniversalAuthorityProfile(
                 profile_id=f"authority_profile.{scenario_id}",
-                authority_type=_authority_type_for_scenario(scenario),
+                authority_type=adapter_input.authority_type,
             ),
             concept_spine_refs=PolicyGrammarConceptSpineRefs(
                 concept_spine_ref=f"concept-spine://scenario/{scenario_id}",
@@ -337,6 +374,7 @@ class DataRequirementCompiler:
             return self._compile_from_legacy_scenario_fallback(
                 scenario=scenario,
                 scenario_id=scenario_id,
+                scope_profile=adapter_input.scope_profile,
             )
         facets = facet_snapshots_for_obligation_graph(case)
         graph = compile_obligation_graph(
@@ -391,6 +429,7 @@ class DataRequirementCompiler:
             facet_snapshots=facets,
             obligation_graph=graph,
             authority_profile_refs=(case.authority_profile.profile_id,),
+            scope_profile=adapter_input.scope_profile,
         )
 
     def _compile_from_legacy_scenario_fallback(
@@ -398,6 +437,7 @@ class DataRequirementCompiler:
         *,
         scenario: Mapping[str, Any],
         scenario_id: str,
+        scope_profile: _ScenarioScopeProfile | None = None,
     ) -> DataRequirementCompilationReport:
         expected = scenario.get("expected_evidence_contract")
         families = (
@@ -412,6 +452,7 @@ class DataRequirementCompiler:
                 source_requirement_ref=(
                     f"legacy-scenario-contract:{scenario_id}:admissible_data_source_families"
                 ),
+                scope_profile=scope_profile,
             )
             for family in families
         )
@@ -537,12 +578,13 @@ def _spec_for_claim_family(
     authority_profile_refs: Sequence[str],
     capability_binding: CapabilityBindingLike | None = None,
     family_derivation: str | None = None,
+    scope_profile: _ScenarioScopeProfile | None = None,
 ) -> DataRequirementSpec:
     claim_id = claim.claim_id if claim is not None else f"claim:{family}"
     facets = _facets_for_claim(claim, facet_index=facet_index)
     scope_facets = dict(facet_index)
     scope_facets.update(facets)
-    scope = _scope_from_facets(scope_facets)
+    scope = _scope_from_facets(scope_facets, scope_profile=scope_profile)
     concept_refs = _concept_refs_from_facets(facets) or tuple(
         claim.concept_spine_refs if claim else ()
     )
@@ -567,6 +609,15 @@ def _spec_for_claim_family(
             "replacement": "capability_index_v1",
         },
     }
+    if scope_profile is not None:
+        metadata["scope_profile"] = {
+            "profile_id": scope_profile.profile_id,
+            "jurisdiction": scope_profile.jurisdiction,
+            "time_window": {
+                "start": scope_profile.time_start,
+                "end": scope_profile.time_end,
+            },
+        }
     if capability_binding is not None:
         metadata["capability_binding"] = _capability_binding_metadata(capability_binding)
         metadata["construct_ref"] = capability_binding.construct_ref
@@ -610,6 +661,7 @@ def _minimal_spec(
     scenario_id: str,
     family: str,
     source_requirement_ref: str,
+    scope_profile: _ScenarioScopeProfile | None = None,
 ) -> DataRequirementSpec:
     return DataRequirementSpec(
         requirement_id=f"data-requirement:scenario-{scenario_id}:{family}",
@@ -623,6 +675,7 @@ def _minimal_spec(
             geography="scenario_geography",
             time="scenario_time",
             time_role="observation_time",
+            jurisdiction=scope_profile.jurisdiction if scope_profile else None,
         ),
         recency_horizon="P90D",
         lineage_strictness="strict",
@@ -648,21 +701,25 @@ def _capability_bindings_for_requirements(
     scope: DataRequirementScope,
     resolver: CapabilityResolverPort | None = None,
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
+    scope_profile: _ScenarioScopeProfile | None = None,
+    resolution_inputs: _ConstructResolutionInputs | None = None,
 ) -> tuple[CapabilityBindingLike, ...]:
     rows = tuple(
         contracts.ScenarioFamilyConstructRow.model_validate(row)
         for row in scenario_family_construct_rows
     )
-    constructs = _required_constructs_from_obligation_graph(
-        obligation_graph,
+    inputs = resolution_inputs or _construct_resolution_inputs(
+        facets=facets,
+        claims=claims,
+        obligation_graph=obligation_graph,
+        scenario_id=scenario_id,
         scenario_family_construct_rows=rows,
+        declared_constructs=(scope_profile.required_constructs if scope_profile else ()),
+        candidate_construct_proposals=(
+            scope_profile.candidate_construct_proposals if scope_profile else ()
+        ),
     )
-    if not constructs:
-        constructs = _required_constructs_from_semantics(
-            facets=facets,
-            claims=claims,
-            scenario_id=scenario_id,
-        )
+    constructs = inputs.required_constructs
     if not constructs:
         return ()
     if resolver is None:
@@ -675,7 +732,10 @@ def _capability_bindings_for_requirements(
             entity_scope=_entity_scope_for_construct(construct),
             population_filter=_population_filter_for_construct(construct, scope),
             geography=scope.jurisdiction or scope.geography,
-            time_window={"start": _time_start_for_scope(scope), "end": None},
+            time_window={
+                "start": _time_start_for_scope(scope, scope_profile=scope_profile),
+                "end": _time_end_for_scope(scope, scope_profile=scope_profile),
+            },
             authority_level="governed_pilot",
             claim_use="claim_evidence_closeout",
             required_evidence_modes=(
@@ -689,6 +749,47 @@ def _capability_bindings_for_requirements(
         )
         bindings.append(resolver.resolve(query))
     return tuple(bindings)
+
+
+def _construct_resolution_inputs(
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    claims: Sequence[Any],
+    obligation_graph: object | Mapping[str, Any] | None,
+    scenario_id: str | None,
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
+    declared_constructs: Sequence[str] = (),
+    candidate_construct_proposals: Sequence[str] = (),
+) -> _ConstructResolutionInputs:
+    """Build the explicit authority set and retain semantic proposals separately."""
+
+    rows = tuple(
+        contracts.ScenarioFamilyConstructRow.model_validate(row)
+        for row in scenario_family_construct_rows
+    )
+    graph_constructs = _required_constructs_from_obligation_graph(
+        obligation_graph,
+        scenario_family_construct_rows=rows,
+    )
+    declared = _required_constructs_from_semantics(
+        facets=facets,
+        claims=claims,
+        scenario_id=scenario_id,
+    )
+    explicit = _normalised_construct_refs(declared_constructs)
+    required_constructs = graph_constructs or explicit or declared
+    proposals = tuple(
+        dict.fromkeys(
+            (
+                *_normalised_construct_refs(candidate_construct_proposals),
+                *_construct_proposals_from_semantics(facets=facets, claims=claims),
+            )
+        )
+    )
+    return _ConstructResolutionInputs(
+        required_constructs=required_constructs,
+        candidate_construct_proposals=proposals,
+    )
 
 
 def _required_constructs_from_obligation_graph(
@@ -738,24 +839,62 @@ def _required_constructs_from_semantics(
     claims: Sequence[Any],
     scenario_id: str | None,
 ) -> tuple[str, ...]:
-    values = {str(facet.get("facet_type")): _enum_text(facet.get("value")) for facet in facets}
-    haystack = " ".join(
-        [
-            *values.values(),
-            *[claim.text for claim in claims],
-            *[
-                " ".join(str(value) for value in claim.metadata.values())
-                for claim in claims
-                if isinstance(claim.metadata, Mapping)
-            ],
-            scenario_id or "",
-        ]
-    ).casefold()
+    """Return only explicitly declared construct refs from semantic records.
+
+    Text and scenario identifiers may produce candidate proposals, but they do
+    not establish the construct set sent to the capability resolver.
+    """
+
+    del scenario_id
     constructs: list[str] = []
+    for facet in facets:
+        if not isinstance(facet, Mapping):
+            continue
+        for key in (
+            "required_evidence_constructs",
+            "required_constructs",
+            "explicit_constructs",
+            "construct_refs",
+            "construct_ref",
+        ):
+            for construct in _normalised_construct_refs(facet.get(key)):
+                if construct not in constructs:
+                    constructs.append(construct)
+    for claim in claims:
+        metadata = getattr(claim, "metadata", {})
+        sources: tuple[object, ...] = (metadata,)
+        if isinstance(claim, Mapping):
+            sources = (claim, metadata)
+        for source in sources:
+            if not isinstance(source, Mapping):
+                continue
+            for key in (
+                "required_evidence_constructs",
+                "required_constructs",
+                "explicit_constructs",
+                "construct_refs",
+                "construct_ref",
+            ):
+                for construct in _normalised_construct_refs(source.get(key)):
+                    if construct not in constructs:
+                        constructs.append(construct)
+    return tuple(constructs)
+
+
+def _construct_proposals_from_semantics(
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    claims: Sequence[Any],
+) -> tuple[str, ...]:
+    """Discover bounded lexical candidates without granting resolver authority."""
+
+    values = {str(facet.get("facet_type")): _enum_text(facet.get("value")) for facet in facets}
+    words = _semantic_words(facets=facets, claims=claims)
+    proposals: list[str] = []
 
     def add_if(condition: bool, construct: str) -> None:
-        if condition and construct not in constructs:
-            constructs.append(construct)
+        if condition and construct not in proposals:
+            proposals.append(construct)
 
     add_if(values.get("population_predicate") == "msmes", "firm_survival")
     add_if(
@@ -764,8 +903,7 @@ def _required_constructs_from_semantics(
         "credit_program_enrollment",
     )
     add_if(
-        "displaced" in haystack
-        or "displacement" in haystack
+        bool(words.intersection({"displaced", "displacement"}))
         or values.get("geography_predicate") == "displacement_affected",
         "regional_displacement_pressure",
     )
@@ -776,19 +914,46 @@ def _required_constructs_from_semantics(
         "regional_displacement_pressure",
     )
     add_if(
-        "housing" in haystack
-        or "rent" in haystack
-        or "voucher" in haystack
+        bool(words.intersection({"housing", "rent", "voucher"}))
         or values.get("population_predicate") == "low_income_renters",
         "housing_rent_burden",
     )
     add_if(
         values.get("instrument_type") == "subsidy"
-        or "means-tested" in haystack
-        or "means tested" in haystack,
+        or {"means", "tested"}.issubset(words),
         "program_participation_rate",
     )
-    return tuple(constructs)
+    return tuple(proposals)
+
+
+def _semantic_words(
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    claims: Sequence[Any],
+) -> set[str]:
+    values = [_enum_text(facet.get("value")) for facet in facets]
+    claim_values: list[str] = []
+    for claim in claims:
+        claim_values.append(_text(getattr(claim, "text", None)))
+        metadata = getattr(claim, "metadata", {})
+        if isinstance(metadata, Mapping):
+            claim_values.extend(_text(value) for value in metadata.values())
+    return {
+        word.strip(".,;:!?()[]{}\"'")
+        for value in (*values, *claim_values)
+        for word in _token_text(value).casefold().replace("-", " ").split()
+        if word.strip(".,;:!?()[]{}\"'")
+    }
+
+
+def _normalised_construct_refs(value: object) -> tuple[str, ...]:
+    return tuple(
+        dict.fromkeys(
+            normalized
+            for raw in _text_tuple(value)
+            if (normalized := raw.removeprefix("construct:"))
+        )
+    )
 
 
 def _entity_scope_for_construct(construct: str) -> str:
@@ -808,10 +973,26 @@ def _population_filter_for_construct(
     }.get(construct.removeprefix("construct:"), {"type": scope.population})
 
 
-def _time_start_for_scope(scope: DataRequirementScope) -> str | None:
-    if scope.time in {"annual", "phased_rollout", "event_triggered"}:
-        return "2022-02-01"
-    return None
+def _time_start_for_scope(
+    scope: DataRequirementScope,
+    *,
+    scope_profile: _ScenarioScopeProfile | None = None,
+) -> str | None:
+    """Return only an interval explicitly supplied by a named scope profile."""
+
+    del scope
+    return scope_profile.time_start if scope_profile else None
+
+
+def _time_end_for_scope(
+    scope: DataRequirementScope,
+    *,
+    scope_profile: _ScenarioScopeProfile | None = None,
+) -> str | None:
+    """Return the named profile's explicit interval end, if present."""
+
+    del scope
+    return scope_profile.time_end if scope_profile else None
 
 
 def _capability_binding_metadata(binding: CapabilityBindingLike) -> dict[str, Any]:
@@ -832,87 +1013,6 @@ def _capability_binding_metadata(binding: CapabilityBindingLike) -> dict[str, An
         "rejected_alternatives": list(binding.rejected_alternatives),
         "conflict_markers": list(binding.conflict_markers),
     }
-
-
-def _data_families_from_obligation_graph(
-    obligation_graph: object | Mapping[str, Any] | None,
-) -> tuple[str, ...]:
-    """Extract data source families from W6.C blocking frontier metadata.
-
-    Track A1 introduces this primary path. Vertical governance rules seeded
-    in Track B2 carry a ``data_family`` (or ``evidence_family``) field in the
-    rule logic; the obligation-graph compiler surfaces those through the
-    frontier item ``metadata`` mapping. When the W6.B catalog has no vertical
-    rule for a given case, this function returns an empty tuple and the
-    caller falls back to the legacy heuristic (see
-    ``_required_data_families_from_heuristic``).
-    """
-
-    if obligation_graph is None:
-        return ()
-    frontier = getattr(obligation_graph, "blocking_frontier", None)
-    if frontier is None and isinstance(obligation_graph, Mapping):
-        frontier = obligation_graph.get("blocking_frontier")
-    if not frontier:
-        return ()
-    families: list[str] = []
-    for item in frontier:
-        family_token = _data_family_token_from_frontier_item(item)
-        if family_token and family_token not in families:
-            families.append(family_token)
-    return _ordered_data_families(families)
-
-
-def _data_family_token_from_frontier_item(item: Any) -> str | None:
-    bundle_key = getattr(item, "bundle_key", None)
-    bundle_family = (
-        getattr(bundle_key, "family", None)
-        if bundle_key is not None
-        else None
-    )
-    if isinstance(item, Mapping):
-        bundle_family = bundle_family or _nested(item, ("bundle_key", "family"))
-        metadata = item.get("metadata") or {}
-    else:
-        metadata = getattr(item, "metadata", {}) or {}
-    if _normalised_family(bundle_family) != "data":
-        return None
-    if isinstance(metadata, Mapping):
-        for key in ("data_family", "evidence_family"):
-            value = metadata.get(key)
-            if isinstance(value, str) and value.strip():
-                return _slug_family(value)
-    return None
-
-
-def _nested(payload: Mapping[str, Any], path: Sequence[str]) -> Any:
-    cursor: Any = payload
-    for key in path:
-        if not isinstance(cursor, Mapping):
-            return None
-        cursor = cursor.get(key)
-    return cursor
-
-
-def _normalised_family(value: Any) -> str | None:
-    if value is None:
-        return None
-    text = str(value).strip().casefold()
-    return text or None
-
-
-def _slug_family(value: str) -> str:
-    return "_".join(value.strip().casefold().replace("-", "_").split())
-
-
-def _ordered_data_families(families: Sequence[str]) -> tuple[str, ...]:
-    priority = {family: index for index, family in enumerate(_DATA_FAMILY_ORDER)}
-    return tuple(
-        sorted(
-            families,
-            key=lambda family: (priority.get(family, len(priority)), family),
-        )
-    )
 
 
 def _required_data_families_from_heuristic(
@@ -1026,7 +1126,11 @@ def _facets_for_claim(
     return selected or dict(facet_index)
 
 
-def _scope_from_facets(facets: Mapping[str, Mapping[str, Any]]) -> DataRequirementScope:
+def _scope_from_facets(
+    facets: Mapping[str, Mapping[str, Any]],
+    *,
+    scope_profile: _ScenarioScopeProfile | None = None,
+) -> DataRequirementScope:
     by_type = {str(facet.get("facet_type")): facet for facet in facets.values()}
     population = _enum_text(by_type.get("population_predicate", {}).get("value")) or "population"
     geography = _enum_text(by_type.get("geography_predicate", {}).get("value")) or "geography"
@@ -1036,7 +1140,10 @@ def _scope_from_facets(facets: Mapping[str, Mapping[str, Any]]) -> DataRequireme
         geography=geography,
         time=time,
         time_role="observation_time",
-        jurisdiction=_jurisdiction_for_geography(geography),
+        jurisdiction=_jurisdiction_for_geography(
+            geography,
+            scope_profile=scope_profile,
+        ),
     )
 
 
@@ -1103,7 +1210,95 @@ def _requirement_id(
     return f"data-requirement:{scope}:{claim_id}:{family}:{digest}"
 
 
+def _scenario_adapter_input(scenario: Mapping[str, Any]) -> _ScenarioAdapterInput:
+    """Normalize one scenario mapping without promoting identity to content."""
+
+    return _ScenarioAdapterInput(
+        scenario_id=_text(scenario.get("scenario_id")) or "scenario",
+        text=_scenario_text(scenario),
+        domain=_problem_domain_for_scenario(scenario),
+        authority_type=_authority_type_for_scenario(scenario),
+        scope_profile=_scenario_scope_profile(scenario),
+    )
+
+
+def _scenario_scope_profile(
+    scenario: Mapping[str, Any],
+) -> _ScenarioScopeProfile | None:
+    """Read an explicit versioned scope profile; absent input stays generic."""
+
+    raw_profile: Mapping[str, Any] | None = None
+    for key in ("scenario_profile", "pilot_profile", "scope_profile", "profile"):
+        candidate = scenario.get(key)
+        if isinstance(candidate, Mapping):
+            raw_profile = candidate
+            break
+    if raw_profile is None:
+        context = scenario.get("context")
+        if isinstance(context, Mapping):
+            for key in ("scenario_profile", "pilot_profile", "scope_profile"):
+                candidate = context.get(key)
+                if isinstance(candidate, Mapping):
+                    raw_profile = candidate
+                    break
+    if raw_profile is None:
+        return None
+
+    profile_id = _text(
+        raw_profile.get("profile_id")
+        or raw_profile.get("profile_ref")
+        or raw_profile.get("versioned_profile_id")
+        or raw_profile.get("id")
+        or raw_profile.get("name")
+    )
+    if not profile_id:
+        return None
+    scope = raw_profile.get("scope")
+    scope_mapping = scope if isinstance(scope, Mapping) else {}
+    interval = raw_profile.get("time_window")
+    if not isinstance(interval, Mapping):
+        interval = raw_profile.get("temporal_interval")
+    if not isinstance(interval, Mapping):
+        interval = scope_mapping.get("time_window")
+    interval_mapping = interval if isinstance(interval, Mapping) else {}
+    return _ScenarioScopeProfile(
+        profile_id=profile_id,
+        jurisdiction=(
+            _text(raw_profile.get("jurisdiction"))
+            or _text(scope_mapping.get("jurisdiction"))
+            or None
+        ),
+        time_start=(
+            _text(interval_mapping.get("start"))
+            or _text(interval_mapping.get("from"))
+            or _text(raw_profile.get("time_start"))
+            or _text(raw_profile.get("start"))
+            or None
+        ),
+        time_end=(
+            _text(interval_mapping.get("end"))
+            or _text(interval_mapping.get("to"))
+            or _text(raw_profile.get("time_end"))
+            or _text(raw_profile.get("end"))
+            or None
+        ),
+        required_constructs=_normalised_construct_refs(
+            raw_profile.get("required_constructs")
+            or raw_profile.get("required_evidence_constructs")
+            or raw_profile.get("declared_constructs")
+        ),
+        candidate_construct_proposals=_normalised_construct_refs(
+            raw_profile.get("candidate_construct_proposals")
+            or raw_profile.get("construct_proposals")
+            or raw_profile.get("topic_proposals")
+        ),
+    )
+
+
 def _scenario_text(scenario: Mapping[str, Any]) -> str:
+    supplied_text = _text(scenario.get("text")) or _text(scenario.get("request"))
+    if supplied_text:
+        return supplied_text
     context = scenario.get("context") if isinstance(scenario.get("context"), Mapping) else {}
     metadata = (
         scenario.get("scenario_evidence_contract")
@@ -1116,8 +1311,6 @@ def _scenario_text(scenario: Mapping[str, Any]) -> str:
         else {}
     )
     parts = [
-        scenario.get("scenario_id"),
-        scenario.get("request"),
         scenario.get("title"),
         scenario.get("domain_hint"),
         *[_token_text(context.get(key)) for key in sorted(context) if key.startswith("query_")],
@@ -1131,7 +1324,6 @@ def _scenario_text(scenario: Mapping[str, Any]) -> str:
         _token_text(expected.get("foundry_method_expectations")),
         _token_text(expected.get("conflict_checks")),
         _token_text(expected.get("unacceptable_recommendations")),
-        "annual",
     ]
     return " ".join(_text(part) for part in parts if _text(part)) or "compile policy data needs"
 
@@ -1145,10 +1337,25 @@ def _token_text(value: object) -> str:
 
 
 def _problem_domain_for_scenario(scenario: Mapping[str, Any]) -> governance.ProblemDomain:
-    haystack = _scenario_text(scenario).casefold()
-    if any(token in haystack for token in ("health", "clinic", "vaccination", "medicine")):
+    supplied = _enum_text(scenario.get("domain")) or _enum_text(scenario.get("domain_hint"))
+    if supplied:
+        normalized = supplied.casefold().replace("-", " ").replace("_", " ")
+        for domain in governance.ProblemDomain:
+            if normalized.strip() in {domain.value, domain.name.casefold()}:
+                return domain
+        supplied_words = set(normalized.split())
+        if supplied_words.intersection({"health", "healthcare"}):
+            return governance.ProblemDomain.HEALTHCARE
+        if "social" in supplied_words:
+            return governance.ProblemDomain.SOCIAL
+        if "fiscal" in supplied_words:
+            return governance.ProblemDomain.FISCAL
+
+    haystack = _scenario_text(scenario).casefold().replace("-", " ").replace("_", " ")
+    words = set(haystack.split())
+    if words.intersection({"health", "healthcare", "clinic", "vaccination", "medicine"}):
         return governance.ProblemDomain.HEALTHCARE
-    if any(token in haystack for token in ("housing", "rent", "benefit", "social")):
+    if words.intersection({"housing", "rent", "benefit", "social"}):
         return governance.ProblemDomain.SOCIAL
     return governance.ProblemDomain.FISCAL
 
@@ -1157,18 +1364,30 @@ def _authority_type_for_scenario(
     scenario: Mapping[str, Any],
 ) -> governance.PolicyLayerLevel:
     context = scenario.get("context") if isinstance(scenario.get("context"), Mapping) else {}
-    text = " ".join((_scenario_text(scenario), _text(context.get("authority_type")))).casefold()
-    if "national" in text or "ukraine" in text:
+    text = " ".join(
+        (
+            _scenario_text(scenario),
+            _text(context.get("authority_type")),
+            _text(context.get("country")),
+        )
+    ).casefold().replace("-", " ").replace("_", " ")
+    words = set(text.split())
+    if words.intersection({"national", "ukraine"}):
         return governance.PolicyLayerLevel.FEDERAL
-    if "oblast" in text or "region" in text:
+    if words.intersection({"oblast", "region", "state"}):
         return governance.PolicyLayerLevel.STATE
     return governance.PolicyLayerLevel.LOCAL
 
 
-def _jurisdiction_for_geography(geography: str) -> str | None:
-    if geography in {"national", "state_or_region", "municipal", "displacement_affected"}:
-        return "UA"
-    return None
+def _jurisdiction_for_geography(
+    geography: str,
+    *,
+    scope_profile: _ScenarioScopeProfile | None = None,
+) -> str | None:
+    """Resolve jurisdiction only from an explicit named profile."""
+
+    del geography
+    return scope_profile.jurisdiction if scope_profile else None
 
 
 def _family_derivation_label(family: str) -> str:
@@ -1208,11 +1427,6 @@ def _text_tuple(value: object) -> tuple[str, ...]:
             if (text := _text(item))
         )
     )
-
-
-def _digest(payload: object) -> str:
-    data = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()
-    return hashlib.sha256(data).hexdigest()[:16]
 
 
 def _slug(value: str) -> str:

@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections import abc as _collections_abc
+from dataclasses import dataclass, replace
 
+import polisyos.berl.adapters.protocol as _adapter_protocol
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
+
+Mapping = _collections_abc.Mapping
+ExplanationContext = _adapter_protocol.ExplanationContext
+RawExplanation = _adapter_protocol.RawExplanation
+ScalarModel = _adapter_protocol.ScalarModel
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,3 +24,39 @@ class TreeSHAPAdapter(KernelSHAPAdapter):
     """
 
     method_id: str = "tree_shap"
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        """Run empirical Shapley while exposing the unsupported tree fallback."""
+
+        raw = super().explain(model, x, context)
+        fallback_reason = (
+            "path-dependent TreeSHAP backend unavailable; "
+            "using exact empirical Shapley enumeration"
+        )
+        params = {
+            **dict(raw.params),
+            "requested_method_id": self.method_id,
+            "effective_method_id": self.effective_method_id,
+            "fallback": True,
+            "fallback_reason": fallback_reason,
+        }
+        assumptions = {
+            **dict(raw.assumptions),
+            "tree_exactness_claimed": False,
+            "fallback_reason": fallback_reason,
+        }
+        return replace(
+            raw,
+            method_id=self.method_id,
+            params=params,
+            assumptions=assumptions,
+            requested_method_id=self.method_id,
+            effective_method_id=self.effective_method_id,
+            fallback=True,
+            fallback_reason=fallback_reason,
+        )

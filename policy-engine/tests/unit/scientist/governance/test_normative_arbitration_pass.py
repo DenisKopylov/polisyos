@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.scientist.governance.passes.base import IssueSeverity
+from polisyos.core.governance.passes.base import IssueSeverity
 from polisyos.scientist.governance.passes.normative_arbitration_pass import (
     NormativeArbitrationPass,
 )

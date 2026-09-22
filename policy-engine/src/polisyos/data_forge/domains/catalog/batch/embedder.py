@@ -6,11 +6,13 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import duckdb
-import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.kernel.embeddings import (
+    build_embedding_generation,
+    embedding_generation_manifest,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
-from polisyos.data_forge.kernel.runtime import pause_between_batches
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -25,14 +27,12 @@ def build_hnsw_index(
     db_path: Path,
     index_dir: Path,
     embedding_model: str = "intfloat/multilingual-e5-large",
+    embedding_dimension: int = 1024,
     embedding_batch_size: int = 32,
     embedding_device: str = "cpu",
     thermal_pause_seconds: float = 0.0,
 ) -> int:
     """Embed datasets and build one HNSW index."""
-    import hnswlib
-    from sentence_transformers import SentenceTransformer
-
     con = duckdb.connect(str(db_path), read_only=True)
     try:
         rows = con.execute(
@@ -41,49 +41,33 @@ def build_hnsw_index(
     finally:
         con.close()
 
-    if not rows:
-        return 0
-
-    ids: list[str] = []
-    texts: list[str] = []
+    prepared_rows: list[tuple[object, str]] = []
     for row in rows:
-        ids.append(row[0])
         title = row[1] or ""
         desc = (row[2] or "")[:500]
         keywords = list(row[3] or [])
         variables = list(row[4] or [])
-        texts.append(f"{title} {desc} {' '.join(keywords[:20])} {' '.join(variables[:20])}".strip())
-
-    model = SentenceTransformer(embedding_model, device=embedding_device)
-    chunks: list[np.ndarray] = []
-    for start in range(0, len(texts), embedding_batch_size):
-        stop = min(start + embedding_batch_size, len(texts))
-        chunk = model.encode(
-            texts[start:stop],
-            batch_size=min(embedding_batch_size, stop - start),
-            show_progress_bar=False,
-            normalize_embeddings=True,
+        prepared_rows.append(
+            (
+                row[0],
+                f"{title} {desc} {' '.join(keywords[:20])} {' '.join(variables[:20])}".strip(),
+            )
         )
-        chunks.append(chunk.astype(np.float32))
-        pause_between_batches(thermal_pause_seconds)
 
-    vectors = np.vstack(chunks) if chunks else np.zeros((0, 1024), dtype=np.float32)
-    if len(vectors) == 0:
-        return 0
-
-    dim = vectors.shape[1]
-    idx = hnswlib.Index(space="cosine", dim=dim)
-    idx.init_index(max_elements=len(vectors), ef_construction=200, M=16)
-    int_ids = np.arange(len(ids))
-    idx.add_items(vectors, int_ids)
-
-    np.savez(
-        str(index_dir / "ds_dataset_embeddings.npz"),
-        ids=np.array(ids, dtype=object),
-        vectors=vectors,
+    count, _dimension = build_embedding_generation(
+        rows=prepared_rows,
+        index_dir=index_dir,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        embedding_dimension=embedding_dimension,
+        embedding_batch_size=embedding_batch_size,
+        thermal_pause_seconds=thermal_pause_seconds,
+        basis_kind="catalog_dataset_embedding",
+        projection_rule_version="policyos.catalog_dataset_embedding_projection.v1",
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
     )
-    idx.save_index(str(index_dir / "ds_dataset_index.hnsw"))
-    return len(ids)
+    return count
 
 
 def run_embed(config: DatasetBatchConfig, *, thermal: bool = False) -> int:
@@ -94,19 +78,28 @@ def run_embed(config: DatasetBatchConfig, *, thermal: bool = False) -> int:
         db_path=config.db_path,
         index_dir=config.index_dir,
         embedding_model=config.embedding_model,
+        embedding_dimension=config.embedding_dimension,
         embedding_batch_size=config.embedding_batch_size,
         embedding_device=config.resolved_embedding_device,
         thermal_pause_seconds=pause_s,
     )
+    generation = embedding_generation_manifest(
+        config.index_dir,
+        legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+    )
+    generation_metrics = generation[0] if generation else {}
+    generation_artifacts = generation[1] if generation else ()
     write_stage_manifest(
         manifest_path=config.manifests_dir / "embed.json",
         stage="embed",
-        status="ok",
-        metrics={"embedded": count, "thermal": thermal},
-        artifacts=[
-            config.index_dir / "ds_dataset_embeddings.npz",
-            config.index_dir / "ds_dataset_index.hnsw",
-        ],
+        status=("empty_generation" if count == 0 else "ok"),
+        metrics={
+            "embedded": count,
+            "thermal": thermal,
+            "embedding_generation": generation_metrics,
+        },
+        artifacts=list(generation_artifacts),
         started_at=started_at,
     )
     logger.info("Dataset embedding complete: %d vectors", count)

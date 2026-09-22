@@ -55,7 +55,7 @@ class RateLimiterConfig:
 
     Args:
         rate_limit_rps: Maximum requests per second
-        burst_size: Maximum burst size (defaults to rate_limit_rps)
+        burst_size: Maximum burst size (defaults to at least one request)
         adaptive: Enable adaptive rate adjustment
         min_rate_rps: Minimum rate when adapting (defaults to rate_limit_rps / 10)
         max_rate_rps: Maximum rate when adapting (defaults to rate_limit_rps)
@@ -73,7 +73,7 @@ class RateLimiterConfig:
             raise ValueError("rate_limit_rps must be > 0")
 
         if self.burst_size is None:
-            self.burst_size = self.rate_limit_rps
+            self.burst_size = max(1.0, self.rate_limit_rps)
 
         if self.min_rate_rps is None:
             self.min_rate_rps = self.rate_limit_rps / 10.0
@@ -106,7 +106,7 @@ class RateLimiter:
         tracer: Tracer | None = None,
     ) -> None:
         self.rate_limit_rps = rate_limit_rps
-        self.burst_size = burst_size or rate_limit_rps
+        self.burst_size = max(1.0, rate_limit_rps) if burst_size is None else burst_size
         self.limiter_id = limiter_id
 
         # Token bucket state
@@ -131,6 +131,23 @@ class RateLimiter:
             burst_size=self.burst_size,
             limiter_id=self.limiter_id,
         )
+
+    def is_quiescent(self) -> bool:
+        """Return whether eviction can no longer change admission semantics.
+
+        A limiter with a pending provider cooldown or a partially consumed
+        bucket still carries mandatory admission state. Once the cooldown has
+        elapsed and the bucket is full, the token state is at its neutral
+        boundary and the registry may safely release the object.
+        """
+        with self._lock:
+            now = _monotonic()
+            self._refill_tokens(now)
+            if self._blocked_until is not None:
+                if now < self._blocked_until:
+                    return False
+                self._blocked_until = None
+            return self._tokens >= self.burst_size
 
     def _refill_tokens(self, now: float) -> None:
         """Refill tokens based on elapsed time (monotonic)."""
@@ -327,6 +344,13 @@ class AdaptiveRateLimiter(RateLimiter):
         self._decrease_factor = 0.5
         self._success_count = 0
         self._success_window = 100
+
+    def is_quiescent(self) -> bool:
+        """Return whether token and adaptive state are safe to release."""
+        if not super().is_quiescent():
+            return False
+        with self._lock:
+            return self.rate_limit_rps == self.config.rate_limit_rps and self._success_count == 0
 
     def adjust_rate(self, new_rate: float) -> None:
         if new_rate <= 0:

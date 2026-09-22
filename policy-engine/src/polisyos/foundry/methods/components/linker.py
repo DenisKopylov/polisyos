@@ -11,14 +11,14 @@ from dataclasses import dataclass, replace
 from uuid import UUID
 
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
+from polisyos.foundry.methods.components.slot_schema import (
+    SemanticCompatibilityError,
+    is_semantically_compatible,
+)
 from polisyos.foundry.methods.exceptions import (
     ShapeMismatchError,
     SlotConnectionError,
     UnitMismatchError,
-)
-from polisyos.foundry.methods.components.slot_schema import (
-    SemanticCompatibilityError,
-    is_semantically_compatible,
 )
 from polisyos.foundry.methods.types.checker import (
     IncompatibilityReason,
@@ -27,7 +27,6 @@ from polisyos.foundry.methods.types.checker import (
     TypeAdapterKind,
     UnitAdapterKind,
     check_slot_compatibility,
-    find_compatible_slots,
 )
 
 __all__ = [
@@ -285,6 +284,12 @@ class SlotLinker:
 
         unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
 
+        if unconnected and not self._config.allow_partial_links:
+            raise SlotConnectionError(
+                f"Unconnected required inputs in {target_sig.fqn}: {list(unconnected)}. "
+                f"Available outputs from {source_sig.fqn}: {list(source_outputs.keys())}"
+            )
+
         return LinkResult(
             source_fqn=source_sig.fqn,
             target_fqn=target_sig.fqn,
@@ -301,99 +306,116 @@ class SlotLinker:
         source_outputs = _slots_by_name(source_sig.output_slots)
         target_inputs = _slots_by_name(target_sig.input_slots)
 
-        bindings: list[SlotBinding] = []
         warnings: list[str] = []
-        used_sources: set[str] = set()
-        connected_inputs: set[str] = set()
+        candidate_edges: dict[str, list[tuple[SlotSpec, SlotCompatibility]]] = {}
 
-        # Pass 1: exact name matching (if configured)
-        if self._config.prefer_exact_names:
-            for name, tgt_slot in target_inputs.items():
-                if name not in source_outputs:
-                    continue
-                src_slot = source_outputs[name]
+        # Build the complete admissible edge set before selecting any source.
+        # This keeps matching from making an irrevocable greedy choice and
+        # applies the same structural and semantic checks to every edge.
+        for tgt_name, tgt_slot in target_inputs.items():
+            compatible: list[tuple[SlotSpec, SlotCompatibility]] = []
+            semantic_mismatches: list[tuple[str, str]] = []
+
+            for src_name, src_slot in source_outputs.items():
                 compat = check_slot_compatibility(
                     src_slot,
                     tgt_slot,
                     strict_shape=self._config.strict_shape,
                     allow_unsafe_shapes=self._config.allow_unsafe_shapes,
                 )
-                if compat.compatible:
-                    # Skip semantically incompatible same-named slots gracefully
-                    if not is_semantically_compatible(name, name):
+                if not compat.compatible:
+                    if src_name == tgt_name:
                         warnings.append(
-                            f"Slot '{name}' skipped: semantic incompatibility "
-                            f"(source and target have same name but different semantics)"
+                            f"Slot '{tgt_name}' exists in both but incompatible: "
+                            f"{compat.warnings[0] if compat.warnings else 'type mismatch'}"
                         )
-                        continue
-                    binding = SlotBinding(
-                        source_method=source_sig.fqn,
-                        source_slot=name,
-                        target_method=target_sig.fqn,
-                        target_slot=name,
-                        compatibility=compat,
-                    )
-                    bindings.append(binding)
-                    used_sources.add(name)
-                    connected_inputs.add(name)
-                    warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
-                    warnings.extend(compat.warnings)
-                else:
-                    warnings.append(
-                        f"Slot '{name}' exists in both but incompatible: "
-                        f"{compat.warnings[0] if compat.warnings else 'type mismatch'}"
-                    )
+                    continue
 
-        # Pass 2: type-based matching for remaining inputs
-        for tgt_name, tgt_slot in target_inputs.items():
-            if tgt_name in connected_inputs:
-                continue
+                try:
+                    self._check_semantic(src_name, tgt_name)
+                except SemanticCompatibilityError:
+                    semantic_mismatches.append((src_name, tgt_name))
+                    continue
+                compatible.append((src_slot, compat))
 
-            available_sources = [
-                source_outputs[name] for name in source_outputs if name not in used_sources
-            ]
+            # A structurally compatible but semantically forbidden edge is a
+            # real rejection, not an unconnected input.  If no admissible
+            # alternative exists, surface the same semantic error as explicit
+            # linking; otherwise leave the forbidden edge out of matching.
+            if not compatible and semantic_mismatches:
+                src_name, rejected_target = semantic_mismatches[0]
+                self._check_semantic(src_name, rejected_target)
 
-            compatible = find_compatible_slots(
-                available_sources,
-                tgt_slot,
-                strict_shape=self._config.strict_shape,
-                allow_unsafe_shapes=self._config.allow_unsafe_shapes,
-            )
-
-            if not compatible:
-                continue
-
-            best, _best_score, best_candidates = _select_best_candidate(
+            candidate_edges[tgt_name] = sorted(
                 compatible,
-                tgt_slot,
-                prefer_exact_names=self._config.prefer_exact_names,
+                key=lambda item: _candidate_sort_key(
+                    item,
+                    tgt_slot,
+                    prefer_exact_names=self._config.prefer_exact_names,
+                ),
             )
-            src_slot, compat = best
 
+        matched_sources: dict[str, str] = {}
+
+        def augment(target_name: str, seen_sources: set[str]) -> bool:
+            """Find an augmenting path for one target in the bounded graph."""
+            for src_slot, _compat in candidate_edges[target_name]:
+                src_name = src_slot.name
+                if src_name in seen_sources:
+                    continue
+                seen_sources.add(src_name)
+                previous_target = matched_sources.get(src_name)
+                if previous_target is None or augment(previous_target, seen_sources):
+                    matched_sources[src_name] = target_name
+                    return True
+            return False
+
+        for target_name in target_inputs:
+            augment(target_name, set())
+
+        matched_targets = {
+            target_name: source_name for source_name, target_name in matched_sources.items()
+        }
+        bindings: list[SlotBinding] = []
+
+        for tgt_name, tgt_slot in target_inputs.items():
+            src_name = matched_targets.get(tgt_name)
+            if src_name is None:
+                continue
+
+            src_slot, compat = next(
+                (slot, edge_compat)
+                for slot, edge_compat in candidate_edges[tgt_name]
+                if slot.name == src_name
+            )
             binding = SlotBinding(
                 source_method=source_sig.fqn,
-                source_slot=src_slot.name,
+                source_slot=src_name,
                 target_method=target_sig.fqn,
                 target_slot=tgt_name,
                 compatibility=compat,
             )
             bindings.append(binding)
-            used_sources.add(src_slot.name)
-            connected_inputs.add(tgt_name)
 
-            warnings.append(f"Auto-linked: {src_slot.name} -> {tgt_name}")
+            exact_name = self._config.prefer_exact_names and src_name == tgt_name
+            if not exact_name:
+                warnings.append(f"Auto-linked: {src_name} -> {tgt_name}")
             warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
             warnings.extend(compat.warnings)
 
-            if len(compatible) > 1:
-                others = sorted([slot.name for slot, _ in compatible if slot.name != src_slot.name])
+            if len(candidate_edges[tgt_name]) > 1 and not exact_name:
+                others = sorted(
+                    slot.name for slot, _ in candidate_edges[tgt_name] if slot.name != src_name
+                )
                 if others:
                     warnings.append(
-                        f"Multiple compatible sources for '{tgt_name}': used '{src_slot.name}', "
+                        f"Multiple compatible sources for '{tgt_name}': used '{src_name}', "
                         f"also available: {others}"
                     )
 
-        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
+        unconnected = tuple(
+            name for name in target_inputs if name not in matched_targets
+        )
 
         if unconnected and not self._config.allow_partial_links:
             raise SlotConnectionError(
@@ -468,7 +490,7 @@ def check_linkable(
     try:
         result = link_methods(source, target)
         return result.binding_count > 0
-    except SlotConnectionError:
+    except (SlotConnectionError, SemanticCompatibilityError):
         return False
 
 
@@ -501,6 +523,30 @@ def _conversion_warnings(
         f"Unit conversion: {src_slot.name}({src_slot.unit.symbol}) -> "
         f"{tgt_slot.name}({tgt_slot.unit.symbol}) factor={factor:.6g}"
     ]
+
+
+def _candidate_sort_key(
+    candidate: tuple[SlotSpec, SlotCompatibility],
+    target_slot: SlotSpec,
+    *,
+    prefer_exact_names: bool,
+) -> tuple[int, int, int, int, int, str]:
+    """Order compatible edges by preference, then by stable source name."""
+    source_slot, compatibility = candidate
+    score = _score_candidate(
+        source_slot,
+        target_slot,
+        compatibility,
+        prefer_exact_names=prefer_exact_names,
+    )
+    return (
+        -score[0],
+        -score[1],
+        -score[2],
+        -score[3],
+        -score[4],
+        source_slot.name,
+    )
 
 
 def _select_best_candidate(

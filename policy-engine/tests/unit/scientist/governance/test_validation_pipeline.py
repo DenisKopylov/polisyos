@@ -8,7 +8,7 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import SelectorOperator
-from polisyos.scientist.governance.passes.base import (
+from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
     PassContext,

@@ -1438,7 +1438,7 @@ class ControlPlaneService(
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
-        root_evaluation_context: EvaluationExecutionContext | None,
+        root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun:
         """Run the HTTP composition through its container-owned epoch strangle."""
 

@@ -8,6 +8,6 @@
 
 Для LA-045 учитывай _digest amendment; для LA-046 actual N7 text/domain/resolver amendment; для DDM сохраняй R2 override и LK35 anyOf; для calibration различай measured numerator/denominator, nominal confidence и shape diagnostics. Alias agreement не независимое научное свидетельство. Честный unsupported result не реализует trainer/RBC/calibration bridge.
 
-Тесты через I1, на exact reviewed SHA: общий2L либо1N/C. Малый fixture только для внешней границы, не вместо принимаемой native модели/owner. Report native versus fixture и defer отдельно. Не мониторь нагрузку перед каждым шагом.
+Тесты через I1, на exact reviewed SHA: общий weighted budget — до7 resource-bearing process groups и7 L-equivalent units; N/C эксклюзивен и занимает весь бюджет. Immutable request фиксирует executable/argv/cwd/worktree/SHA/selectors/timeout/output root. Reviewer не удерживает compute permit до текстовой приёмки: после завершения process group, cleanup и receipt слот возвращается очереди. Малый fixture только для внешней границы, не вместо принимаемой native модели/owner. Report native versus fixture и defer отдельно. Не мониторь нагрузку перед каждым шагом.
 
 Выход: ACCEPT/CHANGES_REQUIRED/BOUNDED_PARTIAL с конкретными file/line findings, scope proof, test evidence и незакрытыми obligations. Перенос LA к следующему этапу не означает полного закрытия source card. I1/I2 получают краткий структурированный результат, полный лог отдельно.

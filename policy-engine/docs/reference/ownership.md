@@ -49,7 +49,7 @@ owner-group reference for reviews and escalation.
 | Foundry support packages       | `src/polisyos/foundry/agent_sim/world/**`                                  | `@foundry-owners`      | `@DenisKopylov`         | `@architecture-owners` |
 | Architecture contracts         | `architecture/**`, `schemas/topology/**`                                     | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
 | Schemas                        | `schemas/**`                                                                 | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
-| Frontend                       | `apps/**`, `packages/**`, `frontend/README.md`                               | `@frontend-owners`     | `@DenisKopylov`         | `@platform-owners` |
+| Frontend                       | `apps/**`, `packages/**`                                                      | `@frontend-owners`     | `@DenisKopylov`         | `@platform-owners` |
 | Tools                          | `tools/**`                                                                   | `@tools-owners`        | `@DenisKopylov`         | `@platform-owners` |
 | Docs                           | `docs/**`                                                                    | `@docs-owners`         | `@DenisKopylov`         | `@platform-owners` |
 | ADRs and active plans          | `docs/adr/**`, `docs/plans/**`                                               | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |

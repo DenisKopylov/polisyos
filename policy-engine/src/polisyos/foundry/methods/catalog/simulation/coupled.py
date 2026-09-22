@@ -49,8 +49,13 @@ def _vector(
     return arr
 
 
-def _metric_names(params: Mapping[str, Any], default: tuple[str, ...]) -> tuple[str, ...]:
-    raw = params.get("metric_names", default)
+def _metric_names(
+    params: Mapping[str, Any],
+    default: tuple[str, ...],
+    *,
+    parameter_name: str = "metric_names",
+) -> tuple[str, ...]:
+    raw = params.get(parameter_name, default)
     if isinstance(raw, str):
         return tuple(item.strip() for item in raw.split(",") if item.strip())
     return tuple(str(item) for item in raw)
@@ -398,7 +403,10 @@ class CoupledSMMEstimator:
             "McFadden, D. (1989). A method of simulated moments for estimation of discrete response models without numerical integration. Econometrica.",
             "Gourieroux, C., Monfort, A., and Renault, E. (1993). Indirect inference. Journal of Applied Econometrics.",
         ),
-        output_interpretation="Best grid point, fitted moments, loss, and the evaluated surface.",
+        output_interpretation=(
+            "Best comparable grid point, fitted moments, loss, and the evaluated surface; "
+            "no-comparable candidates are blocked rather than selecting the first point."
+        ),
     )
 
     @staticmethod
@@ -408,6 +416,7 @@ class CoupledSMMEstimator:
         moment_names = _metric_names(
             params,
             ("completed_count", "final_queue_length"),
+            parameter_name="moment_names",
         )
         observed_values = _vector(state, "observed_moments")
         if observed_values.shape[0] != len(moment_names):
@@ -442,6 +451,8 @@ class CoupledSMMEstimator:
                 "fitted_summary": result.fitted_summary,
                 "observed_summary": result.observed_summary,
                 "evaluated": list(result.evaluated),
+                "comparison_status": result.comparison_status,
+                "status": result.status,
             }
         }
 
@@ -568,7 +579,11 @@ class CoupledPairedMonteCarloEstimator:
             "Glasserman, P. (2004). Monte Carlo Methods in Financial Engineering. Springer.",
             "Asmussen, S. and Glynn, P. W. (2007). Stochastic Simulation: Algorithms and Analysis. Springer.",
         ),
-        output_interpretation="Mean paired differences and standard errors for requested metrics.",
+        output_interpretation=(
+            "Mean paired differences and standard errors for requested metrics. "
+            "A one-replication standard error is null with status "
+            "standard_error_not_estimated; numeric standard errors require at least two."
+        ),
     )
 
     @staticmethod
@@ -609,6 +624,7 @@ class CoupledPairedMonteCarloEstimator:
             "result": {
                 "mean_effects": result.mean_effects,
                 "standard_errors": result.standard_errors,
+                "standard_error_status": result.standard_error_status,
                 "paired_differences": list(result.paired_differences),
                 "n_replications": result.n_replications,
             }

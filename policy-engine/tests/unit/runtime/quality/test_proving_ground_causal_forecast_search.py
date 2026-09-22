@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
@@ -178,7 +179,11 @@ def _create_minimal_skg_fixture(
     manifest_dir.mkdir(parents=True)
     if include_hnsw_assets:
         (academic_root / "ac_work_index.hnsw").write_bytes(b"hnsw-fixture")
-        (academic_root / "ac_work_embeddings.npz").write_bytes(b"npz-fixture")
+        np.savez(
+            academic_root / "ac_work_embeddings.npz",
+            ids=np.array([], dtype=object),
+            vectors=np.empty((0, 2), dtype=np.float32),
+        )
     (manifest_dir / "graph_index.json").write_text(
         json.dumps(
             {
@@ -1879,6 +1884,183 @@ def test_g2_semantic_retrieval_fails_without_hnsw_assets_when_required(
     assert "layer3_g2_stale_index_blocks_domain_ceiling" in report["issue_codes"]
 
 
+def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A selected typed-empty generation must not fall back to old flat assets."""
+
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    build_embedding_generation(
+        rows=(),
+        index_dir=academic_root,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=academic_root / "ac_work_embeddings.npz",
+        legacy_index_path=academic_root / "ac_work_index.hnsw",
+    )
+    selector = json.loads(
+        (academic_root / "embedding_generation.json").read_text(encoding="utf-8")
+    )
+    generation_id = selector["generation_id"]
+    seed = g2.Layer3G2SearchRecallSeed(
+        seed_id="g2-recall-seed:fixture-semantic-edge",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        expected_row_refs=("skg-edge://edge-1",),
+        requires_semantic_retrieval=True,
+    )
+
+    coverage = _dump(g2.build_g2_l2_skg_index_coverage(tmp_path))
+    freshness = _dump(
+        g2.build_g2_search_recall_freshness(
+            tmp_path,
+            seeds=(seed,),
+            semantic_retrieval_required=True,
+            query_vector_producer_ref="producer://fixture-query-vector",
+            query_vector_ref="query-vector://fixture",
+        )
+    )
+    quality = _dump(
+        g2.build_g2_search_engineering_quality_report(
+            tmp_path,
+            None,
+            semantic_retrieval_required=True,
+        )
+    )
+
+    assert coverage["hnsw_assets_status"] == "fail"
+    assert freshness["hnsw_freshness_status"] == "fail"
+    assert quality["hnsw_index_backed_status"] == "fail"
+    assert quality["index_refs"] == [g2.CANONICAL_L2_ROUTE]
+    emitted_refs = [record["artifact_ref"] for record in freshness["freshness_records"]]
+    assert not any(
+        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
+        for ref in emitted_refs
+    )
+    assert any(
+        f"embedding_generations/{generation_id}/" in ref
+        or ref.endswith("embedding_generation.json")
+        for ref in emitted_refs
+    )
+    selected_evidence_records = [
+        record
+        for record in freshness["freshness_records"]
+        if f"embedding_generations/{generation_id}/" in record["artifact_ref"]
+        or record["artifact_ref"].endswith("embedding_generation.json")
+    ]
+    assert selected_evidence_records
+    assert all(
+        record["status"] == "not_required_for_request"
+        for record in selected_evidence_records
+    )
+
+
+def test_g2_complete_selected_generation_separates_search_and_evidence(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A complete selected generation reports two searched members only."""
+
+    from polisyos.data_forge.kernel import embeddings as embedding_kernel
+
+    def _fake_build_embedding_index(
+        *,
+        rows: Any,
+        embeddings_path: Path,
+        index_path: Path,
+        **_: Any,
+    ) -> tuple[int, int]:
+        identifiers = [str(identifier) for identifier, _ in rows]
+        np.savez(
+            str(embeddings_path),
+            ids=np.asarray(identifiers, dtype=object),
+            vectors=np.ones((len(identifiers), 2), dtype=np.float32),
+        )
+        index_path.write_bytes(b"fixture-hnsw")
+        return len(identifiers), 2
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    monkeypatch.setattr(
+        embedding_kernel, "build_embedding_index", _fake_build_embedding_index
+    )
+    embedding_kernel.build_embedding_generation(
+        rows=(("work-1", "fixture text"),),
+        index_dir=academic_root,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=academic_root / "ac_work_embeddings.npz",
+        legacy_index_path=academic_root / "ac_work_index.hnsw",
+    )
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    seed = g2.Layer3G2SearchRecallSeed(
+        seed_id="g2-recall-seed:fixture-semantic-edge",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        expected_row_refs=("skg-edge://edge-1",),
+        requires_semantic_retrieval=True,
+    )
+
+    freshness = _dump(
+        g2.build_g2_search_recall_freshness(
+            tmp_path,
+            seeds=(seed,),
+            semantic_retrieval_required=True,
+            query_vector_producer_ref="producer://fixture-query-vector",
+            query_vector_ref="query-vector://fixture",
+        )
+    )
+    quality = _dump(
+        g2.build_g2_search_engineering_quality_report(
+            tmp_path,
+            None,
+            semantic_retrieval_required=True,
+        )
+    )
+    generation_id = json.loads(
+        (academic_root / "embedding_generation.json").read_text(encoding="utf-8")
+    )["generation_id"]
+    selected_prefix = f"academic/embedding_generations/{generation_id}/"
+    search_records = [
+        record
+        for record in freshness["freshness_records"]
+        if selected_prefix in record["artifact_ref"]
+        and record["artifact_ref"].endswith(
+            ("index.hnsw", "embeddings.npz")
+        )
+    ]
+    sidecar_records = [
+        record
+        for record in freshness["freshness_records"]
+        if record not in search_records
+        and (
+            "embedding_generations/" in record["artifact_ref"]
+            or record["artifact_ref"].endswith("embedding_generation.json")
+        )
+    ]
+
+    assert freshness["hnsw_freshness_status"] == "pass"
+    assert len(search_records) == 2
+    assert {record["status"] for record in search_records} == {"pass"}
+    assert sidecar_records
+    assert all(
+        record["status"] == "not_required_for_request" for record in sidecar_records
+    )
+    assert quality["index_refs"][0] == g2.CANONICAL_L2_ROUTE
+    assert len(quality["index_refs"][1:]) == 2
+    assert all(
+        ref.endswith(("index.hnsw", "embeddings.npz"))
+        for ref in quality["index_refs"][1:]
+    )
+
+
 def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
     tmp_path: Path,
     monkeypatch: Any,
@@ -1912,6 +2094,74 @@ def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
     assert report["hnsw_settings"]["ef"] == 100
     assert report["semantic_candidate_row_refs"] == ["skg-edge://edge-1"]
     assert report["post_hnsw_duckdb_validation_trace_refs"]
+    legacy_refs = {
+        record["artifact_ref"]
+        for record in report["freshness_records"]
+        if record["artifact_ref"].endswith(
+            ("ac_work_index.hnsw", "ac_work_embeddings.npz")
+        )
+    }
+    assert legacy_refs == {
+        "academic/ac_work_index.hnsw",
+        "academic/ac_work_embeddings.npz",
+    }
+    assert all(
+        record["status"] == "pass"
+        for record in report["freshness_records"]
+        if record["artifact_ref"] in legacy_refs
+    )
+
+
+def test_g2_malformed_selected_generation_has_no_search_refs(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A malformed selector must not make stale flat assets searchable."""
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    (academic_root / "embedding_generation.json").write_text("{\n", encoding="utf-8")
+    seed = g2.Layer3G2SearchRecallSeed(
+        seed_id="g2-recall-seed:fixture-semantic-edge",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        expected_row_refs=("skg-edge://edge-1",),
+        requires_semantic_retrieval=True,
+    )
+
+    freshness = _dump(
+        g2.build_g2_search_recall_freshness(
+            tmp_path,
+            seeds=(seed,),
+            semantic_retrieval_required=True,
+            query_vector_producer_ref="producer://fixture-query-vector",
+            query_vector_ref="query-vector://fixture",
+        )
+    )
+    quality = _dump(
+        g2.build_g2_search_engineering_quality_report(
+            tmp_path,
+            None,
+            semantic_retrieval_required=True,
+        )
+    )
+
+    assert freshness["hnsw_freshness_status"] == "fail"
+    assert quality["index_refs"] == [g2.CANONICAL_L2_ROUTE]
+    assert not any(
+        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
+        for ref in quality["index_refs"]
+    )
+    selector_records = [
+        record
+        for record in freshness["freshness_records"]
+        if record["artifact_ref"].endswith("embedding_generation.json")
+    ]
+    assert selector_records
+    assert all(
+        record["status"] == "not_required_for_request" for record in selector_records
+    )
 
 
 def test_g2_free_growth_discovers_added_skg_edge_and_method_fixture(

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import builtins
+
 import numpy as np
+import pytest
 from polisyos.scientist.methods.backtesting.cv import (
     forward_chaining_splits,
     run_forward_chaining_cv,
@@ -29,8 +32,101 @@ class TestForwardChainingSplits:
         splits = forward_chaining_splits(3, min_train_size=2, step_size=1)
         assert len(splits) == 1
 
+    @pytest.mark.parametrize(
+        ("min_train_size", "step_size", "max_folds"),
+        [
+            (2, 0, 3),
+            (2, -1, 3),
+            (0, 1, 3),
+            (-1, 1, 3),
+            (1001, 1, 3),
+            (2, 1, 0),
+            (2, 1, -1),
+            (True, 1, 3),
+            (2, True, 3),
+            (2, 1, True),
+        ],
+    )
+    def test_invalid_cv_parameters_are_rejected_before_loop(
+        self,
+        monkeypatch,
+        min_train_size,
+        step_size,
+        max_folds,
+    ):
+        def forbidden_range(*args):
+            raise AssertionError("invalid parameter entered fold materialization")
+
+        with monkeypatch.context() as scoped:
+            scoped.setattr(builtins, "range", forbidden_range)
+
+            with pytest.raises(ValueError):
+                forward_chaining_splits(
+                    1000,
+                    min_train_size=min_train_size,
+                    step_size=step_size,
+                    max_folds=max_folds,
+                )
+
+    def test_numpy_integer_parameters_remain_valid(self):
+        splits = forward_chaining_splits(
+            np.int64(10),
+            min_train_size=np.int64(2),
+            step_size=np.int64(2),
+            max_folds=np.int64(2),
+        )
+
+        assert [(len(train), test) for train, test in splits] == [
+            (2, [2, 3]),
+            (8, [8, 9]),
+        ]
+
 
 class TestRunForwardChainingCV:
+    def test_max_folds_limits_preparation_before_cv_evaluator(self, monkeypatch):
+        real_range = builtins.range
+        materialized_items = 0
+
+        data = np.arange(1000, dtype=float)
+        observed_shapes = []
+
+        with monkeypatch.context() as scoped:
+            def bounded_range(*args):
+                nonlocal materialized_items
+                requested = real_range(*args)
+                materialized_items += len(requested)
+                if materialized_items > 1504:
+                    raise AssertionError("discarded folds were materialized")
+                return requested
+
+            scoped.setattr(builtins, "range", bounded_range)
+
+            def evaluator(train, test):
+                observed_shapes.append((len(train), len(test)))
+                if len(observed_shapes) == 3:
+                    # Stop observing after the selected folds have reached the
+                    # evaluator; NumPy's later metric reduction also uses range.
+                    scoped.undo()
+                return {"test_size": float(len(test))}
+
+            result = run_forward_chaining_cv(
+                data,
+                evaluator,
+                min_train_size=2,
+                step_size=1,
+                max_folds=3,
+            )
+
+        assert [(len(fold.train_indices), fold.test_indices) for fold in result.folds] == [
+            (2, [2]),
+            (500, [500]),
+            (999, [999]),
+        ]
+        assert sum(
+            len(fold.train_indices) + len(fold.test_indices) for fold in result.folds
+        ) == 1504
+        assert observed_shapes == [(2, 1), (500, 1), (999, 1)]
+
     def test_basic_cv(self):
         data = np.arange(20, dtype=float)
 

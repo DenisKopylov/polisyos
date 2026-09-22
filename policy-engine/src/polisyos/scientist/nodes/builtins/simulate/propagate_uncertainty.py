@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -41,6 +41,14 @@ logger = get_logger(__name__)
 _PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _PROPAGATION_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
 
+
+class _PropagationFunction(Protocol):
+    """Callable response carrying its resolved sensitivity map."""
+
+    _sensitivity_map: dict[str, dict[str, float]]
+
+    def __call__(self, **current_params: Any) -> dict[str, Any]: ...
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_uncertainty@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -54,10 +62,12 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "params",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_CALIBRATION_REPORT_REF}",
         "params.propagation_config",
+        "params.propagation_sensitivity",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
@@ -133,6 +143,24 @@ class PropagateUncertaintyNode:
                 events=[NodeEvent(level="info", message="Propagation yielded no results")],
             )
 
+        sensitivity_map = getattr(simulation_fn, "_sensitivity_map", {})
+        unmapped_metric_ids = [
+            metric_id for metric_id in output_metric_ids if not sensitivity_map.get(metric_id)
+        ]
+        if unmapped_metric_ids:
+            results = [
+                _mark_unresolved_sensitivity(item)
+                if item.metric_id in unmapped_metric_ids
+                else item
+                for item in results
+            ]
+        missing_output_metric_ids = [
+            item.metric_id
+            for item in results
+            if item.envelope.metadata.get("failure") == "missing_output"
+            or item.diagnostics.get("missing_output_count", 0) > 0
+        ]
+
         envelope_refs: dict[str, ArtifactRef] = {}
         artifacts: list[ArtifactRef] = []
         for item in results:
@@ -147,6 +175,8 @@ class PropagateUncertaintyNode:
             input_envelopes=input_envelopes,
             output_metrics=output_metric_ids,
             mapped_params=mapped_params,
+            unmapped_metric_ids=unmapped_metric_ids,
+            missing_output_metric_ids=missing_output_metric_ids,
         )
 
         updated_sim = sim_result.model_copy(
@@ -278,7 +308,7 @@ def _build_propagation_fn(
     *,
     base_metric_values: Mapping[str, float],
     nominal_params: Mapping[str, float],
-) -> tuple[Any, set[str]]:
+) -> tuple[_PropagationFunction, set[str]]:
     frozen = dict(base_metric_values)
     nominal = dict(nominal_params)
     metric_ids = sorted(frozen.keys())
@@ -291,23 +321,31 @@ def _build_propagation_fn(
         base_metric_values=frozen,
     )
 
-    def _fn(**params: Any) -> dict[str, float]:
+    def _fn(**current_params: Any) -> dict[str, Any]:
         result = dict(frozen)
         for metric_id in metric_ids:
-            base_value = float(frozen[metric_id])
+            base_value = frozen[metric_id]
             metric_sens = sensitivity_map.get(metric_id, {})
             if not metric_sens:
                 continue
             delta = 0.0
             for param_name, coef in metric_sens.items():
-                current = params.get(param_name, nominal.get(param_name, 0.0))
-                baseline = float(nominal.get(param_name, 0.0))
-                denom = max(abs(baseline), 1.0)
-                delta += float(coef) * ((float(current) - baseline) / denom)
-            result[metric_id] = base_value * (1.0 + delta)
+                current = current_params.get(param_name, nominal.get(param_name, 0.0))
+                baseline = nominal.get(param_name, 0.0)
+                if base_value == 0.0:
+                    delta += float(coef) * (current - baseline)
+                else:
+                    denom = max(abs(baseline), 1.0)
+                    delta += float(coef) * ((current - baseline) / denom)
+            result[metric_id] = (
+                base_value + delta if base_value == 0.0 else base_value * (1.0 + delta)
+            )
         return result
 
-    return _fn, mapped_params
+    propagation_fn = cast("_PropagationFunction", _fn)
+    # This private attribute is an intentional metadata bridge for the local node.
+    propagation_fn._sensitivity_map = sensitivity_map  # pyright: ignore[reportPrivateUsage]
+    return propagation_fn, mapped_params
 
 
 def _resolve_sensitivity_map(
@@ -341,32 +379,32 @@ def _resolve_sensitivity_map(
             if metric_map:
                 sensitivity[metric_id] = metric_map
 
-    if sensitivity:
-        return sensitivity, mapped
-
-    for metric_id in metric_ids:
-        metric_map: dict[str, float] = {}
-        for param_name in param_names:
-            if param_name == metric_id:
-                metric_map[param_name] = 1.0
-                mapped.add(param_name)
-        if metric_map:
-            sensitivity[metric_id] = metric_map
-
-    if sensitivity:
-        return sensitivity, mapped
-
-    # Conservative fallback: couple each metric to all parameters with small weights.
-    # This avoids silently reporting zero propagated uncertainty when names do not align.
-    if param_names:
-        uniform_coef = 1.0 / max(len(param_names), 1)
-        for metric_id in metric_ids:
-            base = abs(float(base_metric_values[metric_id]))
-            scale = 1.0 if base < 1.0 else base
-            sensitivity[metric_id] = dict.fromkeys(param_names, uniform_coef / scale)
-        mapped.update(param_names)
-
     return sensitivity, mapped
+
+
+def _mark_unresolved_sensitivity(result: PropagationResult) -> PropagationResult:
+    """Mark a result non-authoritative when no response map was established."""
+
+    metadata = {
+        **result.envelope.metadata,
+        "sensitivity_mapping": "unresolved",
+    }
+    envelope = result.envelope.model_copy(
+        update={
+            "gate_eligible": False,
+            "metadata": metadata,
+        }
+    )
+    return PropagationResult(
+        metric_id=result.metric_id,
+        envelope=envelope,
+        input_envelopes_used=result.input_envelopes_used,
+        method_used=result.method_used,
+        diagnostics={
+            **result.diagnostics,
+            "sensitivity_mapping": "unresolved",
+        },
+    )
 
 
 def _load_config(state: ExperimentState) -> PropagationConfig:
@@ -408,13 +446,25 @@ def _persist_report(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     output_metrics: list[str],
     mapped_params: set[str],
+    unmapped_metric_ids: list[str],
+    missing_output_metric_ids: list[str],
 ) -> ArtifactRef:
+    mapping_status = (
+        "resolved"
+        if not unmapped_metric_ids
+        else "partial"
+        if len(unmapped_metric_ids) < len(output_metrics)
+        else "unresolved"
+    )
     payload = {
         "schema_version": "1.0",
         "input_envelope_count": len(input_envelopes),
         "output_metric_count": len(output_metrics),
         "mapped_param_count": len(mapped_params),
         "mapped_params": sorted(mapped_params),
+        "mapping_status": mapping_status,
+        "unmapped_metric_ids": sorted(unmapped_metric_ids),
+        "missing_output_metric_ids": sorted(missing_output_metric_ids),
         "methods": [item.method_used.value for item in results],
         "diagnostics": [
             {

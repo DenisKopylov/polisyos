@@ -294,6 +294,7 @@ class SimpleVOIScheduler:
             estimated_cost=estimated_cost,
             timeout_risk=inputs["timeout_risk"],
             expected_improvement_per_usd=expected_improvement_per_usd,
+            expected_information_gain=inputs["expected_information_gain"],
             is_sentinel=inputs["is_sentinel"],
             reserved_calibration_budget_usd=reserved_calibration_budget_usd,
             scheduler_mode="simple",
@@ -350,6 +351,7 @@ class SimpleVOIScheduler:
         estimated_cost: Decimal,
         timeout_risk: float,
         expected_improvement_per_usd: float,
+        expected_information_gain: float,
         is_sentinel: bool,
         reserved_calibration_budget_usd: float,
         scheduler_mode: str,
@@ -386,8 +388,11 @@ class SimpleVOIScheduler:
             recommended_action = "retry_cheaper"
             reason = "high_timeout_risk"
         elif expected_improvement_per_usd < self._min_roi_threshold:
-            recommended_action = "reject"
-            reason = "roi_below_threshold"
+            if expected_information_gain > 0.0:
+                reason = "advance_by_information_value"
+            else:
+                recommended_action = "reject"
+                reason = "roi_below_threshold"
         return recommended_action, reason
 
     def _exploration_weight(self, budget_remaining: BudgetState) -> float:
@@ -761,6 +766,7 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 estimated_cost=Decimal(str(estimated_cost_usd)),
                 timeout_risk=max(timeout_risk, 0.0),
                 expected_improvement_per_usd=expected_improvement_per_usd,
+                expected_information_gain=heuristic["expected_information_gain"],
                 is_sentinel=heuristic["is_sentinel"],
                 reserved_calibration_budget_usd=reserved_calibration_budget_usd,
                 scheduler_mode="predictive",

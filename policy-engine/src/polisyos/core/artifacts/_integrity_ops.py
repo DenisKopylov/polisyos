@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
@@ -33,6 +34,16 @@ class ArtifactIntegrityError(ValueError):
     """Raised when a stored blob or manifest fails read-time integrity validation."""
 
 
+@dataclass(frozen=True)
+class VerifiedArtifactSnapshot:
+    """Immutable bytes/manifest view produced by one filesystem read."""
+
+    data: bytes
+    manifest_bytes: bytes
+    actual_sha256_hex: str
+    byte_size: int
+
+
 def validate_manifest_identity(
     artifact_id: ArtifactID,
     manifest: ArtifactManifest,
@@ -54,10 +65,28 @@ def validate_read_integrity(
     manifest: ArtifactManifest,
 ) -> None:
     """Verify manifest binding, blob digest, and byte-size agreement."""
-    validate_manifest_identity(artifact_id, manifest)
     actual = content_hash(data)
-    if actual != artifact_id.hex:
-        raise ArtifactIntegrityError(f"Blob sha256 mismatch for {artifact_id}: {actual}")
+    _validate_read_integrity_with_digest(
+        artifact_id,
+        data=data,
+        manifest=manifest,
+        actual_sha256_hex=actual,
+    )
+
+
+def _validate_read_integrity_with_digest(
+    artifact_id: ArtifactID,
+    *,
+    data: bytes,
+    manifest: ArtifactManifest,
+    actual_sha256_hex: str,
+) -> None:
+    """Validate a loaded pair without recomputing a caller-independent digest."""
+    validate_manifest_identity(artifact_id, manifest)
+    if actual_sha256_hex != artifact_id.hex:
+        raise ArtifactIntegrityError(
+            f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}"
+        )
     if manifest.byte_size != len(data):
         raise ArtifactIntegrityError(
             f"Manifest byte_size mismatch for {artifact_id}: "
@@ -84,6 +113,46 @@ def read_verified_blob(
             record_integrity_failure(reason=type(exc).__name__)
         raise
     return data
+
+
+def load_verified_artifact_snapshot(
+    artifact_id: ArtifactID,
+    *,
+    blob_path: Path,
+    manifest_path: Path,
+    record_integrity_failure: Callable[..., None] | None = None,
+) -> VerifiedArtifactSnapshot:
+    """Read and validate one immutable blob/manifest snapshot.
+
+    The raw manifest bytes are retained for signing so that the verifier sees
+    exactly the bytes that were validated and not a re-serialized model.
+    """
+    if not blob_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {artifact_id.hex}")
+
+    data = blob_path.read_bytes()
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+    actual = content_hash(data)
+    try:
+        _validate_read_integrity_with_digest(
+            artifact_id,
+            data=data,
+            manifest=manifest,
+            actual_sha256_hex=actual,
+        )
+    except ArtifactIntegrityError as exc:
+        if record_integrity_failure is not None:
+            record_integrity_failure(reason=type(exc).__name__)
+        raise
+    return VerifiedArtifactSnapshot(
+        data=data,
+        manifest_bytes=manifest_bytes,
+        actual_sha256_hex=actual,
+        byte_size=len(data),
+    )
 
 
 def verify_filesystem_artifact(
@@ -133,10 +202,11 @@ def verify_filesystem_artifact(
                 error=f"manifest invalid: {exc}",
             )
 
-        return verification_report_from_loaded_artifact(
+        return _verification_report_from_loaded_artifact_with_digest(
             artifact_id,
             data=data,
             manifest=manifest,
+            actual_sha256_hex=actual,
         )
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
         return VerificationReport(
@@ -178,9 +248,30 @@ def verification_report_from_loaded_artifact(
     manifest: ArtifactManifest,
 ) -> VerificationReport:
     """Convert already-loaded bytes/manifest data into a stable integrity report."""
-    actual = content_hash(data)
+    return _verification_report_from_loaded_artifact_with_digest(
+        artifact_id,
+        data=data,
+        manifest=manifest,
+        actual_sha256_hex=content_hash(data),
+    )
+
+
+def _verification_report_from_loaded_artifact_with_digest(
+    artifact_id: ArtifactID,
+    *,
+    data: bytes,
+    manifest: ArtifactManifest,
+    actual_sha256_hex: str,
+) -> VerificationReport:
+    """Build a report from a digest computed by this module's local reader."""
+    actual = actual_sha256_hex
     try:
-        validate_read_integrity(artifact_id, data, manifest)
+        _validate_read_integrity_with_digest(
+            artifact_id,
+            data=data,
+            manifest=manifest,
+            actual_sha256_hex=actual,
+        )
     except ArtifactIntegrityError as exc:
         return VerificationReport(
             ok=False,
@@ -212,6 +303,8 @@ def _normalize_verification_error(detail: str) -> str:
 __all__ = [
     "ArtifactIntegrityError",
     "VerificationReport",
+    "VerifiedArtifactSnapshot",
+    "load_verified_artifact_snapshot",
     "read_verified_blob",
     "validate_manifest_identity",
     "validate_read_integrity",

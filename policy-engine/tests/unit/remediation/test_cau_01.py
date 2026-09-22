@@ -239,6 +239,45 @@ def test_cau_01_cluster_covariance_rejects_bad_identity_shape() -> None:
     assert report.point_estimate is None
 
 
+def test_cau_01_cluster_rejects_varying_observation_labels_within_unit() -> None:
+    """A row-level cluster vector must remain constant over each panel unit."""
+
+    cluster_var = np.repeat(np.arange(_panel().n_units), _panel().n_periods)
+    cluster_var[1] = 99
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            _panel(),
+            {"cov_type": "cluster", "cluster_var": cluster_var},
+        )
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "cluster_var must be constant within each unit"
+    assert report.point_estimate is None
+
+
+def test_cau_01_cluster_rejects_duplicate_unit_ids() -> None:
+    """Unit-cluster inference rejects duplicate IDs that collapse independent units."""
+
+    data = _panel()
+    duplicate_ids = PanelObservationalData(
+        outcome=data.outcome,
+        treatment=data.treatment,
+        time_treatment=data.time_treatment,
+        unit_ids=np.array(["duplicate", "duplicate", "control-a", "control-b"]),
+    )
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            duplicate_ids,
+            {"cov_type": "cluster", "cluster_var": "unit_ids"},
+        )
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "unit_ids must be unique for unit-cluster covariance"
+    assert report.point_estimate is None
+
+
 def test_cau_01_cluster_covariance_stable_under_duplicate_periods() -> None:
     """Repeating the same periods must not manufacture independent clusters."""
 

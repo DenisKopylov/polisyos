@@ -9,8 +9,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-# Import the worker facade first, matching the established control-plane test
-# order and avoiding the compatibility ``control.py`` shim import cycle.
+# Import the eager compatibility facade first.  It initializes the split
+# control modules before the store reaches ``response_shapes`` and avoids the
+# ``control.py`` shim import cycle in this standalone remediation module.
+import polisyos.runtime.http.services.control as _control_facade
 import polisyos.runtime.http.services.control_worker as _control_worker_module
 
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore

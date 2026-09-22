@@ -87,7 +87,10 @@ def put_state_snapshot(
     blob_ref = _put_snapshot_blob_two_phase(
         store,
         blob_bytes,
-        PutOptions(kind="foundry.state_blob", media_type="application/x-npz", inputs=inputs),
+        # The raw NPZ is content-addressed and must not inherit contextual
+        # lineage.  The typed wrapper below carries base/delta inputs while
+        # identical bytes remain reusable across execution contexts.
+        PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
     )
     if str(blob_ref.artifact_id.hex) != checksum:
         raise ValueError(

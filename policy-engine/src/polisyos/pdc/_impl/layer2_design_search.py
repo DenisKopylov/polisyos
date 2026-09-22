@@ -70,6 +70,7 @@ RefinementDecisionKind = Literal[
     "human_decision",
     "abstain",
     "block_candidate",
+    "stop",
 ]
 ConstraintRecordStatus = Literal["pass", "warn", "limit", "block"]
 ConstraintRefinementRoute = Literal[
@@ -798,6 +799,7 @@ class SearchIteration(Layer2ReadinessModel):
         "governance_required",
         "acquisition_required",
         "abstained",
+        "stopped",
         "refined_shadow",
     ]
 

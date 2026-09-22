@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+from polisyos.core import canon
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control.generation_cycle import (
@@ -119,6 +121,119 @@ def test_generation_cycle_receipt_recompute_without_root_is_not_established() ->
     assert receipt.status == "not_established"
     assert receipt.source_state == "not_established"
     assert receipt.source_content_hash is None
+
+
+@pytest.mark.asyncio
+async def test_http_job_progress_exposes_requested_and_effective_recursive_limits(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The HTTP worker must retain requested limits beside its effective budget."""
+
+    from tests.unit.runtime.http.test_control_service_di import (
+        _NeverCalledEvalSafetyVerifier,
+        _build_control_service,
+        _fixture_claims,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        _resolve_http_recursive_budget,
+    )
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+
+    service = _build_control_service(tmp_path)
+    try:
+        monkeypatch.setattr(
+            promotion_sequence_module,
+            "_legacy_policy_promotion_callers",
+            lambda repo_root: (),
+        )
+        problem = _problem("cyc_05_http_limit_visibility")
+
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+        _, recursive_budget_resolution = _resolve_http_recursive_budget(7)
+
+        compiled_fixture = (
+            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={},
+                model_name="fixture-model",
+                compiler_gateway=object(),  # type: ignore[arg-type]
+                budget_state=_budget(),
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=0,
+                    max_nodes=1,
+                    min_cycles_per_leaf=1,
+                    max_cycles_per_leaf=3,
+                ),
+                recursive_budget_resolution=recursive_budget_resolution,
+                promotion_runtime=service._promotion_runtime,
+                root_evaluation_context=None,
+                eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
+                repo_root=REPO_ROOT,
+            )
+        )
+
+        launch = await service.launch_nl_run(
+            NaturalLanguageRunRequest(
+                request=problem.nl_provenance.raw_request,
+                llm_model="simulated-qwen",
+                max_iterations=7,
+            ),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        async def compile_worker_request(**kwargs):
+            recursive_budget = kwargs["recursive_budget"]
+            assert recursive_budget.max_depth == 0
+            assert recursive_budget.max_nodes == 1
+            assert recursive_budget.max_cycles_per_leaf == 3
+            assert kwargs["recursive_budget_resolution"] == recursive_budget_resolution
+            return compiled_fixture
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "compile_and_run_recursive_generation_cycle",
+            compile_worker_request,
+        )
+
+        service._process_control_job(record)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+        assert completed.progress["recursive_budget_resolution"] == {
+            "requested_max_iterations": 7,
+            "effective_max_iterations": 3,
+            "recursive_budget": {
+                "max_depth": 0,
+                "max_nodes": 1,
+                "min_cycles_per_leaf": 1,
+                "max_cycles_per_leaf": 3,
+            },
+            "clamp_reason": "requested_max_iterations_above_http_cycle_cap_3",
+        }
+        compiled_ref = ArtifactID.model_validate(
+            completed.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
+        )
+        assert persisted.recursive_budget_resolution == recursive_budget_resolution
+    finally:
+        service.close()
 
 
 def test_generation_cycle_receipt_replay_binds_bounded_limitations(tmp_path: Path) -> None:

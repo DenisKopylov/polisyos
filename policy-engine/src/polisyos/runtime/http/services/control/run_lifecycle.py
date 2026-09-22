@@ -380,6 +380,7 @@ if TYPE_CHECKING:
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
         NormativeRunEvidenceRefs,
+        RecursiveBudgetResolution,
     )
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -1442,6 +1443,7 @@ class ControlPlaneService(
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
+        recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -1457,6 +1459,7 @@ class ControlPlaneService(
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
+            recursive_budget_resolution=recursive_budget_resolution,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
@@ -3096,7 +3099,13 @@ class ControlPlaneService(
                     )
                     if not model_name:
                         raise RuntimeError("llm_model_unconfigured")
-                    max_cycles = max(1, min(int(payload.get("max_iterations") or 1), 3))
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        _resolve_http_recursive_budget,
+                    )
+
+                    max_cycles, recursive_budget_resolution = _resolve_http_recursive_budget(
+                        payload.get("max_iterations")
+                    )
                     budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
@@ -3117,6 +3126,7 @@ class ControlPlaneService(
                                 min_cycles_per_leaf=1,
                                 max_cycles_per_leaf=max_cycles,
                             ),
+                            recursive_budget_resolution=recursive_budget_resolution,
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None
@@ -3159,6 +3169,9 @@ class ControlPlaneService(
                         "manifest_ref": manifest_ref,
                         "run_id": str(job.run_id or payload.get("run_id") or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                            mode="json"
+                        ),
                         "normative_disposition_ref": normative.disposition_ref,
                         "normative_disposition": normative.model_dump(mode="json"),
                         "promotion_refusal_reasons": list(refusal_reasons),
@@ -3182,6 +3195,9 @@ class ControlPlaneService(
                             "job_kind": job.kind,
                             "capability_manifest_ref": str(capability_manifest_ref),
                             "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                                mode="json"
+                            ),
                             "normative_disposition_ref": normative.disposition_ref,
                             "epoch_strangle_disposition": (
                                 "candidate_only_typed_negative"

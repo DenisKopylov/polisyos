@@ -1215,7 +1215,7 @@
         "polisyos.ir.api"
       ],
       "major_subsystem": true,
-      "export_count": 279,
+      "export_count": 283,
       "exports": [
         "ABMBifurcationReport",
         "ABMIdentifiabilityCertificate",
@@ -1253,6 +1253,9 @@
         "CausalEffectReport",
         "CausalExecutionBundle",
         "CausalExecutionBundleRef",
+        "CausalAttributionSpec",
+        "CausalContrastRegime",
+        "CausalContrastSpec",
         "CausalInterventionSpec",
         "CausalMethod",
         "CausalModelEnsemble",
@@ -1261,6 +1264,7 @@
         "CausalQuery",
         "CausalQueryResult",
         "CausalQueryResultRef",
+        "CausalRegime",
         "CausalReadinessBundle",
         "CohortDimension",
         "CohortImpact",
@@ -1506,7 +1510,7 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 279,
+          "export_count": 283,
           "exports": [
             "ABMBifurcationReport",
             "ABMIdentifiabilityCertificate",
@@ -1544,6 +1548,9 @@
             "CausalEffectReport",
             "CausalExecutionBundle",
             "CausalExecutionBundleRef",
+            "CausalAttributionSpec",
+            "CausalContrastRegime",
+            "CausalContrastSpec",
             "CausalInterventionSpec",
             "CausalMethod",
             "CausalModelEnsemble",
@@ -1552,6 +1559,7 @@
             "CausalQuery",
             "CausalQueryResult",
             "CausalQueryResultRef",
+            "CausalRegime",
             "CausalReadinessBundle",
             "CohortDimension",
             "CohortImpact",
@@ -5306,7 +5314,7 @@
       "module": "polisyos.ddm",
       "classification": "internal",
       "facade_mode_expected": "eager_exports",
-      "facade_mode_observed": "eager_exports",
+      "facade_mode_observed": "lazy_facade",
       "owner": "team-scientist",
       "readme": "src/polisyos/ddm/README.md",
       "reference_doc": "docs/reference/public-surface.md",
@@ -5334,7 +5342,7 @@
         "ShiftDetectedEvent",
         "ShiftRiskEvent"
       ],
-      "has___getattr__": false,
+      "has___getattr__": true,
       "has___dir__": false,
       "source_file": "src/polisyos/ddm/__init__.py",
       "summary": "Drift-and-Degradation Monitor for Phase 5 Problem 15.7.",
@@ -5342,7 +5350,7 @@
       "entrypoints": [
         {
           "module": "polisyos.ddm",
-          "facade_mode_observed": "eager_exports",
+          "facade_mode_observed": "lazy_facade",
           "export_count": 17,
           "exports": [
             "AffectedFeature",
@@ -5363,7 +5371,7 @@
             "ShiftDetectedEvent",
             "ShiftRiskEvent"
           ],
-          "has___getattr__": false,
+          "has___getattr__": true,
           "has___dir__": false,
           "source_file": "src/polisyos/ddm/__init__.py",
           "summary": "Drift-and-Degradation Monitor for Phase 5 Problem 15.7."

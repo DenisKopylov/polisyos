@@ -311,6 +311,60 @@ class TestCursorStore:
         assert loaded_checkpoint is not None
         assert loaded_checkpoint.offset == 42
 
+    def test_commit_stream_progress_rolls_back_partial_index_write(self, tmp_path: Path):
+        """A cursor-index failure after stream-index write restores both sides."""
+
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        cursor_store = CursorStore(store)
+        initial_cursor = _make_cursor(
+            connector_id="stream.jsonl",
+            dataset_id="partial-index",
+            watermark_value="1",
+        )
+        initial_checkpoint = _make_stream_checkpoint(
+            dataset_id="partial-index",
+            offset=1,
+        )
+        cursor_store.commit_stream_progress(
+            cursor=initial_cursor,
+            checkpoint=initial_checkpoint,
+        )
+
+        updated_cursor = _make_cursor(
+            connector_id="stream.jsonl",
+            dataset_id="partial-index",
+            watermark_value="2",
+        )
+        updated_checkpoint = _make_stream_checkpoint(
+            dataset_id="partial-index",
+            offset=2,
+        )
+        original_save_cursor_index = cursor_store._save_index_unlocked
+        calls = {"count": 0}
+
+        def fail_once(index: dict[str, str]) -> None:
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise OSError("injected cursor index failure")
+            original_save_cursor_index(index)
+
+        cursor_store._save_index_unlocked = fail_once  # type: ignore[method-assign]
+        with pytest.raises(OSError, match="injected cursor index failure"):
+            cursor_store.commit_stream_progress(
+                cursor=updated_cursor,
+                checkpoint=updated_checkpoint,
+            )
+
+        restored_cursor = cursor_store.find_latest_cursor("stream.jsonl", "partial-index")
+        restored_checkpoint = cursor_store.find_latest_stream_checkpoint(
+            "stream.jsonl",
+            "partial-index",
+        )
+        assert restored_cursor is not None
+        assert restored_cursor.watermark_value == "1"
+        assert restored_checkpoint is not None
+        assert restored_checkpoint.offset == 1
+
     @pytest.mark.asyncio
     async def test_async_cursor_store_commit_stream_progress_soak_smoke(self, tmp_path: Path):
         store = FileSystemCAS(tmp_path / ".polisyos")

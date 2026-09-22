@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,10 +25,35 @@ test("package generation keeps raw client intermediates outside the output famil
   const outputRoot = mkdtempSync(
     path.join(os.tmpdir(), "polisyos-runtime-client-remediation-"),
   );
+  const specRoot = mkdtempSync(
+    path.join(os.tmpdir(), "polisyos-runtime-client-remediation-spec-"),
+  );
+  const openapiPath = path.join(specRoot, "override.openapi.json");
   try {
+    const openapi = JSON.parse(readFileSync(SPEC_PATH, "utf8"));
+    openapi.paths["/api/v1/cli-01-openapi-override-witness"] = {
+      get: {
+        operationId: "get_cli_01_openapi_override_witness",
+        responses: {
+          "200": {
+            content: {
+              "application/json": {
+                schema: {
+                  properties: { witness: { type: "string" } },
+                  required: ["witness"],
+                  type: "object",
+                },
+              },
+            },
+            description: "CLI-01 override witness",
+          },
+        },
+      },
+    };
+    writeFileSync(openapiPath, JSON.stringify(openapi), "utf8");
     execFileSync(
       "bash",
-      [GENERATOR, "--openapi", SPEC_PATH, "--output-root", outputRoot],
+      [GENERATOR, "--openapi", openapiPath, "--output-root", outputRoot],
       { cwd: PROJECT_ROOT, stdio: "pipe" },
     );
 
@@ -40,8 +72,19 @@ test("package generation keeps raw client intermediates outside the output famil
       "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
       "packages/runtime-api-client/types.ts",
     ]);
+    assert.match(
+      readFileSync(
+        path.join(
+          outputRoot,
+          "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        ),
+        "utf8",
+      ),
+      /cli-01-openapi-override-witness/,
+    );
   } finally {
     rmSync(outputRoot, { recursive: true, force: true });
+    rmSync(specRoot, { recursive: true, force: true });
   }
 });
 

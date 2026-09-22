@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from statistics import NormalDist
+
 import numpy.testing as npt
 import pytest
 
@@ -52,6 +54,8 @@ def test_hessian_envelope_carries_typed_normal_scale_without_authority_upgrade(
     assert payload.family is DistributionFamily.NORMAL
     assert payload.parameters == {"mean": 0.25, "std": 1.0}
     assert extract_std(envelope) == pytest.approx(1.0)
+    z = NormalDist().inv_cdf((1.0 + display_level) / 2.0)
+    assert envelope.ci_width == pytest.approx(2.0 * z)
     assert envelope.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
     assert envelope.confidence_level is None
     assert envelope.is_heuristic_ci is True
@@ -78,8 +82,33 @@ def test_covariance_prefers_typed_fit_over_mutable_metadata() -> None:
     npt.assert_allclose(float(covariance[0, 0]), 1.0, atol=1e-6)
 
 
-def test_unsuitable_typed_fit_fails_closed_without_normal_interval_guess() -> None:
-    """A non-normal carrier cannot be silently converted into a normal standard deviation."""
+def test_incomplete_normal_fit_fails_closed_without_interval_guess() -> None:
+    """A normal carrier without a scale cannot fall back to its display interval."""
+    envelope = UncertaintyEnvelope(
+        point_estimate=0.0,
+        confidence_interval=(-1.0, 1.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+        is_heuristic_ci=True,
+        gate_eligible=False,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": 0.0},
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="normal parametric fit requires std, sigma, or scale",
+    ):
+        extract_std(envelope)
+
+
+def test_uniform_fit_uses_declared_support_for_std() -> None:
+    """An explicit uniform law has a defined scale independent of display metadata."""
     envelope = UncertaintyEnvelope(
         point_estimate=0.0,
         confidence_interval=(-1.0, 1.0),
@@ -92,13 +121,12 @@ def test_unsuitable_typed_fit_fails_closed_without_normal_interval_guess() -> No
         gate_eligible=False,
         distribution_payload=ParametricFitCarrier(
             family=DistributionFamily.UNIFORM,
-            parameters={"low": -1.0, "high": 1.0},
-            support=(-1.0, 1.0),
+            parameters={"low": -10.0, "high": 10.0},
+            support=(-10.0, 10.0),
         ),
     )
 
-    with pytest.raises(ValueError, match="normal parametric fit"):
-        extract_std(envelope)
+    assert extract_std(envelope) == pytest.approx(20.0 / (12.0**0.5))
 
 
 def test_missing_hessian_std_stays_unrepresented() -> None:

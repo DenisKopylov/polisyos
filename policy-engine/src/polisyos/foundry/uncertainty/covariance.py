@@ -7,11 +7,48 @@ from collections.abc import Mapping
 
 import jax.numpy as jnp
 
-from polisyos.ir.analytics.uncertainty import DistributionFamily, UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    ParametricFitCarrier,
+    UncertaintyEnvelope,
+)
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:
-    """Extract std helper."""
+    """Extract a standard deviation from a typed law or a valid interval."""
+    payload = env.distribution_payload
+    if isinstance(payload, ParametricFitCarrier):
+        if env.distribution_family is not payload.family:
+            raise ValueError("parametric fit family does not match envelope family")
+        if payload.family is DistributionFamily.NORMAL:
+            if payload.support is not None:
+                raise ValueError("bounded normal parametric fit support is unsupported")
+            raw_std = payload.parameters.get(
+                "std",
+                payload.parameters.get("sigma", payload.parameters.get("scale")),
+            )
+            if raw_std is None:
+                raise ValueError("normal parametric fit requires std, sigma, or scale")
+            std = float(raw_std)
+            if not math.isfinite(std) or std < 0.0:
+                raise ValueError(
+                    "normal parametric fit standard deviation must be finite and non-negative"
+                )
+            return std
+        if payload.family is DistributionFamily.UNIFORM:
+            support = payload.support
+            if support is None:
+                low = payload.parameters.get("low")
+                high = payload.parameters.get("high")
+                if low is None or high is None:
+                    raise ValueError("uniform parametric fit requires ordered support")
+                support = (float(low), float(high))
+            low, high = (float(support[0]), float(support[1]))
+            if not all(math.isfinite(value) for value in (low, high)) or low > high:
+                raise ValueError("uniform parametric fit requires ordered support")
+            return (high - low) / math.sqrt(12.0)
+        raise ValueError(f"unsupported parametric fit family: {payload.family.value}")
+
     lo, hi = env.confidence_interval
     width = max(float(hi - lo), 0.0)
     level = env.confidence_level
@@ -25,6 +62,10 @@ def extract_std(env: UncertaintyEnvelope) -> float:
         z = NormalDist().inv_cdf((1.0 + level) / 2.0)
         if z > 0.0:
             return width / (2.0 * z)
+    if env.distribution_family is DistributionFamily.NORMAL:
+        raise ValueError(
+            "normal uncertainty without a typed parametric fit or confidence level is ambiguous"
+        )
     return width / (2.0 * (3.0**0.5))
 
 
@@ -38,9 +79,13 @@ def build_covariance_matrix(
     """Build covariance matrix."""
     marginal_stds: list[float] = []
     for name in param_names:
-        declared_std = input_envelopes[name].metadata.get("std")
+        envelope = input_envelopes[name]
+        if envelope.distribution_payload is not None:
+            marginal_stds.append(extract_std(envelope))
+            continue
+        declared_std = envelope.metadata.get("std")
         if declared_std is None:
-            marginal_stds.append(extract_std(input_envelopes[name]))
+            marginal_stds.append(extract_std(envelope))
             continue
         if (
             not isinstance(declared_std, (int, float))

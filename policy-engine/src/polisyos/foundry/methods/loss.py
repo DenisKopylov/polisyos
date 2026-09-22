@@ -1,4 +1,4 @@
-"""Compatibility facade for legacy method loss helper."""
+"""Compatibility facade for the named economics loss baseline."""
 
 from ._internal.reexport import reexport_module as _reexport_module
 

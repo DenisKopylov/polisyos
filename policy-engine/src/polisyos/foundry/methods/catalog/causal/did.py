@@ -179,7 +179,8 @@ def _unit_cluster_ids(data: PanelObservationalData, params: Mapping[str, Any]) -
 
     cluster_spec = params.get("cluster_var")
     named_cluster = cluster_spec.strip().lower() if isinstance(cluster_spec, str) else None
-    if cluster_spec is None or named_cluster in {"unit", "unit_id", "unit_ids"}:
+    uses_panel_unit_ids = cluster_spec is None or named_cluster in {"unit", "unit_id", "unit_ids"}
+    if uses_panel_unit_ids:
         if data.unit_ids is None:
             raise ValueError("cluster covariance requires unit_ids")
         unit_clusters = np.asarray(data.unit_ids)
@@ -190,14 +191,19 @@ def _unit_cluster_ids(data: PanelObservationalData, params: Mapping[str, Any]) -
         if candidate.size == data.n_units:
             unit_clusters = candidate
         elif candidate.size == data.n_units * data.n_periods:
-            if np.unique(candidate).size < 2:
-                raise ValueError("cluster covariance requires at least two clusters")
-            return candidate
+            candidate_by_unit = candidate.reshape(data.n_units, data.n_periods)
+            if not np.all(candidate_by_unit == candidate_by_unit[:, :1]):
+                raise ValueError("cluster_var must be constant within each unit")
+            unit_clusters = candidate_by_unit[:, 0]
         else:
             raise ValueError("cluster_var must have one label per unit or observation")
 
     if unit_clusters.ndim != 1 or unit_clusters.size != data.n_units:
         raise ValueError("cluster_var must have one label per unit")
+    if np.unique(unit_clusters).size != data.n_units:
+        if uses_panel_unit_ids:
+            raise ValueError("unit_ids must be unique for unit-cluster covariance")
+        raise ValueError("cluster_var must identify each unit uniquely")
     cluster_ids = np.repeat(unit_clusters, data.n_periods)
     if np.unique(cluster_ids).size < 2:
         raise ValueError("cluster covariance requires at least two clusters")

@@ -462,15 +462,17 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
     routed_by_ref = {node.node_ref: node for node in run.nodes}
     supplied_by_ref = {subdesign.workspace_id: subdesign for subdesign in subdesigns}
     for child_ref in child_refs:
-        assert supplied_by_ref[child_ref].search_exit.terminal_state == routed_by_ref[
-            child_ref
-        ].terminal, {
-            "child_ref": child_ref,
-            "supplied_terminal": supplied_by_ref[child_ref].search_exit.terminal_state.model_dump(
-                mode="json"
-            ),
-            "routed_terminal": routed_by_ref[child_ref].terminal.model_dump(mode="json"),
+        supplied = supplied_by_ref[child_ref].search_exit.terminal_state.model_dump(mode="json")
+        routed = routed_by_ref[child_ref].terminal.model_dump(mode="json")
+        differences = {
+            field: {"supplied": supplied[field], "routed": routed[field]}
+            for field in supplied
+            if supplied[field] != routed[field]
         }
+        assert not differences, (
+            f"{child_ref} terminal mismatch: "
+            f"{json.dumps(differences, sort_keys=True, separators=(',', ':'))}"
+        )
 
     root_node = next(node for node in run.nodes if node.node_ref == root)
     assert root_node.joint_simulation is not None

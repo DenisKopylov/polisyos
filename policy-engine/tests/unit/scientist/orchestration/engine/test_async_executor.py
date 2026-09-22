@@ -116,6 +116,11 @@ def _make_real_store_ctx(tmp_path):
     return store, ctx
 
 
+def _artifact_id_strings(store) -> set[str]:
+    """Normalize immutable CAS identities without relying on RootModel hashing."""
+    return {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
@@ -528,25 +533,28 @@ class TestAsyncCacheBoundaries:
 
         original_put_json = store.put_json
         put_calls = 0
+        put_phase: str | None = None
+        phase_ticks = {"outcome": 0, "entry": 0}
 
         def slow_put_json(*args, **kwargs):
-            nonlocal put_calls, ticks
+            nonlocal put_calls, put_phase
             put_calls += 1
             if put_calls == 1:
-                # Isolate event-loop progress to the cache publication itself;
-                # producer/retry awaits must not satisfy the witness.
-                ticks = 0
+                put_phase = "outcome"
+                phase_ticks["outcome"] = 0
+            elif put_calls == 2:
+                put_phase = "entry"
+                phase_ticks["entry"] = 0
             time.sleep(0.08)
             return original_put_json(*args, **kwargs)
 
         monkeypatch.setattr(store, "put_json", slow_put_json)
-        ticks = 0
         finished = asyncio.Event()
 
         async def tick() -> None:
-            nonlocal ticks
             while not finished.is_set():
-                ticks += 1
+                if put_phase in phase_ticks:
+                    phase_ticks[put_phase] += 1
                 await asyncio.sleep(0)
 
         ticker = asyncio.create_task(tick())
@@ -565,10 +573,11 @@ class TestAsyncCacheBoundaries:
         assert cache_hit is False
         assert executor._cache.size == 1
         assert put_calls >= 2
-        assert ticks > 0
+        assert phase_ticks["outcome"] > 0
+        assert phase_ticks["entry"] > 0
 
         executor._cache.clear()
-        ids_before_failed_publication = set(store.iter_artifact_ids())
+        ids_before_failed_publication = _artifact_id_strings(store)
         calls = 0
 
         def fail_entry_put(*args, **kwargs):
@@ -588,7 +597,7 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 0
-        assert set(store.iter_artifact_ids()) == ids_before_failed_publication
+        assert _artifact_id_strings(store) == ids_before_failed_publication
 
     @pytest.mark.asyncio
     async def test_failed_cache_entry_does_not_publish_partial_cas_artifacts(
@@ -604,7 +613,7 @@ class TestAsyncCacheBoundaries:
         executor._cache = NodeResultCache(store, run_id="async-cache-atomicity")
         invocation = NodeInvocation(alias="cached", node_id=node_id)
         workflow = WorkflowSpec(workflow_id="async_cache_atomicity", nodes=[invocation])
-        ids_before_failed_publication = set(store.iter_artifact_ids())
+        ids_before_failed_publication = _artifact_id_strings(store)
 
         original_put_json = store.put_json
         put_calls = 0
@@ -628,7 +637,7 @@ class TestAsyncCacheBoundaries:
         assert cache_hit is False
         assert put_calls == 2
         assert executor._cache.size == 0
-        assert set(store.iter_artifact_ids()) == ids_before_failed_publication
+        assert _artifact_id_strings(store) == ids_before_failed_publication
 
     @pytest.mark.asyncio
     async def test_incompatible_cached_replay_is_discarded_and_recomputed(self, tmp_path):

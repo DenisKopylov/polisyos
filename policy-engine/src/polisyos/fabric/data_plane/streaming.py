@@ -890,35 +890,36 @@ async def process_stream_dataset(
         registry=registry,
         registry_provider=registry_provider,
     )
-    result = StreamDatasetRunResult(
-        connector_id=connector_id,
-        dataset_id=dataset_id,
-        partition_key=options.partition_key,
-        processing_guarantee=processing_contract.guarantee_value,
-    )
-    accumulator = StreamWindowAccumulator(options.window_policy)
-    ordering_state = _StreamOrderingState()
-    dedupe_keys: deque[str] = deque(
-        maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
-    )
-    dedupe_seen: set[str] = set()
-    latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
-        connector_id,
-        dataset_id,
-        partition_key=options.partition_key,
-    )
-    if latest_checkpoint is not None:
-        dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-        dedupe_seen.update(latest_checkpoint.dedupe_keys)
-        await session.rewind(latest_checkpoint)
-
-    previous_schema: tuple[str, ...] | None = (
-        tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
-        if latest_checkpoint is not None
-        else None
-    )
-
     try:
+        result = StreamDatasetRunResult(
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            partition_key=options.partition_key,
+            processing_guarantee=processing_contract.guarantee_value,
+        )
+        accumulator = StreamWindowAccumulator(options.window_policy)
+        ordering_state = _StreamOrderingState()
+        dedupe_keys: deque[str] = deque(
+            maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
+        )
+        dedupe_seen: set[str] = set()
+        previous_schema: tuple[str, ...] | None = None
+        latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
+            connector_id,
+            dataset_id,
+            partition_key=options.partition_key,
+        )
+        if latest_checkpoint is not None:
+            dedupe_keys.extend(latest_checkpoint.dedupe_keys)
+            dedupe_seen.update(latest_checkpoint.dedupe_keys)
+            await session.rewind(latest_checkpoint)
+
+        previous_schema = (
+            tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
+            if latest_checkpoint is not None
+            else None
+        )
+
         while True:
             buffered_rows = accumulator.buffered_rows()
             buffered_bytes = accumulator.buffered_bytes()

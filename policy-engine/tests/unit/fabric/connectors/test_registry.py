@@ -1355,6 +1355,84 @@ class TestConnectorDiscovery:
 class TestRegistryIntegration:
     """Integration tests for registry with pools."""
 
+    def test_pending_startup_cleanup_is_retried_by_shutdown_and_keeps_owner(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A failed startup cleanup stays registry-owned until disconnect succeeds."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(disconnect_failures=2)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            with pytest.raises(RuntimeError):
+                await pool.release(handle)
+
+            registry._retain_pending_startup_cleanup("mock_a", pool)
+            assert id(pool) in registry._pending_startup_cleanup
+            assert pool not in registry._connection_pools.values()
+
+            with pytest.raises(RuntimeError):
+                await registry.shutdown_async()
+            assert id(pool) in registry._pending_startup_cleanup
+            assert connector.disconnect_calls == [handle.session_id, handle.session_id]
+
+            await registry.shutdown_async()
+            assert id(pool) not in registry._pending_startup_cleanup
+            assert connector.disconnect_calls == [handle.session_id] * 3
+
+        asyncio.run(_run())
+
+    def test_pending_startup_cleanup_survives_unregister_retry(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Unregister retries a pending owner even after the connector is removed."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(disconnect_failures=2)
+            registry.register(
+                _Net01LifecycleConnector,
+                config=sample_config,
+                factory=lambda: connector,
+            )
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            with pytest.raises(RuntimeError):
+                await pool.release(handle)
+            registry._retain_pending_startup_cleanup("mock_a", pool)
+
+            with pytest.raises(RuntimeError):
+                await registry.unregister_async("mock_a")
+            assert id(pool) in registry._pending_startup_cleanup
+            assert not registry.has("mock_a")
+
+            await registry.unregister_async("mock_a")
+            assert id(pool) not in registry._pending_startup_cleanup
+            assert connector.disconnect_calls == [handle.session_id] * 3
+
+        asyncio.run(_run())
+
     def test_registry_connection_pooling(
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
     ) -> None:

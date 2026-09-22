@@ -74,6 +74,36 @@ class _Net01StreamingConnector:
             raise RuntimeError("controlled close failure")
 
 
+class _Net01StartupRegistry:
+    """Small registry seam exposing only the private startup-owner handoff."""
+
+    def __init__(self, connector: _Net01StreamingConnector) -> None:
+        self._connector = connector
+        self._pending_startup_cleanup: dict[int, ConnectionPool] = {}
+        self._entry = SimpleNamespace(
+            factory=lambda: connector,
+            default_config=ConnectionConfig(
+                url="https://stream.example",
+                max_connections=1,
+            ),
+        )
+
+    def get_entry(self, _connector_id: str) -> SimpleNamespace:
+        return self._entry
+
+    def _retain_pending_startup_cleanup(
+        self,
+        _connector_id: str,
+        pool: ConnectionPool,
+    ) -> None:
+        self._pending_startup_cleanup[id(pool)] = pool
+
+    async def shutdown_async(self) -> None:
+        for pool in tuple(self._pending_startup_cleanup.values()):
+            await pool.close_all()
+            self._pending_startup_cleanup.pop(id(pool), None)
+
+
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
@@ -208,6 +238,40 @@ async def test_net01_create_failure_retries_session_cleanup_before_reraising() -
 
     assert len(connector.disconnect_calls) == 2
     assert len(set(connector.disconnect_calls)) == 1
+
+
+@pytest.mark.asyncio
+async def test_net01_create_transfers_unresolved_startup_owner_to_registry() -> None:
+    """Repeated startup cleanup failure remains reachable after create raises."""
+
+    connector = _Net01StreamingConnector(
+        fail_subscribe=True,
+        disconnect_failures=4,
+    )
+    registry = _Net01StartupRegistry(connector)
+
+    with pytest.raises(RuntimeError, match="controlled subscribe failure"):
+        await StreamingSourceSession.create(
+            connector_id="net01-stream",
+            dataset_id="registry-owned-startup-cleanup",
+            registry=registry,
+        )
+
+    assert len(registry._pending_startup_cleanup) == 1
+    pending_pool = next(iter(registry._pending_startup_cleanup.values()))
+    pending_session_ids = tuple(pending_pool._pending_cleanup)
+    assert pending_session_ids
+    assert len(set(connector.disconnect_calls)) == 1
+
+    with pytest.raises(RuntimeError):
+        await registry.shutdown_async()
+    assert len(registry._pending_startup_cleanup) == 1
+
+    connector.disconnect_failures = 0
+    await registry.shutdown_async()
+    assert registry._pending_startup_cleanup == {}
+    assert tuple(pending_pool._pending_cleanup) == ()
+    assert connector.disconnect_calls == [pending_session_ids[0]] * 5
 
 
 @pytest.mark.asyncio

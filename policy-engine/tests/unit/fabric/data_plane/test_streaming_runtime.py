@@ -1097,6 +1097,105 @@ async def test_stream_local_pair_failure_compensates_source_commit(
 
 
 @pytest.mark.asyncio
+async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unresolved(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A first-pair cursor orphan cannot be hidden by a failed empty rollback."""
+
+    stream_path = tmp_path / "partial-first-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    source_commits: list[StreamCheckpoint] = []
+    compensating_rewinds: list[StreamCheckpoint] = []
+    original_save_stream_checkpoint = AsyncCursorStoreAdapter.save_stream_checkpoint
+
+    async def record_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        compensating_rewinds.append(checkpoint)
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        # Simulate a local pair that wrote its cursor index before failing to
+        # publish the paired checkpoint.  There is no prior cursor to restore.
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed after cursor index advance")
+
+    async def fail_empty_frontier_restore(
+        self: AsyncCursorStoreAdapter,
+        checkpoint: StreamCheckpoint,
+    ) -> Any:
+        # The empty checkpoint is deliberately not written: this is the
+        # rollback failure that must leave an unresolved marker, not an empty
+        # checkpoint masking the orphaned cursor.
+        if "frontier_intent" not in checkpoint.metadata:
+            raise RuntimeError("empty frontier restore failed")
+        return await original_save_stream_checkpoint(self, checkpoint)
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", record_source_commit)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "save_stream_checkpoint",
+        fail_empty_frontier_restore,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed after cursor index advance"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="partial-first-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert len(source_commits) == 1
+    assert len(compensating_rewinds) == 1
+    assert compensating_rewinds[0].offset == 0
+    unresolved = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "partial-first-frontier",
+    )
+    assert unresolved is not None
+    assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
+    assert unresolved.metadata["frontier_committed"] is False
+    # The failed rollback must not leave a cursor that has no paired frontier.
+    assert cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "partial-first-frontier",
+    ) is None
+
+
+@pytest.mark.asyncio
 async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

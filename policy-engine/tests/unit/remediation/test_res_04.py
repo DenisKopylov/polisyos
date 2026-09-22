@@ -158,7 +158,7 @@ def test_resume_preserves_original_per_node_outputs_and_seed(tmp_path) -> None:
 
     resumed = executor.execute(
         chain,
-        initial_state={"value": 0},
+        initial_state={"value": 3},
         checkpoint=checkpoint,
         seed=7,
     )

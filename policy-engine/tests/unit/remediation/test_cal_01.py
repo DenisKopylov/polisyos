@@ -122,13 +122,14 @@ def test_observation_id_renaming_does_not_change_compiled_value() -> None:
                     observation_id=first_id,
                     period_start=date(2024, 1, 1),
                     observed_value=10.0,
+                    trust_weight=0.9,
                     source_id="source_a",
                 ),
                 _record(
                     observation_id=second_id,
                     period_start=date(2024, 1, 1),
                     observed_value=20.0,
-                    source_id="source_b",
+                    source_id="source_a",
                 ),
             ]
         )

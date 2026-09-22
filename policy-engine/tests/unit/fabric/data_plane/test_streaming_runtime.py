@@ -520,6 +520,112 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
 
 
 @pytest.mark.asyncio
+async def test_stream_dedupe_count_horizon_is_restart_invariant(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A count-bounded dedupe horizon must make live and resumed decisions match."""
+
+    stream_path = tmp_path / "dedupe-horizon.jsonl"
+    stream_path.write_text(
+        "\n".join(
+            [
+                '{"_message_id":"a","value":1}',
+                '{"_message_id":"b","value":2}',
+                '{"_message_id":"c","value":3}',
+                '{"_message_id":"a","value":1}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    def registry_for_stream() -> ConnectorRegistry:
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(
+                url=stream_path.as_uri(),
+                headers={"X-Stream-ChunkSize": "1"},
+            ),
+        )
+        return registry
+
+    options = StreamRuntimeOptions(
+        checkpoint_every_chunks=1,
+        max_dedupe_keys=2,
+        window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=10),
+    )
+    uninterrupted_store = FileSystemCAS(tmp_path / "uninterrupted")
+    uninterrupted = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="uninterrupted",
+        store=uninterrupted_store,
+        cursor_store=CursorStore(uninterrupted_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=options,
+        registry=registry_for_stream(),
+    )
+    assert uninterrupted.final_checkpoint is not None
+
+    restart_store = FileSystemCAS(tmp_path / "restart")
+    restart_cursor_store = CursorStore(restart_store)
+    original_poll = StreamingSourceSession.poll
+    poll_state = {"chunks": 0}
+
+    async def fail_after_c(self: StreamingSourceSession):
+        if poll_state["chunks"] == 3:
+            raise RuntimeError("controlled restart after c")
+        chunk = await original_poll(self)
+        if chunk is not None:
+            poll_state["chunks"] += 1
+        return chunk
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", fail_after_c)
+    with pytest.raises(RuntimeError, match="controlled restart after c"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="restart",
+            store=restart_store,
+            cursor_store=restart_cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=options,
+            registry=registry_for_stream(),
+        )
+
+    paused = restart_cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "restart",
+    )
+    assert paused is not None
+    assert paused.offset == 2
+    assert paused.dedupe_keys == ("_message_id:b", "_message_id:c")
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    resumed = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="restart",
+        store=restart_store,
+        cursor_store=restart_cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=options,
+        registry=registry_for_stream(),
+    )
+
+    assert resumed.final_checkpoint is not None
+    # With a count horizon, c evicts a from the live index.  The final a must
+    # therefore be accepted both in one uninterrupted run and after restart.
+    assert uninterrupted.dedupe_dropped == 0
+    assert resumed.dedupe_dropped == 0
+    assert uninterrupted.final_checkpoint.dedupe_keys == (
+        "_message_id:c",
+        "_message_id:a",
+    )
+    assert resumed.final_checkpoint.dedupe_keys == uninterrupted.final_checkpoint.dedupe_keys
+
+
+@pytest.mark.asyncio
 async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1982,6 +2088,95 @@ async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Pat
 
     assert result.rows_emitted == 2
     assert result.backpressure_events >= 1
+
+
+@pytest.mark.asyncio
+async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Characterize B84: pause is reached only after an oversized chunk is buffered."""
+
+    rows = [
+        {
+            "_message_id": f"m{index}",
+            "event_time": f"2024-06-15T12:00:{index:02d}+00:00",
+            "value": "x" * 128,
+        }
+        for index in range(3)
+    ]
+    stream_path = tmp_path / "oversized-chunk.jsonl"
+    stream_path.write_text(
+        "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "3"},
+        ),
+    )
+
+    observed_buffer: list[tuple[int, int, int]] = []
+    original_add_rows_with_refs = StreamWindowAccumulator.add_rows_with_refs
+
+    def observe_buffer_after_add(
+        accumulator: StreamWindowAccumulator,
+        clean_rows: list[dict[str, Any]],
+        contributor_refs: tuple[str, ...],
+    ) -> list[Any]:
+        emissions = original_add_rows_with_refs(
+            accumulator,
+            clean_rows,
+            contributor_refs,
+        )
+        observed_buffer.append(
+            (
+                accumulator.buffered_rows(),
+                accumulator.buffered_bytes(),
+                len(clean_rows),
+            )
+        )
+        return emissions
+
+    monkeypatch.setattr(
+        StreamWindowAccumulator,
+        "add_rows_with_refs",
+        observe_buffer_after_add,
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="oversized-chunk",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            batch_size=1,
+            max_buffered_rows=1,
+            max_buffered_bytes=1,
+            pause_seconds=0.0,
+            window_policy=WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=300,
+                session_gap_seconds=300,
+                timestamp_field="event_time",
+            ),
+        ),
+        registry=registry,
+    )
+
+    assert result.rows_emitted == 3
+    assert result.backpressure_events >= 1
+    assert observed_buffer
+    assert observed_buffer[0][2] == 3
+    # This is an intentionally non-normative witness: it records the current
+    # pause-after-buffering behavior without claiming a spill implementation.
+    assert observed_buffer[0][0] > 1
+    assert observed_buffer[0][1] > 1
 
 
 @pytest.mark.asyncio

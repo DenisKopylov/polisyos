@@ -24,15 +24,15 @@ from polisyos.ir.analytics.parameters import (
 )
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.registry.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
@@ -49,6 +49,7 @@ _SPEC = NodeSpec(
     state_reads=[
         "params.target_context",
         "params.required_parameters",
+        "params.domain",
         "params.skg_db_path",
         "params.skg_index_dir",
         "params.phase15_runtime_backend",

@@ -12,13 +12,15 @@ from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     persist_context_adaptive_parameter_bundle,
 )
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 

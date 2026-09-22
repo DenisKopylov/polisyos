@@ -4,6 +4,7 @@ import json
 import logging
 
 import duckdb
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -12,14 +13,16 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     persist_causal_graph_model,
 )
+from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import load_context_adaptive_parameter_bundle
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -78,10 +81,7 @@ def _seed_skg(db_path) -> None:
                             "name": "fiscal_multiplier",
                             "value": 2.1,
                             "parameter_type": "quantitative",
-                            # Keep the changed-context oracle independent of
-                            # evidence-strength weighting: an exact US source
-                            # should beat the distant PL source on context.
-                            "evidence_strength": "observational",
+                            "evidence_strength": "theoretical",
                         }
                     ),
                     json.dumps(
@@ -198,8 +198,103 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
     assert second_ref != first_ref
 
     second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
-    assert second_bundle.target_context.context_id == "US"
-    assert second_bundle.parameters["fiscal_multiplier"].value == 2.1
+    assert second_bundle.target_context == ContextProfile(
+        context_id="US",
+        income_level="high",
+        institutional_quality=0.9,
+        post_communist=False,
+    )
+    assert second_bundle.simulation_domain == "fiscal"
+
+
+def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
+    """A valid same-request CAS bundle is reused without selecting again."""
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path)
+    graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = ExperimentState(
+        run_id="R_phase15_reuse",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+
+    node = ResolveParametersNode()
+    first = node.execute(ctx, state)
+    assert first.status == "ok"
+    first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+
+    def fail_if_selected(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
+        fail_if_selected,
+    )
+    replay = node.execute(ctx, first.state.model_copy(deep=True))
+
+    assert replay.status == "ok"
+    assert replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == first_ref
+
+
+def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None:
+    """Domain participates in both bundle reuse and node idempotency identity."""
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_domain")
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path)
+    graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = ExperimentState(
+        run_id="R_phase15_domain",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+
+    node = ResolveParametersNode()
+    first = node.execute(ctx, state)
+    assert first.status == "ok"
+    first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+
+    changed = first.state.model_copy(deep=True)
+    changed.params["domain"] = "monetary"
+    assert compute_idempotency_key(node.spec, first.state) != compute_idempotency_key(
+        node.spec, changed
+    )
+
+    second = node.execute(ctx, changed)
+    assert second.status == "ok"
+    second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    assert second_ref != first_ref
+    second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+    assert second_bundle.simulation_domain == "monetary"
 
 
 def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:

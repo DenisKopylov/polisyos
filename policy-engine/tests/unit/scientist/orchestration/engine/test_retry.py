@@ -13,7 +13,9 @@ import pytest
 
 from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _backoff_delay,
@@ -155,6 +157,23 @@ class TestBackoffDelay:
 
 
 class TestExecuteWithRetrySync:
+    def test_attempt_context_preserves_claim_capable_context_type(self):
+        target = ClaimCapableExecutionContext(
+            store=MagicMock(),
+            run=MagicMock(),
+            logger=MagicMock(),
+            claim_ledger_owner=MagicMock(),
+        )
+        authority = retry_module._AttemptAuthority()
+
+        attempt = retry_module._build_attempt_context(target, authority)
+
+        assert isinstance(attempt, ClaimCapableExecutionContext)
+        assert attempt.claim_ledger_owner is not target.claim_ledger_owner
+        authority.revoke()
+        attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+        target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
+
     def test_fast_path_no_retry_no_timeout(self, ctx, state):
         """With default policy, delegates directly to node.execute()."""
         node = MagicMock()
@@ -384,6 +403,7 @@ class TestExecuteWithRetrySync:
         class _SuccessfulAuthorityNode:
             def execute(self, passed_ctx, passed_state):
                 passed_state.params["on_time"] = True
+                passed_ctx.run.run_manifest.status = "on_time"
                 passed_ctx.store.put_json({"on_time": True}, object())
                 passed_ctx.run.emit("on-time", "ON_TIME")
                 passed_ctx.audit.append(run_id="run", actor="node", action="on_time")
@@ -400,6 +420,7 @@ class TestExecuteWithRetrySync:
         )
 
         assert result.status == "ok"
+        assert recording_run.run_manifest.status == "on_time"
         assert recording_store.put_json_calls
         assert recording_run.emit_calls
         assert recording_audit.append_calls

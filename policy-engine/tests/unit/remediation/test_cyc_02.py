@@ -199,7 +199,7 @@ def _recursive_contract_testing_controller(
 def _recursive_leaf_terminal() -> SearchTerminalState:
     return SearchTerminalState(
         kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
-        reason="Terminal emitted by the bounded CYC-02 recursive witness.",
+        reason="Terminal emitted by the canonical generation-cycle owner.",
         blocking_obligations=["recursive_leaf_grounding_gap", "value_gate_pending_n8"],
     )
 

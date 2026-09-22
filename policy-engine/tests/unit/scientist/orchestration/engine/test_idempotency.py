@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
@@ -17,8 +20,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.builtins import builtin_nodes as engine_builtin_nodes
 from polisyos.scientist.orchestration.engine.idempotency import (
+    REPLAY_EPOCH,
     NodeCacheEntry,
     NodeResultCache,
+    _build_journal_proof,
     compute_idempotency_key,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
@@ -57,6 +62,41 @@ def _rewrite_cache_entry(store: FileSystemCAS, entry_ref, **updates):
             producer=manifest.producer,
         ),
     )
+
+
+def _bound_cache(store: FileSystemCAS, run_id: str, tenant_context: ArtifactTenantContextInfo):
+    """Turn an absent scope-binding API into an explicit test failure."""
+    try:
+        return NodeResultCache(store, run_id=run_id, tenant_context=tenant_context)
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache tenant_context contract is missing: {exc}")
+
+
+def _cache_get_with_deadline(cache: NodeResultCache, key: str, deadline_monotonic: float):
+    """Turn an absent cache deadline API into an explicit test failure."""
+    try:
+        return cache.get(key, deadline_monotonic=deadline_monotonic)
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache deadline contract is missing: {exc}")
+
+
+def _cache_put_with_deadline(
+    cache: NodeResultCache,
+    key: str,
+    *,
+    deadline_monotonic: float,
+    outcome: NodeOutcome,
+):
+    """Turn an absent publication deadline API into an explicit test failure."""
+    try:
+        return cache.put(
+            key,
+            node_id="scientist.node_test@1.0.0",
+            outcome=outcome,
+            deadline_monotonic=deadline_monotonic,
+        )
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache deadline contract is missing: {exc}")
 
 
 def test_compute_idempotency_key_stable_for_same_inputs(tmp_path) -> None:
@@ -172,16 +212,236 @@ def test_compute_idempotency_key_available_for_all_builtin_nodes(tmp_path) -> No
 
 
 def test_node_result_cache_roundtrip(tmp_path) -> None:
-    cache = NodeResultCache(FileSystemCAS(tmp_path), run_id="R_cache_roundtrip")
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_roundtrip")
     key = "a" * 64
     expected = _outcome("R_cache_roundtrip")
+    ids_before = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
 
     entry_ref = cache.put(key, node_id="scientist.node_test@1.0.0", outcome=expected)
     actual = cache.get(key)
+    entry = NodeCacheEntry.model_validate(
+        from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
+    )
 
     assert entry_ref.kind == "scientist.node_cache_entry"
+    assert getattr(entry, "outcome_ref", None) is None
+    assert getattr(entry, "outcome_payload", None) is not None
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} - ids_before == {
+        str(entry_ref.artifact_id)
+    }
     assert actual is not None
     assert actual.model_dump(mode="python") == expected.model_dump(mode="python")
+
+
+def test_node_result_cache_failed_publication_has_no_index_or_new_cas_ids(
+    tmp_path, monkeypatch
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_failed_publication")
+    key = "p" * 64
+    ids_before = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+    def fail_publication(*args, **kwargs):
+        del args, kwargs
+        raise OSError("cache entry publication interrupted")
+
+    monkeypatch.setattr(store, "put_json", fail_publication)
+
+    with pytest.raises(OSError, match="publication interrupted"):
+        cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+
+    assert not cache.has(key)
+    assert cache.get(key) is None
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == ids_before
+
+
+def test_node_result_cache_reloads_legacy_v1_entry(tmp_path) -> None:
+    """The one-artifact writer remains able to replay the predecessor wire shape."""
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_legacy_replay"
+    key = "q" * 64
+    outcome = _outcome(run_id)
+    journal = getattr(outcome.state, "_polisyos_state_mutation_journal")
+    state_mutations = tuple(journal.operations)
+    outcome_ref = store.put_json(
+        outcome.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind="scientist.node_outcome",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.NodeOutcome", version="1.0"
+            ),
+            producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_schema = SchemaInfo(
+        name="polisyos.scientist.orchestration.engine.NodeCacheEntry", version="1.0"
+    )
+    legacy_producer = ProducerInfo(component="scientist.engine.idempotency", version="1.0.0")
+    without_proof = NodeCacheEntry(
+        schema_version="1.0",
+        run_id=run_id,
+        node_id="scientist.node_test@1.0.0",
+        idempotency_key=key,
+        outcome_ref=outcome_ref,
+        state_mutations=state_mutations,
+        state_mutations_version="1.0",
+        replay_epoch=REPLAY_EPOCH,
+    )
+    entry = without_proof.model_copy(
+        update={
+            "journal_proof": _build_journal_proof(
+                without_proof,
+                manifest_schema=legacy_schema,
+                manifest_producer=legacy_producer,
+            )
+        }
+    )
+    entry_ref = store.put_json(
+        entry.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind="scientist.node_cache_entry",
+            media_type="application/json",
+            schema=legacy_schema,
+            producer=legacy_producer,
+        ),
+    )
+
+    restored = NodeResultCache(store, run_id=run_id)
+
+    assert restored.load_entry(entry_ref) is True
+    loaded = restored.get(key)
+    assert loaded is not None
+    assert loaded.model_dump(mode="python") == outcome.model_dump(mode="python")
+
+    bound = _bound_cache(
+        store,
+        run_id,
+        ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
+    )
+    with pytest.raises(ValueError, match="cache_entry: unbound_legacy_entry"):
+        bound.load_entry(entry_ref)
+
+
+def test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache(tmp_path) -> None:
+    """A bound cache cannot replay an unbound or foreign tenant artifact."""
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_cache_scope"
+    key = "s" * 64
+    tenant_a = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
+    tenant_b = ArtifactTenantContextInfo(tenant_id="tenant-b", cell_id="cell-b")
+
+    cache_a = _bound_cache(store, run_id, tenant_a)
+    entry_ref = cache_a.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=_outcome(run_id),
+    )
+    entry = NodeCacheEntry.model_validate(
+        from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
+    )
+    manifest = store.get_manifest(entry_ref.artifact_id)
+
+    assert getattr(entry, "tenant_context", None) == tenant_a
+    assert manifest.tenant_context == tenant_a
+
+    foreign = _bound_cache(store, run_id, tenant_b)
+    with pytest.raises(ValueError, match="cache_entry: tenant_scope_mismatch"):
+        foreign.load_entry(entry_ref)
+
+    unbound = NodeResultCache(store, run_id=run_id)
+    with pytest.raises(ValueError, match="cache_entry: scoped_artifact_on_unbound_cache"):
+        unbound.load_entry(entry_ref)
+
+
+def test_node_result_cache_rejects_expired_deadline_before_store_io(tmp_path, monkeypatch) -> None:
+    """An expired cache deadline is not converted into an ordinary cache miss."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_deadline")
+    key = "e" * 64
+    cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+    calls = 0
+    original_get_bytes = store.get_bytes
+
+    def count_get_bytes(artifact_id):
+        nonlocal calls
+        calls += 1
+        return original_get_bytes(artifact_id)
+
+    monkeypatch.setattr(store, "get_bytes", count_get_bytes)
+
+    with pytest.raises(TimeoutError, match="cache deadline exceeded"):
+        _cache_get_with_deadline(cache, key, time.perf_counter() - 1.0)
+
+    assert calls == 0
+
+
+def test_node_result_cache_rejects_expired_deadline_before_publication(tmp_path, monkeypatch) -> None:
+    """An expired publication deadline does not start a CAS write."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_put_deadline")
+    calls = 0
+    original_put_json = store.put_json
+
+    def count_put_json(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", count_put_json)
+
+    with pytest.raises(TimeoutError, match="cache deadline exceeded"):
+        _cache_put_with_deadline(
+            cache,
+            "d" * 64,
+            outcome=_outcome(cache.run_id),
+            deadline_monotonic=time.perf_counter() - 1.0,
+        )
+
+    assert calls == 0
+
+
+def test_node_result_cache_rejects_tampered_embedded_outcome(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_cache_tamper"
+    key = "t" * 64
+    cache = NodeResultCache(store, run_id=run_id)
+    entry_ref = cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(run_id))
+    entry_payload = dict(from_canonical_bytes(store.get_bytes(entry_ref.artifact_id)))
+    embedded_payload = entry_payload.get("outcome_payload")
+    assert isinstance(embedded_payload, dict), "self-contained outcome payload is missing"
+    embedded = dict(embedded_payload)
+    state = dict(embedded["state"])
+    state["run_id"] = "foreign-run"
+    embedded["state"] = state
+    forged_ref = _rewrite_cache_entry(store, entry_ref, outcome_payload=embedded)
+
+    restored = NodeResultCache(store, run_id=run_id)
+
+    with pytest.raises(ValueError, match="run_identity_mismatch"):
+        restored.load_entry(forged_ref)
+    assert not restored.has(key)
+
+
+def test_node_result_cache_serializes_concurrent_journals_consistently(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_concurrency")
+    keys = [f"{index:064x}" for index in range(6)]
+
+    def publish_and_read(key: str):
+        ref = cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+        return ref, cache.get(key)
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        results = list(pool.map(publish_and_read, keys))
+
+    refs = [ref for ref, _outcome in results]
+    outcomes = [outcome for _ref, outcome in results]
+    assert len(refs) == len(keys)
+    assert cache.size == len(keys)
+    assert all(outcome is not None for outcome in outcomes)
 
 
 def test_node_result_cache_corrupted_entry_is_treated_as_miss(tmp_path) -> None:
@@ -193,11 +453,8 @@ def test_node_result_cache_corrupted_entry_is_treated_as_miss(tmp_path) -> None:
         node_id="scientist.node_test@1.0.0",
         outcome=_outcome("R_corrupt"),
     )
-    entry_payload = NodeCacheEntry.model_validate(
-        from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
-    )
-    outcome_blob, _ = store._paths(entry_payload.outcome_ref.artifact_id)
-    outcome_blob.write_bytes(b"not canonical json")
+    entry_blob, _ = store._paths(entry_ref.artifact_id)
+    entry_blob.write_bytes(b"not canonical json")
 
     assert cache.get(key) is None
     assert not cache.has(key)
@@ -365,17 +622,19 @@ def test_output_aware_cache_preserves_complete_outcome(tmp_path) -> None:
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    manifest = store.get_manifest(entry.outcome_ref.artifact_id)
-    assert (
-        manifest.artifact_schema.name
-        == "polisyos.scientist.orchestration.engine.OutputAwareNodeOutcome"
+    assert getattr(entry, "outcome_ref", None) is None
+    embedded_payload = getattr(entry, "outcome_payload", None)
+    assert embedded_payload is not None
+    assert "output_dispositions" in embedded_payload
+    entry_manifest = store.get_manifest(entry_ref.artifact_id)
+    assert entry_manifest.artifact_schema.name == (
+        "polisyos.scientist.orchestration.engine.NodeCacheEntry"
     )
-    assert manifest.artifact_schema.version == "1.0"
-    assert manifest.producer.version == "2.0.0"
-    assert store.get_manifest(entry_ref.artifact_id).producer.version == "2.0.0"
+    assert entry_manifest.artifact_schema.version == "2.0"
+    assert entry_manifest.producer.version == "2.0.0"
 
 
-def test_ordinary_cache_keeps_existing_schema_epoch(tmp_path) -> None:
+def test_ordinary_cache_embeds_outcome_in_current_entry_epoch(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     outcome = _outcome()
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
@@ -383,11 +642,14 @@ def test_ordinary_cache_keeps_existing_schema_epoch(tmp_path) -> None:
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    manifest = store.get_manifest(entry.outcome_ref.artifact_id)
-    assert manifest.artifact_schema.name == "polisyos.scientist.orchestration.engine.NodeOutcome"
-    assert manifest.artifact_schema.version == "1.0"
+    assert getattr(entry, "outcome_ref", None) is None
+    assert getattr(entry, "outcome_payload", None) is not None
+    manifest = store.get_manifest(entry_ref.artifact_id)
+    assert manifest.artifact_schema.name == (
+        "polisyos.scientist.orchestration.engine.NodeCacheEntry"
+    )
+    assert manifest.artifact_schema.version == "2.0"
     assert manifest.producer.version == "1.0.0"
-    assert store.get_manifest(entry_ref.artifact_id).producer.version == "1.0.0"
 
 
 def _base_epoch_output_aware_cache_entry(store, outcome, key):
@@ -408,6 +670,7 @@ def _base_epoch_output_aware_cache_entry(store, outcome, key):
         canon_spec=CanonSpec(forbid_floats=False),
     )
     entry = NodeCacheEntry(
+        schema_version="1.0",
         run_id=outcome.state.run_id,
         node_id="scientist.node_transport@2.0.0",
         idempotency_key=key,
@@ -426,9 +689,7 @@ def _base_epoch_output_aware_cache_entry(store, outcome, key):
     )
 
 
-def test_output_aware_cache_refuses_existing_base_epoch_manifest(tmp_path) -> None:
-    import pytest
-
+def test_output_aware_cache_writes_current_embedded_epoch(tmp_path) -> None:
     from tests.unit.scientist.orchestration.engine.runner.test_serialization import (
         _output_aware_transport_outcome,
     )
@@ -437,15 +698,16 @@ def test_output_aware_cache_refuses_existing_base_epoch_manifest(tmp_path) -> No
     outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
     key = "a" * 64
-    _base_epoch_output_aware_cache_entry(store, outcome, key)
-    with pytest.raises(ValueError, match="output_aware_cache_custody"):
-        cache.put(key, node_id="scientist.node_transport@2.0.0", outcome=outcome)
-    assert not cache.has(key)
+    legacy_ref = _base_epoch_output_aware_cache_entry(store, outcome, key)
+    entry_ref = cache.put(key, node_id="scientist.node_transport@2.0.0", outcome=outcome)
+    assert entry_ref != legacy_ref
+    assert cache.get(key) is not None
+    entry_manifest = store.get_manifest(entry_ref.artifact_id)
+    assert entry_manifest.artifact_schema.version == "2.0"
+    assert entry_manifest.producer.version == "2.0.0"
 
 
 def test_output_aware_cache_refuses_loading_base_epoch_entry(tmp_path) -> None:
-    import pytest
-
     from tests.unit.scientist.orchestration.engine.runner.test_serialization import (
         _output_aware_transport_outcome,
     )
@@ -460,9 +722,7 @@ def test_output_aware_cache_refuses_loading_base_epoch_entry(tmp_path) -> None:
     assert not cache.has(key)
 
 
-def test_output_aware_cache_refuses_old_entry_even_with_current_outcome(tmp_path) -> None:
-    import pytest
-
+def test_output_aware_cache_refuses_old_entry_epoch(tmp_path) -> None:
     from tests.unit.scientist.orchestration.engine.runner.test_serialization import (
         _output_aware_transport_outcome,
     )
@@ -470,15 +730,14 @@ def test_output_aware_cache_refuses_old_entry_even_with_current_outcome(tmp_path
     store = FileSystemCAS(tmp_path)
     outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
-    cache.put("c" * 64, node_id="scientist.node_transport@2.0.0", outcome=outcome)
     key = "d" * 64
-    # The predecessor reuses the already-current outcome bytes, but emits its
-    # separate entry under the old epoch. Both actual manifests must be checked.
+    # The predecessor emits its separate outcome and entry under the old
+    # epoch. Both actual manifests must be checked.
     entry_ref = _base_epoch_output_aware_cache_entry(store, outcome, key)
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    assert store.get_manifest(entry.outcome_ref.artifact_id).producer.version == "2.0.0"
+    assert store.get_manifest(entry.outcome_ref.artifact_id).producer.version == "1.0.0"
     assert store.get_manifest(entry_ref.artifact_id).producer.version == "1.0.0"
     with pytest.raises(ValueError, match="output_aware_cache_custody"):
         cache.load_entry(entry_ref)

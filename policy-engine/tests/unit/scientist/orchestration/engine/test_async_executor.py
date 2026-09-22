@@ -591,6 +591,46 @@ class TestAsyncCacheBoundaries:
         assert set(store.iter_artifact_ids()) == ids_before_failed_publication
 
     @pytest.mark.asyncio
+    async def test_failed_cache_entry_does_not_publish_partial_cas_artifacts(
+        self, tmp_path, monkeypatch
+    ):
+        """A failed cache-entry write leaves neither an index entry nor an orphan CAS epoch."""
+        node_id = "test.async_cache_atomicity@1.0.0"
+        node = _CacheTestNode(_cache_node_spec(node_id))
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.return_value = node
+        store, ctx = _make_real_store_ctx(tmp_path)
+        executor = AsyncWorkflowExecutor(ctx, registry)
+        executor._cache = NodeResultCache(store, run_id="async-cache-atomicity")
+        invocation = NodeInvocation(alias="cached", node_id=node_id)
+        workflow = WorkflowSpec(workflow_id="async_cache_atomicity", nodes=[invocation])
+        ids_before_failed_publication = set(store.iter_artifact_ids())
+
+        original_put_json = store.put_json
+        put_calls = 0
+
+        def fail_entry_put(*args, **kwargs):
+            nonlocal put_calls
+            put_calls += 1
+            if put_calls == 2:
+                raise OSError("entry publication interrupted")
+            return original_put_json(*args, **kwargs)
+
+        monkeypatch.setattr(store, "put_json", fail_entry_put)
+        outcome, _, cache_hit, _ = await executor._execute_node(
+            "cached",
+            invocation,
+            ExperimentState(run_id="async-cache-atomicity", params={"seed": 1}),
+            workflow,
+        )
+
+        assert outcome.status == "ok"
+        assert cache_hit is False
+        assert put_calls == 2
+        assert executor._cache.size == 0
+        assert set(store.iter_artifact_ids()) == ids_before_failed_publication
+
+    @pytest.mark.asyncio
     async def test_incompatible_cached_replay_is_discarded_and_recomputed(self, tmp_path):
         """A stale state target must not publish cached state or fail the workflow."""
         node_id = "test.async_cache_replay@1.0.0"

@@ -20,6 +20,9 @@ from polisyos.runtime.quality.generation_cycle import (
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
 )
+from polisyos.runtime.quality.intervention_atom_binding import (
+    intervention_atom_content_hash,
+)
 from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
@@ -55,6 +58,17 @@ def _real_n5_observation(tmp_path: Path):
         source_pack_content_hash=context.source_pack_content_hash,
         substrate_input_content_hash=context.substrate_input_content_hash,
     )
+    final_problem_ref = context.design_problem_ref
+    rebound_atoms = []
+    for atom in candidate.intervention_atoms:
+        rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
+        rebound_atoms.append(
+            rebound.model_copy(
+                update={"content_hash": intervention_atom_content_hash(rebound)}
+            )
+        )
+    candidate.intervention_atoms = tuple(rebound_atoms)
+    candidate.atom = rebound_atoms[0]
     producer = JointSimulationHorizonController()
     produced_results: list[object] = []
 

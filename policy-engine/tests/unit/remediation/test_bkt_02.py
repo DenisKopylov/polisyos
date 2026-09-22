@@ -12,7 +12,11 @@ import math
 import pytest
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
-from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+from polisyos.ir.analytics.backtest import (
+    BacktestReport,
+    BacktestScenario,
+    OutcomeComparison,
+)
 from polisyos.ir.artifacts import StorePutOptions
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
@@ -101,6 +105,55 @@ def test_missing_ci_is_unknown_and_preserves_nominal_level() -> None:
     assert scenario.interval_hit_count == 1
     assert scenario.coverage_probability == pytest.approx(1.0)
     assert scenario.nominal_confidence_level == pytest.approx(0.80)
+
+
+def test_legacy_v1_payload_preserves_read_compatibility_and_ci_unknown_default() -> None:
+    legacy_payload = {
+        "schema_version": "1.0",
+        "report_id": "legacy-v1",
+        "scenarios": [
+            {
+                "scenario_id": "legacy-scenario",
+                "scenario_label": "legacy scenario",
+                "outcome_comparisons": [
+                    {
+                        "metric_name": "metric",
+                        "y_pred": 1.0,
+                        "y_true": 1.0,
+                        "absolute_error": 0.0,
+                    }
+                ],
+            }
+        ],
+    }
+
+    report = BacktestReport.model_validate(legacy_payload)
+
+    assert report.schema_version == "1.0"
+    assert report.scenarios[0].outcome_comparisons[0].within_ci is None
+
+    legacy_payload["scenarios"][0]["outcome_comparisons"] = [
+        {
+            "metric_name": "metric",
+            "y_pred": 1.0,
+            "y_true": 1.0,
+            "absolute_error": 0.0,
+            "within_ci": False,
+        },
+        {
+            "metric_name": "metric",
+            "y_pred": 2.0,
+            "y_true": 2.0,
+            "absolute_error": 0.0,
+            "within_ci": True,
+        },
+    ]
+
+    explicit_booleans = BacktestReport.model_validate(legacy_payload)
+
+    assert [
+        comparison.within_ci for comparison in explicit_booleans.scenarios[0].outcome_comparisons
+    ] == [False, True]
 
 
 def test_partial_ci_exposes_availability_and_hit_denominators() -> None:

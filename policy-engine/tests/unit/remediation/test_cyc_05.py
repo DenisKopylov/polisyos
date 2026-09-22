@@ -91,6 +91,54 @@ def test_generation_cycle_receipt_replay_requires_explicit_source_root(tmp_path:
         receipt.verify_current()
 
 
+@pytest.mark.asyncio
+async def test_generation_cycle_consumer_keeps_missing_source_non_positive(
+    tmp_path: Path,
+) -> None:
+    """The real N6 consumer must retain a missing-source refusal."""
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    ).run(
+        _problem("cyc_05_missing_source_consumer"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+
+    issues = validate_generation_cycle_run(run, repo_root=tmp_path)
+    assert "strangle_receipt_currentness_not_established" in {
+        issue["code"] for issue in issues
+    }
+
+
+@pytest.mark.asyncio
+async def test_generation_cycle_consumer_keeps_parse_error_non_positive(
+    tmp_path: Path,
+) -> None:
+    """The real N6 consumer must retain a parse-error refusal."""
+
+    source = _source_root(tmp_path)
+    (source / "broken.py").write_text("def broken(:\n", encoding="utf-8")
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    ).run(
+        _problem("cyc_05_parse_error_consumer"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+
+    issues = validate_generation_cycle_run(run, repo_root=tmp_path)
+    assert "strangle_receipt_currentness_not_established" in {
+        issue["code"] for issue in issues
+    }
+
+
 def test_depth_n_strangle_receipt_separates_parse_error_from_prohibited_caller(
     tmp_path: Path,
 ) -> None:

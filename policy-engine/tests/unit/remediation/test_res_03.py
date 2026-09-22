@@ -18,6 +18,9 @@ from polisyos.foundry.methods.base import (
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
+    SlotSpec,
+    SlotType,
+    Unit,
 )
 from polisyos.foundry.methods.composer import MethodComposer
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -35,15 +38,25 @@ def _make_method(
     name: str,
     *,
     requires: frozenset[str] = frozenset(),
+    output_slot_names: frozenset[str] = frozenset(),
     step: Callable[[Any, Mapping[str, Any]], Any] | None = None,
 ) -> type:
     """Build a small real registry method for an async-chain witness."""
+    output_slots = frozenset(
+        SlotSpec(
+            name=slot_name,
+            slot_type=SlotType.SCALAR,
+            unit=Unit(dimension="res03", symbol="json"),
+            shape=(),
+        )
+        for slot_name in output_slot_names
+    )
     method_signature = MethodSignature(
         name=name,
         namespace="tests.res03",
         version="1.0.0",
         input_slots=frozenset(),
-        output_slots=frozenset(),
+        output_slots=output_slots,
         parameters=(),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
@@ -85,6 +98,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
 
     previous = _make_method(
         "previous",
+        output_slot_names=frozenset({"previous", "scope", "artifact_ref"}),
         step=lambda _state, _params: {
             "previous": "previous-value",
             "scope": "world:previous",
@@ -94,6 +108,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
     left = _make_method(
         "left",
         requires=frozenset({"tests.res03.previous@1.0.0"}),
+        output_slot_names=frozenset({"left", "scope", "artifact_ref"}),
         step=lambda _state, _params: {
             "left": 7,
             "scope": "world:left",
@@ -113,6 +128,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
     right = _make_method(
         "right",
         requires=frozenset({"tests.res03.previous@1.0.0"}),
+        output_slot_names=frozenset({"right", "scope", "artifact_ref"}),
         step=right_step,
     )
 
@@ -123,6 +139,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
     dependent = _make_method(
         "dependent",
         requires=frozenset({"tests.res03.right@1.0.0"}),
+        output_slot_names=frozenset({"dependent"}),
         step=dependent_step,
     )
 

@@ -1396,6 +1396,116 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensati
 
 
 @pytest.mark.asyncio
+async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A same-model cursor cannot mask a newer checkpoint before pair validation."""
+
+    stream_path = tmp_path / "prewrite-aba-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
+    source_commits: list[StreamCheckpoint] = []
+    target_cursors: list[Any] = []
+    published_pairs: list[tuple[Any, StreamCheckpoint]] = []
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        target_cursors.append(cursor)
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed before checkpoint index")
+
+    async def publish_prewrite_aba_pair(
+        self: AsyncCursorStoreAdapter,
+        **kwargs: Any,
+    ) -> Any:
+        assert target_cursors
+        assert source_commits
+        target_cursor = target_cursors[0]
+        prepared_checkpoint = source_commits[0]
+        # Publish before entering the guarded operation.  Cursor bytes are
+        # identical, so only the checkpoint comparison can reject the ABA.
+        newer_cursor = target_cursor.model_copy(deep=True)
+        newer_checkpoint = prepared_checkpoint.model_copy(
+            update={
+                "checkpoint_id": f"{prepared_checkpoint.checkpoint_id}:prewrite-aba",
+                "offset": prepared_checkpoint.offset + 1,
+                "resume_token": "prewrite-aba-newer",
+            }
+        )
+        self.store.save_cursor(newer_cursor)
+        self.store.save_stream_checkpoint(newer_checkpoint)
+        published_pairs.append((newer_cursor, newer_checkpoint))
+        return await original_restore_stream_frontier(self, **kwargs)
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "restore_stream_frontier",
+        publish_prewrite_aba_pair,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="prewrite-aba-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert published_pairs
+    expected_cursor, expected_checkpoint = published_pairs[0]
+    latest_cursor = cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "prewrite-aba-frontier",
+    )
+    latest_checkpoint = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "prewrite-aba-frontier",
+    )
+    assert latest_cursor is not None
+    assert latest_cursor.model_dump(mode="json") == expected_cursor.model_dump(mode="json")
+    assert latest_checkpoint is not None
+    assert latest_checkpoint.checkpoint_id == expected_checkpoint.checkpoint_id
+    assert latest_checkpoint.offset == expected_checkpoint.offset
+
+
+@pytest.mark.asyncio
 async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

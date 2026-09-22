@@ -388,11 +388,17 @@ class StreamingSourceSession:
             return
 
         await self._reconnect()
+        resume_offset = checkpoint.offset
+        if checkpoint.metadata.get("frontier_committed") is False:
+            # The cursor model cannot encode -1.  A diagnostic checkpoint
+            # created before the first durable chunk therefore carries an
+            # explicit empty-frontier marker and must replay chunk zero.
+            resume_offset = -1
         while True:
             chunk = await self.poll()
             if chunk is None:
                 break
-            if int(chunk.chunk_index) > checkpoint.offset:
+            if int(chunk.chunk_index) > resume_offset:
                 self._prefetched_chunk = chunk
                 self._last_chunk = None
                 break
@@ -1039,6 +1045,7 @@ def _stream_checkpoint_metadata(
         "late_rows_quarantined": result.late_rows_quarantined,
         "operator_state_required": True,
         "operator_state": _stream_operator_state(accumulator, ordering_state),
+        "frontier_committed": True,
     }
 
 
@@ -1602,6 +1609,7 @@ async def process_stream_dataset(
                 frontier_metadata["operator_state"] = _empty_stream_operator_state(
                     options.window_policy
                 )
+            frontier_metadata.setdefault("frontier_committed", committed_checkpoint is not None)
             frontier_schema = tuple(
                 str(field) for field in frontier_metadata.get("schema_fields", ())
             )

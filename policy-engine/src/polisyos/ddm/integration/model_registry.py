@@ -140,6 +140,8 @@ def rebind_calibration_validity(
         observed_invalidation_triggers=observed_invalidation_triggers,
         expected_projection=record.calibration_validity,
     )
+    if evidence.is_bound:
+        rebound.calibration_validity = evidence.projection
     rebound._calibration_validity_evidence = evidence
     return rebound
 
@@ -234,11 +236,6 @@ def _calibration_validity_block_reason(
     if evidence is None or projection is None:
         return "calibration_validity_not_established"
     if not evidence.is_bound:
-        if (
-            evidence.projection.observation_status != "observed"
-            or evidence.projection.status == "not_established"
-        ):
-            return "calibration_validity_not_established"
         return "calibration_report_binding_not_established"
     if evidence.calibration_id != record.calibration_id:
         return "calibration_identity_mismatch"
@@ -247,9 +244,13 @@ def _calibration_validity_block_reason(
     if projection.stationarity_regime_id != record.stationarity_regime_id:
         return "calibration_regime_identity_mismatch"
     if projection.observation_status != "observed" or projection.status == "not_established":
+        if "calibration_expired" in projection.reasons:
+            return "calibration_expired"
         return "calibration_validity_not_established"
     if not evidence.status.valid:
         if evidence.status.reasons:
+            if "calibration_expired" in evidence.status.reasons:
+                return "calibration_expired"
             return "calibration_" + "_".join(evidence.status.reasons)
         return "calibration_validity_failed"
     return None

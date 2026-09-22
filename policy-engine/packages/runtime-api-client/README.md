@@ -8,14 +8,14 @@ thin wrapper over the OpenAPI contract that exposes read and batch-read runtime
 operations without React, Vite, or dashboard-specific state management.
 
 This package is the canonical generated-client home selected by Atlas DS3.
-Do not edit `types.ts`, `runtimeApiClient.ts`, `runtimeApiClient.js`,
-`canonicalRuntimeApiClient.ts`, or `canonicalRuntimeApiClient.js` by hand. Their
+Do not edit `types.ts`, `canonicalRuntimeApiClient.ts`, or
+`canonicalRuntimeApiClient.js` by hand. Their
 shared source of truth is the runtime OpenAPI schema. The package-root export is
 the canonical twin: its DTO aliases point directly at the discriminated schema
-types in `types.ts`. The raw `runtimeApiClient.*` pair remains a generated
-compatibility artifact for the repository's existing contract-drift checker;
-it is not the package's public entrypoint. The dashboard-local generated type
-file is a downstream compatibility surface, not a second owner.
+types in `types.ts`. The low-level `runtimeApiClient.*` pair is generated only
+in a private scratch directory and handed to the canonicalizer; it is not a
+committed or public package surface. The dashboard-local generated type file is
+a downstream compatibility surface, not a second owner.
 
 ## Where to Start
 
@@ -33,14 +33,11 @@ file is a downstream compatibility surface, not a second owner.
 - Public generated JavaScript client:
   [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
 
-- Raw compatibility generator output:
-  [`runtimeApiClient.ts`](runtimeApiClient.ts) and
-  [`runtimeApiClient.js`](runtimeApiClient.js)
-
 - Generator:
   [`scripts/generate-runtime-api-client.sh`](scripts/generate-runtime-api-client.sh),
-  which composes the schema-type generator, raw client generator, and
-  canonicalizer through one output-root-aware entrypoint.
+  which composes the schema-type generator, private raw-client handoff, and
+  canonicalizer through one output-root-aware entrypoint. Only `types.ts` and
+  the canonical TS/JS pair are written under the output root.
 
 - Canonicalizer:
   [`scripts/canonicalize-runtime-client.mjs`](scripts/canonicalize-runtime-client.mjs)
@@ -93,6 +90,10 @@ file is a downstream compatibility surface, not a second owner.
 - `corepack pnpm --filter @polisyos/runtime-api-client test`
   `smoke-tested 2026-04-23`
 
+- `corepack pnpm --filter @polisyos/runtime-api-client run test:remediation`
+  Exercises the scratch-only generated family and the explicit `--openapi`
+  override with an isolated schema mutation.
+
 - `corepack pnpm --filter @polisyos/runtime-api-client run contracts:verify`
   `smoke-tested 2026-04-23`
 
@@ -101,9 +102,10 @@ file is a downstream compatibility surface, not a second owner.
 
 - `corepack pnpm --dir packages/runtime-api-client run generate -- \
   --openapi schemas/runtime_api_v1.openapi.json`
-  Replays schema types, the raw compatibility artifacts, and the public
-  canonical twin in one command after exporting the OpenAPI schema. Pass
-  `--output-root /absolute/scratch/root` to keep all five outputs isolated.
+  Replays schema types, the private raw handoff, and the public canonical twin
+  in one command after exporting the OpenAPI schema. Pass
+  `--output-root /absolute/scratch/root` to keep the three committed outputs
+  isolated.
 
 - `corepack pnpm --dir packages/runtime-api-client exec openapi-typescript \
   ../../schemas/runtime_api_v1.openapi.json -o types.ts`

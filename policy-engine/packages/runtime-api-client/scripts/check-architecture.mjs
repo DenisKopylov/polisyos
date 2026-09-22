@@ -9,10 +9,9 @@ const allowedFiles = new Set([
   "canonicalRuntimeApiClient.ts",
   "eslint.config.mjs",
   "package.json",
-  "runtimeApiClient.js",
   "runtimeApiClient.test.mjs",
   "runtimeApiClient.type-test.ts",
-  "runtimeApiClient.ts",
+  "remediation.test.mjs",
   "scripts/canonicalize-runtime-client.mjs",
   "scripts/canonicalize-runtime-client.test.mjs",
   "scripts/check-architecture.mjs",
@@ -24,10 +23,8 @@ const allowedFiles = new Set([
 ]);
 
 const expectedImports = new Map([
-  ["runtimeApiClient.ts", []],
   ["canonicalRuntimeApiClient.ts", ["./types.js"]],
   ["canonicalRuntimeApiClient.js", []],
-  ["runtimeApiClient.js", []],
   [
     "runtimeApiClient.type-test.ts",
     ["./canonicalRuntimeApiClient.js", "./types.js"],
@@ -37,9 +34,20 @@ const expectedImports = new Map([
     "runtimeApiClient.test.mjs",
     [
       "./canonicalRuntimeApiClient.js",
-      "./runtimeApiClient.js",
       "node:assert/strict",
       "node:test",
+    ],
+  ],
+  [
+    "remediation.test.mjs",
+    [
+      "node:assert/strict",
+      "node:child_process",
+      "node:fs",
+      "node:os",
+      "node:path",
+      "node:test",
+      "node:url",
     ],
   ],
   [

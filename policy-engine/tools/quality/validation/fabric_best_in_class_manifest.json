@@ -2092,7 +2092,7 @@
       "priority": "P1",
       "severity": "P1",
       "source_files": [
-        "packages/runtime-api-client/runtimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "schemas/runtime_api_v1.openapi.json",
         "src/polisyos/runtime/http/routes/fabric.py",
         "src/polisyos/runtime/http/services/fabric.py"

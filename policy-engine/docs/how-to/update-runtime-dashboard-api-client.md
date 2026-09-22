@@ -12,7 +12,8 @@
 ## Output
 
 - синхронизированы `schemas/runtime_api_v1.openapi.json`,
-  `packages/runtime-api-client/runtimeApiClient.{ts,js}`,
+  `packages/runtime-api-client/types.ts` and
+  `canonicalRuntimeApiClient.{ts,js}`,
   `apps/runtime-dashboard/src/api/types.ts`;
 
 - runtime and frontend contract checks снова green.
@@ -22,7 +23,7 @@
 ```bash
 cd policy-engine
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 cd apps/runtime-dashboard && corepack pnpm run generate:api
 ```
 
@@ -60,7 +61,7 @@ This file is the committed source of truth for runtime consumers.
 Run:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
 This updates the lightweight frontend consumer surface used by the reference

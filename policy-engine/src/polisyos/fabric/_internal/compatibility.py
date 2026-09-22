@@ -48,7 +48,7 @@ FABRIC_COMPATIBILITY_BRIDGES: tuple[FabricCompatibilityBridge, ...] = (
     FabricCompatibilityBridge(
         id="frontend.runtime_api_client_compat",
         source_surface="schemas/runtime_api_v1.openapi.json",
-        target_surface="packages/runtime-api-client/runtimeApiClient.ts",
+        target_surface="packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         owner="@runtime-owners",
         reason="Generated client remains the compatibility surface for product fixtures and additive Fabric endpoints.",
         sunset_date=date(2026, 10, 31),

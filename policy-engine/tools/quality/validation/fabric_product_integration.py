@@ -172,7 +172,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         )
     )
     runtime_client_text = _read(
-        repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts"
+        repo_root / "packages" / "runtime-api-client" / "canonicalRuntimeApiClient.ts"
     )
 
     endpoint_rows = []

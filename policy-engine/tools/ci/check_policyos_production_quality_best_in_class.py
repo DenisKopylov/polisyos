@@ -957,7 +957,7 @@ def _component_results(repo_root: Path, inventory_payload: Mapping[str, Any]) ->
         (
             "tools/ops_runners/runtime/check_runtime_api_contract.py",
             "schemas/runtime_api_v1.openapi.json",
-            "packages/runtime-api-client/runtimeApiClient.ts",
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
             "apps/runtime-dashboard/src/api/types.ts",
         ),
     )

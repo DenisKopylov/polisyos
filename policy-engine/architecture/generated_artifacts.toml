@@ -793,8 +793,6 @@ stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = [
   "packages/runtime-api-client/types.ts",
-  "packages/runtime-api-client/runtimeApiClient.ts",
-  "packages/runtime-api-client/runtimeApiClient.js",
   "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
   "packages/runtime-api-client/canonicalRuntimeApiClient.js",
 ]

@@ -33,16 +33,17 @@ Committed generated outputs are registered in
 `architecture/generated_artifacts.toml`:
 
 - `packages/runtime-api-client/types.ts`
-- `packages/runtime-api-client/runtimeApiClient.ts` (raw compatibility output)
-- `packages/runtime-api-client/runtimeApiClient.js` (raw compatibility output)
 - `packages/runtime-api-client/canonicalRuntimeApiClient.ts` (public entrypoint)
 - `packages/runtime-api-client/canonicalRuntimeApiClient.js` (public entrypoint)
 - `apps/runtime-dashboard/src/api/types.ts`
 
 The runtime client package owns the pinned `openapi-typescript` `7.13.0`
-resolver. Both client generators accept the explicit `--openapi` input and
-write to an isolated `--output-root` when one is supplied; dashboard output
-keeps its downstream normalization and formatting profile.
+resolver. Its generator accepts the explicit `--openapi` input and writes only
+the schema types and canonical client pair to an isolated `--output-root` when
+one is supplied; the low-level raw pair is an ephemeral scratch handoff to the
+canonicalizer. The dashboard generator accepts the same explicit input and
+writes only its dashboard types output, preserving the downstream
+normalization and formatting profile.
 
 Local outputs stay ignored under workspace-local `node_modules/`, product
 `_build/{apps,packages}/...`, and product `_cache/{apps,packages}/...`.

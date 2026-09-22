@@ -28,8 +28,6 @@ from typing import cast
 DEFAULT_TARGET_PATHS = (
     "schemas/runtime_api_v1.openapi.json",
     "packages/runtime-api-client/types.ts",
-    "packages/runtime-api-client/runtimeApiClient.ts",
-    "packages/runtime-api-client/runtimeApiClient.js",
     "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
     "packages/runtime-api-client/canonicalRuntimeApiClient.js",
     "apps/runtime-dashboard/src/api/types.ts",

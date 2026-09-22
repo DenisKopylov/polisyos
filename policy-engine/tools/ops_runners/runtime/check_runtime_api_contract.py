@@ -25,7 +25,10 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-client-drift",
         action="store_true",
-        help="Skip generated runtime-api-client drift check.",
+        help=(
+            "Compatibility flag; generated client freshness is owned by the "
+            "package generated-artifact guard."
+        ),
     )
     parser.add_argument(
         "--max-diff-lines",
@@ -83,42 +86,69 @@ def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines:
     return violations
 
 
-def _check_runtime_client_drift(*, repo_root: Path, openapi_path: Path) -> list[str]:
-    generator = repo_root / "tools" / "ops_runners" / "runtime" / "generate_runtime_client.py"
-    committed_ts = repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts"
-    committed_js = repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.js"
+def _check_runtime_client_family_drift(
+    *, repo_root: Path, openapi_path: Path
+) -> list[str]:
+    """Verify the package-owned generated family without a committed raw twin."""
+
+    package_root = repo_root / "packages" / "runtime-api-client"
+    expected_outputs = (
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+    )
     violations: list[str] = []
     with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as tmp_dir_name:
-        tmp_dir = Path(tmp_dir_name)
-        tmp_ts = tmp_dir / "runtimeApiClient.ts"
-        tmp_js = tmp_dir / "runtimeApiClient.js"
-        subprocess.run(
+        output_root = Path(tmp_dir_name)
+        result = subprocess.run(
             [
-                sys.executable,
-                str(generator),
+                "corepack",
+                "pnpm",
+                "--dir",
+                str(package_root),
+                "run",
+                "generate",
+                "--",
                 "--openapi",
                 str(openapi_path),
-                "--out-ts",
-                str(tmp_ts),
-                "--out-js",
-                str(tmp_js),
+                "--output-root",
+                str(output_root),
             ],
             cwd=repo_root,
-            check=True,
+            check=False,
+            capture_output=True,
+            text=True,
         )
+        if result.returncode != 0:
+            detail = result.stderr.strip() or result.stdout.strip()
+            violations.append(
+                "Runtime API client generation failed during family drift check"
+                + (f": {detail}" if detail else ".")
+            )
+            return violations
 
-        expected_pairs = (
-            (committed_ts, tmp_ts),
-            (committed_js, tmp_js),
-        )
-        for committed, generated in expected_pairs:
+        observed = {
+            path.relative_to(output_root).as_posix()
+            for path in output_root.rglob("*")
+            if path.is_file()
+        }
+        expected = set(expected_outputs)
+        if observed != expected:
+            missing = sorted(expected - observed)
+            extra = sorted(observed - expected)
+            if missing:
+                violations.append(f"Missing generated runtime client outputs: {missing}")
+            if extra:
+                violations.append(f"Unexpected generated runtime client outputs: {extra}")
+
+        for relative in expected_outputs:
+            committed = repo_root / relative
+            generated = output_root / relative
             if not committed.exists():
-                violations.append(f"Missing generated client file: {committed.as_posix()}")
+                violations.append(f"Missing generated client file: {relative}")
                 continue
-            if committed.read_text(encoding="utf-8") != generated.read_text(encoding="utf-8"):
-                violations.append(
-                    f"Runtime API client drift detected: {committed.as_posix()} is outdated."
-                )
+            if generated.exists() and committed.read_bytes() != generated.read_bytes():
+                violations.append(f"Runtime API client drift detected: {relative} is outdated.")
     return violations
 
 
@@ -135,9 +165,11 @@ def main() -> int:
     )
     if not args.skip_client_drift:
         violations.extend(
-            _check_runtime_client_drift(repo_root=repo_root, openapi_path=openapi_path)
+            _check_runtime_client_family_drift(
+                repo_root=repo_root,
+                openapi_path=openapi_path,
+            )
         )
-
     if violations:
         print("Runtime API contract check FAILED:")
         for violation in violations:

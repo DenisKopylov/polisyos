@@ -24,8 +24,6 @@ public_entrypoints = [
 schema_inputs = ["schemas/runtime_api_v1.openapi.json"]
 generated_outputs = [
   "types.ts",
-  "runtimeApiClient.ts",
-  "runtimeApiClient.js",
   "canonicalRuntimeApiClient.ts",
   "canonicalRuntimeApiClient.js",
 ]

@@ -43,12 +43,20 @@ if [[ "${OPENAPI_FILE}" != /* ]]; then
 fi
 
 TYPES_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/types.ts"
-RUNTIME_TS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/runtimeApiClient.ts"
-RUNTIME_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/runtimeApiClient.js"
 CANONICAL_TS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApiClient.ts"
 CANONICAL_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApiClient.js"
 
-mkdir -p "$(dirname "${TYPES_OUT}")"
+# Keep the low-level raw pair as a private handoff to the canonicalizer.  Only
+# the canonical pair and schema types belong to the declared output family.
+SCRATCH_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/polisyos-runtime-api-client.XXXXXXXX")"
+RUNTIME_TS_OUT="${SCRATCH_ROOT}/runtimeApiClient.ts"
+RUNTIME_JS_OUT="${SCRATCH_ROOT}/runtimeApiClient.js"
+cleanup() {
+  rm -rf -- "${SCRATCH_ROOT}"
+}
+trap cleanup EXIT
+
+mkdir -p "$(dirname "${TYPES_OUT}")" "$(dirname "${CANONICAL_TS_OUT}")"
 cd "${PROJECT_ROOT}"
 
 corepack pnpm --dir "${PROJECT_ROOT}/packages/runtime-api-client" exec \
@@ -69,7 +77,5 @@ node packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs \
 
 printf 'Generated %s\n' \
   "${TYPES_OUT}" \
-  "${RUNTIME_TS_OUT}" \
-  "${RUNTIME_JS_OUT}" \
   "${CANONICAL_TS_OUT}" \
   "${CANONICAL_JS_OUT}"

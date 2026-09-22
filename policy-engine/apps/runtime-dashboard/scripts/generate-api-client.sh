@@ -50,9 +50,11 @@ if ! command -v corepack > /dev/null 2>&1; then
 fi
 
 PNPM=(corepack pnpm)
+CLIENT_PACKAGE_ROOT="${PROJECT_ROOT}/packages/runtime-api-client"
 
 mkdir -p "$(dirname "${OUT_FILE}")"
-"${PNPM[@]}" exec openapi-typescript "${OPENAPI_FILE}" --output "${OUT_FILE}"
+corepack pnpm --dir "${CLIENT_PACKAGE_ROOT}" exec openapi-typescript \
+  "${OPENAPI_FILE}" --output "${OUT_FILE}"
 node "${PROJECT_ROOT}/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs" \
   --types "${OUT_FILE}"
 "${PNPM[@]}" exec prettier --write "${OUT_FILE}"

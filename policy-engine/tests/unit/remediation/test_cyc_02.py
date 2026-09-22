@@ -7,12 +7,16 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.runtime.quality.generation_cycle import (
-    SimulationPortObservation,
-    ValuePortObservation,
-    load_joint_simulation_result,
+    GenerationCycleError,
+    JointSimulationPort,
+    _DefaultSimulationBoundFoundryValuePort,
     simulation_evaluation_input_ref,
+)
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    JointSimulationHorizonController,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
@@ -28,39 +32,66 @@ from tests.unit.runtime.quality.test_depth_n_universality import (
     _recursive_budget_state,
     _recursive_problem,
 )
+from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
+from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 
-def test_k_sim_limitation_remains_a_usable_simulation_input() -> None:
+def _real_n5_observation(tmp_path: Path):
+    """Run the canonical N5 producer through the real generation-cycle adapter."""
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    request = _request(
+        record=context.world_model_record,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+    )
+    problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "joint_simulation_request": request,
+            }
+        }
+    )
+    observation = JointSimulationPort(
+        controller=JointSimulationHorizonController(),
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+    assert observation.status == "joint_simulated"
+    assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
+    return problem, context, candidate, observation
+
+
+def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
     """K_sim limits authority, but does not make the real N5 input disappear."""
 
-    simulation = SimulationPortObservation(
-        candidate_id="candidate-cyc-02",
-        status="joint_simulated",
-        simulation_ref="sha256:" + "1" * 64,
-        authority_blockers=("simulation_only_k_sim_not_world_evidence",),
-    )
+    _problem, _context, _candidate, simulation = _real_n5_observation(tmp_path)
 
     input_ref = simulation_evaluation_input_ref(simulation)
 
     assert input_ref is not None
     assert input_ref.content_hash == simulation.simulation_ref
+    assert simulation.simulation_result_ref is not None
 
 
-def test_conditional_n8_status_is_not_authority_ready() -> None:
+def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     """The simulation-only value state is explicit and cannot carry N8 receipts."""
 
-    observation = ValuePortObservation(
-        status="value_conditional",
-        candidate_id="candidate-cyc-02",
-        value_ref="artifact://n5/result",
-        authority_blockers=("simulation_only_k_sim_not_world_evidence",),
-        reason="Conditional simulation output; not empirical or action authority.",
-        decision_grade="low",
+    problem, context, candidate, simulation = _real_n5_observation(tmp_path)
+    observation = _DefaultSimulationBoundFoundryValuePort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+    )(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
     )
 
-    assert observation.status == "value_conditional"
+    assert observation.status == "value_conditional", observation.model_dump(mode="json")
     assert observation.value_receipt is None
     assert observation.method_selection_receipt is None
+    assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
 
 
 @pytest.mark.asyncio
@@ -115,14 +146,61 @@ async def test_recursive_n5_result_has_reopenable_cas_reference(tmp_path: Path) 
     assert payload["receipt"]["payload_hash"] == root_node.joint_simulation.receipt.payload_hash
     assert payload["trajectories"]
 
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
     reopened = load_joint_simulation_result(
         result_ref,
         repo_root=tmp_path,
         expected_world_model_record_content_hash=(
             root_node.joint_simulation.world_model_record_content_hash
         ),
+        expected_atom_ids=root_node.joint_simulation.atom_ids,
     )
     assert reopened.trajectories == root_node.joint_simulation.trajectories
     assert reopened.world_model_record_content_hash == (
         root_node.joint_simulation.world_model_record_content_hash
     )
+
+    missing_ref = CASArtifactRef(
+        artifact_id="sha256:" + "f" * 64,
+        kind=result_ref.kind,
+        media_type=result_ref.media_type,
+    )
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
+        load_joint_simulation_result(missing_ref, repo_root=tmp_path)
+
+    blob_path, manifest_path = store.get_paths(result_ref.artifact_id)
+    original_blob = blob_path.read_bytes()
+    blob_path.write_bytes(original_blob + b"tampered")
+    try:
+        with pytest.raises(
+            GenerationCycleError,
+            match="joint_simulation_result_integrity_invalid",
+        ):
+            load_joint_simulation_result(result_ref, repo_root=tmp_path)
+    finally:
+        blob_path.write_bytes(original_blob)
+
+    original_manifest = manifest_path.read_bytes()
+    manifest_path.write_bytes(b"{}")
+    try:
+        with pytest.raises(
+            GenerationCycleError,
+            match="joint_simulation_result_integrity_invalid",
+        ):
+            load_joint_simulation_result(result_ref, repo_root=tmp_path)
+    finally:
+        manifest_path.write_bytes(original_manifest)
+
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_wmr_mismatch"):
+        load_joint_simulation_result(
+            result_ref,
+            repo_root=tmp_path,
+            expected_world_model_record_content_hash="sha256:" + "e" * 64,
+        )
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_atom_binding"):
+        load_joint_simulation_result(
+            result_ref,
+            repo_root=tmp_path,
+            expected_atom_ids=("foreign-model-atom",),
+        )

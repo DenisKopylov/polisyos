@@ -16,7 +16,11 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import SimulationResult, StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    FoundryInputBindingRule,
+    SimulationResult,
+    StateSnapshotRef,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.contracts.state import GlobalState
@@ -273,6 +277,20 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
                 "trinity_bundle_ref": trinity_ref,
                 "registry_bundle_ref": registry_bundle.bundle_ref,
                 "data_snapshot_ref": data_snapshot_ref,
+            },
+            params={
+                # The state-snapshot compatibility path loads the source state
+                # verbatim.  Bind one real slot so the persisted bound snapshot
+                # has distinct bytes before CAS adds its input lineage profile.
+                "foundry_input_binding_rules": [
+                    FoundryInputBindingRule(
+                        binding_id="res03.fixture_tax_rate",
+                        source_path="fixture.tax_rate",
+                        target_slot_id="global.tax_rate",
+                        default_value=Decimal("0.1"),
+                        notes=["test fixture makes bound snapshot distinct"],
+                    )
+                ]
             },
         )
 

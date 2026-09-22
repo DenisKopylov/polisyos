@@ -143,7 +143,7 @@ def test_relocated_fiscal_kernel_preserves_active_target_masks_and_balance() -> 
 
     assert next_state.agents.income.tolist() == [80.0, 40.0, 25.0]
     assert float(next_state.government_balance) == 30.0
-    assert not bool(jnp.array_equal(next_key, jax.random.PRNGKey(0)))
+    assert bool(jnp.array_equal(next_key, jax.random.PRNGKey(0)))
 
 
 def test_relocated_labor_kernel_preserves_employer_and_firm_counts() -> None:

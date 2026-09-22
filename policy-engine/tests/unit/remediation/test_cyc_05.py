@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+from polisyos.core import canon
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control.generation_cycle import (
@@ -135,6 +137,9 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
     )
     from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
     from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        _resolve_http_recursive_budget,
+    )
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
 
@@ -156,6 +161,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             "build_design_problem_from_nl_request",
             compile_problem,
         )
+        _, recursive_budget_resolution = _resolve_http_recursive_budget(7)
 
         compiled_fixture = (
             await generation_cycle_service.compile_and_run_recursive_generation_cycle(
@@ -170,6 +176,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
                     min_cycles_per_leaf=1,
                     max_cycles_per_leaf=3,
                 ),
+                recursive_budget_resolution=recursive_budget_resolution,
                 promotion_runtime=service._promotion_runtime,
                 root_evaluation_context=None,
                 eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
@@ -193,6 +200,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             assert recursive_budget.max_depth == 0
             assert recursive_budget.max_nodes == 1
             assert recursive_budget.max_cycles_per_leaf == 3
+            assert kwargs["recursive_budget_resolution"] == recursive_budget_resolution
             return compiled_fixture
 
         monkeypatch.setattr(
@@ -217,6 +225,13 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             },
             "clamp_reason": "requested_max_iterations_above_http_cycle_cap_3",
         }
+        compiled_ref = ArtifactID.model_validate(
+            completed.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
+        )
+        assert persisted.recursive_budget_resolution == recursive_budget_resolution
     finally:
         service.close()
 

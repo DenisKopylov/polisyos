@@ -66,11 +66,15 @@ class _NativeSearchServiceDriver:
         for index, payload in enumerate(payloads):
             if not isinstance(payload, dict):
                 raise TypeError("search candidate generators must return mappings")
-            candidate_id = (
-                str(payload.get("candidate_id"))
-                if payload.get("candidate_id")
-                else f"candidate_{self._ask_iteration}_{index}"
-            )
+            if "candidate_id" not in payload:
+                candidate_id = f"candidate_{self._ask_iteration}_{index}"
+            else:
+                raw_candidate_id = payload["candidate_id"]
+                if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
+                    raise ValueError(
+                        "search candidate_id must be an explicit non-empty string"
+                    )
+                candidate_id = raw_candidate_id
             if (
                 candidate_id in pending
                 or candidate_id in self._pending_candidates

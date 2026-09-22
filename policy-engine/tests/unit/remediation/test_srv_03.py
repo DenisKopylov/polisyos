@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
@@ -22,6 +23,7 @@ from polisyos.scientist.methods.autotune.runtime import (
     PydanticMutationCodec,
     SequenceCandidateGenerator,
 )
+from polisyos.scientist.methods.search.adapters import LegacySearchServiceAdapter
 from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
@@ -151,6 +153,74 @@ def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume() -
 
 class _RunnerMutation(MutationArtifact):
     value: int
+
+
+class _IdentityGenerator:
+    def __init__(self, candidate_id: object, *, include_id: bool = True) -> None:
+        self._candidate_id = candidate_id
+        self._include_id = include_id
+
+    def generate(
+        self,
+        history: list[Any],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        del history, current_best, context
+        payload: dict[str, Any] = {"cost": 1.0}
+        if self._include_id:
+            payload["candidate_id"] = self._candidate_id
+        return payload
+
+
+def _identity_service(
+    candidate_id: object,
+    *,
+    include_id: bool = True,
+) -> LegacySearchServiceAdapter:
+    return LegacySearchServiceAdapter(
+        SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=CompositeObjective([_CostObjective()]),
+            ),
+            candidate_generator=_IdentityGenerator(candidate_id, include_id=include_id),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"cost": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+    )
+
+
+@pytest.mark.parametrize("candidate_id", [0, ""])
+def test_native_service_rejects_explicit_falsy_candidate_id(candidate_id: object) -> None:
+    """Only an absent ID may use generated identity; falsy IDs must not be rewritten."""
+    service = _identity_service(candidate_id)
+
+    with pytest.raises(ValueError, match="explicit non-empty string"):
+        service.ask(goal=None, search_space=None, context={})
+
+
+def test_native_service_preserves_negative_string_candidate_id() -> None:
+    """A valid negative string remains the evaluator's identity."""
+    service = _identity_service("-1")
+
+    proposal = service.ask(goal=None, search_space=None, context={})[0]
+
+    assert proposal.candidate_id == "-1"
+    assert proposal.payload["candidate_id"] == "-1"
+
+
+def test_native_service_generates_id_only_when_candidate_id_is_absent() -> None:
+    """Generated IDs remain the fallback for payloads with no identity field."""
+    service = _identity_service(None, include_id=False)
+
+    proposal = service.ask(goal=None, search_space=None, context={})[0]
+
+    assert proposal.candidate_id == "candidate_0_0"
+    assert "candidate_id" not in proposal.payload
 
 
 class _RunnerEvaluator:

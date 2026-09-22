@@ -80,6 +80,31 @@ def _descendants_of_treatment(
     return visited
 
 
+def _ancestors_for_targets(
+    parents_map: Mapping[str, list[str]],
+    targets: Sequence[str],
+    *,
+    stop_nodes: set[str] | frozenset[str] = frozenset(),
+) -> set[str]:
+    """Return the graph-surgery closure needed for the requested targets.
+
+    A node in ``stop_nodes`` is retained as an active target, but its natural
+    parents are not traversed.  This models a perfect action replacing the
+    node's mechanism while retaining any other factual ancestors that feed the
+    requested outcome.
+    """
+    active: set[str] = set()
+    pending = list(targets)
+    while pending:
+        node = pending.pop()
+        if node in active or node not in parents_map:
+            continue
+        active.add(node)
+        if node not in stop_nodes:
+            pending.extend(parents_map.get(node, ()))
+    return active
+
+
 def _topological_order(scm_spec: StructuralCausalModelSpec) -> list[str]:
     if any(edge.lag not in (None, 0) for edge in scm_spec.graph.edges):
         raise ValueError(
@@ -238,35 +263,86 @@ def _linear_noise_std(mechanism: NodeMechanism) -> float:
     return std
 
 
-def _sample_stochastic_distribution(
-    *,
-    distribution: str,
-    rng: np.random.Generator,
-) -> float:
+@dataclass(frozen=True)
+class _StochasticDistribution:
+    """Validated stochastic law reused by every sample in one query arm."""
+
+    name: str
+    args: tuple[float, ...]
+
+
+def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistribution:
+    """Parse and validate a stochastic law before Monte Carlo sampling."""
+    if not isinstance(distribution, str):
+        raise ValueError(f"unsupported stochastic distribution: {distribution!r}")
     text = distribution.strip()
     match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_]*)\(([^)]*)\)", text)
     if match is None:
         raise ValueError(f"unsupported stochastic distribution format: {distribution!r}")
     name = match.group(1).lower()
     raw_args = [item.strip() for item in match.group(2).split(",") if item.strip()]
-    args = [float(item) for item in raw_args]
+    try:
+        args = tuple(float(item) for item in raw_args)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "stochastic distribution has non-numeric arguments: "
+            f"{distribution!r}"
+        ) from exc
+    if not all(math.isfinite(value) for value in args):
+        raise ValueError(f"stochastic distribution arguments must be finite: {distribution!r}")
 
-    if name == "normal" and len(args) == 2:
-        return float(rng.normal(loc=args[0], scale=max(args[1], 1.0e-12)))
-    if name == "uniform" and len(args) == 2:
-        lo, hi = sorted((args[0], args[1]))
+    expected_arity = {"normal": 2, "uniform": 2, "truncnorm": 4}.get(name)
+    if expected_arity is None or len(args) != expected_arity:
+        raise ValueError(f"unsupported stochastic distribution: {distribution!r}")
+    if name == "normal" and args[1] < 0.0:
+        raise ValueError("normal stochastic distribution requires non-negative scale")
+    if name == "truncnorm" and args[1] <= 0.0:
+        raise ValueError("truncnorm stochastic distribution requires positive scale")
+    return _StochasticDistribution(name=name, args=args)
+
+
+def _sample_stochastic_distribution(
+    *,
+    distribution: str | _StochasticDistribution,
+    rng: np.random.Generator,
+) -> float:
+    law = (
+        distribution
+        if isinstance(distribution, _StochasticDistribution)
+        else _resolve_stochastic_distribution(distribution)
+    )
+    if law.name == "normal":
+        mean, std = law.args
+        return float(rng.normal(loc=mean, scale=std))
+    if law.name == "uniform":
+        lo, hi = sorted(law.args)
         return float(rng.uniform(low=lo, high=hi))
-    if name == "truncnorm" and len(args) == 4:
-        mean, std, lo, hi = args
+    if law.name == "truncnorm":
+        mean, std, lo, hi = law.args
         lo, hi = sorted((lo, hi))
-        std = max(std, 1.0e-12)
-        for _ in range(200):
-            sample = float(rng.normal(loc=mean, scale=std))
-            if lo <= sample <= hi:
-                return sample
-        return float(np.clip(rng.normal(loc=mean, scale=std), lo, hi))
-
-    raise ValueError(f"unsupported stochastic distribution: {distribution!r}")
+        if lo == hi:
+            return lo
+        try:
+            from scipy.stats import truncnorm
+        except ImportError as exc:
+            raise ValueError("truncnorm stochastic intervention requires scipy") from exc
+        sample = float(
+            truncnorm.rvs(
+                (lo - mean) / std,
+                (hi - mean) / std,
+                loc=mean,
+                scale=std,
+                random_state=rng,
+            )
+        )
+        if not math.isfinite(sample):
+            raise ValueError("truncnorm sampler returned a non-finite value")
+        if sample <= lo:
+            return float(np.nextafter(lo, hi))
+        if sample >= hi:
+            return float(np.nextafter(hi, lo))
+        return sample
+    raise AssertionError(f"unreachable stochastic distribution {law.name!r}")
 
 
 def _apply_intervention(
@@ -276,6 +352,7 @@ def _apply_intervention(
     fallback_treatment_value: float | None,
     rng: np.random.Generator,
     warnings: list[str],
+    stochastic_law: _StochasticDistribution | None = None,
 ) -> float:
     if intervention_spec.type is InterventionType.ATOMIC:
         value = intervention_spec.value
@@ -301,23 +378,11 @@ def _apply_intervention(
             raise ValueError("stochastic intervention requires distribution")
         try:
             return _sample_stochastic_distribution(
-                distribution=intervention_spec.distribution,
+                distribution=stochastic_law or intervention_spec.distribution,
                 rng=rng,
             )
-        except Exception as exc:
-            if fallback_treatment_value is None:
-                raise ValueError(
-                    "stochastic intervention parsing failed and no atomic fallback is available: "
-                    f"{exc}"
-                ) from exc
-            _append_warning(
-                warnings,
-                (
-                    "stochastic intervention parsing failed; "
-                    f"falling back to atomic do(X={fallback_treatment_value})"
-                ),
-            )
-            return float(fallback_treatment_value)
+        except (ImportError, TypeError, ValueError) as exc:
+            raise ValueError(f"stochastic intervention law is invalid: {exc}") from exc
 
     raise ValueError(f"unsupported intervention type: {intervention_spec.type.value}")
 
@@ -922,25 +987,68 @@ def _attribution_comparator(query: CausalQuery) -> InterventionSpec | None:
     return query.contrast.comparator.intervention
 
 
+def _intervention_replaces_natural(intervention: InterventionSpec | None) -> bool:
+    """Whether an action replaces a node's natural mechanism entirely."""
+    return intervention is not None and intervention.type in {
+        InterventionType.ATOMIC,
+        InterventionType.STOCHASTIC,
+    }
+
+
+def _active_query_nodes(
+    scm_spec: StructuralCausalModelSpec,
+    query: CausalQuery,
+    *,
+    intervention: InterventionSpec | None,
+) -> set[str]:
+    """Build the active graph slice for one query arm.
+
+    The outcome and treatment are always retained.  Counterfactual factual
+    conditions are retained as additional targets.  A direct interventional
+    action cuts only the treatment's incoming natural mechanism; ancestors that
+    still feed the outcome through another path remain active.
+    """
+    parents_map = _parents_by_node(scm_spec)
+    targets = [query.outcome_variable, query.treatment_variable]
+    if query.query_type is QueryType.COUNTERFACTUAL:
+        targets.extend(query.condition)
+    stop_nodes: set[str] = set()
+    if query.query_type is not QueryType.COUNTERFACTUAL and _intervention_replaces_natural(
+        intervention
+    ):
+        stop_nodes.add(query.treatment_variable)
+    return _ancestors_for_targets(parents_map, targets, stop_nodes=stop_nodes)
+
+
 def _required_missing_root_nodes(
     scm_spec: StructuralCausalModelSpec,
     query: CausalQuery,
 ) -> list[str]:
     """Find roots whose natural law is required by any simulated query arm."""
-    roots = set(scm_spec.graph.nodes) - {
-        edge.dst for edge in scm_spec.graph.edges if edge.lag in (None, 0)
-    }
+    order = _topological_order(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
     interventions: list[InterventionSpec | None] = [_effective_intervention(query)]
     if query.query_type is QueryType.ATTRIBUTION:
         interventions.append(_attribution_comparator(query))
-    all_arms_atomic = all(
-        intervention is not None and intervention.type is InterventionType.ATOMIC
-        for intervention in interventions
+    active_nodes: set[str] = set()
+    for intervention in interventions:
+        active_nodes.update(
+            _active_query_nodes(
+                scm_spec,
+                query,
+                intervention=intervention,
+            )
+        )
+    parents_map = _parents_by_node(scm_spec)
+    roots = {
+        node for node in active_nodes if not parents_map.get(node)
+    }
+    all_arms_replace_natural = all(
+        _intervention_replaces_natural(intervention) for intervention in interventions
     )
     directly_intervened_root = (
         query.treatment_variable in roots
-        and all_arms_atomic
+        and all_arms_replace_natural
     )
     return sorted(
         root
@@ -961,6 +1069,7 @@ def _simulate_samples(
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
     allow_declared_hypothesis: bool = False,
+    include_all_nodes: bool = False,
     # Existing remediation consumers unpack two values; provenance is opt-in
     # for the owning GCM query path rather than a breaking helper change.
     return_diagnostic: bool = False,
@@ -968,13 +1077,34 @@ def _simulate_samples(
     tuple[np.ndarray, dict[str, np.ndarray]]
     | tuple[np.ndarray, dict[str, np.ndarray], _AbductionDiagnostic]
 ):
-    order = _topological_order(scm_spec)
+    full_order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
-    observed_root_samples = _observed_root_samples(mechanisms)
     condition = (
         dict(condition_override) if condition_override is not None else dict(query.condition)
     )
+    intervention = (
+        _effective_intervention(query)
+        if intervention_override is _INTERVENTION_UNSET
+        else intervention_override
+    )
+    if intervention is not None and not isinstance(intervention, InterventionSpec):
+        raise TypeError("intervention_override must be an InterventionSpec or None")
+    active_nodes = (
+        set(full_order)
+        if include_all_nodes
+        else _active_query_nodes(
+            scm_spec,
+            query,
+            intervention=intervention,
+        )
+    )
+    order = [node for node in full_order if node in active_nodes]
+    observed_root_samples = {
+        node: values
+        for node, values in _observed_root_samples(mechanisms).items()
+        if node in active_nodes
+    }
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
 
     linear_gaussian_posterior: _LinearGaussianPosterior | None = None
@@ -1008,13 +1138,12 @@ def _simulate_samples(
     else:
         abduced_noises = {}
 
-    intervention = (
-        _effective_intervention(query)
-        if intervention_override is _INTERVENTION_UNSET
-        else intervention_override
-    )
-    if intervention is not None and not isinstance(intervention, InterventionSpec):
-        raise TypeError("intervention_override must be an InterventionSpec or None")
+    stochastic_law = None
+    if intervention is not None and intervention.type is InterventionType.STOCHASTIC:
+        try:
+            stochastic_law = _resolve_stochastic_distribution(intervention.distribution or "")
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"stochastic intervention law is invalid: {exc}") from exc
     by_node: dict[str, list[float]] = {node: [] for node in order}
     outcome_values = np.zeros(n_samples, dtype=float)
 
@@ -1027,7 +1156,11 @@ def _simulate_samples(
         )
         root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
         for node in order:
-            parent_values = {parent: assignment[parent] for parent in parents_map.get(node, [])}
+            parent_values = {
+                parent: assignment[parent]
+                for parent in parents_map.get(node, [])
+                if parent in assignment
+            }
 
             if (
                 query.query_type is QueryType.COUNTERFACTUAL
@@ -1037,22 +1170,17 @@ def _simulate_samples(
             ):
                 value = float(condition[node])
             else:
-                mechanism = mechanisms.get(node)
-                noise_override = (
-                    sample_abduced_noises.get(node)
-                    if query.query_type is QueryType.COUNTERFACTUAL
-                    else None
-                )
-                if (
-                    mechanism is None
-                    and node == query.treatment_variable
-                    and intervention is not None
-                    and intervention.type is InterventionType.ATOMIC
+                if node == query.treatment_variable and _intervention_replaces_natural(
+                    intervention
                 ):
-                    # An explicit do(X=x) fully determines a missing root's
-                    # natural law for this query.
                     value = 0.0
                 else:
+                    mechanism = mechanisms.get(node)
+                    noise_override = (
+                        sample_abduced_noises.get(node)
+                        if query.query_type is QueryType.COUNTERFACTUAL
+                        else None
+                    )
                     value = _sample_node_value(
                         mechanism=mechanism,
                         parent_values=parent_values,
@@ -1065,13 +1193,18 @@ def _simulate_samples(
                     )
 
             if node == query.treatment_variable and intervention is not None:
-                baseline = float(condition[node]) if node in condition else float(value)
+                baseline = (
+                    0.0
+                    if _intervention_replaces_natural(intervention)
+                    else float(condition[node]) if node in condition else float(value)
+                )
                 value = _apply_intervention(
                     current_value=baseline,
                     intervention_spec=intervention,
                     fallback_treatment_value=query.effective_treatment_value,
                     rng=rng,
                     warnings=warnings,
+                    stochastic_law=stochastic_law,
                 )
 
             assignment[node] = float(value)
@@ -1163,6 +1296,7 @@ def _build_dowhy_comparison(
             warnings=warnings,
             intervention_override=None,
             condition_override={},
+            include_all_nodes=True,
         )
         frame = pd.DataFrame({node: node_samples[node] for node in scm_spec.graph.nodes})
         treatment_col = query.treatment_variable

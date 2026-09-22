@@ -52,22 +52,37 @@ def _complete_current_manifest(**extra: Any) -> dict[str, Any]:
 
 
 def test_fabric_owner_exposes_manifest_converter_without_fabricating_fields() -> None:
-    """The moved converter preserves the 0.9 rename/stamp contract only."""
+    """The moved callback preserves the 0.9 rename contract only."""
     from polisyos.fabric.identity.migrations import (
-        MANIFEST_CURRENT_VERSION,
         migrate_manifest_0_9_to_1_0,
     )
 
     source = _legacy_manifest(unknown_field={"keep": True})
     migrated = migrate_manifest_0_9_to_1_0(source)
 
-    assert source == _legacy_manifest(unknown_field={"keep": True})
     assert migrated == {
-        "schema_version": MANIFEST_CURRENT_VERSION,
+        "schema_version": "0.9",
         "dataset_name": "baseline",
         "raw_hash": "sha256:abc",
         "unknown_field": {"keep": True},
     }
+    assert "created_at" not in migrated
+
+
+def test_missing_legacy_fields_are_not_fabricated() -> None:
+    """The callback leaves absent raw hash and timestamp fields absent."""
+    from polisyos.fabric.identity.migrations import migrate_manifest_0_9_to_1_0
+
+    source = _legacy_manifest()
+    del source["rawHash"]
+
+    migrated = migrate_manifest_0_9_to_1_0(source)
+
+    assert migrated == {
+        "schema_version": "0.9",
+        "dataset_name": "baseline",
+    }
+    assert "raw_hash" not in migrated
     assert "created_at" not in migrated
 
 
@@ -105,6 +120,67 @@ def test_alias_conflict_is_not_presented_as_a_validated_fabric_manifest() -> Non
         DatasetManifest.model_validate(migrated)
 
 
+def test_complete_legacy_manifest_remains_validatable_by_fabric_dto() -> None:
+    """A complete legacy profile can be validated after alias conversion."""
+    from polisyos.fabric.identity.manifest import DatasetManifest
+    from polisyos.fabric.identity.migrations import migrate_manifest_0_9_to_1_0
+
+    migrated = migrate_manifest_0_9_to_1_0(_complete_current_manifest())
+
+    model = DatasetManifest.model_validate(migrated)
+    assert model.dataset_name == "baseline"
+    assert model.raw_hash == "sha256:abc"
+    assert model.created_at == "2026-09-22T00:00:00+00:00"
+
+
+def test_common_engine_preserves_current_noop_and_schema_errors() -> None:
+    """The shared engine owns stamping, no-op copies, and schema errors."""
+    from polisyos.common.migrations.base import migrate_artifact
+    from polisyos.fabric.identity.migrations import register_manifest_migration
+
+    register_manifest_migration()
+    current = {
+        "schema_version": "1.0",
+        "dataset_name": "baseline",
+        "raw_hash": "sha256:abc",
+    }
+
+    migrated = migrate_artifact(current, "dataset_manifest", "1.0")
+
+    assert migrated == current
+    assert migrated is not current
+    legacy = _legacy_manifest()
+    legacy_before = legacy.copy()
+    migrated_legacy = migrate_artifact(legacy, "dataset_manifest", "1.0")
+    assert legacy == legacy_before
+    assert migrated_legacy["schema_version"] == "1.0"
+    with pytest.raises(ValueError, match="Missing schema_version"):
+        migrate_artifact({"datasetName": "baseline"}, "dataset_manifest", "1.0")
+    with pytest.raises(TypeError, match="must be a string"):
+        migrate_artifact(
+            {"schema_version": 0.9, "datasetName": "baseline"},
+            "dataset_manifest",
+            "1.0",
+        )
+    with pytest.raises(ValueError, match="No migrator"):
+        migrate_artifact(_legacy_manifest(), "dataset_manifest", "2.0")
+
+
+def test_legacy_common_adapter_matches_fabric_callback_profile() -> None:
+    """The bounded compatibility duplicate keeps the supported rename equal."""
+    from polisyos.common.migrations.manifest import (
+        migrate_manifest_0_9_to_1_0 as common_converter,
+    )
+    from polisyos.fabric.identity.migrations import (
+        migrate_manifest_0_9_to_1_0 as fabric_converter,
+    )
+
+    common_payload = _legacy_manifest(unknown_field={"keep": True})
+    fabric_payload = _legacy_manifest(unknown_field={"keep": True})
+
+    assert common_converter(common_payload) == fabric_converter(fabric_payload)
+
+
 def test_explicit_fabric_registration_is_required_for_common_engine() -> None:
     """The generic Common engine stays neutral until composition registers Fabric."""
     code = """
@@ -140,6 +216,31 @@ def test_common_migrations_import_does_not_eagerly_import_fabric() -> None:
     code = """
 import sys
 import polisyos.common.migrations
+from polisyos.common.migrations import MANIFEST_CURRENT_VERSION
+assert MANIFEST_CURRENT_VERSION == "1.0"
+assert "polisyos.fabric" not in sys.modules
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+
+
+def test_legacy_common_adapter_registers_without_importing_fabric() -> None:
+    """The deprecated import path stays a local compatibility registration."""
+    code = """
+import sys
+from polisyos.common.migrations.manifest import migrate_manifest_0_9_to_1_0
+
+payload = {"schema_version": "0.9", "datasetName": "baseline", "rawHash": "sha256:abc"}
+assert migrate_manifest_0_9_to_1_0(payload) == {
+    "schema_version": "0.9",
+    "dataset_name": "baseline",
+    "raw_hash": "sha256:abc",
+}
 assert "polisyos.fabric" not in sys.modules
 """
     completed = subprocess.run(
@@ -168,7 +269,6 @@ def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
     suffix: str,
 ) -> None:
     """The operational CLI keeps format selection and output isolation intact."""
-    yaml = pytest.importorskip("yaml")
     from tools.ops_runners.migrations.migrate import main as canonical_main
 
     payload = _legacy_manifest()
@@ -177,6 +277,7 @@ def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
     if suffix == ".json":
         input_path.write_text(json.dumps(payload), encoding="utf-8")
     else:
+        yaml = pytest.importorskip("yaml")
         input_path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
     output_path.write_text("sentinel\n", encoding="utf-8")
 
@@ -186,6 +287,7 @@ def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
         observed = json.loads(output_path.read_text(encoding="utf-8"))
         assert json.loads(input_path.read_text(encoding="utf-8")) == payload
     else:
+        yaml = pytest.importorskip("yaml")
         observed = yaml.safe_load(output_path.read_text(encoding="utf-8"))
         assert yaml.safe_load(input_path.read_text(encoding="utf-8")) == payload
     assert observed == {
@@ -196,7 +298,9 @@ def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
 
 
 def test_operational_binding_points_to_fabric_converter() -> None:
-    """The TOML binding names the actual schema-owner converter."""
+    """The TOML binding resolves and exercises the schema-owner converter."""
+    import importlib
+
     from tools.ops_runners.migrations.contracts import validate_helper_binding
 
     binding = validate_helper_binding("dataset_manifest")
@@ -204,4 +308,10 @@ def test_operational_binding_points_to_fabric_converter() -> None:
     assert binding.implementation == (
         "polisyos.fabric.identity.migrations.migrate_manifest_0_9_to_1_0"
     )
-
+    module_name, function_name = binding.implementation.rsplit(".", 1)
+    converter = getattr(importlib.import_module(module_name), function_name)
+    assert converter(_legacy_manifest()) == {
+        "schema_version": "0.9",
+        "dataset_name": "baseline",
+        "raw_hash": "sha256:abc",
+    }

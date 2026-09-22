@@ -71,6 +71,11 @@ Run commands from the repository root `policy-engine/`.
 - Smoke-tested:
   `PYTHONPATH=src:. uv run python -c "from polisyos.common.migrations.manifest import MANIFEST_CURRENT_VERSION; print(MANIFEST_CURRENT_VERSION)"`
 
+The legacy manifest import above is a deprecated compatibility adapter.  The
+schema-owner converter is
+`polisyos.fabric.identity.migrations.migrate_manifest_0_9_to_1_0`; generic
+Common migration imports stay Fabric-neutral.
+
 ## Tests
 
 Run commands from the repository root `policy-engine/`.

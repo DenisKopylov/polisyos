@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 from collections.abc import Callable, Mapping
 from contextvars import ContextVar
 from pathlib import Path
@@ -401,9 +402,27 @@ CycleControllerFactory = Callable[[str, DesignProblem], GenerationCycleControlle
 
 
 class DepthNStrangleReceipt(_StrictModel):
-    """Live caller census proving the fixed GY-G recursive fixture is gone."""
+    """Live, source-bound caller census for the depth-N recursive route.
 
-    status: Literal["strangled", "drift"]
+    A caller census is positive evidence only when the controlled source slice
+    was present and parsed successfully. Missing source or a parse failure is
+    therefore represented separately from a real prohibited caller; both are
+    non-positive outcomes, but they require different remediation.
+    """
+
+    status: Literal["strangled", "drift", "not_established"]
+    source_state: Literal[
+        "available",
+        "missing",
+        "parse_error",
+        "read_error",
+        "not_established",
+    ]
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    parse_errors: tuple[str, ...] = ()
     default_controller: str
     predecessor_symbols: tuple[str, ...]
     production_fixture_callers: tuple[str, ...]
@@ -416,17 +435,51 @@ class DepthNStrangleReceipt(_StrictModel):
 def recompute_depth_n_strangle_receipt(
     repo_root: Path | None = None,
 ) -> DepthNStrangleReceipt:
-    """Census executable source for surviving GY-G fixture definitions or calls."""
+    """Census the controlled source slice and surviving fixture callers.
 
-    root = (repo_root or Path.cwd()).resolve()
+    The receipt binds successful results to the bytes of ``src/polisyos``
+    Python files. It deliberately withholds a source hash when the slice is
+    absent, unreadable, or contains syntax errors, because a partial census is
+    not evidence that the legacy caller is gone.
+    """
+
+    if repo_root is None:
+        return DepthNStrangleReceipt(
+            status="not_established",
+            source_state="not_established",
+            source_content_hash=None,
+            parse_errors=(),
+            default_controller="unresolved",
+            predecessor_symbols=tuple(sorted(_LEGACY_RECURSIVE_FIXTURE_SYMBOLS)),
+            production_fixture_callers=(),
+            production_default_routes=(),
+        )
+    root = repo_root.resolve()
     source_root = root / "src/polisyos"
     callers: list[str] = []
     default_routes: list[str] = []
+    parse_errors: list[str] = []
+    source_files: dict[str, str] = {}
+    if not source_root.is_dir():
+        return DepthNStrangleReceipt(
+            status="not_established",
+            source_state="missing",
+            source_content_hash=None,
+            parse_errors=(),
+            default_controller="unresolved",
+            predecessor_symbols=tuple(sorted(_LEGACY_RECURSIVE_FIXTURE_SYMBOLS)),
+            production_fixture_callers=(),
+            production_default_routes=(),
+        )
+
     for path in sorted(source_root.rglob("*.py")):
+        relative = path.relative_to(root).as_posix()
         try:
-            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        except (OSError, SyntaxError) as exc:
-            callers.append(f"{path.relative_to(root)}:parse_error:{type(exc).__name__}")
+            raw = path.read_bytes()
+            source_files[relative] = "sha256:" + hashlib.sha256(raw).hexdigest()
+            tree = ast.parse(raw.decode("utf-8"), filename=str(path))
+        except (OSError, UnicodeDecodeError, SyntaxError) as exc:
+            parse_errors.append(f"{relative}:parse_error:{type(exc).__name__}")
             continue
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and (
@@ -446,8 +499,29 @@ def recompute_depth_n_strangle_receipt(
                 default_routes.append(f"{path.relative_to(root)}:{node.lineno}:call:{symbol}")
     ordered = tuple(sorted(set(callers)))
     routes = tuple(sorted(set(default_routes)))
+    ordered_parse_errors = tuple(sorted(set(parse_errors)))
+    if ordered_parse_errors:
+        source_state: Literal["available", "missing", "parse_error", "read_error"] = (
+            "read_error"
+            if any(item.rsplit(":", 1)[-1] == "OSError" for item in ordered_parse_errors)
+            else "parse_error"
+        )
+        source_content_hash = None
+        status: Literal["strangled", "drift", "not_established"] = "not_established"
+    else:
+        source_state = "available"
+        source_content_hash = gy_content_hash(
+            {
+                "scope": "src/polisyos",
+                "files": dict(sorted(source_files.items())),
+            }
+        )
+        status = "drift" if ordered or not routes else "strangled"
     return DepthNStrangleReceipt(
-        status="strangled" if not ordered and routes else "drift",
+        status=status,
+        source_state=source_state,
+        source_content_hash=source_content_hash,
+        parse_errors=ordered_parse_errors,
         default_controller=(RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF if routes else "unresolved"),
         predecessor_symbols=tuple(sorted(_LEGACY_RECURSIVE_FIXTURE_SYMBOLS)),
         production_fixture_callers=ordered,
@@ -648,7 +722,7 @@ class RecursiveGenerationCycleController:
             )
         ):
             raise ValueError("recursive_epoch_dependencies_must_be_runtime_derived")
-        self._repo_root = (repo_root or Path.cwd()).resolve()
+        self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._leaf_model_id = model_id
         self._promotion_runtime = promotion_runtime
         self._eval_safety_verifier = eval_safety_verifier
@@ -839,7 +913,7 @@ class RecursiveGenerationCycleController:
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
-                issues = validate_generation_cycle_run(cycle_run)
+                issues = validate_generation_cycle_run(cycle_run, repo_root=self._repo_root)
                 if issues:
                     raise RecursiveGenerationCycleError(
                         "recursive_leaf_generation_cycle_invalid",

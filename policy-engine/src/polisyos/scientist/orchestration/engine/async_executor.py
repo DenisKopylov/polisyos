@@ -13,10 +13,11 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
@@ -62,9 +63,21 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
-from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutation,
+    StateMutationJournal,
+    branch_state,
+    mutation_journal_for_state,
+    mutation_journal_from_operations,
+    snapshot_state,
+)
 from polisyos.scientist.orchestration.engine.state_merge import (
     MergeConflict,
     MergeConflictPolicy,
@@ -91,6 +104,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _module_logger = get_logger(__name__)
+_READINESS_MISSING = object()
 
 
 def _executor_degraded(
@@ -420,11 +434,256 @@ class AsyncWorkflowExecutor:
                         workflow_id=workflow.workflow_id,
                     )
 
+        async def _execute_readiness() -> None:
+            """Run the bounded, explicit-dependency readiness schedule.
+
+            This path is intentionally narrower than the tier executor.  It
+            is selected only for continuation workflows without checkpoint or
+            provenance hooks, and only after declared unordered state access
+            has been proven disjoint.  Every successful completion is merged
+            before its successors are admitted, so a successor observes the
+            committed state of its explicit predecessors.
+            """
+            nonlocal state
+            order = list(invocations)
+            pending = set(order)
+            settled: set[str] = set()
+            running: dict[
+                str,
+                asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
+            ] = {}
+            launch_baselines: dict[str, ExperimentState] = {}
+            records_by_alias: dict[str, NodeRunRecord] = {}
+            tier_by_alias = {
+                alias: tier_index
+                for tier_index, tier in enumerate(tiers)
+                for alias in tier
+            }
+            tier_members = {tier_index: set(tier) for tier_index, tier in enumerate(tiers)}
+            tier_started_at: dict[int, float] = {}
+            tier_finished_at: dict[int, float] = {}
+
+            def _skip_record(alias: str) -> NodeRunRecord:
+                invocation = invocations[alias]
+                return NodeRunRecord(
+                    alias=alias,
+                    node_id=str(invocation.node_id),
+                    status="skip",
+                    duration_ms=0,
+                    skip_reason="upstream_failed",
+                    skip_blocker=_skip_blocker_for_engine_skip(
+                        alias=alias,
+                        node_id=str(invocation.node_id),
+                        skip_reason="upstream_failed",
+                        missing_input="upstream_dependency",
+                        phase="dependency_resolution",
+                    ),
+                )
+
+            try:
+                while pending or running:
+                    progressed = False
+
+                    # Resolve known failed branches before admitting any new
+                    # work.  A skipped node remains a settled dependency, as
+                    # in the existing tier executor; only failures block its
+                    # descendants.
+                    for alias in order:
+                        if alias not in pending:
+                            continue
+                        if any(
+                            dep in failed or dep in blocked
+                            for dep in invocations[alias].depends_on
+                        ):
+                            pending.remove(alias)
+                            blocked.add(alias)
+                            settled.add(alias)
+                            records_by_alias[alias] = _skip_record(alias)
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_SKIP",
+                                metrics={"duration_ms": 0, "status_ok": 0},
+                            )
+                            progressed = True
+
+                    ready = [
+                        alias
+                        for alias in order
+                        if alias in pending
+                        and all(dep in settled for dep in invocations[alias].depends_on)
+                        and not any(
+                            dep in failed or dep in blocked
+                            for dep in invocations[alias].depends_on
+                        )
+                    ]
+                    for alias in ready:
+                        if len(running) >= self._max_parallelism:
+                            break
+                        pending.remove(alias)
+                        tier_index = tier_by_alias[alias]
+                        tier_started_at.setdefault(tier_index, time.perf_counter())
+                        launch_baseline, execution_input = self._readiness_launch_pair(state)
+                        launch_baselines[alias] = launch_baseline
+                        running[alias] = asyncio.create_task(
+                            self._execute_node(
+                                alias,
+                                invocations[alias],
+                                execution_input,
+                                workflow,
+                                tier_index=tier_index,
+                            )
+                        )
+                        progressed = True
+
+                    if running:
+                        done, _ = await asyncio.wait(
+                            tuple(running.values()),
+                            return_when=asyncio.FIRST_COMPLETED,
+                        )
+                        for alias in order:
+                            task = running.get(alias)
+                            if task is None or task not in done:
+                                continue
+                            del running[alias]
+                            launch_baseline = launch_baselines.pop(alias, None)
+                            outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
+                            record = NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status=outcome.status,
+                                duration_ms=duration_ms,
+                                artifacts=list(outcome.artifacts),
+                                error=outcome.error,
+                                skip_reason=(
+                                    _outcome_skip_reason(outcome)
+                                    if outcome.status == "skip"
+                                    else None
+                                ),
+                                skip_blocker=_skip_blocker_for_outcome(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    outcome=outcome,
+                                ),
+                            )
+                            records_by_alias[alias] = record
+
+                            if outcome.status == "ok":
+                                node = self._registry.get(invocations[alias].node_id)
+                                write_specs = list(node.spec.state_writes)
+                                try:
+                                    merge_outcome, merge_journal = (
+                                        self._prepare_readiness_outcome(
+                                            outcome,
+                                            launch_baseline,
+                                            write_specs,
+                                        )
+                                    )
+                                except StateReplayIncompatible as exc:
+                                    record.status = "fail"
+                                    record.error = NodeError(
+                                        code="node.readiness_state_write",
+                                        message=(
+                                            "Readiness completion changed state outside "
+                                            "its declared write paths"
+                                        ),
+                                        details={
+                                            "path": exc.path,
+                                            "reason": exc.reason,
+                                        },
+                                    )
+                                    failed.add(alias)
+                                else:
+                                    merge_result = merge_parallel_outcomes(
+                                        state,
+                                        {alias: merge_outcome},
+                                        {alias: write_specs},
+                                        conflict_policy=self._merge_conflict_policy,
+                                        mutation_journals={alias: merge_journal},
+                                    )
+                                    if merge_result.conflicts:
+                                        conflict_ref = await self._persist_parallel_merge_conflict(
+                                            workflow_id=workflow.workflow_id,
+                                            tier_index=tier_by_alias[alias],
+                                            conflicts=merge_result.conflict_details,
+                                            aliases=[alias],
+                                        )
+                                        record.status = "fail"
+                                        record.error = NodeError(
+                                            code="node.readiness_merge_conflict",
+                                            message=(
+                                                "Readiness completion produced a conflicting "
+                                                "state write"
+                                            ),
+                                            details={
+                                                "tier_index": tier_by_alias[alias],
+                                                "conflict_paths": [
+                                                    conflict.path
+                                                    for conflict in merge_result.conflict_details
+                                                ],
+                                                "conflict_policy": self._merge_conflict_policy.value,
+                                            },
+                                        )
+                                        if conflict_ref is not None:
+                                            record.artifacts.append(conflict_ref)
+                                        failed.add(alias)
+                                    else:
+                                        state = merge_result.state
+                                        settled.add(alias)
+                                        completed_nodes.append(alias)
+                            elif outcome.status == "fail":
+                                failed.add(alias)
+                            else:
+                                settled.add(alias)
+                                condition_skipped.add(alias)
+                            progressed = True
+
+                    if not running and pending and not progressed:
+                        # topo_sort_tiers already rejects cycles.  Reaching
+                        # this branch means a future dependency state was not
+                        # represented by the explicit graph, so fail closed.
+                        raise RuntimeError("Readiness scheduler made no progress")
+
+                terminal = settled | failed | blocked
+                for tier_index, members in tier_members.items():
+                    if not members or not members.issubset(terminal):
+                        continue
+                    started_at = tier_started_at.get(tier_index)
+                    if started_at is None:
+                        continue
+                    tier_finished_at[tier_index] = time.perf_counter()
+                if self._ctx.metrics is not None:
+                    for tier_index, members in tier_members.items():
+                        started_at = tier_started_at.get(tier_index)
+                        finished_at = tier_finished_at.get(tier_index)
+                        if started_at is None or finished_at is None:
+                            continue
+                        self._ctx.metrics.record_tier_completed(
+                            tier_index=tier_index,
+                            tier_size=len(members),
+                            duration_ms=int((finished_at - started_at) * 1000),
+                            workflow_id=workflow.workflow_id,
+                        )
+            finally:
+                if running:
+                    tasks = tuple(running.values())
+                    for task in tasks:
+                        task.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+
+            records.extend(
+                records_by_alias[alias] for alias in order if alias in records_by_alias
+            )
+
         # Execute tiers with optional workflow-level timeout
+        execution_body = (
+            _execute_readiness
+            if self._can_use_readiness_schedule(workflow, invocations)
+            else _execute_tiers
+        )
         if self._workflow_timeout_s is not None:
             try:
                 await asyncio.wait_for(
-                    _execute_tiers(),
+                    execution_body(),
                     timeout=self._workflow_timeout_s,
                 )
             except TimeoutError as exc:
@@ -433,7 +692,7 @@ class AsyncWorkflowExecutor:
                     f"timeout of {self._workflow_timeout_s}s",
                 ) from exc
         else:
-            await _execute_tiers()
+            await execution_body()
 
         overall_status = "fail" if failed else "ok"
         if self._ctx.metrics is not None:
@@ -499,6 +758,383 @@ class AsyncWorkflowExecutor:
         )
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
+
+    def _can_use_readiness_schedule(
+        self,
+        workflow: WorkflowSpec,
+        invocations: dict[str, NodeInvocation],
+    ) -> bool:
+        """Return whether the conservative readiness path is applicable.
+
+        The existing tier loop remains the authority for workflows whose
+        semantics depend on a tier-wide checkpoint, rollback, condition
+        evaluation, semaphore timeout, or deterministic provenance order.  A
+        readiness schedule is therefore limited to a continuation workflow
+        with declared state access and no checkpoint hook.  Pairwise state
+        read/write checks reject an otherwise apparently independent node when
+        its outcome could depend on an unordered mutable access.
+        """
+        if workflow.error_policy != "continue":
+            return False
+        if self._checkpoint_hook is not None:
+            return False
+        if self._semaphore_timeout_s is not None:
+            return False
+        if self._provenance_dag is not None:
+            return False
+        if self._compensation_hook is not None:
+            return False
+        if any(inv.condition is not None for inv in invocations.values()):
+            return False
+
+        state_access: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {}
+        for alias, inv in invocations.items():
+            node = self._registry.get(inv.node_id)
+            spec = getattr(node, "spec", None)
+            if not isinstance(spec, NodeSpec):
+                return False
+            reads = getattr(spec, "state_reads", None)
+            writes = getattr(spec, "state_writes", None)
+            if not isinstance(reads, (list, tuple)) or not isinstance(
+                writes, (list, tuple)
+            ):
+                return False
+            if any(
+                not isinstance(path, str) or not path for path in (*reads, *writes)
+            ):
+                return False
+            state_access[alias] = (
+                tuple(
+                    tuple(part for part in path.split(".") if part) for path in reads
+                ),
+                tuple(
+                    tuple(part for part in path.split(".") if part) for path in writes
+                ),
+            )
+
+        ancestors = self._readiness_ancestors(invocations)
+        aliases = list(invocations)
+        for index, left_alias in enumerate(aliases):
+            left_reads, left_writes = state_access[left_alias]
+            for right_alias in aliases[index + 1 :]:
+                # An explicit transitive dependency gives the scheduler an
+                # ordering edge.  All unordered state access must be proven
+                # disjoint before early release is allowed.
+                if (
+                    right_alias in ancestors[left_alias]
+                    or left_alias in ancestors[right_alias]
+                ):
+                    continue
+                right_reads, right_writes = state_access[right_alias]
+                if any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in left_writes
+                    for right in right_writes
+                ):
+                    return False
+                if any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in left_writes
+                    for right in right_reads
+                ) or any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in right_writes
+                    for right in left_reads
+                ):
+                    return False
+        return True
+
+    @staticmethod
+    def _readiness_ancestors(
+        invocations: dict[str, NodeInvocation],
+    ) -> dict[str, set[str]]:
+        """Return the transitive explicit dependency set for each alias."""
+        ancestors: dict[str, set[str]] = {alias: set() for alias in invocations}
+        for alias in invocations:
+            stack = list(invocations[alias].depends_on)
+            while stack:
+                dependency = stack.pop()
+                if dependency in ancestors[alias]:
+                    continue
+                ancestors[alias].add(dependency)
+                stack.extend(invocations[dependency].depends_on)
+        return ancestors
+
+    @staticmethod
+    def _readiness_paths_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
+        """Return whether two declared state paths overlap by containment."""
+        shortest = min(len(left), len(right))
+        return left[:shortest] == right[:shortest]
+
+    @staticmethod
+    def _readiness_launch_pair(
+        state: ExperimentState,
+    ) -> tuple[ExperimentState, ExperimentState]:
+        """Return an immutable launch baseline and a fresh execution input."""
+        launch_baseline = snapshot_state(state)
+        # A blank branch journal prevents inherited completion journals from
+        # becoming part of a later sibling's returned snapshot.  The real node
+        # path adds its own declared-write journal before executing.
+        # Start that branch from a second full snapshot: branch_state() only
+        # copies mutable top-level mappings eagerly, so using ``state`` here
+        # would leave nested containers shared with both the committed state
+        # and launch_baseline.
+        execution_input = branch_state(
+            snapshot_state(state),
+            write_paths=(),
+        ).state
+        return launch_baseline, execution_input
+
+    @classmethod
+    def _prepare_readiness_outcome(
+        cls,
+        outcome: NodeOutcome,
+        launch_baseline: ExperimentState | None,
+        write_specs: list[str],
+    ) -> tuple[NodeOutcome, StateMutationJournal | None]:
+        """Bind one completion to its exact declared state delta.
+
+        Journaled production branches replay only operations under declared
+        paths.  Unjournaled adapters are rebased against the immutable launch
+        baseline and receive a synthetic exact-path journal.  Any remaining
+        state difference is an undeclared write and fails closed.
+        """
+        if launch_baseline is None:
+            raise StateReplayIncompatible(
+                "readiness",
+                "launch baseline was not retained for completion",
+            )
+
+        journal = mutation_journal_for_state(outcome.state)
+        merge_journal = (
+            cls._readiness_merge_journal(outcome.state, write_specs)
+            if journal is not None and journal.operations
+            else cls._readiness_synthetic_journal(
+                launch_baseline,
+                outcome.state,
+                write_specs,
+            )
+        )
+        rebased = merge_parallel_outcomes(
+            launch_baseline,
+            {"readiness": outcome},
+            {"readiness": write_specs},
+            mutation_journals={"readiness": merge_journal},
+        )
+        if rebased.conflicts:
+            raise StateReplayIncompatible(
+                "state",
+                "completion produced a conflicting declared write",
+            )
+        # Pydantic model equality includes private attributes.  A replayed
+        # branch may therefore compare unequal solely because it carries a
+        # different mutation journal, even when every public state field is
+        # identical.  Ownership checks must compare the semantic state only.
+        if cls._readiness_public_state(rebased.state) != cls._readiness_public_state(
+            outcome.state
+        ):
+            difference = cls._readiness_first_difference(rebased.state, outcome.state)
+            raise StateReplayIncompatible(
+                difference or "state",
+                "completion changed an undeclared state path",
+            )
+        return outcome.model_copy(update={"state": rebased.state}), merge_journal
+
+    @staticmethod
+    def _readiness_merge_journal(
+        outcome_state: ExperimentState,
+        write_specs: list[str],
+    ) -> StateMutationJournal | None:
+        """Return a branch journal only when every operation is declared."""
+        journal = mutation_journal_for_state(outcome_state)
+        if journal is None or not journal.operations:
+            return None
+
+        write_parts = [
+            tuple(part for part in path.split(".") if part)
+            for path in write_specs
+            if isinstance(path, str) and path
+        ]
+        if not write_parts:
+            raise StateReplayIncompatible(
+                journal.operations[0].path,
+                "journal operation is outside declared write paths",
+            )
+
+        owned_operations = []
+        for operation in journal.operations:
+            operation_parts = tuple(
+                part for part in operation.path.split(".") if part
+            )
+            if any(
+                len(write_path) <= len(operation_parts)
+                and write_path == operation_parts[: len(write_path)]
+                for write_path in write_parts
+            ):
+                owned_operations.append(operation)
+        if len(owned_operations) != len(journal.operations):
+            undeclared = next(
+                operation
+                for operation in journal.operations
+                if operation not in owned_operations
+            )
+            raise StateReplayIncompatible(
+                undeclared.path,
+                "journal operation is outside declared write paths",
+            )
+        return mutation_journal_from_operations(owned_operations)
+
+    @classmethod
+    def _readiness_synthetic_journal(
+        cls,
+        baseline_state: ExperimentState,
+        outcome_state: ExperimentState,
+        write_specs: list[str],
+    ) -> StateMutationJournal | None:
+        """Build exact nested-path operations for an unjournaled result."""
+        operations: list[StateMutation] = []
+        for path in cls._readiness_normalize_paths(write_specs):
+            # Top-level mapping writes retain the established value-delta
+            # handling in state_merge; nested paths get an exact journal so a
+            # stale sibling mapping is never promoted to the write root.
+            if len(path) < 2:
+                continue
+            baseline_value = cls._readiness_get_path(baseline_state, path)
+            outcome_value = cls._readiness_get_path(outcome_state, path)
+            if baseline_value == outcome_value:
+                continue
+            if outcome_value is _READINESS_MISSING:
+                if baseline_value is _READINESS_MISSING:
+                    continue
+                operations.append(
+                    StateMutation(
+                        path=".".join(path),
+                        operation="delete",
+                        target_presence="present",
+                        target_kind=cls._readiness_target_kind(baseline_value),
+                    )
+                )
+                continue
+            operations.append(
+                StateMutation(
+                    path=".".join(path),
+                    operation="set",
+                    value=deepcopy(outcome_value),
+                    target_presence=(
+                        "missing"
+                        if baseline_value is _READINESS_MISSING
+                        else "present"
+                    ),
+                    target_kind=cls._readiness_target_kind(baseline_value),
+                )
+            )
+        if not operations:
+            return None
+        return mutation_journal_from_operations(operations)
+
+    @staticmethod
+    def _readiness_normalize_paths(write_specs: list[str]) -> list[tuple[str, ...]]:
+        paths = sorted(
+            {
+                tuple(part for part in path.split(".") if part)
+                for path in write_specs
+                if isinstance(path, str) and path
+            }
+        )
+        normalized: list[tuple[str, ...]] = []
+        for path in paths:
+            if any(
+                len(existing) <= len(path) and existing == path[: len(existing)]
+                for existing in normalized
+            ):
+                continue
+            normalized.append(path)
+        return normalized
+
+    @staticmethod
+    def _readiness_get_path(root: Any, path: tuple[str, ...]) -> Any:
+        current = root
+        for part in path:
+            if isinstance(current, BaseModel):
+                if not hasattr(current, part):
+                    return _READINESS_MISSING
+                current = getattr(current, part)
+            elif isinstance(current, dict):
+                if part not in current:
+                    return _READINESS_MISSING
+                current = current[part]
+            elif isinstance(current, list):
+                try:
+                    current = current[int(part)]
+                except (IndexError, TypeError, ValueError):
+                    return _READINESS_MISSING
+            else:
+                return _READINESS_MISSING
+        return current
+
+    @staticmethod
+    def _readiness_target_kind(value: Any) -> str:
+        if value is _READINESS_MISSING:
+            return "missing"
+        if isinstance(value, dict):
+            return "dict"
+        if isinstance(value, list):
+            return "list"
+        if isinstance(value, set):
+            return "set"
+        if isinstance(value, BaseModel):
+            return "model"
+        return "scalar"
+
+    @staticmethod
+    def _readiness_first_difference(left: ExperimentState, right: ExperimentState) -> str | None:
+        left_public = AsyncWorkflowExecutor._readiness_public_state(left)
+        right_public = AsyncWorkflowExecutor._readiness_public_state(right)
+        if left_public == right_public:
+            return None
+        return AsyncWorkflowExecutor._readiness_difference_path(
+            left_public,
+            right_public,
+        ) or "state"
+
+    @staticmethod
+    def _readiness_public_state(state: ExperimentState) -> dict[str, Any]:
+        """Return only public semantic fields, excluding branch journals."""
+        return state.model_dump(mode="python")
+
+    @staticmethod
+    def _readiness_difference_path(left: Any, right: Any, path: str = "") -> str | None:
+        """Return the first public state path whose values differ."""
+        if isinstance(left, dict) and isinstance(right, dict):
+            for key in sorted(set(left) | set(right), key=str):
+                child_path = f"{path}.{key}" if path else str(key)
+                if key not in left or key not in right:
+                    return child_path
+                difference = AsyncWorkflowExecutor._readiness_difference_path(
+                    left[key],
+                    right[key],
+                    child_path,
+                )
+                if difference is not None:
+                    return difference
+            return None
+        if isinstance(left, list) and isinstance(right, list):
+            for index, (left_item, right_item) in enumerate(zip(left, right)):
+                difference = AsyncWorkflowExecutor._readiness_difference_path(
+                    left_item,
+                    right_item,
+                    f"{path}.{index}" if path else str(index),
+                )
+                if difference is not None:
+                    return difference
+            if len(left) != len(right):
+                return f"{path}.{min(len(left), len(right))}" if path else str(
+                    min(len(left), len(right))
+                )
+            return None
+        if left != right:
+            return path or "state"
+        return None
 
     def _emit_rollback_compensation(
         self,

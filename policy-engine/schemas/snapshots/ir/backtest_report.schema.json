@@ -4,6 +4,25 @@
       "additionalProperties": false,
       "description": "Historical validation scenario with per-metric forecast comparisons.",
       "properties": {
+        "absolute_error_sum": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Absolute Error Sum"
+        },
+        "compared_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Compared Count",
+          "type": "integer"
+        },
         "coverage_probability": {
           "anyOf": [
             {
@@ -23,10 +42,98 @@
           "title": "Data Source",
           "type": "string"
         },
+        "interval_availability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Availability"
+        },
+        "interval_available_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Interval Available Count",
+          "type": "integer"
+        },
+        "interval_evaluated_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Interval Evaluated Count",
+          "type": "integer"
+        },
+        "interval_hit_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Interval Hit Count",
+          "type": "integer"
+        },
+        "interval_hit_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Hit Rate"
+        },
+        "interval_requested_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Interval Requested Count",
+          "type": "integer"
+        },
+        "interval_type": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Type"
+        },
         "intervention_date": {
           "default": "",
           "title": "Intervention Date",
           "type": "string"
+        },
+        "invalid_cells": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Invalid Cells",
+          "type": "array"
+        },
+        "invalid_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Invalid Count",
+          "type": "integer"
         },
         "jurisdiction": {
           "default": "",
@@ -64,12 +171,74 @@
           "title": "Metadata",
           "type": "object"
         },
+        "missing_cells": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Missing Cells",
+          "type": "array"
+        },
+        "missing_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Missing Count",
+          "type": "integer"
+        },
+        "nominal_confidence_level": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1.0,
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nominal Confidence Level"
+        },
         "outcome_comparisons": {
           "items": {
             "$ref": "#/$defs/OutcomeComparison"
           },
           "title": "Outcome Comparisons",
           "type": "array"
+        },
+        "percentage_error_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Percentage Error Count",
+          "type": "integer"
+        },
+        "percentage_error_sum": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Percentage Error Sum"
+        },
+        "requested_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Requested Count",
+          "type": "integer"
         },
         "rmse": {
           "anyOf": [
@@ -93,6 +262,19 @@
           "minLength": 1,
           "title": "Scenario Label",
           "type": "string"
+        },
+        "squared_error_sum": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Squared Error Sum"
         }
       },
       "required": [
@@ -165,9 +347,16 @@
           "title": "Relative Error"
         },
         "within_ci": {
-          "default": false,
-          "title": "Within Ci",
-          "type": "boolean"
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Within Ci"
         },
         "y_pred": {
           "title": "Y Pred",
@@ -253,6 +442,19 @@
   "additionalProperties": false,
   "description": "Summarize historical validation quality and trust diagnostics for one model/policy pair.\n\nDownstream trust governance reads ``trust_eligible``, ``trust_score``, and\n``detected_biases`` to decide whether a model-policy combination can be\npromoted or should be degraded before decision support.",
   "properties": {
+    "aggregation_policy": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Aggregation Policy"
+    },
     "backtest_config_ref": {
       "anyOf": [
         {
@@ -366,6 +568,19 @@
       ],
       "default": null,
       "title": "Overall Coverage Probability"
+    },
+    "overall_macro_rmse": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Macro Rmse"
     },
     "overall_mae": {
       "anyOf": [

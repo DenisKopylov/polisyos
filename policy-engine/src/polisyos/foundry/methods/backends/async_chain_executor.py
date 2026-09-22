@@ -87,18 +87,39 @@ class AsyncNodeError:
         return f"[{self.method_fqn}] {type(self.error).__name__}: {self.error}"
 
 
+@dataclass(frozen=True, slots=True)
+class _LevelExecution:
+    """Collect successes and failures from one concurrently executed level."""
+
+    results: tuple[tuple[UUID, MethodResult], ...]
+    errors: tuple[AsyncNodeError, ...]
+
+
 class AsyncChainExecutionError(Exception):
     """
     Raised when one or more nodes in an async chain fail.
 
     All node errors are collected so that callers can diagnose multiple
-    failures in a single run rather than stopping at the first error.
+    failures in a single run rather than stopping at the first error.  When
+    execution stops after a level has both successes and failures,
+    ``partial_result`` contains only the completed results.  The exception
+    remains terminal; the partial result is not a successful chain result.
     """
 
-    def __init__(self, node_errors: list[AsyncNodeError]) -> None:
+    def __init__(
+        self,
+        node_errors: list[AsyncNodeError],
+        *,
+        partial_result: ChainExecutionResult | None = None,
+        failed_level_index: int | None = None,
+        blocked_node_ids: tuple[UUID, ...] = (),
+    ) -> None:
         msgs = "\n  ".join(str(e) for e in node_errors)
         super().__init__(f"{len(node_errors)} node(s) failed:\n  {msgs}")
-        self.node_errors = node_errors
+        self.node_errors = list(node_errors)
+        self.partial_result = partial_result
+        self.failed_level_index = failed_level_index
+        self.blocked_node_ids = blocked_node_ids
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +186,9 @@ class AsyncChainExecutor:
         Raises
         ------
         AsyncChainExecutionError
-            If any node raises an exception.
+            If any node raises an exception.  The exception retains the
+            completed ``ChainExecutionResult`` in ``partial_result`` while
+            preserving the terminal failure and exact ``node_errors``.
         """
         reg = self._registry or get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
@@ -186,7 +209,7 @@ class AsyncChainExecutor:
             _log.debug("chain_level_start", level_idx=level_idx, level_size=len(level))
             level_t0 = time.perf_counter()
 
-            level_results = await self._execute_level(
+            level_execution = await self._execute_level(
                 level=level,
                 chain=chain,
                 state=state,
@@ -198,17 +221,33 @@ class AsyncChainExecutor:
                 dispatcher=disp,
                 seed=seed,
             )
-            # Merge outputs into shared state
-            for node_id, result in level_results:
-                all_node_results.append((node_id, result))
-                node_slot_outputs[node_id] = dict(result.slot_outputs)
-                if isinstance(result.output, dict):
-                    if isinstance(state, dict):
-                        state.update(result.output)
-                    else:
-                        state = dict(result.output)
-                else:
-                    state = result.output
+            state = self._merge_level_results(
+                level_results=level_execution.results,
+                state=state,
+                node_slot_outputs=node_slot_outputs,
+                all_node_results=all_node_results,
+            )
+
+            if level_execution.errors:
+                partial_result = ChainExecutionResult(
+                    final_state=state,
+                    node_results=tuple(all_node_results),
+                    reproducibility_contract=_build_level_parallel_reproducibility_contract(
+                        levels,
+                        all_node_results,
+                    ),
+                )
+                blocked_node_ids = tuple(
+                    node_id
+                    for remaining_level in levels[level_idx + 1 :]
+                    for node_id in remaining_level
+                )
+                raise AsyncChainExecutionError(
+                    list(level_execution.errors),
+                    partial_result=partial_result,
+                    failed_level_index=level_idx,
+                    blocked_node_ids=blocked_node_ids,
+                )
 
             level_elapsed_ms = (time.perf_counter() - level_t0) * 1000
             _log.debug(
@@ -251,7 +290,7 @@ class AsyncChainExecutor:
         registry: MethodRegistry,
         dispatcher: MethodDispatcher,
         seed: int,
-    ) -> list[tuple[UUID, MethodResult]]:
+    ) -> _LevelExecution:
         """Execute all nodes in *level* concurrently."""
         tasks = [
             self._dispatch_node(
@@ -288,10 +327,31 @@ class AsyncChainExecutor:
             else:
                 level_results.append((node_id, raw))
 
-        if node_errors:
-            raise AsyncChainExecutionError(node_errors)
+        return _LevelExecution(
+            results=tuple(level_results),
+            errors=tuple(node_errors),
+        )
 
-        return level_results
+    @staticmethod
+    def _merge_level_results(
+        *,
+        level_results: tuple[tuple[UUID, MethodResult], ...],
+        state: Any,
+        node_slot_outputs: dict[UUID, dict[str, Any]],
+        all_node_results: list[tuple[UUID, MethodResult]],
+    ) -> Any:
+        """Merge completed results while leaving failed nodes unrepresented."""
+        for node_id, result in level_results:
+            all_node_results.append((node_id, result))
+            node_slot_outputs[node_id] = dict(result.slot_outputs)
+            if isinstance(result.output, dict):
+                if isinstance(state, dict):
+                    state.update(result.output)
+                else:
+                    state = dict(result.output)
+            else:
+                state = result.output
+        return state
 
     async def _dispatch_node(
         self,

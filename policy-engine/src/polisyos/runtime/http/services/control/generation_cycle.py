@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -46,7 +47,6 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -71,6 +71,57 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
 NORMATIVE_RUN_DISPOSITION_SCHEMA = "policyos.normative_generation_composition.v1"
 _ROOT_EVALUATION_CONTEXT_UNSET = object()
+_HTTP_RECURSIVE_MAX_DEPTH = 0
+_HTTP_RECURSIVE_MAX_NODES = 1
+_HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF = 3
+
+
+class RecursiveBudgetProjection(BaseModel):
+    """The fixed recursive budget actually handed to the HTTP worker."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_depth: int = Field(ge=0)
+    max_nodes: int = Field(ge=1)
+    min_cycles_per_leaf: int = Field(ge=1)
+    max_cycles_per_leaf: int = Field(ge=1)
+
+
+class RecursiveBudgetResolution(BaseModel):
+    """Requested/effective HTTP limits retained with the compiled run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    requested_max_iterations: int
+    effective_max_iterations: int = Field(ge=1)
+    recursive_budget: RecursiveBudgetProjection
+    clamp_reason: str
+
+
+def _resolve_http_recursive_budget(
+    requested_max_iterations: object,
+) -> tuple[int, RecursiveBudgetResolution]:
+    """Resolve the existing HTTP cap without hiding its requested value."""
+
+    requested = int(requested_max_iterations or 1)
+    effective = max(1, min(requested, _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF))
+    if requested > _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF:
+        clamp_reason = "requested_max_iterations_above_http_cycle_cap_3"
+    elif requested < 1:
+        clamp_reason = "requested_max_iterations_below_http_minimum_1"
+    else:
+        clamp_reason = "none"
+    return effective, RecursiveBudgetResolution(
+        requested_max_iterations=requested,
+        effective_max_iterations=effective,
+        recursive_budget=RecursiveBudgetProjection(
+            max_depth=_HTTP_RECURSIVE_MAX_DEPTH,
+            max_nodes=_HTTP_RECURSIVE_MAX_NODES,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=effective,
+        ),
+        clamp_reason=clamp_reason,
+    )
 
 
 class NormativeRunEvidenceRefs(BaseModel):
@@ -200,13 +251,16 @@ class NormativeRunDisposition(BaseModel):
 
 
 def normative_owner_for_runtime_store(
-    store: object, trust: NormativeAuthorityTrust
+    store: object,
+    trust: NormativeAuthorityTrust,
+    *,
+    repo_root: Path | None = None,
 ) -> NormativeValueScheduleOwner:
-    """Reuse the canonical ambient filesystem target, preserving tenant ownership checks."""
+    """Reuse the canonical filesystem target and explicit source checkout."""
     target = store._target if type(store) is GuardedDependencyProxy else store
     if type(target) is not artifacts.FileSystemCAS:
         raise P20NormativeChoiceError("p20_normative_signed_store_unavailable")
-    return NormativeValueScheduleOwner(store=target, trust=trust)
+    return NormativeValueScheduleOwner(store=target, trust=trust, repo_root=repo_root)
 
 
 def _read_normative_source(
@@ -405,6 +459,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     recursive_run: RecursiveGenerationCycleRun
+    recursive_budget_resolution: RecursiveBudgetResolution | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     open_world_risk_limitations: tuple[OpenWorldRiskPublicLimitation, ...] = Field(
         default=(),
         exclude_if=lambda rows: not rows,
@@ -436,6 +494,7 @@ async def compile_and_run_recursive_generation_cycle(
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
     recursive_budget: RecursiveCycleBudget,
+    recursive_budget_resolution: RecursiveBudgetResolution | None = None,
     root_evaluation_context: EvaluationExecutionContext | None = (
         _ROOT_EVALUATION_CONTEXT_UNSET  # type: ignore[assignment]
     ),
@@ -464,6 +523,20 @@ async def compile_and_run_recursive_generation_cycle(
             "The caller must explicitly choose the ordinary simulation-only route "
             "or provide an EvalSafety context.",
         )
+    if recursive_budget_resolution is not None:
+        observed_budget = recursive_budget_resolution.recursive_budget
+        if (
+            observed_budget.max_depth != recursive_budget.max_depth
+            or observed_budget.max_nodes != recursive_budget.max_nodes
+            or observed_budget.min_cycles_per_leaf != recursive_budget.min_cycles_per_leaf
+            or observed_budget.max_cycles_per_leaf != recursive_budget.max_cycles_per_leaf
+            or recursive_budget_resolution.effective_max_iterations
+            != recursive_budget.max_cycles_per_leaf
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_budget_resolution_mismatch",
+                "The visible HTTP budget resolution must match the recursive budget used.",
+            )
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
 
@@ -554,6 +627,14 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_epoch_owner_binding_mismatch",
                 "The HTTP composition derives every epoch dependency from one runtime.",
             )
+        controller_repo_root = getattr(controller, "_repo_root", None)
+        caller_repo_root = repo_root.resolve() if repo_root is not None else None
+        if controller_repo_root != caller_repo_root:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_repo_root_mismatch",
+                "The injected recursive controller must retain the exact source checkout "
+                "identity supplied by the HTTP composition.",
+            )
         resolved_controller = controller
     else:
         resolved_controller = build_default_recursive_generation_cycle_controller(
@@ -598,6 +679,7 @@ async def compile_and_run_recursive_generation_cycle(
                 run=cycle_run,
                 design_problem=problem,
                 resolver=promotion_runtime.resolver,
+                repo_root=repo_root,
             ):
                 vector_key = str(limitation.vector_artifact_ref.artifact_id)
                 if vector_key in seen_vector_refs:
@@ -641,6 +723,10 @@ async def compile_and_run_recursive_generation_cycle(
         ),
         "recursive_run": recursive_run_payload,
     }
+    if recursive_budget_resolution is not None:
+        payload["recursive_budget_resolution"] = recursive_budget_resolution.model_dump(
+            mode="json"
+        )
     if limitations:
         payload["open_world_risk_limitations"] = tuple(
             row.model_dump(mode="json") for row in limitations
@@ -652,6 +738,7 @@ async def compile_and_run_recursive_generation_cycle(
             # the exact owner WMR internal provenance handle.  The JSON
             # projection above remains the content-hash/public-artifact view.
             "recursive_run": recursive_run,
+            "recursive_budget_resolution": recursive_budget_resolution,
             "content_hash": gy_content_hash(payload),
         }
     )
@@ -679,7 +766,9 @@ def _build_cycle_substrate_context_from_owner(
         build_substrate_registry_from_existing_catalogs,
     )
 
-    root = (repo_root or Path.cwd()).resolve()
+    if repo_root is None:
+        return None
+    root = repo_root.resolve()
     try:
         world = production_composed_world_model_record(root)
         registry = build_substrate_registry_from_existing_catalogs(root)

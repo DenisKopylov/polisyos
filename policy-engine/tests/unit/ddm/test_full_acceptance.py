@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from polisyos.ddm.calibration import CalibrationReport, build_calibration_audit
 from polisyos.ddm.integration import (
     AffectedFeature,
     AffectedSlice,
+    CalibrationAudit,
     DriftAndDegradationMonitor,
     MetricDirection,
     MonitoringWindow,
@@ -25,6 +28,63 @@ def _window() -> MonitoringWindow:
         end=datetime(2026, 4, 2, tzinfo=UTC),
         n=100,
     )
+
+
+def _valid_checker_bound_registry_record():
+    report = CalibrationReport.model_validate(
+        {
+            "detector_id": "input_mmd_global_v3",
+            "stationarity_regime_id": "SR-1-model-v1",
+            "fp_target": {"horizon": "30d", "alpha": 0.05, "ert": 10000},
+            "threshold": 0.2,
+            "time_varying_thresholds": [0.2, 0.21],
+            "observed_average_run_length": 10000,
+            "empirical_stationary_holdout": {
+                "alerts": 0,
+                "windows": 100,
+                "empirical_fp_rate": 0.0,
+                "confidence_interval_95": [0.0, 0.03],
+                "pass": True,
+            },
+            "detection_delay_tests": {
+                "synthetic_covariate_shift": {
+                    "min_detectable_shift": 0.25,
+                    "median_delay_windows": 2,
+                },
+                "synthetic_concept_shift": {
+                    "min_detectable_shift": 0.50,
+                    "median_delay_windows": 1,
+                },
+            },
+            "expiration": {
+                "valid_until": "2026-05-01T00:00:00Z",
+                "invalidation_triggers": ["model_version_change"],
+            },
+            "calibration_method": "moving_block_bootstrap_quantile",
+            "random_seed": 0,
+            "block_length": 2,
+        }
+    )
+    audit = build_calibration_audit(calibration_id="calib-1", report=report)
+    metric_budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+    result = DriftAndDegradationMonitor().evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=metric_budget,
+        calibration_audit=audit,
+        _calibration_report=report,
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+    )
+    assert result.registry_record is not None
+    assert evaluate_registry_gate(result.registry_record).promotion_allowed is True
+    return result.registry_record
 
 
 def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None:
@@ -119,6 +179,7 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
             calibration_id="calib-1",
             report=calibration_report,
         ),
+        _calibration_report=calibration_report,
         upstream_versions={"feature_store": "2026-04-26"},
         timestamp=datetime(2026, 4, 26, tzinfo=UTC),
     )
@@ -190,3 +251,72 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
 
     assert result.shift_risk_events[0].shift_event_id == "shift-boundary"
     assert result.readiness_event.readiness_state == ReadinessState.R3
+
+
+def test_registry_gate_blocks_historical_audit_without_validity_owner() -> None:
+    """A shaped historical FP pass is not current calibration authority."""
+
+    # The current audit contract has no checker result or report binding. A
+    # caller-supplied, otherwise valid-looking audit must therefore remain
+    # NOT_ESTABLISHED rather than authorize an R4 registry decision.
+    audit = CalibrationAudit(
+        calibration_id="calib-unchecked",
+        detector_id="input_mmd_global_v3",
+        stationarity_regime_id="SR-1-model-v1",
+        horizon="30d",
+        alpha=0.05,
+        ert=10000,
+        empirical_fp_rate=0.0,
+        empirical_fp_upper_95=0.03,
+        pass_=True,
+    )
+    metric_budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+
+    result = DriftAndDegradationMonitor().evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=metric_budget,
+        calibration_audit=audit,
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+    )
+
+    assert result.registry_record is not None
+    gate = evaluate_registry_gate(result.registry_record)
+
+    assert gate.promotion_allowed is False
+
+
+@pytest.mark.parametrize("readiness_state", [ReadinessState.R4, ReadinessState.R3])
+def test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3(
+    readiness_state: ReadinessState,
+) -> None:
+    """A persisted upstream veto remains binding despite owner signoff."""
+
+    record = _valid_checker_bound_registry_record().model_copy(
+        update={"readiness_state": readiness_state, "promotion_allowed": False}
+    )
+
+    gate = evaluate_registry_gate(record, owner_signoff=True)
+
+    assert gate.promotion_allowed is False
+    assert gate.reason == "persisted_readiness_veto"
+
+
+def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None:
+    """R2 may still use its documented limited owner-signoff exception."""
+
+    record = _valid_checker_bound_registry_record().model_copy(
+        update={"readiness_state": ReadinessState.R2, "promotion_allowed": False}
+    )
+
+    gate = evaluate_registry_gate(record, owner_signoff=True)
+
+    assert gate.promotion_allowed is True
+    assert gate.reason == "R2_owner_signoff_allows_limited_expansion"

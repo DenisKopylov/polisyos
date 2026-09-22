@@ -1,0 +1,54 @@
+id = "2026-09-22-e02-scm-02-contrast"
+title = "Make causal attribution contrasts explicit"
+type = "changed"
+component = "causal-ir"
+owner = "team-polisyos"
+summary = "Causal attribution now carries typed target and comparator arms through query execution, persistence, and ensemble validation while retaining legacy result reads."
+evidence = [
+  "tests/unit/remediation/test_scm_02.py",
+  "src/polisyos/ir/analytics/causal_queries.py",
+  "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+  "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+  "src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+  "schemas/snapshots/ir/causal_query.schema.json",
+  "schemas/snapshots/ir/causal_query_result.schema.json",
+  "docs/reference/ir/schema-catalog.md",
+]
+compatibility = "Legacy ATTRIBUTION inputs remain readable and are normalized at the validation boundary to an explicit intervention target plus an observational comparator. Historical causal-query-result payloads with schema 1.0 remain readable; new persisted results use matching payload and CAS-manifest schema 1.1, with the original 1.0 source recorded when a legacy payload is normalized."
+change_class = "python-public-api; persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir causal query DTOs and facade"
+migration = "Continue reading historical 1.0 result artifacts through the existing loader. New callers should construct CausalContrastSpec with an interventional InterventionSpec target and an explicitly tagged CausalRegime comparator, then preserve both arms when forwarding results to producer, CAS, and ensemble consumers. Regenerate the checked-in IR schemas/catalog and review the public-surface inventory before release promotion."
+api = "Adds the CausalRegime and CausalContrastSpec contracts (with compatibility aliases), exposes them through the polisyos.ir facade, persists both contrast arms in CausalQueryResult and uncertainty-envelope metadata, and rejects mixed canonical arms before ensemble aggregation."
+limitations = "An explicit observational comparator is not do(X=0), and an independent mean contrast is not a shared-U individual effect. The change does not establish causal identification, empirical-root authority, or nonlinear posterior support; existing unsupported abduction paths remain typed limited and non-gate-eligible. Checked-in generated schemas and the public-surface inventory are release companions and must be regenerated/reviewed before this fragment is promoted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-query-explicit-contrast"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir CausalQuery and causal contrast DTOs"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Legacy ATTRIBUTION fields remain readable through explicit normalization; the typed contrast is the canonical new representation."
+release_note = "CausalQuery exposes an explicit interventional target and tagged comparator for attribution, while legacy attribution inputs retain a deterministic compatibility mapping."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-query-result-schema-1-1"
+change_class = "persisted-artifact-format"
+impact = "compatible_with_migration"
+surface = "internal: persisted CausalQueryResult payloads and CAS manifests"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Schema 1.0 remains readable as historical input; newly persisted normalized output uses schema 1.1."
+release_note = "Causal query result persistence advances new normalized payloads and CAS manifests to matching schema 1.1 while retaining provenance for legacy 1.0 reads."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

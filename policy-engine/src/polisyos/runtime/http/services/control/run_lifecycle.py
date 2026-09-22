@@ -380,6 +380,7 @@ if TYPE_CHECKING:
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
         NormativeRunEvidenceRefs,
+        RecursiveBudgetResolution,
     )
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -1234,6 +1235,10 @@ class ControlPlaneService(
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        # The source checkout is a separate trust input from the CAS root.  It
+        # is resolved from this owner module, never inferred from the CAS or
+        # process cwd, and is passed to source-bound receipt consumers.
+        self._repo_root = Path(__file__).resolve().parents[6]
         self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
         if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")
@@ -1382,11 +1387,11 @@ class ControlPlaneService(
             from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
             curated_dir = _resolve_curated_dir()
-            catalog_paths = default_substrate_catalog_paths(Path.cwd())
+            catalog_paths = default_substrate_catalog_paths(self._repo_root)
             self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
                 catalog_paths.l1_dcat_path,
                 catalog_paths.l1_dcat_path.parent,
-                overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
             )
             self._retrieval = RetrievalService(
                 curated_dir=curated_dir,
@@ -1438,6 +1443,7 @@ class ControlPlaneService(
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
+        recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -1453,10 +1459,11 @@ class ControlPlaneService(
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
+            recursive_budget_resolution=recursive_budget_resolution,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
-            repo_root=Path.cwd(),
+            repo_root=self._repo_root,
         )
 
     @property
@@ -1478,7 +1485,9 @@ class ControlPlaneService(
         )
 
         owner = normative_owner_for_runtime_store(
-            self._artifact_store, self._normative_authority_trust
+            self._artifact_store,
+            self._normative_authority_trust,
+            repo_root=self._repo_root,
         )
         return produce_normative_run_disposition(
             store=self._artifact_store,
@@ -1623,7 +1632,9 @@ class ControlPlaneService(
             if disposition_ref is None or compiled_run_ref is None:
                 raise P20NormativeChoiceError("p20_normative_generation_disposition_missing")
             owner = normative_owner_for_runtime_store(
-                self._artifact_store, self._normative_authority_trust
+                self._artifact_store,
+                self._normative_authority_trust,
+                repo_root=self._repo_root,
             )
             return project_normative_run_disposition(
                 store=self._artifact_store,
@@ -2282,7 +2293,9 @@ class ControlPlaneService(
                     ):
                         raise ValueError("normative_head_source_binding_mismatch")
                     owner = normative_owner_for_runtime_store(
-                        self._artifact_store, self._normative_authority_trust
+                        self._artifact_store,
+                        self._normative_authority_trust,
+                        repo_root=self._repo_root,
                     )
                     historical = project_normative_run_disposition(
                         store=self._artifact_store,
@@ -3086,7 +3099,13 @@ class ControlPlaneService(
                     )
                     if not model_name:
                         raise RuntimeError("llm_model_unconfigured")
-                    max_cycles = max(1, min(int(payload.get("max_iterations") or 1), 3))
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        _resolve_http_recursive_budget,
+                    )
+
+                    max_cycles, recursive_budget_resolution = _resolve_http_recursive_budget(
+                        payload.get("max_iterations")
+                    )
                     budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
@@ -3107,6 +3126,7 @@ class ControlPlaneService(
                                 min_cycles_per_leaf=1,
                                 max_cycles_per_leaf=max_cycles,
                             ),
+                            recursive_budget_resolution=recursive_budget_resolution,
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None
@@ -3149,6 +3169,9 @@ class ControlPlaneService(
                         "manifest_ref": manifest_ref,
                         "run_id": str(job.run_id or payload.get("run_id") or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                            mode="json"
+                        ),
                         "normative_disposition_ref": normative.disposition_ref,
                         "normative_disposition": normative.model_dump(mode="json"),
                         "promotion_refusal_reasons": list(refusal_reasons),
@@ -3172,6 +3195,9 @@ class ControlPlaneService(
                             "job_kind": job.kind,
                             "capability_manifest_ref": str(capability_manifest_ref),
                             "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                                mode="json"
+                            ),
                             "normative_disposition_ref": normative.disposition_ref,
                             "epoch_strangle_disposition": (
                                 "candidate_only_typed_negative"

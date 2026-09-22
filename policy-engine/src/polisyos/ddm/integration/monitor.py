@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ddm.calibration.audit import _check_bound_calibration_validity
 from polisyos.ddm.detectors.track_2_2_shift_adapter import adapt_shift_event
 from polisyos.ddm.integration.events import (
     CalibrationAudit,
@@ -26,6 +28,9 @@ from polisyos.ddm.integration.model_registry import (
     build_model_registry_record,
 )
 from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy, map_readiness
+
+if TYPE_CHECKING:
+    from polisyos.ddm.calibration.calibrate import CalibrationReport
 
 _PYDANTIC_RUNTIME_TYPES = (
     CalibrationAudit,
@@ -69,6 +74,8 @@ class DriftAndDegradationMonitor:
         calibration_audit: CalibrationAudit | None = None,
         active_incident_id: str | None = None,
         timestamp: datetime | None = None,
+        _calibration_report: CalibrationReport | None = None,
+        _observed_invalidation_triggers: list[str] | None = None,
     ) -> DDMWindowResult:
         """Evaluate one production window and emit all DDM-15.7 outputs."""
 
@@ -99,6 +106,15 @@ class DriftAndDegradationMonitor:
         )
         registry_record = None
         if calibration_audit is not None and metric_budget is not None:
+            validity_evidence = None
+            if _calibration_report is not None:
+                validity_evidence = _check_bound_calibration_validity(
+                    calibration_id=calibration_audit.calibration_id,
+                    report=_calibration_report,
+                    audit=calibration_audit,
+                    now=effective_timestamp,
+                    observed_invalidation_triggers=_observed_invalidation_triggers,
+                )
             registry_record = build_model_registry_record(
                 readiness_event=readiness,
                 calibration_audit=calibration_audit,
@@ -106,6 +122,7 @@ class DriftAndDegradationMonitor:
                 last_shift_event=None if not shift_risks else shift_risks[-1],
                 last_degradation_event=enriched_degradation,
                 active_incident_id=active_incident_id,
+                _calibration_validity_evidence=validity_evidence,
             )
         return DDMWindowResult(
             shift_risk_events=shift_risks,

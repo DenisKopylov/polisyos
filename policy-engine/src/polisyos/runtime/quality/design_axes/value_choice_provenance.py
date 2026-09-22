@@ -8,6 +8,7 @@ from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from contextvars import ContextVar
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal, Self, cast
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
@@ -611,12 +612,14 @@ class NormativeValueScheduleOwner:
         *,
         store: artifacts.FileSystemCAS,
         trust: NormativeAuthorityTrust | None = None,
+        repo_root: Path | None = None,
     ) -> None:
         if trust is None:
             trust = NormativeAuthorityTrust()
         if type(store) is not artifacts.FileSystemCAS or type(trust) is not NormativeAuthorityTrust:
             raise TypeError("normative authority requires the concrete CAS and deployment trust")
         self._store = store
+        self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._trust = trust
         self._verifier = artifacts.Ed25519Verifier(strict_identity=True)
         self._principals: dict[str, NormativeAuthorityPrincipal] = {}
@@ -1054,7 +1057,7 @@ class NormativeValueScheduleOwner:
                 schema=GENERATION_CYCLE_SCHEMA_VERSION,
             )
         )
-        if validate_generation_cycle_run(run):
+        if validate_generation_cycle_run(run, repo_root=self._repo_root):
             raise P20NormativeChoiceError("p20_normative_generation_source_invalid")
         case_id = run.cycles[0].revision_request.revised_problem.design_problem_id
         fronts = run.fronts.candidate_ids_by_front()

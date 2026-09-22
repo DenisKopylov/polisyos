@@ -16,6 +16,7 @@ controller over those owners, not a second grounding or search engine.
 from __future__ import annotations
 
 import ast
+import hashlib
 import inspect
 import json
 import math
@@ -169,6 +170,14 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
 )
 _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
     {"simulation_only_k_sim_not_world_evidence"}
+)
+_N6_STOP_TERMINAL_KINDS = frozenset(
+    {
+        SearchTerminalKind.FRONTIER_STABLE.value,
+        SearchTerminalKind.BUDGET_EXHAUSTED.value,
+        SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
+        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value,
+    }
 )
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
@@ -1216,10 +1225,37 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
 
 
 class StrangleReceipt(_StrictModel):
-    """Recomputed receipt proving run_fixture is not the production N6 cycle."""
+    """Source-bound receipt proving ``run_fixture`` is not the production N6 cycle.
 
-    status: Literal["strangled", "drift"]
+    The positive claim is deliberately limited to the ``src/polisyos`` source
+    slice and the direct AST symbol census named by ``census_rule``.  It does
+    not establish deployment identity, build identity, or alias/dynamic-call
+    completeness; those are explicit residual limitations rather than hidden
+    claims of enforcement.
+    """
+
+    status: Literal["strangled", "drift", "not_established"]
     default_cycle_controller: str
+    source_state: Literal[
+        "available",
+        "missing",
+        "parse_error",
+        "read_error",
+        "not_established",
+    ] = "not_established"
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    source_file_count: int = Field(default=0, ge=0)
+    parse_errors: tuple[str, ...] = ()
+    source_scope: Literal["src/polisyos"] = "src/polisyos"
+    census_rule: Literal["direct_ast_symbol_census_v1"] = "direct_ast_symbol_census_v1"
+    limitation_refs: tuple[str, ...] = (
+        "build_identity_unavailable",
+        "deployment_identity_unavailable",
+        "alias_and_dynamic_calls_not_established",
+    )
     predecessor_ref: str = "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture"
     allowed_fixture_callers: tuple[str, ...] = ()
     production_single_pass_callers: tuple[str, ...] = ()
@@ -1227,21 +1263,90 @@ class StrangleReceipt(_StrictModel):
 
     @classmethod
     def recompute(cls, repo_root: Path | None = None) -> StrangleReceipt:
-        """Scan source callers and return the current single-pass strangle state."""
+        """Scan the bound source slice and return its current strangle state.
 
-        root = (repo_root or Path.cwd()).resolve()
-        callers = _run_fixture_callers(root)
-        production_callers = tuple(
-            caller for caller in callers if not _is_allowed_fixture_caller(caller)
-        )
+        A missing, unreadable, or unparsable source slice is never promoted to
+        ``strangled``.  Successful receipts bind both the complete sorted
+        ``*.py`` denominator and each file's bytes through one content hash.
+        """
+
+        if repo_root is None:
+            return cls(
+                status="not_established",
+                default_cycle_controller=GENERATION_CYCLE_CONTROLLER_REF,
+                source_state="not_established",
+            )
+        root = repo_root.resolve()
+        census = _collect_strangle_source_census(root)
         return cls(
-            status="strangled" if not production_callers else "drift",
+            status=census.status,
             default_cycle_controller=GENERATION_CYCLE_CONTROLLER_REF,
-            allowed_fixture_callers=tuple(
-                caller for caller in callers if _is_allowed_fixture_caller(caller)
+            source_state=census.source_state,
+            source_content_hash=census.source_content_hash,
+            source_file_count=census.source_file_count,
+            parse_errors=census.parse_errors,
+            source_scope="src/polisyos",
+            census_rule="direct_ast_symbol_census_v1",
+            limitation_refs=(
+                "build_identity_unavailable",
+                "deployment_identity_unavailable",
+                "alias_and_dynamic_calls_not_established",
             ),
-            production_single_pass_callers=production_callers,
+            allowed_fixture_callers=tuple(
+                caller
+                for caller in census.callers
+                if _is_allowed_fixture_caller(caller)
+            ),
+            production_single_pass_callers=tuple(
+                caller
+                for caller in census.callers
+                if not _is_allowed_fixture_caller(caller)
+            ),
         )
+
+    def verify_current(self, repo_root: Path | None = None) -> None:
+        """Reject this receipt when its source slice is no longer identical."""
+
+        if repo_root is None:
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_currentness_not_established",
+                "an explicit source checkout is required for receipt replay",
+            )
+        current = type(self).recompute(repo_root)
+        bound = {
+            "status": self.status,
+            "source_state": self.source_state,
+            "source_content_hash": self.source_content_hash,
+            "source_file_count": self.source_file_count,
+            "parse_errors": self.parse_errors,
+            "source_scope": self.source_scope,
+            "census_rule": self.census_rule,
+            "limitation_refs": self.limitation_refs,
+            "allowed_fixture_callers": self.allowed_fixture_callers,
+            "production_single_pass_callers": self.production_single_pass_callers,
+        }
+        observed = {
+            "status": current.status,
+            "source_state": current.source_state,
+            "source_content_hash": current.source_content_hash,
+            "source_file_count": current.source_file_count,
+            "parse_errors": current.parse_errors,
+            "source_scope": current.source_scope,
+            "census_rule": current.census_rule,
+            "limitation_refs": current.limitation_refs,
+            "allowed_fixture_callers": current.allowed_fixture_callers,
+            "production_single_pass_callers": current.production_single_pass_callers,
+        }
+        if bound != observed:
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_stale",
+                "the source-bound direct AST census no longer matches the receipt",
+            )
+        if current.status != "strangled":
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_not_strangled",
+                "the current source slice does not establish the strangle",
+            )
 
 
 class GenerationCycleRun(_StrictModel):
@@ -1285,6 +1390,11 @@ class GenerationCycleRun(_StrictModel):
         ):
             raise ValueError("generation_source_run_receipt_binding_mismatch")
         return self
+
+    def verify_strangle_receipt(self, repo_root: Path | None = None) -> None:
+        """Verify the run's source-bound strangle receipt at its consumer."""
+
+        self.strangle_receipt.verify_current(repo_root)
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
@@ -4853,8 +4963,16 @@ def enforce_no_retry_without_new_grammar(
 
 def validate_generation_cycle_run(
     run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
 ) -> tuple[dict[str, Any], ...]:
-    """Behaviorally validate an N6 run artifact."""
+    """Behaviorally validate an N6 run artifact and its source binding.
+
+    ``repo_root`` may be omitted for diagnostic validation of a serialized
+    artifact, but omission is non-positive and cannot establish currentness.
+    A live source checkout is required before the consumer can treat the
+    source-bound receipt as current.
+    """
 
     if not isinstance(run, GenerationCycleRun):
         try:
@@ -4862,6 +4980,27 @@ def validate_generation_cycle_run(
         except ValueError as exc:
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
+    if repo_root is None:
+        issues.append(
+            {
+                "code": "strangle_receipt_currentness_not_established",
+                "reason": "live repo_root is required to replay the source denominator",
+            }
+        )
+    else:
+        try:
+            run.verify_strangle_receipt(repo_root)
+        except GenerationCycleError as exc:
+            issue_code = {
+                "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
+                "generation_cycle_strangle_receipt_not_strangled": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+                "generation_cycle_strangle_receipt_currentness_not_established": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+            }.get(exc.code, exc.code)
+            issues.append({"code": issue_code, "error": str(exc)})
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()
@@ -7516,6 +7655,19 @@ def _default_revision_request(
     )
 
 
+def _stop_projection_decision(terminal_kind: str) -> Literal["stop", "abstain"]:
+    """Map a terminal stop to its typed epistemic projection."""
+
+    if terminal_kind == SearchTerminalKind.GROUNDED_ABSTENTION.value:
+        return "abstain"
+    if terminal_kind in _N6_STOP_TERMINAL_KINDS:
+        return "stop"
+    raise GenerationCycleError(
+        "unsupported_stop_terminal_projection",
+        terminal_kind,
+    )
+
+
 def _refinement_decision(
     *,
     problem: DesignProblem,
@@ -7533,6 +7685,7 @@ def _refinement_decision(
         "human_decision",
         "abstain",
         "block_candidate",
+        "stop",
     ]
     if next_action.next_action == "blocked":
         decision = "block_candidate"
@@ -7544,7 +7697,7 @@ def _refinement_decision(
     elif next_action.next_action == "escalate":
         decision = "human_decision"
     elif next_action.next_action == "stop":
-        decision = "abstain"
+        decision = _stop_projection_decision(next_action.terminal_kind)
     else:
         decision = "refine"
     slug = _slug(problem.design_problem_id)
@@ -7592,8 +7745,19 @@ def _search_iteration(
         status = "governance_required"
     elif decision.decision == "acquire":
         status = "acquisition_required"
-    elif decision.decision == "abstain":
-        status = "abstained"
+    elif next_action.next_action == "stop":
+        expected_decision = _stop_projection_decision(next_action.terminal_kind)
+        if decision.decision != expected_decision:
+            raise GenerationCycleError(
+                "incoherent_stop_iteration_projection",
+                next_action.terminal_kind,
+            )
+        status = "abstained" if expected_decision == "abstain" else "stopped"
+    elif decision.decision in {"stop", "abstain"}:
+        raise GenerationCycleError(
+            "incoherent_terminal_projection_action",
+            next_action.next_action,
+        )
     else:
         status = "refined_shadow"
     return SearchIteration(
@@ -7889,25 +8053,129 @@ def _promotion_receipt_allows_decision_front(
     )
 
 
-def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:
-    src_root = repo_root / "src"
-    if not src_root.is_dir():
-        return ()
+@dataclass(frozen=True)
+class _StrangleSourceCensus:
+    """Internal source census used by both receipt production and replay."""
+
+    status: Literal["strangled", "drift", "not_established"]
+    source_state: Literal[
+        "available",
+        "missing",
+        "parse_error",
+        "read_error",
+        "not_established",
+    ]
+    source_content_hash: str | None
+    source_file_count: int
+    parse_errors: tuple[str, ...]
+    callers: tuple[str, ...]
+
+
+def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
+    """Collect the complete direct-AST census for ``src/polisyos``.
+
+    The byte digest is withheld unless every discovered Python file is both
+    readable and syntactically parseable.  This keeps a partial denominator
+    from becoming positive strangle evidence.
+    """
+
+    root = repo_root.resolve()
+    source_root = root / "src" / "polisyos"
+    if not source_root.is_dir():
+        return _StrangleSourceCensus(
+            status="not_established",
+            source_state="missing",
+            source_content_hash=None,
+            source_file_count=0,
+            parse_errors=(),
+            callers=(),
+        )
+    try:
+        paths = tuple(sorted(source_root.rglob("*.py")))
+    except OSError as exc:
+        return _StrangleSourceCensus(
+            status="not_established",
+            source_state="read_error",
+            source_content_hash=None,
+            source_file_count=0,
+            parse_errors=(f"src/polisyos:read_error:{type(exc).__name__}",),
+            callers=(),
+        )
+
+    source_files: dict[str, str] = {}
+    parse_errors: list[str] = []
     callers: list[str] = []
-    for path in src_root.rglob("*.py"):
-        relative = path.relative_to(repo_root).as_posix()
+    for path in paths:
+        relative = path.relative_to(root).as_posix()
         try:
-            tree = ast.parse(path.read_text(encoding="utf-8"))
-        except SyntaxError:
-            callers.append(f"{relative}:syntax_error")
+            raw = path.read_bytes()
+        except OSError as exc:
+            parse_errors.append(f"{relative}:read_error:{type(exc).__name__}")
+            continue
+        source_files[relative] = "sha256:" + hashlib.sha256(raw).hexdigest()
+        try:
+            tree = ast.parse(raw.decode("utf-8"), filename=str(path))
+        except (SyntaxError, UnicodeDecodeError) as exc:
+            parse_errors.append(f"{relative}:parse_error:{type(exc).__name__}")
             continue
         for node in ast.walk(tree):
-            if not isinstance(node, ast.Call):
-                continue
-            if _call_name(node.func) != "run_fixture":
-                continue
-            callers.append(f"{relative}:{node.lineno}")
-    return tuple(sorted(callers))
+            if isinstance(node, ast.Call) and _call_name(node.func) == "run_fixture":
+                callers.append(f"{relative}:{node.lineno}")
+
+    ordered_errors = tuple(sorted(set(parse_errors)))
+    ordered_callers = tuple(sorted(set(callers)))
+    if ordered_errors:
+        source_state: Literal[
+            "available",
+            "missing",
+            "parse_error",
+            "read_error",
+            "not_established",
+        ] = (
+            "read_error"
+            if any(":read_error:" in item for item in ordered_errors)
+            else "parse_error"
+        )
+        return _StrangleSourceCensus(
+            status="not_established",
+            source_state=source_state,
+            source_content_hash=None,
+            source_file_count=len(paths),
+            parse_errors=ordered_errors,
+            callers=ordered_callers,
+        )
+    if not source_files:
+        return _StrangleSourceCensus(
+            status="not_established",
+            source_state="not_established",
+            source_content_hash=None,
+            source_file_count=len(paths),
+            parse_errors=(),
+            callers=ordered_callers,
+        )
+    source_content_hash = gy_content_hash(
+        {
+            "scope": "src/polisyos",
+            "files": dict(sorted(source_files.items())),
+        }
+    )
+    production_callers = tuple(
+        caller for caller in ordered_callers if not _is_allowed_fixture_caller(caller)
+    )
+    return _StrangleSourceCensus(
+        status="drift" if production_callers else "strangled",
+        source_state="available",
+        source_content_hash=source_content_hash,
+        source_file_count=len(source_files),
+        parse_errors=(),
+        callers=ordered_callers,
+    )
+
+
+def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:
+    """Return direct ``run_fixture`` callers from the owned source slice."""
+
+    return _collect_strangle_source_census(repo_root).callers
 
 
 def _call_name(node: ast.AST) -> str:

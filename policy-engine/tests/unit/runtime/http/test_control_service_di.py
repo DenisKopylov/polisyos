@@ -521,8 +521,13 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
         REPO_ROOT,
         _budget,
         _CgfGenerationPort,
+        _owner_catalog_prerequisite_issue,
         _problem,
     )
+
+    owner_catalog_issue = _owner_catalog_prerequisite_issue(REPO_ROOT)
+    if owner_catalog_issue is not None:
+        pytest.skip(owner_catalog_issue)
 
     app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
@@ -538,6 +543,7 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     recursive = build_default_recursive_generation_cycle_controller(
         promotion_runtime=runtime,
         eval_safety_verifier=verifier,
+        repo_root=REPO_ROOT,
     )
     assert recursive._promotion_runtime is runtime
 

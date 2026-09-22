@@ -10,7 +10,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class MetricDirection(StrEnum):
@@ -211,6 +211,59 @@ class ReadinessStateEvent(BaseModel):
     required_actions: list[str] = Field(default_factory=list)
     expires_at: AwareDatetime | None = None
     promotion_allowed: bool
+
+
+class CalibrationValidityProjection(BaseModel):
+    """Durable, non-authoritative projection of calibration validity evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    calibration_id: str = Field(min_length=1)
+    detector_id: str = Field(min_length=1)
+    stationarity_regime_id: str = Field(min_length=1)
+    report_digest: str = Field(
+        min_length=64,
+        max_length=64,
+        pattern=r"^[0-9a-f]{64}$",
+    )
+    verifier_id: str = Field(min_length=1)
+    verifier_version: str = Field(min_length=1)
+    effective_at: AwareDatetime
+    valid_until: AwareDatetime
+    configured_invalidation_triggers: list[str] = Field(default_factory=list)
+    observed_invalidation_triggers: list[str] | None = None
+    observation_status: Literal["observed", "unavailable", "not_established"]
+    status: Literal["valid", "expired", "invalidated", "not_established"]
+    reasons: list[str] = Field(default_factory=list)
+
+    @field_validator(
+        "configured_invalidation_triggers",
+        "observed_invalidation_triggers",
+        mode="before",
+    )
+    @classmethod
+    def _canonicalize_triggers(cls, value: object) -> object:
+        if value is None:
+            return None
+        if not isinstance(value, (list, tuple, set)):
+            raise ValueError("invalidation triggers must be a list of strings")
+        triggers = list(value)
+        if any(not isinstance(trigger, str) or not trigger for trigger in triggers):
+            raise ValueError("invalidation triggers must contain non-empty strings")
+        return sorted(set(triggers))
+
+    @model_validator(mode="after")
+    def _validate_observation_context(self) -> Self:
+        if self.observation_status == "observed" and self.observed_invalidation_triggers is None:
+            raise ValueError("observed validity requires observed invalidation triggers")
+        if (
+            self.observation_status == "unavailable"
+            and self.observed_invalidation_triggers is not None
+        ):
+            raise ValueError("unavailable validity must not claim observed triggers")
+        if self.status != "not_established" and self.observation_status != "observed":
+            raise ValueError("current validity requires observed trigger context")
+        return self
 
 
 class CalibrationAudit(BaseModel):

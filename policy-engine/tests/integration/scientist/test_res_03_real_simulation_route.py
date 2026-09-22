@@ -219,7 +219,6 @@ def _build_workflow() -> WorkflowSpec:
         "ready_to_run",
         "bind_foundry_inputs",
         "run_data_plane_gate",
-        "link_trinity",
         "compile_foundry",
         "compile_cross_graph_evidence",
         "resolve_parameters",
@@ -227,6 +226,26 @@ def _build_workflow() -> WorkflowSpec:
     }
     selected = [node for node in base.nodes if node.alias in pre_simulation_aliases]
     assert {node.alias for node in selected} == pre_simulation_aliases
+    # The bounded witness exercises CompileFoundryNode's real strict linker.
+    # The standalone LinkTrinityNode is omitted because both nodes persist the
+    # same deterministic report with incompatible CAS input-role profiles; the
+    # default-workflow ownership conflict is tracked separately from RES-03.
+    selected = [
+        (
+            node.model_copy(
+                update={
+                    "depends_on": [
+                        dependency
+                        for dependency in node.depends_on
+                        if dependency != "link_trinity"
+                    ]
+                }
+            )
+            if node.alias == "compile_foundry"
+            else node
+        )
+        for node in selected
+    ]
     return WorkflowSpec(
         workflow_id="res_03_real_route",
         required_binds=base.required_binds,

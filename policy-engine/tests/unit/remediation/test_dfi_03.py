@@ -127,6 +127,7 @@ def test_selected_empty_generation_is_reused_without_reencoding(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"embed"}),
         resume=True,
+        embedding_model="fixture-model",
         embedding_dimension=4,
     )
     assert build_embedding_generation(
@@ -154,6 +155,7 @@ def test_embed_resume_rejects_config_rule_and_selected_output_changes(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"embed"}),
         resume=True,
+        embedding_model="fixture-model",
         embedding_dimension=4,
     )
     assert build_embedding_generation(
@@ -168,7 +170,7 @@ def test_embed_resume_rejects_config_rule_and_selected_output_changes(
 
     config.embedding_model = "changed-model"
     assert not _should_skip_stage(config, "embed")
-    config.embedding_model = "intfloat/multilingual-e5-large"
+    config.embedding_model = "fixture-model"
 
     from polisyos.data_forge.domains.catalog.batch import pipeline as pipeline_module
 

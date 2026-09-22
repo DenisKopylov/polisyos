@@ -174,6 +174,7 @@ class StreamingSourceSession:
         self._subscription: Any = None
         self._paused = False
         self._closed = False
+        self._owns_pool = False
         self._stream_close_complete = False
         self._close_lock = asyncio.Lock()
         self._last_chunk: DataChunk[Any] | None = None
@@ -212,6 +213,7 @@ class StreamingSourceSession:
             request=request or FetchRequest(dataset_id=dataset_id),
             partition_key=partition_key,
         )
+        session._owns_pool = True
         await session.subscribe()
         return session
 
@@ -234,7 +236,8 @@ class StreamingSourceSession:
         except BaseException as exc:
             try:
                 await self.pool.release(handle)
-                await self.pool.close_all()
+                if self._owns_pool:
+                    await self.pool.close_all()
             except BaseException as cleanup_exc:
                 exc.add_note(f"stream subscription cleanup failed: {cleanup_exc!r}")
             finally:
@@ -388,7 +391,8 @@ class StreamingSourceSession:
                 await self.pool.release(self.handle)
                 self.connector = None
                 self.handle = None
-            await self.pool.close_all()
+            if self._owns_pool:
+                await self.pool.close_all()
             self._closed = True
             self.connector = None
             self.handle = None

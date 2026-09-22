@@ -122,6 +122,7 @@ async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
     await session.close()
 
     assert pool.get_stats().in_use_connections == 0
+    await pool.close_all()
     assert len(connector.disconnect_calls) == 1
     assert session._closed is True
     assert session.handle is None

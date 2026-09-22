@@ -11,11 +11,7 @@ export default tseslint.config(
   },
   js.configs.recommended,
   {
-    files: [
-      "runtimeApiClient.ts",
-      "canonicalRuntimeApiClient.ts",
-      "runtimeApiClient.type-test.ts",
-    ],
+    files: ["canonicalRuntimeApiClient.ts", "runtimeApiClient.type-test.ts"],
     extends: [...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: "latest",
@@ -30,9 +26,9 @@ export default tseslint.config(
   },
   {
     files: [
-      "runtimeApiClient.js",
       "canonicalRuntimeApiClient.js",
       "runtimeApiClient.test.mjs",
+      "remediation.test.mjs",
       "scripts/**/*.mjs",
       "eslint.config.mjs",
     ],

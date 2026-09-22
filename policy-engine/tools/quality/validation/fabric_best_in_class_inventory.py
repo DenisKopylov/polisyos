@@ -476,7 +476,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "product-api-integration.md",
         "runtime_openapi": repo_root / "schemas" / "runtime_api_v1.openapi.json",
-        "runtime_client_ts": repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts",
+        "runtime_client_ts": repo_root / "packages" / "runtime-api-client" / "canonicalRuntimeApiClient.ts",
         "dashboard_fixture_registry": repo_root
         / "apps"
         / "runtime-dashboard"

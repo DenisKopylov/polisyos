@@ -43,8 +43,8 @@ SKIP_DIR_NAMES = {
 }
 UI_COMPONENT_DIR_NAMES = {"components", "component", "ui"}
 GENERATED_API_PATTERNS = (
-    "*runtimeApiClient.ts",
-    "*runtimeApiClient.js",
+    "*canonicalRuntimeApiClient.ts",
+    "*canonicalRuntimeApiClient.js",
     "*src/api/types.ts",
 )
 PHASE_LOCAL_JUNK_PATTERN = "phase*-local-junk-*"

@@ -169,7 +169,7 @@ owner = "team-frontend"
 stage = "staging"
 applies_to = ["frontend"]
 required_evidence = [
-  "packages/runtime-api-client/runtimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
   "apps/runtime-dashboard/src/api/types.ts",
 ]
 command = "manual review: verify generated client drift after runtime OpenAPI changes"

@@ -113,8 +113,9 @@ owner = "team-runtime"
 target_path = "ops/migrations/api_schemas"
 current_paths = [
   "schemas/runtime_api_v1.openapi.json",
-  "packages/runtime-api-client/runtimeApiClient.ts",
-  "packages/runtime-api-client/runtimeApiClient.js",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
 ]
 format = "openapi and generated-client migration notes"
 applies_to = [

@@ -50,7 +50,7 @@ _RETAINED = frozenset(
 _GENERATED = frozenset(
     {
         "apps/runtime-dashboard/src/api/types.ts",
-        "packages/runtime-api-client/runtimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "packages/runtime-api-client/types.ts",
     }
 )

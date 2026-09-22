@@ -793,13 +793,11 @@ stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = [
   "packages/runtime-api-client/types.ts",
-  "packages/runtime-api-client/runtimeApiClient.ts",
-  "packages/runtime-api-client/runtimeApiClient.js",
   "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
   "packages/runtime-api-client/canonicalRuntimeApiClient.js",
 ]
 regenerate_commands = [
-  "corepack pnpm --filter @polisyos/runtime-api-client run generate",
+  "corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
@@ -830,6 +828,8 @@ output_probe_command = [
   "run",
   "generate",
   "--",
+  "--openapi",
+  "schemas/runtime_api_v1.openapi.json",
   "--output-root",
   "{output_root}",
 ]
@@ -846,7 +846,7 @@ promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = ["apps/runtime-dashboard/src/api/types.ts"]
-regenerate_commands = ["corepack pnpm --filter @polisyos/runtime-dashboard run generate:api"]
+regenerate_commands = ["corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json"]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever runtime OpenAPI changes affect dashboard-facing types."
 compatibility_class = "js-package-api"
@@ -868,6 +868,8 @@ output_probe_command = [
   "run",
   "generate:api",
   "--",
+  "--openapi",
+  "schemas/runtime_api_v1.openapi.json",
   "--output-root",
   "{output_root}",
 ]

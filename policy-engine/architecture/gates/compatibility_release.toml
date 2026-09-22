@@ -83,8 +83,9 @@ mode = "report_only"
 description = "Generated runtime clients and dashboard types must declare compatibility when runtime schemas change."
 source_contracts = [
   "schemas/runtime_api_v1.openapi.json",
-  "packages/runtime-api-client/runtimeApiClient.ts",
-  "packages/runtime-api-client/runtimeApiClient.js",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
   "apps/runtime-dashboard/src/api/types.ts",
 ]
 

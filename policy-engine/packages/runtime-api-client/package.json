@@ -22,7 +22,8 @@
     "generate": "bash ./scripts/generate-runtime-api-client.sh",
     "contracts:verify": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
     "test": "node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs scripts/normalize-recursive-openapi-types.test.mjs",
-    "lint": "eslint runtimeApiClient.ts canonicalRuntimeApiClient.ts runtimeApiClient.type-test.ts runtimeApiClient.js canonicalRuntimeApiClient.js runtimeApiClient.test.mjs scripts/*.mjs eslint.config.mjs --max-warnings=0",
+    "test:remediation": "node --test remediation.test.mjs",
+    "lint": "eslint canonicalRuntimeApiClient.ts runtimeApiClient.type-test.ts canonicalRuntimeApiClient.js runtimeApiClient.test.mjs remediation.test.mjs scripts/*.mjs eslint.config.mjs --max-warnings=0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -32,6 +33,7 @@
     "@eslint/js": "^9.39.4",
     "eslint": "^9.39.4",
     "globals": "^17.4.0",
+    "openapi-typescript": "7.13.0",
     "prettier": "^3.8.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.56.1"

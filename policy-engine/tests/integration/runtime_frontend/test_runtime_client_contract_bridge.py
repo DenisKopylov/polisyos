@@ -142,7 +142,7 @@ def _ds19_collaboration_integration_state(
 
 def _capture_generated_client_job_status_call(job_id: str) -> dict[str, object]:
     script = """
-import { RuntimeApiClient } from "./packages/runtime-api-client/runtimeApiClient.js";
+import { RuntimeApiClient } from "./packages/runtime-api-client/canonicalRuntimeApiClient.js";
 
 const calls = [];
 const client = new RuntimeApiClient({
@@ -397,7 +397,7 @@ def test_committed_human_decision_contract_keeps_verified_submission_binding() -
         encoding="utf-8"
     )
     generated_client = (
-        REPO_ROOT / "packages/runtime-api-client/runtimeApiClient.ts"
+        REPO_ROOT / "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
     ).read_text(encoding="utf-8")
     for name in (
         "HumanDecisionPA2ReplaySelector",

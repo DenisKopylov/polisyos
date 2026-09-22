@@ -67,14 +67,14 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--out-ts",
         type=Path,
-        default=Path("packages/runtime-api-client/runtimeApiClient.ts"),
-        help="Output TypeScript client path.",
+        required=True,
+        help="Caller-owned private scratch TypeScript output path.",
     )
     parser.add_argument(
         "--out-js",
         type=Path,
-        default=Path("packages/runtime-api-client/runtimeApiClient.js"),
-        help="Output JavaScript client path.",
+        required=True,
+        help="Caller-owned private scratch JavaScript output path.",
     )
     return parser.parse_args()
 

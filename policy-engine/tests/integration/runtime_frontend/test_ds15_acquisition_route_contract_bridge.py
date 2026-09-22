@@ -31,7 +31,7 @@ def test_ds15_backend_contract_and_generated_client_expose_all_four_operations()
         == "acquisition_approval"
     )
 
-    generated_client = REPO_ROOT / "packages/runtime-api-client/runtimeApiClient.ts"
+    generated_client = REPO_ROOT / "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
     source = generated_client.read_text(encoding="utf-8")
     expected_signatures = {
         "async listRunAcquisitionRoutes(",

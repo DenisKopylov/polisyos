@@ -691,7 +691,7 @@ class StreamWindowAccumulator:
                 sliding_time_rows.append((row, timestamp))
             self._sliding_time_rows = deque(sliding_time_rows)
         except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as exc:
-            raise ValueError("corrupt stream operator state") from exc
+            raise ValueError(f"corrupt stream operator state: {exc}") from exc
 
     def _policy_snapshot(self) -> dict[str, Any]:
         return {
@@ -1134,7 +1134,8 @@ def _stream_frontier_digest(
         {
             "checkpoint": checkpoint_payload,
             "cursor": cursor.model_dump(mode="json"),
-        }
+        },
+        canon_spec=CanonSpec(forbid_floats=False),
     )
 
 

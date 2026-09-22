@@ -473,7 +473,7 @@ class TestDataSchema:
             fields=(FieldSpec(name="note", data_type=SchemaType.STRING),),
         )
         explicit_required = DataSchema(
-            schema_id="test.explicit-required",
+            schema_id="test.explicit_required",
             version=SchemaVersion(2, 0, 0),
             fields=(FieldSpec(name="note", data_type=SchemaType.STRING, presence="required"),),
         )
@@ -1183,7 +1183,7 @@ class TestDataFrameValidation:
     def test_missing_optional_column_is_allowed_but_present_null_is_checked(self) -> None:
         """Optional omission does not weaken nullable validation when present."""
         schema = DataSchema(
-            schema_id="test.optional-validation",
+            schema_id="test.optional_validation",
             version=SchemaVersion(1, 0, 0),
             fields=(
                 FieldSpec(name="id", data_type=SchemaType.STRING, nullable=False),
@@ -1259,7 +1259,7 @@ class TestDataFrameCoercion:
 
     def test_coerce_missing_optional_column_without_error(self) -> None:
         schema = DataSchema(
-            schema_id="test.optional-coercion",
+            schema_id="test.optional_coercion",
             version=SchemaVersion(1, 0, 0),
             fields=(
                 FieldSpec(name="id", data_type=SchemaType.STRING),

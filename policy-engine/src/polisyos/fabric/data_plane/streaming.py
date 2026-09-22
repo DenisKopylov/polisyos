@@ -1822,6 +1822,11 @@ async def process_stream_dataset(
         )
         if latest_checkpoint is not None:
             stored_binding = latest_checkpoint.metadata.get("schema_binding")
+            if schema_binding is not None and stored_binding is None:
+                raise CursorStoreError(
+                    "stream schema binding is missing from recovered checkpoint; "
+                    "refusing mixed-contract recovery"
+                )
             if stored_binding is not None:
                 current_binding = (
                     schema_binding.snapshot()

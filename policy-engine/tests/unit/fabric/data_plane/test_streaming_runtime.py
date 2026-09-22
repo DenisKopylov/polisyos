@@ -107,7 +107,7 @@ def _register_optional_stream_contract(
         schema_id="test.stream.events",
         version=SchemaVersion(1, 0, 0),
         fields=(
-            FieldSpec(name="_message_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="message_id", data_type=SchemaType.STRING, nullable=False),
             FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
             FieldSpec(
                 name="note",
@@ -116,7 +116,7 @@ def _register_optional_stream_contract(
                 presence="optional",
             ),
         ),
-        primary_key=("_message_id",),
+        primary_key=("message_id",),
         required_completeness=0.0,
     )
     contracts = ContractRegistry()
@@ -2609,8 +2609,8 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
     stream_path.write_text(
         "\n".join(
             [
-                '{"_message_id":"m1","value":1,"note":"first"}',
-                '{"_message_id":"m2","value":2}',
+                '{"message_id":"m1","value":1,"note":"first"}',
+                '{"message_id":"m2","value":2}',
             ]
         )
         + "\n",
@@ -2661,7 +2661,7 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
     assert result.final_checkpoint.schema_fingerprint == binding.fingerprint
     assert result.final_checkpoint.metadata["schema_binding"] == binding.snapshot()
     assert result.final_checkpoint.metadata["visible_fields"] == [
-        "_message_id",
+        "message_id",
         "value",
     ]
 
@@ -2705,6 +2705,48 @@ def test_stream_schema_binding_rejects_registry_revision_change() -> None:
             binding,
             connector_id="stream.jsonl",
             dataset_id="binding-revision-events",
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_resume_rejects_legacy_checkpoint_without_schema_binding(
+    tmp_path: Path,
+) -> None:
+    """A declared schema cannot silently reinterpret a legacy checkpoint."""
+    stream_path = tmp_path / "legacy-binding-stream.jsonl"
+    stream_path.write_text('{"message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri()),
+    )
+    _register_optional_stream_contract(
+        registry,
+        dataset_id="legacy-binding-events",
+    )
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    CursorStore(store).save_stream_checkpoint(
+        StreamCheckpoint(
+            checkpoint_id="stream.jsonl:legacy-binding-events:default:1",
+            stream_id="stream.jsonl:legacy-binding-events:default",
+            connector_id="stream.jsonl",
+            dataset_id="legacy-binding-events",
+            offset=1,
+            metadata={"schema_fields": ["message_id", "value", "note"]},
+            created_at=datetime.now(UTC),
+        )
+    )
+
+    with pytest.raises(CursorStoreError, match="schema binding is missing"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="legacy-binding-events",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            registry=registry,
         )
 
 

@@ -595,6 +595,26 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         budgets[key] = current_decimal + value
 
 
+def preserve_retry_spend(
+    base_state: ExperimentState,
+    terminal_state: ExperimentState,
+) -> ExperimentState:
+    """Carry failed-attempt spend without publishing ordinary failed writes.
+
+    A synchronous executor catches :class:`RetryExhaustedError` outside this
+    wrapper and deliberately falls back to its pre-node state.  The retry
+    wrapper has already accumulated only the typed ``*_spent_usd`` fields on
+    ``terminal_state``; reapply that delta to a fresh branch of ``base_state``
+    instead of replacing the state with the failed branch wholesale.
+    """
+    spend = _spend_delta(base_state, terminal_state)
+    if not spend:
+        return base_state
+    preserved = branch_state(base_state, write_paths=("budgets",)).state
+    _merge_spend(preserved, spend)
+    return preserved
+
+
 def _retry_metrics(
     *,
     attempt: int,

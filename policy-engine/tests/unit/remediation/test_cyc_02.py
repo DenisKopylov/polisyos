@@ -43,12 +43,43 @@ from polisyos.runtime.quality.intervention_atom_binding import (
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
+    RecursiveCycleNode,
     RecursiveGenerationCycleController,
+    RecursiveGenerationCycleRun,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
 from tests.unit.runtime.quality.test_generation_cycle import _problem
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+
+def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -> None:
+    """Read the tracked pre-CAS v1 artifact without upgrading its evidence."""
+
+    artifact_path = (
+        Path(__file__).resolve().parents[3]
+        / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))["recursive_runs"][0]
+    legacy_hash = payload["content_hash"]
+
+    parsed = RecursiveGenerationCycleRun.model_validate(payload)
+    assert parsed.schema_version == "policyos.runtime.recursive_generation_cycle.v1"
+    assert parsed.content_hash == legacy_hash
+    assert all(node.joint_simulation_ref is None for node in parsed.nodes)
+
+    replayed_payload = parsed.model_dump(mode="json")
+    assert replayed_payload["content_hash"] == legacy_hash
+    assert all("joint_simulation_ref" not in node for node in replayed_payload["nodes"])
+
+    legacy_parent = next(node for node in payload["nodes"] if node["joint_simulation"])
+    with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
+        RecursiveCycleNode.model_validate(legacy_parent)
+
+    tampered = dict(payload)
+    tampered["content_hash"] = "sha256:" + "0" * 64
+    with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
+        RecursiveGenerationCycleRun.model_validate(tampered)
 
 
 def _real_n5_observation(tmp_path: Path):

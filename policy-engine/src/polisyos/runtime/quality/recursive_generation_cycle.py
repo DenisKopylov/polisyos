@@ -7,7 +7,14 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
@@ -105,6 +112,44 @@ class RecursiveCycleBudget(_StrictModel):
         return self
 
 
+def _legacy_supplied_field_tree(value: object, payload: object) -> object:
+    """Preserve supplied v1 fields, including JSON-normalized map keys."""
+
+    if isinstance(value, BaseModel) and isinstance(payload, dict):
+        fields_by_key = {
+            key: name
+            for name, field in type(value).model_fields.items()
+            for key in (name, field.alias, field.serialization_alias)
+            if isinstance(key, str)
+        }
+        return {
+            key: _legacy_supplied_field_tree(getattr(value, fields_by_key[key]), item)
+            for key, item in payload.items()
+            if key in fields_by_key and fields_by_key[key] in value.model_fields_set
+        }
+    if isinstance(value, Mapping) and isinstance(payload, dict):
+        return {
+            key: _legacy_supplied_field_tree(
+                next(
+                    (
+                        original_value
+                        for original_key, original_value in value.items()
+                        if original_key == key or str(original_key) == key
+                    ),
+                    item,
+                ),
+                item,
+            )
+            for key, item in payload.items()
+        }
+    if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
+        return [
+            _legacy_supplied_field_tree(original, item)
+            for original, item in zip(value, payload, strict=True)
+        ]
+    return payload
+
+
 class RecursiveCycleNode(_StrictModel):
     """One replay-visible node routed through existing depth owners."""
 
@@ -116,6 +161,11 @@ class RecursiveCycleNode(_StrictModel):
     cycle_run: GenerationCycleRun | None = None
     joint_simulation: JointSimulationResult | None = None
     joint_simulation_ref: CASArtifactRef | None = None
+    legacy_v1_missing_joint_simulation_ref: bool = Field(
+        default=False,
+        exclude=True,
+        repr=False,
+    )
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
 
@@ -123,7 +173,11 @@ class RecursiveCycleNode(_StrictModel):
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:
         if self.joint_simulation is None and self.joint_simulation_ref is not None:
             raise ValueError("recursive_simulation_ref_without_result")
-        if self.joint_simulation is not None and self.joint_simulation_ref is None:
+        if (
+            self.joint_simulation is not None
+            and self.joint_simulation_ref is None
+            and not self.legacy_v1_missing_joint_simulation_ref
+        ):
             raise ValueError("recursive_simulation_result_requires_cas_ref")
         if self.joint_simulation_ref is not None and (
             self.joint_simulation_ref.kind != "polisyos.runtime.joint_simulation_result"
@@ -157,6 +211,23 @@ class RecursiveCycleNode(_StrictModel):
                 raise ValueError("recursive_supported_n5_requires_composition")
         return self
 
+    @model_serializer(mode="wrap")
+    def _serialize_without_legacy_or_empty_simulation_ref(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, object]:
+        """Keep v1 identity bytes stable while omitting empty ref defaults."""
+
+        payload = handler(self)
+        if self.legacy_v1_missing_joint_simulation_ref:
+            supplied = _legacy_supplied_field_tree(self, payload)
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_recursive_payload_invalid")
+            payload = supplied
+        if self.joint_simulation_ref is None:
+            payload.pop("joint_simulation_ref", None)
+        return payload
+
 
 class RecursiveGenerationCycleRun(_StrictModel):
     """Content-bound depth-N run emitted by the thin recursive router."""
@@ -175,6 +246,41 @@ class RecursiveGenerationCycleRun(_StrictModel):
     nodes: tuple[RecursiveCycleNode, ...] = Field(min_length=1)
     terminal: SearchTerminalState
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _admit_authentic_legacy_v1_nodes(cls, value: object) -> object:
+        """Mark only content-bound pre-CAS v1 nodes for compatibility loading."""
+
+        if not isinstance(value, Mapping):
+            return value
+        if value.get("schema_version") != RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION:
+            return value
+        raw_nodes = value.get("nodes")
+        if not isinstance(raw_nodes, (list, tuple)) or not raw_nodes:
+            return value
+        if any(not isinstance(node, Mapping) for node in raw_nodes):
+            return value
+        if any("joint_simulation_ref" in node for node in raw_nodes):
+            return value
+        raw_content_hash = value.get("content_hash")
+        legacy_payload = {
+            key: item for key, item in value.items() if key != "content_hash"
+        }
+        if (
+            not isinstance(raw_content_hash, str)
+            or gy_content_hash(legacy_payload) != raw_content_hash
+        ):
+            return value
+        normalized = dict(value)
+        normalized["nodes"] = [
+            {
+                **dict(node),
+                "legacy_v1_missing_joint_simulation_ref": True,
+            }
+            for node in raw_nodes
+        ]
+        return normalized
 
     @property
     def leaf_nodes(self) -> tuple[RecursiveCycleNode, ...]:

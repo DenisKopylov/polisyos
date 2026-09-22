@@ -11,6 +11,7 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
+    StrangleReceipt,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -42,6 +43,38 @@ def test_depth_n_strangle_receipt_fails_closed_when_source_is_missing(tmp_path: 
     assert receipt.production_fixture_callers == ()
     assert receipt.production_default_routes == ()
     assert receipt.default_controller == "unresolved"
+
+
+def test_generation_cycle_strangle_receipt_fails_closed_when_source_is_missing(
+    tmp_path: Path,
+) -> None:
+    """The actual N6 owner must not promote an absent source denominator."""
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+    assert receipt.source_state == "missing"
+    assert receipt.source_content_hash is None
+    assert receipt.source_file_count == 0
+    assert receipt.parse_errors == ()
+
+
+def test_generation_cycle_strangle_receipt_separates_parse_error_from_caller(
+    tmp_path: Path,
+) -> None:
+    """The actual N6 owner keeps parse failure distinct from caller drift."""
+
+    source = _source_root(tmp_path)
+    (source / "broken.py").write_text("def broken(:\n", encoding="utf-8")
+
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    assert receipt.status == "not_established"
+    assert receipt.source_state == "parse_error"
+    assert receipt.source_content_hash is None
+    assert receipt.source_file_count == 1
+    assert receipt.production_single_pass_callers == ()
+    assert any("src/polisyos/broken.py" in item for item in receipt.parse_errors)
 
 
 def test_depth_n_strangle_receipt_separates_parse_error_from_prohibited_caller(
@@ -135,6 +168,10 @@ async def test_generation_cycle_consumer_rejects_stale_source_receipt(tmp_path: 
     assert receipt.source_content_hash == gy_content_hash(
         {"scope": "src/polisyos", "files": source_files}
     )
+    unchecked_issues = validate_generation_cycle_run(run)
+    assert {
+        "strangle_receipt_currentness_not_established"
+    } <= {issue["code"] for issue in unchecked_issues}
     assert validate_generation_cycle_run(run, repo_root=tmp_path) == ()
 
     (source / "owner.py").write_text(

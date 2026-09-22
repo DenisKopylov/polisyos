@@ -150,16 +150,44 @@ class CursorStore:
             )
 
         with self._lock, file_lock(self._lock_path), file_lock(self._stream_lock_path):
-            latest_cursor_index = self._load_index_unlocked()
+            previous_cursor_index = self._load_index_unlocked()
+            previous_stream_index = self._load_stream_index_unlocked()
+            latest_cursor_index = dict(previous_cursor_index)
             latest_cursor_index[cursor.cursor_id] = str(cursor_ref.artifact_id)
-            self._save_index_unlocked(latest_cursor_index)
-            self._index = latest_cursor_index
-
+            latest_stream_index = dict(previous_stream_index)
             if checkpoint is not None and checkpoint_ref is not None:
-                latest_stream_index = self._load_stream_index_unlocked()
                 latest_stream_index[checkpoint.stream_id] = str(checkpoint_ref.artifact_id)
-                self._save_stream_index_unlocked(latest_stream_index)
-                self._stream_index = latest_stream_index
+
+            stream_index_written = False
+            cursor_index_written = False
+            try:
+                # Write the checkpoint side first.  If the cursor side fails,
+                # restore both index files so a reader never observes the new
+                # cursor without its paired checkpoint.
+                if checkpoint is not None and checkpoint_ref is not None:
+                    stream_index_written = True
+                    self._save_stream_index_unlocked(latest_stream_index)
+                cursor_index_written = True
+                self._save_index_unlocked(latest_cursor_index)
+            except Exception:
+                rollback_error: Exception | None = None
+                try:
+                    if stream_index_written:
+                        self._save_stream_index_unlocked(previous_stream_index)
+                    if cursor_index_written:
+                        self._save_index_unlocked(previous_cursor_index)
+                except Exception as rollback_exc:  # pragma: no cover - catastrophic I/O
+                    rollback_error = rollback_exc
+                self._index = previous_cursor_index
+                self._stream_index = previous_stream_index
+                if rollback_error is not None:
+                    raise CursorStoreError(
+                        "stream progress index rollback failed"
+                    ) from rollback_error
+                raise
+
+            self._index = latest_cursor_index
+            self._stream_index = latest_stream_index
 
         return cursor_ref, checkpoint_ref
 

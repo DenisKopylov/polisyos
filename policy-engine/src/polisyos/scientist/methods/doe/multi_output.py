@@ -22,6 +22,8 @@ class MultiOutputSensitivityResult:
     aggregate_ranking: list[str] = field(default_factory=list)
     n_components_used: int = 0
     total_variance_explained: float = 0.0
+    pca_variance_threshold: float = 0.95
+    pca_variance_threshold_status: str = "met"
 
 
 class MultiOutputAnalyzer:
@@ -69,6 +71,8 @@ class MultiOutputAnalyzer:
                 aggregate_ranking=list(single.ranking),
                 n_components_used=1,
                 total_variance_explained=1.0,
+                pca_variance_threshold=self._min_variance,
+                pca_variance_threshold_status="not_applicable",
             )
 
         if outputs.ndim != 2:
@@ -104,6 +108,11 @@ class MultiOutputAnalyzer:
 
         # Analyze each component
         per_component: list[SensitivityResult] = []
+        total_variance_explained = float(sum(variance_ratio))
+        variance_threshold_met = (
+            total_variance_explained + 1e-12 >= self._min_variance
+        )
+        variance_threshold_status = "met" if variance_threshold_met else "unmet_limited"
         for i, pc_scores in enumerate(components):
             result = analyze_sensitivity(plan, clean_samples, pc_scores)
             # The component is derived from the policy-prepared matrix, so
@@ -122,6 +131,9 @@ class MultiOutputAnalyzer:
                         0,
                     ),
                     "pca_scientific_sufficiency": "not_established",
+                    "pca_variance_explained": total_variance_explained,
+                    "pca_variance_threshold": self._min_variance,
+                    "pca_variance_threshold_status": variance_threshold_status,
                 }
             )
             per_component.append(result)
@@ -134,7 +146,9 @@ class MultiOutputAnalyzer:
             explained_variance_ratio=variance_ratio,
             aggregate_ranking=aggregate,
             n_components_used=len(components),
-            total_variance_explained=sum(variance_ratio),
+            total_variance_explained=total_variance_explained,
+            pca_variance_threshold=self._min_variance,
+            pca_variance_threshold_status=variance_threshold_status,
         )
 
     def _run_pca(

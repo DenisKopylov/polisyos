@@ -78,6 +78,9 @@ def test_drop_failed_discards_whole_morris_trajectories(
     assert result.metadata["effective_trajectory_ids"] == expected_trajectory_ids
     assert result.metadata["effective_run_count"] == expected_runs
     assert result.metadata["failed_row_indices"] == failed_rows
+    assert result.metadata["analysis_posture"] == "limited"
+    assert result.metadata["selection_bias_status"] == "not_established"
+    assert "drop_failed_selection_bias_not_established" in result.metadata["warnings"]
 
 
 def test_multi_output_applies_fail_fast_before_pca() -> None:
@@ -125,6 +128,23 @@ def test_multi_output_imputation_preserves_original_run_accounting() -> None:
     assert component.metadata["failed_row_indices"] == [0, 1, 2]
 
 
+def test_nonfinite_input_is_accounted_as_failed_morris_run() -> None:
+    """A finite output cannot turn a nonfinite input row into valid evidence."""
+    plan = _morris_plan(policy=RunFailurePolicy.DROP_FAILED)
+    samples = generate_sensitivity_samples(plan)
+    outputs = samples[:, 0] + 2.0 * samples[:, 1]
+    samples[0, 0] = np.nan
+
+    result = analyze_sensitivity(plan, samples, outputs)
+
+    assert result.failed_runs == 1
+    assert result.metadata["failed_row_indices"] == [0]
+    assert result.metadata["failed_row_reasons"] == [
+        {"row_index": 0, "reason": "nonfinite_input"}
+    ]
+    assert result.metadata["effective_trajectory_ids"] == [1, 2, 3]
+
+
 def test_pca_caps_components_to_centered_rank_for_wide_small_matrix() -> None:
     """A 3x5 matrix is algebraically limited to rank two after centering."""
     outputs = np.array(
@@ -167,6 +187,34 @@ def test_numpy_pca_fallback_matches_centered_rank(monkeypatch: pytest.MonkeyPatc
     assert len(components) == 2
     assert len(variance_ratio) == 2
     assert sum(variance_ratio) == pytest.approx(1.0)
+
+
+def test_pca_reports_unmet_variance_threshold_when_component_cap_is_binding() -> None:
+    """A capped PCA result exposes unmet explained-variance quality."""
+    plan = _morris_plan(n_trajectories=2)
+    samples = generate_sensitivity_samples(plan)
+    outputs = np.array(
+        [
+            [1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ]
+    )
+    result = MultiOutputAnalyzer(
+        max_components=1,
+        min_variance_explained=0.95,
+    ).analyze(plan, samples, outputs)
+
+    assert result.n_components_used == 1
+    assert result.total_variance_explained < 0.95
+    assert result.pca_variance_threshold == pytest.approx(0.95)
+    assert result.pca_variance_threshold_status == "unmet_limited"
+    assert result.per_component[0].metadata["pca_variance_threshold_status"] == (
+        "unmet_limited"
+    )
 
 
 def test_morris_point_and_uncertainty_share_normalized_units() -> None:

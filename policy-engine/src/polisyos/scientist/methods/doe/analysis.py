@@ -177,18 +177,32 @@ def _prepare_analysis_inputs(
     if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
         raise ValueError("samples and outputs must have the same row count")
 
+    sample_valid = np.all(np.isfinite(samples), axis=1)
     if outputs.ndim == 1:
-        valid_mask = np.isfinite(outputs)
+        output_valid = np.isfinite(outputs)
     else:
-        valid_mask = np.all(np.isfinite(outputs), axis=1)
+        output_valid = np.all(np.isfinite(outputs), axis=1)
+    valid_mask = sample_valid & output_valid
 
     success_count = int(np.sum(valid_mask))
     failed_count = int(outputs.shape[0] - success_count)
     min_success = int(math.ceil(outputs.shape[0] * plan.min_success_rate))
     failed_row_indices = np.flatnonzero(~valid_mask).astype(int).tolist()
+    failed_row_reasons: list[dict[str, object]] = []
+    for row_index in failed_row_indices:
+        input_invalid = not bool(sample_valid[row_index])
+        output_invalid = not bool(output_valid[row_index])
+        if input_invalid and output_invalid:
+            reason = "nonfinite_input_and_output"
+        elif input_invalid:
+            reason = "nonfinite_input"
+        else:
+            reason = "nonfinite_output"
+        failed_row_reasons.append({"row_index": row_index, "reason": reason})
     metadata: dict[str, object] = {
         "original_total_runs": int(outputs.shape[0]),
         "failed_row_indices": failed_row_indices,
+        "failed_row_reasons": failed_row_reasons,
         "effective_run_count": int(outputs.shape[0]),
     }
 
@@ -247,6 +261,14 @@ def _prepare_analysis_inputs(
                 "effective_run_count": int(prepared_outputs.shape[0]),
             }
         )
+        if dropped_trajectory_ids:
+            metadata.update(
+                {
+                    "analysis_posture": "limited",
+                    "selection_bias_status": "not_established",
+                    "warnings": ["drop_failed_selection_bias_not_established"],
+                }
+            )
         return _PreparedAnalysisInputs(
             samples=prepared_samples,
             outputs=prepared_outputs,
@@ -256,6 +278,11 @@ def _prepare_analysis_inputs(
         )
 
     # IMPUTE_BASELINE
+    if not np.all(sample_valid):
+        raise ValueError(
+            "IMPUTE_BASELINE cannot repair nonfinite input samples; "
+            "retry the failed runs or use a complete design"
+        )
     if outputs.ndim == 1:
         if success_count == 0:
             imputed = np.zeros_like(outputs)
@@ -315,6 +342,12 @@ def _attach_morris_uncertainty(
     outputs: np.ndarray,
 ) -> None:
     if not plan.uncertainty.enabled:
+        return
+    if result.metadata.get("selection_bias_status") == "not_established":
+        _append_uncertainty_warning(
+            result,
+            "morris_uncertainty_unavailable:drop_failed_selection_bias_not_established",
+        )
         return
     if any(spec.distribution.value != "uniform" for spec in plan.parameter_specs):
         _append_uncertainty_warning(

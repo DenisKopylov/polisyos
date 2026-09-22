@@ -11,6 +11,7 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
+    CheckpointCorruptedError,
     WorkflowMismatchError,
     compute_workflow_fingerprint,
     create_checkpoint,
@@ -107,6 +108,33 @@ def test_cache_seed_does_not_mix_different_content_under_same_key(
     loaded = replay.get(key)
     assert loaded is not None
     assert loaded.state.params["marker"] == "first"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+)
+def test_cache_seed_revalidates_full_ref_identity(
+    tmp_path: Path,
+    field: str,
+    value: str,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_res_01_ref_identity"
+    key = "d" * 64
+    cache = NodeResultCache(store, run_id=run_id)
+    entry_ref = cache.put(
+        key,
+        node_id="scientist.node_res_seed@1.0.0",
+        outcome=_journaled_outcome(run_id, "identity"),
+    )
+
+    replay = NodeResultCache(store, run_id=run_id)
+    assert replay.load_entry(entry_ref) is True
+    altered_ref = entry_ref.model_copy(update={field: value})
+    with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+        replay.load_entry(altered_ref)
+    assert replay.get(key) is not None
 
 
 def _meta(raw: str, name: str) -> ComponentMetadata:
@@ -309,6 +337,91 @@ def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path)
 
     assert resumed.report.status == "ok"
     assert [record.alias for record in resumed.report.nodes] == ["c"]
+
+
+def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    workflow = _resume_workflow()
+    registry = _resume_registry()
+    run_id = "R_res_01_missing_state"
+    state = ExperimentState(run_id=run_id, params={"a": 1})
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=1,
+        completed_node_alias="b",
+        completed_node_id="scientist.node_res_b@1.0.0",
+        completed_nodes=["a", "b"],
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=1,
+        node_alias="b",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    with pytest.raises(CheckpointCorruptedError, match="params.b"):
+        resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+        )
+    assert registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).invocations == 0
+
+
+def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    workflow = _resume_workflow()
+    registry = _resume_registry()
+    registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+    registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+    run_id = "R_res_01_allow_replay"
+    state = ExperimentState(run_id=run_id, params={"a": 1})
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=1,
+        completed_node_alias="b",
+        completed_node_id="scientist.node_res_b@1.0.0",
+        completed_nodes=["a", "b"],
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=1,
+        node_alias="b",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    ctx, bundle_ref = _context(store, run_id)
+    del ctx
+    resumed = resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=registry,
+        registry_bundle_ref=bundle_ref,
+        resume_strategy="allow_replay",
+    )
+
+    assert resumed.report.status == "ok"
+    assert [record.alias for record in resumed.report.nodes] == ["a", "b", "c"]
 
 
 def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -> None:

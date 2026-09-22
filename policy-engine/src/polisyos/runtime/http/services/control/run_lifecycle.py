@@ -380,6 +380,7 @@ if TYPE_CHECKING:
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
         NormativeRunEvidenceRefs,
+        RecursiveBudgetResolution,
     )
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -1442,6 +1443,7 @@ class ControlPlaneService(
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
+        recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -1457,6 +1459,7 @@ class ControlPlaneService(
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
+            recursive_budget_resolution=recursive_budget_resolution,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,

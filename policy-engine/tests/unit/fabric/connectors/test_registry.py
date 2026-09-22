@@ -110,6 +110,26 @@ class MockConnectorA(BaseConnector[list[dict]]):
         return ValidationResult.success()
 
 
+class _Net01LifecycleConnector(MockConnectorA):
+    """Connector with deterministic disconnect gates for NET-01 ownership probes."""
+
+    def __init__(self, *, disconnect_failures: int = 0, block_disconnect: bool = False) -> None:
+        self.disconnect_failures = disconnect_failures
+        self.disconnect_calls: list[str] = []
+        self.disconnect_started = asyncio.Event()
+        self.allow_disconnect = asyncio.Event()
+        if not block_disconnect:
+            self.allow_disconnect.set()
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        self.disconnect_calls.append(handle.session_id)
+        self.disconnect_started.set()
+        if self.disconnect_failures:
+            self.disconnect_failures -= 1
+            raise RuntimeError("controlled disconnect failure")
+        await self.allow_disconnect.wait()
+
+
 class MockConnectorA_v10(BaseConnector[list[dict]]):
     """Mock connector with higher semver version."""
 
@@ -1005,6 +1025,119 @@ class TestConnectionPool:
 
             await pool.release(next_handle)
             await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_failed_disconnect_retains_owner_until_retry(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A failed retirement keeps the physical owner and permit together."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(disconnect_failures=1)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            try:
+                await pool.release(handle)
+            except RuntimeError:
+                pass
+
+            assert connector.disconnect_calls == [handle.session_id]
+            with pytest.raises(PoolExhaustedError):
+                await pool.acquire()
+
+            await pool.release(handle)
+            assert connector.disconnect_calls == [handle.session_id, handle.session_id]
+
+            replacement = await pool.acquire()
+            assert replacement.session_id != handle.session_id
+            await pool.release(replacement)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Cancellation during disconnect cannot free a slot for a replacement."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(block_disconnect=True)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            release_task = asyncio.create_task(pool.release(handle))
+            await connector.disconnect_started.wait()
+            release_task.cancel()
+            await asyncio.sleep(0)
+            with pytest.raises(PoolExhaustedError):
+                await pool.acquire()
+
+            connector.allow_disconnect.set()
+            with pytest.raises(asyncio.CancelledError):
+                await release_task
+
+            try:
+                await pool.release(handle)
+            except RuntimeError:
+                pass
+            replacement = await pool.acquire()
+            assert replacement.session_id != handle.session_id
+            assert set(connector.disconnect_calls) == {handle.session_id}
+            await pool.release(replacement)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_close_all_waits_for_pending_release_owner(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """close_all cannot report completion while a release cleanup is pending."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(block_disconnect=True)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            release_task = asyncio.create_task(pool.release(handle))
+            await connector.disconnect_started.wait()
+            close_task = asyncio.create_task(pool.close_all())
+            await asyncio.sleep(0)
+            assert not close_task.done()
+
+            connector.allow_disconnect.set()
+            await asyncio.gather(release_task, close_task)
+            assert connector.disconnect_calls == [handle.session_id]
+            with pytest.raises(PoolClosedError):
+                await pool.acquire()
 
         asyncio.run(_run())
 

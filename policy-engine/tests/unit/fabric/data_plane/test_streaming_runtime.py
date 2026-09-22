@@ -9,7 +9,8 @@ from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamLifecycleState, WindowStrategy
-from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
@@ -24,14 +25,102 @@ from polisyos.fabric.quality.processing_guarantees import (
     BackpressurePolicy,
     stream_processing_contract,
 )
+from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
+class _Net01StreamingConnector:
+    """Controlled stream connector for acquisition and close ownership probes."""
+
+    def __init__(self, *, fail_subscribe: bool = False, close_failures: int = 0) -> None:
+        self.fail_subscribe = fail_subscribe
+        self.close_failures = close_failures
+        self.disconnect_calls: list[str] = []
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return ConnectionHandle(connector_id="net01-stream", config=config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        self.disconnect_calls.append(handle.session_id)
+
+    async def health_check(self, handle: ConnectionHandle) -> Any:
+        del handle
+        return type("Health", (), {"healthy": True})()
+
+    async def subscribe_stream(self, handle: ConnectionHandle, request: Any) -> object:
+        del handle, request
+        if self.fail_subscribe:
+            raise RuntimeError("controlled subscribe failure")
+        return object()
+
+    async def close_stream(self, handle: ConnectionHandle) -> None:
+        del handle
+        if self.close_failures:
+            self.close_failures -= 1
+            raise RuntimeError("controlled close failure")
+
+
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+
+
+@pytest.mark.asyncio
+async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
+    """A failed subscription must hand its acquired permit back to the pool."""
+
+    connector = _Net01StreamingConnector(fail_subscribe=True)
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(
+            max_size=1,
+            validate_on_acquire=False,
+            acquire_timeout_seconds=0.02,
+        ),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="subscribe-failure",
+        pool=pool,
+        request=FetchRequest(dataset_id="subscribe-failure"),
+    )
+
+    with pytest.raises(RuntimeError, match="controlled subscribe failure"):
+        await session.subscribe()
+
+    assert pool.get_stats().in_use_connections == 0
+    replacement = await pool.acquire()
+    await pool.release(replacement)
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
+    """A stream close failure must not make a later close a no-op."""
+
+    connector = _Net01StreamingConnector(close_failures=1)
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="close-retry",
+        pool=pool,
+        request=FetchRequest(dataset_id="close-retry"),
+    )
+    await session.subscribe()
+
+    with pytest.raises(RuntimeError, match="controlled close failure"):
+        await session.close()
+    await session.close()
+
+    assert pool.get_stats().in_use_connections == 0
+    assert len(connector.disconnect_calls) == 1
 
 
 @pytest.mark.asyncio

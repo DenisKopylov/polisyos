@@ -13,6 +13,8 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.agent import vector_memory as vector_memory_module
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 from polisyos.scientist.methods.search.strategies.transfer import (
@@ -145,7 +147,7 @@ class _BundleStore:
                 }
             ).encode("utf-8")
         if str(artifact_id) == str(self.index_ref.artifact_id):
-            return b"this is not a valid hnsw index"
+            return b"controlled-load-failure-payload"
         raise KeyError(str(artifact_id))
 
 
@@ -208,16 +210,54 @@ def test_failed_native_add_does_not_publish_a_second_python_record() -> None:
     assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]
 
 
-def test_failed_native_load_does_not_publish_partial_bundle() -> None:
-    """B134: failed native load retains the prior index/metadata generation."""
+def test_failed_native_load_does_not_publish_partial_bundle(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B134: controlled native load failure retains the prior generation."""
     pytest.importorskip("hnswlib")
     memory = VectorMemoryStore(dim=2, max_elements=2)
     memory.add("first", [1.0, 0.0], {"origin": "first"})
     bundle_ref = _artifact_ref("d")
     index_ref = _artifact_ref("e")
 
+    class _ControlledLoadFailureIndex:
+        def __init__(self, *, space: str, dim: int) -> None:
+            del space, dim
+
+        def load_index(self, path: str, *, max_elements: int) -> None:
+            del path, max_elements
+            raise RuntimeError("controlled native load failure")
+
+        def set_ef(self, value: int) -> None:
+            del value
+
+    monkeypatch.setattr(
+        vector_memory_module.hnswlib,
+        "Index",
+        _ControlledLoadFailureIndex,
+    )
+
     with pytest.raises(RuntimeError):
         memory.load_from_artifact(_BundleStore(bundle_ref, index_ref), bundle_ref)
 
     assert len(memory) == 1
     assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]
+
+
+def test_native_roundtrip_preserves_one_small_generation(tmp_path) -> None:
+    """B134 control: a valid small native bundle reloads intact."""
+    pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    memory = VectorMemoryStore(dim=2, max_elements=4)
+    memory.add("first", [1.0, 0.0], {"origin": "first"})
+    memory.add("second", [0.0, 1.0], {"origin": "second"})
+
+    bundle_ref = memory.save_to_artifact(artifact_store)
+    restored = VectorMemoryStore(dim=2, max_elements=4)
+    restored.load_from_artifact(artifact_store, bundle_ref)
+
+    assert len(restored) == 2
+    assert {row[0] for row in restored.query([1.0, 0.0], top_k=2)} == {
+        "first",
+        "second",
+    }

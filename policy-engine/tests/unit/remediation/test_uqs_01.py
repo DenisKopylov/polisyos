@@ -135,7 +135,10 @@ def test_unknown_dependency_does_not_narrow_or_remain_gate_eligible() -> None:
         method=AggregationStrategy.PRECISION_WEIGHTED,
     )
 
-    assert extract_std(result) == pytest.approx(1.0, abs=1e-9)
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
     assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert result.confidence_level is None
     assert result.gate_eligible is False

@@ -65,13 +65,22 @@ def _maybe_wrap_fallback(
     """Wrap a distributed runner with fallback-to-local if configured."""
     if not config.fallback_to_local:
         return runner
-    from polisyos.scientist.orchestration.engine.runner.fallback_runner import FallbackWorkflowRunner
+    from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
+        FallbackWorkflowRunner,
+    )
     from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
 
+    # Concrete remote runners expose only a private, probe-bound witness.  Do
+    # not add it to WorkflowRunnerConfig or RunnerHealth: it is an internal
+    # authority hand-off, not a user-configurable claim.
+    health_sample_provider = getattr(runner, "_get_health_sample", None)
     return FallbackWorkflowRunner(
         runner,
         max_parallelism=config.max_parallelism,
         merge_conflict_policy=MergeConflictPolicy(config.merge_conflict_policy),
+        _health_sample_provider=(
+            health_sample_provider if callable(health_sample_provider) else None
+        ),
     )
 
 

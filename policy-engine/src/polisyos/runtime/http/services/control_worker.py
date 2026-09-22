@@ -196,11 +196,20 @@ class ControlWorker:
         def _lease_pulse() -> None:
             while not stop_heartbeat.wait(self._heartbeat_interval_s):
                 try:
-                    self._store.renew_job_lease(
+                    renewed = self._store.renew_job_lease(
                         job_id=job.job_id,
                         worker_id=self._worker_id,
                         lease_seconds=self._lease_seconds,
+                        expected_attempt=job.attempt,
                     )
+                    if renewed is False:
+                        logger.warning(
+                            "Control worker %s lost the lease for job %s attempt %s",
+                            self._worker_id,
+                            job.job_id,
+                            job.attempt,
+                        )
+                        return
                     self._heartbeat(
                         state="running",
                         active_job_id=job.job_id,
@@ -235,7 +244,16 @@ class ControlWorker:
         )
         heartbeat_thread.start()
         try:
-            self._handler(job)
+            execution_fence = getattr(self._store, "job_execution_fence", None)
+            if callable(execution_fence):
+                with execution_fence(
+                    job_id=job.job_id,
+                    worker_id=self._worker_id,
+                    attempt=job.attempt,
+                ):
+                    self._handler(job)
+            else:
+                self._handler(job)
         finally:
             self._emit_worker_diagnostic_event(
                 job=job,

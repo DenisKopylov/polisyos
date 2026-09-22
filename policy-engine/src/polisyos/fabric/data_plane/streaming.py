@@ -213,7 +213,21 @@ class StreamingSourceSession:
             request=request or FetchRequest(dataset_id=dataset_id),
             partition_key=partition_key,
         )
-        await session.subscribe()
+        try:
+            await session.subscribe()
+        except BaseException as exc:
+            try:
+                await session.close()
+            except BaseException as cleanup_exc:
+                # Startup owns this session until cleanup succeeds.  A second
+                # physical cleanup failure is deliberately fail-closed: the
+                # original startup error remains authoritative and the note
+                # records that the pool owner is still pending.
+                exc.add_note(
+                    "stream session startup cleanup remains pending after retry: "
+                    f"{cleanup_exc!r}"
+                )
+            raise
         return session
 
     async def subscribe(self) -> None:

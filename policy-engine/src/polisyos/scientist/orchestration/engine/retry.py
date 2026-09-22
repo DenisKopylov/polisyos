@@ -25,6 +25,7 @@ import threading
 import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -47,6 +48,11 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     decode_node_outcome,
 )
+from polisyos.scientist.orchestration.engine.runner.error_classifier import (
+    RemoteErrorCategory,
+    classify_remote_error,
+)
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -475,6 +481,172 @@ def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
     return error.code in policy.retry_on
 
 
+def _retry_write_paths(node: Any) -> tuple[str, ...]:
+    """Return the node's declared state write paths for retry isolation."""
+    spec = getattr(node, "spec", None)
+    raw_paths = getattr(spec, "state_writes", ()) if spec is not None else ()
+    if isinstance(raw_paths, str):
+        raw_paths = (raw_paths,)
+    try:
+        return tuple(
+            path
+            for path in raw_paths
+            if isinstance(path, str) and path.strip()
+        )
+    except TypeError:
+        return ()
+
+
+def _fresh_retry_state(baseline: ExperimentState, node: Any) -> ExperimentState:
+    """Create one isolated attempt branch from the immutable logical baseline."""
+    return branch_state(baseline, write_paths=_retry_write_paths(node)).state
+
+
+def _typed_error_category(exc: BaseException) -> str | None:
+    """Return an explicit PolicyOS error category when one is declared."""
+    category = getattr(exc, "category", None)
+    if category is None:
+        category = getattr(exc, "default_category", None)
+    value = getattr(category, "value", category)
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    return normalized if normalized in {"transient", "fatal", "validation"} else None
+
+
+def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
+    """Apply the same retry policy to raised and returned node errors.
+
+    Explicit PolicyOS categories take precedence over the coarse shared
+    classifier.  Built-in contract failures are also terminal; transient and
+    unknown runtime failures retain the established ``node.exception`` retry
+    route and its policy ceiling.
+    """
+    typed_category = _typed_error_category(exc)
+    if typed_category in {"fatal", "validation"}:
+        return False
+    if typed_category == "transient":
+        category = RemoteErrorCategory.TRANSIENT
+    else:
+        category = classify_remote_error(exc)
+    if category is RemoteErrorCategory.FATAL:
+        return False
+    if isinstance(exc, (AssertionError, AttributeError, LookupError)):
+        return False
+    error_code = getattr(exc, "code", None)
+    if not isinstance(error_code, str) or not error_code:
+        error_code = "node.exception"
+    return error_code in policy.retry_on
+
+
+def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
+    """Read the declared cumulative spend fields from one attempt state."""
+    budgets = getattr(state, "budgets", {})
+    if not isinstance(budgets, dict):
+        return {}
+    snapshot: dict[str, Decimal] = {}
+    for key, value in budgets.items():
+        if not isinstance(key, str) or not key.endswith("_spent_usd"):
+            continue
+        try:
+            snapshot[key] = value if isinstance(value, Decimal) else Decimal(str(value))
+        except (InvalidOperation, TypeError, ValueError):
+            continue
+    return snapshot
+
+
+def _spend_delta(
+    baseline: ExperimentState,
+    attempt_state: ExperimentState,
+) -> dict[str, Decimal]:
+    """Return positive spend added by one attempt relative to its baseline."""
+    before = _spend_snapshot(baseline)
+    after = _spend_snapshot(attempt_state)
+    delta: dict[str, Decimal] = {}
+    for key, value in after.items():
+        change = value - before.get(key, Decimal(0))
+        if change > 0:
+            delta[key] = change
+    return delta
+
+
+def _accumulate_spend(
+    total: dict[str, Decimal],
+    delta: dict[str, Decimal],
+) -> None:
+    """Accumulate spend without carrying ordinary failed state mutations."""
+    for key, value in delta.items():
+        total[key] = total.get(key, Decimal(0)) + value
+
+
+def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
+    """Publish cumulative failed-attempt spend onto the accepted state branch."""
+    if not spend:
+        return
+    budgets = getattr(state, "budgets", None)
+    if not isinstance(budgets, dict):
+        return
+    for key, value in spend.items():
+        current = budgets.get(key, Decimal(0))
+        try:
+            current_decimal = current if isinstance(current, Decimal) else Decimal(str(current))
+        except (InvalidOperation, TypeError, ValueError):
+            continue
+        budgets[key] = current_decimal + value
+
+
+def _retry_metrics(
+    *,
+    attempt: int,
+    delay: float,
+    spend: dict[str, Decimal],
+) -> dict[str, float | int]:
+    """Build the typed, durable trace metrics for one failed attempt."""
+    metrics: dict[str, float | int] = {
+        "attempt": attempt,
+        "delay_s": delay,
+    }
+    if spend:
+        metrics["failed_cost_usd"] = float(sum(spend.values(), Decimal(0)))
+    return metrics
+
+
+def _emit_retry_event(
+    ctx: ExecutionContext,
+    alias: str,
+    *,
+    attempt: int,
+    delay: float,
+    spend: dict[str, Decimal],
+) -> None:
+    """Persist one typed failed-attempt record in the canonical run trace."""
+    ctx.run.emit(
+        f"scientist.node.{alias}",
+        "NODE_RETRY",
+        metrics=_retry_metrics(attempt=attempt, delay=delay, spend=spend),
+    )
+
+
+def _emit_dead_letter_event(
+    ctx: ExecutionContext,
+    alias: str,
+    *,
+    attempt: int,
+    output: ArtifactRef,
+    spend: dict[str, Decimal],
+) -> None:
+    """Persist terminal attempt count and spend with the dead-letter event."""
+    metrics: dict[str, float | int] = {"attempts": attempt}
+    if spend:
+        metrics["failed_cost_usd"] = float(sum(spend.values(), Decimal(0)))
+    ctx.run.emit(
+        f"scientist.node.{alias}",
+        "NODE_DEAD_LETTER",
+        outputs=[output],
+        metrics=metrics,
+    )
+
+
 def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
     base = policy.backoff_base_s * (policy.backoff_factor**attempt)
     if policy.jitter == "none":
@@ -589,6 +761,7 @@ def execute_with_retry_sync(
         return node.execute(ctx, state)
 
     last_outcome: NodeOutcome | None = None
+    failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -598,13 +771,24 @@ def execute_with_retry_sync(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
+        attempt_state = (
+            _fresh_retry_state(state, node)
+            if retry_policy.max_retries > 0
+            else state
+        )
         try:
             if timeout_s is not None:
-                outcome = _execute_with_timeout_sync(node, ctx, state, timeout_s=timeout_s)
+                outcome = _execute_with_timeout_sync(
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                )
             else:
-                outcome = node.execute(ctx, state)
+                outcome = node.execute(ctx, attempt_state)
 
             if outcome.status != "fail":
+                _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 return outcome
@@ -614,6 +798,8 @@ def execute_with_retry_sync(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                attempt_spend = _spend_delta(state, outcome.state)
+                _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
@@ -623,14 +809,17 @@ def execute_with_retry_sync(
                     retry_policy.max_retries,
                     delay,
                 )
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_RETRY",
-                    metrics={"attempt": attempt + 1, "delay_s": delay},
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
                 )
                 time.sleep(delay)
                 continue
 
+            _merge_spend(outcome.state, failed_spend)
             return outcome
 
         except (NodeTimeoutError, CircuitBreakerOpenError):
@@ -640,7 +829,12 @@ def execute_with_retry_sync(
         except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries:
+            attempt_spend = _spend_delta(state, attempt_state)
+            _accumulate_spend(failed_spend, attempt_spend)
+            if attempt < retry_policy.max_retries and _should_retry_exception(
+                exc,
+                retry_policy,
+            ):
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
@@ -649,27 +843,32 @@ def execute_with_retry_sync(
                     retry_policy.max_retries,
                     exc,
                 )
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_RETRY",
-                    metrics={"attempt": attempt + 1, "delay_s": delay},
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
                 )
                 time.sleep(delay)
                 continue
 
+            _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
                 node_id,
                 exc,
-                attempts=retry_policy.max_retries + 1,
+                attempts=attempt + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_DEAD_LETTER",
-                    outputs=[dlq_ref],
+                _emit_dead_letter_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    output=dlq_ref,
+                    spend=failed_spend,
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
@@ -1217,14 +1416,14 @@ async def execute_with_retry_async(
         and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
     )
 
-    async def _invoke() -> NodeOutcome:
+    async def _invoke(attempt_state: ExperimentState) -> NodeOutcome:
         if _has_async:
             if timeout_s is None:
-                return await node.execute_async(ctx, state)
+                return await node.execute_async(ctx, attempt_state)
             return await _execute_with_timeout_async(
                 node,
                 ctx,
-                state,
+                attempt_state,
                 timeout_s=timeout_s,
             )
         if timeout_s is not None:
@@ -1232,26 +1431,27 @@ async def execute_with_retry_async(
                 return await _execute_with_timeout_process_async(
                     node,
                     ctx,
-                    state,
+                    attempt_state,
                     timeout_s=timeout_s,
                 )
             return await run_blocking_async(
                 _execute_with_timeout_sync,
                 node,
                 ctx,
-                state,
+                attempt_state,
                 timeout_s=timeout_s,
                 timeout_seconds=timeout_s,
             )
-        return await run_blocking_async(node.execute, ctx, state)
+        return await run_blocking_async(node.execute, ctx, attempt_state)
 
     # Fast path
     if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
-        return await _invoke()
+        return await _invoke(state)
 
     last_outcome: NodeOutcome | None = None
+    failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -1261,10 +1461,16 @@ async def execute_with_retry_async(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
+        attempt_state = (
+            _fresh_retry_state(state, node)
+            if retry_policy.max_retries > 0
+            else state
+        )
         try:
-            outcome = await _invoke()
+            outcome = await _invoke(attempt_state)
 
             if outcome.status != "fail":
+                _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 if retry_stats is not None:
@@ -1275,6 +1481,8 @@ async def execute_with_retry_async(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                attempt_spend = _spend_delta(state, outcome.state)
+                _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
@@ -1284,11 +1492,19 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     delay,
                 )
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
+                )
                 await asyncio.sleep(delay)
                 continue
 
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
+            _merge_spend(outcome.state, failed_spend)
             return outcome
 
         except (NodeTimeoutError, CircuitBreakerOpenError):
@@ -1299,7 +1515,12 @@ async def execute_with_retry_async(
         except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries:
+            attempt_spend = _spend_delta(state, attempt_state)
+            _accumulate_spend(failed_spend, attempt_spend)
+            if attempt < retry_policy.max_retries and _should_retry_exception(
+                exc,
+                retry_policy,
+            ):
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
@@ -1308,24 +1529,34 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     exc,
                 )
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
+                )
                 await asyncio.sleep(delay)
                 continue
 
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
+            _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
                 node_id,
                 exc,
-                attempts=retry_policy.max_retries + 1,
+                attempts=attempt + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_DEAD_LETTER",
-                    outputs=[dlq_ref],
+                _emit_dead_letter_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    output=dlq_ref,
+                    spend=failed_spend,
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",

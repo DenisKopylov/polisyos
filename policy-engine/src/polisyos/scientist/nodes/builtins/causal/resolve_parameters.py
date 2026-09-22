@@ -19,6 +19,7 @@ from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ParameterApplicability,
+    load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
 )
 from polisyos.ir.artifacts import InputRef
@@ -90,24 +91,42 @@ class ResolveParametersNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF in state.artifacts_index:
-            return NodeOutcome(status="ok", state=state)
+        existing_bundle_ref = state.artifacts_index.get(
+            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+        )
 
         target_context = _resolve_target_context(state)
+        required_parameters = _resolve_required_parameters(state)
+        simulation_domain = str(state.params.get("domain", "unknown"))
+        graph_ref = _resolve_causal_graph_ref(state)
+
+        # A stored ref is only a reuse candidate.  Validate it against the
+        # request before accepting the already-produced state.  The
+        # no-request path remains a cheap replay path, but only for a
+        # structurally valid bundle; a stale or missing ref must not turn into
+        # a false ``ok`` merely because its key is present.
+        if existing_bundle_ref is not None and _bundle_matches_request(
+            ctx,
+            existing_bundle_ref,
+            target_context=target_context,
+            simulation_domain=simulation_domain,
+            required_parameters=required_parameters,
+            graph_ref=graph_ref,
+        ):
+            return NodeOutcome(status="ok", state=state)
+
         if target_context is None:
             return _skip(
                 state,
                 "Missing params.target_context; parameter resolution skipped.",
             )
 
-        required_parameters = _resolve_required_parameters(state)
         if not required_parameters:
             return _skip(
                 state,
                 "Missing params.required_parameters; parameter resolution skipped.",
             )
 
-        graph_ref = _resolve_causal_graph_ref(state)
         if graph_ref is None:
             return _skip(
                 state,
@@ -165,7 +184,7 @@ class ResolveParametersNode:
 
         bundle = ContextAdaptiveParameterBundle(
             target_context=target_context,
-            simulation_domain=str(state.params.get("domain", "unknown")),
+            simulation_domain=simulation_domain,
             parameters=parameters,
             applicability=applicability,
             unsupported_parameters=unsupported,
@@ -242,6 +261,55 @@ def _resolve_required_parameters(state: ExperimentState) -> list[str]:
         return []
     values = [str(item).strip() for item in raw if str(item).strip()]
     return sorted(set(values))
+
+
+def _bundle_matches_request(
+    ctx: ExecutionContext,
+    bundle_ref: Any,
+    *,
+    target_context: ContextProfile | None,
+    simulation_domain: str,
+    required_parameters: list[str],
+    graph_ref: CausalGraphModelRef | None,
+) -> bool:
+    """Check bundle custody and the exact request bindings used by this node.
+
+    This deliberately validates only the bundle's request and graph lineage.
+    SKG owner/version binding belongs to the separate B61 slice and is not
+    inferred from this helper.
+    """
+    try:
+        bundle = load_context_adaptive_parameter_bundle(ctx.store, bundle_ref)
+        manifest = ctx.store.get_manifest(bundle_ref.artifact_id)
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
+        return False
+
+    if (
+        manifest.kind != "ir.context_adaptive_parameter_bundle"
+        or manifest.artifact_schema is None
+        or (manifest.artifact_schema.name, manifest.artifact_schema.version)
+        != ("ir.context_adaptive_parameter_bundle", "1.0")
+    ):
+        return False
+
+    # With no new request, preserve the historical replay path only after
+    # validating that the stored artifact itself is real and well-typed.
+    if target_context is None and not required_parameters and graph_ref is None:
+        return True
+
+    if target_context is None or not required_parameters or graph_ref is None:
+        return False
+    if bundle.target_context != target_context:
+        return False
+    if bundle.simulation_domain != simulation_domain:
+        return False
+
+    covered_parameters = set(bundle.parameters) | set(bundle.unsupported_parameters)
+    if not set(required_parameters).issubset(covered_parameters):
+        return False
+
+    graph_artifact_id = str(graph_ref.artifact_id)
+    return any(str(input_ref.artifact_id) == graph_artifact_id for input_ref in manifest.inputs)
 
 
 def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | None:

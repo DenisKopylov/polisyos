@@ -79,6 +79,7 @@ class PooledConnection:
     closing: bool = False
     cleanup_task: asyncio.Task[bool] | None = field(default=None, repr=False, compare=False)
     pending_permit: bool = False
+    release_in_progress: bool = field(default=False, repr=False, compare=False)
 
     @property
     def age_seconds(self) -> float:
@@ -476,6 +477,7 @@ class ConnectionPool(Generic[ConnectorT]):
             handle: ConnectionHandle to release
         """
         pooled: PooledConnection | None = None
+        release_owner: PooledConnection | None = None
         permit_owned = False
         permit_release = False
         cleanup_attempted = False
@@ -493,6 +495,11 @@ class ConnectionPool(Generic[ConnectorT]):
                                 session_id=handle.session_id,
                             )
                         return
+                    if pooled.release_in_progress:
+                        # Another release caller owns the transition (including
+                        # release-time validation).  Returning here keeps one
+                        # physical owner, idle entry, and semaphore permit.
+                        return
                     permit_owned = pooled.pending_permit
                 else:
                     permit_owned = True
@@ -502,6 +509,8 @@ class ConnectionPool(Generic[ConnectorT]):
                     with self._stats_lock:
                         self._total_releases += 1
 
+                pooled.release_in_progress = True
+                release_owner = pooled
                 should_close = self._closed or self._should_retire(pooled)
 
             if should_close:
@@ -567,6 +576,9 @@ class ConnectionPool(Generic[ConnectorT]):
                             permit_release = await self._claim_permit(pooled, True)
             raise
         finally:
+            if release_owner is not None:
+                async with self._lock:
+                    release_owner.release_in_progress = False
             if permit_release:
                 self._semaphore.release()
 

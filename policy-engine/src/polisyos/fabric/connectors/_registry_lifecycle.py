@@ -50,6 +50,7 @@ class RegistryLifecycleMixin:
     _instance_lock: Any
     _connectors: Any
     _connection_pools: dict
+    _pending_startup_cleanup: dict[int, tuple[str, ConnectionPool]]
     _registration_count: int
     _bootstrapped: bool
     _cache_store: Any
@@ -306,8 +307,7 @@ class RegistryLifecycleMixin:
         except RuntimeError:
             return False
 
-    @staticmethod
-    def _close_pools_sync(pools: list[ConnectionPool]) -> None:
+    def _close_pools_sync(self, pools: list[ConnectionPool]) -> None:
         if not pools:
             return
         if RegistryLifecycleMixin._has_running_loop():
@@ -317,14 +317,72 @@ class RegistryLifecycleMixin:
             )
 
         async def _close_all() -> None:
-            await asyncio.gather(*(pool.close_all() for pool in pools))
+            await self._close_pools_async(pools)
 
         asyncio.run(_close_all())
 
     async def _close_pools_async(self, pools: list[ConnectionPool]) -> None:
         if not pools:
             return
-        await asyncio.gather(*(pool.close_all() for pool in pools))
+
+        unique_pools: list[ConnectionPool] = []
+        seen: set[int] = set()
+        for pool in pools:
+            pool_identity = id(pool)
+            if pool_identity in seen:
+                continue
+            seen.add(pool_identity)
+            unique_pools.append(pool)
+
+        failures: list[BaseException] = []
+
+        async def _close_one(pool: ConnectionPool) -> None:
+            try:
+                await pool.close_all()
+            except BaseException as exc:
+                failures.append(exc)
+                return
+            with self._instance_lock:
+                pending = self._pending_startup_cleanup.get(id(pool))
+                if pending is not None and pending[1] is pool:
+                    self._pending_startup_cleanup.pop(id(pool), None)
+
+        await asyncio.gather(*(_close_one(pool) for pool in unique_pools))
+        if failures:
+            raise failures[0]
+
+    def _retain_pending_startup_cleanup(
+        self,
+        connector_id: str,
+        pool: ConnectionPool,
+    ) -> None:
+        """Retain an unresolved startup pool outside the ordinary LRU cache."""
+        try:
+            fqid = self._resolve_id(connector_id)
+        except Exception:
+            # The connector may already be unregistering.  The supplied ID is
+            # still enough to route an internal retry to this owner.
+            fqid = connector_id
+        with self._instance_lock:
+            self._pending_startup_cleanup[id(pool)] = (fqid, pool)
+
+    def _pending_connector_id_locked(self, connector_id: str) -> str | None:
+        """Resolve a connector ID from retained startup owners after removal."""
+        for fqid, _pool in self._pending_startup_cleanup.values():
+            if fqid == connector_id:
+                return fqid
+            short_id = fqid.split("@", 1)[0].rsplit(".", 1)[-1]
+            if connector_id in {short_id, fqid.split("@", 1)[0]}:
+                return fqid
+        return None
+
+    def _pending_pools_for_connector_locked(self, fqid: str) -> list[ConnectionPool]:
+        """Return retained startup owners for one connector without removing them."""
+        return [
+            pool
+            for pending_fqid, pool in self._pending_startup_cleanup.values()
+            if pending_fqid == fqid
+        ]
 
     def _pop_registered_connector_and_pools(
         self,
@@ -344,7 +402,9 @@ class RegistryLifecycleMixin:
 
             keys_to_remove = [key for key in self._connection_pools if key[0] == fqid]
             for key in keys_to_remove:
-                pools_to_close.append(self._connection_pools.pop(key))
+                pool = self._connection_pools.pop(key)
+                self._pending_startup_cleanup[id(pool)] = (fqid, pool)
+                pools_to_close.append(pool)
 
             entry.instance = None
             entry.loaded = False
@@ -458,7 +518,8 @@ class RegistryLifecycleMixin:
                 return False
             with self._instance_lock:
                 has_pools = any(key[0] == fqid for key in self._connection_pools)
-            if has_pools:
+                has_pending = bool(self._pending_pools_for_connector_locked(fqid))
+            if has_pools or has_pending:
                 raise RuntimeError(
                     "ConnectorRegistry.unregister() cannot close pools while an "
                     "event loop is running; use unregister_async()."
@@ -466,7 +527,18 @@ class RegistryLifecycleMixin:
 
         fqid, pools_to_close = self._pop_registered_connector_and_pools(connector_id)
         if fqid is None:
-            return False
+            with self._instance_lock:
+                fqid = self._pending_connector_id_locked(connector_id)
+                pools_to_close = (
+                    self._pending_pools_for_connector_locked(fqid)
+                    if fqid is not None
+                    else []
+                )
+            if fqid is None:
+                return False
+        else:
+            with self._instance_lock:
+                pools_to_close.extend(self._pending_pools_for_connector_locked(fqid))
         self._close_pools_sync(pools_to_close)
         return True
 
@@ -474,15 +546,32 @@ class RegistryLifecycleMixin:
         """Async variant of unregister that deterministically drains owned pools."""
         fqid, pools_to_close = self._pop_registered_connector_and_pools(connector_id)
         if fqid is None:
-            return False
+            with self._instance_lock:
+                fqid = self._pending_connector_id_locked(connector_id)
+                pools_to_close = (
+                    self._pending_pools_for_connector_locked(fqid)
+                    if fqid is not None
+                    else []
+                )
+            if fqid is None:
+                return False
+        else:
+            with self._instance_lock:
+                pools_to_close.extend(self._pending_pools_for_connector_locked(fqid))
         await self._close_pools_async(pools_to_close)
         return True
 
     async def shutdown_async(self) -> None:
         """Unregister runtime wrappers and close all connection pools deterministically."""
         with self._instance_lock:
-            pools_to_close = list(self._connection_pools.values())
+            pools_to_close = []
+            for pool_key, pool in self._connection_pools.items():
+                self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
+                pools_to_close.append(pool)
             self._connection_pools.clear()
+            pools_to_close.extend(
+                pool for _fqid, pool in self._pending_startup_cleanup.values()
+            )
             self._cache_wrappers.clear()
             self._contract_wrappers.clear()
             self._schema_invalidation_callback_registered = False
@@ -491,7 +580,13 @@ class RegistryLifecycleMixin:
     def shutdown(self) -> None:
         """Synchronous shutdown bridge for contexts without a running event loop."""
         with self._instance_lock:
-            pools_to_close = list(self._connection_pools.values())
+            pools_to_close = []
+            for pool_key, pool in self._connection_pools.items():
+                self._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
+                pools_to_close.append(pool)
+            pools_to_close.extend(
+                pool for _fqid, pool in self._pending_startup_cleanup.values()
+            )
             if pools_to_close and self._has_running_loop():
                 raise RuntimeError(
                     "ConnectorRegistry.shutdown() cannot close pools while an event "

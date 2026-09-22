@@ -101,6 +101,11 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self._connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool] = (
             OrderedDict()
         )
+        # Pools whose first cleanup attempt cannot confirm physical disconnect
+        # are retained here.  This includes startup-created stream pools and
+        # normal owners evicted by LRU/shutdown; it stays separate from the
+        # LRU so an unresolved physical owner remains registry-reachable.
+        self._pending_startup_cleanup: dict[int, tuple[str, ConnectionPool]] = {}
         self._max_connection_pools = MAX_CONNECTION_POOLS
         self._loop_scope_ids: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, int] = (
             weakref.WeakKeyDictionary()
@@ -164,7 +169,13 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         if instance is None:
             return
 
-        pools_to_close = list(instance._connection_pools.values())
+        pools_to_close = []
+        for pool_key, pool in instance._connection_pools.items():
+            instance._pending_startup_cleanup[id(pool)] = (pool_key[0], pool)
+            pools_to_close.append(pool)
+        pools_to_close.extend(
+            pool for _fqid, pool in instance._pending_startup_cleanup.values()
+        )
         if pools_to_close and instance._has_running_loop():
             with cls._lock:
                 cls._instance = instance
@@ -175,7 +186,14 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         instance._connectors.clear()
         instance._connection_pools.clear()
 
-        instance._close_pools_sync(pools_to_close)
+        try:
+            instance._close_pools_sync(pools_to_close)
+        except BaseException:
+            # Keep the singleton reachable when a physical disconnect is still
+            # pending; callers can retry through shutdown_async().
+            with cls._lock:
+                cls._instance = instance
+            raise
 
         logger.info("ConnectorRegistry singleton reset")
 
@@ -826,6 +844,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 self._connection_pools[evicted_key] = evicted_pool
                 self._connection_pools.move_to_end(evicted_key)
                 continue
+            self._pending_startup_cleanup[id(evicted_pool)] = (evicted_key[0], evicted_pool)
             evicted.append(evicted_pool)
         return evicted
 

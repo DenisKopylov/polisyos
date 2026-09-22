@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -34,6 +35,7 @@ from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.fabric.data_plane.watermark import WindowAssignment, WindowPolicy
 from polisyos.fabric.quality.processing_guarantees import (
     BackpressureStrategy,
@@ -44,7 +46,6 @@ from polisyos.fabric.quality.processing_guarantees import (
     processing_contract_snapshot,
     stream_processing_contract,
 )
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
@@ -227,6 +228,20 @@ class StreamingSourceSession:
                     "stream session startup cleanup remains pending after retry: "
                     f"{cleanup_exc!r}"
                 )
+            if session._cleanup_pending or session.handle is not None:
+                retain_pending_cleanup = getattr(
+                    resolved_registry,
+                    "_retain_pending_startup_cleanup",
+                    None,
+                )
+                if callable(retain_pending_cleanup):
+                    try:
+                        retain_pending_cleanup(connector_id, session.pool)
+                    except BaseException as transfer_exc:
+                        exc.add_note(
+                            "stream session startup owner transfer failed: "
+                            f"{transfer_exc!r}"
+                        )
             raise
         return session
 
@@ -249,13 +264,19 @@ class StreamingSourceSession:
         except BaseException as exc:
             cleanup_complete = False
             try:
-                await self.pool.release(handle)
-            except BaseException as cleanup_exc:
-                exc.add_note(f"stream subscription release failed: {cleanup_exc!r}")
-            try:
                 await self.pool.close_all()
             except BaseException as cleanup_exc:
                 exc.add_note(f"stream subscription pool close failed: {cleanup_exc!r}")
+                # close_all() deliberately retains the acquired permit when
+                # disconnect cannot be confirmed.  Retry through release so a
+                # transient physical failure can still complete startup
+                # cleanup without making the owner unreachable.
+                try:
+                    await self.pool.release(handle)
+                except BaseException as release_exc:
+                    exc.add_note(f"stream subscription release failed: {release_exc!r}")
+                else:
+                    cleanup_complete = True
             else:
                 cleanup_complete = True
 
@@ -1243,7 +1264,15 @@ async def process_stream_dataset(
             result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
         raise
     finally:
-        await session.close()
+        primary_exc = sys.exc_info()[1]
+        try:
+            await session.close()
+        except BaseException as cleanup_exc:
+            if primary_exc is None:
+                raise
+            primary_exc.add_note(
+                f"stream session final cleanup failed: {cleanup_exc!r}"
+            )
 
 
 async def _persist_stream_chunk_async(

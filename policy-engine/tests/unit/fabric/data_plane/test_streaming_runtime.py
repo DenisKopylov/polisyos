@@ -2656,11 +2656,21 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
     )
 
     assert result.rows_emitted == 2
-    assert result.cdc_event_refs == []
+    cdc_payloads = [
+        from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        for ref in result.cdc_event_refs
+    ]
+    assert len(cdc_payloads) == 1
+    cdc_payload = cdc_payloads[0]
+    assert cdc_payload["compatibility"] == "compatible_additive"
+    assert cdc_payload["added_fields"] == ["_message_id"]
+    assert "note" not in cdc_payload["removed_fields"]
+    assert cdc_payload["schema_binding"] == binding.snapshot()
     assert result.final_checkpoint is not None
     assert result.final_checkpoint.schema_fingerprint == binding.fingerprint
     assert result.final_checkpoint.metadata["schema_binding"] == binding.snapshot()
     assert result.final_checkpoint.metadata["visible_fields"] == [
+        "_message_id",
         "message_id",
         "value",
     ]
@@ -2674,7 +2684,7 @@ def test_stream_schema_binding_rejects_registry_revision_change() -> None:
     registry = ConnectorRegistry.get_instance()
     contracts, contract = _register_optional_stream_contract(
         registry,
-        dataset_id="binding-revision-events",
+        dataset_id="binding_revision_events",
     )
     binding = StreamSchemaBinding.from_contract(
         contract,
@@ -2704,7 +2714,7 @@ def test_stream_schema_binding_rejects_registry_revision_change() -> None:
             registry,
             binding,
             connector_id="stream.jsonl",
-            dataset_id="binding-revision-events",
+            dataset_id="binding_revision_events",
         )
 
 

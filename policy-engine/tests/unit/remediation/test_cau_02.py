@@ -46,11 +46,15 @@ def _run_staggered(
     ).output["report"]
 
 
-def _single_cell_panel() -> PanelObservationalData:
+def _single_cell_panel(
+    effects: np.ndarray | None = None,
+) -> PanelObservationalData:
     timing = np.array([4, 4, 4, 4, -1, -1, -1, -1], dtype=int)
     baseline = np.tile(np.arange(5, dtype=float), (timing.size, 1))
     outcome = baseline.copy()
-    outcome[:4, -1] += np.array([2.0, 4.0, 6.0, 8.0])
+    outcome[:4, -1] += (
+        np.array([2.0, 4.0, 6.0, 8.0]) if effects is None else effects
+    )
     return PanelObservationalData(
         outcome=outcome,
         treatment=(timing >= 0).astype(int),
@@ -68,16 +72,22 @@ def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
     assert report.confidence_interval is not None
     lower, upper = report.confidence_interval
     assert lower < report.point_estimate < upper
-    assert report.method_params["bootstrap_independence"] == "panel_unit"
 
 
-def test_staggered_p_value_uses_a_null_centered_statistic():
-    report = _run_staggered(_single_cell_panel(), seed=19)
+def test_staggered_p_value_distinguishes_effect_from_numeric_null():
+    effect_report = _run_staggered(_single_cell_panel(), seed=19)
+    null_report = _run_staggered(
+        _single_cell_panel(effects=np.zeros(4, dtype=float)),
+        seed=19,
+    )
 
-    assert report.status is EstimationStatus.SUCCESS
-    assert report.p_value is not None
-    assert report.p_value < 0.2
-    assert report.method_params["p_value_null"] == "centered_unit_bootstrap"
+    assert effect_report.status is EstimationStatus.SUCCESS
+    assert null_report.status is EstimationStatus.SUCCESS
+    assert effect_report.p_value is not None
+    assert null_report.p_value is not None
+    assert effect_report.p_value < 0.2
+    assert null_report.p_value > 0.2
+    assert effect_report.p_value < null_report.p_value
 
 
 def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
@@ -102,9 +112,52 @@ def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
 
     assert report.status is EstimationStatus.SUCCESS
     assert report.point_estimate == pytest.approx(5.2)
-    assert report.method_params["control_eligibility"] == (
-        "timing > t + anticipation or never-treated"
+
+
+def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization():
+    timing = np.array([2, 2, 3, 3, -1, -1], dtype=int)
+    outcome = np.zeros((timing.size, 5), dtype=float)
+    outcome[:2, 2:] = 2.0
+    outcome[2:4, 2:] = 10.0
+    data = PanelObservationalData(
+        outcome=outcome,
+        treatment=(timing >= 0).astype(int),
+        time_treatment=2,
+        treatment_timing=timing,
+        unit_ids=np.arange(timing.size),
     )
+
+    report = _run_staggered(
+        data,
+        anticipation=0,
+        control_group="not_yet_treated",
+        n_bootstrap=100,
+    )
+
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(4.2)
+
+
+def test_staggered_partial_no_control_cells_fail_closed():
+    timing = np.array([2, 3, 4], dtype=int)
+    data = PanelObservationalData(
+        outcome=np.zeros((3, 5), dtype=float),
+        treatment=np.ones(3, dtype=int),
+        time_treatment=2,
+        treatment_timing=timing,
+        unit_ids=np.arange(3),
+    )
+
+    report = _run_staggered(
+        data,
+        anticipation=1,
+        control_group="not_yet_treated",
+        n_bootstrap=50,
+    )
+
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate is None
+    assert report.status_reason == "no admissible controls for one or more staggered ATT(g,t) cells"
 
 
 def test_staggered_no_admissible_controls_is_bounded_failure():

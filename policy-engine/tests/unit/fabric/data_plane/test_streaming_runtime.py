@@ -34,6 +34,7 @@ from polisyos.fabric.data_plane.streaming import (
 from polisyos.fabric.data_plane.watermark import WindowPolicy
 from polisyos.fabric.quality.processing_guarantees import (
     BackpressurePolicy,
+    BackpressureStrategy,
     stream_processing_contract,
 )
 from polisyos.ir.connectors import FetchRequest
@@ -2177,6 +2178,142 @@ async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits
     # pause-after-buffering behavior without claiming a spill implementation.
     assert observed_buffer[0][0] > 1
     assert observed_buffer[0][1] > 1
+
+
+@pytest.mark.asyncio
+async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B84 negative witness: declared spill must bound memory or fail explicitly."""
+
+    rows = [
+        {
+            "_message_id": f"spill-{index}",
+            "event_time": f"2024-06-15T13:00:{index:02d}+00:00",
+            "value": "y" * 128,
+        }
+        for index in range(3)
+    ]
+    stream_path = tmp_path / "spill-contract.jsonl"
+    stream_path.write_text(
+        "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    def registry_for_stream() -> ConnectorRegistry:
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(
+                url=stream_path.as_uri(),
+                headers={"X-Stream-ChunkSize": "3"},
+            ),
+        )
+        return registry
+
+    window_policy = WindowPolicy(
+        strategy=WindowStrategy.SESSION,
+        size=300,
+        session_gap_seconds=300,
+        timestamp_field="event_time",
+    )
+    control_store = FileSystemCAS(tmp_path / "control")
+    control = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="spill-control",
+        store=control_store,
+        cursor_store=CursorStore(control_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            batch_size=1,
+            max_dedupe_keys=8,
+            max_buffered_rows=10,
+            max_buffered_bytes=100_000,
+            window_policy=window_policy,
+        ),
+        registry=registry_for_stream(),
+    )
+    assert control.chunk_refs
+    control_chunk = from_canonical_bytes(
+        control_store.get_bytes(control.chunk_refs[0].artifact_id)
+    )
+    expected_ids = tuple(row["_message_id"] for row in control_chunk["data"])
+
+    observed_buffer: list[tuple[int, int, int]] = []
+    original_add_rows_with_refs = StreamWindowAccumulator.add_rows_with_refs
+
+    def observe_buffer_after_add(
+        accumulator: StreamWindowAccumulator,
+        clean_rows: list[dict[str, Any]],
+        contributor_refs: tuple[str, ...],
+    ) -> list[Any]:
+        emissions = original_add_rows_with_refs(
+            accumulator,
+            clean_rows,
+            contributor_refs,
+        )
+        observed_buffer.append(
+            (
+                accumulator.buffered_rows(),
+                accumulator.buffered_bytes(),
+                len(clean_rows),
+            )
+        )
+        return emissions
+
+    monkeypatch.setattr(
+        StreamWindowAccumulator,
+        "add_rows_with_refs",
+        observe_buffer_after_add,
+    )
+    pressure_store = FileSystemCAS(tmp_path / "pressure")
+    spill_contract = stream_processing_contract().model_copy(
+        update={
+            "backpressure": BackpressurePolicy(
+                strategy=BackpressureStrategy.SPILL_TO_DISK,
+                max_buffered_rows=1,
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+            )
+        }
+    )
+    try:
+        pressured = await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="spill-pressure",
+            store=pressure_store,
+            cursor_store=CursorStore(pressure_store),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                batch_size=1,
+                max_dedupe_keys=8,
+                max_buffered_rows=1,
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+                window_policy=window_policy,
+                processing_contract=spill_contract,
+            ),
+            registry=registry_for_stream(),
+        )
+    except RuntimeError as exc:
+        # A bounded implementation may explicitly defer/disable spill.  The
+        # current pause path is not such an explicit outcome.
+        message = str(exc).casefold()
+        assert "spill" in message or "unsupported" in message
+        return
+
+    assert observed_buffer
+    assert observed_buffer[0][2] == len(expected_ids)
+    assert max(rows for rows, _bytes, _batch in observed_buffer) <= 1
+    assert max(bytes_size for _rows, bytes_size, _batch in observed_buffer) <= 1
+    assert pressured.rows_emitted == control.rows_emitted
+    assert pressured.chunk_refs
+    pressured_chunk = from_canonical_bytes(
+        pressure_store.get_bytes(pressured.chunk_refs[0].artifact_id)
+    )
+    assert tuple(row["_message_id"] for row in pressured_chunk["data"]) == expected_ids
 
 
 @pytest.mark.asyncio

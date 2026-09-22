@@ -37,8 +37,15 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import (
+    ArtifactRef as CASArtifactRef,
+    FileSystemCAS,
+    PutOptions,
+    SchemaInfo,
+)
 from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -98,6 +105,8 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     JointSimulationRequest,
     JointSimulationResult,
+    ProofReceiptError,
+    verify_simulation_receipt,
 )
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateLayer,
@@ -139,6 +148,9 @@ GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
 )
+JOINT_SIMULATION_RESULT_ARTIFACT_KIND = "polisyos.runtime.joint_simulation_result"
+JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA = "policyos.runtime.n5.joint_simulation_result"
+JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION = "1.0.0"
 GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
 GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
@@ -154,6 +166,9 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
     }
+)
+_SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
+    {"simulation_only_k_sim_not_world_evidence"}
 )
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
@@ -178,7 +193,12 @@ GroundingStatus = Literal[
 ]
 LoopNextAction = Literal["advance", "stop", "escalate", "blocked"]
 QuarantineAction = Literal["none", "adversarial_validate"]
-ValuePortStatus = Literal["value_pending_n8", "value_ready", "value_blocked"]
+ValuePortStatus = Literal[
+    "value_pending_n8",
+    "value_ready",
+    "value_conditional",
+    "value_blocked",
+]
 PromotionPortStatus = Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
 TerminalStatus = Literal["completed", "blocked"]
 
@@ -264,6 +284,7 @@ class SimulationPortObservation(_StrictModel):
     candidate_id: str = Field(..., min_length=1)
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
+    simulation_result_ref: CASArtifactRef | None = None
     uncertainty_kind: str | None = None
     authority_blockers: tuple[str, ...] = ()
     diagnostics: dict[str, Any] = Field(default_factory=dict)
@@ -306,6 +327,178 @@ def _joint_simulation_port_outcome(
             blockers.append("joint_simulation_no_supported_trajectory")
         return "simulation_blocked", tuple(dict.fromkeys(str(item) for item in blockers))
     return "joint_simulated", tuple(dict.fromkeys(str(item) for item in blockers))
+
+
+def _joint_simulation_result_store(repo_root: Path | None) -> FileSystemCAS:
+    """Return the owner CAS used for durable N5 result artifacts."""
+
+    root = (repo_root or Path.cwd()).resolve()
+    return FileSystemCAS(root / ".polisyos" / "cas")
+
+
+def persist_joint_simulation_result(
+    result: JointSimulationResult,
+    *,
+    repo_root: Path | None = None,
+) -> CASArtifactRef:
+    """Persist one complete N5 result through the existing filesystem CAS owner."""
+
+    if not isinstance(result, JointSimulationResult):
+        raise GenerationCycleError(
+            "joint_simulation_result_persist_failed",
+            "N5 producer did not return JointSimulationResult",
+        )
+    try:
+        verify_simulation_receipt(result.receipt, result.content_bound_payload())
+        store = _joint_simulation_result_store(repo_root)
+        return store.put_json(
+            result.model_dump(mode="json"),
+            PutOptions(
+                kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+                    version=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        )
+    except GenerationCycleError:
+        raise
+    except Exception as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_persist_failed",
+            str(exc),
+        ) from exc
+
+
+def _joint_simulation_result_integrity_error(message: str, exc: Exception | None = None) -> None:
+    error = GenerationCycleError("joint_simulation_result_integrity_invalid", message)
+    if exc is not None:
+        raise error from exc
+    raise error
+
+
+def _validate_loaded_joint_simulation_result(
+    result: JointSimulationResult,
+    *,
+    expected_world_model_record_content_hash: str | None,
+    expected_atom_ids: Sequence[str] | None,
+    expected_selected_outcomes: Sequence[str] | None,
+) -> None:
+    """Check semantic bindings that CAS byte integrity cannot establish."""
+
+    if result.uncertainty_kind != "K_sim":
+        _joint_simulation_result_integrity_error("uncertainty_kind_not_k_sim")
+    if (
+        expected_world_model_record_content_hash is not None
+        and result.world_model_record_content_hash != expected_world_model_record_content_hash
+    ):
+        raise GenerationCycleError(
+            "joint_simulation_result_wmr_mismatch",
+            "N5 result is bound to another WorldModelRecord",
+        )
+    if expected_atom_ids is not None and tuple(result.atom_ids) != tuple(expected_atom_ids):
+        raise GenerationCycleError(
+            "joint_simulation_result_atom_binding_mismatch",
+            "N5 result atom identities differ from the requested model",
+        )
+    if expected_selected_outcomes is not None and tuple(result.selected_outcomes) != tuple(
+        expected_selected_outcomes
+    ):
+        _joint_simulation_result_integrity_error("selected_outcomes_binding_mismatch")
+    if not result.selected_outcomes:
+        _joint_simulation_result_integrity_error("selected_outcomes_missing")
+    if not result.trajectories:
+        raise GenerationCycleError(
+            "joint_simulation_result_trajectory_missing",
+            "N5 result contains no numerical trajectory",
+        )
+    if result.receipt.trajectory_count != len(result.trajectories):
+        _joint_simulation_result_integrity_error("trajectory_count_mismatch")
+    atom_ids = set(result.atom_ids)
+    selected_outcomes = set(result.selected_outcomes)
+    for trajectory in result.trajectories:
+        if not set(trajectory.atom_ids).issubset(atom_ids):
+            raise GenerationCycleError(
+                "joint_simulation_result_atom_binding_mismatch",
+                "trajectory contains an atom outside the N5 request",
+            )
+        if not trajectory.points:
+            _joint_simulation_result_integrity_error("trajectory_points_missing")
+        for point in trajectory.points:
+            if not selected_outcomes.issubset(point.effect):
+                _joint_simulation_result_integrity_error("trajectory_effect_missing")
+            for values in (point.outcomes, point.effect):
+                if any(not math.isfinite(float(value)) for value in values.values()):
+                    _joint_simulation_result_integrity_error("trajectory_non_finite")
+
+
+def load_joint_simulation_result(
+    ref: CASArtifactRef,
+    *,
+    repo_root: Path | None = None,
+    expected_world_model_record_content_hash: str | None = None,
+    expected_atom_ids: Sequence[str] | None = None,
+    expected_selected_outcomes: Sequence[str] | None = None,
+) -> JointSimulationResult:
+    """Resolve, verify, and semantically bind one persisted N5 result."""
+
+    try:
+        resolved_ref = (
+            ref
+            if isinstance(ref, CASArtifactRef)
+            else CASArtifactRef.model_validate(ref)
+        )
+    except Exception as exc:
+        raise GenerationCycleError("joint_simulation_result_unavailable", str(exc)) from exc
+    if (
+        resolved_ref.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+        or resolved_ref.media_type != "application/json"
+    ):
+        _joint_simulation_result_integrity_error("artifact_reference_contract_mismatch")
+    store = _joint_simulation_result_store(repo_root)
+    try:
+        blob_path, manifest_path = store.get_paths(resolved_ref.artifact_id)
+        if not blob_path.exists() or not manifest_path.exists():
+            raise GenerationCycleError(
+                "joint_simulation_result_unavailable",
+                "N5 result blob or manifest is absent",
+            )
+        report = store.verify(resolved_ref.artifact_id)
+        if not bool(getattr(report, "ok", False)):
+            _joint_simulation_result_integrity_error("CAS verification failed")
+        manifest = store.get_manifest(resolved_ref.artifact_id)
+        if (
+            manifest.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA
+            or manifest.artifact_schema.version != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION
+        ):
+            _joint_simulation_result_integrity_error("artifact_manifest_contract_mismatch")
+        payload = from_canonical_bytes(store.get_bytes(resolved_ref.artifact_id))
+    except GenerationCycleError:
+        raise
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error(str(exc), exc)
+    if not isinstance(payload, Mapping):
+        _joint_simulation_result_integrity_error("artifact_payload_not_mapping")
+    payload_without_receipt = dict(payload)
+    payload_without_receipt.pop("receipt", None)
+    try:
+        result = JointSimulationResult.model_validate(payload)
+        result._content_payload = payload_without_receipt
+        verify_simulation_receipt(result.receipt, result.content_bound_payload())
+    except (ProofReceiptError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
+    _validate_loaded_joint_simulation_result(
+        result,
+        expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=expected_selected_outcomes,
+    )
+    return result
 
 
 class ValueTransportReceipt(_StrictModel):
@@ -568,6 +761,19 @@ class ValuePortObservation(_StrictModel):
                 raise ValueError("value_ready_requires_owner_receipts")
             if self.acquisition_requirement is not None:
                 raise ValueError("value_ready_cannot_carry_unsatisfied_acquisition")
+        elif self.status == "value_conditional":
+            if self.value_ref is None:
+                raise ValueError("value_conditional_requires_simulation_ref")
+            if not self.authority_blockers or not set(self.authority_blockers).issubset(
+                _SIMULATION_AUTHORITY_LIMITATIONS
+            ):
+                raise ValueError("value_conditional_requires_simulation_limitation")
+            if self.evaluation_mode != "simulate_only":
+                raise ValueError("value_conditional_requires_simulate_only")
+            if self.decision_grade != "low":
+                raise ValueError("value_conditional_requires_low_decision_grade")
+            if self.value_receipt is not None or self.method_selection_receipt is not None:
+                raise ValueError("value_conditional_cannot_carry_owner_receipts")
         elif self.value_receipt is not None:
             raise ValueError("blocked_or_pending_value_cannot_carry_value_receipt")
         if self.acquisition_requirement is not None and self.status != "value_blocked":
@@ -1549,10 +1755,37 @@ class JointSimulationPort:
         result = self._controller.run(request)
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(result)
+        try:
+            simulation_result_ref = persist_joint_simulation_result(
+                result,
+                repo_root=self._repo_root,
+            )
+        except GenerationCycleError as exc:
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                simulation_ref=result.receipt.payload_hash,
+                uncertainty_kind=result.uncertainty_kind,
+                authority_blockers=(
+                    "joint_simulation_result_persistence_failed",
+                    str(exc.code),
+                ),
+                diagnostics={
+                    "port": "N5",
+                    "reason": "joint_simulation_result_persistence_failed",
+                    "persistence_error": str(exc),
+                    "world_model_record_id": request.world_model_record.world_model_record_id,
+                    "world_model_record_content_hash": request.world_model_record.content_hash,
+                },
+                k_world_ref_before=k_world_ref,
+                k_world_ref_after=k_world_ref,
+                world_model_record=request.world_model_record,
+            )
         return SimulationPortObservation(
             candidate_id=candidate_id,
             status=status,
             simulation_ref=result.receipt.payload_hash,
+            simulation_result_ref=simulation_result_ref,
             uncertainty_kind=result.uncertainty_kind,
             authority_blockers=authority_blockers,
             diagnostics={
@@ -1561,6 +1794,7 @@ class JointSimulationPort:
                 ],
                 "trajectory_count": len(result.trajectories),
                 "interaction_count": len(result.interaction_terms),
+                "simulation_result_ref": str(simulation_result_ref.artifact_id),
                 "world_model_record_id": request.world_model_record.world_model_record_id,
                 "world_model_record_content_hash": request.world_model_record.content_hash,
             },
@@ -2246,18 +2480,32 @@ def simulation_evaluation_input_ref(
 ) -> ArtifactRef | None:
     """Return the canonical reference for the actual N5 observation."""
 
-    if (
-        simulation.status != "joint_simulated"
-        or not simulation.simulation_ref
-        or simulation.authority_blockers
-    ):
+    if simulation.status != "joint_simulated":
         return None
+    blockers = set(simulation.authority_blockers)
+    if not blockers.issubset(_SIMULATION_AUTHORITY_LIMITATIONS):
+        return None
+    if not simulation.simulation_ref and simulation.simulation_result_ref is None:
+        return None
+    if simulation.authority_blockers and simulation.simulation_result_ref is None:
+        return None
+    result_ref = simulation.simulation_result_ref
+    content_hash = (
+        str(result_ref.artifact_id)
+        if result_ref is not None
+        else str(simulation.simulation_ref)
+    )
+    schema_ref = (
+        f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v1"
+        if result_ref is not None
+        else "policyos.runtime.n5.joint_simulation_observation.v1"
+    )
     try:
         return ArtifactRef(
             artifact_id=f"polisyos.runtime.n5.simulation.{simulation.candidate_id}",
             artifact_type="joint_simulation_observation",
-            content_hash=simulation.simulation_ref,
-            schema_ref="policyos.runtime.n5.joint_simulation_observation.v1",
+            content_hash=content_hash,
+            schema_ref=schema_ref,
             uri=f"runtime://n5/simulation/{simulation.candidate_id}",
             version="1.0.0",
         )
@@ -2797,6 +3045,82 @@ class FoundryValuePort:
         return record, "built", None
 
 
+def _conditional_simulation_value_observation(
+    *,
+    candidate: object,
+    simulation: SimulationPortObservation,
+    problem: DesignProblem,
+    repo_root: Path | None,
+) -> ValuePortObservation | None:
+    """Consume a verified K_sim result without laundering it into N8 authority."""
+
+    blockers = set(simulation.authority_blockers)
+    if (
+        simulation.status != "joint_simulated"
+        or not blockers
+        or not blockers.issubset(_SIMULATION_AUTHORITY_LIMITATIONS)
+        or simulation.simulation_result_ref is None
+    ):
+        return None
+    started = time.monotonic()
+    candidate_id = _candidate_id(candidate)
+    if simulation.candidate_id != candidate_id:
+        return _blocked_value_observation(
+            code="value_candidate_simulation_mismatch",
+            reason="N8 refuses a simulation result produced for another candidate.",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+        )
+    world = simulation.world_model_record
+    world_hash = str(_object_get(world, "content_hash") or "") if world is not None else None
+    if not world_hash:
+        return _blocked_value_observation(
+            code="value_world_model_record_unwired",
+            reason="N8 conditional simulation requires the exact cycle WorldModelRecord.",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+        )
+    outcome = _value_outcome_variable(candidate, problem)
+    atom_ids = tuple(
+        str(getattr(atom, "intervention_id"))
+        for atom in (getattr(candidate, "intervention_atoms", ()) or ())
+        if getattr(atom, "intervention_id", None)
+    )
+    try:
+        result = load_joint_simulation_result(
+            simulation.simulation_result_ref,
+            repo_root=repo_root,
+            expected_world_model_record_content_hash=world_hash,
+            expected_atom_ids=atom_ids or None,
+            expected_selected_outcomes=(outcome,) if outcome else None,
+        )
+    except GenerationCycleError as exc:
+        return _blocked_value_observation(
+            code=exc.code,
+            reason=f"N8 conditional simulation result is not admissible: {exc}",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
+    return ValuePortObservation(
+        status="value_conditional",
+        candidate_id=candidate_id,
+        value_ref=str(simulation.simulation_result_ref.artifact_id),
+        authority_blockers=tuple(sorted(blockers)),
+        reason=(
+            "N8 consumed a content-bound numerical N5 result for simulation-only "
+            "analysis; K_sim is not world evidence or promotion authority."
+        ),
+        evaluation_mode="simulate_only",
+        decision_grade="low",
+        world_model_record_content_hash=result.world_model_record_content_hash,
+        wall_time_ms=(time.monotonic() - started) * 1000.0,
+    )
+
+
 @dataclass(frozen=True)
 class _DefaultSimulationBoundFoundryValuePort:
     """Derive the default Foundry context only after the actual N5 output exists."""
@@ -2829,6 +3153,14 @@ class _DefaultSimulationBoundFoundryValuePort:
         problem: DesignProblem,
         cycle_index: int,
     ) -> ValuePortObservation:
+        conditional = _conditional_simulation_value_observation(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            repo_root=self.repo_root,
+        )
+        if conditional is not None:
+            return conditional
         try:
             context = simulation_value_execution_context(
                 candidate=candidate,
@@ -7057,6 +7389,12 @@ def _counterexample_record(
 def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None:
     if value_port is None:
         return None
+    if value_port.status == "value_conditional":
+        return (
+            value_port.authority_blockers[0]
+            if value_port.authority_blockers
+            else "value_conditional"
+        )
     if value_port.status == "value_blocked":
         return (
             value_port.authority_blockers[0] if value_port.authority_blockers else "value_blocked"
@@ -7094,7 +7432,7 @@ def _summary_with_value_observation(
 
 
 def _summary_value_blocks_promotion(summary: CandidateSummary) -> bool:
-    return summary.value_status == "value_blocked" or summary.value_decision_grade in {
+    return summary.value_status != "value_ready" or summary.value_decision_grade in {
         "blocked",
         "low",
     }
@@ -7657,6 +7995,9 @@ __all__ = [
     "GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION",
     "GENERATION_CYCLE_CONTROLLER_REF",
     "GENERATION_CYCLE_SCHEMA_VERSION",
+    "JOINT_SIMULATION_RESULT_ARTIFACT_KIND",
+    "JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA",
+    "JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION",
     "VALUE_DATA_SHAPE_RULE_VERSION",
     "AcquisitionOverlayReentryReceipt",
     "CandidateFront",
@@ -7688,6 +8029,8 @@ __all__ = [
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
     "is_value_panel_shape",
+    "load_joint_simulation_result",
+    "persist_joint_simulation_result",
     "simulation_evaluation_input_ref",
     "simulation_value_execution_context",
     "validate_generation_cycle_run",

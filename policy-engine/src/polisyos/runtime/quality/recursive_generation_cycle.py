@@ -4,11 +4,22 @@ from __future__ import annotations
 
 import ast
 from collections.abc import Callable, Mapping
+from contextvars import ContextVar
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ModelWrapValidatorHandler,
+    PrivateAttr,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
     CompositionCertificate,
     SearchTerminalKind,
@@ -25,10 +36,12 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
+    GenerationCycleError,
     GenerationCycleController,
     GenerationCycleRun,
     N4GenerationPort,
     generation_cycle_terminal_state,
+    persist_joint_simulation_result,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -53,6 +66,24 @@ RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generati
 RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController"
 )
+# These are the complete set of ref-less v1 recursive-run identities currently
+# tracked in the repository.  A self-computed hash is integrity evidence only;
+# it is not permission to reopen pre-CAS numeric evidence.
+_AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES = frozenset(
+    {
+        "sha256:b72e66af7330f57830ca9c70c348051e53b858e02a5b82893988855823c7a3c1",
+        "sha256:13647b6958aac56b004faded5752b31cc7d53fde67c9476f1f899051b4edab50",
+        "sha256:47cf94dbe46aa90e9a0a9b3208459f4687a0ea1c651ef5d8dbce8a738db09f6d",
+        "sha256:17a29992ae4ce1720290a40e1a7651bf5949176e718520824d74b80c2b8a2328",
+        "sha256:23ad1413786ccf1e3c1d13c09d33a9df87bb3a18c798570be245206c352d72ec",
+        "sha256:027db04a69e899eb80c911de9df7432d31fa8afd480baf0dae8f49ca62362137",
+        "sha256:d6ddaacf81d9cc4c48b049c4070149026d1fd8e07a118890a5abc1745c952535",
+    }
+)
+_LEGACY_RECURSIVE_V1_CONTEXT: ContextVar[bool] = ContextVar(
+    "polisyos_legacy_recursive_v1_context",
+    default=False,
+)
 _LEGACY_RECURSIVE_FIXTURE_SYMBOLS = frozenset(
     {
         "run_recursive_case",
@@ -61,6 +92,27 @@ _LEGACY_RECURSIVE_FIXTURE_SYMBOLS = frozenset(
     }
 )
 _DEFAULT_RECURSIVE_ROUTE_SYMBOL = "build_default_recursive_generation_cycle_controller"
+
+
+def _is_authenticated_legacy_v1(value: object) -> bool:
+    """Return whether value is one exact tracked pre-CAS recursive artifact."""
+
+    if not isinstance(value, Mapping):
+        return False
+    if value.get("schema_version") != RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION:
+        return False
+    raw_nodes = value.get("nodes")
+    if not isinstance(raw_nodes, (list, tuple)) or not raw_nodes:
+        return False
+    if any(not isinstance(node, Mapping) for node in raw_nodes):
+        return False
+    if any("joint_simulation_ref" in node for node in raw_nodes):
+        return False
+    raw_content_hash = value.get("content_hash")
+    if raw_content_hash not in _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES:
+        return False
+    legacy_payload = {key: item for key, item in value.items() if key != "content_hash"}
+    return gy_content_hash(legacy_payload) == raw_content_hash
 
 
 def _joint_simulation_is_unsupported(result: JointSimulationResult) -> bool:
@@ -102,6 +154,44 @@ class RecursiveCycleBudget(_StrictModel):
         return self
 
 
+def _legacy_supplied_field_tree(value: object, payload: object) -> object:
+    """Preserve supplied v1 fields, including JSON-normalized map keys."""
+
+    if isinstance(value, BaseModel) and isinstance(payload, dict):
+        fields_by_key = {
+            key: name
+            for name, field in type(value).model_fields.items()
+            for key in (name, field.alias, field.serialization_alias)
+            if isinstance(key, str)
+        }
+        return {
+            key: _legacy_supplied_field_tree(getattr(value, fields_by_key[key]), item)
+            for key, item in payload.items()
+            if key in fields_by_key and fields_by_key[key] in value.model_fields_set
+        }
+    if isinstance(value, Mapping) and isinstance(payload, dict):
+        return {
+            key: _legacy_supplied_field_tree(
+                next(
+                    (
+                        original_value
+                        for original_key, original_value in value.items()
+                        if original_key == key or str(original_key) == key
+                    ),
+                    item,
+                ),
+                item,
+            )
+            for key, item in payload.items()
+        }
+    if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
+        return [
+            _legacy_supplied_field_tree(original, item)
+            for original, item in zip(value, payload, strict=True)
+        ]
+    return payload
+
+
 class RecursiveCycleNode(_StrictModel):
     """One replay-visible node routed through existing depth owners."""
 
@@ -112,11 +202,29 @@ class RecursiveCycleNode(_StrictModel):
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     cycle_run: GenerationCycleRun | None = None
     joint_simulation: JointSimulationResult | None = None
+    joint_simulation_ref: CASArtifactRef | None = None
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
+    _legacy_v1_missing_joint_simulation_ref: bool = PrivateAttr(default=False)
 
     @model_validator(mode="after")
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:
+        legacy_v1 = _LEGACY_RECURSIVE_V1_CONTEXT.get()
+        if legacy_v1:
+            object.__setattr__(self, "_legacy_v1_missing_joint_simulation_ref", True)
+        if self.joint_simulation is None and self.joint_simulation_ref is not None:
+            raise ValueError("recursive_simulation_ref_without_result")
+        if (
+            self.joint_simulation is not None
+            and self.joint_simulation_ref is None
+            and not legacy_v1
+        ):
+            raise ValueError("recursive_simulation_result_requires_cas_ref")
+        if self.joint_simulation_ref is not None and (
+            self.joint_simulation_ref.kind != "polisyos.runtime.joint_simulation_result"
+            or self.joint_simulation_ref.media_type != "application/json"
+        ):
+            raise ValueError("recursive_simulation_ref_contract_mismatch")
         if self.child_refs and self.cycle_run is not None:
             raise ValueError("recursive_internal_node_cannot_run_leaf_cycle")
         if not self.child_refs and self.cycle_run is None:
@@ -144,6 +252,23 @@ class RecursiveCycleNode(_StrictModel):
                 raise ValueError("recursive_supported_n5_requires_composition")
         return self
 
+    @model_serializer(mode="wrap")
+    def _serialize_without_legacy_or_empty_simulation_ref(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, object]:
+        """Keep v1 identity bytes stable while omitting empty ref defaults."""
+
+        payload = handler(self)
+        if self._legacy_v1_missing_joint_simulation_ref:
+            supplied = _legacy_supplied_field_tree(self, payload)
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_recursive_payload_invalid")
+            payload = supplied
+        if self.joint_simulation_ref is None:
+            payload.pop("joint_simulation_ref", None)
+        return payload
+
 
 class RecursiveGenerationCycleRun(_StrictModel):
     """Content-bound depth-N run emitted by the thin recursive router."""
@@ -162,6 +287,21 @@ class RecursiveGenerationCycleRun(_StrictModel):
     nodes: tuple[RecursiveCycleNode, ...] = Field(min_length=1)
     terminal: SearchTerminalState
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="wrap")
+    @classmethod
+    def _admit_authenticated_legacy_v1(
+        cls,
+        value: object,
+        handler: ModelWrapValidatorHandler,
+    ) -> RecursiveGenerationCycleRun:
+        """Scope legacy ref omission to exact tracked identities during validation."""
+
+        token = _LEGACY_RECURSIVE_V1_CONTEXT.set(_is_authenticated_legacy_v1(value))
+        try:
+            return handler(value)
+        finally:
+            _LEGACY_RECURSIVE_V1_CONTEXT.reset(token)
 
     @property
     def leaf_nodes(self) -> tuple[RecursiveCycleNode, ...]:
@@ -763,6 +903,16 @@ class RecursiveGenerationCycleController:
                     node_results[node_ref] = result
                     return result
                 joint_simulation = self._joint_simulation_controller.run(request)
+                try:
+                    joint_simulation_ref = persist_joint_simulation_result(
+                        joint_simulation,
+                        repo_root=self._repo_root,
+                    )
+                except GenerationCycleError as exc:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_n5_result_persistence_failed",
+                        str(exc),
+                    ) from exc
                 if _joint_simulation_is_unsupported(joint_simulation):
                     result = RecursiveCycleNode(
                         node_ref=node_ref,
@@ -771,6 +921,7 @@ class RecursiveGenerationCycleController:
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
                         joint_simulation=joint_simulation,
+                        joint_simulation_ref=joint_simulation_ref,
                         terminal=_blocked_parent_terminal("unsupported_coupling_gated"),
                     )
                     node_results[node_ref] = result
@@ -792,6 +943,7 @@ class RecursiveGenerationCycleController:
                     child_refs=child_refs,
                     design_problem_ref=problem_ref,
                     joint_simulation=joint_simulation,
+                    joint_simulation_ref=joint_simulation_ref,
                     composition_certificate=certificate,
                     terminal=_fold_composed_terminal(
                         children=routed_children,

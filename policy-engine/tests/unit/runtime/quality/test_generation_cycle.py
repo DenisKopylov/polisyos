@@ -3092,7 +3092,7 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert run.fronts.research.candidate_ids == ("candidate_cycle_2",)
     assert run.fronts.portfolio.candidate_ids == ()
     assert run.value_port.status == "value_pending_n8"
-    assert validate_generation_cycle_run(run) == ()
+    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
 
 
 @pytest.mark.asyncio
@@ -3138,7 +3138,7 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
         for candidate_id in candidate_ids
     )
     assert front_ids == ("candidate_same_subject",)
-    assert validate_generation_cycle_run(run) == ()
+    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
 
 
 @pytest.mark.asyncio
@@ -3182,7 +3182,7 @@ async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
     )
     assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
     assert len(run.promotion_port.pre_n9_open_world_gates) == 1
-    assert validate_generation_cycle_run(run) == ()
+    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
 
 
 def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
@@ -4470,7 +4470,7 @@ async def test_honest_single_cycle_acquisition_terminal_validates() -> None:
 
     assert len(run.cycles) == 1
     assert run.cycles[0].terminal_kind == "acquisition_required"
-    assert validate_generation_cycle_run(run) == ()
+    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
 
 
 @pytest.mark.asyncio

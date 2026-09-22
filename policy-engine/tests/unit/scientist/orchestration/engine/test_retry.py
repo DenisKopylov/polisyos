@@ -1004,6 +1004,79 @@ class TestRetryTimeoutWorker:
         result_queue.put.assert_not_called()
 
 
+class _PayloadTransportNode:
+    """Return a deterministic result large enough to exercise Queue backpressure."""
+
+    def __init__(self, payload_size: int) -> None:
+        self.payload_size = payload_size
+
+    def execute(self, _ctx, passed_state):
+        result_state = passed_state.model_copy(deep=True)
+        result_state.params["payload"] = "x" * self.payload_size
+        return _ok_outcome(result_state)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("payload_size", [64, 1024 * 1024], ids=["small", "one-mib"])
+def test_fork_transport_drains_small_and_large_outcomes(ctx, state, mode, payload_size) -> None:
+    """A fork worker delivers results without joining before Queue drain."""
+    node = _PayloadTransportNode(payload_size)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 2.0, "alias": "payload-wire"}
+
+    if mode == "sync":
+        result = execute_with_retry_sync(node, ctx, state, **kwargs)
+    else:
+        result = asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+
+    assert result.status == "ok"
+    assert result.state.params["payload"] == "x" * payload_size
+
+
+class _BrokenResultQueue:
+    """A result channel that fails every send; success must never be fabricated."""
+
+    def __init__(self) -> None:
+        self.attempts = 0
+
+    def put(self, _value) -> None:
+        self.attempts += 1
+        raise OSError("result channel closed")
+
+
+def test_worker_send_failure_is_fail_closed(ctx, state) -> None:
+    node = _PayloadTransportNode(64)
+    result_queue = _BrokenResultQueue()
+
+    with pytest.raises(RuntimeError, match="failed to send result"):
+        _node_execute_worker(node, ctx, state, result_queue)
+
+    assert result_queue.attempts >= 2
+
+
+class _SerializationFailureOutcome:
+    def model_dump(self, *, mode: str):
+        raise TypeError(f"cannot serialize in {mode} mode")
+
+
+class _SerializationFailureNode:
+    def execute(self, _ctx, _state):
+        return _SerializationFailureOutcome()
+
+
+def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
+    """A worker serialization error reaches the caller as a transport failure."""
+    with pytest.raises(RuntimeError, match="TypeError: cannot serialize"):
+        retry_module._execute_with_timeout_process(
+            _SerializationFailureNode(),
+            ctx,
+            state,
+            timeout_s=2.0,
+        )
+
+
 class _OutputAwareTransportNode:
     def __init__(self, outcome, worker_pid_path):
         self.outcome = outcome

@@ -13,7 +13,18 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactAuthorityInfo,
+    ArtifactGovernanceInfo,
+    ArtifactRef,
+    ArtifactSameInputClosureInfo,
+    ArtifactTenantContextInfo,
+    CanonInfo,
+    EnvInfo,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -54,38 +65,88 @@ _TENANT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 _CELL_ID = "cell-a"
 
 
+def _coerce_manifest_model(value: Any, model: Any) -> Any:
+    """Coerce IR or core manifest metadata into the core model used by CAS."""
+    if value is None or isinstance(value, model):
+        return value
+    if isinstance(value, dict):
+        return model.model_validate(value)
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return model.model_validate(model_dump(mode="python"))
+    return value
+
+
+def _coerce_put_options(
+    opts: object,
+    *,
+    tenant_context: ArtifactTenantContextInfo | None,
+) -> PutOptions:
+    """Adapt core and IR write options without dropping manifest metadata."""
+    raw_inputs = getattr(opts, "inputs", None)
+    inputs = (
+        None
+        if raw_inputs is None
+        else [_coerce_manifest_model(item, InputRef) for item in raw_inputs]
+    )
+    return PutOptions(
+        kind=getattr(opts, "kind"),
+        media_type=getattr(opts, "media_type"),
+        schema=_coerce_manifest_model(getattr(opts, "schema", None), SchemaInfo),
+        producer=_coerce_manifest_model(getattr(opts, "producer", None), ProducerInfo),
+        env=_coerce_manifest_model(getattr(opts, "env", None), EnvInfo),
+        inputs=inputs,
+        canon=_coerce_manifest_model(getattr(opts, "canon", None), CanonInfo),
+        governance=_coerce_manifest_model(
+            getattr(opts, "governance", None), ArtifactGovernanceInfo
+        ),
+        tenant_context=tenant_context,
+        same_input_closure=_coerce_manifest_model(
+            getattr(opts, "same_input_closure", None),
+            ArtifactSameInputClosureInfo,
+        ),
+        authority=_coerce_manifest_model(
+            getattr(opts, "authority", None), ArtifactAuthorityInfo
+        ),
+    )
+
+
 class _TenantScopedCAS(FileSystemCAS):
     """Make this real-route witness persist explicit tenant-scoped manifests."""
 
     def put_json(
         self,
         obj: object,
-        opts: PutOptions,
+        opts: object,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
-        if opts.tenant_context is None:
-            opts = replace(
-                opts,
-                tenant_context=ArtifactTenantContextInfo(
-                    tenant_id=_TENANT_ID,
-                    cell_id=_CELL_ID,
-                ),
-            )
-        return super().put_json(obj, opts, canon_spec)
+        tenant_context = getattr(opts, "tenant_context", None) or ArtifactTenantContextInfo(
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+        )
+        return super().put_json(
+            obj,
+            _coerce_put_options(opts, tenant_context=tenant_context),
+            canon_spec,
+        )
 
     def put_json_unscoped(
         self,
         obj: object,
-        opts: PutOptions,
+        opts: object,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
         """Persist an intentionally unscoped negative fixture."""
-        return super().put_json(obj, opts, canon_spec)
+        return super().put_json(
+            obj,
+            _coerce_put_options(opts, tenant_context=None),
+            canon_spec,
+        )
 
     def put_json_for_tenant(
         self,
         obj: object,
-        opts: PutOptions,
+        opts: object,
         *,
         tenant_id: str,
         cell_id: str | None,
@@ -94,7 +155,7 @@ class _TenantScopedCAS(FileSystemCAS):
         """Persist a fixture with a deliberately foreign manifest tenant."""
         return super().put_json(
             obj,
-            replace(
+            _coerce_put_options(
                 opts,
                 tenant_context=ArtifactTenantContextInfo(
                     tenant_id=tenant_id,

@@ -6,7 +6,16 @@ import math
 
 import numpy as np
 
-from .designs import RunFailurePolicy, SensitivityMethod, SensitivityPlan, SensitivityResult
+from .designs import (
+    RunFailurePolicy,
+    SensitivityMethod,
+    SensitivityPlan,
+    SensitivityResult,
+    _DOE_DISTRIBUTION_SCHEMA_VERSION,
+    _SALIB_BACKEND_ID,
+    _build_salib_problem,
+    _derive_backend_seed,
+)
 from .uncertainty import (
     analyze_morris_trajectory_bootstrap,
     analyze_sobol_asymptotic_delta,
@@ -52,8 +61,17 @@ def analyze_sensitivity(
         },
     )
 
-    problem = _plan_to_salib_problem(plan)
+    problem, distribution_fingerprint = _build_salib_problem(plan)
+    result.metadata.update(
+        {
+            "distribution_schema_version": _DOE_DISTRIBUTION_SCHEMA_VERSION,
+            "distribution_mapping_fingerprint": distribution_fingerprint,
+            "salib_backend": _SALIB_BACKEND_ID,
+            "plan_seed": plan.seed,
+        }
+    )
     names = result.parameter_names
+    backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
 
     if plan.method == SensitivityMethod.MORRIS:
         from SALib.analyze import morris as morris_analyzer  # type: ignore[import-not-found]
@@ -64,6 +82,7 @@ def analyze_sensitivity(
             prepared_outputs,
             conf_level=plan.confidence_level,
             num_levels=plan.parameter_specs[0].num_levels,
+            seed=backend_seed,
         )
         for idx, name in enumerate(names):
             result.mu_star[name] = float(salib_result["mu_star"][idx])
@@ -83,6 +102,7 @@ def analyze_sensitivity(
             prepared_outputs,
             calc_second_order=True,
             conf_level=plan.confidence_level,
+            seed=backend_seed,
         )
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
@@ -114,6 +134,11 @@ def analyze_sensitivity(
         return result
 
     if plan.method == SensitivityMethod.FAST:
+        if plan.seed is not None:
+            raise ValueError(
+                "FAST analysis is compatibility_pending for seeded plans: "
+                "SALib 1.5.2 mutates process-global NumPy RNG"
+            )
         from SALib.analyze import fast as fast_analyzer  # type: ignore[import-not-found]
 
         salib_result = fast_analyzer.analyze(problem, prepared_outputs)
@@ -121,6 +146,7 @@ def analyze_sensitivity(
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
+        result.metadata["reproducibility_status"] = "compatibility_pending_fast_global_rng"
         if plan.uncertainty.enabled:
             _append_uncertainty_warning(result, "ci_unavailable_fast")
         return result
@@ -172,27 +198,7 @@ def _prepare_analysis_inputs(
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
-    from .designs import ParameterDist
-
-    problem: dict = {
-        "num_vars": len(plan.parameter_specs),
-        "names": [item.name for item in plan.parameter_specs],
-        "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
-    }
-    # Add distribution hints for SALib when non-uniform distributions are used
-    has_non_uniform = any(p.distribution != ParameterDist.UNIFORM for p in plan.parameter_specs)
-    if has_non_uniform:
-        dists: list[str] = []
-        for p in plan.parameter_specs:
-            if p.distribution == ParameterDist.NORMAL:
-                dists.append("norm")
-            elif p.distribution == ParameterDist.LOGNORMAL:
-                dists.append("lognorm")
-            elif p.distribution == ParameterDist.TRIANGULAR:
-                dists.append("triang")
-            else:
-                dists.append("unif")
-        problem["dists"] = dists
+    problem, _ = _build_salib_problem(plan)
     return problem
 
 

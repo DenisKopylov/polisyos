@@ -6,13 +6,20 @@ import itertools
 
 import numpy as np
 
-from .designs import AdversarialPlan, AdversarialStrategy, SensitivityMethod, SensitivityPlan
+from .designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    SensitivityMethod,
+    SensitivityPlan,
+    _build_salib_problem,
+    _derive_backend_seed,
+)
 
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
     """Generate parameter samples for the configured sensitivity plan."""
-    _set_numpy_seed(plan.seed)
     problem = _plan_to_salib_problem(plan)
+    backend_seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
 
     if plan.method == SensitivityMethod.MORRIS:
         from SALib.sample import morris as morris_sampler  # type: ignore[import-not-found]
@@ -21,33 +28,41 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
             problem,
             N=plan.n_trajectories,
             num_levels=plan.parameter_specs[0].num_levels,
+            seed=backend_seed,
         )
 
     if plan.method == SensitivityMethod.SOBOL:
         try:
             from SALib.sample import sobol as sobol_sampler  # type: ignore[import-not-found]
-
-            return sobol_sampler.sample(problem, N=plan.n_trajectories, calc_second_order=True)
-        except Exception:
+        except ImportError:
             from SALib.sample import saltelli as saltelli_sampler  # type: ignore[import-not-found]
 
+            if backend_seed is not None:
+                raise RuntimeError(
+                    "Seeded Sobol sampling requires SALib's seed-capable sobol backend"
+                )
             return saltelli_sampler.sample(
                 problem,
                 N=plan.n_trajectories,
                 calc_second_order=True,
             )
+        return sobol_sampler.sample(
+            problem,
+            N=plan.n_trajectories,
+            calc_second_order=True,
+            seed=backend_seed,
+        )
 
     if plan.method == SensitivityMethod.FAST:
         from SALib.sample import fast_sampler  # type: ignore[import-not-found]
 
-        return fast_sampler.sample(problem, N=plan.n_trajectories)
+        return fast_sampler.sample(problem, N=plan.n_trajectories, seed=backend_seed)
 
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
 
 
 def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
     """Generate adversarial parameter settings that stress the configured vulnerability region."""
-    _set_numpy_seed(plan.seed)
     n_params = len(plan.parameter_specs)
     bounds = np.array(
         [(item.lower_bound, item.upper_bound) for item in plan.parameter_specs],
@@ -88,13 +103,5 @@ def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
-    return {
-        "num_vars": len(plan.parameter_specs),
-        "names": [item.name for item in plan.parameter_specs],
-        "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
-    }
-
-
-def _set_numpy_seed(seed: int | None) -> None:
-    if seed is not None:
-        np.random.seed(seed)
+    problem, _ = _build_salib_problem(plan)
+    return problem

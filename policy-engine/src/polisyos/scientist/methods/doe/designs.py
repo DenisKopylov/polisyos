@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
 from enum import StrEnum
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -42,6 +46,64 @@ class ParameterDist(StrEnum):
     TRIANGULAR = "triangular"
 
 
+class _DistributionSpecBase(BaseModel):
+    """Version marker shared by typed SALib distribution specifications."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["1"] = "1"
+
+
+class UniformDistributionSpecV1(_DistributionSpecBase):
+    """Explicit uniform distribution specification."""
+
+    kind: Literal["uniform"] = "uniform"
+
+
+class NormalDistributionSpecV1(_DistributionSpecBase):
+    """Finite-support normal distribution specification."""
+
+    kind: Literal["normal"] = "normal"
+    mean: float
+    std: float = Field(gt=0.0)
+
+    @model_validator(mode="after")
+    def _validate_finite_parameters(self) -> NormalDistributionSpecV1:
+        if not math.isfinite(self.mean) or not math.isfinite(self.std):
+            raise ValueError("normal distribution mean and std must be finite")
+        return self
+
+
+class LognormalDistributionSpecV1(_DistributionSpecBase):
+    """Log-space parameters reserved for a future bounded adapter."""
+
+    kind: Literal["lognormal"] = "lognormal"
+    log_mean: float
+    log_std: float = Field(gt=0.0)
+
+    @model_validator(mode="after")
+    def _validate_finite_parameters(self) -> LognormalDistributionSpecV1:
+        if not math.isfinite(self.log_mean) or not math.isfinite(self.log_std):
+            raise ValueError("lognormal log_mean and log_std must be finite")
+        return self
+
+
+class TriangularDistributionSpecV1(_DistributionSpecBase):
+    """Finite-support triangular distribution specification."""
+
+    kind: Literal["triangular"] = "triangular"
+    mode_fraction: float = Field(ge=0.0, le=1.0)
+
+
+DistributionSpecV1 = Annotated[
+    UniformDistributionSpecV1
+    | NormalDistributionSpecV1
+    | LognormalDistributionSpecV1
+    | TriangularDistributionSpecV1,
+    Field(discriminator="kind"),
+]
+
+
 class RunFailurePolicy(StrEnum):
     """Policy for handling failed simulator runs inside a DOE batch."""
 
@@ -59,6 +121,7 @@ class ParameterSpec(BaseModel):
     lower_bound: float
     upper_bound: float
     distribution: ParameterDist = ParameterDist.UNIFORM
+    distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
     num_levels: int = Field(default=4, ge=2)
@@ -76,6 +139,14 @@ class ParameterSpec(BaseModel):
             raise ValueError(
                 f"parameter '{self.name}' baseline {self.baseline} is outside bounds "
                 f"[{self.lower_bound}, {self.upper_bound}]"
+            )
+        if (
+            self.distribution_spec is not None
+            and self.distribution_spec.kind != self.distribution.value
+        ):
+            raise ValueError(
+                f"parameter '{self.name}' distribution '{self.distribution.value}' does not match "
+                f"distribution_spec.kind '{self.distribution_spec.kind}'"
             )
         return self
 
@@ -151,6 +222,116 @@ class SensitivityPlan(BaseModel):
             )
 
         return self
+
+
+def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
+    """Derive a stable backend seed for one logical DOE stream.
+
+    A plan seed identifies the reproducible request.  Backend calls receive
+    separate derived seeds so sampling and analyzer resampling do not consume
+    a shared process-global stream or depend on call order.
+    """
+    if seed is None:
+        return None
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    digest = hashlib.blake2b(payload, digest_size=8).digest()
+    return int.from_bytes(digest, byteorder="little") % (2**32)
+
+
+_DOE_DISTRIBUTION_SCHEMA_VERSION = "doe-distribution-v1"
+_SALIB_BACKEND_ID = "SALib@1.5.2"
+
+
+def _salib_parameter_mapping(
+    parameter: ParameterSpec,
+) -> tuple[str, list[float]]:
+    """Resolve one parameter to the pinned SALib distribution contract."""
+    if not math.isfinite(parameter.lower_bound) or not math.isfinite(parameter.upper_bound):
+        raise ValueError(
+            f"parameter '{parameter.name}' requires finite physical bounds for SALib"
+        )
+
+    lower = parameter.lower_bound
+    upper = parameter.upper_bound
+    spec = parameter.distribution_spec
+
+    if parameter.distribution == ParameterDist.UNIFORM:
+        return "unif", [lower, upper]
+
+    if parameter.distribution == ParameterDist.NORMAL:
+        if not isinstance(spec, NormalDistributionSpecV1):
+            raise ValueError(
+                f"parameter '{parameter.name}' uses legacy NORMAL bounds; "
+                "an explicit DistributionSpecV1 with finite mean/std is required"
+            )
+        return "truncnorm", [lower, upper, spec.mean, spec.std]
+
+    if parameter.distribution == ParameterDist.TRIANGULAR:
+        if not isinstance(spec, TriangularDistributionSpecV1):
+            raise ValueError(
+                f"parameter '{parameter.name}' uses legacy TRIANGULAR bounds; "
+                "an explicit DistributionSpecV1 with mode_fraction is required"
+            )
+        return "triang", [lower, upper, spec.mode_fraction]
+
+    if parameter.distribution == ParameterDist.LOGNORMAL:
+        if spec is None:
+            raise ValueError(
+                f"parameter '{parameter.name}' uses ambiguous legacy LOGNORMAL bounds; "
+                "an explicit DistributionSpecV1 is required, and the bounded adapter is "
+                "compatibility_pending"
+            )
+        raise ValueError(
+            f"parameter '{parameter.name}' bounded LOGNORMAL sampling is compatibility_pending; "
+            "no bounded adapter is admitted"
+        )
+
+    raise ValueError(f"Unsupported parameter distribution: {parameter.distribution}")
+
+
+def _build_salib_problem(plan: SensitivityPlan) -> tuple[dict[str, object], str]:
+    """Build the canonical bounded SALib problem and its mapping fingerprint."""
+    names = [item.name for item in plan.parameter_specs]
+    bounds: list[list[float]] = []
+    dists: list[str] = []
+    fingerprint_parameters: list[dict[str, object]] = []
+
+    for parameter in plan.parameter_specs:
+        salib_distribution, salib_bounds = _salib_parameter_mapping(parameter)
+        bounds.append(salib_bounds)
+        dists.append(salib_distribution)
+        fingerprint_parameters.append(
+            {
+                "name": parameter.name,
+                "distribution": parameter.distribution.value,
+                "distribution_spec": (
+                    parameter.distribution_spec.model_dump(mode="json")
+                    if parameter.distribution_spec is not None
+                    else None
+                ),
+                "salib_distribution": salib_distribution,
+                "salib_bounds": salib_bounds,
+            }
+        )
+
+    problem: dict[str, object] = {
+        "num_vars": len(plan.parameter_specs),
+        "names": names,
+        "bounds": bounds,
+    }
+    if any(distribution != "unif" for distribution in dists):
+        problem["dists"] = dists
+
+    fingerprint_payload = {
+        "schema_version": _DOE_DISTRIBUTION_SCHEMA_VERSION,
+        "backend": _SALIB_BACKEND_ID,
+        "method": plan.method.value,
+        "parameters": fingerprint_parameters,
+    }
+    fingerprint = hashlib.sha256(
+        json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return problem, fingerprint
 
 
 class SensitivityResult(BaseModel):

@@ -8,6 +8,7 @@ from polisyos.scientist.methods.doe.analysis import _plan_to_salib_problem
 from polisyos.scientist.methods.doe.designs import (
     ParameterDist,
     ParameterSpec,
+    TriangularDistributionSpecV1,
     RunFailurePolicy,
     SensitivityMethod,
     SensitivityPlan,
@@ -75,7 +76,11 @@ class TestTriangularDistribution:
             method=SensitivityMethod.MORRIS,
             parameter_specs=[
                 ParameterSpec(
-                    name="x1", lower_bound=0, upper_bound=1, distribution=ParameterDist.TRIANGULAR
+                    name="x1",
+                    lower_bound=0,
+                    upper_bound=1,
+                    distribution=ParameterDist.TRIANGULAR,
+                    distribution_spec=TriangularDistributionSpecV1(mode_fraction=0.5),
                 ),
                 ParameterSpec(
                     name="x2", lower_bound=0, upper_bound=1, distribution=ParameterDist.UNIFORM
@@ -87,6 +92,7 @@ class TestTriangularDistribution:
         problem = _plan_to_salib_problem(plan)
         assert "dists" in problem
         assert problem["dists"] == ["triang", "unif"]
+        assert problem["bounds"] == [[0, 1, 0.5], [0, 1]]
 
     def test_uniform_only_no_dists(self):
         plan = SensitivityPlan(

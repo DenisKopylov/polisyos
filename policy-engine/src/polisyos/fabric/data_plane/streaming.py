@@ -1513,6 +1513,22 @@ def _effective_processing_contract(
     )
 
 
+def _remember_dedupe_key(
+    dedupe_keys: deque[str],
+    dedupe_seen: set[str],
+    dedupe_key: str,
+) -> None:
+    """Append one key while keeping membership aligned with the bounded deque."""
+
+    maxlen = dedupe_keys.maxlen
+    if maxlen is not None and len(dedupe_keys) >= maxlen:
+        evicted = dedupe_keys.popleft()
+        if evicted not in dedupe_keys:
+            dedupe_seen.discard(evicted)
+    dedupe_keys.append(dedupe_key)
+    dedupe_seen.add(dedupe_key)
+
+
 def _apply_out_of_order_policy(
     rows: list[dict[str, Any]],
     *,
@@ -1696,8 +1712,11 @@ async def process_stream_dataset(
                     connector_id,
                     dataset_id,
                 )
+            # The deque is the persisted bounded horizon.  Rebuild membership
+            # from the retained deque after maxlen clips any oversized or old
+            # checkpoint rather than reviving evicted keys on restart.
             dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-            dedupe_seen.update(latest_checkpoint.dedupe_keys)
+            dedupe_seen.update(dedupe_keys)
             operator_state = latest_checkpoint.metadata.get("operator_state")
             if operator_state is None:
                 # Checkpoints produced before ING-02 did not carry operator
@@ -1808,8 +1827,7 @@ async def process_stream_dataset(
                     if dedupe_key in dedupe_seen:
                         result.dedupe_dropped += 1
                         continue
-                    dedupe_seen.add(dedupe_key)
-                    dedupe_keys.append(dedupe_key)
+                    _remember_dedupe_key(dedupe_keys, dedupe_seen, dedupe_key)
                     clean_rows.append(row)
 
             result.warnings.extend(chunk_warnings)

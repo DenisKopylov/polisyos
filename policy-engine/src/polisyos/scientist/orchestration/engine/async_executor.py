@@ -69,7 +69,13 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeSpec,
 )
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
-from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutationJournal,
+    branch_state,
+    mutation_journal_for_state,
+    mutation_journal_from_operations,
+    snapshot_state,
+)
 from polisyos.scientist.orchestration.engine.state_merge import (
     MergeConflict,
     MergeConflictPolicy,
@@ -443,6 +449,7 @@ class AsyncWorkflowExecutor:
                 str,
                 asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
             ] = {}
+            launch_states: dict[str, ExperimentState] = {}
             records_by_alias: dict[str, NodeRunRecord] = {}
             tier_by_alias = {
                 alias: tier_index
@@ -513,6 +520,7 @@ class AsyncWorkflowExecutor:
                         tier_index = tier_by_alias[alias]
                         tier_started_at.setdefault(tier_index, time.perf_counter())
                         launch_state = snapshot_state(state)
+                        launch_states[alias] = launch_state
                         running[alias] = asyncio.create_task(
                             self._execute_node(
                                 alias,
@@ -534,6 +542,7 @@ class AsyncWorkflowExecutor:
                             if task is None or task not in done:
                                 continue
                             del running[alias]
+                            launch_state = launch_states.pop(alias, None)
                             outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
                             record = NodeRunRecord(
                                 alias=alias,
@@ -557,11 +566,30 @@ class AsyncWorkflowExecutor:
 
                             if outcome.status == "ok":
                                 node = self._registry.get(invocations[alias].node_id)
+                                write_specs = self._readiness_write_specs(
+                                    outcome.state,
+                                    launch_state,
+                                    list(node.spec.state_writes),
+                                )
                                 merge_result = merge_parallel_outcomes(
                                     state,
                                     {alias: outcome},
-                                    {alias: list(node.spec.state_writes)},
+                                    {alias: write_specs},
                                     conflict_policy=self._merge_conflict_policy,
+                                    # ``snapshot_state`` intentionally preserves
+                                    # mutable children cheaply.  When a successor
+                                    # is launched from a state that already has a
+                                    # branch journal, its stale journal can travel
+                                    # with the snapshot.  Restrict the replay to
+                                    # this completion's declared paths so a late
+                                    # independent sibling cannot re-apply an
+                                    # earlier node's writes.
+                                    mutation_journals={
+                                        alias: self._readiness_merge_journal(
+                                            outcome.state,
+                                            write_specs,
+                                        )
+                                    },
                                 )
                                 if merge_result.conflicts:
                                     conflict_ref = await self._persist_parallel_merge_conflict(
@@ -828,6 +856,75 @@ class AsyncWorkflowExecutor:
         """Return whether two declared state paths overlap by containment."""
         shortest = min(len(left), len(right))
         return left[:shortest] == right[:shortest]
+
+    @staticmethod
+    def _readiness_merge_journal(
+        outcome_state: ExperimentState,
+        write_specs: list[str],
+    ) -> StateMutationJournal | None:
+        """Return only mutations owned by a readiness completion.
+
+        Readiness successors are launched from the current committed state, so
+        the snapshot can contain a journal belonging to an earlier completion.
+        ``merge_parallel_outcomes`` must not discover and replay that journal
+        implicitly.  Filter a real branch journal to the node's declared write
+        paths; when no owned operation is present, return ``None`` so the
+        normal value-delta fallback handles lightweight/test doubles that mutate
+        an unjournaled snapshot directly.
+        """
+        journal = mutation_journal_for_state(outcome_state)
+        if journal is None:
+            return None
+
+        write_parts = [
+            tuple(part for part in path.split(".") if part)
+            for path in write_specs
+            if isinstance(path, str) and path
+        ]
+        if not write_parts:
+            return None
+
+        owned_operations = []
+        for operation in journal.operations:
+            operation_parts = tuple(
+                part for part in operation.path.split(".") if part
+            )
+            if any(
+                len(write_path) <= len(operation_parts)
+                and write_path == operation_parts[: len(write_path)]
+                for write_path in write_parts
+            ):
+                owned_operations.append(operation)
+        if not owned_operations:
+            return None
+        return mutation_journal_from_operations(owned_operations)
+
+    @staticmethod
+    def _readiness_write_specs(
+        outcome_state: ExperimentState,
+        launch_state: ExperimentState | None,
+        declared_write_specs: list[str],
+    ) -> list[str]:
+        """Rebase an unjournaled completion without replacing current state.
+
+        A small node adapter may return a plain ``ExperimentState`` rather than
+        the journaled branch produced by ``_execute_node``.  In that case the
+        only safe way to merge its result is to compare it with the immutable
+        launch snapshot and add changed model fields as delta roots.  The
+        resulting specs let the normal merge preserve unrelated state already
+        committed by earlier completions; journaled production branches remain
+        governed solely by their declared paths.
+        """
+        if launch_state is None or mutation_journal_for_state(outcome_state) is not None:
+            return declared_write_specs
+
+        write_specs = list(declared_write_specs)
+        for field_name in type(outcome_state).model_fields:
+            if getattr(outcome_state, field_name) == getattr(launch_state, field_name):
+                continue
+            if field_name not in write_specs:
+                write_specs.append(field_name)
+        return write_specs
 
     def _emit_rollback_compensation(
         self,

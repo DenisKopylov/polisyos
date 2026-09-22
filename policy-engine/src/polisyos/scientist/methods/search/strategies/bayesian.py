@@ -393,6 +393,14 @@ class BayesianOptimizer(BaseSearchStrategy):
             return
 
         try:
+            # GPyTorch's supported fantasy update requires an evaluation-mode
+            # prediction cache.  Acquisition optimization normally creates it,
+            # but keep this invariant local so a caller that updates the model
+            # before requesting a posterior is still handled safely.
+            self._model.eval()
+            if getattr(self._model, "prediction_strategy", None) is None:
+                with self._torch.no_grad():
+                    self._model(X[:1])
             self._model = self._model.condition_on_observations(
                 X=X[previous_size:],
                 Y=y_bo[previous_size:],

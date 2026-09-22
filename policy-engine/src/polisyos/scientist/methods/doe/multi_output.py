@@ -24,6 +24,7 @@ class MultiOutputSensitivityResult:
     total_variance_explained: float = 0.0
     pca_variance_threshold: float = 0.95
     pca_variance_threshold_status: str = "met"
+    metadata: dict[str, object] = field(default_factory=dict)
 
 
 class MultiOutputAnalyzer:
@@ -73,6 +74,7 @@ class MultiOutputAnalyzer:
                 total_variance_explained=1.0,
                 pca_variance_threshold=self._min_variance,
                 pca_variance_threshold_status="not_applicable",
+                metadata=dict(single.metadata),
             )
 
         if outputs.ndim != 2:
@@ -114,7 +116,12 @@ class MultiOutputAnalyzer:
         )
         variance_threshold_status = "met" if variance_threshold_met else "unmet_limited"
         for i, pc_scores in enumerate(components):
-            result = analyze_sensitivity(plan, clean_samples, pc_scores)
+            result = analyze_sensitivity(
+                plan,
+                clean_samples,
+                pc_scores,
+                preparation_context=prepared,
+            )
             # The component is derived from the policy-prepared matrix, so
             # restore the original run accounting rather than reporting the
             # imputed/PCA representation as a fresh all-successful experiment.
@@ -140,6 +147,21 @@ class MultiOutputAnalyzer:
 
         # Aggregate ranking weighted by explained variance
         aggregate = self._aggregate_rankings(per_component, variance_ratio, plan)
+        metadata = dict(prepared.metadata)
+        metadata.update(
+            {
+                "pca_sample_count": int(clean_outputs.shape[0]),
+                "pca_output_count": int(active_outputs.shape[1]),
+                "pca_rank_cap": max(
+                    min(clean_outputs.shape[0] - 1, active_outputs.shape[1]),
+                    0,
+                ),
+                "pca_scientific_sufficiency": "not_established",
+                "pca_variance_explained": total_variance_explained,
+                "pca_variance_threshold": self._min_variance,
+                "pca_variance_threshold_status": variance_threshold_status,
+            }
+        )
 
         return MultiOutputSensitivityResult(
             per_component=per_component,
@@ -149,6 +171,7 @@ class MultiOutputAnalyzer:
             total_variance_explained=total_variance_explained,
             pca_variance_threshold=self._min_variance,
             pca_variance_threshold_status=variance_threshold_status,
+            metadata=metadata,
         )
 
     def _run_pca(

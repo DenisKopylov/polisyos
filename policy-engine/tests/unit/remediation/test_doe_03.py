@@ -145,6 +145,34 @@ def test_nonfinite_input_is_accounted_as_failed_morris_run() -> None:
     assert result.metadata["effective_trajectory_ids"] == [1, 2, 3]
 
 
+def test_multi_output_drop_failed_propagates_selection_limit_before_uncertainty() -> None:
+    """Dropped Morris blocks limit both components and aggregate projection."""
+    plan = _morris_plan(
+        policy=RunFailurePolicy.DROP_FAILED,
+        uncertainty=SensitivityUncertaintyConfig(
+            enabled=True,
+            method="percentile",
+            n_resamples=20,
+            random_seed=7,
+        ),
+    )
+    samples = generate_sensitivity_samples(plan)
+    outputs = np.column_stack([samples[:, 0], samples[:, 1]])
+    outputs[0, 0] = np.nan
+
+    result = MultiOutputAnalyzer().analyze(plan, samples, outputs)
+
+    assert result.metadata["analysis_posture"] == "limited"
+    assert result.metadata["selection_bias_status"] == "not_established"
+    assert result.metadata["effective_run_count"] == 9
+    assert result.aggregate_ranking
+    for component in result.per_component:
+        assert component.metadata["analysis_posture"] == "limited"
+        assert component.metadata["selection_bias_status"] == "not_established"
+        assert component.metadata["uncertainty_status"] == "unavailable"
+        assert component.uncertainty is None
+
+
 def test_pca_caps_components_to_centered_rank_for_wide_small_matrix() -> None:
     """A 3x5 matrix is algebraically limited to rank two after centering."""
     outputs = np.array(

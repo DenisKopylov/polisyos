@@ -30,6 +30,8 @@ def analyze_sensitivity(
     plan: SensitivityPlan,
     samples: np.ndarray,
     outputs: np.ndarray,
+    *,
+    preparation_context: _PreparedAnalysisInputs | None = None,
 ) -> SensitivityResult:
     """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
     if outputs.ndim != 1:
@@ -45,13 +47,14 @@ def analyze_sensitivity(
         np.asarray(samples, dtype=float),
         raw_outputs,
     )
+    accounting = preparation_context or prepared
 
     result = SensitivityResult(
         method=plan.method,
         parameter_names=[item.name for item in plan.parameter_specs],
-        total_runs=len(outputs),
-        successful_runs=prepared.successful_runs,
-        failed_runs=prepared.failed_runs,
+        total_runs=int(accounting.metadata.get("original_total_runs", len(outputs))),
+        successful_runs=accounting.successful_runs,
+        failed_runs=accounting.failed_runs,
         metadata={
             "run_failure_policy": plan.run_failure_policy.value,
             "estimated_runs": plan.estimated_runs,
@@ -62,6 +65,11 @@ def analyze_sensitivity(
         },
     )
     result.metadata.update(prepared.metadata)
+    if preparation_context is not None:
+        # A derived PCA component is finite even when its source run was
+        # rejected.  Carry the source preparation context before any
+        # uncertainty producer decides whether it is eligible.
+        result.metadata.update(preparation_context.metadata)
 
     problem, distribution_fingerprint = _build_salib_problem(plan)
     result.metadata.update(

@@ -568,10 +568,18 @@ async def _run_cyc05_recursive_case(
     request: object,
     subdesigns: tuple[SubDesignContract, ...],
 ) -> tuple[object, list[object]]:
-    # The canonical leaf validator needs the real source-bound checkout for
-    # its strangle receipt. ``tmp_path`` remains only the test-owned scratch
-    # location; it is not a substitute source root.
-    controller = _recursive_contract_testing_controller(REPO_ROOT)
+    # Keep the validation root test-owned and deterministic.  The canonical
+    # leaf validator requires a complete, parseable ``src/polisyos`` slice to
+    # establish its strangle receipt; an empty ``tmp_path`` would therefore
+    # fail before the recursive parent reaches N5.  This benign source file
+    # has no ``run_fixture`` caller and is not production code under test.
+    source_root = tmp_path / "src" / "polisyos"
+    source_root.mkdir(parents=True)
+    (source_root / "owner.py").write_text(
+        "def owner() -> None:\n    return None\n",
+        encoding="utf-8",
+    )
+    controller = _recursive_contract_testing_controller(tmp_path)
     calls: list[object] = []
 
     class _RecordingN5:

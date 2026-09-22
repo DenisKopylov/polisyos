@@ -24,6 +24,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     RecordedAcquisitionOwnerGateway,
     value_input_world_knowledge_requirement_gap,
 )
+from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.design_problem import (
     CandidateLever,
     CandidateLeverSpace,
@@ -718,3 +719,129 @@ async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
             ),
             max_cycles=1,
         )
+
+
+@pytest.mark.asyncio
+async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
+    tmp_path: Path,
+) -> None:
+    """A post-growth registry URI must not substitute for a content-bound WMR.
+
+    N7's registry projection deliberately returns an ``s0://`` reference after
+    the owner write.  The re-entry path must resolve that reference to a fresh
+    owner-built WMR/context before invoking the real N5 consumer.  This test
+    uses the actual ``JointSimulationPort`` and N5 controller, while recording
+    calls only to distinguish the pre-write run from the post-write re-entry.
+    """
+
+    data_spec = _fixture_data_requirement_spec()
+    registry = _fixture_world_registry()
+    problem = _problem(
+        problem_id="acq_01_registry_only_reentry",
+        runtime_hints={
+            "n7_data_requirement_specs": (data_spec,),
+            "joint_simulation_resource": "method_registry_estimator",
+            "joint_simulation_budget_ref": "budget://acq-01/registry-only-reentry",
+            "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+        },
+    )
+    world = generation_cycle_module._build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="firm_survival",
+        policy_slot_ids=("fixture_panel",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=None,
+    )
+
+    class _BoundFixtureGenerationPort:
+        async def __call__(self, _problem: DesignProblem, *, cycle_index: int) -> Any:
+            del cycle_index
+            candidate = _fixture_candidate(
+                _problem,
+                world_ref=world.world_model_record_id,
+            )
+            return SimpleNamespace(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    SimpleNamespace(
+                        candidate_id=candidate.candidate_id,
+                        score=0.95,
+                        voi_estimate=0.95,
+                    ),
+                ),
+                grounding_dispositions=(),
+            )
+
+    class _RecordingN5Controller:
+        def __init__(self) -> None:
+            self.requests: list[object] = []
+            self._delegate = generation_cycle_module.JointSimulationHorizonController()
+
+        def run(self, request: object) -> Any:
+            self.requests.append(request)
+            return self._delegate.run(request)
+
+    n5 = _RecordingN5Controller()
+    controller = GenerationCycleController(
+        generation_port=_BoundFixtureGenerationPort(),
+        grounding_port=_FixtureAcquisitionGrounding(),
+        simulation_port=JointSimulationPort(
+            controller=n5,
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+        ),
+        value_port=_PendingFixtureValue(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                data_spec.requirement_id: _fixture_owner_artifact(
+                    data_spec.requirement_id,
+                    candidate_content_hash=_fixture_candidate(
+                        problem,
+                        world_ref=world.world_model_record_id,
+                    ).atom.content_hash,
+                )
+            }
+        ),
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+    )
+
+    run = await controller.run(
+        problem,
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+        ),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    receipt = cycle.acquisition_receipt
+    assert receipt is not None
+    assert receipt["status"] == "completed"
+    grown_world_ref = receipt["grown_world_after_ref"]
+    assert grown_world_ref.startswith("s0://substrate-registry/")
+    assert grown_world_ref != context.world_model_record_content_hash
+    assert grown_world_ref != context.world_model_record.world_model_record_id
+
+    # One call is the pre-write N5 observation.  The post-write re-entry is
+    # blocked before the N5 controller because the registry URI is not a WMR.
+    assert len(n5.requests) == 1
+    assert cycle.simulation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in cycle.simulation.authority_blockers
+    assert cycle.simulation.simulation_ref is None

@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
@@ -69,6 +69,43 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert snapshot.entry_count > 0
     assert snapshot.step == 4
     assert "snapshot_format:npz-v2" in snapshot.notes
+
+
+def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    first_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("a" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("b" * 64), role="state_delta"),
+    ]
+    second_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("c" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("d" * 64), role="state_delta"),
+    ]
+
+    first_ref = put_state_snapshot(store, state=state, step=1, inputs=first_inputs)
+    second_ref = put_state_snapshot(store, state=state, step=2, inputs=second_inputs)
+
+    first_snapshot = load_model(store, first_ref, StateSnapshot)
+    second_snapshot = load_model(store, second_ref, StateSnapshot)
+    blob_manifest = store.get_manifest(first_snapshot.state_ref.artifact_id)
+    first_manifest = store.get_manifest(first_ref.artifact_id)
+    second_manifest = store.get_manifest(second_ref.artifact_id)
+
+    assert first_snapshot.state_ref.artifact_id == second_snapshot.state_ref.artifact_id
+    assert blob_manifest.kind == "foundry.state_blob"
+    assert blob_manifest.inputs == []
+    assert {item.role for item in first_manifest.inputs} == {
+        "base_state",
+        "state_delta",
+        "state_blob",
+    }
+    assert {item.role for item in second_manifest.inputs} == {
+        "base_state",
+        "state_delta",
+        "state_blob",
+    }
+    assert first_manifest.inputs[:2] != second_manifest.inputs[:2]
 
 
 def test_load_state_snapshot_rejects_corrupt_blob_checksum(tmp_path) -> None:

@@ -1198,6 +1198,114 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
 
 
 @pytest.mark.asyncio
+async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Rollback must not remove a newer same-ID cursor published concurrently."""
+
+    stream_path = tmp_path / "intervening-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_remove_cursor = AsyncCursorStoreAdapter.remove_cursor
+    original_save_stream_checkpoint = AsyncCursorStoreAdapter.save_stream_checkpoint
+    target_cursors: list[Any] = []
+    newer_cursors: list[Any] = []
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        target_cursors.append(cursor)
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed before checkpoint index")
+
+    async def fail_empty_frontier_restore(
+        self: AsyncCursorStoreAdapter,
+        checkpoint: StreamCheckpoint,
+    ) -> Any:
+        if "frontier_intent" not in checkpoint.metadata:
+            raise RuntimeError("empty frontier restore failed")
+        return await original_save_stream_checkpoint(self, checkpoint)
+
+    async def publish_newer_then_remove(
+        self: AsyncCursorStoreAdapter,
+        cursor_id: str,
+        **kwargs: Any,
+    ) -> Any:
+        assert target_cursors
+        target = target_cursors[0]
+        newer = target.model_copy(
+            update={
+                "watermark_value": str(int(target.watermark_value) + 1),
+                "created_at": datetime.now(UTC),
+            }
+        )
+        newer_cursors.append(newer)
+        self.store.save_cursor(newer)
+        return await original_remove_cursor(self, cursor_id, **kwargs)
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "save_stream_checkpoint",
+        fail_empty_frontier_restore,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "remove_cursor",
+        publish_newer_then_remove,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="intervening-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert newer_cursors
+    latest_cursor = cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "intervening-frontier",
+    )
+    assert latest_cursor is not None
+    assert latest_cursor.watermark_value == newer_cursors[0].watermark_value
+    unresolved = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "intervening-frontier",
+    )
+    assert unresolved is not None
+    assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
+    assert unresolved.metadata["frontier_committed"] is False
+
+
+@pytest.mark.asyncio
 async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -19,10 +19,29 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackWorkflowRunner,
-    _HealthFailureDisposition,
-    _HealthFailureSample,
+    FallbackNotAuthorizedError,
+    HealthFailureDisposition,
+    PrimaryExecutionOutcomeUnknownError,
 )
+from polisyos.scientist.orchestration.engine.runner import fallback_runner as fallback_runner_module
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
+
+
+def _health_sample(
+    health: RunnerHealth,
+    disposition: HealthFailureDisposition,
+    probe_id: int,
+) -> object:
+    """Build the private backend witness without making it public test API."""
+
+    sample_type = getattr(fallback_runner_module, "_HealthFailureSample", None)
+    if sample_type is None:
+        return SimpleNamespace(
+            health=health,
+            disposition=disposition,
+            probe_id=probe_id,
+        )
+    return sample_type(health=health, disposition=disposition, probe_id=probe_id)
 
 
 def _make_store(tmp_path) -> ControlPlaneStore:
@@ -157,7 +176,7 @@ def test_post_dispatch_failure_does_not_blindly_replay_locally() -> None:
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
 
-    with pytest.raises(RuntimeError, match="outcome"):
+    with pytest.raises(PrimaryExecutionOutcomeUnknownError, match="outcome"):
         asyncio.run(runner.execute_workflow("wf", "state", "ctx", "registry"))
 
     assert calls == ["primary-effect"]
@@ -176,15 +195,12 @@ def test_transient_pre_dispatch_probe_failure_allows_local_fallback() -> None:
         )
     )
     primary.execute_workflow = AsyncMock()
-    sample = _HealthFailureSample(
-        health=primary.health_check.return_value,
-        disposition=_HealthFailureDisposition.ALLOW,
-        probe_id=1,
-    )
+    health = primary.health_check.return_value
+    sample = _health_sample(health, HealthFailureDisposition.ALLOW, probe_id=1)
+    primary._get_health_sample = MagicMock(return_value=sample)
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
@@ -206,20 +222,17 @@ def test_access_or_contract_probe_failure_does_not_grant_fallback_authority() ->
         message="probe failed: connection refused; tenant access denied by contract",
     )
     primary.health_check = AsyncMock(return_value=health)
-    sample = _HealthFailureSample(
-        health=health,
-        disposition=_HealthFailureDisposition.BLOCK,
-        probe_id=1,
-    )
+    sample = _health_sample(health, HealthFailureDisposition.BLOCK, probe_id=1)
+    primary._get_health_sample = MagicMock(return_value=sample)
+    primary.classify_health_failure = MagicMock(return_value=HealthFailureDisposition.ALLOW)
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
 
-    with pytest.raises(RuntimeError, match="fallback"):
+    with pytest.raises(FallbackNotAuthorizedError, match="fallback"):
         asyncio.run(runner.execute_workflow("wf", "state", "ctx", "registry"))
 
     fallback.assert_not_awaited()

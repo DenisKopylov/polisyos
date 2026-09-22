@@ -11,9 +11,8 @@ from polisyos.scientist.orchestration.engine.runner import fallback_runner as fa
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackNotAuthorizedError,
     FallbackWorkflowRunner,
+    HealthFailureDisposition,
     PrimaryExecutionOutcomeUnknownError,
-    _HealthFailureDisposition,
-    _HealthFailureSample,
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 
@@ -30,6 +29,26 @@ def _make_primary(healthy: bool = True) -> MagicMock:
     )
     primary.execute_workflow = AsyncMock(return_value="primary_result")
     return primary
+
+
+def _health_sample(
+    health: RunnerHealth,
+    disposition: HealthFailureDisposition,
+    probe_id: int,
+) -> object:
+    """Build the private backend witness without making it public test API."""
+
+    sample_type = getattr(fallback_runner_module, "_HealthFailureSample", None)
+    if sample_type is None:
+        # The pre-wiring baseline has no sample type.  Keep collection working
+        # so the baseline fails at the missing private probe hand-off instead
+        # of becoming a collection error.
+        return SimpleNamespace(
+            health=health,
+            disposition=disposition,
+            probe_id=probe_id,
+        )
+    return sample_type(health=health, disposition=disposition, probe_id=probe_id)
 
 
 class TestFallbackRunner:
@@ -106,18 +125,14 @@ def test_typed_transient_health_sample_allows_fallback() -> None:
         healthy=False,
         message="transport unavailable; contract text is not consulted",
     )
-    sample = _HealthFailureSample(
-        health=health,
-        disposition=_HealthFailureDisposition.ALLOW,
-        probe_id=1,
-    )
+    sample = _health_sample(health, HealthFailureDisposition.ALLOW, probe_id=1)
     primary = MagicMock()
     primary.health_check = AsyncMock(return_value=health)
     primary.execute_workflow = AsyncMock()
+    primary._get_health_sample = MagicMock(return_value=sample)
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
@@ -139,17 +154,15 @@ def test_typed_transient_health_sample_allows_fallback() -> None:
 )
 def test_access_contract_and_unknown_health_samples_block_fallback(message: str) -> None:
     health = RunnerHealth(backend="remote", healthy=False, message=message)
-    sample = _HealthFailureSample(
-        health=health,
-        disposition=_HealthFailureDisposition.BLOCK,
-        probe_id=1,
-    )
+    sample = _health_sample(health, HealthFailureDisposition.BLOCK, probe_id=1)
     primary = MagicMock()
     primary.health_check = AsyncMock(return_value=health)
+    primary._get_health_sample = MagicMock(return_value=sample)
+    # The old classifier must not override the current typed private probe.
+    primary.classify_health_failure = MagicMock(return_value=HealthFailureDisposition.ALLOW)
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_sample_provider=lambda: sample,
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
@@ -163,31 +176,21 @@ def test_access_contract_and_unknown_health_samples_block_fallback(message: str)
 def test_stale_allow_sample_is_not_inherited_by_new_probe() -> None:
     first_health = RunnerHealth(backend="remote", healthy=False, message="temporary transport")
     second_health = RunnerHealth(backend="remote", healthy=False, message="contract rejected")
-    samples = [
-        _HealthFailureSample(
-            health=first_health,
-            disposition=_HealthFailureDisposition.ALLOW,
-            probe_id=1,
-        ),
-        _HealthFailureSample(
-            health=second_health,
-            disposition=_HealthFailureDisposition.BLOCK,
-            probe_id=2,
-        ),
-    ]
+    first_sample = _health_sample(first_health, HealthFailureDisposition.ALLOW, probe_id=1)
     primary = MagicMock()
     primary.health_check = AsyncMock(side_effect=[first_health, second_health])
-    current_sample = {"value": samples[0]}
+    # The second probe deliberately returns the first probe's ALLOW witness.
+    # The fallback must bind authority to the current health/probe identity.
+    primary._get_health_sample = MagicMock(side_effect=[first_sample, first_sample])
+    primary.classify_health_failure = MagicMock(return_value=HealthFailureDisposition.ALLOW)
     runner = FallbackWorkflowRunner(
         primary,
         health_ttl_s=0,
-        health_sample_provider=lambda: current_sample["value"],
     )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
 
     first = asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
-    current_sample["value"] = samples[1]
     with pytest.raises(FallbackNotAuthorizedError, match="fallback"):
         asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
 

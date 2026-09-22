@@ -13,17 +13,23 @@ Required registry fields:
 | `active_calibration_id` | Calibration artifact that certified FP behavior |
 | `stationarity_regime_id` | Declared regime under which FP claims are valid |
 | `active_incident_id` | Linked incident or `null` |
-| `promotion_allowed` | Registry promotion gate |
+| `promotion_allowed` | Persisted baseline permission; for R4/R3, `false` is a binding veto |
 
 Promotion rules:
 
 | State | Promotion |
 | --- | --- |
-| R4 | Allowed |
-| R3 | Allowed with investigation note |
+| R4 | Allowed only when the persisted permission is `true` and checker evidence is valid |
+| R3 | Allowed with investigation note only when the persisted permission is `true` and checker evidence is valid |
 | R2 | Block expansion unless owner signs off |
 | R1 | Block promotion |
 | R0 | Block promotion and require rollback/fallback |
+
+The evaluator treats a persisted `promotion_allowed=false` as a fail-closed
+`persisted_readiness_veto` for R4 and R3. `owner_signoff` does not override
+that veto in those states. The documented R2 owner-signoff exception remains
+limited to R2 and does not remove the certificate or calibration-validity
+checks; R1 and R0 remain blocked.
 
 The gate must reject readiness updates that cite uncalibrated Track 2.2 shift
 events. Required shift fields are `stationarity_regime_id`, `calibration_id`,

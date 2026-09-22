@@ -1,0 +1,216 @@
+"""Regression witnesses for the bounded EXE-02 readiness schedule."""
+
+from __future__ import annotations
+
+import asyncio
+from unittest.mock import MagicMock
+
+import pytest
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+
+
+def _ref(tag: str, *, kind: str = "scientist.test") -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id="sha256:" + tag * 64,
+        kind=kind,
+        media_type="application/json",
+    )
+
+
+def _node_spec(
+    node_id: str,
+    *,
+    state_reads: tuple[str, ...] = (),
+    state_writes: tuple[str, ...] = (),
+) -> NodeSpec:
+    return NodeSpec(
+        metadata=ComponentMetadata(
+            component_id=ComponentId.parse(node_id),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="EXE-02 test node",
+            description="Deterministic readiness scheduling witness",
+            tags=["test"],
+            capabilities=Capability.SCIENTIST_NODE,
+        ),
+        state_reads=list(state_reads),
+        state_writes=list(state_writes),
+        produces=[],
+    )
+
+
+def _context() -> ExecutionContext:
+    store = MagicMock()
+    run = MagicMock()
+    run.trace_path = None
+    run.finalize.return_value = _ref("f", kind="scientist.run")
+    return ExecutionContext(store=store, run=run, logger=MagicMock())
+
+
+def _executor(
+    nodes: dict[str, MagicMock],
+    execute_node,
+) -> AsyncWorkflowExecutor:
+    registry = MagicMock(spec=NodeRegistry)
+    registry.get.side_effect = lambda node_id: nodes[str(node_id)]
+    executor = AsyncWorkflowExecutor(_context(), registry, max_parallelism=2)
+
+    async def _persist_workflow_spec(workflow: WorkflowSpec) -> ArtifactRef:
+        del workflow
+        return _ref("a", kind="scientist.workflow_spec")
+
+    async def _persist_state(state: ExperimentState) -> ArtifactRef:
+        del state
+        return _ref("b", kind="scientist.experiment_state")
+
+    async def _persist_report(report) -> ArtifactRef:
+        del report
+        return _ref("c", kind="scientist.workflow_report")
+
+    executor._persist_workflow_spec = _persist_workflow_spec  # type: ignore[method-assign]
+    executor._persist_state = _persist_state  # type: ignore[method-assign]
+    executor._persist_report = _persist_report  # type: ignore[method-assign]
+    executor._execute_node = execute_node  # type: ignore[method-assign]
+    return executor
+
+
+def _nodes(*, overlap: bool = False) -> dict[str, MagicMock]:
+    a_id = "scientist.exe_a@1.0.0"
+    b_id = "scientist.exe_b@1.0.0"
+    c_id = "scientist.exe_c@1.0.0"
+    a = MagicMock()
+    a.spec = _node_spec(
+        a_id,
+        state_writes=("params.a" if overlap else "params.c_input",),
+    )
+    b = MagicMock()
+    b.spec = _node_spec(
+        b_id,
+        state_writes=("params.c_input" if overlap else "params.b",),
+    )
+    c = MagicMock()
+    c.spec = _node_spec(c_id, state_reads=("params.c_input",), state_writes=("params.result",))
+    return {a_id: a, b_id: b, c_id: c}
+
+
+def _workflow(*, c_depends_on: list[str]) -> WorkflowSpec:
+    return WorkflowSpec(
+        workflow_id="exe_02_readiness",
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(alias="a", node_id=ComponentId.parse("scientist.exe_a@1.0.0")),
+            NodeInvocation(alias="b", node_id=ComponentId.parse("scientist.exe_b@1.0.0")),
+            NodeInvocation(
+                alias="c",
+                node_id=ComponentId.parse("scientist.exe_c@1.0.0"),
+                depends_on=c_depends_on,
+            ),
+        ],
+    )
+
+
+async def _run_witness(
+    *,
+    overlap: bool,
+    c_depends_on: list[str],
+) -> tuple[asyncio.Task, asyncio.Event, asyncio.Event, asyncio.Event, list[str], list[str]]:
+    started: list[str] = []
+    c_inputs: list[str | None] = []
+    b_started = asyncio.Event()
+    b_release = asyncio.Event()
+    c_started = asyncio.Event()
+    b_finished = asyncio.Event()
+    state = ExperimentState(run_id="exe-02-witness")
+
+    async def _execute_node(alias, invocation, node_state, workflow, *, tier_index=0):
+        del invocation, workflow, tier_index
+        started.append(alias)
+        if alias == "a":
+            node_state.params["a"] = "done"
+            if not overlap:
+                node_state.params["c_input"] = "from-a"
+        elif alias == "b":
+            b_started.set()
+            await b_release.wait()
+            if overlap:
+                node_state.params["c_input"] = "from-b"
+            else:
+                node_state.params["b"] = "done"
+            b_finished.set()
+        else:
+            c_started.set()
+            c_inputs.append(node_state.params.get("c_input"))
+            node_state.params["result"] = "from-c"
+        return NodeOutcome(status="ok", state=node_state), 1, False, None
+
+    executor = _executor(_nodes(overlap=overlap), _execute_node)
+    task = asyncio.create_task(
+        executor.execute(_workflow(c_depends_on=c_depends_on), state)
+    )
+    await asyncio.wait_for(b_started.wait(), timeout=1)
+    return task, b_release, c_started, b_finished, started, c_inputs
+
+
+@pytest.mark.asyncio
+async def test_independent_successor_starts_before_slow_sibling() -> None:
+    """C observes committed A while independent slow B is still running."""
+    task, release_b, c_started, b_finished, started, c_inputs = await _run_witness(
+        overlap=False,
+        c_depends_on=["a"],
+    )
+
+    await asyncio.wait_for(c_started.wait(), timeout=1)
+    assert c_inputs == ["from-a"]
+    assert started[:2] == ["a", "b"]
+    assert not b_finished.is_set()
+    assert not task.done()
+
+    release_b.set()
+    result = await task
+    assert result.report.status == "ok"
+    assert [record.alias for record in result.report.nodes] == ["a", "b", "c"]
+    assert result.state.params == {
+        "a": "done",
+        "c_input": "from-a",
+        "result": "from-c",
+        "b": "done",
+    }
+
+
+@pytest.mark.asyncio
+async def test_unordered_read_write_overlap_keeps_tier_barrier() -> None:
+    """An unordered B write overlapping C's read must not be reordered."""
+    task, release_b, c_started, _b_finished, _started, _c_inputs = await _run_witness(
+        overlap=True,
+        c_depends_on=["a"],
+    )
+
+    await asyncio.sleep(0)
+    assert not c_started.is_set()
+    release_b.set()
+    result = await task
+    assert result.report.status == "ok"
+    assert c_started.is_set()
+
+
+@pytest.mark.asyncio
+async def test_declared_dependency_keeps_successor_after_b_and_overlap() -> None:
+    """A real B→C edge remains a join even when the paths overlap."""
+    task, release_b, c_started, _b_finished, _started, _c_inputs = await _run_witness(
+        overlap=True,
+        c_depends_on=["a", "b"],
+    )
+
+    await asyncio.sleep(0)
+    assert not c_started.is_set()
+    release_b.set()
+    result = await task
+    assert result.report.status == "ok"
+    assert c_started.is_set()

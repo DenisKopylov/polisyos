@@ -9,6 +9,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
+import polisyos.scientist.orchestration.engine.async_executor as async_executor_module
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -515,6 +516,54 @@ class TestAsyncCacheBoundaries:
         assert cache_hit is True
         assert node.calls == 1
         assert ticks > 0
+
+    @pytest.mark.asyncio
+    async def test_cache_timeout_passes_remaining_deadline_to_producer(self, tmp_path, monkeypatch):
+        """A cache timeout leaves only the remaining workflow budget for production."""
+        node_id = "test.async_cache_deadline@1.0.0"
+        node = _CacheTestNode(_cache_node_spec(node_id))
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.return_value = node
+        store, ctx = _make_real_store_ctx(tmp_path)
+        executor = AsyncWorkflowExecutor(ctx, registry, workflow_timeout_s=0.08)
+        executor._cache = NodeResultCache(store, run_id="async-cache-deadline")
+        invocation = NodeInvocation(alias="cached", node_id=node_id)
+        workflow = WorkflowSpec(workflow_id="async_cache_deadline", nodes=[invocation])
+
+        executor._workflow_deadline = time.perf_counter() + 0.04
+        original_get = executor._cache.get
+
+        def slow_get(*args, **kwargs):
+            time.sleep(0.06)
+            return original_get(*args, **kwargs)
+
+        monkeypatch.setattr(executor._cache, "get", slow_get)
+        monkeypatch.setattr(executor._cache, "put", lambda *args, **kwargs: None)
+        producer_timeouts: list[float | None] = []
+
+        async def fake_execute_with_retry(node, ctx, state, **kwargs):
+            del node, ctx
+            producer_timeouts.append(kwargs["timeout_s"])
+            return NodeOutcome(status="ok", state=state)
+
+        monkeypatch.setattr(
+            async_executor_module,
+            "execute_with_retry_async",
+            fake_execute_with_retry,
+        )
+
+        outcome, _, cache_hit, _ = await executor._execute_node(
+            "cached",
+            invocation,
+            ExperimentState(run_id="async-cache-deadline", params={"seed": 1}),
+            workflow,
+        )
+
+        assert outcome.status == "ok"
+        assert cache_hit is False
+        assert producer_timeouts
+        assert producer_timeouts[0] is not None
+        assert 0 < producer_timeouts[0] <= 0.01
 
     @pytest.mark.asyncio
     async def test_cache_put_does_not_block_and_failed_entry_is_not_published(

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -233,6 +234,92 @@ def test_node_result_cache_reloads_legacy_v1_entry(tmp_path) -> None:
     loaded = restored.get(key)
     assert loaded is not None
     assert loaded.model_dump(mode="python") == outcome.model_dump(mode="python")
+
+    bound = NodeResultCache(
+        store,
+        run_id=run_id,
+        tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
+    )
+    with pytest.raises(ValueError, match="cache_entry: unbound_legacy_entry"):
+        bound.load_entry(entry_ref)
+
+
+def test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache(tmp_path) -> None:
+    """A bound cache cannot replay an unbound or foreign tenant artifact."""
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_cache_scope"
+    key = "s" * 64
+    tenant_a = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
+    tenant_b = ArtifactTenantContextInfo(tenant_id="tenant-b", cell_id="cell-b")
+
+    cache_a = NodeResultCache(store, run_id=run_id, tenant_context=tenant_a)
+    entry_ref = cache_a.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=_outcome(run_id),
+    )
+    entry = NodeCacheEntry.model_validate(
+        from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
+    )
+    manifest = store.get_manifest(entry_ref.artifact_id)
+
+    assert entry.tenant_context == tenant_a
+    assert manifest.tenant_context == tenant_a
+
+    foreign = NodeResultCache(store, run_id=run_id, tenant_context=tenant_b)
+    with pytest.raises(ValueError, match="cache_entry: tenant_scope_mismatch"):
+        foreign.load_entry(entry_ref)
+
+    unbound = NodeResultCache(store, run_id=run_id)
+    with pytest.raises(ValueError, match="cache_entry: scoped_artifact_on_unbound_cache"):
+        unbound.load_entry(entry_ref)
+
+
+def test_node_result_cache_rejects_expired_deadline_before_store_io(tmp_path, monkeypatch) -> None:
+    """An expired cache deadline is not converted into an ordinary cache miss."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_deadline")
+    key = "e" * 64
+    cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+    calls = 0
+    original_get_bytes = store.get_bytes
+
+    def count_get_bytes(artifact_id):
+        nonlocal calls
+        calls += 1
+        return original_get_bytes(artifact_id)
+
+    monkeypatch.setattr(store, "get_bytes", count_get_bytes)
+
+    with pytest.raises(TimeoutError, match="cache deadline exceeded"):
+        cache.get(key, deadline_monotonic=time.perf_counter() - 1.0)
+
+    assert calls == 0
+
+
+def test_node_result_cache_rejects_expired_deadline_before_publication(tmp_path, monkeypatch) -> None:
+    """An expired publication deadline does not start a CAS write."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_put_deadline")
+    calls = 0
+    original_put_json = store.put_json
+
+    def count_put_json(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", count_put_json)
+
+    with pytest.raises(TimeoutError, match="cache deadline exceeded"):
+        cache.put(
+            "d" * 64,
+            node_id="scientist.node_test@1.0.0",
+            outcome=_outcome(cache.run_id),
+            deadline_monotonic=time.perf_counter() - 1.0,
+        )
+
+    assert calls == 0
 
 
 def test_node_result_cache_rejects_tampered_embedded_outcome(tmp_path) -> None:

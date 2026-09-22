@@ -86,9 +86,7 @@ def test_cau_05_legacy_staggered_slots_match_dedicated_request() -> None:
 def test_cau_05_legacy_staggered_flag_rejects_ambiguous_mode() -> None:
     """An invalid legacy mode must not silently select the staggered estimator."""
 
-    report = _report(
-        DifferenceInDifferences.pure_step(_panel(), {"staggered": "not-a-bool"})
-    )
+    report = _report(DifferenceInDifferences.pure_step(_panel(), {"staggered": "not-a-bool"}))
 
     assert report.status is EstimationStatus.INPUT_INVALID
     assert report.status_reason == "staggered must be a boolean"

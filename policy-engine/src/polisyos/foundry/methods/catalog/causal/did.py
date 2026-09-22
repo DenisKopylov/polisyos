@@ -33,10 +33,8 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
 
-
 _DID_CITATIONS = (
-    "Callaway, B., & Sant'Anna, P. (2021). "
-    "Difference-in-Differences with Multiple Time Periods.",
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
     "Angrist, J., & Pischke, J. (2009). Mostly Harmless Econometrics.",
 )
 _DID_EQUATIONS = {
@@ -524,8 +522,7 @@ def _cohort_time_att(
         return np.array([], dtype=float), np.array([], dtype=float)
 
     att_values = [
-        float(cell["treated_delta"].mean() - cell["control_delta"].mean())
-        for cell in cells
+        float(cell["treated_delta"].mean() - cell["control_delta"].mean()) for cell in cells
     ]
     weights = [float(cell["weight"]) for cell in cells]
 
@@ -664,7 +661,9 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
                 post_periods=data.post_periods,
                 assumptions=dict(_DID_ASSUMPTIONS),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "assumption failed"]
+            )
         unit_identity = "unit_ids"
 
     rng = params["__rng__"]
@@ -829,9 +828,7 @@ class DifferenceInDifferences:
             ("treatment_indicator", "treatment"),
         ):
             if legacy_name in bound_inputs and dedicated_name in bound_inputs:
-                raise ValueError(
-                    f"{legacy_name} and {dedicated_name} cannot both be supplied"
-                )
+                raise ValueError(f"{legacy_name} and {dedicated_name} cannot both be supplied")
         payload = _did_payload(fallback_state)
         if "outcome_panel" in bound_inputs and "outcome" not in bound_inputs:
             payload["outcome"] = bound_inputs["outcome_panel"]

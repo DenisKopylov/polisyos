@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -151,6 +152,20 @@ class SensitivityPlan(BaseModel):
             )
 
         return self
+
+
+def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
+    """Derive a stable backend seed for one logical DOE stream.
+
+    A plan seed identifies the reproducible request.  Backend calls receive
+    separate derived seeds so sampling and analyzer resampling do not consume
+    a shared process-global stream or depend on call order.
+    """
+    if seed is None:
+        return None
+    payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode("utf-8")
+    digest = hashlib.blake2b(payload, digest_size=8).digest()
+    return int.from_bytes(digest, byteorder="little") % (2**32)
 
 
 class SensitivityResult(BaseModel):

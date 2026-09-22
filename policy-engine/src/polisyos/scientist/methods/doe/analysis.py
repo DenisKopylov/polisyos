@@ -6,7 +6,13 @@ import math
 
 import numpy as np
 
-from .designs import RunFailurePolicy, SensitivityMethod, SensitivityPlan, SensitivityResult
+from .designs import (
+    RunFailurePolicy,
+    SensitivityMethod,
+    SensitivityPlan,
+    SensitivityResult,
+    _derive_backend_seed,
+)
 from .uncertainty import (
     analyze_morris_trajectory_bootstrap,
     analyze_sobol_asymptotic_delta,
@@ -54,6 +60,7 @@ def analyze_sensitivity(
 
     problem = _plan_to_salib_problem(plan)
     names = result.parameter_names
+    backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
 
     if plan.method == SensitivityMethod.MORRIS:
         from SALib.analyze import morris as morris_analyzer  # type: ignore[import-not-found]
@@ -64,6 +71,7 @@ def analyze_sensitivity(
             prepared_outputs,
             conf_level=plan.confidence_level,
             num_levels=plan.parameter_specs[0].num_levels,
+            seed=backend_seed,
         )
         for idx, name in enumerate(names):
             result.mu_star[name] = float(salib_result["mu_star"][idx])
@@ -83,6 +91,7 @@ def analyze_sensitivity(
             prepared_outputs,
             calc_second_order=True,
             conf_level=plan.confidence_level,
+            seed=backend_seed,
         )
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
@@ -116,7 +125,7 @@ def analyze_sensitivity(
     if plan.method == SensitivityMethod.FAST:
         from SALib.analyze import fast as fast_analyzer  # type: ignore[import-not-found]
 
-        salib_result = fast_analyzer.analyze(problem, prepared_outputs)
+        salib_result = fast_analyzer.analyze(problem, prepared_outputs, seed=backend_seed)
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])

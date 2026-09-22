@@ -1386,11 +1386,11 @@ class ControlPlaneService(
             from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
             curated_dir = _resolve_curated_dir()
-            catalog_paths = default_substrate_catalog_paths(Path.cwd())
+            catalog_paths = default_substrate_catalog_paths(self._repo_root)
             self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
                 catalog_paths.l1_dcat_path,
                 catalog_paths.l1_dcat_path.parent,
-                overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
             )
             self._retrieval = RetrievalService(
                 curated_dir=curated_dir,

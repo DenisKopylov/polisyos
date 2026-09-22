@@ -411,7 +411,13 @@ class DepthNStrangleReceipt(_StrictModel):
     """
 
     status: Literal["strangled", "drift", "not_established"]
-    source_state: Literal["available", "missing", "parse_error", "read_error"]
+    source_state: Literal[
+        "available",
+        "missing",
+        "parse_error",
+        "read_error",
+        "not_established",
+    ]
     source_content_hash: str | None = Field(
         default=None,
         pattern=r"^sha256:[0-9a-f]{64}$",
@@ -437,7 +443,18 @@ def recompute_depth_n_strangle_receipt(
     not evidence that the legacy caller is gone.
     """
 
-    root = (repo_root or Path.cwd()).resolve()
+    if repo_root is None:
+        return DepthNStrangleReceipt(
+            status="not_established",
+            source_state="not_established",
+            source_content_hash=None,
+            parse_errors=(),
+            default_controller="unresolved",
+            predecessor_symbols=tuple(sorted(_LEGACY_RECURSIVE_FIXTURE_SYMBOLS)),
+            production_fixture_callers=(),
+            production_default_routes=(),
+        )
+    root = repo_root.resolve()
     source_root = root / "src/polisyos"
     callers: list[str] = []
     default_routes: list[str] = []

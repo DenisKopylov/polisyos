@@ -557,6 +557,14 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_epoch_owner_binding_mismatch",
                 "The HTTP composition derives every epoch dependency from one runtime.",
             )
+        controller_repo_root = getattr(controller, "_repo_root", None)
+        caller_repo_root = repo_root.resolve() if repo_root is not None else None
+        if controller_repo_root != caller_repo_root:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_repo_root_mismatch",
+                "The injected recursive controller must retain the exact source checkout "
+                "identity supplied by the HTTP composition.",
+            )
         resolved_controller = controller
     else:
         resolved_controller = build_default_recursive_generation_cycle_controller(

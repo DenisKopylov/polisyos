@@ -99,14 +99,22 @@ def _fit_local_polynomial(
         design.append(x_side**order)
     x_mat = np.column_stack(design)
 
-    w = np.diag(weights)
-    xtwx = x_mat.T @ w @ x_mat
-    xtwy = x_mat.T @ w @ y_side
-    beta = np.linalg.pinv(xtwx) @ xtwy
+    weighted_design = weights[:, None] * x_mat
+    rank = int(np.linalg.matrix_rank(weighted_design))
+    if rank < x_mat.shape[1]:
+        raise ValueError(
+            f"rank deficient design on {cutoff_side} side: "
+            f"rank={rank} < parameters={x_mat.shape[1]}"
+        )
+
+    xtwx = x_mat.T @ weighted_design
+    xtwy = x_mat.T @ (weights * y_side)
+    xtwx_pinv = np.linalg.pinv(xtwx)
+    beta = xtwx_pinv @ xtwy
     residual = y_side - x_mat @ beta
     dof = max(x_side.shape[0] - x_mat.shape[1], 1)
     sigma2 = float((weights * residual**2).sum() / dof)
-    cov = sigma2 * np.linalg.pinv(xtwx)
+    cov = sigma2 * xtwx_pinv
     intercept = float(beta[0])
     intercept_se = float(np.sqrt(max(cov[0, 0], 0.0)))
     return intercept, intercept_se, float(x_side.shape[0])
@@ -177,13 +185,13 @@ class RegressionDiscontinuity:
             ParameterSpec(name="polynomial_order", default=1),
             ParameterSpec(name="bandwidth", default=None),
             ParameterSpec(name="kernel", default="triangular"),
-            ParameterSpec(name="bias_correction", default=True),
+            ParameterSpec(name="bias_correction", default=False),
             ParameterSpec(name="manipulation_test", default=True),
             ParameterSpec(name="n_bins_density", default=50),
             ParameterSpec(name="confidence_level", default=0.95),
         ),
         fidelity=FidelityLevel.HIGH,
-        complexity=ComplexityClass.O_N2,
+        complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
         supports_jit=False,
         supports_vmap=False,
@@ -227,8 +235,100 @@ class RegressionDiscontinuity:
             else RDDObservationalData.model_validate(state)
         )
         x_centered = data.running_variable - float(data.cutoff)
-        poly_order = int(params.get("polynomial_order", 1))
-        kernel = str(params.get("kernel", "triangular")).lower()
+        bias_correction = params.get("bias_correction", False)
+        treated_count = int(np.sum(x_centered >= 0))
+        control_count = int(np.sum(x_centered < 0))
+        if not isinstance(bias_correction, bool):
+            reason = "bias_correction must be a boolean"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"bias_correction": bias_correction},
+                metadata={"capability": "invalid_bias_correction_flag"},
+            )
+            return wrap_causal_output(report, warnings=[reason])
+
+        polynomial_order = params.get("polynomial_order", 1)
+        if (
+            isinstance(polynomial_order, bool)
+            or not isinstance(polynomial_order, int)
+            or polynomial_order not in {1, 2}
+        ):
+            reason = "polynomial_order must be an integer in {1, 2}"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"polynomial_order": polynomial_order},
+                metadata={"capability": "unsupported_polynomial_order"},
+            )
+            return wrap_causal_output(report, warnings=[reason])
+
+        kernel_value = params.get("kernel", "triangular")
+        if not isinstance(kernel_value, str) or kernel_value.lower() not in {
+            "triangular",
+            "epanechnikov",
+            "uniform",
+        }:
+            reason = "kernel must be one of: triangular, epanechnikov, uniform"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"kernel": kernel_value},
+                metadata={"capability": "unsupported_kernel"},
+            )
+            return wrap_causal_output(report, warnings=[reason])
+        kernel = kernel_value.lower()
+
+        if bias_correction:
+            reason = (
+                "unsupported RBC: bias-corrected RDD inference requires a validated "
+                "rdrobust backend"
+            )
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"bias_correction": True},
+                metadata={
+                    "capability": "unsupported_rbc",
+                    "backend": "rdrobust",
+                    "supported_profile": "uncorrected_local_polynomial",
+                },
+            )
+            return wrap_causal_output(report, warnings=[reason])
+
+        poly_order = polynomial_order
         bandwidth = params.get("bandwidth")
         bandwidth_value = float(bandwidth) if bandwidth is not None else _auto_bandwidth(x_centered)
         if bandwidth_value <= 0:
@@ -238,8 +338,8 @@ class RegressionDiscontinuity:
                 reason=f"invalid bandwidth={bandwidth_value}",
                 estimand="LATE",
                 sample_size=data.sample_size,
-                n_treated=int(np.sum(x_centered >= 0)),
-                n_control=int(np.sum(x_centered < 0)),
+                n_treated=treated_count,
+                n_control=control_count,
                 pre_periods=0,
                 post_periods=0,
                 assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
@@ -256,8 +356,8 @@ class RegressionDiscontinuity:
                 reason=str(exc),
                 estimand="LATE",
                 sample_size=data.sample_size,
-                n_treated=int(np.sum(x_centered >= 0)),
-                n_control=int(np.sum(x_centered < 0)),
+                n_treated=treated_count,
+                n_control=control_count,
                 pre_periods=0,
                 post_periods=0,
                 assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
@@ -331,8 +431,8 @@ class RegressionDiscontinuity:
             effect_size_cohen_d=effect_size,
             diagnostics=diagnostics,
             sample_size=data.sample_size,
-            n_treated=int(np.sum(x_centered >= 0)),
-            n_control=int(np.sum(x_centered < 0)),
+            n_treated=treated_count,
+            n_control=control_count,
             pre_periods=0,
             post_periods=0,
             assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
@@ -340,7 +440,7 @@ class RegressionDiscontinuity:
                 "bandwidth": bandwidth_value,
                 "kernel": kernel,
                 "polynomial_order": poly_order,
-                "bias_correction": bool(params.get("bias_correction", True)),
+                "bias_correction": bias_correction,
                 "confidence_procedure": "normal_two_sided",
                 "critical_value": z_critical,
             },

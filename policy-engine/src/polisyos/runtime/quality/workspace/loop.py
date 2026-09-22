@@ -2813,6 +2813,10 @@ class WorkspaceLoop:
     ) -> SubDesignContract:
         subdesign_id = f"subdesign-{_slug(fixture_id)}-{index}"
         workspace_id = f"{child_exit.workspace_id}-child-{index}"
+        # Bind the exported exit to the unique SubDesignContract identity
+        # while preserving the child-owned terminal, authority, artifacts,
+        # obligations, and producer roots.
+        bound_child_exit = child_exit.model_copy(update={"workspace_id": workspace_id})
         provides: list[PortSpec] = []
         requires: list[PortSpec] = []
         if child_exit.authority_boundary is not None:
@@ -2862,7 +2866,7 @@ class WorkspaceLoop:
             requires=requires,
             coupling_declarations=[],
             producer_roots=producer_roots,
-            search_exit=child_exit,
+            search_exit=bound_child_exit,
             unresolved_obligations=list(child_exit.obligation_records),
             internal_trace_ref=_subdesign_contract_verification_ref(
                 parent_workspace_id=parent_workspace_id,

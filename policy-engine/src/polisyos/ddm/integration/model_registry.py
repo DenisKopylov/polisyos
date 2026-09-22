@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from polisyos.ddm.calibration.audit import _CalibrationValidityEvidence
 from polisyos.ddm.integration.events import (
     CalibrationAudit,
     PerformanceDegradationEvent,
@@ -37,6 +38,9 @@ class ModelRegistryReadinessRecord(BaseModel):
     required_action: str | None = None
     active_incident_id: str | None = None
     promotion_allowed: bool
+    _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(
+        default=None
+    )
 
 
 class RegistryGateDecision(BaseModel):
@@ -59,10 +63,11 @@ def build_model_registry_record(
     last_shift_event: ShiftRiskEvent | None = None,
     last_degradation_event: PerformanceDegradationEvent | None = None,
     active_incident_id: str | None = None,
+    _calibration_validity_evidence: _CalibrationValidityEvidence | None = None,
 ) -> ModelRegistryReadinessRecord:
     """Build the durable registry state described by the Phase 5 plan."""
 
-    return ModelRegistryReadinessRecord(
+    record = ModelRegistryReadinessRecord(
         model_id=readiness_event.model_id,
         model_version=readiness_event.model_version,
         stationarity_regime_id=calibration_audit.stationarity_regime_id,
@@ -84,8 +89,14 @@ def build_model_registry_record(
             None if not readiness_event.required_actions else readiness_event.required_actions[0]
         ),
         active_incident_id=active_incident_id,
-        promotion_allowed=readiness_event.promotion_allowed and calibration_audit.pass_,
+        promotion_allowed=(
+            readiness_event.promotion_allowed
+            and calibration_audit.pass_
+            and _calibration_validity_is_authoritative(_calibration_validity_evidence)
+        ),
     )
+    record._calibration_validity_evidence = _calibration_validity_evidence
+    return record
 
 
 def evaluate_registry_gate(
@@ -104,6 +115,23 @@ def evaluate_registry_gate(
             required_actions=["recalibrate_detector"],
         )
     if record.readiness_state in {ReadinessState.R4, ReadinessState.R3}:
+        applicability_reason = _calibration_validity_block_reason(record)
+        if applicability_reason is not None:
+            return RegistryGateDecision(
+                model_id=record.model_id,
+                model_version=record.model_version,
+                promotion_allowed=False,
+                reason=applicability_reason,
+                required_actions=["revalidate_calibration"],
+            )
+        if not record.promotion_allowed:
+            return RegistryGateDecision(
+                model_id=record.model_id,
+                model_version=record.model_version,
+                promotion_allowed=False,
+                reason="persisted_readiness_veto",
+                required_actions=[] if record.required_action is None else [record.required_action],
+            )
         return RegistryGateDecision(
             model_id=record.model_id,
             model_version=record.model_version,
@@ -112,6 +140,15 @@ def evaluate_registry_gate(
             required_actions=[] if record.required_action is None else [record.required_action],
         )
     if record.readiness_state is ReadinessState.R2 and owner_signoff:
+        applicability_reason = _calibration_validity_block_reason(record)
+        if applicability_reason is not None:
+            return RegistryGateDecision(
+                model_id=record.model_id,
+                model_version=record.model_version,
+                promotion_allowed=False,
+                reason=applicability_reason,
+                required_actions=["revalidate_calibration"],
+            )
         return RegistryGateDecision(
             model_id=record.model_id,
             model_version=record.model_version,
@@ -126,6 +163,33 @@ def evaluate_registry_gate(
         reason=f"{record.readiness_state.value}_blocks_promotion",
         required_actions=[] if record.required_action is None else [record.required_action],
     )
+
+
+def _calibration_validity_is_authoritative(
+    evidence: _CalibrationValidityEvidence | None,
+) -> bool:
+    """Return whether checker-owned current validity is available and true."""
+
+    return evidence is not None and evidence.is_bound and evidence.status.valid
+
+
+def _calibration_validity_block_reason(
+    record: ModelRegistryReadinessRecord,
+) -> str | None:
+    """Return a fail-closed reason for missing or invalid checker evidence."""
+
+    evidence = record._calibration_validity_evidence
+    if evidence is None:
+        return "calibration_validity_not_established"
+    if not evidence.is_bound:
+        return "calibration_report_binding_not_established"
+    if evidence.calibration_id != record.calibration_id:
+        return "calibration_identity_mismatch"
+    if not evidence.status.valid:
+        if evidence.status.reasons:
+            return "calibration_" + "_".join(evidence.status.reasons)
+        return "calibration_validity_failed"
+    return None
 
 
 def _metric_budget_payload(metric_budget: MetricBudgetPolicy) -> dict[str, float | str]:

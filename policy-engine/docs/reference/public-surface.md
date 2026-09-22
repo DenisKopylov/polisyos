@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 279 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 283 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -104,7 +104,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
 | `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
-| `polisyos.ddm` | `internal` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
+| `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
 ## `polisyos.common`
@@ -1175,7 +1175,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 279 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 283 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
@@ -1185,7 +1185,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (279)</summary>
+<details><summary>Entrypoint exports (283)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1224,6 +1224,9 @@ CausalDiscoveryReport
 CausalEffectReport
 CausalExecutionBundle
 CausalExecutionBundleRef
+CausalAttributionSpec
+CausalContrastRegime
+CausalContrastSpec
 CausalInterventionSpec
 CausalMethod
 CausalModelEnsemble
@@ -1232,6 +1235,7 @@ CausalPanelBundleManifest
 CausalQuery
 CausalQueryResult
 CausalQueryResultRef
+CausalRegime
 CausalReadinessBundle
 CohortDimension
 CohortImpact
@@ -1501,7 +1505,7 @@ resolve_lazy_export
 
 </details>
 
-<details><summary>Supported exports (279)</summary>
+<details><summary>Supported exports (283)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1540,6 +1544,9 @@ CausalDiscoveryReport
 CausalEffectReport
 CausalExecutionBundle
 CausalExecutionBundleRef
+CausalAttributionSpec
+CausalContrastRegime
+CausalContrastSpec
 CausalInterventionSpec
 CausalMethod
 CausalModelEnsemble
@@ -1548,6 +1555,7 @@ CausalPanelBundleManifest
 CausalQuery
 CausalQueryResult
 CausalQueryResultRef
+CausalRegime
 CausalReadinessBundle
 CohortDimension
 CohortImpact
@@ -5325,7 +5333,7 @@ to_validation_report
 
 - Classification: `internal`
 - Supported entrypoints: `polisyos.ddm`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Facade policy: expected `eager_exports`, observed `lazy_facade`
 - Owner: `team-scientist`
 - README: `src/polisyos/ddm/README.md`
 - Reference doc: `docs/reference/public-surface.md`
@@ -5336,12 +5344,12 @@ to_validation_report
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ddm` | `src/polisyos/ddm/__init__.py` | `eager_exports` | 17 |
+| `polisyos.ddm` | `src/polisyos/ddm/__init__.py` | `lazy_facade` | 17 |
 
 #### `polisyos.ddm`
 
 - Source: `src/polisyos/ddm/__init__.py`
-- Facade: `eager_exports`
+- Facade: `lazy_facade`
 - Summary: Drift-and-Degradation Monitor for Phase 5 Problem 15.7.
 
 <details><summary>Entrypoint exports (17)</summary>

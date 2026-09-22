@@ -21,7 +21,7 @@ from polisyos.ir.analytics.causal_queries import (
     persist_causal_query_result,
 )
 from polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
 from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
@@ -275,13 +275,29 @@ class RunCausalQueriesNode:
             ctx.store,
             query_result,
             inputs=input_refs,
+            schema_version=query_result.schema_version,
         )
 
-        envelope_payload = output.get("envelope")
-        if envelope_payload is not None:
-            envelope = UncertaintyEnvelope.model_validate(envelope_payload)
-        else:
-            envelope = query_result.to_uncertainty_envelope()
+        # The typed result is the producer's source of truth.  A method output
+        # envelope is only a peer projection and must not override its arms or
+        # eligibility when the two disagree.
+        envelope = query_result.to_uncertainty_envelope()
+        member_gate_eligible = bool(
+            query_result.metadata.get("abduction_gate_eligible", True)
+        ) and not query_result.metadata.get("declared_root_hypothesis")
+        if not member_gate_eligible:
+            envelope_metadata = dict(envelope.metadata)
+            envelope_metadata["member_gate_eligible"] = False
+            if query_result.metadata.get("declared_root_hypothesis"):
+                envelope_metadata["declared_root_hypothesis"] = query_result.metadata[
+                    "declared_root_hypothesis"
+                ]
+            envelope = envelope.model_copy(
+                update={
+                    "gate_eligible": False,
+                    "metadata": envelope_metadata,
+                }
+            )
         envelope_ref = persist_uncertainty_envelope(
             ctx.store,
             envelope,

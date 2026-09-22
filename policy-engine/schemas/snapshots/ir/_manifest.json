@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "769b61ae5b244f09cd3eaa69d27ba2fa83998a69f99b5e9e587605fe56f08cd0",
-  "generated_at": "2026-09-06T10:18:11+00:00",
+  "content_hash": "2d2db2e781510e085cd466d1721f30d5c0989d2f36f16340fc4af039a06fc5bb",
+  "generated_at": "2026-09-22T16:59:24+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -66,8 +66,8 @@
       "priority": "p1",
       "schema_file": "backtest_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "fd2faa1d9879ba9222105b2e2ed3754665a9aa58b290e8e5fd9712a1227f653a",
-      "sha256_semantic": "43ed2808685c34d8886d1474a33cf17fc2c5636ca40a08b78f73b09975c340d9",
+      "sha256_full": "21461b74b0a52105c6a082c324143e845fe76e97bbbb6750b7b89e6875a68553",
+      "sha256_semantic": "6147696139c6834a4d95236a41fb821a2e60c4c61369ab99064f596994ffb2fd",
       "version_field": "schema_version"
     },
     "bounds_estimation_bundle": {
@@ -174,8 +174,8 @@
       "priority": "p2",
       "schema_file": "causal_query.schema.json",
       "schema_version": null,
-      "sha256_full": "2fa90f9aa923df0babc6eca8acdcb1b7a959b9e86da952130b6b097866607c59",
-      "sha256_semantic": "6899702dc991f50546e924b22db33ee4f32f7945444b6084f240e0327729685f",
+      "sha256_full": "8a1f642fb7f39ebd199ea777ef728b335337a53500e858ee2006e651ef882dbc",
+      "sha256_semantic": "eb18e05d28fd022e6d359d145892f5ca366da501200cb92451f75e34cfebfdc4",
       "version_field": "schema_version"
     },
     "causal_query_result": {
@@ -185,9 +185,9 @@
       "lifecycle": "active",
       "priority": "p1",
       "schema_file": "causal_query_result.schema.json",
-      "schema_version": "1.0",
-      "sha256_full": "2f5cb1cb2b82a3c8ae64abde776ee83e48ba5cb7404640ef570b6a1cc33fe42d",
-      "sha256_semantic": "a58d6b839664983dfdf7de8dfea36c9c6b9525ea32eb70b37d9c01021125137b",
+      "schema_version": "1.1",
+      "sha256_full": "89839685cab2e24d958674c179c1aee2f11ac078b36a9943923b38a64f8e2c34",
+      "sha256_semantic": "feff2e577f8676b22029ab69447f4ba8606856588ed773a4fc7150f6eefcee82",
       "version_field": "schema_version"
     },
     "causal_sensitivity_result": {
@@ -1201,5 +1201,5 @@
   },
   "module": "ir",
   "pydantic_version": "2.12.5",
-  "python_version": "3.14.0"
+  "python_version": "3.14.3"
 }

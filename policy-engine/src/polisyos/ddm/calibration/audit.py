@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -23,6 +26,30 @@ class CalibrationInvalidationStatus(BaseModel):
     invalidated: bool
     valid: bool
     reasons: list[str] = Field(default_factory=list)
+
+
+_CHECKER_EVIDENCE_TOKEN = object()
+
+
+@dataclass(frozen=True)
+class _CalibrationValidityEvidence:
+    """Private, checker-issued applicability evidence for one calibration report."""
+
+    issuer_token: object
+    calibration_id: str
+    report_digest: str
+    effective_at: datetime
+    status: CalibrationInvalidationStatus
+    audit_binding_reasons: tuple[str, ...]
+
+    @property
+    def is_bound(self) -> bool:
+        """Return whether the checker result is bound to the projected audit."""
+
+        return (
+            self.issuer_token is _CHECKER_EVIDENCE_TOKEN
+            and not self.audit_binding_reasons
+        )
 
 
 def build_calibration_audit(
@@ -69,4 +96,53 @@ def check_calibration_validity(
         invalidated=bool(matched_triggers),
         valid=not expired and not matched_triggers,
         reasons=reasons,
+    )
+
+
+def _check_bound_calibration_validity(
+    *,
+    calibration_id: str,
+    report: CalibrationReport,
+    audit: CalibrationAudit,
+    now: datetime,
+    observed_invalidation_triggers: list[str] | None = None,
+) -> _CalibrationValidityEvidence:
+    """Run the canonical checker and bind its result to the report projection.
+
+    This is intentionally private.  A caller-shaped ``CalibrationAudit`` is
+    not allowed to declare current validity; the monitor must supply the
+    source report so this helper can execute the existing checker and compare
+    every field that the public audit currently projects from that report.
+    """
+
+    status = check_calibration_validity(
+        calibration_id=calibration_id,
+        report=report,
+        now=now,
+        observed_invalidation_triggers=observed_invalidation_triggers,
+    )
+    expected_audit = build_calibration_audit(
+        calibration_id=calibration_id,
+        report=report,
+    )
+    expected_payload = expected_audit.model_dump(mode="json", by_alias=True)
+    actual_payload = audit.model_dump(mode="json", by_alias=True)
+    binding_reasons = tuple(
+        f"calibration_audit_{field}_mismatch"
+        for field in sorted(set(expected_payload) | set(actual_payload))
+        if expected_payload.get(field) != actual_payload.get(field)
+    )
+    report_payload = report.model_dump(mode="json")
+    report_bytes = json.dumps(
+        report_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return _CalibrationValidityEvidence(
+        issuer_token=_CHECKER_EVIDENCE_TOKEN,
+        calibration_id=calibration_id,
+        report_digest=hashlib.sha256(report_bytes).hexdigest(),
+        effective_at=now,
+        status=status,
+        audit_binding_reasons=binding_reasons,
     )

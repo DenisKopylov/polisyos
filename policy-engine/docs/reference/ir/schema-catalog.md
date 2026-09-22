@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1586`.
-- Public/root-or-package facade types: `445`.
+- Total IR types: `1594`.
+- Public/root-or-package facade types: `447`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 282 |
-| `polisyos.ir.analytics` | 274 |
+| `polisyos.ir` | 286 |
+| `polisyos.ir.analytics` | 278 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,13 +28,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 976 | 252 | 37 |
+| `analytics` | 983 | 254 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 7 | 0 | 0 |
-| `observation` | 137 | 63 | 30 |
+| `observation` | 138 | 63 | 30 |
 | `trinity` | 2 | 1 | 1 |
 | `world` | 32 | 32 | 12 |
 | `connectors` | 24 | 4 | 0 |
@@ -1315,6 +1315,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `aggregation_policy` | `str \| NoneType` | `no` | `—` | — |
 | `backtest_config_ref` | `str \| NoneType` | `no` | `—` | — |
 | `cas_artifact_id` | `str \| NoneType` | `no` | `—` | — |
 | `decision_packet_ref` | `str \| NoneType` | `no` | `—` | — |
@@ -1328,6 +1329,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `n_scenarios` | `int` | `no` | `0` | — |
 | `overall_bias_direction` | `polisyos.ir.analytics.backtest.BiasDirection` | `no` | `<BiasDirection.NEUTRAL: 'neutral'>` | `polisyos.ir.analytics.backtest.BiasDirection` |
 | `overall_coverage_probability` | `float \| NoneType` | `no` | `—` | — |
+| `overall_macro_rmse` | `float \| NoneType` | `no` | `—` | — |
 | `overall_mae` | `float \| NoneType` | `no` | `—` | — |
 | `overall_mape` | `float \| NoneType` | `no` | `—` | — |
 | `overall_r_squared` | `float \| NoneType` | `no` | `—` | — |
@@ -1355,17 +1357,35 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `absolute_error_sum` | `float \| NoneType` | `no` | `—` | — |
+| `compared_count` | `int` | `no` | `0` | — |
 | `coverage_probability` | `float \| NoneType` | `no` | `—` | — |
 | `data_source` | `str` | `no` | `''` | — |
+| `interval_availability` | `float \| NoneType` | `no` | `—` | — |
+| `interval_available_count` | `int` | `no` | `0` | — |
+| `interval_evaluated_count` | `int` | `no` | `0` | — |
+| `interval_hit_count` | `int` | `no` | `0` | — |
+| `interval_hit_rate` | `float \| NoneType` | `no` | `—` | — |
+| `interval_requested_count` | `int` | `no` | `0` | — |
+| `interval_type` | `str \| NoneType` | `no` | `—` | — |
 | `intervention_date` | `str` | `no` | `''` | — |
+| `invalid_cells` | `list[tuple[str, int]]` | `no` | `—` | — |
+| `invalid_count` | `int` | `no` | `0` | — |
 | `jurisdiction` | `str` | `no` | `''` | — |
 | `mae` | `float \| NoneType` | `no` | `—` | — |
 | `mape` | `float \| NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `missing_cells` | `list[tuple[str, int]]` | `no` | `—` | — |
+| `missing_count` | `int` | `no` | `0` | — |
+| `nominal_confidence_level` | `float \| NoneType` | `no` | `—` | — |
 | `outcome_comparisons` | `list[polisyos.ir.analytics.backtest.OutcomeComparison]` | `no` | `—` | `polisyos.ir.analytics.backtest.OutcomeComparison` |
+| `percentage_error_count` | `int` | `no` | `0` | — |
+| `percentage_error_sum` | `float \| NoneType` | `no` | `—` | — |
+| `requested_count` | `int` | `no` | `0` | — |
 | `rmse` | `float \| NoneType` | `no` | `—` | — |
 | `scenario_id` | `str` | `yes` | `—` | — |
 | `scenario_label` | `str` | `yes` | `—` | — |
+| `squared_error_sum` | `float \| NoneType` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.backtest.BiasDirection` { #polisyos-ir-analytics-backtest-biasdirection }
 
@@ -1403,7 +1423,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `ci_upper` | `float \| NoneType` | `no` | `—` | — |
 | `metric_name` | `str` | `yes` | `—` | — |
 | `relative_error` | `float \| NoneType` | `no` | `—` | — |
-| `within_ci` | `bool` | `no` | `False` | — |
+| `within_ci` | `bool \| NoneType` | `no` | `—` | — |
 | `y_pred` | `float` | `yes` | `—` | — |
 | `y_true` | `float` | `yes` | `—` | — |
 
@@ -3291,6 +3311,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - References: —
 - Summary: Raised when Kuzu schema cannot be applied.
 
+### `polisyos.ir.analytics.causal_queries.CausalContrastSpec` { #polisyos-ir-analytics-causal-queries-causalcontrastspec }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:CausalContrastSpec`, `polisyos.ir:CausalContrastSpec`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_queries.CausalRegime`, `polisyos.ir.analytics.causal_queries.InterventionSpec`
+- Summary: Typed target/comparator arms for an attribution query.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `comparator` | `polisyos.ir.analytics.causal_queries.CausalRegime` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.CausalRegime` |
+| `target` | `polisyos.ir.analytics.causal_queries.InterventionSpec` | `yes` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
+
 ### `polisyos.ir.analytics.causal_queries.CausalInterventionSpec` { #polisyos-ir-analytics-causal-queries-causalinterventionspec }
 
 - Kind: `pydantic_model`
@@ -3319,12 +3355,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:CausalQuery`, `polisyos.ir:CausalQuery`
 - ABI snapshot: `causal_query` / `schemas/snapshots/ir/causal_query.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_queries.InterventionSpec`, `polisyos.ir.analytics.causal_queries.QueryType`
+- References: `polisyos.ir.analytics.causal_queries.CausalContrastSpec`, `polisyos.ir.analytics.causal_queries.InterventionSpec`, `polisyos.ir.analytics.causal_queries.QueryType`
 - Summary: Fully specified causal query contract for execution or persistence.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `condition` | `dict[str, float]` | `no` | `—` | — |
+| `contrast` | `polisyos.ir.analytics.causal_queries.CausalContrastSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.CausalContrastSpec` |
 | `intervention_spec` | `polisyos.ir.analytics.causal_queries.InterventionSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
 | `n_samples` | `int` | `no` | `1000` | — |
 | `outcome_variable` | `str` | `yes` | `—` | — |
@@ -3336,7 +3373,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:CausalQueryResult`, `polisyos.ir:CausalQueryResult`
 - ABI snapshot: `causal_query_result` / `schemas/snapshots/ir/causal_query_result.schema.json`
 - Compatibility mode: `—`
@@ -3352,7 +3389,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `result_distribution` | `list[float] \| NoneType` | `no` | `—` | — |
 | `result_mean` | `float` | `yes` | `—` | — |
 | `result_std` | `float` | `yes` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
+
+### `polisyos.ir.analytics.causal_queries.CausalRegime` { #polisyos-ir-analytics-causal-queries-causalregime }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:CausalRegime`, `polisyos.ir:CausalRegime`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_queries.InterventionSpec`
+- Summary: Describe an attribution comparator without conflating observation and intervention.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `intervention` | `polisyos.ir.analytics.causal_queries.InterventionSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_queries.InterventionSpec` |
+| `kind` | `Literal[observational, interventional]` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.causal_queries.InterventionSpec` { #polisyos-ir-analytics-causal-queries-interventionspec }
 
@@ -12581,26 +12634,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `internal`
-- Current version: `policyos.policy_design_case.layer3_gy.openalex_accuracy.v1`
+- Current version: `policyos.policy_design_case.layer3_gy.openalex_accuracy.v2`
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: —
-- Summary: Measured extractor precision/recall against a governed gold set.
+- References: `polisyos.ir.analytics.literature.OpenAlexExtractionObservation`
+- Summary: Extractor engineering evidence; scientific accuracy awaits appointment.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `false_negative_count` | `int` | `no` | `0` | — |
-| `false_positive_count` | `int` | `no` | `0` | — |
-| `gold_record_count` | `int` | `no` | `0` | — |
-| `matched_label_ids` | `list[str]` | `no` | `—` | — |
-| `measurement_basis` | `Literal[human_labeled_gold_set]` | `no` | `'human_labeled_gold_set'` | — |
-| `precision` | `float` | `no` | `0.0` | — |
-| `predicted_claim_count` | `int` | `no` | `0` | — |
-| `recall` | `float` | `no` | `0.0` | — |
-| `schema_version` | `str` | `no` | `'policyos.policy_design_case.layer3_gy.openalex_accuracy.v1'` | — |
-| `true_negative_count` | `int` | `no` | `0` | — |
-| `true_positive_count` | `int` | `no` | `0` | — |
+| `accuracy_status` | `Literal[withheld_pending_adjudicator_appointment]` | `no` | `'withheld_pending_adjudicator_appointment'` | — |
+| `measurement_basis` | `Literal[extractor_execution_and_constructed_negatives]` | `no` | `'extractor_execution_and_constructed_negatives'` | — |
+| `observations` | `list[polisyos.ir.analytics.literature.OpenAlexExtractionObservation]` | `no` | `—` | `polisyos.ir.analytics.literature.OpenAlexExtractionObservation` |
+| `precision` | `NoneType` | `no` | `—` | — |
+| `recall` | `NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[policyos.policy_design_case.layer3_gy.openalex_accuracy.v2]` | `no` | `'policyos.policy_design_case.layer3_gy.openalex_accuracy.v2'` | — |
+| `standing_rule_ref` | `Literal[correspondence-acceptance-standing-rule]` | `no` | `'correspondence-acceptance-standing-rule'` | — |
 
 ### `polisyos.ir.analytics.literature.HeterogeneityResult` { #polisyos-ir-analytics-literature-heterogeneityresult }
 
@@ -12641,6 +12690,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `identification_confidence` | `float \| NoneType` | `no` | `—` | — |
 | `identification_method` | `str` | `no` | `''` | — |
 | `instrument` | `str` | `no` | `''` | — |
+
+### `polisyos.ir.analytics.literature.LegacyExtractorAccuracyReportV1` { #polisyos-ir-analytics-literature-legacyextractoraccuracyreportv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `policyos.policy_design_case.layer3_gy.openalex_accuracy.v1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Measured extractor precision/recall against a governed gold set.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `false_negative_count` | `int` | `no` | `0` | — |
+| `false_positive_count` | `int` | `no` | `0` | — |
+| `gold_record_count` | `int` | `no` | `0` | — |
+| `matched_label_ids` | `list[str]` | `no` | `—` | — |
+| `measurement_basis` | `Literal[human_labeled_gold_set]` | `no` | `'human_labeled_gold_set'` | — |
+| `precision` | `float` | `no` | `0.0` | — |
+| `predicted_claim_count` | `int` | `no` | `0` | — |
+| `recall` | `float` | `no` | `0.0` | — |
+| `schema_version` | `str` | `no` | `'policyos.policy_design_case.layer3_gy.openalex_accuracy.v1'` | — |
+| `true_negative_count` | `int` | `no` | `0` | — |
+| `true_positive_count` | `int` | `no` | `0` | — |
 
 ### `polisyos.ir.analytics.literature.LegacyFiveFieldClaimOccurrence` { #polisyos-ir-analytics-literature-legacyfivefieldclaimoccurrence }
 
@@ -12750,6 +12824,96 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `moderator` | `str` | `yes` | `—` | — |
 | `quantitative_interaction` | `float \| NoneType` | `no` | `—` | — |
 | `source_openalex_ids` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.literature.OpenAlexExtractionCase` { #polisyos-ir-analytics-literature-openalexextractioncase }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.OpenAlexWorkText`
+- Summary: One declared work/query in an engineering extraction population.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `case_id` | `str` | `yes` | `—` | — |
+| `gold_reviewed_at` | `str \| NoneType` | `no` | `—` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `query` | `str` | `yes` | `—` | — |
+| `recorded_at` | `str \| NoneType` | `yes` | `—` | — |
+| `source_error` | `str \| NoneType` | `no` | `—` | — |
+| `source_ref` | `str` | `yes` | `—` | — |
+| `work` | `polisyos.ir.analytics.literature.OpenAlexWorkText \| NoneType` | `yes` | `—` | `polisyos.ir.analytics.literature.OpenAlexWorkText` |
+
+### `polisyos.ir.analytics.literature.OpenAlexExtractionObservation` { #polisyos-ir-analytics-literature-openalexextractionobservation }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Complete attempted extraction, including missing or rejected predictions.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `case_id` | `str` | `yes` | `—` | — |
+| `constructed_negatives` | `list[dict[str, Any]]` | `no` | `—` | — |
+| `disposition` | `Literal[extracted, source_unavailable, extractor_failed]` | `yes` | `—` | — |
+| `gold_reviewed_at` | `str \| NoneType` | `no` | `—` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `predictions` | `list[dict[str, Any]]` | `no` | `—` | — |
+| `query` | `str` | `yes` | `—` | — |
+| `reason` | `str` | `no` | `''` | — |
+| `recorded_at` | `str \| NoneType` | `yes` | `—` | — |
+| `source_content_sha256` | `str \| NoneType` | `yes` | `—` | — |
+| `source_ref` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.literature.OpenAlexRecordedSource` { #polisyos-ir-analytics-literature-openalexrecordedsource }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One parsed recorded response bound to the exact bytes read by its owner.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `captured_at` | `str` | `yes` | `—` | — |
+| `content_sha256` | `str` | `yes` | `—` | — |
+| `payload` | `dict[str, Any]` | `yes` | `—` | — |
+| `query` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.literature.OpenAlexSourceBindingResult` { #polisyos-ir-analytics-literature-openalexsourcebindingresult }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Custody of a candidate in selected source bytes, never semantic support.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `authority_tier` | `Literal[candidate_unverified]` | `no` | `'candidate_unverified'` | — |
+| `claim_id` | `str` | `yes` | `—` | — |
+| `grounding_ref` | `str` | `no` | `''` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `predicate_basis` | `Literal[recomputed]` | `no` | `'recomputed'` | — |
+| `reason` | `str` | `no` | `''` | — |
+| `semantic_support` | `Literal[not_established]` | `no` | `'not_established'` | — |
+| `source_snapshot_authenticity` | `Literal[not_established]` | `no` | `'not_established'` | — |
+| `span_end` | `int \| NoneType` | `no` | `—` | — |
+| `span_start` | `int \| NoneType` | `no` | `—` | — |
+| `status` | `Literal[source_bound_candidate, refused]` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.literature.OpenAlexWorkText` { #polisyos-ir-analytics-literature-openalexworktext }
 
@@ -25044,6 +25208,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `notes` | `list[str]` | `no` | `—` | — |
 | `target_contract` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` | `yes` | `—` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` |
 
+### `polisyos.ir.observation.bundles.ObservationMethodInputEnvelope` { #polisyos-ir-observation-bundles-observationmethodinputenvelope }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `policyos.ir.observation.method_input_envelope.v1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.observation.bundles.ContractCompatibilityTarget`
+- Summary: Carry a materialized observation DTO without claiming source authority.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `contract_payload` | `dict[str, Any]` | `yes` | `—` | — |
+| `contract_target` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` | `yes` | `—` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` |
+| `schema_version` | `Literal[policyos.ir.observation.method_input_envelope.v1]` | `no` | `'policyos.ir.observation.method_input_envelope.v1'` | — |
+
 ### `polisyos.ir.observation.bundles.ObservationToContractManifest` { #polisyos-ir-observation-bundles-observationtocontractmanifest }
 
 - Kind: `pydantic_model`
@@ -28855,7 +29036,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Canon spec data model.
+- Summary: Canon spec data model for the IR profile.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |

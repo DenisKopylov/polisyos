@@ -17,6 +17,12 @@ from polisyos.ddm.calibration import (
     moving_block_bootstrap,
     stratified_bootstrap_stationary_streams,
 )
+from polisyos.ddm.integration import (
+    DriftAndDegradationMonitor,
+    MetricDirection,
+    evaluate_registry_gate,
+)
+from polisyos.ddm.readiness import MetricBudgetPolicy
 
 
 def _regime() -> StationarityRegime:
@@ -71,6 +77,55 @@ def test_stationary_holdout_certificate_passes_when_no_false_alerts() -> None:
     assert audit.pass_ is True
     assert audit.empirical_fp_upper_95 <= 0.05
     assert status.valid is True
+
+
+def test_registry_requires_checker_bound_report_and_rejects_foreign_report() -> None:
+    """A checker result authorizes only the exact report it evaluated."""
+
+    calibration_streams = [[0.10, 0.12, 0.11, 0.13] for _ in range(100)]
+    holdout_streams = [[0.05, 0.07, 0.08, 0.09] for _ in range(100)]
+    report_a = calibrate_detector(
+        detector_id="input_mmd_global_v3",
+        stationarity_regime=_regime(),
+        fp_target=FpTarget(horizon="30d", alpha=0.05, ert=10000),
+        calibration_streams=calibration_streams,
+        holdout_streams=holdout_streams,
+    )
+    audit_a = build_calibration_audit(calibration_id="calib-1", report=report_a)
+    metric_budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+    monitor = DriftAndDegradationMonitor()
+
+    accepted = monitor.evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=metric_budget,
+        calibration_audit=audit_a,
+        _calibration_report=report_a,
+        timestamp=datetime(2026, 4, 10, tzinfo=UTC),
+    )
+    assert accepted.registry_record is not None
+    assert evaluate_registry_gate(accepted.registry_record).promotion_allowed is True
+
+    report_b = report_a.model_copy(update={"detector_id": "foreign-detector"})
+    altered = monitor.evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=metric_budget,
+        calibration_audit=audit_a,
+        _calibration_report=report_b,
+        timestamp=datetime(2026, 4, 10, tzinfo=UTC),
+    )
+    assert altered.registry_record is not None
+    gate = evaluate_registry_gate(altered.registry_record)
+    assert gate.promotion_allowed is False
+    assert gate.reason == "calibration_report_binding_not_established"
 
 
 def test_moving_block_bootstrap_is_reproducible_and_preserves_length() -> None:

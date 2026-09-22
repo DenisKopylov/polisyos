@@ -1513,6 +1513,22 @@ def _effective_processing_contract(
     )
 
 
+def _remember_dedupe_key(
+    dedupe_keys: deque[str],
+    dedupe_seen: set[str],
+    dedupe_key: str,
+) -> None:
+    """Append one key while keeping membership aligned with the bounded deque."""
+
+    maxlen = dedupe_keys.maxlen
+    if maxlen is not None and len(dedupe_keys) >= maxlen:
+        evicted = dedupe_keys.popleft()
+        if evicted not in dedupe_keys:
+            dedupe_seen.discard(evicted)
+    dedupe_keys.append(dedupe_key)
+    dedupe_seen.add(dedupe_key)
+
+
 def _apply_out_of_order_policy(
     rows: list[dict[str, Any]],
     *,
@@ -1696,8 +1712,11 @@ async def process_stream_dataset(
                     connector_id,
                     dataset_id,
                 )
+            # The deque is the persisted bounded horizon.  Rebuild membership
+            # from the retained deque after maxlen clips any oversized or old
+            # checkpoint rather than reviving evicted keys on restart.
             dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-            dedupe_seen.update(latest_checkpoint.dedupe_keys)
+            dedupe_seen.update(dedupe_keys)
             operator_state = latest_checkpoint.metadata.get("operator_state")
             if operator_state is None:
                 # Checkpoints produced before ING-02 did not carry operator
@@ -1763,6 +1782,19 @@ async def process_stream_dataset(
                     == BackpressureStrategy.FAIL_CLOSED
                 ):
                     raise RuntimeError("stream backpressure contract failed closed")
+                if (
+                    processing_contract.backpressure.strategy
+                    == BackpressureStrategy.SPILL_TO_DISK
+                ):
+                    # This runtime has no spill-segment consumer yet.  Continuing
+                    # through the pause path would only defer the same unbounded
+                    # accumulator growth until the next poll, so refuse the
+                    # unsupported capacity explicitly instead of claiming spill.
+                    raise RuntimeError(
+                        "spill_to_disk backpressure is unsupported without a "
+                        "spill consumer; refusing to exceed the stream window "
+                        f"capacity rows={buffered_rows} bytes={buffered_bytes}"
+                    )
                 await session.pause(
                     reason=(
                         "window buffer above threshold "
@@ -1778,6 +1810,9 @@ async def process_stream_dataset(
 
             result.chunks_processed += 1
             clean_rows: list[dict[str, Any]] = []
+            spill_buffered_rows = buffered_rows
+            spill_buffered_bytes = buffered_bytes
+            clean_rows_bytes = 0
             chunk_warnings: list[str] = []
             chunk_quarantined = 0
             async for batch in iter_record_batches(
@@ -1808,8 +1843,35 @@ async def process_stream_dataset(
                     if dedupe_key in dedupe_seen:
                         result.dedupe_dropped += 1
                         continue
-                    dedupe_seen.add(dedupe_key)
-                    dedupe_keys.append(dedupe_key)
+                    if (
+                        processing_contract.backpressure.strategy
+                        == BackpressureStrategy.SPILL_TO_DISK
+                    ):
+                        row_bytes = _estimate_row_bytes(row)
+                        next_rows = spill_buffered_rows + len(clean_rows) + 1
+                        next_bytes = spill_buffered_bytes + clean_rows_bytes + row_bytes
+                        if (
+                            next_rows
+                            > processing_contract.backpressure.max_buffered_rows
+                        ):
+                            raise RuntimeError(
+                                "spill_to_disk backpressure is unsupported for an "
+                                "oversized input chunk; refusing to materialize "
+                                f"more than max_buffered_rows="
+                                f"{processing_contract.backpressure.max_buffered_rows}"
+                            )
+                        if (
+                            next_bytes
+                            > processing_contract.backpressure.max_buffered_bytes
+                        ):
+                            raise RuntimeError(
+                                "spill_to_disk backpressure is unsupported for an "
+                                "oversized input chunk; refusing to materialize "
+                                f"more than max_buffered_bytes="
+                                f"{processing_contract.backpressure.max_buffered_bytes}"
+                            )
+                        clean_rows_bytes += row_bytes
+                    _remember_dedupe_key(dedupe_keys, dedupe_seen, dedupe_key)
                     clean_rows.append(row)
 
             result.warnings.extend(chunk_warnings)

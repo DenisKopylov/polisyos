@@ -155,10 +155,10 @@ class FallbackWorkflowRunner:
         sample: _HealthFailureSample | None,
     ) -> HealthFailureDisposition:
         """Resolve explicit pre-dispatch fallback authority without parsing prose."""
-        if self._health_sample_provider is not None:
-            if sample is None:
-                return HealthFailureDisposition.BLOCK
+        if sample is not None:
             return sample.disposition
+        if self._health_sample_provider is not None:
+            return HealthFailureDisposition.BLOCK
 
         classifier = self._health_failure_classifier
         if classifier is None:

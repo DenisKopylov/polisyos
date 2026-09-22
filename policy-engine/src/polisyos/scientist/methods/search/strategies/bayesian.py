@@ -453,7 +453,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             previous_X is None
             or self._fitted_train_X is None
             or self._fitted_train_y_bo is None
-            or not self._torch.equal(previous_X, self._fitted_train_X)
+            or not self._model_train_x_matches_fitted(previous_X)
             or not self._is_append_update(X, y_bo)
         ):
             logger.info(
@@ -513,6 +513,27 @@ class BayesianOptimizer(BaseSearchStrategy):
         if train_X.ndim < 2:
             return None
         return train_X.reshape(-1, train_X.shape[-1])
+
+    def _model_train_x_matches_fitted(self, model_X) -> bool:
+        """Accept the model's raw or input-transformed training coordinate system."""
+        if self._model is None or self._fitted_train_X is None:
+            return False
+        fitted_X = self._fitted_train_X
+        candidates = [fitted_X]
+        try:
+            transformed_X = self._model.transform_inputs(fitted_X)
+        except Exception:
+            transformed_X = None
+        if transformed_X is not None:
+            candidates.append(transformed_X)
+        for expected_X in candidates:
+            expected_X = expected_X.reshape(-1, expected_X.shape[-1]).to(
+                device=model_X.device,
+                dtype=model_X.dtype,
+            )
+            if expected_X.shape == model_X.shape and self._torch.equal(expected_X, model_X):
+                return True
+        return False
 
     def _is_append_update(self, X, y_bo) -> bool:
         """Check that the new corpus retains fitted X and y rows as a prefix."""

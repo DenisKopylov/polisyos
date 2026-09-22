@@ -8,7 +8,7 @@ import re
 import shutil
 import tempfile
 import uuid
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
@@ -127,17 +127,10 @@ def build_embedding_generation(
     own staging directory, leaving the previous selector and generation intact.
     """
     normalized_rows = _normalize_rows(rows)
-    index_dir.mkdir(parents=True, exist_ok=True)
-    generation_root = index_dir / GENERATION_ROOT_DIRNAME
-    generation_root.mkdir(parents=True, exist_ok=True)
-    generation_id = uuid.uuid4().hex
-    staging: Path | None = Path(tempfile.mkdtemp(prefix=f".{generation_id}-", dir=generation_root))
-    final_dir = generation_root / generation_id
-    try:
+
+    def _stage(staging: Path) -> tuple[int, int]:
         if normalized_rows:
-            if staging is None:
-                raise RuntimeError("embedding generation staging was committed too early")
-            count, dimension = build_embedding_index(
+            return build_embedding_index(
                 rows=normalized_rows,
                 embeddings_path=staging / "embeddings.npz",
                 index_path=staging / "index.hnsw",
@@ -147,19 +140,113 @@ def build_embedding_generation(
                 embedding_batch_size=embedding_batch_size,
                 thermal_pause_seconds=thermal_pause_seconds,
             )
-        else:
-            if staging is None:
-                raise RuntimeError("embedding generation staging was committed too early")
-            count = 0
-            dimension = int(embedding_dimension)
+        dimension = int(embedding_dimension)
+        np.savez(
+            str(staging / "embeddings.npz"),
+            ids=np.array([], dtype=object),
+            vectors=np.empty((0, dimension), dtype=np.float32),
+        )
+        return 0, dimension
+
+    return _publish_embedding_generation(
+        normalized_rows=normalized_rows,
+        index_dir=index_dir,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        basis_kind=basis_kind,
+        projection_rule_version=projection_rule_version,
+        legacy_embeddings_path=legacy_embeddings_path,
+        legacy_index_path=legacy_index_path,
+        stage_builder=_stage,
+    )
+
+
+def _build_embedding_generation_from_vectors(
+    *,
+    rows: Sequence[tuple[object, str]],
+    vectors: np.ndarray,
+    index_dir: Path,
+    embedding_model: str,
+    embedding_device: str,
+    embedding_dimension: int,
+    basis_kind: str,
+    projection_rule_version: str,
+    legacy_embeddings_path: Path | None = None,
+    legacy_index_path: Path | None = None,
+) -> tuple[int, int]:
+    """Publish a complete generation from validated, precomputed vectors.
+
+    This internal seam exists for domain builders that can prove record-level
+    reuse before publication.  The public publisher remains the sole owner of
+    staging, inventory, basis, selector, and compatibility-file publication.
+    """
+    normalized_rows = _normalize_rows(rows)
+    matrix = np.asarray(vectors, dtype=np.float32)
+    if matrix.ndim != 2:
+        raise ValueError("precomputed embedding vectors must be two-dimensional")
+    if matrix.shape != (len(normalized_rows), int(embedding_dimension)):
+        raise ValueError("precomputed embedding vectors do not match rows or dimension")
+    if not np.isfinite(matrix).all():
+        raise ValueError("precomputed embedding vectors must be finite")
+
+    def _stage(staging: Path) -> tuple[int, int]:
+        if not normalized_rows:
             np.savez(
                 str(staging / "embeddings.npz"),
                 ids=np.array([], dtype=object),
-                vectors=np.empty((0, dimension), dtype=np.float32),
+                vectors=matrix,
             )
+            return 0, int(embedding_dimension)
 
+        import hnswlib
+
+        index = hnswlib.Index(space="cosine", dim=int(embedding_dimension))
+        index.init_index(max_elements=len(normalized_rows), ef_construction=200, M=16)
+        index.add_items(matrix, np.arange(len(normalized_rows)))
+        np.savez(
+            str(staging / "embeddings.npz"),
+            ids=np.array([identifier for identifier, _ in normalized_rows], dtype=object),
+            vectors=matrix,
+        )
+        index.save_index(str(staging / "index.hnsw"))
+        return len(normalized_rows), int(embedding_dimension)
+
+    return _publish_embedding_generation(
+        normalized_rows=normalized_rows,
+        index_dir=index_dir,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        basis_kind=basis_kind,
+        projection_rule_version=projection_rule_version,
+        legacy_embeddings_path=legacy_embeddings_path,
+        legacy_index_path=legacy_index_path,
+        stage_builder=_stage,
+    )
+
+
+def _publish_embedding_generation(
+    *,
+    normalized_rows: list[tuple[str, str]],
+    index_dir: Path,
+    embedding_model: str,
+    embedding_device: str,
+    basis_kind: str,
+    projection_rule_version: str,
+    legacy_embeddings_path: Path | None,
+    legacy_index_path: Path | None,
+    stage_builder: Callable[[Path], tuple[int, int]],
+) -> tuple[int, int]:
+    """Run the shared EMB-02 staged publication for one complete membership."""
+    index_dir.mkdir(parents=True, exist_ok=True)
+    generation_root = index_dir / GENERATION_ROOT_DIRNAME
+    generation_root.mkdir(parents=True, exist_ok=True)
+    generation_id = uuid.uuid4().hex
+    staging: Path | None = Path(tempfile.mkdtemp(prefix=f".{generation_id}-", dir=generation_root))
+    final_dir = generation_root / generation_id
+    try:
         if staging is None:
             raise RuntimeError("embedding generation staging was committed too early")
+        count, dimension = stage_builder(staging)
         actual_ids, actual_dimension = _read_embedding_matrix(
             staging / "embeddings.npz", require_sorted=True
         )

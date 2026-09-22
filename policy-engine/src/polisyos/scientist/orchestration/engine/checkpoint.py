@@ -2081,14 +2081,20 @@ def resume_from_checkpoint(
             workflow_spec,
             completed_nodes=checkpoint.metadata.completed_nodes,
         )
-        resolved_registry = registry or build_registry_with_builtin_nodes()
-        missing_state_paths = _missing_completed_state_paths(
-            workflow_spec,
-            resumed_workflow,
-            completed_nodes=checkpoint.metadata.completed_nodes,
-            state=restored_state,
-            registry=resolved_registry,
-        )
+        # A fully completed workflow has no residual node whose declared reads
+        # need checking.  Return its durable state without requiring registry
+        # implementations for nodes that are no longer executable.
+        resolved_registry = registry
+        missing_state_paths: tuple[str, ...] = ()
+        if resumed_workflow.nodes:
+            resolved_registry = registry or build_registry_with_builtin_nodes()
+            missing_state_paths = _missing_completed_state_paths(
+                workflow_spec,
+                resumed_workflow,
+                completed_nodes=checkpoint.metadata.completed_nodes,
+                state=restored_state,
+                registry=resolved_registry,
+            )
         execution_workflow = resumed_workflow
         if missing_state_paths:
             if checkpoint_resume_strategy == "allow_replay":

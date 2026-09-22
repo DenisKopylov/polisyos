@@ -459,7 +459,10 @@ class TestExecuteWithRetrySync:
         class _LateAsyncAuthorityNode:
             async def execute_async(self, passed_ctx, passed_state):
                 started.set()
-                await release.wait()
+                try:
+                    await release.wait()
+                except asyncio.CancelledError:
+                    await release.wait()
                 passed_state.params["late_write"] = "unauthorised"
                 passed_ctx.run.run_manifest.status = "late"
                 passed_ctx.store.put_json({"late": "write"}, object())
@@ -479,11 +482,16 @@ class TestExecuteWithRetrySync:
                 alias="late-async-write",
             )
         )
+        async def _release_later() -> None:
+            await asyncio.sleep(0.05)
+            release.set()
+
+        release_task = asyncio.create_task(_release_later())
         await started.wait()
         assert started.is_set()
         with pytest.raises(NodeTimeoutError):
             await result_task
-        release.set()
+        await release_task
         await asyncio.wait_for(completed.wait(), timeout=0.5)
 
         assert state.params == {}

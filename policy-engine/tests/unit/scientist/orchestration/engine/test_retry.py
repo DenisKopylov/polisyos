@@ -643,14 +643,18 @@ class TestExecuteWithRetrySync:
                 passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
                 return _ok_outcome(passed_state)
 
-        result = execute_with_retry_sync(
-            _SuccessfulAuthorityNode(),
-            ctx,
-            state,
-            retry_policy=RetryPolicy(),
-            timeout_s=0.5,
-            alias="on-time",
-        )
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        try:
+            result = execute_with_retry_sync(
+                _SuccessfulAuthorityNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
 
         assert result.status == "ok"
         assert recording_run.run_manifest.status == "on_time"

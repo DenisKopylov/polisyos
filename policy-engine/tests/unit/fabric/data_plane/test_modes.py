@@ -375,3 +375,100 @@ def test_connector_is_registered_uses_explicit_registry_without_default_helper(
     )
 
     assert modes_mod._connector_is_registered("stream.injected", registry=registry) is True
+
+
+def test_stream_sanitizer_optional_field_membership_is_independent_of_batch_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Optional-field coverage must not be reclassified by technical batching."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+    from polisyos.fabric.data_plane.streaming import iter_record_batches
+
+    rows = [
+        {"id": "a", "value": 1.0, "note": "first"},
+        {"id": "b", "value": 2.0, "note": "second"},
+        {"id": "c", "value": 3.0},
+    ]
+    quarantine_records: list[tuple[str, dict[str, Any]]] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        quarantine_records.append((str(record.reason), dict(record.context)))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    async def _run(batch_size: int) -> tuple[list[str], int]:
+        accepted_ids: list[str] = []
+        quarantined = 0
+        async for batch in iter_record_batches(rows, batch_size=batch_size):
+            valid_rows, _warnings, batch_quarantined = modes_mod._sanitize_stream_rows(
+                batch,
+                connector_id="test.stream",
+                dataset_id="events",
+                store=object(),
+                chunk_index=0,
+            )
+            accepted_ids.extend(str(row["id"]) for row in valid_rows)
+            quarantined += batch_quarantined
+        return accepted_ids, quarantined
+
+    observed = {batch_size: asyncio.run(_run(batch_size)) for batch_size in (1, 3)}
+
+    # `note` is optional in this fixed input contract; batch boundaries must not
+    # make the third row a poison message merely because it is the minority shape.
+    expected = (["a", "b", "c"], 0)
+    assert observed[1] == expected
+    assert observed[3] == expected
+    assert quarantine_records == []
+
+
+def test_stream_sanitizer_keeps_non_finite_metric_guard_across_batch_sizes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Batch invariance must not weaken quarantine of non-finite metrics."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+    from polisyos.fabric.data_plane.streaming import iter_record_batches
+
+    rows = [
+        {"id": "ok", "value": 1.0},
+        {"id": "bad", "value": float("nan")},
+    ]
+    quarantine_reasons: list[str] = []
+
+    def _capture_quarantine(
+        store: Any,
+        *,
+        record: Any,
+        raw_payload: Any | None = None,
+        **kwargs: Any,
+    ) -> None:
+        del store, raw_payload, kwargs
+        quarantine_reasons.append(str(record.reason))
+
+    monkeypatch.setattr(modes_mod, "persist_quarantine_record", _capture_quarantine)
+
+    async def _run(batch_size: int) -> tuple[list[str], int]:
+        accepted_ids: list[str] = []
+        quarantined = 0
+        async for batch in iter_record_batches(rows, batch_size=batch_size):
+            valid_rows, _warnings, batch_quarantined = modes_mod._sanitize_stream_rows(
+                batch,
+                connector_id="test.stream",
+                dataset_id="events",
+                store=object(),
+                chunk_index=0,
+            )
+            accepted_ids.extend(str(row["id"]) for row in valid_rows)
+            quarantined += batch_quarantined
+        return accepted_ids, quarantined
+
+    observed = {batch_size: asyncio.run(_run(batch_size)) for batch_size in (1, 3)}
+
+    assert observed == {1: (["ok"], 1), 3: (["ok"], 1)}
+    assert quarantine_reasons == ["non_finite_metric", "non_finite_metric"]

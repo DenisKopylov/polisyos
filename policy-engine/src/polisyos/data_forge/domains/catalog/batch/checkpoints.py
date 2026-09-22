@@ -190,6 +190,11 @@ def stage_can_skip(
             expected_output_inventory
         ):
             return False
+    if required_outputs is not None and not required_outputs:
+        # An explicit empty denominator cannot establish that a completed
+        # stage published anything.  Keep it distinct from ``None`` (which
+        # intentionally reuses the state's recorded output paths).
+        return False
     outputs = (
         [Path(item) for item in current.get("outputs", []) if item]
         if required_outputs is None

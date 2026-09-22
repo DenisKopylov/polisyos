@@ -52,20 +52,30 @@ def _real_n5_observation(tmp_path: Path):
             }
         }
     )
+    producer = JointSimulationHorizonController()
+    produced_results: list[object] = []
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request):
+            result = producer.run(concrete_request)
+            produced_results.append(result)
+            return result
+
     observation = JointSimulationPort(
-        controller=JointSimulationHorizonController(),
+        controller=_RecordingN5Controller(),
         repo_root=tmp_path,
         cycle_substrate_context=context,
     )(candidate=candidate, problem=problem, cycle_index=0)
     assert observation.status == "joint_simulated"
     assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
-    return problem, context, candidate, observation
+    assert len(produced_results) == 1
+    return problem, context, candidate, observation, produced_results[0]
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
     """K_sim limits authority, but does not make the real N5 input disappear."""
 
-    _problem, _context, _candidate, simulation = _real_n5_observation(tmp_path)
+    _problem, _context, _candidate, simulation, _produced = _real_n5_observation(tmp_path)
 
     input_ref = simulation_evaluation_input_ref(simulation)
 
@@ -77,7 +87,7 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
 def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     """The simulation-only value state is explicit and cannot carry N8 receipts."""
 
-    problem, context, candidate, simulation = _real_n5_observation(tmp_path)
+    problem, context, candidate, simulation, produced = _real_n5_observation(tmp_path)
     observation = _DefaultSimulationBoundFoundryValuePort(
         repo_root=tmp_path,
         cycle_substrate_context=context,
@@ -92,6 +102,34 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     assert observation.value_receipt is None
     assert observation.method_selection_receipt is None
     assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
+    assert simulation.simulation_result_ref is not None
+    assert isinstance(simulation.simulation_result_ref, CASArtifactRef)
+    assert observation.value_ref == str(simulation.simulation_result_ref.artifact_id)
+
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    reopened = load_joint_simulation_result(
+        simulation.simulation_result_ref,
+        repo_root=tmp_path,
+        expected_world_model_record_content_hash=context.world_model_record.content_hash,
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    trajectory = next(
+        trajectory
+        for trajectory in reopened.trajectories
+        if trajectory.points and outcome in trajectory.points[0].effect
+    )
+    effect = trajectory.points[0].effect[outcome]
+    assert isinstance(effect, float)
+    produced_trajectory = next(
+        candidate_trajectory
+        for candidate_trajectory in produced.trajectories
+        if candidate_trajectory.run_level == trajectory.run_level
+        and candidate_trajectory.atom_ids == trajectory.atom_ids
+        and candidate_trajectory.points
+        and outcome in candidate_trajectory.points[0].effect
+    )
+    assert effect == produced_trajectory.points[0].effect[outcome]
 
 
 @pytest.mark.asyncio

@@ -3,10 +3,9 @@ from __future__ import annotations
 import json
 
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-from polisyos.data_forge.domains.catalog.batch.checkpoints import save_stage_state
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
+    _record_stage_completion,
     _should_skip_stage,
-    _stage_input_fingerprint,
     run_dataset_pipeline_sync,
 )
 from polisyos.data_forge.kernel.embeddings import build_embedding_generation
@@ -53,13 +52,7 @@ def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) ->
         legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
         legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
     )
-    save_stage_state(
-        config.stage_state_path,
-        stage="embed",
-        status="complete",
-        input_fingerprint=_stage_input_fingerprint(config, "embed"),
-        outputs=[config.index_dir / "embedding_generation.json"],
-    )
+    _record_stage_completion(config, "embed")
     assert _should_skip_stage(config, "embed")
 
     selector = json.loads(

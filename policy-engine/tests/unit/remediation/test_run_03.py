@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import subprocess
+import sys
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -62,6 +64,26 @@ def _durable_context(tmp_path):
         ),
     )
     return ExecutionContext(store=store, run=run, logger=MagicMock()), trace_path
+
+
+def test_retry_module_imports_before_runner_facade() -> None:
+    """The direct retry import must not initialize the runner facade first."""
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from polisyos.scientist.orchestration.engine.retry "
+                "import RetryPolicy; print(RetryPolicy.__name__)"
+            ),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "RetryPolicy"
 
 
 class _MutatingRetryNode:

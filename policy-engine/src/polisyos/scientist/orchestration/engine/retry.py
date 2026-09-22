@@ -48,10 +48,6 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     decode_node_outcome,
 )
-from polisyos.scientist.orchestration.engine.runner.error_classifier import (
-    RemoteErrorCategory,
-    classify_remote_error,
-)
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
@@ -522,6 +518,14 @@ def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
     unknown runtime failures retain the established ``node.exception`` retry
     route and its policy ceiling.
     """
+    # Import lazily because ``runner.protocol`` imports ``RetryPolicy``.  A
+    # module-level import would make the direct ``engine.retry`` import enter
+    # ``runner.__init__`` while ``RetryPolicy`` is still being defined.
+    from polisyos.scientist.orchestration.engine.runner.error_classifier import (
+        RemoteErrorCategory,
+        classify_remote_error,
+    )
+
     typed_category = _typed_error_category(exc)
     if typed_category in {"fatal", "validation"}:
         return False

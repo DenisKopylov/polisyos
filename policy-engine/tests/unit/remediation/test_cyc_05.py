@@ -77,6 +77,20 @@ def test_generation_cycle_strangle_receipt_separates_parse_error_from_caller(
     assert any("src/polisyos/broken.py" in item for item in receipt.parse_errors)
 
 
+def test_generation_cycle_receipt_replay_requires_explicit_source_root(tmp_path: Path) -> None:
+    """Receipt replay must not silently inspect the process working directory."""
+
+    source = _source_root(tmp_path)
+    (source / "owner.py").write_text("def owner():\n    return None\n", encoding="utf-8")
+    receipt = StrangleReceipt.recompute(tmp_path)
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="generation_cycle_strangle_receipt_currentness_not_established",
+    ):
+        receipt.verify_current()
+
+
 def test_depth_n_strangle_receipt_separates_parse_error_from_prohibited_caller(
     tmp_path: Path,
 ) -> None:

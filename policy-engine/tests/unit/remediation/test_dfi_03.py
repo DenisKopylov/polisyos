@@ -79,6 +79,7 @@ def test_changed_output_bytes_do_not_reuse_merge_stage(tmp_path) -> None:
     output = config.merged_records_path
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("output\n", encoding="utf-8")
+    config.duplicates_report_path.write_text("dedup_key,kept_id,dropped_id\n", encoding="utf-8")
     _save_state(config, "merge_dedup", [output])
 
     assert _should_skip_stage(config, "merge_dedup")

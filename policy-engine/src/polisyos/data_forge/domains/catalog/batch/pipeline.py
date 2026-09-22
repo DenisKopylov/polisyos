@@ -140,7 +140,7 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
     mapping = {
         "harvest": [config.raw_dir],
         "normalize": [config.normalized_dir],
-        "merge_dedup": [config.merged_records_path],
+        "merge_dedup": [config.merged_records_path, config.duplicates_report_path],
         "graph_load": [config.db_path],
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],

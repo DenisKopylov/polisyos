@@ -200,13 +200,16 @@ class NormativeRunDisposition(BaseModel):
 
 
 def normative_owner_for_runtime_store(
-    store: object, trust: NormativeAuthorityTrust
+    store: object,
+    trust: NormativeAuthorityTrust,
+    *,
+    repo_root: Path | None = None,
 ) -> NormativeValueScheduleOwner:
-    """Reuse the canonical ambient filesystem target, preserving tenant ownership checks."""
+    """Reuse the canonical filesystem target and explicit source checkout."""
     target = store._target if type(store) is GuardedDependencyProxy else store
     if type(target) is not artifacts.FileSystemCAS:
         raise P20NormativeChoiceError("p20_normative_signed_store_unavailable")
-    return NormativeValueScheduleOwner(store=target, trust=trust)
+    return NormativeValueScheduleOwner(store=target, trust=trust, repo_root=repo_root)
 
 
 def _read_normative_source(
@@ -598,6 +601,7 @@ async def compile_and_run_recursive_generation_cycle(
                 run=cycle_run,
                 design_problem=problem,
                 resolver=promotion_runtime.resolver,
+                repo_root=repo_root,
             ):
                 vector_key = str(limitation.vector_artifact_ref.artifact_id)
                 if vector_key in seen_vector_refs:

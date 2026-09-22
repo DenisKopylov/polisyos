@@ -154,7 +154,7 @@ def project_promotion_open_world_limitation(
 ) -> OpenWorldRiskPublicLimitation | None:
     """Project OWR only from one current receipt bound to its exact N6 run."""
 
-    run_issues = validate_generation_cycle_run(run)
+    run_issues = validate_generation_cycle_run(run, repo_root=repo_root)
     if run_issues:
         raise PublicExportRedactionError(
             str(run_issues[0].get("code") or "generation_cycle_run_invalid")
@@ -216,10 +216,11 @@ def project_pre_n9_open_world_limitations(
     run: GenerationCycleRun,
     design_problem: DesignProblem,
     resolver: OpenWorldRiskGenerationProjectionResolver,
+    repo_root: Path | None = None,
 ) -> tuple[OpenWorldRiskPublicLimitation, ...]:
-    """Replay negative pre-N9 OWR evidence without fabricating a promotion receipt."""
+    """Replay pre-N9 OWR evidence only with a live source-bound N6 receipt."""
 
-    run_issues = validate_generation_cycle_run(run)
+    run_issues = validate_generation_cycle_run(run, repo_root=repo_root)
     if run_issues:
         raise PublicExportRedactionError(
             str(run_issues[0].get("code") or "generation_cycle_run_invalid")

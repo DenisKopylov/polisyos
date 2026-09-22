@@ -1293,6 +1293,11 @@ class StrangleReceipt(_StrictModel):
     def verify_current(self, repo_root: Path | None = None) -> None:
         """Reject this receipt when its source slice is no longer identical."""
 
+        if repo_root is None:
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_currentness_not_established",
+                "an explicit source checkout is required for receipt replay",
+            )
         current = type(self).recompute(repo_root)
         bound = {
             "status": self.status,
@@ -4973,6 +4978,9 @@ def validate_generation_cycle_run(
             issue_code = {
                 "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
                 "generation_cycle_strangle_receipt_not_strangled": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+                "generation_cycle_strangle_receipt_currentness_not_established": (
                     "strangle_receipt_currentness_not_established"
                 ),
             }.get(exc.code, exc.code)

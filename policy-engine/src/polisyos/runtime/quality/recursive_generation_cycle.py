@@ -705,7 +705,7 @@ class RecursiveGenerationCycleController:
             )
         ):
             raise ValueError("recursive_epoch_dependencies_must_be_runtime_derived")
-        self._repo_root = (repo_root or Path.cwd()).resolve()
+        self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._leaf_model_id = model_id
         self._promotion_runtime = promotion_runtime
         self._eval_safety_verifier = eval_safety_verifier
@@ -896,7 +896,7 @@ class RecursiveGenerationCycleController:
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
-                issues = validate_generation_cycle_run(cycle_run)
+                issues = validate_generation_cycle_run(cycle_run, repo_root=self._repo_root)
                 if issues:
                     raise RecursiveGenerationCycleError(
                         "recursive_leaf_generation_cycle_invalid",

@@ -118,7 +118,9 @@ def test_compiled_owner_rejects_leaf_graft_even_when_s8_leaf_is_valid(station):
     payload = result.model_dump(mode="json")
     node = next(iter(result.leaf_dispositions))
     owner = bridge.normative_owner_for_runtime_store(
-        service._artifact_store, service._normative_authority_trust
+        service._artifact_store,
+        service._normative_authority_trust,
+        repo_root=service._repo_root,
     )
     binding = result.leaf_dispositions[node].generation_binding.model_copy(
         update={

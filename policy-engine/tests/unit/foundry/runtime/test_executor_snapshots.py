@@ -8,7 +8,8 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
@@ -83,7 +84,7 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
     blob_bytes = store.get_bytes(snapshot.state_ref.artifact_id)
 
-    assert snapshot.schema_version == "2.0"
+    assert snapshot.schema_version == "2.1"
     assert snapshot.format_version == "npz-v2"
     assert snapshot.codec == "numpy-npz"
     assert snapshot.checksum_sha256 == hashlib.sha256(blob_bytes).hexdigest()
@@ -91,6 +92,12 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert snapshot.entry_count > 0
     assert snapshot.step == 4
     assert "snapshot_format:npz-v2" in snapshot.notes
+    assert snapshot.lineage_inputs == [
+        InputRef(artifact_id=snapshot.state_ref.artifact_id, role="state_blob")
+    ]
+    assert store.get_manifest(snapshot_ref.artifact_id).artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot", version="2.1.0"
+    )
 
 
 def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) -> None:
@@ -128,6 +135,177 @@ def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) ->
         "state_blob",
     }
     assert first_manifest.inputs[:2] != second_manifest.inputs[:2]
+    assert first_snapshot.lineage_inputs == first_manifest.inputs
+    assert second_snapshot.lineage_inputs == second_manifest.inputs
+
+
+def test_state_snapshot_wrapper_identity_includes_ordered_lineage(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    first_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("1" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("2" * 64), role="state_delta"),
+    ]
+    second_inputs = list(reversed(first_inputs))
+
+    first_ref = put_state_snapshot(store, state=state, step=5, inputs=first_inputs)
+    second_ref = put_state_snapshot(store, state=state, step=5, inputs=second_inputs)
+
+    first_snapshot = load_model(store, first_ref, StateSnapshot)
+    second_snapshot = load_model(store, second_ref, StateSnapshot)
+    first_manifest = store.get_manifest(first_ref.artifact_id)
+    second_manifest = store.get_manifest(second_ref.artifact_id)
+    expected_first_lineage = [
+        *first_inputs,
+        InputRef(artifact_id=first_snapshot.state_ref.artifact_id, role="state_blob"),
+    ]
+    expected_second_lineage = [
+        *second_inputs,
+        InputRef(artifact_id=second_snapshot.state_ref.artifact_id, role="state_blob"),
+    ]
+
+    assert first_ref.artifact_id != second_ref.artifact_id
+    assert first_snapshot.state_ref.artifact_id == second_snapshot.state_ref.artifact_id
+    assert first_snapshot.lineage_inputs == expected_first_lineage
+    assert second_snapshot.lineage_inputs == expected_second_lineage
+    assert first_manifest.inputs == expected_first_lineage
+    assert second_manifest.inputs == expected_second_lineage
+    assert store.get_manifest(first_snapshot.state_ref.artifact_id).inputs == []
+
+
+def test_state_snapshot_reuses_identical_ordered_lineage(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("5" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("6" * 64), role="state_delta"),
+    ]
+
+    first_ref = put_state_snapshot(store, state=state, step=6, inputs=inputs)
+    first_manifest_bytes = store.get_manifest_bytes(first_ref.artifact_id)
+    second_ref = put_state_snapshot(store, state=state, step=6, inputs=inputs)
+
+    assert second_ref.artifact_id == first_ref.artifact_id
+    assert store.get_manifest_bytes(second_ref.artifact_id) == first_manifest_bytes
+
+
+def test_state_snapshot_2_1_readback_rejects_manifest_lineage_mismatch(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("7" * 64), role="base_state"),
+    ]
+    snapshot_ref = put_state_snapshot(store, state=state, step=7, inputs=inputs)
+    manifest = store.get_manifest(snapshot_ref.artifact_id)
+    _blob_path, manifest_path = store.get_paths(snapshot_ref.artifact_id)
+    manifest_path.write_bytes(
+        ManifestLifecycle.to_bytes(
+            manifest.model_copy(
+                update={
+                    "inputs": [
+                        InputRef(
+                            artifact_id=ArtifactID.from_sha256_hex("8" * 64),
+                            role="different_context",
+                        ),
+                        *manifest.inputs[1:],
+                    ]
+                }
+            )
+        )
+    )
+
+    with pytest.raises(ValueError, match="lineage.*manifest"):
+        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+
+
+def test_state_snapshot_2_1_readback_rejects_manifest_schema_mismatch(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    snapshot_ref = put_state_snapshot(store, state=state, step=7)
+    manifest = store.get_manifest(snapshot_ref.artifact_id)
+    _blob_path, manifest_path = store.get_paths(snapshot_ref.artifact_id)
+    manifest_path.write_bytes(
+        ManifestLifecycle.to_bytes(
+            manifest.model_copy(
+                update={
+                    "artifact_schema": SchemaInfo(
+                        name="polisyos.core.StateSnapshot", version="2.0.0"
+                    )
+                }
+            )
+        )
+    )
+
+    with pytest.raises(ValueError, match="manifest schema"):
+        load_state_snapshot(store, snapshot_ref=snapshot_ref)
+
+
+def test_legacy_state_snapshot_2_0_without_lineage_remains_readable(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    source_ref = put_state_snapshot(store, state=state, step=0)
+    source_snapshot = load_model(store, source_ref, StateSnapshot)
+    legacy_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("9" * 64), role="legacy_context"),
+        InputRef(artifact_id=source_snapshot.state_ref.artifact_id, role="state_blob"),
+    ]
+    legacy_snapshot = StateSnapshot(
+        schema_version="2.0",
+        state_ref=source_snapshot.state_ref,
+        step=source_snapshot.step,
+        format_version=source_snapshot.format_version,
+        checksum_sha256=source_snapshot.checksum_sha256,
+        entry_count=source_snapshot.entry_count,
+        codec=source_snapshot.codec,
+        notes=source_snapshot.notes,
+    )
+    legacy_ref = store.put_json(
+        legacy_snapshot,
+        PutOptions(
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.0.0"),
+            inputs=legacy_inputs,
+        ),
+    )
+    prior_manifest_bytes = store.get_manifest_bytes(legacy_ref.artifact_id)
+
+    restored = load_state_snapshot(store, snapshot_ref=legacy_ref)
+
+    assert legacy_snapshot.lineage_inputs is None
+    assert b"lineage_inputs" not in store.get_bytes(legacy_ref.artifact_id)
+    assert int(np.asarray(restored.step)) == int(np.asarray(state.step))
+    assert store.get_manifest_bytes(legacy_ref.artifact_id) == prior_manifest_bytes
+
+
+def test_state_snapshot_2_1_readback_requires_lineage_payload(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    source_ref = put_state_snapshot(store, state=state, step=0)
+    source_snapshot = load_model(store, source_ref, StateSnapshot)
+    state_blob_input = InputRef(artifact_id=source_snapshot.state_ref.artifact_id, role="state_blob")
+    incomplete_snapshot = StateSnapshot(
+        schema_version="2.1",
+        state_ref=source_snapshot.state_ref,
+        step=source_snapshot.step,
+        format_version=source_snapshot.format_version,
+        checksum_sha256=source_snapshot.checksum_sha256,
+        entry_count=source_snapshot.entry_count,
+        codec=source_snapshot.codec,
+        notes=source_snapshot.notes,
+    )
+    incomplete_ref = store.put_json(
+        incomplete_snapshot,
+        PutOptions(
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0"),
+            inputs=[state_blob_input],
+        ),
+    )
+
+    with pytest.raises(ValueError, match="lineage_inputs"):
+        load_state_snapshot(store, snapshot_ref=incomplete_ref)
 
 
 def test_legacy_state_blob_reuse_preserves_manifest_and_wrapper_lineage(tmp_path) -> None:

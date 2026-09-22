@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
-from ..artifacts.manifest import ArtifactRef
+from ..artifacts.manifest import ArtifactRef, InputRef
 from .distributional import DistributionalReportRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
@@ -1480,11 +1480,16 @@ class WelfareBoundReport(BaseModel):
 
 
 class StateSnapshot(BaseModel):
-    """Reference bundle for a materialized execution state at a particular simulation step."""
+    """Reference bundle for a materialized execution state at a simulation step.
+
+    ``lineage_inputs`` is the ordered manifest input list for schema 2.1
+    snapshots.  ``None`` is reserved for legacy 2.0 payloads whose lineage was
+    recorded only in the immutable manifest sidecar.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
     state_ref: ArtifactRef
     schema_ref: ArtifactRef | None = None
     step: int | None = None
@@ -1492,6 +1497,7 @@ class StateSnapshot(BaseModel):
     checksum_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     entry_count: int | None = Field(default=None, ge=0)
     codec: str = "numpy-npz"
+    lineage_inputs: list[InputRef] | None = None
     notes: list[str] = Field(default_factory=list)
 
 

@@ -21,7 +21,7 @@ from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS,
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._internal.models import load_model
+from polisyos.foundry.execute._internal.models import artifact_id, load_model
 
 __all__ = [
     "export_seed_state_npz",
@@ -54,6 +54,7 @@ def load_state_snapshot(
 ) -> GlobalState:
     """Load state snapshot."""
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
     try:
         data = store.get_bytes(snapshot.state_ref.artifact_id)
     except ArtifactIntegrityError as exc:
@@ -69,6 +70,31 @@ def load_state_snapshot(
             with jax.default_device(cpu_devices[0]):
                 return _build_dataclass(GlobalState, nested, blob=blob)
         return _build_dataclass(GlobalState, nested, blob=blob)
+
+
+def _validate_snapshot_lineage(
+    store: FileSystemCAS,
+    *,
+    snapshot_ref: ArtifactRef | ArtifactID | str,
+    snapshot: StateSnapshot,
+) -> None:
+    """Fail closed when a v2.1 wrapper payload disagrees with its manifest lineage."""
+    if snapshot.schema_version != "2.1":
+        return
+    if snapshot.lineage_inputs is None:
+        raise ValueError("StateSnapshot 2.1 payload missing lineage_inputs")
+    expected_state_blob = InputRef(
+        artifact_id=snapshot.state_ref.artifact_id,
+        role="state_blob",
+    )
+    if not snapshot.lineage_inputs or snapshot.lineage_inputs[-1] != expected_state_blob:
+        raise ValueError("StateSnapshot 2.1 lineage must end with state_blob")
+    manifest = store.get_manifest(artifact_id(snapshot_ref))
+    expected_schema = SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0")
+    if manifest.artifact_schema != expected_schema:
+        raise ValueError("StateSnapshot 2.1 manifest schema does not match payload")
+    if manifest.inputs != snapshot.lineage_inputs:
+        raise ValueError("StateSnapshot 2.1 lineage does not match manifest inputs")
 
 
 def put_state_snapshot(
@@ -88,8 +114,8 @@ def put_state_snapshot(
         store,
         blob_bytes,
         # The raw NPZ is content-addressed and must not inherit contextual
-        # lineage.  The typed wrapper below carries base/delta inputs while
-        # identical bytes remain reusable across execution contexts.
+        # lineage.  The typed wrapper below carries the exact ordered input
+        # lineage while identical bytes remain reusable across contexts.
         PutOptions(kind="foundry.state_blob", media_type="application/x-npz"),
     )
     if str(blob_ref.artifact_id.hex) != checksum:
@@ -97,6 +123,8 @@ def put_state_snapshot(
             "Snapshot blob checksum mismatch after CAS write: "
             f"{blob_ref.artifact_id.hex} != {checksum}"
         )
+    snapshot_inputs = list(inputs or [])
+    snapshot_inputs.append(InputRef(artifact_id=blob_ref.artifact_id, role="state_blob"))
     snapshot = StateSnapshot(
         state_ref=blob_ref,
         step=step,
@@ -104,16 +132,15 @@ def put_state_snapshot(
         checksum_sha256=checksum,
         entry_count=len(flat),
         codec=_SNAPSHOT_CODEC,
+        lineage_inputs=snapshot_inputs,
         notes=[f"snapshot_format:{_SNAPSHOT_FORMAT_VERSION}"],
     )
-    snapshot_inputs = list(inputs or [])
-    snapshot_inputs.append(InputRef(artifact_id=blob_ref.artifact_id, role="state_blob"))
     return store.put_json(
         snapshot,
         PutOptions(
             kind="foundry.state_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.0.0"),
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0"),
             inputs=snapshot_inputs,
         ),
     )

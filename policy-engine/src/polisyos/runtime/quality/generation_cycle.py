@@ -4959,11 +4959,24 @@ def validate_generation_cycle_run(
         except ValueError as exc:
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
-    if repo_root is not None:
+    if repo_root is None:
+        issues.append(
+            {
+                "code": "strangle_receipt_currentness_not_established",
+                "reason": "live repo_root is required to replay the source denominator",
+            }
+        )
+    else:
         try:
             run.verify_strangle_receipt(repo_root)
         except GenerationCycleError as exc:
-            issues.append({"code": exc.code, "error": str(exc)})
+            issue_code = {
+                "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
+                "generation_cycle_strangle_receipt_not_strangled": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+            }.get(exc.code, exc.code)
+            issues.append({"code": issue_code, "error": str(exc)})
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()

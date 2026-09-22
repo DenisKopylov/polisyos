@@ -15,7 +15,7 @@ import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle
 from polisyos.data_forge import read_api
-from polisyos.runtime.quality import data_state_substrate, substrate_registry
+from polisyos.runtime.quality import cycle_substrate, data_state_substrate, substrate_registry
 
 
 def _project_value_outer_set(
@@ -221,7 +221,7 @@ def test_selection_diagram_requires_bound_model_or_explicit_hypothesis(
         transport_context=transport_context,
     )
     monkeypatch.setattr(
-        generation_cycle,
+        cycle_substrate,
         "revalidate_cycle_substrate_context",
         lambda _context: bound_context,
     )

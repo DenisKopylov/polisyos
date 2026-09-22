@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import re
 import time
@@ -271,6 +273,49 @@ class _StochasticDistribution:
     args: tuple[float, ...]
 
 
+@dataclass(frozen=True)
+class _LogicalStreamFactory:
+    """Derive deterministic, query-local streams from one root entropy value.
+
+    A single mutable generator makes an active-graph optimization observable:
+    pruning an irrelevant node changes every subsequent draw.  The query uses
+    stable labels for each logical source instead, so a node's samples depend
+    on the query seed, arm, and node, not on the set/order of unrelated nodes.
+    """
+
+    root_entropy: tuple[int, ...]
+
+    @classmethod
+    def from_seed(cls, seed: int) -> _LogicalStreamFactory:
+        return cls(root_entropy=(int(seed),))
+
+    @classmethod
+    def from_generator(cls, rng: np.random.Generator) -> _LogicalStreamFactory:
+        # Consume a fixed-size root token from an explicit generator.  This
+        # preserves the caller's explicit RNG as the entropy source while
+        # keeping later draws independent of active-node pruning.
+        entropy = rng.integers(0, 2**63, size=4, dtype=np.uint64)
+        return cls(root_entropy=tuple(int(value) for value in entropy))
+
+    def generator(self, *, namespace: str, label: str) -> np.random.Generator:
+        material = json.dumps(
+            {
+                "version": 1,
+                "root_entropy": self.root_entropy,
+                "namespace": namespace,
+                "label": label,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        digest = hashlib.blake2b(material, digest_size=16).digest()
+        words = [
+            int.from_bytes(digest[offset : offset + 4], "little")
+            for offset in range(0, len(digest), 4)
+        ]
+        return np.random.default_rng(np.random.SeedSequence(words))
+
+
 def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistribution:
     """Parse and validate a stochastic law before Monte Carlo sampling."""
     if not isinstance(distribution, str):
@@ -280,7 +325,9 @@ def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistributi
     if match is None:
         raise ValueError(f"unsupported stochastic distribution format: {distribution!r}")
     name = match.group(1).lower()
-    raw_args = [item.strip() for item in match.group(2).split(",") if item.strip()]
+    raw_args = [item.strip() for item in match.group(2).split(",")]
+    if any(not item for item in raw_args):
+        raise ValueError(f"stochastic distribution has an empty argument: {distribution!r}")
     try:
         args = tuple(float(item) for item in raw_args)
     except (TypeError, ValueError) as exc:
@@ -294,8 +341,8 @@ def _resolve_stochastic_distribution(distribution: str) -> _StochasticDistributi
     expected_arity = {"normal": 2, "uniform": 2, "truncnorm": 4}.get(name)
     if expected_arity is None or len(args) != expected_arity:
         raise ValueError(f"unsupported stochastic distribution: {distribution!r}")
-    if name == "normal" and args[1] < 0.0:
-        raise ValueError("normal stochastic distribution requires non-negative scale")
+    if name == "normal" and args[1] <= 0.0:
+        raise ValueError("normal stochastic distribution requires positive scale")
     if name == "truncnorm" and args[1] <= 0.0:
         raise ValueError("truncnorm stochastic distribution requires positive scale")
     return _StochasticDistribution(name=name, args=args)
@@ -995,6 +1042,17 @@ def _intervention_replaces_natural(intervention: InterventionSpec | None) -> boo
     }
 
 
+def _intervention_stream_label(intervention: InterventionSpec | None) -> str:
+    """Return a stable label for one intervention arm's stochastic draws."""
+    if intervention is None:
+        return "natural"
+    return json.dumps(
+        intervention.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
 def _active_query_nodes(
     scm_spec: StructuralCausalModelSpec,
     query: CausalQuery,
@@ -1065,6 +1123,8 @@ def _simulate_samples(
     n_samples: int,
     rng: np.random.Generator,
     warnings: list[str],
+    logical_streams: _LogicalStreamFactory | None = None,
+    stream_namespace: str = "primary",
     intervention_override: InterventionSpec | None | object = _INTERVENTION_UNSET,
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
@@ -1100,6 +1160,20 @@ def _simulate_samples(
         )
     )
     order = [node for node in full_order if node in active_nodes]
+    streams = logical_streams or _LogicalStreamFactory.from_generator(rng)
+    node_rngs = {
+        node: streams.generator(namespace=stream_namespace, label=f"node:{node}")
+        for node in order
+    }
+    root_index_rng = streams.generator(
+        namespace=stream_namespace,
+        label="observed-root-index",
+    )
+    abduction_rng = streams.generator(namespace=stream_namespace, label="abduction")
+    intervention_rng = streams.generator(
+        namespace=stream_namespace,
+        label=f"intervention:{_intervention_stream_label(intervention)}",
+    )
     observed_root_samples = {
         node: values
         for node, values in _observed_root_samples(mechanisms).items()
@@ -1150,11 +1224,11 @@ def _simulate_samples(
     for index in range(n_samples):
         assignment: dict[str, float] = {}
         sample_abduced_noises = (
-            _draw_linear_gaussian_noises(linear_gaussian_posterior, rng)
+            _draw_linear_gaussian_noises(linear_gaussian_posterior, abduction_rng)
             if linear_gaussian_posterior is not None
             else abduced_noises
         )
-        root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
+        root_sample_index = _joint_root_sample_index(observed_root_samples, root_index_rng)
         for node in order:
             parent_values = {
                 parent: assignment[parent]
@@ -1184,7 +1258,7 @@ def _simulate_samples(
                     value = _sample_node_value(
                         mechanism=mechanism,
                         parent_values=parent_values,
-                        rng=rng,
+                        rng=node_rngs[node],
                         warnings=warnings,
                         linear_noise_override=noise_override,
                         sample_index=root_sample_index,
@@ -1202,7 +1276,7 @@ def _simulate_samples(
                     current_value=baseline,
                     intervention_spec=intervention,
                     fallback_treatment_value=query.effective_treatment_value,
-                    rng=rng,
+                    rng=intervention_rng,
                     warnings=warnings,
                     stochastic_law=stochastic_law,
                 )
@@ -1251,6 +1325,7 @@ def _build_dowhy_comparison(
     gcm_query_mean: float,
     params: Mapping[str, Any],
     rng: np.random.Generator,
+    logical_streams: _LogicalStreamFactory,
     warnings: list[str],
 ) -> dict[str, Any] | None:
     intervention = _effective_intervention(query)
@@ -1294,6 +1369,8 @@ def _build_dowhy_comparison(
             n_samples=n_obs,
             rng=rng,
             warnings=warnings,
+            logical_streams=logical_streams,
+            stream_namespace="dowhy-observational",
             intervention_override=None,
             condition_override={},
             include_all_nodes=True,
@@ -1339,6 +1416,8 @@ def _build_dowhy_comparison(
             n_samples=query.n_samples,
             rng=rng,
             warnings=warnings,
+            logical_streams=logical_streams,
+            stream_namespace="dowhy-interventional",
             intervention_override=treat_query.intervention_spec,
             condition_override={},
         )
@@ -1348,6 +1427,8 @@ def _build_dowhy_comparison(
             n_samples=query.n_samples,
             rng=rng,
             warnings=warnings,
+            logical_streams=logical_streams,
+            stream_namespace="dowhy-interventional",
             intervention_override=control_query.intervention_spec,
             condition_override={},
         )
@@ -1450,8 +1531,10 @@ class GCMQuery:
         rng_param = params.get("__rng__")
         if isinstance(rng_param, np.random.Generator):
             rng = rng_param
+            logical_streams = _LogicalStreamFactory.from_generator(rng)
         else:
             rng = np.random.default_rng(seed)
+            logical_streams = _LogicalStreamFactory.from_seed(seed)
         confidence_level = float(params.get("confidence_level", 0.95))
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
@@ -1482,6 +1565,8 @@ class GCMQuery:
                 n_samples=query.n_samples,
                 rng=rng,
                 warnings=warnings,
+                logical_streams=logical_streams,
+                stream_namespace="attribution",
                 intervention_override=intervention,
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
@@ -1493,6 +1578,8 @@ class GCMQuery:
                 n_samples=query.n_samples,
                 rng=rng,
                 warnings=warnings,
+                logical_streams=logical_streams,
+                stream_namespace="attribution",
                 intervention_override=_attribution_comparator(query),
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
@@ -1511,6 +1598,8 @@ class GCMQuery:
                 n_samples=query.n_samples,
                 rng=rng,
                 warnings=warnings,
+                logical_streams=logical_streams,
+                stream_namespace="primary",
                 intervention_override=_effective_intervention(query),
                 allow_declared_hypothesis=allow_declared_hypothesis,
                 return_diagnostic=True,
@@ -1570,6 +1659,7 @@ class GCMQuery:
                 gcm_query_mean=result_mean,
                 params=params,
                 rng=rng,
+                logical_streams=logical_streams,
                 warnings=warnings,
             )
             if comparison is not None:

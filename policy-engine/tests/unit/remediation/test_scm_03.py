@@ -173,6 +173,55 @@ def test_scm03_b224_active_plan_prunes_irrelevant_root_but_keeps_factual_ancesto
     assert output["query_result"].result_distribution == pytest.approx([7.0] * 64)
 
 
+def test_scm03_b224_pruning_preserves_logical_draws_for_relevant_chain(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adding a noisy irrelevant root must not shift relevant seeded draws."""
+    def make_scm(*, include_irrelevant_root: bool) -> StructuralCausalModelSpec:
+        nodes = ["U", "Z", "X", "Y"]
+        mechanisms = [
+            _linear("U", noise_std=1.0),
+            _linear("Z", parents=["U"], coefficients={"U": 1.0}, noise_std=0.75),
+            _linear("X", intercept=91.0, noise_std=8.0),
+            _linear(
+                "Y",
+                parents=["X", "Z"],
+                coefficients={"X": 1.0, "Z": 1.0},
+                noise_std=0.5,
+            ),
+        ]
+        edges = [("U", "Z"), ("Z", "Y"), ("X", "Y")]
+        if include_irrelevant_root:
+            nodes.insert(0, "Q")
+            mechanisms.insert(0, _linear("Q", intercept=13.0, noise_std=100.0))
+        return _scm(nodes=nodes, edges=edges, mechanisms=mechanisms)
+
+    original_sampler = gcm_query_module._sample_node_value
+
+    def run_with_recording(
+        scm: StructuralCausalModelSpec,
+    ) -> tuple[dict[str, object], dict[str, list[float]]]:
+        calls: dict[str, list[float]] = {node: [] for node in ("U", "Z", "Y")}
+
+        def record_relevant_draws(**kwargs: object) -> float:
+            value = original_sampler(**kwargs)
+            mechanism = kwargs["mechanism"]
+            if isinstance(mechanism, NodeMechanism) and mechanism.variable in calls:
+                calls[mechanism.variable].append(value)
+            return value
+
+        monkeypatch.setattr(gcm_query_module, "_sample_node_value", record_relevant_draws)
+        return _run(scm, _interventional_query(treatment_value=2.0, n_samples=32)), calls
+
+    without_irrelevant, draws_without = run_with_recording(make_scm(include_irrelevant_root=False))
+    with_irrelevant, draws_with = run_with_recording(make_scm(include_irrelevant_root=True))
+
+    assert draws_with == draws_without
+    assert with_irrelevant["query_result"].result_distribution == pytest.approx(
+        without_irrelevant["query_result"].result_distribution
+    )
+
+
 def test_scm03_b224_shift_intervention_retains_natural_dependency() -> None:
     """A shift is applied to natural X=5, so X+2 remains 7 rather than atomic 2."""
     scm = _scm(
@@ -211,6 +260,30 @@ def test_scm03_b225_malformed_stochastic_law_does_not_fallback_to_atomic_do() ->
             _interventional_query(
                 treatment_value=7.0,
                 intervention_spec=malformed,
+            ),
+        )
+
+
+@pytest.mark.parametrize("distribution", ["uniform(2,,3)", "normal(0,0)"])
+def test_scm03_b225_invalid_stochastic_parameters_fail_closed(distribution: str) -> None:
+    """Empty arguments and zero normal scale cannot become valid laws."""
+    scm = _scm(
+        nodes=["X", "Y"],
+        edges=[("X", "Y")],
+        mechanisms=[
+            _linear("X"),
+            _linear("Y", parents=["X"], coefficients={"X": 1.0}),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="stochastic intervention"):
+        _run(
+            scm,
+            _soft_query(
+                InterventionSpec(
+                    type=InterventionType.STOCHASTIC,
+                    distribution=distribution,
+                )
             ),
         )
 

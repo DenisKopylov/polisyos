@@ -1821,7 +1821,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "apps/runtime-dashboard/src/api/types.ts:2323",
                 "architecture/generated_artifacts.toml:764",
                 "docs/reference/frontend/workspace-contract.md:37",
-                "apps/runtime-dashboard/package.json:166",
+                "packages/runtime-api-client/package.json:36",
                 "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
             ],
             "rationale": (
@@ -6631,8 +6631,8 @@ id = "target"
             "architecture/generated_artifacts.toml:764": (
                 "39d976d308c9d0ddd92032f6fafb308091469c06adc631e380e5f08606bc07fa"
             ),
-            "apps/runtime-dashboard/package.json:166": (
-                "1a900c57304920020c1211fba15c4ad49d05cecc62e94b5e13ca67d9e79c7b56"
+            "packages/runtime-api-client/package.json:36": (
+                "e50f2c5f958378d113048b899f4f05efc1465b714efb22ed8fa83e5140d60eb6"
             ),
         }
 

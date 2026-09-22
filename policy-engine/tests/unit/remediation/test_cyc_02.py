@@ -153,9 +153,10 @@ class _RecursiveGroundingPort:
         del kwargs
         return CandidateGroundingObservation(
             candidate_id=str(candidate.candidate_id),
-            status="grounding_gap",
+            status="grounded_shadow",
             grounding_score=0.2,
-            issue_codes=("recursive_leaf_grounding_gap",),
+            grounding_source="cgf_firewall",
+            grounding_disposition="shadow_bound",
             current_valid=False,
         )
 
@@ -198,9 +199,9 @@ def _recursive_contract_testing_controller(
 
 def _recursive_leaf_terminal() -> SearchTerminalState:
     return SearchTerminalState(
-        kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
+        kind=SearchTerminalKind.GROUNDED_ABSTENTION,
         reason="Terminal emitted by the canonical generation-cycle owner.",
-        blocking_obligations=["recursive_leaf_grounding_gap", "value_gate_pending_n8"],
+        blocking_obligations=["value_gate_pending_n8"],
     )
 
 

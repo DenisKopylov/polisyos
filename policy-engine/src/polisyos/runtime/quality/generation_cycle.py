@@ -4027,34 +4027,6 @@ class GenerationCycleController:
         )
         proxy_score = prior_summary.proxy_score if prior_summary is not None else 0.0
         voi_estimate = prior_summary.voi_estimate if prior_summary is not None else 0.0
-        terminal_kind = _select_terminal_kind(
-            grounding=grounding,
-            proxy_score=proxy_score,
-            value_port=cycle.value_port,
-        )
-        counterexample = _counterexample_record(
-            problem=problem,
-            cycle_index=cycle.cycle_index,
-            candidate_id=cycle.selected_candidate_ref,
-            grounding=grounding,
-            value_port=cycle.value_port,
-        )
-        revision = _default_revision_request(
-            problem=problem,
-            cycle_index=cycle.cycle_index,
-            candidate_id=cycle.selected_candidate_ref,
-            terminal_kind=terminal_kind,
-            counterexample=counterexample,
-            grounding=grounding,
-            value_port=cycle.value_port,
-        )
-        voi_decision = self.decide_next_action(
-            candidate_id=cycle.selected_candidate_ref,
-            proxy_score=proxy_score,
-            voi_estimate=voi_estimate,
-            prior_terminal_kind=terminal_kind,
-            budget_state=budget_state,
-        )
         selected_candidate = {
             "candidate_id": cycle.selected_candidate_ref,
             "content_hash": cycle.selected_candidate_content_hash,
@@ -4064,14 +4036,57 @@ class GenerationCycleController:
                 "world_model_record_ref": acquisition_receipt.grown_world_after_ref,
             },
         }
+        # The owner write changes the world basis. Re-enter the existing N5/N8
+        # owner nodes so downstream results cannot remain bound to the old basis.
+        dependent = self._joint_value_node(
+            {
+                "selected_candidate": selected_candidate,
+                "problem": problem,
+                "cycle_index": cycle.cycle_index,
+                "budget_state": budget_state,
+                "rankings": {
+                    cycle.selected_candidate_ref: (proxy_score, voi_estimate),
+                },
+            }
+        )
+        simulation = dependent["simulation"]
+        value_port = dependent["value_port"]
+        terminal_kind = _select_terminal_kind(
+            grounding=grounding,
+            proxy_score=proxy_score,
+            value_port=value_port,
+        )
+        counterexample = _counterexample_record(
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            grounding=grounding,
+            value_port=value_port,
+        )
+        revision = _default_revision_request(
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            terminal_kind=terminal_kind,
+            counterexample=counterexample,
+            grounding=grounding,
+            value_port=value_port,
+        )
+        voi_decision = self.decide_next_action(
+            candidate_id=cycle.selected_candidate_ref,
+            proxy_score=proxy_score,
+            voi_estimate=voi_estimate,
+            prior_terminal_kind=terminal_kind,
+            budget_state=budget_state,
+        )
         reentered = _cycle_record(
             problem=problem,
             cycle_index=cycle.cycle_index,
             candidate_ids=cycle.candidate_ids,
             selected_candidate=selected_candidate,
             grounding=grounding,
-            simulation=cycle.simulation,
-            value_port=cycle.value_port,
+            simulation=simulation,
+            value_port=value_port,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
             revision=revision,

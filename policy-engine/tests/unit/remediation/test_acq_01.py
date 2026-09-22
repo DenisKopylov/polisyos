@@ -330,10 +330,17 @@ class _WorldBoundSimulation:
         cycle_index: int,
     ) -> SimulationPortObservation:
         del problem, cycle_index
-        world_ref = str(candidate.atom.world_model_record_ref)
+        atom = candidate["atom"] if isinstance(candidate, dict) else candidate.atom
+        world_ref = str(
+            atom["world_model_record_ref"]
+            if isinstance(atom, dict)
+            else atom.world_model_record_ref
+        )
         self.world_refs.append(world_ref)
         return SimulationPortObservation(
-            candidate_id=str(candidate.candidate_id),
+            candidate_id=str(
+                candidate["candidate_id"] if isinstance(candidate, dict) else candidate.candidate_id
+            ),
             status="joint_simulated",
             simulation_ref=f"fixture-simulation:{world_ref}",
             k_world_ref_before=world_ref,
@@ -353,7 +360,9 @@ class _PendingFixtureValue:
         del simulation, problem, cycle_index
         return ValuePortObservation(
             status="value_pending_n8",
-            candidate_id=str(candidate.candidate_id),
+            candidate_id=str(
+                candidate["candidate_id"] if isinstance(candidate, dict) else candidate.candidate_id
+            ),
             reason="fixture acquisition test leaves N8 pending",
         )
 

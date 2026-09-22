@@ -113,6 +113,12 @@ _SIMULATION_RESULT_MEDIA_TYPE = "application/json"
 _SIMULATION_RESULT_SCHEMA_NAME = "polisyos.core.SimulationResult"
 _SIMULATION_RESULT_SCHEMA_VERSIONS = frozenset({"1.1", "1.2", "1.3"})
 _SIMULATION_RESULT_STATE_KEY = "simulation_result_ref"
+_EXPERIMENT_STATE_SCHEMA_NAME = (
+    "polisyos.scientist.orchestration.engine.ExperimentState"
+)
+_EXPERIMENT_STATE_SCHEMA_VERSIONS = frozenset({"1.3"})
+_WORKFLOW_REPORT_SCHEMA_NAME = "polisyos.scientist.orchestration.engine.WorkflowReport"
+_WORKFLOW_REPORT_SCHEMA_VERSIONS = frozenset({"1.0"})
 
 
 class SimulationResultProjectionError(RuntimeError):
@@ -216,14 +222,20 @@ class DebugService:
         state_payload = self._load_verified_binding_json(
             run.experiment_state_ref,
             expected_kind="scientist.experiment_state",
-            expected_schema_name="polisyos.scientist.orchestration.engine.ExperimentState",
+            expected_schema_name=_EXPERIMENT_STATE_SCHEMA_NAME,
+            expected_schema_versions=_EXPERIMENT_STATE_SCHEMA_VERSIONS,
             expected_run_id=run.run_id,
+            expected_tenant_id=run.details.tenant_id,
+            expected_cell_id=run.details.cell_id,
         )
         report_payload = self._load_verified_binding_json(
             run.workflow_report_ref,
             expected_kind="scientist.workflow_report",
-            expected_schema_name="polisyos.scientist.orchestration.engine.WorkflowReport",
+            expected_schema_name=_WORKFLOW_REPORT_SCHEMA_NAME,
+            expected_schema_versions=_WORKFLOW_REPORT_SCHEMA_VERSIONS,
             expected_run_id=run.run_id,
+            expected_tenant_id=run.details.tenant_id,
+            expected_cell_id=run.details.cell_id,
         )
         record = {
             node.alias: node
@@ -1191,7 +1203,10 @@ class DebugService:
         *,
         expected_kind: str,
         expected_schema_name: str,
+        expected_schema_versions: frozenset[str],
         expected_run_id: str,
+        expected_tenant_id: str | None,
+        expected_cell_id: str | None,
     ) -> dict[str, Any]:
         """Load a verified workflow binding artifact before authorizing a result."""
         if ref is None:
@@ -1213,10 +1228,23 @@ class DebugService:
                 or manifest.media_type != _SIMULATION_RESULT_MEDIA_TYPE
                 or schema is None
                 or schema.name != expected_schema_name
+                or schema.version not in expected_schema_versions
             ):
                 raise SimulationResultProjectionError(
-                    "simulation_result_binding_mismatch",
+                    "simulation_result_binding_schema_mismatch",
                     "A persisted workflow binding artifact has an unexpected manifest",
+                )
+            tenant_context = manifest.tenant_context
+            if (
+                expected_tenant_id is None
+                or expected_cell_id is None
+                or tenant_context is None
+                or tenant_context.tenant_id != expected_tenant_id
+                or tenant_context.cell_id != expected_cell_id
+            ):
+                raise SimulationResultProjectionError(
+                    "simulation_result_binding_tenant_mismatch",
+                    "A persisted workflow binding artifact has an unexpected tenant or cell",
                 )
             payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
         except SimulationResultProjectionError:

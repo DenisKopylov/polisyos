@@ -489,21 +489,37 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
         *,
         state_run_id: str = run_id,
         report_run_id: str = run_id,
+        state_tenant_id: str = _TENANT_ID,
+        state_cell_id: str | None = _CELL_ID,
+        report_tenant_id: str = _TENANT_ID,
+        report_cell_id: str | None = _CELL_ID,
+        state_schema_version: str | None = None,
+        report_schema_version: str | None = None,
     ) -> Any:
         rebound_state = result.state.model_copy(update={"run_id": state_run_id}, deep=True)
         rebound_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = candidate_ref
-        state_ref = store.put_json(
-            rebound_state,
-            PutOptions(
-                kind="scientist.experiment_state",
-                media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.scientist.orchestration.engine.ExperimentState",
-                    version=rebound_state.schema_version,
-                ),
+        state_options = PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.ExperimentState",
+                version=state_schema_version or rebound_state.schema_version,
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
         )
+        if (state_tenant_id, state_cell_id) == (_TENANT_ID, _CELL_ID):
+            state_ref = store.put_json(
+                rebound_state,
+                state_options,
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+        else:
+            state_ref = store.put_json_for_tenant(
+                rebound_state,
+                state_options,
+                tenant_id=state_tenant_id,
+                cell_id=state_cell_id,
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
         rebound_nodes = []
         for node in result.report.nodes:
             if node.alias != "run_simulation":
@@ -521,17 +537,26 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
                     }
                 )
             )
-        report_ref = store.put_json(
-            result.report.model_copy(update={"nodes": rebound_nodes, "run_id": report_run_id}),
-            PutOptions(
-                kind="scientist.workflow_report",
-                media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.scientist.orchestration.engine.WorkflowReport",
-                    version="1.0",
-                ),
+        report_options = PutOptions(
+            kind="scientist.workflow_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.WorkflowReport",
+                version=report_schema_version or "1.0",
             ),
         )
+        report_payload = result.report.model_copy(
+            update={"nodes": rebound_nodes, "run_id": report_run_id}
+        )
+        if (report_tenant_id, report_cell_id) == (_TENANT_ID, _CELL_ID):
+            report_ref = store.put_json(report_payload, report_options)
+        else:
+            report_ref = store.put_json_for_tenant(
+                report_payload,
+                report_options,
+                tenant_id=report_tenant_id,
+                cell_id=report_cell_id,
+            )
         return replace(
             indexed_run,
             experiment_state_ref=state_ref,
@@ -622,6 +647,26 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
             replace(_run_rebound_to(foreign_ref), experiment_state_ref=None),
             alias="run_simulation",
         )
+    with pytest.raises(SimulationResultProjectionError) as foreign_cell_state_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(simulation_ref, state_cell_id="cell-foreign"),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as foreign_cell_report_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(simulation_ref, report_cell_id="cell-foreign"),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as unsupported_state_schema_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(simulation_ref, state_schema_version="9.9"),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as unsupported_report_schema_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(simulation_ref, report_schema_version="9.9"),
+            alias="run_simulation",
+        )
     assert unscoped_error.value.code == "simulation_result_tenant_unscoped"
     assert foreign_error.value.code == "simulation_result_tenant_binding_mismatch"
     assert malformed_error.value.code == "simulation_result_payload_invalid"
@@ -630,6 +675,16 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
     assert wrong_media_error.value.code == "simulation_result_ref_manifest_mismatch"
     assert stale_state_error.value.code == "simulation_result_binding_run_mismatch"
     assert missing_state_error.value.code == "simulation_result_binding_missing"
+    assert foreign_cell_state_error.value.code == "simulation_result_binding_tenant_mismatch"
+    assert foreign_cell_report_error.value.code == "simulation_result_binding_tenant_mismatch"
+    assert (
+        unsupported_state_schema_error.value.code
+        == "simulation_result_binding_schema_mismatch"
+    )
+    assert (
+        unsupported_report_schema_error.value.code
+        == "simulation_result_binding_schema_mismatch"
+    )
 
     audit_path = store.root / "runtime" / "audit" / "access.jsonl"
     audit_entries = [

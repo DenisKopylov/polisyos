@@ -144,7 +144,9 @@ def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume() -
     assert result.telemetry["scientific_evaluations"] == 2
     assert result.telemetry["training_evaluations"] == 1
     assert result.telemetry["generation_transition"]["kind"] == "transient_empty"
-    assert [state["history_length"] for state in generator.context_history] == [1, 2, 3]
+    # Sentinel observations are counted separately and intentionally do not
+    # enter the ordinary history visible to the next generator call.
+    assert [state["history_length"] for state in generator.context_history] == [1, 1, 2]
 
 
 class _RunnerMutation(MutationArtifact):
@@ -178,8 +180,18 @@ class _RunnerEvaluator:
         )
 
 
-def test_current_autotune_runner_characterizes_real_cas_consumer_path(tmp_path: Path) -> None:
+def test_current_autotune_runner_characterizes_real_cas_consumer_path(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
     """The autotune caller persists evaluated candidates and promotes the best one."""
+
+    def fail_legacy_controller_run(*args: Any, **kwargs: Any) -> None:
+        del args, kwargs
+        raise AssertionError("autotune must use the native service driver")
+
+    monkeypatch.setattr(SearchController, "run", fail_legacy_controller_run)
+
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     suite_ref = persist_benchmark_suite(
@@ -222,7 +234,7 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(tmp_path: 
         "value": 7,
     }
     assert result.iterations_completed == 3
-    assert result.stage_a_evaluations == 3
+    assert result.stage_a_evaluations == 0
     assert result.stage_b_evaluations == 3
     champion = registry.get("srv03-loop")
     assert champion is not None

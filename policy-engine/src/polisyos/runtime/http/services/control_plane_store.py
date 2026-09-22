@@ -962,6 +962,10 @@ class ControlDiagnosticEventRecord:
     created_at: datetime
 
 
+class ControlJobLeaseLostError(RuntimeError):
+    """Raised when a worker attempts to write outside its live job lease."""
+
+
 @dataclass(frozen=True)
 class AcquisitionActionHeadRecord:
     """Pointer-only durable head for one acquisition action generation."""
@@ -1270,6 +1274,7 @@ class ControlPlaneStore:
         self._postgres_dsn = postgres_dsn
         self._lock = threading.RLock()
         self._human_decision_transaction = threading.local()
+        self._job_execution_fence = threading.local()
         self._sqlite_timeout_seconds = max(
             float(os.getenv("POLISYOS_CONTROL_SQLITE_TIMEOUT_SECONDS", "0.5")),
             0.05,
@@ -1283,6 +1288,105 @@ class ControlPlaneStore:
             self._ensure_postgres_schema()
         else:
             raise RuntimeError(f"Unsupported control-plane store backend: {backend!r}")
+
+    @contextmanager
+    def job_execution_fence(
+        self,
+        *,
+        job_id: str,
+        worker_id: str,
+        attempt: int,
+    ) -> Iterator[None]:
+        """Bind one handler thread to a live ``(job, owner, attempt)`` lease.
+
+        Lifecycle writes made by the bound handler inherit this fence.  The
+        lease is checked before entering the handler and again by every
+        fenced SQL mutation, so a takeover cannot be overwritten by an old
+        worker after its callback resumes.
+        """
+        if not job_id.strip() or not worker_id.strip() or type(attempt) is not int:
+            raise ValueError("control job execution fence identity is invalid")
+        existing = getattr(self._job_execution_fence, "value", None)
+        if existing is not None:
+            raise RuntimeError("nested control job execution fences are forbidden")
+        record = self.get_job(job_id)
+        now = _utc_now()
+        if (
+            record is None
+            or record.state != "running"
+            or record.lease_owner != worker_id
+            or record.attempt != attempt
+            or record.lease_expires_at is None
+            or record.lease_expires_at <= now
+        ):
+            raise ControlJobLeaseLostError(
+                f"control job lease is not current for {job_id}"
+            )
+        self._job_execution_fence.value = (job_id, worker_id, attempt)
+        try:
+            yield
+        finally:
+            self._job_execution_fence.value = None
+
+    def _resolve_job_execution_fence(
+        self,
+        *,
+        job_id: str,
+        expected_lease_owner: str | None,
+        expected_attempt: int | None,
+    ) -> tuple[str, int] | None:
+        """Resolve explicit or handler-bound fencing identity for one job write."""
+        bound = getattr(self._job_execution_fence, "value", None)
+        if bound is not None:
+            bound_job_id, bound_owner, bound_attempt = bound
+            if bound_job_id != job_id:
+                raise ControlJobLeaseLostError(
+                    f"control job fence is bound to {bound_job_id}, not {job_id}"
+                )
+            if expected_lease_owner is not None and expected_lease_owner != bound_owner:
+                raise ControlJobLeaseLostError("control job owner fence disagrees with handler")
+            if expected_attempt is not None and expected_attempt != bound_attempt:
+                raise ControlJobLeaseLostError("control job attempt fence disagrees with handler")
+            return bound_owner, bound_attempt
+        if expected_lease_owner is None and expected_attempt is None:
+            return None
+        if (
+            not expected_lease_owner
+            or type(expected_attempt) is not int
+            or expected_attempt < 1
+        ):
+            raise ValueError("control job owner and attempt must be supplied together")
+        return expected_lease_owner, expected_attempt
+
+    @staticmethod
+    def _job_fence_where(
+        *,
+        job_id: str,
+        fence: tuple[str, int] | None,
+        now: datetime,
+    ) -> tuple[str, tuple[Any, ...]]:
+        """Build a parameterized lifecycle-write predicate."""
+        if fence is None:
+            return "job_id = ?", (job_id,)
+        owner, attempt = fence
+        return (
+            "job_id = ? AND state = 'running' AND lease_owner = ? "
+            "AND attempt = ? AND lease_expires_at IS NOT NULL AND lease_expires_at > ?",
+            (job_id, owner, attempt, _iso(now)),
+        )
+
+    @staticmethod
+    def _require_fenced_write(
+        *,
+        job_id: str,
+        fence: tuple[str, int] | None,
+        affected_rows: int,
+    ) -> None:
+        """Reject a lost generation instead of silently accepting a no-op."""
+        if fence is not None and affected_rows != 1:
+            raise ControlJobLeaseLostError(
+                f"control job lease no longer permits write for {job_id}"
+            )
 
     def get_scenario_head(self, scenario_id: str) -> ScenarioHeadRecord | None:
         """Return the durable authority row for one scenario id."""
@@ -2852,38 +2956,79 @@ class ControlPlaneStore:
         pipeline_id: str | None = None,
         capability_manifest_ref: str | None = None,
         progress: dict[str, Any] | None = None,
+        expected_lease_owner: str | None = None,
+        expected_attempt: int | None = None,
     ) -> None:
         """Mark one job completed, clear lease/error state, and emit completion events."""
+        fence = self._resolve_job_execution_fence(
+            job_id=job_id,
+            expected_lease_owner=expected_lease_owner,
+            expected_attempt=expected_attempt,
+        )
+        with self._job_transaction():
+            self._complete_job_in_transaction(
+                job_id=job_id,
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                capability_manifest_ref=capability_manifest_ref,
+                progress=progress,
+                fence=fence,
+            )
+
+    def _complete_job_in_transaction(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        pipeline_id: str | None,
+        capability_manifest_ref: str | None,
+        progress: dict[str, Any] | None,
+        fence: tuple[str, int] | None,
+    ) -> None:
+        """Apply one completion and all of its evidence rows in one transaction."""
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
             completion_failure_message = _completion_failure_message(progress)
             if completion_failure_message is not None:
-                self.fail_job(
+                self._fail_job_in_transaction(
                     job_id=job_id,
                     error_message=completion_failure_message,
                     capability_manifest_ref=capability_manifest_ref,
                     progress=progress,
+                    fence=fence,
                 )
                 return
             self.upsert_progress(job_id=job_id, progress=progress)
-        self._execute(
-            """
+        where, where_params = self._job_fence_where(
+            job_id=job_id,
+            fence=fence,
+            now=now,
+        )
+        affected_rows = self._execute(
+            f"""
             UPDATE control_jobs
             SET state = ?, run_id = COALESCE(?, run_id), pipeline_id = COALESCE(?, pipeline_id),
                 capability_manifest_ref = COALESCE(?, capability_manifest_ref),
                 finished_at = ?, lease_owner = NULL, lease_expires_at = NULL, error_message = NULL
-            WHERE job_id = ?
+            WHERE {where}
             """,
-            ("completed", run_id, pipeline_id, capability_manifest_ref, _iso(now), job_id),
+            ("completed", run_id, pipeline_id, capability_manifest_ref, _iso(now), *where_params),
         )
-        self.append_event(job_id=job_id, event_type="job_completed", payload={"state": "completed"})
+        self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
+        event_payload: dict[str, Any] = {"state": "completed"}
+        if fence is not None:
+            event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
+        self.append_event(job_id=job_id, event_type="job_completed", payload=event_payload)
         record = self.get_job(job_id)
         if record is not None:
             self._emit_job_outbox_event(
                 record=record,
                 event_type="job_completed",
-                payload={"state": "completed", "progress": dict(progress or record.progress)},
+                payload={
+                    **event_payload,
+                    "progress": dict(progress or record.progress),
+                },
             )
 
     def fail_job(
@@ -2893,26 +3038,64 @@ class ControlPlaneStore:
         error_message: str,
         capability_manifest_ref: str | None = None,
         progress: dict[str, Any] | None = None,
+        expected_lease_owner: str | None = None,
+        expected_attempt: int | None = None,
     ) -> None:
         """Mark one job failed, persist a truncated error message, and emit failure events."""
+        fence = self._resolve_job_execution_fence(
+            job_id=job_id,
+            expected_lease_owner=expected_lease_owner,
+            expected_attempt=expected_attempt,
+        )
+        with self._job_transaction():
+            self._fail_job_in_transaction(
+                job_id=job_id,
+                error_message=error_message,
+                capability_manifest_ref=capability_manifest_ref,
+                progress=progress,
+                fence=fence,
+            )
+
+    def _fail_job_in_transaction(
+        self,
+        *,
+        job_id: str,
+        error_message: str,
+        capability_manifest_ref: str | None,
+        progress: dict[str, Any] | None,
+        fence: tuple[str, int] | None,
+    ) -> None:
+        """Apply one failure and its dead-letter/event rows in one transaction."""
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
-        self._execute(
-            """
+        where, where_params = self._job_fence_where(
+            job_id=job_id,
+            fence=fence,
+            now=now,
+        )
+        affected_rows = self._execute(
+            f"""
             UPDATE control_jobs
             SET state = ?, capability_manifest_ref = COALESCE(?, capability_manifest_ref),
                 finished_at = ?, lease_owner = NULL, lease_expires_at = NULL, error_message = ?
-            WHERE job_id = ?
+            WHERE {where}
             """,
-            ("failed", capability_manifest_ref, _iso(now), error_message[:2000], job_id),
+            ("failed", capability_manifest_ref, _iso(now), error_message[:2000], *where_params),
         )
+        self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
         if progress is not None:
             self.upsert_progress(job_id=job_id, progress=progress)
+        event_payload: dict[str, Any] = {
+            "state": "failed",
+            "error_message": error_message[:500],
+        }
+        if fence is not None:
+            event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
         self.append_event(
             job_id=job_id,
             event_type="job_failed",
-            payload={"state": "failed", "error_message": error_message[:500]},
+            payload=event_payload,
         )
         record = self.get_job(job_id)
         if record is not None:
@@ -2921,8 +3104,7 @@ class ControlPlaneStore:
                 record=record,
                 event_type="job_failed",
                 payload={
-                    "state": "failed",
-                    "error_message": error_message[:500],
+                    **event_payload,
                     "progress": dict(progress or record.progress),
                 },
             )
@@ -2980,41 +3162,65 @@ class ControlPlaneStore:
         state: str,
         progress: dict[str, Any],
         error_message: str | None = None,
+        expected_lease_owner: str | None = None,
+        expected_attempt: int | None = None,
     ) -> None:
         """Update progress/error state and emit a `job_progress` event/outbox row."""
-        progress = _progress_with_quality_scorecard_summary(progress)
-        existing = self.get_job(job_id)
-        progress = append_evidence_spine_handoff(
-            progress,
-            control_plane_handoff(
-                handoff_kind="workflow_state_persistence",
-                job_id=job_id,
-                producer_ref="runtime.control_plane_store",
-                consumer_ref="runtime.control_progress_readers",
-                input_refs=(f"control-job:{job_id}",),
-                output_refs=(f"control-job:{job_id}:progress",),
-                carrier_ref=_progress_carrier_ref(
-                    progress=(existing.progress if existing is not None else progress),
+        fence = self._resolve_job_execution_fence(
+            job_id=job_id,
+            expected_lease_owner=expected_lease_owner,
+            expected_attempt=expected_attempt,
+        )
+        with self._job_transaction():
+            progress = _progress_with_quality_scorecard_summary(progress)
+            existing = self.get_job(job_id)
+            progress = append_evidence_spine_handoff(
+                progress,
+                control_plane_handoff(
+                    handoff_kind="workflow_state_persistence",
                     job_id=job_id,
-                    payload_ref=(existing.payload_ref if existing is not None else None),
+                    producer_ref="runtime.control_plane_store",
+                    consumer_ref="runtime.control_progress_readers",
+                    input_refs=(f"control-job:{job_id}",),
+                    output_refs=(f"control-job:{job_id}:progress",),
+                    carrier_ref=_progress_carrier_ref(
+                        progress=(existing.progress if existing is not None else progress),
+                        job_id=job_id,
+                        payload_ref=(existing.payload_ref if existing is not None else None),
+                    ),
                 ),
-            ),
-        )
-        self.upsert_progress(job_id=job_id, progress=progress)
-        self._execute(
-            "UPDATE control_jobs SET error_message = COALESCE(?, error_message) WHERE job_id = ?",
-            (error_message, job_id),
-        )
-        self.append_event(
-            job_id=job_id, event_type="job_progress", payload={"state": state, **progress}
-        )
-        record = self.get_job(job_id)
-        if record is not None:
-            self._emit_job_outbox_event(
-                record=record,
-                event_type="job_progress",
-                payload={"state": state, **progress},
             )
+            self.upsert_progress(job_id=job_id, progress=progress)
+            where, where_params = self._job_fence_where(
+                job_id=job_id,
+                fence=fence,
+                now=_utc_now(),
+            )
+            affected_rows = self._execute(
+                f"UPDATE control_jobs SET error_message = COALESCE(?, error_message) "
+                f"WHERE {where}",
+                (error_message, *where_params),
+            )
+            self._require_fenced_write(
+                job_id=job_id,
+                fence=fence,
+                affected_rows=affected_rows,
+            )
+            event_payload: dict[str, Any] = {"state": state, **progress}
+            if fence is not None:
+                event_payload.update({"lease_owner": fence[0], "attempt": fence[1]})
+            self.append_event(
+                job_id=job_id,
+                event_type="job_progress",
+                payload=event_payload,
+            )
+            record = self.get_job(job_id)
+            if record is not None:
+                self._emit_job_outbox_event(
+                    record=record,
+                    event_type="job_progress",
+                    payload=event_payload,
+                )
 
     def renew_job_lease(
         self,
@@ -3022,17 +3228,28 @@ class ControlPlaneStore:
         job_id: str,
         worker_id: str,
         lease_seconds: int = 60,
-    ) -> None:
+        expected_attempt: int | None = None,
+    ) -> bool:
         """Extend a running job lease when the heartbeat still matches `worker_id`."""
-        lease_expires_at = _utc_now() + timedelta(seconds=max(lease_seconds, 1))
-        self._execute(
-            """
+        now = _utc_now()
+        lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
+        attempt_clause = ""
+        attempt_params: tuple[Any, ...] = ()
+        if expected_attempt is not None:
+            if type(expected_attempt) is not int or expected_attempt < 1:
+                raise ValueError("control job attempt must be a positive integer")
+            attempt_clause = " AND attempt = ?"
+            attempt_params = (expected_attempt,)
+        affected_rows = self._execute(
+            f"""
             UPDATE control_jobs
             SET lease_expires_at = ?
             WHERE job_id = ? AND state = 'running' AND lease_owner = ?
+              AND lease_expires_at IS NOT NULL AND lease_expires_at > ?{attempt_clause}
             """,
-            (_iso(lease_expires_at), job_id, worker_id),
+            (_iso(lease_expires_at), job_id, worker_id, _iso(now), *attempt_params),
         )
+        return affected_rows == 1
 
     def heartbeat_worker(
         self,
@@ -4124,7 +4341,35 @@ class ControlPlaneStore:
                 """
             )
 
-    def _execute(self, sql: str, params: tuple[Any, ...]) -> None:
+    @contextmanager
+    def _job_transaction(self) -> Iterator[None]:
+        """Run lifecycle state, progress, event, and outbox writes atomically."""
+        existing_sqlite = getattr(self._human_decision_transaction, "sqlite_connection", None)
+        existing_postgres = getattr(self._human_decision_transaction, "postgres_cursor", None)
+        if existing_sqlite is not None or existing_postgres is not None:
+            yield
+            return
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                self._human_decision_transaction.sqlite_connection = conn
+                try:
+                    yield
+                    conn.commit()
+                except BaseException:
+                    conn.rollback()
+                    raise
+                finally:
+                    self._human_decision_transaction.sqlite_connection = None
+            return
+        with self._postgres_cursor() as cur:
+            self._human_decision_transaction.postgres_cursor = cur
+            try:
+                yield
+            finally:
+                self._human_decision_transaction.postgres_cursor = None
+
+    def _execute(self, sql: str, params: tuple[Any, ...]) -> int:
         if self.backend == "sqlite":
             lane = getattr(
                 self._human_decision_transaction,
@@ -4132,19 +4377,19 @@ class ControlPlaneStore:
                 None,
             )
             if lane is not None:
-                lane.execute(sql, params)
-                return
+                return int(lane.execute(sql, params).rowcount)
             with self._lock:
                 with self._sqlite_connection() as conn:
-                    conn.execute(sql, params)
+                    cursor = conn.execute(sql, params)
                     conn.commit()
-            return
+                    return int(cursor.rowcount)
         lane = getattr(self._human_decision_transaction, "postgres_cursor", None)
         if lane is not None:
             lane.execute(self._translate_sql(sql), params)
-            return
+            return int(lane.rowcount)
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
+            return int(cur.rowcount)
 
     def _fetchone(self, sql: str, params: tuple[Any, ...]) -> Any:
         if self.backend == "sqlite":
@@ -4245,6 +4490,7 @@ class ControlPlaneStore:
 __all__ = [
     "ControlDeadLetterRecord",
     "ControlDiagnosticEventRecord",
+    "ControlJobLeaseLostError",
     "ControlJobRecord",
     "ControlOutboxRecord",
     "ControlPlaneStore",

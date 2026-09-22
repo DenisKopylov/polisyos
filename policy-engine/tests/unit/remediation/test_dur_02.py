@@ -19,6 +19,7 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackWorkflowRunner,
+    HealthFailureDisposition,
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 
@@ -130,6 +131,10 @@ def test_terminal_status_progress_and_event_are_one_transaction(tmp_path, monkey
     assert unchanged.lease_owner == "worker-a"
     assert unchanged.progress["phase"] == "dispatch"
     assert store.list_job_state_transitions(leased.job_id)[-1] == "running"
+    assert not any(
+        event.topic == "control.job.completed"
+        for event in store.list_outbox_events(state=None, limit=100)
+    )
 
 
 def test_post_dispatch_failure_does_not_blindly_replay_locally() -> None:
@@ -170,7 +175,11 @@ def test_transient_pre_dispatch_probe_failure_allows_local_fallback() -> None:
         )
     )
     primary.execute_workflow = AsyncMock()
-    runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+    runner = FallbackWorkflowRunner(
+        primary,
+        health_ttl_s=0,
+        health_failure_classifier=lambda _health: HealthFailureDisposition.ALLOW,
+    )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
 
@@ -189,10 +198,14 @@ def test_access_or_contract_probe_failure_does_not_grant_fallback_authority() ->
         return_value=RunnerHealth(
             backend="remote",
             healthy=False,
-            message="probe failed: tenant access denied by contract",
+            message="probe failed: connection refused; tenant access denied by contract",
         )
     )
-    runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+    runner = FallbackWorkflowRunner(
+        primary,
+        health_ttl_s=0,
+        health_failure_classifier=lambda _health: HealthFailureDisposition.BLOCK,
+    )
     fallback = AsyncMock(return_value="local-result")
     runner._fallback = SimpleNamespace(execute_workflow=fallback)
 

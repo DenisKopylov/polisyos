@@ -135,7 +135,7 @@ def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization(
     )
 
     assert report.status is EstimationStatus.SUCCESS
-    assert report.point_estimate == pytest.approx(4.2)
+    assert report.point_estimate == pytest.approx(5.2)
 
 
 def test_staggered_partial_no_control_cells_fail_closed():

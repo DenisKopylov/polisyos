@@ -1406,8 +1406,10 @@ def test_stream_window_restore_rejects_empty_contributor_ref() -> None:
         {"row": {"value": 1}, "refs": ["chunk-valid", ""]},
     ]
 
-    with pytest.raises(ValueError, match="empty"):
+    with pytest.raises(ValueError, match="corrupt stream operator state") as exc_info:
         accumulator.restore(state)
+    assert exc_info.value.__cause__ is not None
+    assert "row contributor refs cannot be empty" in str(exc_info.value.__cause__)
 
 
 @pytest.mark.asyncio

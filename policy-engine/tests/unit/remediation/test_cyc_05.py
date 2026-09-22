@@ -7,17 +7,23 @@ from pathlib import Path
 
 import pytest
 
+import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control.generation_cycle import (
     _build_cycle_substrate_context_from_owner,
 )
+from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
     StrangleReceipt,
     validate_generation_cycle_run,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
+    RecursiveCycleBudget,
+    build_default_recursive_generation_cycle_controller,
     recompute_depth_n_strangle_receipt,
 )
 from tests.unit.runtime.quality.test_generation_cycle import (
@@ -132,6 +138,69 @@ def test_http_owner_context_requires_explicit_source_root() -> None:
         )
         is None
     )
+
+
+@pytest.mark.asyncio
+async def test_http_rejects_injected_controller_source_root_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The HTTP composition cannot validate checkout B with controller checkout A."""
+
+    root_a = tmp_path / "checkout-a"
+    root_b = tmp_path / "checkout-b"
+    root_a.mkdir()
+    root_b.mkdir()
+    problem = _problem("cyc_05_controller_root_mismatch")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+    verifier = object()
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=runtime,
+        eval_safety_verifier=verifier,  # type: ignore[arg-type]
+        repo_root=root_a,
+    )
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    async def fail_if_controller_runs(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("root-mismatched controller reached recursive execution")
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+    monkeypatch.setattr(controller, "run", fail_if_controller_runs)
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            controller=controller,
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=verifier,  # type: ignore[arg-type]
+            promotion_runtime=runtime,
+            repo_root=root_b,
+        )
+
+    assert exc_info.value.code == "recursive_controller_repo_root_mismatch"
 
 
 @pytest.mark.asyncio

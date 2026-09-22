@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -34,6 +35,7 @@ from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.fabric.data_plane.watermark import WindowAssignment, WindowPolicy
 from polisyos.fabric.quality.processing_guarantees import (
     BackpressureStrategy,
@@ -44,7 +46,6 @@ from polisyos.fabric.quality.processing_guarantees import (
     processing_contract_snapshot,
     stream_processing_contract,
 )
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
@@ -174,6 +175,9 @@ class StreamingSourceSession:
         self._subscription: Any = None
         self._paused = False
         self._closed = False
+        self._cleanup_pending = False
+        self._stream_close_complete = False
+        self._close_lock = asyncio.Lock()
         self._last_chunk: DataChunk[Any] | None = None
         self._prefetched_chunk: DataChunk[Any] | None = None
 
@@ -210,7 +214,35 @@ class StreamingSourceSession:
             request=request or FetchRequest(dataset_id=dataset_id),
             partition_key=partition_key,
         )
-        await session.subscribe()
+        try:
+            await session.subscribe()
+        except BaseException as exc:
+            try:
+                await session.close()
+            except BaseException as cleanup_exc:
+                # Startup owns this session until cleanup succeeds.  A second
+                # physical cleanup failure is deliberately fail-closed: the
+                # original startup error remains authoritative and the note
+                # records that the pool owner is still pending.
+                exc.add_note(
+                    "stream session startup cleanup remains pending after retry: "
+                    f"{cleanup_exc!r}"
+                )
+            if session._cleanup_pending or session.handle is not None:
+                retain_pending_cleanup = getattr(
+                    resolved_registry,
+                    "_retain_pending_startup_cleanup",
+                    None,
+                )
+                if callable(retain_pending_cleanup):
+                    try:
+                        retain_pending_cleanup(connector_id, session.pool)
+                    except BaseException as transfer_exc:
+                        exc.add_note(
+                            "stream session startup owner transfer failed: "
+                            f"{transfer_exc!r}"
+                        )
+            raise
         return session
 
     async def subscribe(self) -> None:
@@ -218,16 +250,49 @@ class StreamingSourceSession:
         connector, handle = await self.pool.acquire_with_connector()
         self.connector = connector
         self.handle = handle
-        if hasattr(connector, "subscribe_stream"):
-            self._subscription = await cast(
-                "Any",
-                connector,
-            ).subscribe_stream(handle, self.request)
-        else:
-            stream = cast("Any", connector).fetch_stream(handle, self.request)
-            if hasattr(stream, "__await__"):
-                stream = await stream
-            self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        try:
+            if hasattr(connector, "subscribe_stream"):
+                self._subscription = await cast(
+                    "Any",
+                    connector,
+                ).subscribe_stream(handle, self.request)
+            else:
+                stream = cast("Any", connector).fetch_stream(handle, self.request)
+                if hasattr(stream, "__await__"):
+                    stream = await stream
+                self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        except BaseException as exc:
+            cleanup_complete = False
+            try:
+                await self.pool.close_all()
+            except BaseException as cleanup_exc:
+                exc.add_note(f"stream subscription pool close failed: {cleanup_exc!r}")
+                # close_all() deliberately retains the acquired permit when
+                # disconnect cannot be confirmed.  Retry through release so a
+                # transient physical failure can still complete startup
+                # cleanup without making the owner unreachable.
+                try:
+                    await self.pool.release(handle)
+                except BaseException as release_exc:
+                    exc.add_note(f"stream subscription release failed: {release_exc!r}")
+                else:
+                    cleanup_complete = True
+            else:
+                cleanup_complete = True
+
+            if cleanup_complete:
+                self.connector = None
+                self.handle = None
+                self._closed = True
+                self._cleanup_pending = False
+            else:
+                # Keep the physical handle attached to this session. ``close()`` can
+                # retry the pool-owned transition after the primary subscription error.
+                self._closed = False
+                self._cleanup_pending = True
+            self._generator = None
+            self._subscription = None
+            raise
 
     async def poll(self) -> DataChunk[Any] | None:
         """Read the next stream chunk."""
@@ -353,25 +418,33 @@ class StreamingSourceSession:
 
     async def close(self) -> None:
         """Release the current stream handle and close owned pool resources."""
-        if self._closed:
-            return
-        self._closed = True
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "close_stream",
-            )
-        ):
-            await self.connector.close_stream(self.handle)
-        if self.handle is not None:
-            await self.pool.release(self.handle)
-        await self.pool.close_all()
-        self.connector = None
-        self.handle = None
-        self._generator = None
-        self._subscription = None
+        async with self._close_lock:
+            if self._closed and not self._cleanup_pending:
+                return
+            if (
+                self.connector is not None
+                and self.handle is not None
+                and hasattr(
+                    self.connector,
+                    "close_stream",
+                )
+                and not self._stream_close_complete
+                and not self._cleanup_pending
+            ):
+                await self.connector.close_stream(self.handle)
+                self._stream_close_complete = True
+
+            if self.handle is not None:
+                await self.pool.release(self.handle)
+                self.connector = None
+                self.handle = None
+            await self.pool.close_all()
+            self._closed = True
+            self._cleanup_pending = False
+            self.connector = None
+            self.handle = None
+            self._generator = None
+            self._subscription = None
 
     async def _reconnect(self) -> None:
         if self.handle is not None:
@@ -381,6 +454,7 @@ class StreamingSourceSession:
         self._generator = None
         self._subscription = None
         self._prefetched_chunk = None
+        self._stream_close_complete = False
         await self.subscribe()
 
     @property
@@ -851,35 +925,36 @@ async def process_stream_dataset(
         registry=registry,
         registry_provider=registry_provider,
     )
-    result = StreamDatasetRunResult(
-        connector_id=connector_id,
-        dataset_id=dataset_id,
-        partition_key=options.partition_key,
-        processing_guarantee=processing_contract.guarantee_value,
-    )
-    accumulator = StreamWindowAccumulator(options.window_policy)
-    ordering_state = _StreamOrderingState()
-    dedupe_keys: deque[str] = deque(
-        maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
-    )
-    dedupe_seen: set[str] = set()
-    latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
-        connector_id,
-        dataset_id,
-        partition_key=options.partition_key,
-    )
-    if latest_checkpoint is not None:
-        dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-        dedupe_seen.update(latest_checkpoint.dedupe_keys)
-        await session.rewind(latest_checkpoint)
-
-    previous_schema: tuple[str, ...] | None = (
-        tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
-        if latest_checkpoint is not None
-        else None
-    )
-
     try:
+        result = StreamDatasetRunResult(
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            partition_key=options.partition_key,
+            processing_guarantee=processing_contract.guarantee_value,
+        )
+        accumulator = StreamWindowAccumulator(options.window_policy)
+        ordering_state = _StreamOrderingState()
+        dedupe_keys: deque[str] = deque(
+            maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
+        )
+        dedupe_seen: set[str] = set()
+        previous_schema: tuple[str, ...] | None = None
+        latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
+            connector_id,
+            dataset_id,
+            partition_key=options.partition_key,
+        )
+        if latest_checkpoint is not None:
+            dedupe_keys.extend(latest_checkpoint.dedupe_keys)
+            dedupe_seen.update(latest_checkpoint.dedupe_keys)
+            await session.rewind(latest_checkpoint)
+
+        previous_schema = (
+            tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
+            if latest_checkpoint is not None
+            else None
+        )
+
         while True:
             buffered_rows = accumulator.buffered_rows()
             buffered_bytes = accumulator.buffered_bytes()
@@ -1189,7 +1264,15 @@ async def process_stream_dataset(
             result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
         raise
     finally:
-        await session.close()
+        primary_exc = sys.exc_info()[1]
+        try:
+            await session.close()
+        except BaseException as cleanup_exc:
+            if primary_exc is None:
+                raise
+            primary_exc.add_note(
+                f"stream session final cleanup failed: {cleanup_exc!r}"
+            )
 
 
 async def _persist_stream_chunk_async(

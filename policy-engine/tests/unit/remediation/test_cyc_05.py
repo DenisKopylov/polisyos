@@ -11,7 +11,12 @@ import polisyos.runtime.http.services.control.generation_cycle as generation_cyc
 from polisyos.core import canon
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.pdc import SearchTerminalKind, SubDesignContract, gy_content_hash
+from polisyos.pdc import (
+    SearchTerminalKind,
+    SubDesignContract,
+    assert_ring2_verifier_provenance,
+    gy_content_hash,
+)
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
     derive_recursive_design_graph,
@@ -692,7 +697,12 @@ def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> 
         assert child.search_exit.voi_audit.workspace_id == source_workspace_id
 
         payload = child.search_exit.model_dump(mode="json")
-        roundtripped = WorkspaceSearchExitContract.model_validate(payload)
+        readback_context = {"writer_role": "system_verifier"}
+        roundtripped = WorkspaceSearchExitContract.model_validate(
+            payload,
+            context=readback_context,
+        )
+        assert_ring2_verifier_provenance(roundtripped, context=readback_context)
         assert roundtripped.model_dump(mode="json") == payload
         assert roundtripped.workspace_id == child.workspace_id
         assert roundtripped.exit_id == child.search_exit.exit_id

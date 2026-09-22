@@ -365,6 +365,17 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
         transform_state_before[attribute] = {
             name: value.detach().clone() for name, value in transform.state_dict().items()
         }
+    condition_errors: list[str] = []
+    original_condition = type(model_before).condition_on_observations
+
+    def observe_condition(model, *args, **kwargs):
+        try:
+            return original_condition(model, *args, **kwargs)
+        except Exception as exc:  # pragma: no cover - diagnostic receipt path
+            condition_errors.append(f"{type(exc).__name__}: {exc}")
+            raise
+
+    monkeypatch.setattr(type(model_before), "condition_on_observations", observe_condition)
 
     expanded = [
         *initial,
@@ -377,7 +388,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     ]
     strategy.suggest(expanded)
 
-    assert fit_calls == 1
+    assert fit_calls == 1, f"condition_errors={condition_errors!r}"
     assert strategy._model is not None
     model_train_X = strategy._model.train_inputs[0]
     model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])

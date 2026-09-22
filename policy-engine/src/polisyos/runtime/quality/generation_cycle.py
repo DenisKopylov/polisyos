@@ -2164,11 +2164,14 @@ class RealValueOwnerGateway:
                 owner_access_ref=owner_access_ref,
                 owner_gap_evidence=availability,
             )
+        jurisdiction_time = _object_get(problem, "jurisdiction_time")
+        scope_region = _optional_text(_object_get(jurisdiction_time, "region"))
         profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
             outcome=outcome,
             owner_access_ref=owner_access_ref,
             overlay_path=self.catalog_overlay_path,
+            scope_region=scope_region,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -4997,9 +5000,15 @@ def _load_value_data_profile_from_l1_dcat(
     outcome: str,
     owner_access_ref: str,
     overlay_path: Path | None = None,
+    scope_region: str | None = None,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
+    normalized_scope_region = _optional_text(scope_region)
+    scope_clause = "\n              AND country_code = ?" if normalized_scope_region else ""
+    parameters: list[str] = [outcome]
+    if normalized_scope_region:
+        parameters.append(normalized_scope_region)
     try:
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -5027,7 +5036,7 @@ def _load_value_data_profile_from_l1_dcat(
     )
     try:
         raw_rows = con.execute(
-            """
+            f"""
             SELECT
               COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
               COALESCE(year, survey_year, wave) AS period_id,
@@ -5038,10 +5047,11 @@ def _load_value_data_profile_from_l1_dcat(
             WHERE canonical_var = ?
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
+              {scope_clause}
             ORDER BY unit_id, period_id, dataset_id, observation_id, value
             LIMIT 20000
             """,
-            [outcome],
+            parameters,
         ).fetchall()
     finally:
         con.close()
@@ -5052,6 +5062,21 @@ def _load_value_data_profile_from_l1_dcat(
             continue
         grouped.setdefault((str(unit), int(period)), []).append(
             (numeric_value, str(dataset_id), str(observation_id))
+        )
+    ambiguous_keys = tuple(
+        (unit_id, period_id)
+        for (unit_id, period_id), values in sorted(grouped.items())
+        if len(values) > 1
+    )
+    if ambiguous_keys:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_unit_binding_ambiguous",
+            (
+                "owner observations contain multiple values for a unit-period, but "
+                "the catalog has no declared measurement-unit binding; refusing to "
+                "aggregate by dataset identity"
+            ),
+            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
         )
     owner_rows = tuple(
         _value_owner_row(
@@ -5394,7 +5419,6 @@ def _build_candidate_selection_diagram(
     query_outcome: str,
     cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
-    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.transportability import (
         SelectionDiagramBuilder,
@@ -5442,13 +5466,13 @@ def _build_candidate_selection_diagram(
             owner_access_ref=context.content_hash,
         )
     transport_covariates = tuple(observation.canonical_var for observation in transport.covariates)
-    graph = CausalGraphModel(
-        graph_type=GraphType.DAG,
-        nodes=list(dict.fromkeys((query_treatment, query_outcome, *transport_covariates))),
-        edges=[
-            CausalEdge(src=query_treatment, dst=query_outcome),
-            *[CausalEdge(src=covariate, dst=query_outcome) for covariate in transport_covariates],
-        ],
+    graph = _resolve_bound_transport_graph(
+        problem=problem,
+        world_record=world_record,
+        query_treatment=query_treatment,
+        query_outcome=query_outcome,
+        transport_covariates=transport_covariates,
+        owner_access_ref=context.content_hash,
     )
     source_context = ContextProfile(
         context_id=transport.source_context_id,
@@ -5478,6 +5502,91 @@ def _build_candidate_selection_diagram(
         source_context=source_context,
         target_context=target_context,
     )
+
+
+def _resolve_bound_transport_graph(
+    *,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    query_treatment: str,
+    query_outcome: str,
+    transport_covariates: Sequence[str],
+    owner_access_ref: str,
+) -> object:
+    """Resolve a graph/hypothesis already bound to the active transport query.
+
+    Measured source/target deltas describe context shifts only.  They are not
+    sufficient evidence for causal edges, so this owner must consume an
+    explicitly supplied graph or graph-shaped hypothesis and never synthesize
+    topology from variable names.
+    """
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+    runtime_hints = _object_get(problem, "runtime_hints")
+    if not isinstance(runtime_hints, Mapping):
+        runtime_hints = {}
+    raw_graph = next(
+        (
+            runtime_hints.get(key)
+            for key in ("causal_graph_model", "causal_graph", "causal_hypothesis")
+            if runtime_hints.get(key) is not None
+        ),
+        None,
+    )
+    if raw_graph is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:causal_graph_unresolved",
+            "transport selection requires a content-bound causal graph or hypothesis",
+            owner_access_ref=owner_access_ref,
+        )
+    if isinstance(raw_graph, CausalGraphModel):
+        graph = raw_graph
+    else:
+        graph_payload: object = raw_graph
+        if isinstance(raw_graph, Mapping) and not {
+            "graph_type",
+            "nodes",
+            "edges",
+        }.issubset(raw_graph):
+            for key in ("graph", "causal_graph", "model", "hypothesis"):
+                nested = raw_graph.get(key)
+                if isinstance(nested, Mapping):
+                    graph_payload = nested
+                    break
+        try:
+            graph = CausalGraphModel.model_validate(graph_payload)
+        except (TypeError, ValueError) as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:causal_graph_invalid",
+                f"content-bound causal graph or hypothesis is invalid: {exc}",
+                owner_access_ref=owner_access_ref,
+            ) from exc
+    metadata = graph.metadata
+    expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    graph_problem_ref = metadata.get("design_problem_ref")
+    if graph_problem_ref is not None and graph_problem_ref != expected_problem_ref:
+        raise ValueOwnerAccessError(
+            "acquire_data:causal_graph_unbound",
+            "causal graph is not bound to the active DesignProblem",
+            owner_access_ref=owner_access_ref,
+        )
+    graph_world_ref = metadata.get("world_model_record_content_hash")
+    if graph_world_ref is not None and graph_world_ref != world_record.content_hash:
+        raise ValueOwnerAccessError(
+            "acquire_data:causal_graph_unbound",
+            "causal graph is not bound to the active WorldModelRecord",
+            owner_access_ref=owner_access_ref,
+        )
+    required_nodes = {query_treatment, query_outcome, *transport_covariates}
+    missing_nodes = sorted(required_nodes.difference(graph.nodes))
+    if missing_nodes:
+        raise ValueOwnerAccessError(
+            "acquire_data:causal_graph_incomplete",
+            "causal graph omits transport query variables: " + ", ".join(missing_nodes),
+            owner_access_ref=owner_access_ref,
+        )
+    return graph
 
 
 def _candidate_transport_treatment_variable(candidate: object) -> str:

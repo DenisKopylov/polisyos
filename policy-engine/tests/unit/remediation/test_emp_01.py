@@ -80,17 +80,21 @@ class _RowsConnection:
 
     def execute(self, statement: str, parameters: Any = None) -> _RowsCursor:
         self.calls.append((statement, tuple(parameters or ())))
-        return _RowsCursor(self._rows)
+        rows = self._rows
+        if "country_code = ?" in statement:
+            scope_region = tuple(parameters or ())[1]
+            rows = tuple(row for row in rows if row[0] == scope_region)
+        return _RowsCursor(rows)
 
     def close(self) -> None:
         return None
 
 
-def test_scope_is_bound_before_limit_and_incompatible_units_are_not_aggregated(
+def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """Owner rows stay in the requested jurisdiction and preserve source identity."""
+    """Unbound measurement units are refused after applying the geographic scope."""
 
     catalog_path = tmp_path / "l1.duckdb"
     catalog_path.touch()
@@ -140,18 +144,85 @@ def test_scope_is_bound_before_limit_and_incompatible_units_are_not_aggregated(
         jurisdiction_time=SimpleNamespace(region="UA"),
         runtime_hints={},
     )
+    with pytest.raises(
+        generation_cycle.ValueOwnerAccessError,
+        match="measurement-unit binding",
+    ):
+        generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=candidate,
+            problem=problem,
+            world_record=SimpleNamespace(),
+        )
+
+    assert connection.calls
+    assert connection.calls[0][1][0] == "outcome"
+    statement = connection.calls[0][0]
+    assert statement.index("country_code = ?") < statement.index("LIMIT")
+    assert connection.calls[0][1][1] == "UA"
+
+
+def test_scope_filter_excludes_other_regions_before_profile_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A declared region is applied in the owner query before profile shaping."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    catalog_path.touch()
+    rows = (
+        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020"),
+        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021"),
+        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022"),
+        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-2023"),
+        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020"),
+        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021"),
+        ("PL", 2022, 97.0, "dataset-foreign", "obs-pl-2022"),
+        ("PL", 2023, 96.0, "dataset-foreign", "obs-pl-2023"),
+    )
+    connection = _RowsConnection(rows)
+
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=2,
+            metric_binding_count=1,
+            observation_count=len(rows),
+        ),
+    )
+
     profile = generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
-        candidate=candidate,
-        problem=problem,
+        candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",))),
+        problem=SimpleNamespace(
+            outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+            jurisdiction_time=SimpleNamespace(region="UA"),
+            runtime_hints={},
+        ),
         world_record=SimpleNamespace(),
     )
 
     assert profile.unit_count == 1
     assert all(row.unit_id == "UA" for row in profile.rows)
-    assert all(row.outcome_value != 505.0 for row in profile.rows)
-    assert any(len(row.source_row_content_hashes) == 1 for row in profile.rows)
+    assert all(len(row.source_row_content_hashes) == 1 for row in profile.rows)
     assert connection.calls
-    assert connection.calls[0][1][0] == "outcome"
+    assert connection.calls[0][1] == ("outcome", "UA")
 
 
 def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:
@@ -241,3 +312,86 @@ def test_selection_diagram_requires_bound_model_or_explicit_hypothesis(
             query_outcome="outcome",
             cycle_substrate_context=SimpleNamespace(),
         )
+
+
+def test_selection_diagram_uses_content_bound_graph_without_inventing_edges(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A content-bound graph is used as supplied, including its sparse edge set."""
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+    class _Problem:
+        domain = "emp01-domain"
+
+        def __init__(self, graph_payload: dict[str, Any]) -> None:
+            self.runtime_hints = {"causal_graph_model": graph_payload}
+
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return {"problem": "emp01"}
+
+    problem_ref = generation_cycle.gy_content_hash({"problem": "emp01"})
+    world_record = SimpleNamespace(
+        world_model_record_id="world_model_record_emp01",
+        content_hash="sha256:" + "c" * 64,
+    )
+    graph = CausalGraphModel(
+        graph_type="dag",
+        nodes=["treatment", "outcome", "income"],
+        edges=[
+            {
+                "src": "treatment",
+                "dst": "outcome",
+                "mark_src": "tail",
+                "mark_dst": "arrow",
+            }
+        ],
+        metadata={
+            "design_problem_ref": problem_ref,
+            "world_model_record_content_hash": world_record.content_hash,
+        },
+    )
+    problem = _Problem(graph.model_dump(mode="json"))
+    transport_context = SimpleNamespace(
+        source_context_id="source",
+        target_context_id="target",
+        covariates=(
+            SimpleNamespace(
+                canonical_var="income",
+                source_value=1.0,
+                target_value=2.0,
+                source_row_content_hash="sha256:" + "d" * 64,
+                target_row_content_hash="sha256:" + "e" * 64,
+            ),
+        ),
+    )
+    bound_context = SimpleNamespace(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        world_model_record_content_hash=world_record.content_hash,
+        world_model_record=world_record,
+        transport_context=transport_context,
+    )
+    monkeypatch.setattr(
+        cycle_substrate,
+        "revalidate_cycle_substrate_context",
+        lambda _context: bound_context,
+    )
+
+    diagram = generation_cycle._build_candidate_selection_diagram(
+        candidate=SimpleNamespace(
+            candidate_id="emp01-candidate",
+            atom=SimpleNamespace(
+                treatment_variable="treatment",
+                target_world_slots=("outcome",),
+            ),
+        ),
+        problem=problem,
+        world_record=world_record,
+        query_treatment="treatment",
+        query_outcome="outcome",
+        cycle_substrate_context=SimpleNamespace(),
+    )
+
+    assert diagram.base_graph.model_dump(mode="json") == graph.model_dump(mode="json")

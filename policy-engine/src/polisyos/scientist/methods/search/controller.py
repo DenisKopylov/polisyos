@@ -26,7 +26,6 @@ from polisyos.scientist.methods.search.frontier import (
 )
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
 from polisyos.scientist.methods.search.run_state import (
-    GenerationTransition,
     SearchRunState,
     _EvaluationDisposition,
     _EvaluationTransition,
@@ -499,25 +498,10 @@ class SearchController:
             "frontier_delta": deepcopy(snapshot.pareto_front),
         }
 
-    @_non_reentrant_run
-    def run(
-        self,
-        initial_context: dict[str, Any],
-        initial_candidate: dict[str, Any] | None = None,
-    ) -> SearchResult:
-        """Execute ask/evaluate iterations until the stopping criterion fires.
-
-        Args:
-            initial_context: Base context passed into each generation call.
-            initial_candidate: Optional candidate evaluated first before asking
-                the generator for new proposals.
-
-        Returns:
-            `SearchResult` with the best candidate, full iteration history,
-            Pareto snapshot, evaluator counts, and telemetry.
-        """
-        search_id = str(uuid4())[:8]
+    def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
+        """Initialize one native service run and seed its warm history."""
         start_time = datetime.now(UTC)
+        search_id = str(uuid4())[:8]
         self._reset_diversity_tracker(operation="reset_diversity_tracker")
         self._run_state = SearchRunState(
             search_id=search_id,
@@ -527,9 +511,6 @@ class SearchController:
         self._refresh_budget_snapshot(initial_context)
         self._run_state.training_evaluations = len(self._config.initial_evaluations)
 
-        logger.info(f"Starting search {search_id}")
-
-        # Warm-start: seed history from prior evaluations
         for eval_dict in self._config.initial_evaluations:
             obj_value = eval_dict.get("objective_value", float("inf"))
             record = SearchIteration(
@@ -547,89 +528,16 @@ class SearchController:
                 self._best_objective = obj_value
                 self._best_candidate = deepcopy(record.candidate)
 
-        stopping_reason: str | None = None
-        initial_candidate_pending = initial_candidate is not None
+        logger.info(f"Starting search {search_id}")
+        return start_time
 
-        while self._run_state.evaluation_iterations < self._config.max_iterations_hard_limit:
-            self._refresh_budget_snapshot(initial_context)
-            stop_check = self._config.stopping.check(
-                [self._to_history_dict(h) for h in self._history],
-                self._stopping_state(),
-            )
-            if stop_check.should_stop:
-                stopping_reason = stop_check.reason
-                self._status = SearchStatus.STOPPED
-                logger.info(f"Stopping: {stopping_reason}")
-                break
-
-            batch = self._generate_candidates(
-                iteration=self._run_state.evaluation_iterations,
-                initial_candidate=initial_candidate if initial_candidate_pending else None,
-                context=initial_context,
-            )
-            generated = not initial_candidate_pending
-            initial_candidate_pending = False
-            if generated:
-                self._run_state.generation_attempts += 1
-                self._refresh_budget_snapshot(initial_context)
-                generation_stop = self._config.stopping.check(
-                    [self._to_history_dict(h) for h in self._history],
-                    self._stopping_state(),
-                )
-                if generation_stop.should_stop:
-                    stopping_reason = generation_stop.reason
-                    self._status = SearchStatus.STOPPED
-                    logger.info(f"Stopping: {stopping_reason}")
-                    break
-            if not batch:
-                self._run_state.empty_generation_attempts += 1
-                if (
-                    self._run_state.empty_generation_attempts
-                    >= self._config.max_empty_generation_attempts
-                ):
-                    self._run_state.generation_transition = GenerationTransition.EXHAUSTED
-                    stopping_reason = "generation_exhausted"
-                    self._status = SearchStatus.STOPPED
-                    logger.info("Stopping: generation exhausted")
-                    break
-                continue
-
-            if self._run_state.empty_generation_attempts:
-                self._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
-                self._run_state.empty_generation_attempts = 0
-
-            for candidate in batch:
-                if self._run_state.evaluation_iterations >= self._config.max_iterations_hard_limit:
-                    break
-                transition = self._evaluate_candidate(
-                    candidate,
-                    iteration=self._run_state.evaluation_iterations,
-                    context=initial_context,
-                )
-                self._run_state.apply_evaluation_transition(transition)
-                self._refresh_budget_snapshot(initial_context)
-
-                if (
-                    transition.disposition is _EvaluationDisposition.SENTINEL
-                    and not generated
-                ):
-                    self._status = SearchStatus.STOPPED
-                    stopping_reason = "Initial sentinel evaluated"
-                    break
-
-                stop_check = self._config.stopping.check(
-                    [self._to_history_dict(h) for h in self._history],
-                    self._stopping_state(),
-                )
-                if stop_check.should_stop:
-                    stopping_reason = stop_check.reason
-                    self._status = SearchStatus.STOPPED
-                    logger.info(f"Stopping: {stopping_reason}")
-                    break
-
-            if self._status == SearchStatus.STOPPED:
-                break
-
+    def _finish_native_run(
+        self,
+        *,
+        start_time: datetime,
+        stopping_reason: str | None,
+    ) -> SearchResult:
+        """Build a detached result from the controller-owned run state."""
         if self._status == SearchStatus.RUNNING:
             self._status = SearchStatus.STOPPED
             stopping_reason = (
@@ -675,6 +583,19 @@ class SearchController:
             stage_b_evaluations=snapshot.stage_b_evaluations,
             pareto_front=deepcopy(snapshot.pareto_front),
             telemetry=deepcopy(telemetry),
+        )
+
+    def run(
+        self,
+        initial_context: dict[str, Any],
+        initial_candidate: dict[str, Any] | None = None,
+    ) -> SearchResult:
+        """Execute the native ask/tell driver through the compatibility entrypoint."""
+        from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
+
+        return _NativeSearchServiceDriver(self).run_search(
+            initial_context=initial_context,
+            initial_candidate=initial_candidate,
         )
 
     def _stopping_state(self) -> dict[str, Any]:

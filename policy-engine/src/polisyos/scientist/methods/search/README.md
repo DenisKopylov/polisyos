@@ -11,6 +11,7 @@ logic used by policy-design and promotion workflows.
 
 - Root facade and lazy exports: [`__init__.py`](__init__.py)
 - Legacy ask/evaluate controller: [`controller.py`](controller.py)
+- Native internal service bridge: [`service.py`](service.py)
 - Root contracts and evaluation primitives: [`contracts.py`](contracts.py), [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py)
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)
 - Strategy implementations: [`strategies/`](strategies/)

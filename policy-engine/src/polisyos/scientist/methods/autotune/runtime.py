@@ -230,7 +230,9 @@ class SearchLoopRunner:
             if isinstance(initial_candidate, BaseModel)
             else initial_candidate
         )
-        return controller.run(
+        from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
+
+        return _NativeSearchServiceDriver(controller).run_search(
             initial_context=dict(context or {}),
             initial_candidate=initial_payload,
         )

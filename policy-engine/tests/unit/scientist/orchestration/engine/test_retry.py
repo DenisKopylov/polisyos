@@ -1081,6 +1081,46 @@ def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
         )
 
 
+class _ExitedWorker:
+    """Minimal process double for a result arriving after the compute window."""
+
+    def is_alive(self) -> bool:
+        return False
+
+
+class _ImmediateResultQueue:
+    def get(self, *, timeout: float):
+        _ = timeout
+        return ("ok", {})
+
+    def get_nowait(self):
+        return ("ok", {})
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_late_worker_completion_is_not_delivery_success(mode) -> None:
+    """A dead worker alone cannot prove computation met its deadline."""
+    process = _ExitedWorker()
+    result_queue = _ImmediateResultQueue()
+    compute_deadline = _time.monotonic() - 1.0
+
+    with pytest.raises(retry_module._WorkerComputeTimeout):
+        if mode == "sync":
+            retry_module._drain_result_sync(
+                process,
+                result_queue,
+                compute_deadline=compute_deadline,
+            )
+        else:
+            asyncio.run(
+                retry_module._drain_result_async(
+                    process,
+                    result_queue,
+                    compute_deadline=compute_deadline,
+                )
+            )
+
+
 class _DescendantProcessNode:
     """Keep an owned descendant alive long enough to exercise group cleanup."""
 
@@ -1121,6 +1161,57 @@ def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> 
         descendant_pid = int(pid_path.read_text())
         with pytest.raises(ProcessLookupError):
             os.kill(descendant_pid, 0)
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+
+class _ExitedWorkerWithDescendantNode:
+    """Exit the worker while leaving a descendant in its owned process group."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        os._exit(0)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
+    """Cleanup must still reap an owned group after its worker has exited."""
+    pid_path = tmp_path / "exited-worker-descendant-pid"
+    node = _ExitedWorkerWithDescendantNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(RuntimeError, match="result delivery exceeded"):
+            execute_with_retry_sync(
+                node,
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="exited-worker-descendant-cleanup",
+            )
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        for _ in range(20):
+            try:
+                os.kill(descendant_pid, 0)
+            except ProcessLookupError:
+                break
+            _time.sleep(0.05)
+        else:
+            pytest.fail("owned descendant survived worker cleanup")
     finally:
         if descendant_pid is not None:
             try:

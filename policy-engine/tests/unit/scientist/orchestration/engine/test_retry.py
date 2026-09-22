@@ -1088,6 +1088,21 @@ class _ExitedWorker:
         return False
 
 
+class _StoppedProcessHandle:
+    def is_alive(self) -> bool:
+        return False
+
+    def join(self, *, timeout: float) -> None:
+        _ = timeout
+
+
+def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
+    """A stopped worker without a group cannot prove descendants are gone."""
+    assert (
+        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
+    )
+
+
 class _ImmediateResultQueue:
     def get(self, *, timeout: float):
         _ = timeout

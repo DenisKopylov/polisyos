@@ -90,6 +90,7 @@ class _WorkerLifecycle:
             self.compute_deadline,
         )
 
+
 _RETRY_RUNTIME_ERRORS = (
     ArithmeticError,
     AssertionError,
@@ -828,6 +829,10 @@ def _terminate_owned_process(
     if not group_clean:
         _signal_owned_process_group(process_group_id, signal.SIGKILL)
         group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if process_group_id is None:
+        # A direct Process handle proves only worker termination; descendant
+        # absence is not established without the owned-group handshake.
+        return False
     return not process.is_alive() and group_clean
 
 

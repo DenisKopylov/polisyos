@@ -20,7 +20,7 @@ from polisyos.core.artifacts.async_store import (
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash
+from polisyos.core.canon import CanonSpec, content_hash, fingerprint
 from polisyos.core.contracts.cursor import (
     CursorState,
     StreamCheckpoint,
@@ -724,10 +724,9 @@ class StreamWindowAccumulator:
     def _validate_refs(refs: Any) -> tuple[str, ...]:
         if not isinstance(refs, list | tuple):
             raise TypeError("row contributor refs must be a list")
-        normalized = tuple(str(ref) for ref in refs if ref)
-        if any(not ref for ref in normalized):
+        if any(not isinstance(ref, str) or not ref for ref in refs):
             raise ValueError("row contributor refs cannot be empty")
-        return tuple(dict.fromkeys(normalized))
+        return tuple(dict.fromkeys(refs))
 
     @staticmethod
     def _parse_state_timestamp(value: Any) -> datetime | None:
@@ -1110,8 +1109,96 @@ def _stream_cursor_for_checkpoint(
     )
 
 
+_STREAM_FRONTIER_INTENT_VERSION = 1
+
+
+def _stream_frontier_digest(
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+) -> str:
+    """Hash the stable target identity independent of intent lifecycle bytes."""
+    checkpoint_payload = checkpoint.model_dump(mode="json")
+    for field_name in ("created_at", "committed_at", "lifecycle_state"):
+        checkpoint_payload.pop(field_name, None)
+    metadata = dict(checkpoint_payload.get("metadata", {}))
+    for field_name in (
+        "frontier_intent",
+        "frontier_committed",
+        "error",
+        "observed_offset",
+        "observed_resume_token",
+    ):
+        metadata.pop(field_name, None)
+    checkpoint_payload["metadata"] = metadata
+    return fingerprint(
+        {
+            "checkpoint": checkpoint_payload,
+            "cursor": cursor.model_dump(mode="json"),
+        }
+    )
+
+
+def _stream_frontier_intent(
+    *,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+) -> dict[str, Any]:
+    """Describe one source/local frontier promotion attempt."""
+    target_digest = _stream_frontier_digest(checkpoint, cursor)
+    prior_digest = (
+        _stream_frontier_digest(previous_checkpoint, previous_cursor)
+        if previous_checkpoint is not None and previous_cursor is not None
+        else None
+    )
+    return {
+        "version": _STREAM_FRONTIER_INTENT_VERSION,
+        "state": "prepared",
+        "intent_id": f"{checkpoint.stream_id}:{checkpoint.checkpoint_id}:{target_digest}",
+        "prior_checkpoint_id": (
+            previous_checkpoint.checkpoint_id if previous_checkpoint is not None else None
+        ),
+        "prior_cursor_id": previous_cursor.cursor_id if previous_cursor is not None else None,
+        "prior_digest": prior_digest,
+        "target_checkpoint_id": checkpoint.checkpoint_id,
+        "target_cursor_id": cursor.cursor_id,
+        "target_digest": target_digest,
+    }
+
+
+def _stream_frontier_marker(
+    checkpoint: StreamCheckpoint,
+    *,
+    intent: dict[str, Any],
+    state: str,
+    error: BaseException | None = None,
+) -> StreamCheckpoint:
+    """Apply one prepared/unresolved/committed intent state to a checkpoint."""
+    metadata = dict(checkpoint.metadata)
+    metadata["frontier_intent"] = {**intent, "state": state}
+    metadata["frontier_committed"] = state == "committed"
+    if error is not None:
+        metadata["error"] = str(error)
+    return checkpoint.model_copy(
+        update={
+            "lifecycle_state": (
+                checkpoint.lifecycle_state
+                if state == "committed"
+                else StreamLifecycleState.PAUSED
+            ),
+            "committed_at": (
+                checkpoint.committed_at if state == "committed" else None
+            ),
+            "metadata": metadata,
+        }
+    )
+
+
 def _empty_stream_frontier_checkpoint(
     session: StreamingSourceSession,
+    *,
+    operator_state: dict[str, Any],
 ) -> StreamCheckpoint:
     """Build an explicit empty frontier for source compensation."""
     checkpoint = session.checkpoint(
@@ -1121,7 +1208,170 @@ def _empty_stream_frontier_checkpoint(
         schema_fingerprint="",
         lifecycle_state=StreamLifecycleState.PAUSED,
     )
-    return checkpoint.model_copy(update={"metadata": {"frontier_committed": False}})
+    return checkpoint.model_copy(
+        update={
+            "metadata": {
+                "schema_fields": [],
+                "rows_emitted": 0,
+                "window_count": 0,
+                "cdc_event_count": 0,
+                "operator_state_required": True,
+                "operator_state": operator_state,
+                "frontier_committed": False,
+            }
+        }
+    )
+
+
+async def _prepare_stream_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+) -> tuple[StreamCheckpoint, dict[str, Any]]:
+    """Durably record a prepared marker before touching the source."""
+    intent = _stream_frontier_intent(
+        checkpoint=checkpoint,
+        cursor=cursor,
+        previous_checkpoint=previous_checkpoint,
+        previous_cursor=previous_cursor,
+    )
+    prepared = _stream_frontier_marker(
+        checkpoint,
+        intent=intent,
+        state="prepared",
+    )
+    await async_cursor_store.save_stream_checkpoint(prepared)
+    return prepared, intent
+
+
+async def _save_unresolved_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    base_checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
+    error: BaseException,
+) -> None:
+    """Best-effort persist of an unresolved intent that blocks silent resume."""
+    unresolved = _stream_frontier_marker(
+        base_checkpoint,
+        intent=intent,
+        state="unresolved",
+        error=error,
+    )
+    try:
+        await async_cursor_store.save_stream_checkpoint(unresolved)
+    except Exception as marker_exc:
+        error.add_note(
+            "unresolved stream frontier marker could not be persisted: "
+            f"{marker_exc!r}"
+        )
+
+
+async def _verify_prepared_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    intent: dict[str, Any],
+) -> None:
+    """Verify both local latest indices still point at the prepared target."""
+    latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
+        checkpoint.connector_id,
+        checkpoint.dataset_id,
+        partition_key=checkpoint.partition_key,
+    )
+    latest_cursor = await async_cursor_store.find_latest_cursor(
+        cursor.connector_id,
+        cursor.dataset_id,
+    )
+    expected_intent = {**intent, "state": "prepared"}
+    if latest_checkpoint is None or latest_cursor is None:
+        raise CursorStoreError("prepared stream frontier is missing a local side")
+    if latest_checkpoint.checkpoint_id != checkpoint.checkpoint_id:
+        raise CursorStoreError("prepared stream checkpoint identity changed")
+    if latest_cursor.cursor_id != cursor.cursor_id:
+        raise CursorStoreError("prepared stream cursor identity changed")
+    if latest_cursor.watermark_value != str(checkpoint.offset):
+        raise CursorStoreError("prepared stream cursor offset changed")
+    if latest_checkpoint.metadata.get("frontier_intent") != expected_intent:
+        raise CursorStoreError("prepared stream frontier intent changed")
+    if latest_checkpoint.metadata.get("frontier_committed") is not False:
+        raise CursorStoreError("prepared stream frontier was promoted early")
+    if _stream_frontier_digest(latest_checkpoint, latest_cursor) != intent["target_digest"]:
+        raise CursorStoreError("prepared stream frontier digest changed")
+
+
+def _validated_frontier_intent(
+    checkpoint: StreamCheckpoint,
+) -> dict[str, Any] | None:
+    """Validate the versioned intent marker before source recovery."""
+    raw_intent = checkpoint.metadata.get("frontier_intent")
+    if raw_intent is None:
+        return None
+    if not isinstance(raw_intent, dict):
+        raise CursorStoreError("corrupt stream frontier intent")
+    required = {
+        "version",
+        "state",
+        "intent_id",
+        "prior_checkpoint_id",
+        "prior_cursor_id",
+        "prior_digest",
+        "target_checkpoint_id",
+        "target_cursor_id",
+        "target_digest",
+    }
+    if raw_intent.get("version") != _STREAM_FRONTIER_INTENT_VERSION or not required <= set(
+        raw_intent
+    ):
+        raise CursorStoreError("corrupt stream frontier intent")
+    state = raw_intent["state"]
+    if state != "committed" or checkpoint.metadata.get("frontier_committed") is not True:
+        raise CursorStoreError("unresolved stream frontier intent")
+    if raw_intent["target_checkpoint_id"] != checkpoint.checkpoint_id:
+        raise CursorStoreError("stream frontier intent target mismatch")
+    return dict(raw_intent)
+
+
+async def _verify_committed_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
+) -> None:
+    """Verify a committed marker still has its paired local cursor."""
+    cursor = await async_cursor_store.find_latest_cursor(
+        checkpoint.connector_id,
+        checkpoint.dataset_id,
+    )
+    if cursor is None:
+        raise CursorStoreError("committed stream frontier is missing its cursor")
+    if cursor.cursor_id != intent["target_cursor_id"]:
+        raise CursorStoreError("committed stream frontier cursor identity mismatch")
+    if cursor.watermark_value != str(checkpoint.offset):
+        raise CursorStoreError("committed stream frontier cursor offset mismatch")
+    if _stream_frontier_digest(checkpoint, cursor) != intent["target_digest"]:
+        raise CursorStoreError("committed stream frontier digest mismatch")
+
+
+async def _restore_local_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+    empty_frontier: StreamCheckpoint,
+) -> None:
+    """Restore the last local pair, or the explicit empty frontier."""
+    if previous_checkpoint is not None and previous_cursor is not None:
+        await async_cursor_store.commit_stream_progress(
+            cursor=previous_cursor,
+            checkpoint=previous_checkpoint,
+        )
+        return
+    await async_cursor_store.save_stream_checkpoint(previous_checkpoint or empty_frontier)
 
 
 async def _commit_stream_frontier(
@@ -1130,41 +1380,84 @@ async def _commit_stream_frontier(
     async_cursor_store: AsyncCursorStoreAdapter,
     cursor: CursorState,
     checkpoint: StreamCheckpoint,
+    prepared_checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
     previous_checkpoint: StreamCheckpoint | None,
-) -> tuple[ArtifactRef, ArtifactRef | None]:
-    """Promote source and local state with bounded compensation.
+    previous_cursor: CursorState | None,
+    empty_frontier: StreamCheckpoint,
+) -> tuple[ArtifactRef, ArtifactRef | None, StreamCheckpoint]:
+    """Promote a prepared frontier with fail-closed source compensation.
 
-    Source commit is attempted first so a failed source operation cannot leave
-    a locally advertised frontier.  If local pair persistence then fails, the
-    source is rewound to the previous local frontier (or an explicit empty
-    frontier).  This is a fail-closed at-least-once protocol with dedupe, not a
+    The prepared marker remains latest through source commit, local pair
+    persistence, and verification.  Only after both local sides are verified
+    is a committed marker written.  This is at-least-once with dedupe, not a
     cross-system exactly-once transaction.
     """
     try:
         await session.commit(checkpoint)
     except Exception as exc:
+        await _save_unresolved_frontier(
+            async_cursor_store=async_cursor_store,
+            base_checkpoint=previous_checkpoint or empty_frontier,
+            intent=intent,
+            error=exc,
+        )
         exc.add_note("local stream frontier was not promoted after source commit failure")
         raise
 
     try:
-        return await async_cursor_store.commit_stream_progress(
+        refs = await async_cursor_store.commit_stream_progress(
             cursor=cursor,
+            checkpoint=prepared_checkpoint,
+        )
+        await _verify_prepared_frontier(
+            async_cursor_store=async_cursor_store,
             checkpoint=checkpoint,
+            cursor=cursor,
+            intent=intent,
         )
     except Exception as exc:
-        compensation_checkpoint = previous_checkpoint or _empty_stream_frontier_checkpoint(
-            session
-        )
+        compensation_checkpoint = previous_checkpoint or empty_frontier
         try:
             await session.rewind(compensation_checkpoint)
+            await _restore_local_frontier(
+                async_cursor_store=async_cursor_store,
+                previous_checkpoint=previous_checkpoint,
+                previous_cursor=previous_cursor,
+                empty_frontier=empty_frontier,
+            )
         except Exception as compensation_exc:
+            await _save_unresolved_frontier(
+                async_cursor_store=async_cursor_store,
+                base_checkpoint=prepared_checkpoint,
+                intent=intent,
+                error=compensation_exc,
+            )
             exc.add_note(
-                "source compensation rewind failed after local frontier failure: "
+                "source compensation or local frontier restore failed: "
                 f"{compensation_exc!r}"
             )
         else:
             exc.add_note("source compensation rewind restored the previous local frontier")
         raise
+
+    committed_checkpoint = _stream_frontier_marker(
+        checkpoint,
+        intent=intent,
+        state="committed",
+    )
+    try:
+        await async_cursor_store.save_stream_checkpoint(committed_checkpoint)
+    except Exception as exc:
+        await _save_unresolved_frontier(
+            async_cursor_store=async_cursor_store,
+            base_checkpoint=prepared_checkpoint,
+            intent=intent,
+            error=exc,
+        )
+        exc.add_note("committed stream frontier marker could not be persisted")
+        raise
+    return refs[0], refs[1], committed_checkpoint
 
 
 def _window_policy_snapshot(
@@ -1357,16 +1650,39 @@ async def process_stream_dataset(
         dedupe_seen: set[str] = set()
         previous_schema: tuple[str, ...] | None = None
         committed_checkpoint: StreamCheckpoint | None = None
+        committed_cursor: CursorState | None = None
+        empty_frontier = _empty_stream_frontier_checkpoint(
+            session,
+            operator_state=_empty_stream_operator_state(options.window_policy),
+        )
+        pending_frontier: StreamCheckpoint | None = None
         latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
             connector_id,
             dataset_id,
             partition_key=options.partition_key,
         )
         if latest_checkpoint is not None:
+            frontier_intent = _validated_frontier_intent(latest_checkpoint)
+            latest_cursor: CursorState | None = None
+            if frontier_intent is not None:
+                await _verify_committed_frontier(
+                    async_cursor_store=async_cursor_store,
+                    checkpoint=latest_checkpoint,
+                    intent=frontier_intent,
+                )
+                latest_cursor = await async_cursor_store.find_latest_cursor(
+                    connector_id,
+                    dataset_id,
+                )
             # Let source rewind/reconnect failures remain the primary evidence
             # for a broken source lease.  State validation follows only after
             # the source has accepted the requested recovery position.
             await session.rewind(latest_checkpoint)
+            if frontier_intent is None:
+                latest_cursor = await async_cursor_store.find_latest_cursor(
+                    connector_id,
+                    dataset_id,
+                )
             dedupe_keys.extend(latest_checkpoint.dedupe_keys)
             dedupe_seen.update(latest_checkpoint.dedupe_keys)
             operator_state = latest_checkpoint.metadata.get("operator_state")
@@ -1406,6 +1722,7 @@ async def process_stream_dataset(
                     ordering_state=ordering_state,
                 )
             committed_checkpoint = latest_checkpoint
+            committed_cursor = latest_cursor
 
         previous_schema = (
             tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
@@ -1638,15 +1955,28 @@ async def process_stream_dataset(
                     processing_contract=processing_contract,
                     window_policy=options.window_policy,
                 )
-                await _commit_stream_frontier(
+                prepared_checkpoint, intent = await _prepare_stream_frontier(
+                    async_cursor_store=async_cursor_store,
+                    checkpoint=checkpoint,
+                    cursor=cursor,
+                    previous_checkpoint=committed_checkpoint,
+                    previous_cursor=committed_cursor,
+                )
+                pending_frontier = prepared_checkpoint
+                _, _, committed_checkpoint = await _commit_stream_frontier(
                     session=session,
                     async_cursor_store=async_cursor_store,
                     cursor=cursor,
                     checkpoint=checkpoint,
+                    prepared_checkpoint=prepared_checkpoint,
+                    intent=intent,
                     previous_checkpoint=committed_checkpoint,
+                    previous_cursor=committed_cursor,
+                    empty_frontier=empty_frontier,
                 )
-                committed_checkpoint = checkpoint
-                result.final_checkpoint = checkpoint
+                pending_frontier = None
+                committed_cursor = cursor
+                result.final_checkpoint = committed_checkpoint
 
         for emission in accumulator.flush_with_refs():
             result.window_refs.append(
@@ -1696,14 +2026,27 @@ async def process_stream_dataset(
             processing_contract=processing_contract,
             window_policy=options.window_policy,
         )
-        cursor_ref, checkpoint_ref = await _commit_stream_frontier(
+        prepared_checkpoint, intent = await _prepare_stream_frontier(
+            async_cursor_store=async_cursor_store,
+            checkpoint=final_checkpoint,
+            cursor=final_cursor,
+            previous_checkpoint=committed_checkpoint,
+            previous_cursor=committed_cursor,
+        )
+        pending_frontier = prepared_checkpoint
+        cursor_ref, checkpoint_ref, committed_checkpoint = await _commit_stream_frontier(
             session=session,
             async_cursor_store=async_cursor_store,
             cursor=final_cursor,
             checkpoint=final_checkpoint,
+            prepared_checkpoint=prepared_checkpoint,
+            intent=intent,
             previous_checkpoint=committed_checkpoint,
+            previous_cursor=committed_cursor,
+            empty_frontier=empty_frontier,
         )
-        result.final_checkpoint = final_checkpoint
+        pending_frontier = None
+        result.final_checkpoint = committed_checkpoint
         result.final_cursor = final_cursor
         result.final_cursor_ref = str(cursor_ref.artifact_id)
         result.final_checkpoint_ref = (
@@ -1711,6 +2054,8 @@ async def process_stream_dataset(
         )
         return result
     except Exception as exc:
+        if pending_frontier is not None:
+            raise
         if session.last_chunk is not None:
             if committed_checkpoint is not None:
                 checkpoint = committed_checkpoint.model_copy(
@@ -1721,6 +2066,7 @@ async def process_stream_dataset(
                     }
                 )
                 frontier_metadata = dict(committed_checkpoint.metadata)
+                frontier_metadata.pop("frontier_intent", None)
             else:
                 checkpoint = session.checkpoint(
                     chunk=None,

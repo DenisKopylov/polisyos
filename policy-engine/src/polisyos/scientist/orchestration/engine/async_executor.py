@@ -62,7 +62,12 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
 from polisyos.scientist.orchestration.engine.state_merge import (
@@ -420,11 +425,228 @@ class AsyncWorkflowExecutor:
                         workflow_id=workflow.workflow_id,
                     )
 
+        async def _execute_readiness() -> None:
+            """Run the bounded, explicit-dependency readiness schedule.
+
+            This path is intentionally narrower than the tier executor.  It
+            is selected only for continuation workflows without checkpoint or
+            provenance hooks, and only after declared unordered state access
+            has been proven disjoint.  Every successful completion is merged
+            before its successors are admitted, so a successor observes the
+            committed state of its explicit predecessors.
+            """
+            nonlocal state
+            order = list(invocations)
+            pending = set(order)
+            settled: set[str] = set()
+            running: dict[
+                str,
+                asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
+            ] = {}
+            records_by_alias: dict[str, NodeRunRecord] = {}
+            tier_by_alias = {
+                alias: tier_index
+                for tier_index, tier in enumerate(tiers)
+                for alias in tier
+            }
+            tier_members = {tier_index: set(tier) for tier_index, tier in enumerate(tiers)}
+            tier_started_at: dict[int, float] = {}
+            tier_finished_at: dict[int, float] = {}
+
+            def _skip_record(alias: str) -> NodeRunRecord:
+                invocation = invocations[alias]
+                return NodeRunRecord(
+                    alias=alias,
+                    node_id=str(invocation.node_id),
+                    status="skip",
+                    duration_ms=0,
+                    skip_reason="upstream_failed",
+                    skip_blocker=_skip_blocker_for_engine_skip(
+                        alias=alias,
+                        node_id=str(invocation.node_id),
+                        skip_reason="upstream_failed",
+                        missing_input="upstream_dependency",
+                        phase="dependency_resolution",
+                    ),
+                )
+
+            try:
+                while pending or running:
+                    progressed = False
+
+                    # Resolve known failed branches before admitting any new
+                    # work.  A skipped node remains a settled dependency, as
+                    # in the existing tier executor; only failures block its
+                    # descendants.
+                    for alias in order:
+                        if alias not in pending:
+                            continue
+                        if any(
+                            dep in failed or dep in blocked
+                            for dep in invocations[alias].depends_on
+                        ):
+                            pending.remove(alias)
+                            blocked.add(alias)
+                            settled.add(alias)
+                            records_by_alias[alias] = _skip_record(alias)
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_SKIP",
+                                metrics={"duration_ms": 0, "status_ok": 0},
+                            )
+                            progressed = True
+
+                    ready = [
+                        alias
+                        for alias in order
+                        if alias in pending
+                        and all(dep in settled for dep in invocations[alias].depends_on)
+                        and not any(
+                            dep in failed or dep in blocked
+                            for dep in invocations[alias].depends_on
+                        )
+                    ]
+                    for alias in ready:
+                        if len(running) >= self._max_parallelism:
+                            break
+                        pending.remove(alias)
+                        tier_index = tier_by_alias[alias]
+                        tier_started_at.setdefault(tier_index, time.perf_counter())
+                        launch_state = snapshot_state(state)
+                        running[alias] = asyncio.create_task(
+                            self._execute_node(
+                                alias,
+                                invocations[alias],
+                                launch_state,
+                                workflow,
+                                tier_index=tier_index,
+                            )
+                        )
+                        progressed = True
+
+                    if running:
+                        done, _ = await asyncio.wait(
+                            tuple(running.values()),
+                            return_when=asyncio.FIRST_COMPLETED,
+                        )
+                        for alias in order:
+                            task = running.get(alias)
+                            if task is None or task not in done:
+                                continue
+                            del running[alias]
+                            outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
+                            record = NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status=outcome.status,
+                                duration_ms=duration_ms,
+                                artifacts=list(outcome.artifacts),
+                                error=outcome.error,
+                                skip_reason=(
+                                    _outcome_skip_reason(outcome)
+                                    if outcome.status == "skip"
+                                    else None
+                                ),
+                                skip_blocker=_skip_blocker_for_outcome(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    outcome=outcome,
+                                ),
+                            )
+                            records_by_alias[alias] = record
+
+                            if outcome.status == "ok":
+                                node = self._registry.get(invocations[alias].node_id)
+                                merge_result = merge_parallel_outcomes(
+                                    state,
+                                    {alias: outcome},
+                                    {alias: list(node.spec.state_writes)},
+                                    conflict_policy=self._merge_conflict_policy,
+                                )
+                                if merge_result.conflicts:
+                                    conflict_ref = await self._persist_parallel_merge_conflict(
+                                        workflow_id=workflow.workflow_id,
+                                        tier_index=tier_by_alias[alias],
+                                        conflicts=merge_result.conflict_details,
+                                        aliases=[alias],
+                                    )
+                                    record.status = "fail"
+                                    record.error = NodeError(
+                                        code="node.readiness_merge_conflict",
+                                        message=(
+                                            "Readiness completion produced a conflicting "
+                                            "state write"
+                                        ),
+                                        details={
+                                            "tier_index": tier_by_alias[alias],
+                                            "conflict_paths": [
+                                                conflict.path
+                                                for conflict in merge_result.conflict_details
+                                            ],
+                                            "conflict_policy": self._merge_conflict_policy.value,
+                                        },
+                                    )
+                                    if conflict_ref is not None:
+                                        record.artifacts.append(conflict_ref)
+                                    failed.add(alias)
+                                else:
+                                    state = merge_result.state
+                                    settled.add(alias)
+                                    completed_nodes.append(alias)
+                            elif outcome.status == "fail":
+                                failed.add(alias)
+                            else:
+                                settled.add(alias)
+                                condition_skipped.add(alias)
+                            progressed = True
+
+                    if not running and pending and not progressed:
+                        # topo_sort_tiers already rejects cycles.  Reaching
+                        # this branch means a future dependency state was not
+                        # represented by the explicit graph, so fail closed.
+                        raise RuntimeError("Readiness scheduler made no progress")
+
+                terminal = settled | failed | blocked
+                for tier_index, members in tier_members.items():
+                    if not members or not members.issubset(terminal):
+                        continue
+                    started_at = tier_started_at.get(tier_index)
+                    if started_at is None:
+                        continue
+                    tier_finished_at[tier_index] = time.perf_counter()
+                if self._ctx.metrics is not None:
+                    for tier_index, members in tier_members.items():
+                        started_at = tier_started_at.get(tier_index)
+                        finished_at = tier_finished_at.get(tier_index)
+                        if started_at is None or finished_at is None:
+                            continue
+                        self._ctx.metrics.record_tier_completed(
+                            tier_index=tier_index,
+                            tier_size=len(members),
+                            duration_ms=int((finished_at - started_at) * 1000),
+                            workflow_id=workflow.workflow_id,
+                        )
+            finally:
+                if running:
+                    tasks = tuple(running.values())
+                    for task in tasks:
+                        task.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+
+            records.extend(
+                records_by_alias[alias] for alias in order if alias in records_by_alias
+            )
+
         # Execute tiers with optional workflow-level timeout
+        execution_body = (
+            _execute_readiness
+            if self._can_use_readiness_schedule(workflow, invocations)
+            else _execute_tiers
+        )
         if self._workflow_timeout_s is not None:
             try:
                 await asyncio.wait_for(
-                    _execute_tiers(),
+                    execution_body(),
                     timeout=self._workflow_timeout_s,
                 )
             except TimeoutError as exc:
@@ -433,7 +655,7 @@ class AsyncWorkflowExecutor:
                     f"timeout of {self._workflow_timeout_s}s",
                 ) from exc
         else:
-            await _execute_tiers()
+            await execution_body()
 
         overall_status = "fail" if failed else "ok"
         if self._ctx.metrics is not None:
@@ -499,6 +721,113 @@ class AsyncWorkflowExecutor:
         )
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
+
+    def _can_use_readiness_schedule(
+        self,
+        workflow: WorkflowSpec,
+        invocations: dict[str, NodeInvocation],
+    ) -> bool:
+        """Return whether the conservative readiness path is applicable.
+
+        The existing tier loop remains the authority for workflows whose
+        semantics depend on a tier-wide checkpoint, rollback, condition
+        evaluation, semaphore timeout, or deterministic provenance order.  A
+        readiness schedule is therefore limited to a continuation workflow
+        with declared state access and no checkpoint hook.  Pairwise state
+        read/write checks reject an otherwise apparently independent node when
+        its outcome could depend on an unordered mutable access.
+        """
+        if workflow.error_policy != "continue":
+            return False
+        if self._checkpoint_hook is not None:
+            return False
+        if self._semaphore_timeout_s is not None:
+            return False
+        if self._provenance_dag is not None:
+            return False
+        if self._compensation_hook is not None:
+            return False
+        if any(inv.condition is not None for inv in invocations.values()):
+            return False
+
+        state_access: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {}
+        for alias, inv in invocations.items():
+            node = self._registry.get(inv.node_id)
+            spec = getattr(node, "spec", None)
+            if not isinstance(spec, NodeSpec):
+                return False
+            reads = getattr(spec, "state_reads", None)
+            writes = getattr(spec, "state_writes", None)
+            if not isinstance(reads, (list, tuple)) or not isinstance(
+                writes, (list, tuple)
+            ):
+                return False
+            if any(
+                not isinstance(path, str) or not path for path in (*reads, *writes)
+            ):
+                return False
+            state_access[alias] = (
+                tuple(
+                    tuple(part for part in path.split(".") if part) for path in reads
+                ),
+                tuple(
+                    tuple(part for part in path.split(".") if part) for path in writes
+                ),
+            )
+
+        ancestors = self._readiness_ancestors(invocations)
+        aliases = list(invocations)
+        for index, left_alias in enumerate(aliases):
+            left_reads, left_writes = state_access[left_alias]
+            for right_alias in aliases[index + 1 :]:
+                # An explicit transitive dependency gives the scheduler an
+                # ordering edge.  All unordered state access must be proven
+                # disjoint before early release is allowed.
+                if (
+                    right_alias in ancestors[left_alias]
+                    or left_alias in ancestors[right_alias]
+                ):
+                    continue
+                right_reads, right_writes = state_access[right_alias]
+                if any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in left_writes
+                    for right in right_writes
+                ):
+                    return False
+                if any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in left_writes
+                    for right in right_reads
+                ) or any(
+                    self._readiness_paths_overlap(left, right)
+                    for left in right_writes
+                    for right in left_reads
+                ):
+                    return False
+        return True
+
+    @staticmethod
+    def _readiness_ancestors(
+        invocations: dict[str, NodeInvocation],
+    ) -> dict[str, set[str]]:
+        """Return the transitive explicit dependency set for each alias."""
+        ancestors: dict[str, set[str]] = {alias: set() for alias in invocations}
+        for alias in invocations:
+            stack = list(invocations[alias].depends_on)
+            while stack:
+                dependency = stack.pop()
+                if dependency in ancestors[alias]:
+                    continue
+                ancestors[alias].add(dependency)
+                stack.extend(invocations[dependency].depends_on)
+        return ancestors
+
+    @staticmethod
+    def _readiness_paths_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
+        """Return whether two declared state paths overlap by containment."""
+        shortest = min(len(left), len(right))
+        return left[:shortest] == right[:shortest]
 
     def _emit_rollback_compensation(
         self,

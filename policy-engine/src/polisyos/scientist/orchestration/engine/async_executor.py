@@ -875,7 +875,14 @@ class AsyncWorkflowExecutor:
         # A blank branch journal prevents inherited completion journals from
         # becoming part of a later sibling's returned snapshot.  The real node
         # path adds its own declared-write journal before executing.
-        execution_input = branch_state(state, write_paths=()).state
+        # Start that branch from a second full snapshot: branch_state() only
+        # copies mutable top-level mappings eagerly, so using ``state`` here
+        # would leave nested containers shared with both the committed state
+        # and launch_baseline.
+        execution_input = branch_state(
+            snapshot_state(state),
+            write_paths=(),
+        ).state
         return launch_baseline, execution_input
 
     @classmethod
@@ -919,7 +926,13 @@ class AsyncWorkflowExecutor:
                 "state",
                 "completion produced a conflicting declared write",
             )
-        if rebased.state != outcome.state:
+        # Pydantic model equality includes private attributes.  A replayed
+        # branch may therefore compare unequal solely because it carries a
+        # different mutation journal, even when every public state field is
+        # identical.  Ownership checks must compare the semantic state only.
+        if cls._readiness_public_state(rebased.state) != cls._readiness_public_state(
+            outcome.state
+        ):
             difference = cls._readiness_first_difference(rebased.state, outcome.state)
             raise StateReplayIncompatible(
                 difference or "state",
@@ -1075,22 +1088,53 @@ class AsyncWorkflowExecutor:
 
     @staticmethod
     def _readiness_first_difference(left: ExperimentState, right: ExperimentState) -> str | None:
-        if left == right:
+        left_public = AsyncWorkflowExecutor._readiness_public_state(left)
+        right_public = AsyncWorkflowExecutor._readiness_public_state(right)
+        if left_public == right_public:
             return None
-        for field_name in type(left).model_fields:
-            left_value = getattr(left, field_name)
-            right_value = getattr(right, field_name)
-            if left_value == right_value:
-                continue
-            if isinstance(left_value, dict) and isinstance(right_value, dict):
-                for key in sorted(set(left_value) | set(right_value), key=str):
-                    if left_value.get(key, _READINESS_MISSING) != right_value.get(
-                        key,
-                        _READINESS_MISSING,
-                    ):
-                        return f"{field_name}.{key}"
-            return field_name
-        return "state"
+        return AsyncWorkflowExecutor._readiness_difference_path(
+            left_public,
+            right_public,
+        ) or "state"
+
+    @staticmethod
+    def _readiness_public_state(state: ExperimentState) -> dict[str, Any]:
+        """Return only public semantic fields, excluding branch journals."""
+        return state.model_dump(mode="python")
+
+    @staticmethod
+    def _readiness_difference_path(left: Any, right: Any, path: str = "") -> str | None:
+        """Return the first public state path whose values differ."""
+        if isinstance(left, dict) and isinstance(right, dict):
+            for key in sorted(set(left) | set(right), key=str):
+                child_path = f"{path}.{key}" if path else str(key)
+                if key not in left or key not in right:
+                    return child_path
+                difference = AsyncWorkflowExecutor._readiness_difference_path(
+                    left[key],
+                    right[key],
+                    child_path,
+                )
+                if difference is not None:
+                    return difference
+            return None
+        if isinstance(left, list) and isinstance(right, list):
+            for index, (left_item, right_item) in enumerate(zip(left, right)):
+                difference = AsyncWorkflowExecutor._readiness_difference_path(
+                    left_item,
+                    right_item,
+                    f"{path}.{index}" if path else str(index),
+                )
+                if difference is not None:
+                    return difference
+            if len(left) != len(right):
+                return f"{path}.{min(len(left), len(right))}" if path else str(
+                    min(len(left), len(right))
+                )
+            return None
+        if left != right:
+            return path or "state"
+        return None
 
     def _emit_rollback_compensation(
         self,

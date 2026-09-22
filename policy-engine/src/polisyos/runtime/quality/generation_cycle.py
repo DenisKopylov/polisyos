@@ -1262,7 +1262,13 @@ class StrangleReceipt(_StrictModel):
         ``*.py`` denominator and each file's bytes through one content hash.
         """
 
-        root = (repo_root or Path.cwd()).resolve()
+        if repo_root is None:
+            return cls(
+                status="not_established",
+                default_cycle_controller=GENERATION_CYCLE_CONTROLLER_REF,
+                source_state="not_established",
+            )
+        root = repo_root.resolve()
         census = _collect_strangle_source_census(root)
         return cls(
             status=census.status,
@@ -1307,6 +1313,7 @@ class StrangleReceipt(_StrictModel):
             "parse_errors": self.parse_errors,
             "source_scope": self.source_scope,
             "census_rule": self.census_rule,
+            "limitation_refs": self.limitation_refs,
             "allowed_fixture_callers": self.allowed_fixture_callers,
             "production_single_pass_callers": self.production_single_pass_callers,
         }
@@ -1318,6 +1325,7 @@ class StrangleReceipt(_StrictModel):
             "parse_errors": current.parse_errors,
             "source_scope": current.source_scope,
             "census_rule": current.census_rule,
+            "limitation_refs": current.limitation_refs,
             "allowed_fixture_callers": current.allowed_fixture_callers,
             "production_single_pass_callers": current.production_single_pass_callers,
         }
@@ -4952,10 +4960,10 @@ def validate_generation_cycle_run(
 ) -> tuple[dict[str, Any], ...]:
     """Behaviorally validate an N6 run artifact and its source binding.
 
-    ``repo_root`` is optional for compatibility with serialized-artifact
-    callers that cannot inspect the live checkout.  When supplied, the
-    consumer replays the source-bound receipt and records stale evidence as a
-    validation issue instead of treating the old status as current.
+    ``repo_root`` may be omitted for diagnostic validation of a serialized
+    artifact, but omission is non-positive and cannot establish currentness.
+    A live source checkout is required before the consumer can treat the
+    source-bound receipt as current.
     """
 
     if not isinstance(run, GenerationCycleRun):

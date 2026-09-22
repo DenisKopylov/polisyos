@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -46,7 +47,6 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -683,7 +683,9 @@ def _build_cycle_substrate_context_from_owner(
         build_substrate_registry_from_existing_catalogs,
     )
 
-    root = (repo_root or Path.cwd()).resolve()
+    if repo_root is None:
+        return None
+    root = repo_root.resolve()
     try:
         world = production_composed_world_model_record(root)
         registry = build_substrate_registry_from_existing_catalogs(root)

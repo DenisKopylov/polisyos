@@ -117,10 +117,14 @@ async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
 
     with pytest.raises(RuntimeError, match="controlled close failure"):
         await session.close()
+    assert session._closed is False
+    assert session.handle is not None
     await session.close()
 
     assert pool.get_stats().in_use_connections == 0
     assert len(connector.disconnect_calls) == 1
+    assert session._closed is True
+    assert session.handle is None
 
 
 @pytest.mark.asyncio

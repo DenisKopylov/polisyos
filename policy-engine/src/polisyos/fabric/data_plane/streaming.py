@@ -174,6 +174,8 @@ class StreamingSourceSession:
         self._subscription: Any = None
         self._paused = False
         self._closed = False
+        self._stream_close_complete = False
+        self._close_lock = asyncio.Lock()
         self._last_chunk: DataChunk[Any] | None = None
         self._prefetched_chunk: DataChunk[Any] | None = None
 
@@ -218,16 +220,30 @@ class StreamingSourceSession:
         connector, handle = await self.pool.acquire_with_connector()
         self.connector = connector
         self.handle = handle
-        if hasattr(connector, "subscribe_stream"):
-            self._subscription = await cast(
-                "Any",
-                connector,
-            ).subscribe_stream(handle, self.request)
-        else:
-            stream = cast("Any", connector).fetch_stream(handle, self.request)
-            if hasattr(stream, "__await__"):
-                stream = await stream
-            self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        try:
+            if hasattr(connector, "subscribe_stream"):
+                self._subscription = await cast(
+                    "Any",
+                    connector,
+                ).subscribe_stream(handle, self.request)
+            else:
+                stream = cast("Any", connector).fetch_stream(handle, self.request)
+                if hasattr(stream, "__await__"):
+                    stream = await stream
+                self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        except BaseException as exc:
+            try:
+                await self.pool.release(handle)
+                await self.pool.close_all()
+            except BaseException as cleanup_exc:
+                exc.add_note(f"stream subscription cleanup failed: {cleanup_exc!r}")
+            finally:
+                self.connector = None
+                self.handle = None
+                self._generator = None
+                self._subscription = None
+                self._closed = True
+            raise
 
     async def poll(self) -> DataChunk[Any] | None:
         """Read the next stream chunk."""
@@ -353,25 +369,31 @@ class StreamingSourceSession:
 
     async def close(self) -> None:
         """Release the current stream handle and close owned pool resources."""
-        if self._closed:
-            return
-        self._closed = True
-        if (
-            self.connector is not None
-            and self.handle is not None
-            and hasattr(
-                self.connector,
-                "close_stream",
-            )
-        ):
-            await self.connector.close_stream(self.handle)
-        if self.handle is not None:
-            await self.pool.release(self.handle)
-        await self.pool.close_all()
-        self.connector = None
-        self.handle = None
-        self._generator = None
-        self._subscription = None
+        async with self._close_lock:
+            if self._closed:
+                return
+            if (
+                self.connector is not None
+                and self.handle is not None
+                and hasattr(
+                    self.connector,
+                    "close_stream",
+                )
+                and not self._stream_close_complete
+            ):
+                await self.connector.close_stream(self.handle)
+                self._stream_close_complete = True
+
+            if self.handle is not None:
+                await self.pool.release(self.handle)
+                self.connector = None
+                self.handle = None
+            await self.pool.close_all()
+            self._closed = True
+            self.connector = None
+            self.handle = None
+            self._generator = None
+            self._subscription = None
 
     async def _reconnect(self) -> None:
         if self.handle is not None:
@@ -381,6 +403,7 @@ class StreamingSourceSession:
         self._generator = None
         self._subscription = None
         self._prefetched_chunk = None
+        self._stream_close_complete = False
         await self.subscribe()
 
     @property

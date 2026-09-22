@@ -130,6 +130,19 @@ class _Net01LifecycleConnector(MockConnectorA):
         await self.allow_disconnect.wait()
 
 
+class _Net01ConnectGateConnector(MockConnectorA):
+    """Connector that pauses after a pool permit is reserved."""
+
+    def __init__(self) -> None:
+        self.connect_started = asyncio.Event()
+        self.allow_connect = asyncio.Event()
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        self.connect_started.set()
+        await self.allow_connect.wait()
+        return self._create_handle(config)
+
+
 class MockConnectorA_v10(BaseConnector[list[dict]]):
     """Mock connector with higher semver version."""
 
@@ -1103,6 +1116,98 @@ class TestConnectionPool:
             replacement = await pool.acquire()
             assert replacement.session_id != handle.session_id
             assert set(connector.disconnect_calls) == {handle.session_id}
+            await pool.release(replacement)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_concurrent_release_returns_one_permit_and_disconnect(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Concurrent release callers share one owner transition and one permit."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(block_disconnect=True)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            first = asyncio.create_task(pool.release(handle))
+            await connector.disconnect_started.wait()
+            second = asyncio.create_task(pool.release(handle))
+            await asyncio.sleep(0)
+            assert handle.session_id in pool._pending_cleanup
+            connector.allow_disconnect.set()
+            results = await asyncio.gather(first, second, return_exceptions=True)
+            assert all(not isinstance(result, BaseException) for result in results)
+            assert connector.disconnect_calls == [handle.session_id]
+
+            replacement = await pool.acquire()
+            await pool.release(replacement)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_closed_pool_acquire_rejects_while_cleanup_pending(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A closed pool rejects new acquire before waiting on a pending permit."""
+
+        async def _run() -> None:
+            connector = _Net01LifecycleConnector(block_disconnect=True)
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=1,
+                    max_connection_uses=1,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.02,
+                ),
+            )
+            handle = await pool.acquire()
+            release_task = asyncio.create_task(pool.release(handle))
+            await connector.disconnect_started.wait()
+            close_task = asyncio.create_task(pool.close_all())
+            await asyncio.sleep(0)
+            with pytest.raises(PoolClosedError):
+                await pool.acquire()
+
+            connector.allow_disconnect.set()
+            await asyncio.gather(release_task, close_task)
+
+        asyncio.run(_run())
+
+    def test_net01_cancelled_connect_releases_reserved_permit(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Cancellation during connector I/O cannot strand the reserved slot."""
+
+        async def _run() -> None:
+            connector = _Net01ConnectGateConnector()
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(max_size=1, acquire_timeout_seconds=0.02),
+            )
+            acquire_task = asyncio.create_task(pool.acquire())
+            await connector.connect_started.wait()
+            acquire_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await acquire_task
+
+            connector.allow_connect.set()
+            replacement = await pool.acquire()
             await pool.release(replacement)
             await pool.close_all()
 

@@ -13,10 +13,11 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
@@ -70,6 +71,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutation,
     StateMutationJournal,
     branch_state,
     mutation_journal_for_state,
@@ -102,6 +104,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _module_logger = get_logger(__name__)
+_READINESS_MISSING = object()
 
 
 def _executor_degraded(
@@ -449,7 +452,7 @@ class AsyncWorkflowExecutor:
                 str,
                 asyncio.Task[tuple[NodeOutcome, int, bool, ArtifactRef | None]],
             ] = {}
-            launch_states: dict[str, ExperimentState] = {}
+            launch_baselines: dict[str, ExperimentState] = {}
             records_by_alias: dict[str, NodeRunRecord] = {}
             tier_by_alias = {
                 alias: tier_index
@@ -519,13 +522,13 @@ class AsyncWorkflowExecutor:
                         pending.remove(alias)
                         tier_index = tier_by_alias[alias]
                         tier_started_at.setdefault(tier_index, time.perf_counter())
-                        launch_state = snapshot_state(state)
-                        launch_states[alias] = launch_state
+                        launch_baseline, execution_input = self._readiness_launch_pair(state)
+                        launch_baselines[alias] = launch_baseline
                         running[alias] = asyncio.create_task(
                             self._execute_node(
                                 alias,
                                 invocations[alias],
-                                launch_state,
+                                execution_input,
                                 workflow,
                                 tier_index=tier_index,
                             )
@@ -542,7 +545,7 @@ class AsyncWorkflowExecutor:
                             if task is None or task not in done:
                                 continue
                             del running[alias]
-                            launch_state = launch_states.pop(alias, None)
+                            launch_baseline = launch_baselines.pop(alias, None)
                             outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
                             record = NodeRunRecord(
                                 alias=alias,
@@ -566,61 +569,67 @@ class AsyncWorkflowExecutor:
 
                             if outcome.status == "ok":
                                 node = self._registry.get(invocations[alias].node_id)
-                                write_specs = self._readiness_write_specs(
-                                    outcome.state,
-                                    launch_state,
-                                    list(node.spec.state_writes),
-                                )
-                                merge_result = merge_parallel_outcomes(
-                                    state,
-                                    {alias: outcome},
-                                    {alias: write_specs},
-                                    conflict_policy=self._merge_conflict_policy,
-                                    # ``snapshot_state`` intentionally preserves
-                                    # mutable children cheaply.  When a successor
-                                    # is launched from a state that already has a
-                                    # branch journal, its stale journal can travel
-                                    # with the snapshot.  Restrict the replay to
-                                    # this completion's declared paths so a late
-                                    # independent sibling cannot re-apply an
-                                    # earlier node's writes.
-                                    mutation_journals={
-                                        alias: self._readiness_merge_journal(
-                                            outcome.state,
+                                write_specs = list(node.spec.state_writes)
+                                try:
+                                    merge_outcome, merge_journal = (
+                                        self._prepare_readiness_outcome(
+                                            outcome,
+                                            launch_baseline,
                                             write_specs,
                                         )
-                                    },
-                                )
-                                if merge_result.conflicts:
-                                    conflict_ref = await self._persist_parallel_merge_conflict(
-                                        workflow_id=workflow.workflow_id,
-                                        tier_index=tier_by_alias[alias],
-                                        conflicts=merge_result.conflict_details,
-                                        aliases=[alias],
                                     )
+                                except StateReplayIncompatible as exc:
                                     record.status = "fail"
                                     record.error = NodeError(
-                                        code="node.readiness_merge_conflict",
+                                        code="node.readiness_state_write",
                                         message=(
-                                            "Readiness completion produced a conflicting "
-                                            "state write"
+                                            "Readiness completion changed state outside "
+                                            "its declared write paths"
                                         ),
                                         details={
-                                            "tier_index": tier_by_alias[alias],
-                                            "conflict_paths": [
-                                                conflict.path
-                                                for conflict in merge_result.conflict_details
-                                            ],
-                                            "conflict_policy": self._merge_conflict_policy.value,
+                                            "path": exc.path,
+                                            "reason": exc.reason,
                                         },
                                     )
-                                    if conflict_ref is not None:
-                                        record.artifacts.append(conflict_ref)
                                     failed.add(alias)
                                 else:
-                                    state = merge_result.state
-                                    settled.add(alias)
-                                    completed_nodes.append(alias)
+                                    merge_result = merge_parallel_outcomes(
+                                        state,
+                                        {alias: merge_outcome},
+                                        {alias: write_specs},
+                                        conflict_policy=self._merge_conflict_policy,
+                                        mutation_journals={alias: merge_journal},
+                                    )
+                                    if merge_result.conflicts:
+                                        conflict_ref = await self._persist_parallel_merge_conflict(
+                                            workflow_id=workflow.workflow_id,
+                                            tier_index=tier_by_alias[alias],
+                                            conflicts=merge_result.conflict_details,
+                                            aliases=[alias],
+                                        )
+                                        record.status = "fail"
+                                        record.error = NodeError(
+                                            code="node.readiness_merge_conflict",
+                                            message=(
+                                                "Readiness completion produced a conflicting "
+                                                "state write"
+                                            ),
+                                            details={
+                                                "tier_index": tier_by_alias[alias],
+                                                "conflict_paths": [
+                                                    conflict.path
+                                                    for conflict in merge_result.conflict_details
+                                                ],
+                                                "conflict_policy": self._merge_conflict_policy.value,
+                                            },
+                                        )
+                                        if conflict_ref is not None:
+                                            record.artifacts.append(conflict_ref)
+                                        failed.add(alias)
+                                    else:
+                                        state = merge_result.state
+                                        settled.add(alias)
+                                        completed_nodes.append(alias)
                             elif outcome.status == "fail":
                                 failed.add(alias)
                             else:
@@ -858,22 +867,74 @@ class AsyncWorkflowExecutor:
         return left[:shortest] == right[:shortest]
 
     @staticmethod
+    def _readiness_launch_pair(
+        state: ExperimentState,
+    ) -> tuple[ExperimentState, ExperimentState]:
+        """Return an immutable launch baseline and a fresh execution input."""
+        launch_baseline = snapshot_state(state)
+        # A blank branch journal prevents inherited completion journals from
+        # becoming part of a later sibling's returned snapshot.  The real node
+        # path adds its own declared-write journal before executing.
+        execution_input = branch_state(state, write_paths=()).state
+        return launch_baseline, execution_input
+
+    @classmethod
+    def _prepare_readiness_outcome(
+        cls,
+        outcome: NodeOutcome,
+        launch_baseline: ExperimentState | None,
+        write_specs: list[str],
+    ) -> tuple[NodeOutcome, StateMutationJournal | None]:
+        """Bind one completion to its exact declared state delta.
+
+        Journaled production branches replay only operations under declared
+        paths.  Unjournaled adapters are rebased against the immutable launch
+        baseline and receive a synthetic exact-path journal.  Any remaining
+        state difference is an undeclared write and fails closed.
+        """
+        if launch_baseline is None:
+            raise StateReplayIncompatible(
+                "readiness",
+                "launch baseline was not retained for completion",
+            )
+
+        journal = mutation_journal_for_state(outcome.state)
+        merge_journal = (
+            cls._readiness_merge_journal(outcome.state, write_specs)
+            if journal is not None and journal.operations
+            else cls._readiness_synthetic_journal(
+                launch_baseline,
+                outcome.state,
+                write_specs,
+            )
+        )
+        rebased = merge_parallel_outcomes(
+            launch_baseline,
+            {"readiness": outcome},
+            {"readiness": write_specs},
+            mutation_journals={"readiness": merge_journal},
+        )
+        if rebased.conflicts:
+            raise StateReplayIncompatible(
+                "state",
+                "completion produced a conflicting declared write",
+            )
+        if rebased.state != outcome.state:
+            difference = cls._readiness_first_difference(rebased.state, outcome.state)
+            raise StateReplayIncompatible(
+                difference or "state",
+                "completion changed an undeclared state path",
+            )
+        return outcome.model_copy(update={"state": rebased.state}), merge_journal
+
+    @staticmethod
     def _readiness_merge_journal(
         outcome_state: ExperimentState,
         write_specs: list[str],
     ) -> StateMutationJournal | None:
-        """Return only mutations owned by a readiness completion.
-
-        Readiness successors are launched from the current committed state, so
-        the snapshot can contain a journal belonging to an earlier completion.
-        ``merge_parallel_outcomes`` must not discover and replay that journal
-        implicitly.  Filter a real branch journal to the node's declared write
-        paths; when no owned operation is present, return ``None`` so the
-        normal value-delta fallback handles lightweight/test doubles that mutate
-        an unjournaled snapshot directly.
-        """
+        """Return a branch journal only when every operation is declared."""
         journal = mutation_journal_for_state(outcome_state)
-        if journal is None:
+        if journal is None or not journal.operations:
             return None
 
         write_parts = [
@@ -882,7 +943,10 @@ class AsyncWorkflowExecutor:
             if isinstance(path, str) and path
         ]
         if not write_parts:
-            return None
+            raise StateReplayIncompatible(
+                journal.operations[0].path,
+                "journal operation is outside declared write paths",
+            )
 
         owned_operations = []
         for operation in journal.operations:
@@ -895,36 +959,138 @@ class AsyncWorkflowExecutor:
                 for write_path in write_parts
             ):
                 owned_operations.append(operation)
-        if not owned_operations:
-            return None
+        if len(owned_operations) != len(journal.operations):
+            undeclared = next(
+                operation
+                for operation in journal.operations
+                if operation not in owned_operations
+            )
+            raise StateReplayIncompatible(
+                undeclared.path,
+                "journal operation is outside declared write paths",
+            )
         return mutation_journal_from_operations(owned_operations)
 
-    @staticmethod
-    def _readiness_write_specs(
+    @classmethod
+    def _readiness_synthetic_journal(
+        cls,
+        baseline_state: ExperimentState,
         outcome_state: ExperimentState,
-        launch_state: ExperimentState | None,
-        declared_write_specs: list[str],
-    ) -> list[str]:
-        """Rebase an unjournaled completion without replacing current state.
-
-        A small node adapter may return a plain ``ExperimentState`` rather than
-        the journaled branch produced by ``_execute_node``.  In that case the
-        only safe way to merge its result is to compare it with the immutable
-        launch snapshot and add changed model fields as delta roots.  The
-        resulting specs let the normal merge preserve unrelated state already
-        committed by earlier completions; journaled production branches remain
-        governed solely by their declared paths.
-        """
-        if launch_state is None or mutation_journal_for_state(outcome_state) is not None:
-            return declared_write_specs
-
-        write_specs = list(declared_write_specs)
-        for field_name in type(outcome_state).model_fields:
-            if getattr(outcome_state, field_name) == getattr(launch_state, field_name):
+        write_specs: list[str],
+    ) -> StateMutationJournal | None:
+        """Build exact nested-path operations for an unjournaled result."""
+        operations: list[StateMutation] = []
+        for path in cls._readiness_normalize_paths(write_specs):
+            # Top-level mapping writes retain the established value-delta
+            # handling in state_merge; nested paths get an exact journal so a
+            # stale sibling mapping is never promoted to the write root.
+            if len(path) < 2:
                 continue
-            if field_name not in write_specs:
-                write_specs.append(field_name)
-        return write_specs
+            baseline_value = cls._readiness_get_path(baseline_state, path)
+            outcome_value = cls._readiness_get_path(outcome_state, path)
+            if baseline_value == outcome_value:
+                continue
+            if outcome_value is _READINESS_MISSING:
+                if baseline_value is _READINESS_MISSING:
+                    continue
+                operations.append(
+                    StateMutation(
+                        path=".".join(path),
+                        operation="delete",
+                        target_presence="present",
+                        target_kind=cls._readiness_target_kind(baseline_value),
+                    )
+                )
+                continue
+            operations.append(
+                StateMutation(
+                    path=".".join(path),
+                    operation="set",
+                    value=deepcopy(outcome_value),
+                    target_presence=(
+                        "missing"
+                        if baseline_value is _READINESS_MISSING
+                        else "present"
+                    ),
+                    target_kind=cls._readiness_target_kind(baseline_value),
+                )
+            )
+        if not operations:
+            return None
+        return mutation_journal_from_operations(operations)
+
+    @staticmethod
+    def _readiness_normalize_paths(write_specs: list[str]) -> list[tuple[str, ...]]:
+        paths = sorted(
+            {
+                tuple(part for part in path.split(".") if part)
+                for path in write_specs
+                if isinstance(path, str) and path
+            }
+        )
+        normalized: list[tuple[str, ...]] = []
+        for path in paths:
+            if any(
+                len(existing) <= len(path) and existing == path[: len(existing)]
+                for existing in normalized
+            ):
+                continue
+            normalized.append(path)
+        return normalized
+
+    @staticmethod
+    def _readiness_get_path(root: Any, path: tuple[str, ...]) -> Any:
+        current = root
+        for part in path:
+            if isinstance(current, BaseModel):
+                if not hasattr(current, part):
+                    return _READINESS_MISSING
+                current = getattr(current, part)
+            elif isinstance(current, dict):
+                if part not in current:
+                    return _READINESS_MISSING
+                current = current[part]
+            elif isinstance(current, list):
+                try:
+                    current = current[int(part)]
+                except (IndexError, TypeError, ValueError):
+                    return _READINESS_MISSING
+            else:
+                return _READINESS_MISSING
+        return current
+
+    @staticmethod
+    def _readiness_target_kind(value: Any) -> str:
+        if value is _READINESS_MISSING:
+            return "missing"
+        if isinstance(value, dict):
+            return "dict"
+        if isinstance(value, list):
+            return "list"
+        if isinstance(value, set):
+            return "set"
+        if isinstance(value, BaseModel):
+            return "model"
+        return "scalar"
+
+    @staticmethod
+    def _readiness_first_difference(left: ExperimentState, right: ExperimentState) -> str | None:
+        if left == right:
+            return None
+        for field_name in type(left).model_fields:
+            left_value = getattr(left, field_name)
+            right_value = getattr(right, field_name)
+            if left_value == right_value:
+                continue
+            if isinstance(left_value, dict) and isinstance(right_value, dict):
+                for key in sorted(set(left_value) | set(right_value), key=str):
+                    if left_value.get(key, _READINESS_MISSING) != right_value.get(
+                        key,
+                        _READINESS_MISSING,
+                    ):
+                        return f"{field_name}.{key}"
+            return field_name
+        return "state"
 
     def _emit_rollback_compensation(
         self,

@@ -13,6 +13,10 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_merge import (
+    StateReplayIncompatible,
+    merge_parallel_outcomes,
+)
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
@@ -88,7 +92,7 @@ def _nodes(*, overlap: bool = False) -> dict[str, MagicMock]:
     a = MagicMock()
     a.spec = _node_spec(
         a_id,
-        state_writes=("params.a" if overlap else "params.c_input",),
+        state_writes=("params.a", "params.c_input") if not overlap else ("params.a",),
     )
     b = MagicMock()
     b.spec = _node_spec(
@@ -156,6 +160,60 @@ async def _run_witness(
     )
     await asyncio.wait_for(b_started.wait(), timeout=1)
     return task, b_release, c_started, b_finished, started, c_inputs
+
+
+def test_readiness_launch_baseline_is_not_execution_input() -> None:
+    """A node mutation cannot alter the snapshot used for delta ownership."""
+    source = ExperimentState(run_id="exe-02-baseline")
+
+    baseline, execution_input = AsyncWorkflowExecutor._readiness_launch_pair(source)
+    execution_input.params["a"] = "done"
+
+    assert source.params == {}
+    assert baseline.params == {}
+    assert execution_input.params == {"a": "done"}
+
+
+def test_readiness_rebases_stale_returned_snapshot_to_declared_delta() -> None:
+    """A returned stale sibling snapshot cannot overwrite a committed write."""
+    baseline = ExperimentState(run_id="exe-02-returned", params={"a": "old"})
+    returned = ExperimentState(
+        run_id="exe-02-returned",
+        params={"a": "old", "b": "done"},
+    )
+    prepared, journal = AsyncWorkflowExecutor._prepare_readiness_outcome(
+        NodeOutcome(status="ok", state=returned),
+        baseline,
+        ["params.b"],
+    )
+
+    assert journal is not None
+    assert [operation.path for operation in journal.operations] == ["params.b"]
+    merged = merge_parallel_outcomes(
+        ExperimentState(run_id="exe-02-returned", params={"a": "done"}),
+        {"b": prepared},
+        {"b": ["params.b"]},
+        mutation_journals={"b": journal},
+    )
+    assert merged.state.params == {"a": "done", "b": "done"}
+
+
+def test_readiness_rejects_undeclared_returned_snapshot_write() -> None:
+    """Unjournaled state outside the declared paths fails closed."""
+    with pytest.raises(StateReplayIncompatible) as error:
+        AsyncWorkflowExecutor._prepare_readiness_outcome(
+            NodeOutcome(
+                status="ok",
+                state=ExperimentState(
+                    run_id="exe-02-undeclared",
+                    params={"a": "done", "c_input": "from-a"},
+                ),
+            ),
+            ExperimentState(run_id="exe-02-undeclared"),
+            ["params.c_input"],
+        )
+
+    assert error.value.path == "params.a"
 
 
 @pytest.mark.asyncio

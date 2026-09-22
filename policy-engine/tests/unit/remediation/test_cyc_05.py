@@ -629,6 +629,7 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
         (root, child_refs[0]),
         (root, child_refs[1]),
     )
+    assert tuple(child.search_exit.workspace_id for child in subdesigns) == child_refs
     assert len(calls) == 1
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert root_node.child_refs == child_refs
@@ -666,7 +667,13 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
         request = request.model_copy(update={"coupling_graph": None})
     else:
         supplied = (
-            subdesigns[0].model_copy(update={"parent_workspace_id": "design://wrong-parent"}),
+            subdesigns[0].model_copy(
+                update={
+                    "search_exit": subdesigns[0].search_exit.model_copy(
+                        update={"workspace_id": "design://wrong-child-exit"}
+                    )
+                }
+            ),
             subdesigns[1],
         )
 

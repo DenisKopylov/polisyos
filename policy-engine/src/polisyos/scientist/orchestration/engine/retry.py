@@ -849,7 +849,7 @@ def _join_worker_until(process: mp.Process, *, deadline: float) -> None:
     while process.is_alive():
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise _WorkerComputeTimeout
+            raise _WorkerDeliveryTimeout
         process.join(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
 
 
@@ -857,7 +857,7 @@ async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> N
     """Async wait for a result-producing worker to exit."""
     while process.is_alive():
         if deadline - time.monotonic() <= 0:
-            raise _WorkerComputeTimeout
+            raise _WorkerDeliveryTimeout
         process.join(timeout=0.0)
         await asyncio.sleep(
             min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic()))

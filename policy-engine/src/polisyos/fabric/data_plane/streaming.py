@@ -20,7 +20,7 @@ from polisyos.core.artifacts.async_store import (
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash
+from polisyos.core.canon import CanonSpec, content_hash, fingerprint
 from polisyos.core.contracts.cursor import (
     CursorState,
     StreamCheckpoint,
@@ -30,7 +30,12 @@ from polisyos.core.contracts.cursor import (
 )
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.pool import BackpressureLevel, ConnectionPool, PoolConfig
-from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.data_plane.cursor_store import (
+    AsyncCursorStoreAdapter,
+    CursorStore,
+    CursorStoreConflict,
+    CursorStoreError,
+)
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
@@ -322,12 +327,23 @@ class StreamingSourceSession:
     def checkpoint(
         self,
         *,
+        chunk: DataChunk[Any] | None = None,
+        use_observed_chunk: bool = True,
         dedupe_keys: tuple[str, ...] = (),
         schema_fingerprint: str | None = None,
         lifecycle_state: StreamLifecycleState = StreamLifecycleState.ACTIVE,
     ) -> StreamCheckpoint:
-        """Build a checkpoint from the last observed stream position."""
-        last_chunk = self._last_chunk
+        """Build a checkpoint from an explicitly processed or observed position.
+
+        Callers that have durably persisted a chunk pass it explicitly.  The
+        fallback to ``_last_chunk`` remains for compatibility with direct
+        session users, but it must not be used as an error-handler frontier.
+        """
+        last_chunk = (
+            chunk
+            if chunk is not None or not use_observed_chunk
+            else self._last_chunk
+        )
         offset = int(last_chunk.chunk_index) if last_chunk is not None else 0
         resume_token = last_chunk.resume_token if last_chunk is not None else None
         return StreamCheckpoint(
@@ -373,11 +389,17 @@ class StreamingSourceSession:
             return
 
         await self._reconnect()
+        resume_offset = checkpoint.offset
+        if checkpoint.metadata.get("frontier_committed") is False:
+            # The cursor model cannot encode -1.  A diagnostic checkpoint
+            # created before the first durable chunk therefore carries an
+            # explicit empty-frontier marker and must replay chunk zero.
+            resume_offset = -1
         while True:
             chunk = await self.poll()
             if chunk is None:
                 break
-            if int(chunk.chunk_index) > checkpoint.offset:
+            if int(chunk.chunk_index) > resume_offset:
                 self._prefetched_chunk = chunk
                 self._last_chunk = None
                 break
@@ -480,8 +502,26 @@ def _default_connector_registry() -> ConnectorRegistry:
     return ConnectorRegistry.get_instance()
 
 
+@dataclass(frozen=True)
+class _WindowEmission:
+    """One emitted window and the raw chunks that contributed its rows."""
+
+    assignment: WindowAssignment
+    contributor_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class _RowRefEntry:
+    """Contributor refs bound to the concrete row object, not only its id."""
+
+    row: dict[str, Any]
+    refs: tuple[str, ...]
+
+
 class StreamWindowAccumulator:
     """Incremental window accumulator that keeps buffers bounded."""
+
+    _STATE_VERSION = 1
 
     def __init__(self, policy: WindowPolicy) -> None:
         self.policy = policy
@@ -496,14 +536,39 @@ class StreamWindowAccumulator:
         self._previous_ts: datetime | None = None
         self._next_slide_at: datetime | None = None
         self._sliding_time_rows: deque[tuple[dict[str, Any], datetime]] = deque()
+        # Contributor refs follow the row object through each bounded buffer.
+        # They are intentionally kept out of the row payload: input rows are
+        # source data, while refs are runtime provenance for the emitted window.
+        self._row_refs: dict[int, _RowRefEntry] = {}
 
     def add_rows(self, rows: list[dict[str, Any]]) -> list[WindowAssignment]:
         assignments: list[WindowAssignment] = []
         for row in rows:
+            self._ensure_row_ref_entry(row)
             assignments.extend(self._add_row(row))
         return assignments
 
-    def flush(self) -> list[WindowAssignment]:
+    def add_rows_with_refs(
+        self,
+        rows: list[dict[str, Any]],
+        contributor_refs: tuple[str, ...],
+    ) -> list[_WindowEmission]:
+        """Add rows and return assignments with their actual source refs."""
+        refs = self._validate_refs(contributor_refs)
+        emissions: list[_WindowEmission] = []
+        for row in rows:
+            self._set_row_refs(row, refs)
+            for assignment in self._add_row(row):
+                emissions.append(
+                    _WindowEmission(
+                        assignment=assignment,
+                        contributor_refs=self._refs_for_assignment(assignment),
+                    )
+                )
+        self._prune_row_refs()
+        return emissions
+
+    def flush(self, *, _retain_refs: bool = False) -> list[WindowAssignment]:
         strategy = self.policy.strategy
         assignments: list[WindowAssignment] = []
         if strategy in {WindowStrategy.COUNT, WindowStrategy.TUMBLING} and self._count_buffer:
@@ -532,7 +597,182 @@ class StreamWindowAccumulator:
                         ordinal=self._next_ordinal(),
                     )
                 )
+            self._sliding_time_rows.clear()
+            self._next_slide_at = None
+        if strategy == WindowStrategy.SLIDING and self._sliding_rows:
+            # Count-based sliding windows only emit complete windows during
+            # ingestion.  Closing drops the incomplete tail, but it must not
+            # remain in the committed operator state and emit again on replay.
+            self._sliding_rows.clear()
+            self._rows_since_emit = 0
+        if not _retain_refs:
+            self._prune_row_refs()
         return assignments
+
+    def flush_with_refs(self) -> list[_WindowEmission]:
+        """Flush pending windows while retaining all contributor refs."""
+        assignments = self.flush(_retain_refs=True)
+        emissions = [
+            _WindowEmission(
+                assignment=assignment,
+                contributor_refs=self._refs_for_assignment(assignment),
+            )
+            for assignment in assignments
+        ]
+        self._prune_row_refs()
+        return emissions
+
+    def snapshot(self) -> dict[str, Any]:
+        """Return the versioned operator state required for committed replay."""
+        return {
+            "version": self._STATE_VERSION,
+            "policy": self._policy_snapshot(),
+            "ordinal": self._ordinal,
+            "rows_since_emit": self._rows_since_emit,
+            "bucket_key": self._bucket_key,
+            "session_start": (
+                self._session_start.isoformat() if self._session_start is not None else None
+            ),
+            "previous_ts": (
+                self._previous_ts.isoformat() if self._previous_ts is not None else None
+            ),
+            "next_slide_at": (
+                self._next_slide_at.isoformat() if self._next_slide_at is not None else None
+            ),
+            "count_buffer": [self._row_entry(row) for row in self._count_buffer],
+            "sliding_rows": [self._row_entry(row) for row in self._sliding_rows],
+            "bucket_rows": [self._row_entry(row) for row in self._bucket_rows],
+            "session_rows": [self._row_entry(row) for row in self._session_rows],
+            "sliding_time_rows": [
+                {
+                    "row": row,
+                    "timestamp": timestamp.isoformat(),
+                    "refs": list(self._refs_for_row(row)),
+                }
+                for row, timestamp in self._sliding_time_rows
+            ],
+        }
+
+    def restore(self, state: dict[str, Any]) -> None:
+        """Restore a committed state or fail closed on an incomplete state."""
+        try:
+            if not isinstance(state, dict) or state.get("version") != self._STATE_VERSION:
+                raise ValueError("unsupported stream operator state version")
+            if state.get("policy") != self._policy_snapshot():
+                raise ValueError("stream operator policy does not match checkpoint")
+
+            self._row_refs = {}
+            self._ordinal = int(state["ordinal"])
+            self._rows_since_emit = int(state["rows_since_emit"])
+            bucket_key = state["bucket_key"]
+            if bucket_key is not None and not isinstance(bucket_key, int):
+                raise TypeError("bucket_key must be an integer or null")
+            self._bucket_key = bucket_key
+            self._session_start = self._parse_state_timestamp(state["session_start"])
+            self._previous_ts = self._parse_state_timestamp(state["previous_ts"])
+            self._next_slide_at = self._parse_state_timestamp(state["next_slide_at"])
+            self._count_buffer = self._restore_row_entries(state["count_buffer"])
+            self._sliding_rows = deque(self._restore_row_entries(state["sliding_rows"]))
+            self._bucket_rows = self._restore_row_entries(state["bucket_rows"])
+            self._session_rows = self._restore_row_entries(state["session_rows"])
+
+            sliding_time_rows: list[tuple[dict[str, Any], datetime]] = []
+            raw_sliding_time_rows = state["sliding_time_rows"]
+            if not isinstance(raw_sliding_time_rows, list):
+                raise TypeError("sliding_time_rows must be a list")
+            for entry in raw_sliding_time_rows:
+                if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
+                    raise TypeError("invalid sliding-time row entry")
+                row = dict(entry["row"])
+                refs = self._validate_refs(entry.get("refs"))
+                self._set_row_refs(row, refs)
+                timestamp = self._parse_state_timestamp(entry.get("timestamp"))
+                if timestamp is None:
+                    raise ValueError("sliding-time row is missing timestamp")
+                sliding_time_rows.append((row, timestamp))
+            self._sliding_time_rows = deque(sliding_time_rows)
+        except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("corrupt stream operator state") from exc
+
+    def _policy_snapshot(self) -> dict[str, Any]:
+        return {
+            "strategy": self.policy.strategy.value,
+            "size": self.policy.size,
+            "slide": self.policy.slide,
+            "session_gap_seconds": self.policy.session_gap_seconds,
+            "timestamp_field": self.policy.timestamp_field,
+        }
+
+    def _row_entry(self, row: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "row": row,
+            "refs": list(self._refs_for_row(row)),
+        }
+
+    def _restore_row_entries(self, entries: Any) -> list[dict[str, Any]]:
+        if not isinstance(entries, list):
+            raise TypeError("row entries must be a list")
+        rows: list[dict[str, Any]] = []
+        for entry in entries:
+            if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
+                raise TypeError("invalid row entry")
+            row = dict(entry["row"])
+            self._set_row_refs(row, self._validate_refs(entry.get("refs")))
+            rows.append(row)
+        return rows
+
+    @staticmethod
+    def _validate_refs(refs: Any) -> tuple[str, ...]:
+        if not isinstance(refs, list | tuple):
+            raise TypeError("row contributor refs must be a list")
+        if any(not isinstance(ref, str) or not ref for ref in refs):
+            raise ValueError("row contributor refs cannot be empty")
+        return tuple(dict.fromkeys(refs))
+
+    @staticmethod
+    def _parse_state_timestamp(value: Any) -> datetime | None:
+        if value is None:
+            return None
+        return parse_datetime_utc(str(value), what="stream operator timestamp")
+
+    def _refs_for_assignment(self, assignment: WindowAssignment) -> tuple[str, ...]:
+        refs: list[str] = []
+        for row in assignment.rows:
+            for ref in self._refs_for_row(row):
+                if ref not in refs:
+                    refs.append(ref)
+        return tuple(refs)
+
+    def _ensure_row_ref_entry(self, row: dict[str, Any]) -> None:
+        entry = self._row_refs.get(id(row))
+        if not isinstance(entry, _RowRefEntry) or entry.row is not row:
+            self._row_refs[id(row)] = _RowRefEntry(row=row, refs=())
+
+    def _set_row_refs(self, row: dict[str, Any], refs: tuple[str, ...]) -> None:
+        self._row_refs[id(row)] = _RowRefEntry(row=row, refs=refs)
+
+    def _refs_for_row(self, row: dict[str, Any]) -> tuple[str, ...]:
+        entry = self._row_refs.get(id(row))
+        if not isinstance(entry, _RowRefEntry) or entry.row is not row:
+            return ()
+        return entry.refs
+
+    def _prune_row_refs(self) -> None:
+        live_rows = {id(row): row for row in self._buffered_row_objects()}
+        self._row_refs = {
+            row_id: entry
+            for row_id, entry in self._row_refs.items()
+            if isinstance(entry, _RowRefEntry) and live_rows.get(row_id) is entry.row
+        }
+
+    def _buffered_row_objects(self) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        rows.extend(self._count_buffer)
+        rows.extend(self._bucket_rows)
+        rows.extend(self._session_rows)
+        rows.extend(self._sliding_rows)
+        rows.extend(row for row, _timestamp in self._sliding_time_rows)
+        return rows
 
     def buffered_rows(self) -> int:
         return (
@@ -766,6 +1006,489 @@ class _StreamOrderingState:
     max_event_time: datetime | None = None
 
 
+def _stream_operator_state(
+    accumulator: StreamWindowAccumulator,
+    ordering_state: _StreamOrderingState,
+) -> dict[str, Any]:
+    """Capture the window and ordering state at one durable frontier."""
+    return {
+        "version": 1,
+        "accumulator": accumulator.snapshot(),
+        "max_event_time": (
+            ordering_state.max_event_time.isoformat()
+            if ordering_state.max_event_time is not None
+            else None
+        ),
+    }
+
+
+def _restore_stream_operator_state(
+    state: Any,
+    *,
+    accumulator: StreamWindowAccumulator,
+    ordering_state: _StreamOrderingState,
+) -> None:
+    """Restore a complete operator state, rejecting missing/corrupt state."""
+    if not isinstance(state, dict) or state.get("version") != 1:
+        raise CursorStoreError("missing or unsupported stream operator state")
+    try:
+        accumulator.restore(state["accumulator"])
+        if "max_event_time" not in state:
+            raise CursorStoreError("stream operator state is missing max_event_time")
+        max_event_time = state["max_event_time"]
+        ordering_state.max_event_time = (
+            parse_datetime_utc(str(max_event_time), what="stream ordering watermark")
+            if max_event_time is not None
+            else None
+        )
+    except (KeyError, TypeError, ValueError, OverflowError) as exc:
+        raise CursorStoreError("corrupt stream operator state") from exc
+
+
+def _empty_stream_operator_state(policy: WindowPolicy) -> dict[str, Any]:
+    """Build an explicit empty state for a stream with no committed rows."""
+    return _stream_operator_state(
+        StreamWindowAccumulator(policy),
+        _StreamOrderingState(),
+    )
+
+
+def _stream_checkpoint_metadata(
+    *,
+    accumulator: StreamWindowAccumulator,
+    ordering_state: _StreamOrderingState,
+    previous_schema: tuple[str, ...] | None,
+    result: StreamDatasetRunResult,
+    processing_contract: ProcessingGuaranteeContract,
+) -> dict[str, Any]:
+    """Build metadata whose operator state matches the committed outputs."""
+    return {
+        "schema_fields": list(previous_schema or ()),
+        "rows_emitted": result.rows_emitted,
+        "window_count": len(result.window_refs),
+        "cdc_event_count": len(result.cdc_event_refs),
+        "processing": processing_contract_snapshot(processing_contract),
+        "out_of_order_rows": result.out_of_order_rows,
+        "late_rows_dropped": result.late_rows_dropped,
+        "late_rows_quarantined": result.late_rows_quarantined,
+        "operator_state_required": True,
+        "operator_state": _stream_operator_state(accumulator, ordering_state),
+        "frontier_committed": True,
+    }
+
+
+def _stream_cursor_for_checkpoint(
+    *,
+    connector_id: str,
+    dataset_id: str,
+    partition_key: str,
+    checkpoint: StreamCheckpoint,
+    result: StreamDatasetRunResult,
+    processing_contract: ProcessingGuaranteeContract,
+    window_policy: WindowPolicy,
+) -> CursorState:
+    """Build the cursor paired with one durable stream checkpoint."""
+    return CursorState(
+        cursor_id=f"{connector_id}:{dataset_id}",
+        connector_id=connector_id,
+        dataset_id=dataset_id,
+        watermark_type=WatermarkType.OFFSET,
+        watermark_value=str(checkpoint.offset),
+        created_at=datetime.now(UTC),
+        metadata={
+            "partition_key": partition_key,
+            "window_strategy": window_policy.strategy.value,
+            "rows_emitted": result.rows_emitted,
+            "window_count": len(result.window_refs),
+            "cdc_event_count": len(result.cdc_event_refs),
+            "backpressure_events": result.backpressure_events,
+            "out_of_order_rows": result.out_of_order_rows,
+            "late_rows_dropped": result.late_rows_dropped,
+            "late_rows_quarantined": result.late_rows_quarantined,
+            "processing": processing_contract_snapshot(processing_contract),
+        },
+    )
+
+
+_STREAM_FRONTIER_INTENT_VERSION = 1
+
+
+def _stream_frontier_digest(
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+) -> str:
+    """Hash the stable target identity independent of intent lifecycle bytes."""
+    checkpoint_payload = checkpoint.model_dump(mode="json")
+    for field_name in ("created_at", "committed_at", "lifecycle_state"):
+        checkpoint_payload.pop(field_name, None)
+    metadata = dict(checkpoint_payload.get("metadata", {}))
+    for field_name in (
+        "frontier_intent",
+        "frontier_committed",
+        "error",
+        "observed_offset",
+        "observed_resume_token",
+    ):
+        metadata.pop(field_name, None)
+    checkpoint_payload["metadata"] = metadata
+    return fingerprint(
+        {
+            "checkpoint": checkpoint_payload,
+            "cursor": cursor.model_dump(mode="json"),
+        },
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def _stream_frontier_intent(
+    *,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+) -> dict[str, Any]:
+    """Describe one source/local frontier promotion attempt."""
+    target_digest = _stream_frontier_digest(checkpoint, cursor)
+    prior_digest = (
+        _stream_frontier_digest(previous_checkpoint, previous_cursor)
+        if previous_checkpoint is not None and previous_cursor is not None
+        else None
+    )
+    return {
+        "version": _STREAM_FRONTIER_INTENT_VERSION,
+        "state": "prepared",
+        "intent_id": f"{checkpoint.stream_id}:{checkpoint.checkpoint_id}:{target_digest}",
+        "prior_checkpoint_id": (
+            previous_checkpoint.checkpoint_id if previous_checkpoint is not None else None
+        ),
+        "prior_cursor_id": previous_cursor.cursor_id if previous_cursor is not None else None,
+        "prior_digest": prior_digest,
+        "target_checkpoint_id": checkpoint.checkpoint_id,
+        "target_cursor_id": cursor.cursor_id,
+        "target_digest": target_digest,
+    }
+
+
+def _stream_frontier_marker(
+    checkpoint: StreamCheckpoint,
+    *,
+    intent: dict[str, Any],
+    state: str,
+    error: BaseException | None = None,
+) -> StreamCheckpoint:
+    """Apply one prepared/unresolved/committed intent state to a checkpoint."""
+    metadata = dict(checkpoint.metadata)
+    metadata["frontier_intent"] = {**intent, "state": state}
+    metadata["frontier_committed"] = state == "committed"
+    if error is not None:
+        metadata["error"] = str(error)
+    return checkpoint.model_copy(
+        update={
+            "lifecycle_state": (
+                checkpoint.lifecycle_state
+                if state == "committed"
+                else StreamLifecycleState.PAUSED
+            ),
+            "committed_at": (
+                checkpoint.committed_at if state == "committed" else None
+            ),
+            "metadata": metadata,
+        }
+    )
+
+
+def _empty_stream_frontier_checkpoint(
+    session: StreamingSourceSession,
+    *,
+    operator_state: dict[str, Any],
+) -> StreamCheckpoint:
+    """Build an explicit empty frontier for source compensation."""
+    checkpoint = session.checkpoint(
+        chunk=None,
+        use_observed_chunk=False,
+        dedupe_keys=(),
+        schema_fingerprint="",
+        lifecycle_state=StreamLifecycleState.PAUSED,
+    )
+    return checkpoint.model_copy(
+        update={
+            "metadata": {
+                "schema_fields": [],
+                "rows_emitted": 0,
+                "window_count": 0,
+                "cdc_event_count": 0,
+                "operator_state_required": True,
+                "operator_state": operator_state,
+                "frontier_committed": False,
+            }
+        }
+    )
+
+
+async def _prepare_stream_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+) -> tuple[StreamCheckpoint, dict[str, Any]]:
+    """Durably record a prepared marker before touching the source."""
+    intent = _stream_frontier_intent(
+        checkpoint=checkpoint,
+        cursor=cursor,
+        previous_checkpoint=previous_checkpoint,
+        previous_cursor=previous_cursor,
+    )
+    prepared = _stream_frontier_marker(
+        checkpoint,
+        intent=intent,
+        state="prepared",
+    )
+    await async_cursor_store.save_stream_checkpoint(prepared)
+    return prepared, intent
+
+
+async def _save_unresolved_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    base_checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
+    error: BaseException,
+) -> None:
+    """Best-effort persist of an unresolved intent that blocks silent resume."""
+    unresolved = _stream_frontier_marker(
+        base_checkpoint,
+        intent=intent,
+        state="unresolved",
+        error=error,
+    )
+    try:
+        await async_cursor_store.save_stream_checkpoint(unresolved)
+    except Exception as marker_exc:
+        error.add_note(
+            "unresolved stream frontier marker could not be persisted: "
+            f"{marker_exc!r}"
+        )
+
+
+async def _verify_prepared_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    cursor: CursorState,
+    intent: dict[str, Any],
+) -> None:
+    """Verify both local latest indices still point at the prepared target."""
+    latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
+        checkpoint.connector_id,
+        checkpoint.dataset_id,
+        partition_key=checkpoint.partition_key,
+    )
+    latest_cursor = await async_cursor_store.find_latest_cursor(
+        cursor.connector_id,
+        cursor.dataset_id,
+    )
+    expected_intent = {**intent, "state": "prepared"}
+    if latest_checkpoint is None or latest_cursor is None:
+        raise CursorStoreError("prepared stream frontier is missing a local side")
+    if latest_checkpoint.checkpoint_id != checkpoint.checkpoint_id:
+        raise CursorStoreError("prepared stream checkpoint identity changed")
+    if latest_cursor.cursor_id != cursor.cursor_id:
+        raise CursorStoreError("prepared stream cursor identity changed")
+    if latest_cursor.watermark_value != str(checkpoint.offset):
+        raise CursorStoreError("prepared stream cursor offset changed")
+    if latest_checkpoint.metadata.get("frontier_intent") != expected_intent:
+        raise CursorStoreError("prepared stream frontier intent changed")
+    if latest_checkpoint.metadata.get("frontier_committed") is not False:
+        raise CursorStoreError("prepared stream frontier was promoted early")
+    if _stream_frontier_digest(latest_checkpoint, latest_cursor) != intent["target_digest"]:
+        raise CursorStoreError("prepared stream frontier digest changed")
+
+
+def _validated_frontier_intent(
+    checkpoint: StreamCheckpoint,
+) -> dict[str, Any] | None:
+    """Validate the versioned intent marker before source recovery."""
+    raw_intent = checkpoint.metadata.get("frontier_intent")
+    if raw_intent is None:
+        return None
+    if not isinstance(raw_intent, dict):
+        raise CursorStoreError("corrupt stream frontier intent")
+    required = {
+        "version",
+        "state",
+        "intent_id",
+        "prior_checkpoint_id",
+        "prior_cursor_id",
+        "prior_digest",
+        "target_checkpoint_id",
+        "target_cursor_id",
+        "target_digest",
+    }
+    if raw_intent.get("version") != _STREAM_FRONTIER_INTENT_VERSION or not required <= set(
+        raw_intent
+    ):
+        raise CursorStoreError("corrupt stream frontier intent")
+    state = raw_intent["state"]
+    if state != "committed" or checkpoint.metadata.get("frontier_committed") is not True:
+        raise CursorStoreError("unresolved stream frontier intent")
+    if raw_intent["target_checkpoint_id"] != checkpoint.checkpoint_id:
+        raise CursorStoreError("stream frontier intent target mismatch")
+    return dict(raw_intent)
+
+
+async def _verify_committed_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
+) -> None:
+    """Verify a committed marker still has its paired local cursor."""
+    cursor = await async_cursor_store.find_latest_cursor(
+        checkpoint.connector_id,
+        checkpoint.dataset_id,
+    )
+    if cursor is None:
+        raise CursorStoreError("committed stream frontier is missing its cursor")
+    if cursor.cursor_id != intent["target_cursor_id"]:
+        raise CursorStoreError("committed stream frontier cursor identity mismatch")
+    if cursor.watermark_value != str(checkpoint.offset):
+        raise CursorStoreError("committed stream frontier cursor offset mismatch")
+    if _stream_frontier_digest(checkpoint, cursor) != intent["target_digest"]:
+        raise CursorStoreError("committed stream frontier digest mismatch")
+
+
+async def _restore_local_frontier(
+    *,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+    target_cursor: CursorState,
+    target_checkpoint: StreamCheckpoint,
+    empty_frontier: StreamCheckpoint,
+) -> None:
+    """Restore the last local pair, or the explicit empty frontier."""
+    await async_cursor_store.restore_stream_frontier(
+        expected_cursor=target_cursor,
+        expected_checkpoint=target_checkpoint,
+        restore_cursor=previous_cursor,
+        restore_checkpoint=previous_checkpoint or empty_frontier,
+    )
+
+
+async def _commit_stream_frontier(
+    *,
+    session: StreamingSourceSession,
+    async_cursor_store: AsyncCursorStoreAdapter,
+    cursor: CursorState,
+    checkpoint: StreamCheckpoint,
+    prepared_checkpoint: StreamCheckpoint,
+    intent: dict[str, Any],
+    previous_checkpoint: StreamCheckpoint | None,
+    previous_cursor: CursorState | None,
+    empty_frontier: StreamCheckpoint,
+) -> tuple[ArtifactRef, ArtifactRef | None, StreamCheckpoint]:
+    """Promote a prepared frontier with fail-closed source compensation.
+
+    The prepared marker remains latest through source commit, local pair
+    persistence, and verification.  Only after both local sides are verified
+    is a committed marker written.  This is at-least-once with dedupe, not a
+    cross-system exactly-once transaction.
+    """
+    try:
+        # Source adapters receive the source-neutral prepared representation;
+        # the local ``frontier_committed`` marker is promoted only after both
+        # local indices are persisted and verified.
+        await session.commit(prepared_checkpoint)
+    except Exception as exc:
+        await _save_unresolved_frontier(
+            async_cursor_store=async_cursor_store,
+            base_checkpoint=previous_checkpoint or empty_frontier,
+            intent=intent,
+            error=exc,
+        )
+        exc.add_note("local stream frontier was not promoted after source commit failure")
+        raise
+
+    try:
+        refs = await async_cursor_store.commit_stream_progress(
+            cursor=cursor,
+            checkpoint=prepared_checkpoint,
+        )
+        await _verify_prepared_frontier(
+            async_cursor_store=async_cursor_store,
+            checkpoint=checkpoint,
+            cursor=cursor,
+            intent=intent,
+        )
+    except Exception as exc:
+        compensation_checkpoint = previous_checkpoint or empty_frontier
+        try:
+            await session.rewind(compensation_checkpoint)
+            await _restore_local_frontier(
+                async_cursor_store=async_cursor_store,
+                previous_checkpoint=previous_checkpoint,
+                previous_cursor=previous_cursor,
+                target_cursor=cursor,
+                target_checkpoint=prepared_checkpoint,
+                empty_frontier=empty_frontier,
+            )
+        except CursorStoreConflict as compensation_exc:
+            exc.add_note(
+                "source compensation found a changed cursor/checkpoint pair; "
+                f"newer local frontier preserved: {compensation_exc!r}"
+            )
+        except Exception as compensation_exc:
+            await _save_unresolved_frontier(
+                async_cursor_store=async_cursor_store,
+                base_checkpoint=prepared_checkpoint,
+                intent=intent,
+                error=compensation_exc,
+            )
+            exc.add_note(
+                "source compensation or local frontier restore failed: "
+                f"{compensation_exc!r}"
+            )
+        else:
+            exc.add_note("source compensation rewind restored the previous local frontier")
+        raise
+
+    committed_checkpoint = _stream_frontier_marker(
+        checkpoint,
+        intent=intent,
+        state="committed",
+    )
+    try:
+        await async_cursor_store.save_stream_checkpoint(committed_checkpoint)
+    except Exception as exc:
+        await _save_unresolved_frontier(
+            async_cursor_store=async_cursor_store,
+            base_checkpoint=prepared_checkpoint,
+            intent=intent,
+            error=exc,
+        )
+        exc.add_note("committed stream frontier marker could not be persisted")
+        raise
+    return refs[0], refs[1], committed_checkpoint
+
+
+def _window_policy_snapshot(
+    policy: WindowPolicy | None,
+    *,
+    fallback_strategy: WindowStrategy,
+) -> dict[str, Any]:
+    """Return a versioned window-policy identity for emitted artifacts."""
+    return {
+        "version": 1,
+        "strategy": (policy.strategy if policy is not None else fallback_strategy).value,
+        "size": policy.size if policy is not None else None,
+        "slide": policy.slide if policy is not None else None,
+        "session_gap_seconds": policy.session_gap_seconds if policy is not None else None,
+        "timestamp_field": policy.timestamp_field if policy is not None else None,
+    }
+
+
 def _effective_processing_contract(
     options: StreamRuntimeOptions,
 ) -> ProcessingGuaranteeContract:
@@ -939,15 +1662,80 @@ async def process_stream_dataset(
         )
         dedupe_seen: set[str] = set()
         previous_schema: tuple[str, ...] | None = None
+        committed_checkpoint: StreamCheckpoint | None = None
+        committed_cursor: CursorState | None = None
+        empty_frontier = _empty_stream_frontier_checkpoint(
+            session,
+            operator_state=_empty_stream_operator_state(options.window_policy),
+        )
+        pending_frontier: StreamCheckpoint | None = None
         latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
             connector_id,
             dataset_id,
             partition_key=options.partition_key,
         )
         if latest_checkpoint is not None:
+            frontier_intent = _validated_frontier_intent(latest_checkpoint)
+            latest_cursor: CursorState | None = None
+            if frontier_intent is not None:
+                await _verify_committed_frontier(
+                    async_cursor_store=async_cursor_store,
+                    checkpoint=latest_checkpoint,
+                    intent=frontier_intent,
+                )
+                latest_cursor = await async_cursor_store.find_latest_cursor(
+                    connector_id,
+                    dataset_id,
+                )
+            # Let source rewind/reconnect failures remain the primary evidence
+            # for a broken source lease.  State validation follows only after
+            # the source has accepted the requested recovery position.
+            await session.rewind(latest_checkpoint)
+            if frontier_intent is None:
+                latest_cursor = await async_cursor_store.find_latest_cursor(
+                    connector_id,
+                    dataset_id,
+                )
             dedupe_keys.extend(latest_checkpoint.dedupe_keys)
             dedupe_seen.update(latest_checkpoint.dedupe_keys)
-            await session.rewind(latest_checkpoint)
+            operator_state = latest_checkpoint.metadata.get("operator_state")
+            if operator_state is None:
+                # Checkpoints produced before ING-02 did not carry operator
+                # state.  They remain resumable only when the record proves an
+                # empty active frontier.  PAUSED/CLOSED lifecycle, a nonzero
+                # offset, dedupe keys, observed offset/token, or output counts
+                # are evidence that restoring an empty operator would lose
+                # state, so recovery fails closed.
+                has_frontier_evidence = (
+                    latest_checkpoint.offset > 0
+                    or bool(latest_checkpoint.dedupe_keys)
+                    or latest_checkpoint.lifecycle_state
+                    != StreamLifecycleState.ACTIVE
+                    or any(
+                        latest_checkpoint.metadata.get(name)
+                        for name in (
+                            "observed_offset",
+                            "observed_resume_token",
+                            "rows_emitted",
+                            "window_count",
+                            "cdc_event_count",
+                        )
+                    )
+                )
+                if latest_checkpoint.metadata.get("operator_state_required") or (
+                    has_frontier_evidence
+                ):
+                    raise CursorStoreError(
+                        "missing stream operator state for a non-empty checkpoint"
+                    )
+            else:
+                _restore_stream_operator_state(
+                    operator_state,
+                    accumulator=accumulator,
+                    ordering_state=ordering_state,
+                )
+            committed_checkpoint = latest_checkpoint
+            committed_cursor = latest_cursor
 
         previous_schema = (
             tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
@@ -1133,21 +1921,26 @@ async def process_stream_dataset(
             result.chunk_refs.append(chunk_ref)
             result.rows_emitted += len(clean_rows)
 
-            for assignment in accumulator.add_rows(clean_rows):
+            for emission in accumulator.add_rows_with_refs(
+                clean_rows,
+                (str(chunk_ref.artifact_id),),
+            ):
                 result.window_refs.append(
                     await _persist_stream_window_async(
                         store=async_store,
                         connector_id=connector_id,
                         dataset_id=dataset_id,
                         partition_key=options.partition_key,
-                        assignment=assignment,
-                        input_ref=chunk_ref,
+                        assignment=emission.assignment,
+                        input_refs=emission.contributor_refs,
                         processing_contract=processing_contract,
+                        window_policy=options.window_policy,
                     )
                 )
 
             if result.chunks_processed % max(1, int(options.checkpoint_every_chunks)) == 0:
                 checkpoint = session.checkpoint(
+                    chunk=chunk,
                     dedupe_keys=tuple(dedupe_keys),
                     schema_fingerprint="|".join(previous_schema),
                 )
@@ -1155,84 +1948,118 @@ async def process_stream_dataset(
                     update={
                         "metadata": {
                             **checkpoint.metadata,
-                            "schema_fields": list(previous_schema),
-                            "rows_emitted": result.rows_emitted,
-                            "window_count": len(result.window_refs),
-                            "cdc_event_count": len(result.cdc_event_refs),
-                            "processing": processing_contract_snapshot(
-                                processing_contract
+                            **_stream_checkpoint_metadata(
+                                accumulator=accumulator,
+                                ordering_state=ordering_state,
+                                previous_schema=previous_schema,
+                                result=result,
+                                processing_contract=processing_contract,
                             ),
-                            "out_of_order_rows": result.out_of_order_rows,
-                            "late_rows_dropped": result.late_rows_dropped,
-                            "late_rows_quarantined": result.late_rows_quarantined,
                         },
                         "committed_at": datetime.now(UTC),
                     }
                 )
-                await async_cursor_store.save_stream_checkpoint(checkpoint)
-                await session.commit(checkpoint)
-                result.final_checkpoint = checkpoint
+                cursor = _stream_cursor_for_checkpoint(
+                    connector_id=connector_id,
+                    dataset_id=dataset_id,
+                    partition_key=options.partition_key,
+                    checkpoint=checkpoint,
+                    result=result,
+                    processing_contract=processing_contract,
+                    window_policy=options.window_policy,
+                )
+                prepared_checkpoint, intent = await _prepare_stream_frontier(
+                    async_cursor_store=async_cursor_store,
+                    checkpoint=checkpoint,
+                    cursor=cursor,
+                    previous_checkpoint=committed_checkpoint,
+                    previous_cursor=committed_cursor,
+                )
+                pending_frontier = prepared_checkpoint
+                _, _, committed_checkpoint = await _commit_stream_frontier(
+                    session=session,
+                    async_cursor_store=async_cursor_store,
+                    cursor=cursor,
+                    checkpoint=checkpoint,
+                    prepared_checkpoint=prepared_checkpoint,
+                    intent=intent,
+                    previous_checkpoint=committed_checkpoint,
+                    previous_cursor=committed_cursor,
+                    empty_frontier=empty_frontier,
+                )
+                pending_frontier = None
+                committed_cursor = cursor
+                result.final_checkpoint = committed_checkpoint
 
-        for assignment in accumulator.flush():
+        for emission in accumulator.flush_with_refs():
             result.window_refs.append(
                 await _persist_stream_window_async(
                     store=async_store,
                     connector_id=connector_id,
                     dataset_id=dataset_id,
                     partition_key=options.partition_key,
-                    assignment=assignment,
-                    input_ref=result.chunk_refs[-1] if result.chunk_refs else None,
+                    assignment=emission.assignment,
+                    input_refs=emission.contributor_refs,
                     processing_contract=processing_contract,
+                    window_policy=options.window_policy,
                 )
             )
 
-        final_checkpoint = session.checkpoint(
-            dedupe_keys=tuple(dedupe_keys),
-            schema_fingerprint="|".join(previous_schema or ()),
-            lifecycle_state=StreamLifecycleState.CLOSED,
-        )
+        if session.last_chunk is None and committed_checkpoint is not None:
+            final_checkpoint = committed_checkpoint.model_copy(
+                update={"lifecycle_state": StreamLifecycleState.CLOSED}
+            )
+        else:
+            final_checkpoint = session.checkpoint(
+                dedupe_keys=tuple(dedupe_keys),
+                schema_fingerprint="|".join(previous_schema or ()),
+                lifecycle_state=StreamLifecycleState.CLOSED,
+            )
         final_checkpoint = final_checkpoint.model_copy(
             update={
                 "metadata": {
                     **final_checkpoint.metadata,
-                    "schema_fields": list(previous_schema or ()),
-                    "rows_emitted": result.rows_emitted,
-                    "window_count": len(result.window_refs),
-                    "cdc_event_count": len(result.cdc_event_refs),
-                    "processing": processing_contract_snapshot(processing_contract),
-                    "out_of_order_rows": result.out_of_order_rows,
-                    "late_rows_dropped": result.late_rows_dropped,
-                    "late_rows_quarantined": result.late_rows_quarantined,
+                    **_stream_checkpoint_metadata(
+                        accumulator=accumulator,
+                        ordering_state=ordering_state,
+                        previous_schema=previous_schema,
+                        result=result,
+                        processing_contract=processing_contract,
+                    ),
                 },
                 "committed_at": datetime.now(UTC),
             }
         )
-        final_cursor = CursorState(
-            cursor_id=f"{connector_id}:{dataset_id}",
+        final_cursor = _stream_cursor_for_checkpoint(
             connector_id=connector_id,
             dataset_id=dataset_id,
-            watermark_type=WatermarkType.OFFSET,
-            watermark_value=str(final_checkpoint.offset),
-            created_at=datetime.now(UTC),
-            metadata={
-                "partition_key": options.partition_key,
-                "window_strategy": options.window_policy.strategy.value,
-                "rows_emitted": result.rows_emitted,
-                "window_count": len(result.window_refs),
-                "cdc_event_count": len(result.cdc_event_refs),
-                "backpressure_events": result.backpressure_events,
-                "out_of_order_rows": result.out_of_order_rows,
-                "late_rows_dropped": result.late_rows_dropped,
-                "late_rows_quarantined": result.late_rows_quarantined,
-                "processing": processing_contract_snapshot(processing_contract),
-            },
+            partition_key=options.partition_key,
+            checkpoint=final_checkpoint,
+            result=result,
+            processing_contract=processing_contract,
+            window_policy=options.window_policy,
         )
-        cursor_ref, checkpoint_ref = await async_cursor_store.commit_stream_progress(
+        prepared_checkpoint, intent = await _prepare_stream_frontier(
+            async_cursor_store=async_cursor_store,
+            checkpoint=final_checkpoint,
+            cursor=final_cursor,
+            previous_checkpoint=committed_checkpoint,
+            previous_cursor=committed_cursor,
+        )
+        pending_frontier = prepared_checkpoint
+        cursor_ref, checkpoint_ref, committed_checkpoint = await _commit_stream_frontier(
+            session=session,
+            async_cursor_store=async_cursor_store,
             cursor=final_cursor,
             checkpoint=final_checkpoint,
+            prepared_checkpoint=prepared_checkpoint,
+            intent=intent,
+            previous_checkpoint=committed_checkpoint,
+            previous_cursor=committed_cursor,
+            empty_frontier=empty_frontier,
         )
-        await session.commit(final_checkpoint)
-        result.final_checkpoint = final_checkpoint
+        pending_frontier = None
+        result.final_checkpoint = committed_checkpoint
         result.final_cursor = final_cursor
         result.final_cursor_ref = str(cursor_ref.artifact_id)
         result.final_checkpoint_ref = (
@@ -1240,19 +2067,49 @@ async def process_stream_dataset(
         )
         return result
     except Exception as exc:
+        if pending_frontier is not None:
+            raise
         if session.last_chunk is not None:
-            checkpoint = session.checkpoint(
-                dedupe_keys=tuple(dedupe_keys),
-                schema_fingerprint="|".join(previous_schema or ()),
-                lifecycle_state=StreamLifecycleState.PAUSED,
+            if committed_checkpoint is not None:
+                checkpoint = committed_checkpoint.model_copy(
+                    update={
+                        "lifecycle_state": StreamLifecycleState.PAUSED,
+                        "created_at": datetime.now(UTC),
+                        "committed_at": None,
+                    }
+                )
+                frontier_metadata = dict(committed_checkpoint.metadata)
+                frontier_metadata.pop("frontier_intent", None)
+            else:
+                checkpoint = session.checkpoint(
+                    chunk=None,
+                    use_observed_chunk=False,
+                    dedupe_keys=(),
+                    schema_fingerprint="",
+                    lifecycle_state=StreamLifecycleState.PAUSED,
+                )
+                frontier_metadata = {}
+
+            if "operator_state" not in frontier_metadata:
+                frontier_metadata["operator_state_required"] = True
+                frontier_metadata["operator_state"] = _empty_stream_operator_state(
+                    options.window_policy
+                )
+            frontier_metadata.setdefault("frontier_committed", committed_checkpoint is not None)
+            frontier_schema = tuple(
+                str(field) for field in frontier_metadata.get("schema_fields", ())
             )
+            frontier_rows = int(frontier_metadata.get("rows_emitted", 0) or 0)
             checkpoint = checkpoint.model_copy(
                 update={
                     "metadata": {
                         **checkpoint.metadata,
-                        "schema_fields": list(previous_schema or ()),
+                        **frontier_metadata,
+                        "schema_fields": list(frontier_schema),
                         "error": str(exc),
-                        "rows_emitted": result.rows_emitted,
+                        "observed_offset": int(session.last_chunk.chunk_index),
+                        "observed_resume_token": session.last_chunk.resume_token,
+                        "rows_emitted": frontier_rows,
                         "processing": processing_contract_snapshot(
                             processing_contract
                         ),
@@ -1318,14 +2175,24 @@ async def _persist_stream_window_async(
     dataset_id: str,
     partition_key: str,
     assignment: WindowAssignment,
-    input_ref: ArtifactRef | None,
     processing_contract: ProcessingGuaranteeContract,
+    window_policy: WindowPolicy,
+    input_ref: ArtifactRef | None = None,
+    input_refs: tuple[ArtifactRef | str, ...] | None = None,
 ) -> ArtifactRef:
-    inputs = (
-        [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
-        if input_ref is not None
-        else None
+    if input_ref is not None and input_refs is not None:
+        raise ValueError("provide input_ref or input_refs, not both")
+    resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
+        (input_ref,) if input_ref is not None else ()
     )
+    inputs = [
+        InputRef(
+            artifact_id=(ref.artifact_id if isinstance(ref, ArtifactRef) else ref),
+            role="stream_chunk",
+        )
+        for ref in dict.fromkeys(str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
+                                 for ref in resolved_refs)
+    ] or None
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -1336,7 +2203,17 @@ async def _persist_stream_window_async(
         "start_at": assignment.start_at,
         "end_at": assignment.end_at,
         "ordinal": assignment.ordinal,
+        "window_policy": _window_policy_snapshot(
+            window_policy,
+            fallback_strategy=assignment.strategy,
+        ),
         "processing": processing_contract_snapshot(processing_contract),
+        "lineage": {
+            "contributor_chunk_refs": [
+                str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
+                for ref in resolved_refs
+            ]
+        },
         "data": list(assignment.rows),
     }
     return await store.put_json(
@@ -1417,16 +2294,25 @@ def persist_stream_window(
     dataset_id: str,
     partition_key: str,
     assignment: WindowAssignment,
-    input_ref: ArtifactRef | None,
     processing_contract: ProcessingGuaranteeContract | None = None,
+    window_policy: WindowPolicy | None = None,
+    input_ref: ArtifactRef | None = None,
+    input_refs: tuple[ArtifactRef | str, ...] | None = None,
 ) -> ArtifactRef:
     """Persist one logical stream window."""
     contract = processing_contract or stream_processing_contract()
-    inputs = (
-        [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
-        if input_ref is not None
-        else None
+    if input_ref is not None and input_refs is not None:
+        raise ValueError("provide input_ref or input_refs, not both")
+    resolved_refs: tuple[ArtifactRef | str, ...] = input_refs or (
+        (input_ref,) if input_ref is not None else ()
     )
+    unique_refs = tuple(
+        dict.fromkeys(
+            str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
+            for ref in resolved_refs
+        )
+    )
+    inputs = [InputRef(artifact_id=ref, role="stream_chunk") for ref in unique_refs] or None
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -1437,7 +2323,12 @@ def persist_stream_window(
         "start_at": assignment.start_at,
         "end_at": assignment.end_at,
         "ordinal": assignment.ordinal,
+        "window_policy": _window_policy_snapshot(
+            window_policy,
+            fallback_strategy=assignment.strategy,
+        ),
         "processing": processing_contract_snapshot(contract),
+        "lineage": {"contributor_chunk_refs": list(unique_refs)},
         "data": list(assignment.rows),
     }
     return store.put_json(

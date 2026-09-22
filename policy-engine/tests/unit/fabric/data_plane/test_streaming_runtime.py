@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+import gc
+import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
@@ -15,10 +18,15 @@ from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
-from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.data_plane.cursor_store import (
+    AsyncCursorStoreAdapter,
+    CursorStore,
+    CursorStoreError,
+)
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
+    StreamWindowAccumulator,
     StreamRuntimeOptions,
     iter_record_batches,
     process_stream_dataset,
@@ -78,6 +86,20 @@ class _Net01StreamingConnector:
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+
+
+def _collect_state_refs(value: Any) -> set[str]:
+    refs: set[str] = set()
+    if isinstance(value, dict):
+        raw_refs = value.get("refs", ())
+        if isinstance(raw_refs, list | tuple):
+            refs.update(str(ref) for ref in raw_refs if ref)
+        for child in value.values():
+            refs.update(_collect_state_refs(child))
+    elif isinstance(value, list | tuple):
+        for child in value:
+            refs.update(_collect_state_refs(child))
+    return refs
 
 
 @pytest.mark.asyncio
@@ -495,6 +517,1322 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
     assert latest is not None
     assert latest.lifecycle_state == StreamLifecycleState.CLOSED
     assert latest.offset == 1
+
+
+@pytest.mark.asyncio
+async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Observed poll/dedupe state must not become a resumable frontier."""
+
+    stream_path = tmp_path / "pre-chunk-failure.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_persist = __import__(
+        "polisyos.fabric.data_plane.streaming",
+        fromlist=["_persist_stream_chunk_async"],
+    )._persist_stream_chunk_async
+
+    async def fail_before_persist(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise RuntimeError("pre-chunk persistence failure")
+
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.streaming._persist_stream_chunk_async",
+        fail_before_persist,
+    )
+    with pytest.raises(RuntimeError, match="pre-chunk persistence failure"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="pre-chunk-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "pre-chunk-failure",
+    )
+    assert paused is not None
+    assert paused.offset == 0
+    assert paused.dedupe_keys == ()
+
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.streaming._persist_stream_chunk_async",
+        original_persist,
+    )
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="pre-chunk-failure",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+        registry=registry,
+    )
+    assert recovered.rows_emitted == 2
+    assert recovered.dedupe_dropped == 0
+
+
+@pytest.mark.asyncio
+async def test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An uncheckpointed raw chunk cannot advance dedupe or window frontier."""
+
+    stream_path = tmp_path / "post-raw-failure.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n'
+        '{"_message_id":"m3","value":3}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_poll = StreamingSourceSession.poll
+    state = {"calls": 0}
+
+    async def fail_on_second_poll(self):
+        if state["calls"] == 1:
+            raise RuntimeError("post-raw checkpoint failure")
+        state["calls"] += 1
+        return await original_poll(self)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", fail_on_second_poll)
+    with pytest.raises(RuntimeError, match="post-raw checkpoint failure"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="post-raw-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                checkpoint_every_chunks=2,
+                window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+            ),
+            registry=registry,
+        )
+
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "post-raw-failure",
+    )
+    assert paused is not None
+    assert paused.offset == 0
+    assert paused.dedupe_keys == ()
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="post-raw-failure",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+        ),
+        registry=registry,
+    )
+    assert recovered.rows_emitted == 3
+    assert len(recovered.window_refs) == 1
+    assert list(store.get_bytes(recovered.window_refs[0].artifact_id))
+
+
+@pytest.mark.parametrize(
+    ("policy", "rows"),
+    [
+        (WindowPolicy(strategy=WindowStrategy.COUNT, size=3), [{"value": 1}, {"value": 2}]),
+        (
+            WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=60,
+                session_gap_seconds=60,
+                timestamp_field="event_time",
+            ),
+            [
+                {"value": 1, "event_time": "2024-01-01T00:00:00+00:00"},
+                {"value": 2, "event_time": "2024-01-01T00:00:10+00:00"},
+            ],
+        ),
+        (
+            WindowPolicy(strategy=WindowStrategy.SLIDING, size=3, slide=1),
+            [{"value": 1}, {"value": 2}],
+        ),
+    ],
+)
+def test_stream_window_operator_state_round_trips_pending_rows(
+    policy: WindowPolicy,
+    rows: list[dict[str, Any]],
+) -> None:
+    """COUNT, SESSION, and SLIDING keep pending rows and ordinal on restart."""
+
+    first = StreamWindowAccumulator(policy)
+    first.add_rows(rows)
+    state = first.snapshot()
+
+    resumed = StreamWindowAccumulator(policy)
+    resumed.restore(state)
+    assert resumed.snapshot() == state
+    assert resumed.buffered_rows() == len(rows)
+
+
+@pytest.mark.parametrize(
+    ("policy", "rows"),
+    [
+        (
+            WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+            [
+                {"_message_id": "count-1", "value": 1},
+                {"_message_id": "count-2", "value": 2},
+                {"_message_id": "count-3", "value": 3},
+            ],
+        ),
+        (
+            WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=60,
+                session_gap_seconds=60,
+                timestamp_field="event_time",
+            ),
+            [
+                {
+                    "_message_id": "session-1",
+                    "event_time": "2024-01-01T00:00:00+00:00",
+                    "value": 1,
+                },
+                {
+                    "_message_id": "session-2",
+                    "event_time": "2024-01-01T00:00:10+00:00",
+                    "value": 2,
+                },
+                {
+                    "_message_id": "session-3",
+                    "event_time": "2024-01-01T00:00:20+00:00",
+                    "value": 3,
+                },
+            ],
+        ),
+        (
+            WindowPolicy(strategy=WindowStrategy.SLIDING, size=3, slide=1),
+            [
+                {"_message_id": "sliding-1", "value": 1},
+                {"_message_id": "sliding-2", "value": 2},
+                {"_message_id": "sliding-3", "value": 3},
+            ],
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_stream_interrupted_pending_window_resumes_with_lineage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    policy: WindowPolicy,
+    rows: list[dict[str, Any]],
+) -> None:
+    """Committed COUNT/SESSION/SLIDING state resumes and retains source refs."""
+
+    stream_path = tmp_path / f"resume-{policy.strategy.value}.jsonl"
+    stream_path.write_text(
+        "".join(f"{json.dumps(row)}\n" for row in rows),
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_poll = StreamingSourceSession.poll
+    state = {"calls": 0}
+
+    async def fail_after_first_checkpoint(self: StreamingSourceSession):
+        if state["calls"] == 1:
+            raise RuntimeError("interrupted pending window")
+        state["calls"] += 1
+        return await original_poll(self)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", fail_after_first_checkpoint)
+    with pytest.raises(RuntimeError, match="interrupted pending window"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=f"resume-{policy.strategy.value}",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                checkpoint_every_chunks=1,
+                window_policy=policy,
+            ),
+            registry=registry,
+        )
+
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        f"resume-{policy.strategy.value}",
+    )
+    assert paused is not None
+    paused_refs = _collect_state_refs(paused.metadata["operator_state"])
+    assert len(paused_refs) == 1
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=f"resume-{policy.strategy.value}",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            window_policy=policy,
+        ),
+        registry=registry,
+    )
+
+    assert recovered.rows_emitted == 2
+    assert len(recovered.window_refs) == 1
+    manifest = store.get_manifest(recovered.window_refs[0].artifact_id)
+    manifest_refs = {str(item.artifact_id) for item in manifest.inputs}
+    assert paused_refs <= manifest_refs
+    assert len(manifest_refs) == 3
+    latest = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        f"resume-{policy.strategy.value}",
+    )
+    assert latest is not None
+    assert latest.lifecycle_state == StreamLifecycleState.CLOSED
+
+
+@pytest.mark.asyncio
+async def test_stream_window_manifest_contains_all_contributor_chunks(tmp_path: Path) -> None:
+    """A window spanning chunks carries both raw chunk refs in its manifest."""
+
+    stream_path = tmp_path / "lineage.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n'
+        '{"_message_id":"m3","value":3}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="lineage",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+        ),
+        registry=registry,
+    )
+
+    assert len(result.chunk_refs) == 2
+    assert len(result.window_refs) == 1
+    manifest = store.get_manifest(result.window_refs[0].artifact_id)
+    assert {str(item.artifact_id) for item in manifest.inputs} == {
+        str(ref.artifact_id) for ref in result.chunk_refs
+    }
+    window_payload = from_canonical_bytes(store.get_bytes(result.window_refs[0].artifact_id))
+    assert window_payload["window_policy"] == {
+        "version": 1,
+        "strategy": WindowStrategy.COUNT.value,
+        "size": 3,
+        "slide": None,
+        "session_gap_seconds": None,
+        "timestamp_field": "event_time",
+    }
+
+
+@pytest.mark.asyncio
+async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Path) -> None:
+    """Trigger and closing flushes retain only their actual contributor chunks."""
+
+    stream_path = tmp_path / "trigger-final-lineage.jsonl"
+    stream_path.write_text(
+        "".join(
+            json.dumps({"_message_id": f"m{index}", "value": index}) + "\n"
+            for index in range(1, 4)
+        ),
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="trigger-final-lineage",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+        ),
+        registry=registry,
+    )
+
+    assert len(result.chunk_refs) == 3
+    assert len(result.window_refs) == 2
+    trigger_manifest = store.get_manifest(result.window_refs[0].artifact_id)
+    final_manifest = store.get_manifest(result.window_refs[1].artifact_id)
+    assert {str(item.artifact_id) for item in trigger_manifest.inputs} == {
+        str(result.chunk_refs[0].artifact_id),
+        str(result.chunk_refs[1].artifact_id),
+    }
+    assert {str(item.artifact_id) for item in final_manifest.inputs} == {
+        str(result.chunk_refs[2].artifact_id),
+    }
+
+
+@pytest.mark.asyncio
+async def test_stream_checkpoint_missing_operator_state_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A current-format checkpoint without operator state cannot resume silently."""
+
+    stream_path = tmp_path / "missing-state.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri()),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_lookup = AsyncCursorStoreAdapter.find_latest_stream_checkpoint
+
+    async def corrupt_lookup(self, *args: Any, **kwargs: Any) -> StreamCheckpoint | None:
+        checkpoint = await original_lookup(self, *args, **kwargs)
+        if checkpoint is None:
+            checkpoint = StreamCheckpoint(
+                checkpoint_id="stream.jsonl:missing-state:default:0",
+                stream_id="stream.jsonl:missing-state:default",
+                connector_id="stream.jsonl",
+                dataset_id="missing-state",
+                metadata={
+                    "operator_state_required": True,
+                    "rows_emitted": 1,
+                },
+                created_at=datetime.now(UTC),
+            )
+        else:
+            checkpoint = checkpoint.model_copy(
+                update={
+                    "metadata": {
+                        **checkpoint.metadata,
+                        "operator_state_required": True,
+                    },
+                }
+            )
+        return checkpoint
+
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        corrupt_lookup,
+    )
+    with pytest.raises(CursorStoreError, match="operator state"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="missing-state",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            registry=registry,
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_source_commit_failure_does_not_promote_local_frontier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source commit failure must not leave a local cursor ahead of source state."""
+
+    stream_path = tmp_path / "source-commit-failure.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    source_commits: list[StreamCheckpoint] = []
+
+    async def fail_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+        raise RuntimeError("source commit failed")
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", fail_source_commit)
+    with pytest.raises(RuntimeError, match="source commit failed"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="source-commit-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert len(source_commits) == 1
+    assert source_commits[0].metadata["frontier_committed"] is False
+    assert source_commits[0].metadata["frontier_intent"]["state"] == "prepared"
+    assert cursor_store.find_latest_cursor("stream.jsonl", "source-commit-failure") is None
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "source-commit-failure",
+    )
+    assert paused is not None
+    assert paused.lifecycle_state == StreamLifecycleState.PAUSED
+    assert paused.metadata["frontier_committed"] is False
+    assert paused.metadata["frontier_intent"]["state"] == "unresolved"
+    assert paused.dedupe_keys == ()
+
+
+@pytest.mark.asyncio
+async def test_stream_local_pair_failure_compensates_source_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A local pair failure after source commit must invoke bounded compensation."""
+
+    stream_path = tmp_path / "local-pair-failure.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    source_commits: list[StreamCheckpoint] = []
+    compensating_rewinds: list[StreamCheckpoint] = []
+
+    async def record_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        compensating_rewinds.append(checkpoint)
+
+    async def fail_local_pair(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del self, cursor, checkpoint
+        raise RuntimeError("local pair failed")
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", record_source_commit)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(AsyncCursorStoreAdapter, "commit_stream_progress", fail_local_pair)
+
+    with pytest.raises(RuntimeError, match="local pair failed"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="local-pair-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert len(source_commits) == 1
+    assert len(compensating_rewinds) == 1
+    assert compensating_rewinds[0].offset == 0
+    assert compensating_rewinds[0].metadata["frontier_committed"] is False
+    assert cursor_store.find_latest_cursor("stream.jsonl", "local-pair-failure") is None
+
+
+@pytest.mark.asyncio
+async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unresolved(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A first-pair cursor orphan cannot be hidden by a failed empty rollback."""
+
+    stream_path = tmp_path / "partial-first-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    source_commits: list[StreamCheckpoint] = []
+    compensating_rewinds: list[StreamCheckpoint] = []
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
+
+    async def record_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        compensating_rewinds.append(checkpoint)
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        # Simulate a local pair that wrote its cursor index before failing to
+        # publish the paired checkpoint.  There is no prior cursor to restore.
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed after cursor index advance")
+
+    async def fail_frontier_restore(
+        self: AsyncCursorStoreAdapter,
+        **kwargs: Any,
+    ) -> Any:
+        await original_restore_stream_frontier(self, **kwargs)
+        raise RuntimeError("frontier restore failed")
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", record_source_commit)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "restore_stream_frontier",
+        fail_frontier_restore,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed after cursor index advance"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="partial-first-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert len(source_commits) == 1
+    assert len(compensating_rewinds) == 1
+    assert compensating_rewinds[0].offset == 0
+    unresolved = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "partial-first-frontier",
+    )
+    assert unresolved is not None
+    assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
+    assert unresolved.metadata["frontier_committed"] is False
+    # The pair was cleared before the post-restore failure; the unresolved
+    # marker remains the fail-closed guard for recovery.
+    assert cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "partial-first-frontier",
+    ) is None
+
+
+@pytest.mark.asyncio
+async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Rollback must not remove a newer same-ID cursor published concurrently."""
+
+    stream_path = tmp_path / "intervening-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
+    target_cursors: list[Any] = []
+    newer_cursors: list[Any] = []
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        target_cursors.append(cursor)
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed before checkpoint index")
+
+    async def publish_newer_then_restore(
+        self: AsyncCursorStoreAdapter,
+        **kwargs: Any,
+    ) -> Any:
+        assert target_cursors
+        target = target_cursors[0]
+        newer = target.model_copy(
+            update={
+                "watermark_value": str(int(target.watermark_value) + 1),
+                "created_at": datetime.now(UTC),
+            }
+        )
+        newer_cursors.append(newer)
+        self.store.save_cursor(newer)
+        return await original_restore_stream_frontier(self, **kwargs)
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "restore_stream_frontier",
+        publish_newer_then_restore,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="intervening-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert newer_cursors
+    latest_cursor = cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "intervening-frontier",
+    )
+    assert latest_cursor is not None
+    assert latest_cursor.watermark_value == newer_cursors[0].watermark_value
+    prepared = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "intervening-frontier",
+    )
+    assert prepared is not None
+    assert prepared.metadata["frontier_intent"]["state"] == "prepared"
+    assert prepared.metadata["frontier_committed"] is False
+
+
+@pytest.mark.asyncio
+async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pair compensation must not overwrite a same-model cursor's newer checkpoint."""
+
+    stream_path = tmp_path / "aba-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
+    source_commits: list[StreamCheckpoint] = []
+    target_cursors: list[Any] = []
+    published_pairs: list[tuple[Any, StreamCheckpoint]] = []
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        target_cursors.append(cursor)
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed before checkpoint index")
+
+    async def publish_aba_pair_after_restore(
+        self: AsyncCursorStoreAdapter,
+        **kwargs: Any,
+    ) -> Any:
+        result = await original_restore_stream_frontier(self, **kwargs)
+        assert target_cursors
+        assert source_commits
+        target_cursor = target_cursors[0]
+        prepared_checkpoint = source_commits[0]
+        # The cursor bytes are identical to the failed target.  Only the
+        # checkpoint changes, so a cursor-only compare cannot detect the ABA.
+        newer_cursor = target_cursor.model_copy(deep=True)
+        newer_checkpoint = prepared_checkpoint.model_copy(
+            update={
+                "checkpoint_id": f"{prepared_checkpoint.checkpoint_id}:aba",
+                "offset": prepared_checkpoint.offset + 1,
+                "resume_token": "aba-newer",
+            }
+        )
+        self.store.save_cursor(newer_cursor)
+        self.store.save_stream_checkpoint(newer_checkpoint)
+        published_pairs.append((newer_cursor, newer_checkpoint))
+        return result
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "restore_stream_frontier",
+        publish_aba_pair_after_restore,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="aba-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert published_pairs
+    expected_cursor, expected_checkpoint = published_pairs[0]
+    latest_cursor = cursor_store.find_latest_cursor("stream.jsonl", "aba-frontier")
+    latest_checkpoint = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "aba-frontier",
+    )
+    assert latest_cursor is not None
+    assert latest_cursor.model_dump(mode="json") == expected_cursor.model_dump(mode="json")
+    assert latest_checkpoint is not None
+    assert latest_checkpoint.checkpoint_id == expected_checkpoint.checkpoint_id
+    assert latest_checkpoint.offset == expected_checkpoint.offset
+
+
+@pytest.mark.asyncio
+async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A same-model cursor cannot mask a newer checkpoint before pair validation."""
+
+    stream_path = tmp_path / "prewrite-aba-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
+    source_commits: list[StreamCheckpoint] = []
+    target_cursors: list[Any] = []
+    published_pairs: list[tuple[Any, StreamCheckpoint]] = []
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self
+        source_commits.append(checkpoint)
+
+    async def compensate_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def partially_advance_cursor(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del checkpoint
+        target_cursors.append(cursor)
+        self.store.save_cursor(cursor)
+        raise RuntimeError("local pair failed before checkpoint index")
+
+    async def publish_prewrite_aba_pair(
+        self: AsyncCursorStoreAdapter,
+        **kwargs: Any,
+    ) -> Any:
+        assert target_cursors
+        assert source_commits
+        target_cursor = target_cursors[0]
+        prepared_checkpoint = source_commits[0]
+        # Publish before entering the guarded operation.  Cursor bytes are
+        # identical, so only the checkpoint comparison can reject the ABA.
+        newer_cursor = target_cursor.model_copy(deep=True)
+        newer_checkpoint = prepared_checkpoint.model_copy(
+            update={
+                "checkpoint_id": f"{prepared_checkpoint.checkpoint_id}:prewrite-aba",
+                "offset": prepared_checkpoint.offset + 1,
+                "resume_token": "prewrite-aba-newer",
+            }
+        )
+        self.store.save_cursor(newer_cursor)
+        self.store.save_stream_checkpoint(newer_checkpoint)
+        published_pairs.append((newer_cursor, newer_checkpoint))
+        return await original_restore_stream_frontier(self, **kwargs)
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "commit_stream_progress",
+        partially_advance_cursor,
+    )
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "restore_stream_frontier",
+        publish_prewrite_aba_pair,
+    )
+
+    with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="prewrite-aba-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    assert published_pairs
+    expected_cursor, expected_checkpoint = published_pairs[0]
+    latest_cursor = cursor_store.find_latest_cursor(
+        "stream.jsonl",
+        "prewrite-aba-frontier",
+    )
+    latest_checkpoint = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "prewrite-aba-frontier",
+    )
+    assert latest_cursor is not None
+    assert latest_cursor.model_dump(mode="json") == expected_cursor.model_dump(mode="json")
+    assert latest_checkpoint is not None
+    assert latest_checkpoint.checkpoint_id == expected_checkpoint.checkpoint_id
+    assert latest_checkpoint.offset == expected_checkpoint.offset
+
+
+@pytest.mark.asyncio
+async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Cancellation after intent persistence must block the next recovery."""
+
+    stream_path = tmp_path / "cancelled-frontier.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+
+    async def cancel_source_commit(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+        raise asyncio.CancelledError()
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", cancel_source_commit)
+    with pytest.raises(asyncio.CancelledError):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="cancelled-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    prepared = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "cancelled-frontier",
+    )
+    assert prepared is not None
+    intent = prepared.metadata["frontier_intent"]
+    assert intent["version"] == 1
+    assert intent["state"] == "prepared"
+    assert intent["intent_id"]
+    assert intent["target_checkpoint_id"] == prepared.checkpoint_id
+    assert intent["target_cursor_id"] == "stream.jsonl:cancelled-frontier"
+    assert intent["target_digest"]
+    assert "prior_checkpoint_id" in intent
+    assert prepared.metadata["frontier_committed"] is False
+    assert cursor_store.find_latest_cursor("stream.jsonl", "cancelled-frontier") is None
+
+    with pytest.raises(CursorStoreError, match="frontier intent"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="cancelled-frontier",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_rewind_failure_leaves_unresolved_frontier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed source compensation keeps an unresolved marker for retry review."""
+
+    stream_path = tmp_path / "rewind-failure.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+
+    async def source_commit_succeeds(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+
+    async def fail_local_pair(
+        self: AsyncCursorStoreAdapter,
+        *,
+        cursor: Any,
+        checkpoint: StreamCheckpoint | None = None,
+    ) -> Any:
+        del self, cursor, checkpoint
+        raise RuntimeError("local pair failed")
+
+    async def fail_rewind(
+        self: StreamingSourceSession,
+        checkpoint: StreamCheckpoint,
+    ) -> None:
+        del self, checkpoint
+        raise RuntimeError("source rewind failed")
+
+    monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
+    monkeypatch.setattr(StreamingSourceSession, "rewind", fail_rewind)
+    monkeypatch.setattr(AsyncCursorStoreAdapter, "commit_stream_progress", fail_local_pair)
+
+    with pytest.raises(RuntimeError, match="local pair failed"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="rewind-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    unresolved = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "rewind-failure",
+    )
+    assert unresolved is not None
+    assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
+    assert unresolved.metadata["frontier_committed"] is False
+    assert cursor_store.find_latest_cursor("stream.jsonl", "rewind-failure") is None
+
+    with pytest.raises(CursorStoreError, match="frontier intent"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="rewind-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_legacy_paused_nonzero_checkpoint_without_state_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Legacy paused progress with offset/dedupe evidence cannot resume empty."""
+
+    stream_path = tmp_path / "legacy-paused.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+
+    async def legacy_lookup(
+        self: AsyncCursorStoreAdapter,
+        *args: Any,
+        **kwargs: Any,
+    ) -> StreamCheckpoint:
+        del self, args, kwargs
+        return StreamCheckpoint(
+            checkpoint_id="stream.jsonl:legacy-paused:default:2",
+            stream_id="stream.jsonl:legacy-paused:default",
+            connector_id="stream.jsonl",
+            dataset_id="legacy-paused",
+            offset=2,
+            lifecycle_state=StreamLifecycleState.PAUSED,
+            dedupe_keys=("_message_id:m1",),
+            metadata={"observed_offset": 2},
+            created_at=datetime.now(UTC),
+        )
+
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        legacy_lookup,
+    )
+    with pytest.raises(CursorStoreError, match="operator state"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="legacy-paused",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            registry=registry,
+        )
+
+
+@pytest.mark.asyncio
+async def test_stream_operator_state_without_max_event_time_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A state blob missing its ordering watermark is not a complete snapshot."""
+
+    stream_path = tmp_path / "missing-watermark.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    policy = WindowPolicy(strategy=WindowStrategy.COUNT, size=2)
+    operator_state = {
+        "version": 1,
+        "accumulator": StreamWindowAccumulator(policy).snapshot(),
+    }
+
+    async def incomplete_lookup(
+        self: AsyncCursorStoreAdapter,
+        *args: Any,
+        **kwargs: Any,
+    ) -> StreamCheckpoint:
+        del self, args, kwargs
+        return StreamCheckpoint(
+            checkpoint_id="stream.jsonl:missing-watermark:default:0",
+            stream_id="stream.jsonl:missing-watermark:default",
+            connector_id="stream.jsonl",
+            dataset_id="missing-watermark",
+            metadata={
+                "operator_state_required": True,
+                "operator_state": operator_state,
+                "frontier_committed": True,
+            },
+            created_at=datetime.now(UTC),
+        )
+
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        incomplete_lookup,
+    )
+    with pytest.raises(CursorStoreError, match="operator state"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="missing-watermark",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            registry=registry,
+        )
+
+
+def test_stream_window_refs_do_not_inherit_reused_dict_id() -> None:
+    """A recycled dict id must not inherit provenance from its prior object."""
+
+    accumulator = StreamWindowAccumulator(
+        WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+    )
+    old_row = {"value": "old"}
+    old_id = id(old_row)
+    accumulator.add_rows_with_refs([old_row], ("chunk-old",))
+    accumulator.flush()
+    del old_row
+    gc.collect()
+
+    replacement: dict[str, Any] | None = None
+    for _ in range(10_000):
+        candidate = {"value": "replacement"}
+        if id(candidate) == old_id:
+            replacement = candidate
+            break
+        del candidate
+
+    if replacement is None:
+        # The probe is still meaningful on allocators that do not immediately
+        # recycle this dict slot: the flushed object must have no stale entry.
+        assert old_id not in accumulator._row_refs
+        return
+
+    assignments = accumulator.add_rows(
+        [replacement, {"value": "second"}],
+    )
+    assert len(assignments) == 1
+    assert accumulator._refs_for_assignment(assignments[0]) == ()
+
+
+def test_stream_window_refs_bind_distinct_row_objects() -> None:
+    """Contributor refs remain attached to each concrete dict object."""
+
+    accumulator = StreamWindowAccumulator(
+        WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+    )
+    first = {"value": "same"}
+    second = {"value": "same"}
+    assert first is not second
+    accumulator.add_rows_with_refs([first], ("chunk-first",))
+    accumulator.add_rows_with_refs([second], ("chunk-second",))
+
+    first_entry = accumulator._row_refs[id(first)]
+    second_entry = accumulator._row_refs[id(second)]
+    assert first_entry.row is first
+    assert second_entry.row is second
+    assert first_entry.refs == ("chunk-first",)
+    assert second_entry.refs == ("chunk-second",)
+
+
+def test_stream_window_restore_rejects_empty_contributor_ref() -> None:
+    """An empty lineage ref is corruption, not a value to silently discard."""
+
+    accumulator = StreamWindowAccumulator(
+        WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+    )
+    state = accumulator.snapshot()
+    state["count_buffer"] = [
+        {"row": {"value": 1}, "refs": ["chunk-valid", ""]},
+    ]
+
+    with pytest.raises(ValueError, match="corrupt stream operator state") as exc_info:
+        accumulator.restore(state)
+    assert exc_info.value.__cause__ is not None
+    assert "row contributor refs cannot be empty" in str(exc_info.value.__cause__)
+
+
+def test_stream_window_add_rows_with_refs_rejects_empty_contributor_ref() -> None:
+    """Lineage intake rejects an empty ref instead of filtering it out."""
+
+    accumulator = StreamWindowAccumulator(
+        WindowPolicy(strategy=WindowStrategy.COUNT, size=2),
+    )
+
+    with pytest.raises(ValueError, match="row contributor refs cannot be empty"):
+        accumulator.add_rows_with_refs(
+            [{"value": 1}],
+            ("chunk-valid", ""),
+        )
 
 
 @pytest.mark.asyncio

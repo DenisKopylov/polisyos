@@ -534,17 +534,13 @@ class TestAsyncCacheBoundaries:
         original_put_json = store.put_json
         put_calls = 0
         put_phase: str | None = None
-        phase_ticks = {"outcome": 0, "entry": 0}
+        phase_ticks = {"entry": 0}
 
         def slow_put_json(*args, **kwargs):
             nonlocal put_calls, put_phase
             put_calls += 1
-            if put_calls == 1:
-                put_phase = "outcome"
-                phase_ticks["outcome"] = 0
-            elif put_calls == 2:
-                put_phase = "entry"
-                phase_ticks["entry"] = 0
+            put_phase = "entry"
+            phase_ticks["entry"] = 0
             time.sleep(0.08)
             return original_put_json(*args, **kwargs)
 
@@ -572,8 +568,7 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 1
-        assert put_calls >= 2
-        assert phase_ticks["outcome"] > 0
+        assert put_calls == 1
         assert phase_ticks["entry"] > 0
 
         executor._cache.clear()
@@ -583,7 +578,7 @@ class TestAsyncCacheBoundaries:
         def fail_entry_put(*args, **kwargs):
             nonlocal calls
             calls += 1
-            if calls == 2:
+            if calls == 1:
                 raise OSError("entry publication interrupted")
             return original_put_json(*args, **kwargs)
 
@@ -621,7 +616,7 @@ class TestAsyncCacheBoundaries:
         def fail_entry_put(*args, **kwargs):
             nonlocal put_calls
             put_calls += 1
-            if put_calls == 2:
+            if put_calls == 1:
                 raise OSError("entry publication interrupted")
             return original_put_json(*args, **kwargs)
 
@@ -635,7 +630,7 @@ class TestAsyncCacheBoundaries:
 
         assert outcome.status == "ok"
         assert cache_hit is False
-        assert put_calls == 2
+        assert put_calls == 1
         assert executor._cache.size == 0
         assert _artifact_id_strings(store) == ids_before_failed_publication
 

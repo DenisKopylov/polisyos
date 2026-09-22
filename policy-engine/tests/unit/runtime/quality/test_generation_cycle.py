@@ -22,6 +22,7 @@ import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.pdc import gy_content_hash
@@ -71,7 +72,10 @@ from polisyos.runtime.quality.generation_cycle import (
     RealValueOwnerGateway,
     SimulationPortObservation,
     StrangleReceipt,
+    ValueCalibrationReceipt,
+    ValueGateReceipt,
     ValuePortObservation,
+    ValueTransportReceipt,
     _apply_promotion_to_summaries,
     _build_boundary_world_model_record,
     _derive_fronts,
@@ -440,6 +444,168 @@ class _AlwaysLowGrounding:
             issue_codes=("missing_supporting_data",) if cycle_index == 0 else (),
             evidence_refs=() if cycle_index == 0 else ("evidence://supporting-data",),
             current_valid=False,
+        )
+
+
+class _StableShadowGrounding:
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="grounded_shadow",
+            grounding_score=0.8,
+            evidence_refs=("evidence://b29/stable-shadow",),
+            current_valid=False,
+            report_ref="grounding://b29/stable-shadow",
+            grounding_source="cgf_firewall",
+            grounding_disposition="shadow_bound",
+        )
+
+
+class _CurrentValidGrounding:
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="current_valid",
+            grounding_score=0.95,
+            evidence_refs=("evidence://b29/current-valid",),
+            current_valid=True,
+            report_ref="grounding://b29/current-valid",
+            grounding_source="cgf_firewall",
+            grounding_disposition="current_valid",
+        )
+
+
+def _ready_value_observation(candidate_id: str) -> ValuePortObservation:
+    """Build a small owner-shaped N8 receipt for terminal projection tests."""
+
+    method_fqn = "causal.inference.did.standard@1.0.0"
+    world_hash = "sha256:" + "d" * 64
+    value_ref = "sha256:" + "e" * 64
+    alternative = {
+        "rank": 1,
+        "method_fqn": method_fqn,
+        "method_family": "causal_inference",
+        "data_modalities": ["panel"],
+        "advisor_score": None,
+        "selected": True,
+        "loss_reasons": [],
+    }
+    selection_payload = {
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "selection_authority": "requested_registry_method",
+        "selected_method_fqn": method_fqn,
+        "ranked_alternatives": [alternative],
+        "denominator": [method_fqn],
+        "selection_context_hash": "sha256:" + "f" * 64,
+    }
+    selection_hash = "sha256:" + hashlib.sha256(
+        json.dumps(
+            selection_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
+    selection_receipt = generation_cycle_module.MethodSelectionReceipt.model_validate(
+        {**selection_payload, "content_hash": selection_hash}
+    )
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("firm_survival",),
+        lower=(1.0,),
+        upper=(1.0,),
+        identification_mode="point",
+        assumptions=("b29_test",),
+        assumption_status="externally_supported",
+        calibration_scope={"scope": "unit"},
+        data_trust=DataTrust(
+            tier="unit",
+            trust_cap=1.0,
+            trust_multiplier=1.0,
+            authority_ref="b29-test",
+        ),
+        world_model_record_ref=world_hash,
+        epoch="2026",
+        representation_status="certified",
+    )
+    transport = ValueTransportReceipt(
+        status="direct",
+        world_model_record_id="world_model_record_b29",
+        world_model_record_content_hash=world_hash,
+        transport_result_ref="sha256:" + "a" * 64,
+        transport_status="identified",
+        transport_mode="direct",
+        identification_engine="b29-test",
+    )
+    calibration = ValueCalibrationReceipt(
+        status="pass",
+        forecast_tier="observable_calibrated",
+        calibration_record_ref="s10://b29-test",
+    )
+    value_receipt = ValueGateReceipt(
+        candidate_id=candidate_id,
+        evaluation_mode="simulate_only",
+        selected_method_fqn=method_fqn,
+        method_selection_trace=(method_fqn,),
+        identification_status=value_set.identification_status,
+        value_outer_set=value_set,
+        transport_receipt=transport,
+        calibration_receipt=calibration,
+        world_model_record_id="world_model_record_b29",
+        world_model_record_content_hash=world_hash,
+        value_ref=value_ref,
+        wall_time_ms=1.0,
+        wmr_cache_status="built",
+        k_world_ref_before=world_hash,
+        k_world_ref_after=world_hash,
+    )
+    return ValuePortObservation(
+        status="value_ready",
+        candidate_id=candidate_id,
+        value_ref=value_ref,
+        authority_blockers=(),
+        reason="B29 owner-shaped value receipt for terminal projection.",
+        evaluation_mode="simulate_only",
+        selected_method_fqn=method_fqn,
+        method_selection_receipt=selection_receipt,
+        decision_grade="high",
+        world_model_record_content_hash=world_hash,
+        transport_receipt=transport,
+        calibration_receipt=calibration,
+        value_receipt=value_receipt,
+    )
+
+
+class _ReadyValuePort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return _ready_value_observation(str(candidate.candidate_id))
+
+
+class _BudgetExhaustedValuePort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id=str(candidate.candidate_id),
+            authority_blockers=("budget_exhausted_for_next_level",),
+            reason="B29 controlled budget-stop fixture.",
+            decision_grade="blocked",
         )
 
 
@@ -3532,6 +3698,64 @@ async def test_constant_strategy_revision_is_rejected_as_not_terminal_driven() -
     assert any(
         issue["code"] == "revision_not_terminal_driven"
         for issue in validate_generation_cycle_run(run)
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("grounding_port", "value_port", "expected_terminal", "expected_decision"),
+    [
+        (
+            _StableShadowGrounding,
+            _ReadyValuePort,
+            "frontier_stable",
+            "stop",
+        ),
+        (
+            _CurrentValidGrounding,
+            _ReadyValuePort,
+            "grounded_admissible",
+            "stop",
+        ),
+        (
+            _StableShadowGrounding,
+            _BudgetExhaustedValuePort,
+            "budget_exhausted",
+            "stop",
+        ),
+        (
+            _StableShadowGrounding,
+            PendingN8ValuePort,
+            "grounded_abstention",
+            "abstain",
+        ),
+    ],
+    ids=("frontier-stable", "grounded-admissible", "budget-stop", "abstention"),
+)
+async def test_terminal_projection_preserves_stop_budget_and_abstention(
+    grounding_port: type[Any],
+    value_port: type[Any],
+    expected_terminal: str,
+    expected_decision: str,
+) -> None:
+    """N6 records keep controller stop distinct from epistemic abstention."""
+
+    run = await GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=grounding_port(),
+        value_port=value_port(),
+    ).run(
+        _problem(f"b29_{expected_terminal}"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert cycle.terminal_kind == expected_terminal
+    assert cycle.voi_decision.next_action == "stop"
+    assert cycle.refinement_decision.decision == expected_decision
+    assert cycle.search_iteration.status == (
+        "abstained" if expected_decision == "abstain" else "stopped"
     )
 
 

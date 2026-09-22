@@ -171,6 +171,14 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
 _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
     {"simulation_only_k_sim_not_world_evidence"}
 )
+_N6_STOP_TERMINAL_KINDS = frozenset(
+    {
+        SearchTerminalKind.FRONTIER_STABLE.value,
+        SearchTerminalKind.BUDGET_EXHAUSTED.value,
+        SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
+        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value,
+    }
+)
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
 GenerationChannel = Literal["n4_owner", "grammar_fallback"]
@@ -7647,6 +7655,19 @@ def _default_revision_request(
     )
 
 
+def _stop_projection_decision(terminal_kind: str) -> Literal["stop", "abstain"]:
+    """Map a terminal stop to its typed epistemic projection."""
+
+    if terminal_kind == SearchTerminalKind.GROUNDED_ABSTENTION.value:
+        return "abstain"
+    if terminal_kind in _N6_STOP_TERMINAL_KINDS:
+        return "stop"
+    raise GenerationCycleError(
+        "unsupported_stop_terminal_projection",
+        terminal_kind,
+    )
+
+
 def _refinement_decision(
     *,
     problem: DesignProblem,
@@ -7664,6 +7685,7 @@ def _refinement_decision(
         "human_decision",
         "abstain",
         "block_candidate",
+        "stop",
     ]
     if next_action.next_action == "blocked":
         decision = "block_candidate"
@@ -7675,7 +7697,7 @@ def _refinement_decision(
     elif next_action.next_action == "escalate":
         decision = "human_decision"
     elif next_action.next_action == "stop":
-        decision = "abstain"
+        decision = _stop_projection_decision(next_action.terminal_kind)
     else:
         decision = "refine"
     slug = _slug(problem.design_problem_id)
@@ -7723,8 +7745,19 @@ def _search_iteration(
         status = "governance_required"
     elif decision.decision == "acquire":
         status = "acquisition_required"
-    elif decision.decision == "abstain":
-        status = "abstained"
+    elif next_action.next_action == "stop":
+        expected_decision = _stop_projection_decision(next_action.terminal_kind)
+        if decision.decision != expected_decision:
+            raise GenerationCycleError(
+                "incoherent_stop_iteration_projection",
+                next_action.terminal_kind,
+            )
+        status = "abstained" if expected_decision == "abstain" else "stopped"
+    elif decision.decision in {"stop", "abstain"}:
+        raise GenerationCycleError(
+            "incoherent_terminal_projection_action",
+            next_action.next_action,
+        )
     else:
         status = "refined_shadow"
     return SearchIteration(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from contextlib import ExitStack
 from dataclasses import replace
 from decimal import Decimal
 from typing import Any
@@ -397,7 +398,10 @@ def _build_workflow() -> WorkflowSpec:
     )
 
 
-def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> None:
+def test_res_03_real_simulation_later_failure_reaches_user_route(
+    tmp_path,
+    request: pytest.FixtureRequest,
+) -> None:
     """Persist a real simulation, then expose the later failure and invalidation."""
     store = _TenantScopedCAS(tmp_path / "cas", tenant_id=_TENANT_ID, cell_id=_CELL_ID)
     run_id = "R_res03_real_route"
@@ -496,51 +500,53 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
         allow_fixture_identity=True,
         enable_security_middlewares=False,
     )
-    with TestClient(app, raise_server_exceptions=False) as client:
-        workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
-        errors_response = client.get(f"/api/v1/debug/runs/{run_id}/errors")
-        candidate_response = client.get(
+    client_lifecycle = ExitStack()
+    request.addfinalizer(client_lifecycle.close)
+    client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
+    workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
+    errors_response = client.get(f"/api/v1/debug/runs/{run_id}/errors")
+    candidate_response = client.get(
+        f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+    )
+    wrong_node_response = client.get(
+        f"/api/v1/debug/runs/{run_id}/nodes/later_failure/simulation-result"
+    )
+    missing_node_response = client.get(
+        f"/api/v1/debug/runs/{run_id}/nodes/missing_node/simulation-result"
+    )
+    wrong_ref_response = client.get(
+        f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result",
+        params={"artifact_id": str(data_snapshot_ref.artifact_id)},
+    )
+    wrong_run_response = client.get(
+        "/api/v1/debug/runs/R_res03_foreign/nodes/later_failure/simulation-result"
+    )
+    manifest_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}")
+    content_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/content")
+    lineage_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/lineage")
+
+    blob_path, _manifest_path = store.get_paths(simulation_ref.artifact_id)
+    original_bytes = blob_path.read_bytes()
+    blob_path.write_bytes(original_bytes + b"tampered")
+    try:
+        tampered_response = client.get(
             f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
         )
-        wrong_node_response = client.get(
-            f"/api/v1/debug/runs/{run_id}/nodes/later_failure/simulation-result"
-        )
-        missing_node_response = client.get(
-            f"/api/v1/debug/runs/{run_id}/nodes/missing_node/simulation-result"
-        )
-        wrong_ref_response = client.get(
-            f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result",
-            params={"artifact_id": str(data_snapshot_ref.artifact_id)},
-        )
-        wrong_run_response = client.get(
-            "/api/v1/debug/runs/R_res03_foreign/nodes/later_failure/simulation-result"
-        )
-        manifest_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}")
-        content_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/content")
-        lineage_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/lineage")
+    finally:
+        blob_path.write_bytes(original_bytes)
 
-        blob_path, _manifest_path = store.get_paths(simulation_ref.artifact_id)
-        original_bytes = blob_path.read_bytes()
-        blob_path.write_bytes(original_bytes + b"tampered")
-        try:
-            tampered_response = client.get(
-                f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
-            )
-        finally:
-            blob_path.write_bytes(original_bytes)
-
-        workflow_report_ref = result.state.reports_index["workflow_report"]
-        report_blob_path, _report_manifest_path = store.get_paths(
-            workflow_report_ref.artifact_id
+    workflow_report_ref = result.state.reports_index["workflow_report"]
+    report_blob_path, _report_manifest_path = store.get_paths(
+        workflow_report_ref.artifact_id
+    )
+    report_original_bytes = report_blob_path.read_bytes()
+    report_blob_path.write_bytes(report_original_bytes + b"tampered")
+    try:
+        binding_tampered_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
         )
-        report_original_bytes = report_blob_path.read_bytes()
-        report_blob_path.write_bytes(report_original_bytes + b"tampered")
-        try:
-            binding_tampered_response = client.get(
-                f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
-            )
-        finally:
-            report_blob_path.write_bytes(report_original_bytes)
+    finally:
+        report_blob_path.write_bytes(report_original_bytes)
 
     runtime_context = app.state.runtime_container.runtime_api_context
     indexed_run = runtime_context.run_index.get_run(run_id)

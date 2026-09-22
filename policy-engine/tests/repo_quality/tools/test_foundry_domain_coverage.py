@@ -21,7 +21,7 @@ def _payload_with_all_domains(repo_root: Path) -> dict[str, object]:
                 repo_root / "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py"
             ): _coverage_file(95, 100),
             str(
-                repo_root / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py"
+                repo_root / "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py"
             ): _coverage_file(90, 100),
             str(
                 repo_root
@@ -71,7 +71,9 @@ def test_foundry_domain_coverage_ratchet_reports_threshold_and_missing_domain_fa
     tmp_path: Path,
 ) -> None:
     payload = _payload_with_all_domains(tmp_path)
-    payload["files"][str(tmp_path / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py")] = (
+    payload["files"][
+        str(tmp_path / "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py")
+    ] = (
         _coverage_file(40, 100)
     )
     payload["files"].pop(

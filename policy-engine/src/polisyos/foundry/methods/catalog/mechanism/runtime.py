@@ -178,7 +178,7 @@ class TaxSubsidyMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "tax_subsidy"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:TaxSubsidy"
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.execute.mechanisms:TaxSubsidy"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
         RuntimeFidelityLevel
     )
@@ -241,7 +241,7 @@ class IncomeTaxMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "income_tax"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:IncomeTax"
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.execute.mechanisms:IncomeTax"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
         RuntimeFidelityLevel
     )
@@ -304,7 +304,7 @@ class LaborMarketMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "labor_market"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:LaborMarketMechanism"
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
         RuntimeFidelityLevel.SURROGATE_FLUID,
         RuntimeFidelityLevel.RELAXED_DISCRETE,

@@ -470,6 +470,81 @@ def test_explicit_do_zero_is_not_observational_attribution_baseline() -> None:
     assert output["envelope"].metadata["contrast_comparator"]["kind"] == "interventional"
 
 
+def test_explicit_identical_target_and_comparator_have_zero_contrast() -> None:
+    """Identical explicit do-arms must cancel, even with a nonzero natural root."""
+    output = _run_query(
+        _linear_chain(noise_std=0.0, coefficient=3.0, root_intercept=4.0),
+        {
+            "query_type": "attribution",
+            "treatment_variable": "X",
+            "outcome_variable": "Y",
+            "contrast": {
+                "target": {"type": "atomic", "value": 2.0},
+                "comparator": {
+                    "kind": "interventional",
+                    "intervention": {"type": "atomic", "value": 2.0},
+                },
+            },
+            "n_samples": 64,
+        },
+    )
+
+    result = CausalQueryResult.model_validate(output["query_result"])
+    assert result.result_mean == pytest.approx(0.0)
+    assert result.result_std == pytest.approx(0.0)
+    assert result.result_ci == pytest.approx((0.0, 0.0))
+    assert result.metadata["contrast_target"] == {
+        "type": "atomic",
+        "value": 2.0,
+        "distribution": None,
+        "bounds": None,
+        "shift": None,
+        "legal_constraint_id": None,
+    }
+    assert result.metadata["contrast_comparator"]["intervention"] == result.metadata[
+        "contrast_target"
+    ]
+
+
+def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> None:
+    """Two explicit stochastic policies execute as distinct attribution arms."""
+    output = _run_query(
+        _linear_chain(noise_std=0.0, coefficient=3.0, root_intercept=4.0),
+        {
+            "query_type": "attribution",
+            "treatment_variable": "X",
+            "outcome_variable": "Y",
+            "contrast": {
+                "target": {
+                    "type": "stochastic",
+                    "distribution": "uniform(1,3)",
+                },
+                "comparator": {
+                    "kind": "interventional",
+                    "intervention": {
+                        "type": "stochastic",
+                        "distribution": "uniform(0,1)",
+                    },
+                },
+            },
+            "n_samples": 64,
+        },
+    )
+
+    result = CausalQueryResult.model_validate(output["query_result"])
+    assert result.result_distribution is not None
+    assert len(result.result_distribution) == 64
+    assert result.result_std > 0.0
+    assert all(0.0 <= value <= 9.0 for value in result.result_distribution)
+    assert result.metadata["contrast_target"]["type"] == "stochastic"
+    assert result.metadata["contrast_target"]["distribution"] == "uniform(1,3)"
+    assert result.metadata["contrast_comparator"]["intervention"]["type"] == "stochastic"
+    assert (
+        result.metadata["contrast_comparator"]["intervention"]["distribution"]
+        == "uniform(0,1)"
+    )
+
+
 def test_legacy_v1_result_loads_and_writes_matching_v1_1_cas_manifest(tmp_path: Path) -> None:
     """A v1.0 CAS payload is read with provenance and re-emitted as v1.1."""
     store = FileSystemCAS(tmp_path / "cas")

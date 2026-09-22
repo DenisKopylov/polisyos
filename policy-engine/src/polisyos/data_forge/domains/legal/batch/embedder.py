@@ -317,7 +317,9 @@ def _embed_table(
         pause_between_batches(pause_seconds)
 
     ordered_vectors = [
-        reusable_vectors.get(identifier, encoded_vectors[identifier])
+        reusable_vectors[identifier]
+        if identifier in reusable_vectors
+        else encoded_vectors[identifier]
         for identifier, _text in current_rows
     ]
     full_vectors = (

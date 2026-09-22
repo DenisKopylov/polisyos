@@ -74,6 +74,22 @@ class _WorkerComputeTimeout(Exception):
 class _WorkerDeliveryTimeout(Exception):
     """The worker finished, but its result was not delivered in bounded time."""
 
+
+@dataclasses.dataclass
+class _WorkerLifecycle:
+    """Shared state for one forked worker's compute and cleanup lifetimes."""
+
+    compute_deadline: float
+    completion_time: Any
+    process_group_id: int | None = None
+
+    def completed_before_deadline(self) -> bool:
+        """Return whether the worker marked node execution complete in time."""
+        return _completion_before_deadline(
+            self.completion_time,
+            self.compute_deadline,
+        )
+
 _RETRY_RUNTIME_ERRORS = (
     ArithmeticError,
     AssertionError,
@@ -714,6 +730,20 @@ def _delivery_deadline() -> float:
     return time.monotonic() + _PROCESS_DELIVERY_GRACE_S
 
 
+def _completion_before_deadline(
+    completion_time: Any,
+    compute_deadline: float,
+) -> bool:
+    """Require an explicit worker completion mark before draining delivery."""
+    if completion_time is None:
+        return False
+    try:
+        completed_at = float(completion_time.value)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return 0.0 < completed_at <= compute_deadline
+
+
 def _owned_process_group_id(
     process: mp.Process,
     group_ready: Any,
@@ -744,34 +774,61 @@ def _owned_process_group_id(
     return process_group_id
 
 
+def _owned_process_group_is_alive(process_group_id: int | None) -> bool:
+    """Check only a validated non-parent process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return False
+    if process_group_id == os.getpgrp():
+        return False
+    try:
+        os.killpg(process_group_id, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _signal_owned_process_group(process_group_id: int | None, signum: int) -> None:
+    """Signal an owned group, never the caller's process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return
+    if process_group_id == os.getpgrp():
+        return
+    try:
+        os.killpg(process_group_id, signum)
+    except OSError:
+        return
+
+
+def _wait_for_owned_process_group_exit(process_group_id: int | None) -> bool:
+    """Bounded wait for descendants after the worker itself has stopped."""
+    deadline = time.monotonic() + _PROCESS_CLEANUP_GRACE_S
+    while _owned_process_group_is_alive(process_group_id):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(_PROCESS_RESULT_POLL_S)
+    return True
+
+
 def _terminate_owned_process(
     process: mp.Process,
     process_group_id: int | None,
 ) -> bool:
     """Terminate one worker and any descendants in its owned process group."""
-    if not process.is_alive():
-        process.join(timeout=0.0)
-        return True
-
-    if process_group_id is not None:
-        try:
-            os.killpg(process_group_id, signal.SIGTERM)
-        except OSError:
-            process.terminate()
-    else:
+    _signal_owned_process_group(process_group_id, signal.SIGTERM)
+    if process.is_alive():
         process.terminate()
     process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
 
     if process.is_alive():
-        if process_group_id is not None:
-            try:
-                os.killpg(process_group_id, signal.SIGKILL)
-            except OSError:
-                process.kill()
-        else:
-            process.kill()
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        process.kill()
         process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
-    return not process.is_alive()
+
+    group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if not group_clean:
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    return not process.is_alive() and group_clean
 
 
 def _close_worker_process(process: mp.Process) -> None:
@@ -793,18 +850,28 @@ def _drain_result_sync(
     result_queue: mp.Queue[Any],
     *,
     compute_deadline: float,
+    completion_time: Any = None,
 ) -> tuple[str, Any]:
     """Receive a worker result without joining before Queue drain."""
-    while process.is_alive():
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
         remaining = compute_deadline - time.monotonic()
         if remaining <= 0:
             raise _WorkerComputeTimeout
         try:
-            return result_queue.get(
+            result = result_queue.get(
                 timeout=min(_PROCESS_RESULT_POLL_S, remaining)
             )
         except queue.Empty:
             continue
+        if not _completion_before_deadline(completion_time, compute_deadline):
+            raise _WorkerComputeTimeout
+        return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
 
     delivery_deadline = _delivery_deadline()
     while time.monotonic() < delivery_deadline:
@@ -823,16 +890,27 @@ async def _drain_result_async(
     result_queue: mp.Queue[Any],
     *,
     compute_deadline: float,
+    completion_time: Any = None,
 ) -> tuple[str, Any]:
     """Async counterpart of :func:`_drain_result_sync`."""
-    while process.is_alive():
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
         try:
-            return result_queue.get_nowait()
+            result = result_queue.get_nowait()
         except queue.Empty:
             remaining = compute_deadline - time.monotonic()
             if remaining <= 0:
                 raise _WorkerComputeTimeout
             await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+        else:
+            if not _completion_before_deadline(completion_time, compute_deadline):
+                raise _WorkerComputeTimeout
+            return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
 
     delivery_deadline = _delivery_deadline()
     while time.monotonic() < delivery_deadline:
@@ -885,35 +963,45 @@ def _execute_with_timeout_process(
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
     group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue, group_ready),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    compute_deadline = time.monotonic() + timeout_s
-    process_group_id: int | None = None
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
         process.start()
-        process_group_id = _owned_process_group_id(
+        lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
-            deadline=compute_deadline,
+            deadline=lifecycle.compute_deadline,
         )
         status, payload = _drain_result_sync(
             process,
             result_queue,
-            compute_deadline=compute_deadline,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
         )
         _join_worker_until(process, deadline=_delivery_deadline())
     except _WorkerComputeTimeout:
-        cleanup_complete = _terminate_owned_process(process, process_group_id)
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
         authority.revoke()
         raise _worker_timeout_error(
             timeout_s,
             cleanup_complete=cleanup_complete,
         ) from None
     except _WorkerDeliveryTimeout as exc:
-        cleanup_complete = _terminate_owned_process(process, process_group_id)
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
         authority.revoke()
         cleanup_suffix = (
             "" if cleanup_complete else "; owned process cleanup incomplete"
@@ -924,7 +1012,7 @@ def _execute_with_timeout_process(
         ) from exc
     finally:
         if process.is_alive():
-            _terminate_owned_process(process, process_group_id)
+            _terminate_owned_process(process, lifecycle.process_group_id)
         _close_worker_process(process)
         _close_result_queue(result_queue)
 
@@ -950,35 +1038,45 @@ async def _execute_with_timeout_process_async(
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
     group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue, group_ready),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    compute_deadline = time.monotonic() + timeout_s
-    process_group_id: int | None = None
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
         process.start()
-        process_group_id = _owned_process_group_id(
+        lifecycle.process_group_id = _owned_process_group_id(
             process,
             group_ready,
-            deadline=compute_deadline,
+            deadline=lifecycle.compute_deadline,
         )
         status, payload = await _drain_result_async(
             process,
             result_queue,
-            compute_deadline=compute_deadline,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
         )
         await _join_worker_until_async(process, deadline=_delivery_deadline())
     except _WorkerComputeTimeout:
-        cleanup_complete = _terminate_owned_process(process, process_group_id)
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
         authority.revoke()
         raise _worker_timeout_error(
             timeout_s,
             cleanup_complete=cleanup_complete,
         ) from None
     except _WorkerDeliveryTimeout as exc:
-        cleanup_complete = _terminate_owned_process(process, process_group_id)
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
         authority.revoke()
         cleanup_suffix = (
             "" if cleanup_complete else "; owned process cleanup incomplete"
@@ -989,7 +1087,7 @@ async def _execute_with_timeout_process_async(
         ) from exc
     finally:
         if process.is_alive():
-            _terminate_owned_process(process, process_group_id)
+            _terminate_owned_process(process, lifecycle.process_group_id)
         _close_worker_process(process)
         _close_result_queue(result_queue)
 
@@ -1040,6 +1138,7 @@ def _node_execute_worker(
     state: ExperimentState,
     result_queue: mp.Queue[Any],
     group_ready: Any = None,
+    completion_time: Any = None,
 ) -> None:
     if group_ready is not None:
         try:
@@ -1068,13 +1167,19 @@ def _node_execute_worker(
                     f"{type(send_exc).__name__}: {send_exc}"
                 ) from fallback_exc
 
+    def _mark_completion() -> None:
+        if completion_time is not None:
+            completion_time.value = time.monotonic()
+
     try:
         outcome = node.execute(ctx, state)
+        _mark_completion()
         if hasattr(outcome, "model_dump"):
             _send("ok", outcome.model_dump(mode="python"))
         else:
             _send("error", f"invalid node outcome: {type(outcome).__name__}")
     except _RETRY_RUNTIME_ERRORS as exc:
+        _mark_completion()
         _send("error", f"{type(exc).__name__}: {exc}")
 
 

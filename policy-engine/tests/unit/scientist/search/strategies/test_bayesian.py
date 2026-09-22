@@ -376,6 +376,44 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
             raise
 
     monkeypatch.setattr(type(model_before), "condition_on_observations", observe_condition)
+    append_diagnostics: list[dict[str, object]] = []
+    original_append = strategy._is_append_update
+
+    def observe_append(x, y_bo):
+        result = original_append(x, y_bo)
+        fitted_x = strategy._fitted_train_X
+        fitted_y_bo = strategy._fitted_train_y_bo
+        model_x = strategy._model_train_x()
+        append_diagnostics.append(
+            {
+                "result": result,
+                "x_shape": tuple(x.shape),
+                "y_shape": tuple(y_bo.shape),
+                "fitted_x_shape": None if fitted_x is None else tuple(fitted_x.shape),
+                "fitted_y_shape": None
+                if fitted_y_bo is None
+                else tuple(fitted_y_bo.shape),
+                "model_x_shape": None if model_x is None else tuple(model_x.shape),
+                "x_prefix_equal": False
+                if fitted_x is None
+                else strategy._torch.equal(
+                    fitted_x.to(device=x.device, dtype=x.dtype),
+                    x[: fitted_x.shape[0]],
+                ),
+                "y_prefix_equal": False
+                if fitted_y_bo is None
+                else strategy._torch.equal(
+                    fitted_y_bo.to(device=y_bo.device, dtype=y_bo.dtype),
+                    y_bo[: fitted_y_bo.shape[0]],
+                ),
+                "model_x_equal": False
+                if model_x is None or fitted_x is None
+                else strategy._torch.equal(model_x, fitted_x),
+            }
+        )
+        return result
+
+    monkeypatch.setattr(strategy, "_is_append_update", observe_append)
 
     expanded = [
         *initial,
@@ -388,7 +426,9 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     ]
     strategy.suggest(expanded)
 
-    assert fit_calls == 1, f"condition_errors={condition_errors!r}"
+    assert fit_calls == 1, (
+        f"condition_errors={condition_errors!r}; append={append_diagnostics!r}"
+    )
     assert strategy._model is not None
     model_train_X = strategy._model.train_inputs[0]
     model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])

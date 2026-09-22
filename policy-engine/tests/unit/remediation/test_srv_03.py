@@ -211,7 +211,7 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(tmp_path: 
         suite_ref=suite_ref,
         initial_candidate=_RunnerMutation(loop_id="srv03-loop", value=1),
         context={"request_id": "srv03-user-path"},
-        max_iterations=2,
+        max_iterations=3,
     )
 
     assert result.best_candidate == {
@@ -221,9 +221,9 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(tmp_path: 
         "notes": [],
         "value": 7,
     }
-    assert result.iterations_completed == 2
-    assert result.stage_a_evaluations == 2
-    assert result.stage_b_evaluations == 2
+    assert result.iterations_completed == 3
+    assert result.stage_a_evaluations == 3
+    assert result.stage_b_evaluations == 3
     champion = registry.get("srv03-loop")
     assert champion is not None
     promoted = load_model_artifact(store, champion.candidate_ref, _RunnerMutation)

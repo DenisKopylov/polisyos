@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
@@ -179,6 +180,34 @@ async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails
     assert session._closed is True
     assert session.handle is None
     assert connector.disconnect_calls == [failed_handle_id] * 3
+
+
+@pytest.mark.asyncio
+async def test_net01_create_failure_retries_session_cleanup_before_reraising() -> None:
+    """The create entrypoint must not orphan a handle after startup cleanup fails."""
+
+    connector = _Net01StreamingConnector(
+        fail_subscribe=True,
+        disconnect_failures=1,
+    )
+    entry = SimpleNamespace(
+        factory=lambda: connector,
+        default_config=ConnectionConfig(
+            url="https://stream.example",
+            max_connections=1,
+        ),
+    )
+    registry = SimpleNamespace(get_entry=lambda _connector_id: entry)
+
+    with pytest.raises(RuntimeError, match="controlled subscribe failure"):
+        await StreamingSourceSession.create(
+            connector_id="net01-stream",
+            dataset_id="create-cleanup-retry",
+            registry=registry,
+        )
+
+    assert len(connector.disconnect_calls) == 2
+    assert len(set(connector.disconnect_calls)) == 1
 
 
 @pytest.mark.asyncio

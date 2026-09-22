@@ -93,8 +93,10 @@ class _CacheTestNode:
             items = state.params.get("items")
             if isinstance(items, list):
                 items.pop()
+            elif isinstance(items, dict):
+                items["reexecuted"] = True
             else:
-                state.params["reexecuted"] = True
+                state.params["items"] = {"reexecuted": True}
         else:
             state.params["result"] = self.calls
         return NodeOutcome(status="ok", state=state)

@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,

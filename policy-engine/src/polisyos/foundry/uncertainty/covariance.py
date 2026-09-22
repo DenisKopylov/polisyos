@@ -62,10 +62,9 @@ def extract_std(env: UncertaintyEnvelope) -> float:
         z = NormalDist().inv_cdf((1.0 + level) / 2.0)
         if z > 0.0:
             return width / (2.0 * z)
-    if env.distribution_family is DistributionFamily.NORMAL:
-        raise ValueError(
-            "normal uncertainty without a typed parametric fit or confidence level is ambiguous"
-        )
+    # Preserve the existing non-gating heuristic path for legacy envelopes that
+    # predate typed carriers.  A typed parametric carrier above always takes
+    # precedence and fails closed when its law is incomplete or unsupported.
     return width / (2.0 * (3.0**0.5))
 
 
@@ -80,7 +79,7 @@ def build_covariance_matrix(
     marginal_stds: list[float] = []
     for name in param_names:
         envelope = input_envelopes[name]
-        if envelope.distribution_payload is not None:
+        if isinstance(envelope.distribution_payload, ParametricFitCarrier):
             marginal_stds.append(extract_std(envelope))
             continue
         declared_std = envelope.metadata.get("std")

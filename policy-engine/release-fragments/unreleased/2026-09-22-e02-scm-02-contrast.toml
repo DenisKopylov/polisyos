@@ -21,7 +21,7 @@ migration = "Continue reading historical 1.0 result artifacts through the existi
 api = "Adds the CausalRegime and CausalContrastSpec contracts (with compatibility aliases), exposes them through the polisyos.ir facade, persists both contrast arms in CausalQueryResult and uncertainty-envelope metadata, and rejects mixed canonical arms before ensemble aggregation."
 limitations = "An explicit observational comparator is not do(X=0), and an independent mean contrast is not a shared-U individual effect. The change does not establish causal identification, empirical-root authority, or nonlinear posterior support; existing unsupported abduction paths remain typed limited and non-gate-eligible. Checked-in generated schemas and the public-surface inventory are release companions and must be regenerated/reviewed before this fragment is promoted."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = []
 runbook_docs = []
 
@@ -35,7 +35,7 @@ version_owner = "team-polisyos"
 deprecation_window = "Legacy ATTRIBUTION fields remain readable through explicit normalization; the typed contrast is the canonical new representation."
 release_note = "CausalQuery exposes an explicit interventional target and tagged comparator for attribution, while legacy attribution inputs retain a deterministic compatibility mapping."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = []
 runbook_docs = []
 
@@ -49,6 +49,6 @@ version_owner = "team-polisyos"
 deprecation_window = "Schema 1.0 remains readable as historical input; newly persisted normalized output uses schema 1.1."
 release_note = "Causal query result persistence advances new normalized payloads and CAS manifests to matching schema 1.1 while retaining provenance for legacy 1.0 reads."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = []
 runbook_docs = []

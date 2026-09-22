@@ -414,6 +414,31 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
         return result
 
     monkeypatch.setattr(strategy, "_is_append_update", observe_append)
+    original_model_train_x = strategy._model_train_x
+
+    def observe_model_train_x():
+        model_x = original_model_train_x()
+        fitted_x = strategy._fitted_train_X
+        fitted_y_bo = strategy._fitted_train_y_bo
+        append_diagnostics.append(
+            {
+                "precondition_model_x_shape": None
+                if model_x is None
+                else tuple(model_x.shape),
+                "precondition_fitted_x_shape": None
+                if fitted_x is None
+                else tuple(fitted_x.shape),
+                "precondition_fitted_y_shape": None
+                if fitted_y_bo is None
+                else tuple(fitted_y_bo.shape),
+                "precondition_model_x_equal": False
+                if model_x is None or fitted_x is None
+                else strategy._torch.equal(model_x, fitted_x),
+            }
+        )
+        return model_x
+
+    monkeypatch.setattr(strategy, "_model_train_x", observe_model_train_x)
 
     expanded = [
         *initial,

@@ -165,6 +165,9 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         )
         for index in range(6)
     ]
+    for index, evaluation in enumerate(warm):
+        evaluation.provenance_ref = f"origin/run-1/evaluation-{index}"
+        evaluation.metadata = {"replicate_id": f"replica-{index}", "seed": index}
     warm[2].provenance_ref = "origin/run-1/evaluation-2"
     warm[2].metadata = {"replicate_id": "replica-1", "seed": 1}
     duplicate = make_evaluation(
@@ -181,7 +184,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         score=2.25,
         space=simple_space,
     )
-    independent_replica.provenance_ref = "origin/run-1/evaluation-2/replica-2"
+    independent_replica.provenance_ref = "origin/run-1/evaluation-2"
     independent_replica.metadata = {"replicate_id": "replica-2", "seed": 2}
     warm.extend([duplicate, independent_replica])
     malformed = make_evaluation(
@@ -190,8 +193,18 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         score=7.0,
         space=simple_space,
     )
+    malformed.provenance_ref = "origin/run-1/foreign-basis"
+    malformed.metadata = {"replicate_id": "foreign-basis", "seed": 99}
     malformed.params_normalized = (0.25, 0.75)
     warm.append(malformed)
+    unbound = make_evaluation(
+        candidate_id="warm-unbound",
+        params={"x": 4.25},
+        score=7.5,
+        space=simple_space,
+    )
+    unbound.metadata = {"replicate_id": "unbound", "seed": 100}
+    warm.append(unbound)
     current = [
         make_evaluation(
             candidate_id="current-0",
@@ -200,6 +213,8 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
             space=simple_space,
         )
     ]
+    current[0].provenance_ref = "origin/run-2/evaluation-0"
+    current[0].metadata = {"replicate_id": "current-0", "seed": 101}
 
     strategy.warm_start(warm)
     observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
@@ -232,6 +247,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     ]
     assert sorted(observed_ids[0]) == sorted(expected_ids)
     assert "warm-foreign-basis" not in observed_ids[0]
+    assert "warm-unbound" not in observed_ids[0]
     assert len(observed_corpus) == 1
     observed_x, observed_y = observed_corpus[0]
     expected_by_id = {

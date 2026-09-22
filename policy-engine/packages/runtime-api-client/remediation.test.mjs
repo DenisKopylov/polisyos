@@ -15,7 +15,10 @@ import test from "node:test";
 
 const PACKAGE_ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(PACKAGE_ROOT, "../..");
-const SPEC_PATH = path.join(PROJECT_ROOT, "schemas/runtime_api_v1.openapi.json");
+const SPEC_PATH = path.join(
+  PROJECT_ROOT,
+  "schemas/runtime_api_v1.openapi.json",
+);
 const GENERATOR = path.join(
   PACKAGE_ROOT,
   "scripts/generate-runtime-api-client.sh",
@@ -35,7 +38,7 @@ test("package generation keeps raw client intermediates outside the output famil
       get: {
         operationId: "get_cli_01_openapi_override_witness",
         responses: {
-          "200": {
+          200: {
             content: {
               "application/json": {
                 schema: {
@@ -89,6 +92,12 @@ test("package generation keeps raw client intermediates outside the output famil
 });
 
 test("the committed package surface does not retain raw generated twins", () => {
-  assert.equal(existsSync(path.join(PACKAGE_ROOT, "runtimeApiClient.ts")), false);
-  assert.equal(existsSync(path.join(PACKAGE_ROOT, "runtimeApiClient.js")), false);
+  assert.equal(
+    existsSync(path.join(PACKAGE_ROOT, "runtimeApiClient.ts")),
+    false,
+  );
+  assert.equal(
+    existsSync(path.join(PACKAGE_ROOT, "runtimeApiClient.js")),
+    false,
+  );
 });

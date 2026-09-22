@@ -32,11 +32,7 @@ const expectedImports = new Map([
   ["types.ts", []],
   [
     "runtimeApiClient.test.mjs",
-    [
-      "./canonicalRuntimeApiClient.js",
-      "node:assert/strict",
-      "node:test",
-    ],
+    ["./canonicalRuntimeApiClient.js", "node:assert/strict", "node:test"],
   ],
   [
     "remediation.test.mjs",

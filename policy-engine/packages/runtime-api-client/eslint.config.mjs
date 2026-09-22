@@ -11,10 +11,7 @@ export default tseslint.config(
   },
   js.configs.recommended,
   {
-    files: [
-      "canonicalRuntimeApiClient.ts",
-      "runtimeApiClient.type-test.ts",
-    ],
+    files: ["canonicalRuntimeApiClient.ts", "runtimeApiClient.type-test.ts"],
     extends: [...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: "latest",

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import math
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -36,6 +37,22 @@ from polisyos.scientist.methods.search.strategies.types import (
 )
 
 logger = get_logger(__name__)
+
+_WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
+_WARM_COMPATIBILITY_FIELDS = (
+    "search_space_fingerprint",
+    "input_transform_fingerprint",
+    "outcome_transform_fingerprint",
+    "noise_model_fingerprint",
+    "objective_fingerprint",
+    "context_fingerprint",
+)
+_EXPECTED_WARM_COMPATIBILITY = {
+    "input_transform_fingerprint": "Normalize[0,1]",
+    "outcome_transform_fingerprint": "Standardize[m=1]",
+    "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+    "objective_fingerprint": "scalar_score[minimize]",
+}
 
 
 @dataclass(slots=True)
@@ -79,6 +96,10 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._botorch_ready = False
         self._device = "cpu"
         self._warm_evals: list[Evaluation] = []
+        self._warm_evaluation_ids: set[int] = set()
+        self._warm_context_fingerprint: str | None = None
+        self._fitted_train_X: Any = None
+        self._fitted_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
         self._last_train_size: int = 0
 
@@ -107,7 +128,21 @@ class BayesianOptimizer(BaseSearchStrategy):
             if not self._has_compatible_params(evaluation):
                 rejected.append("incompatible normalized parameters")
                 continue
+            compatibility = self._warm_compatibility(evaluation)
+            if compatibility is None:
+                rejected.append("missing or incompatible warm-start fingerprint")
+                continue
+            context_fingerprint = compatibility[-1]
+            if (
+                self._warm_context_fingerprint is not None
+                and context_fingerprint != self._warm_context_fingerprint
+            ):
+                rejected.append("incompatible context fingerprint")
+                continue
+            if self._warm_context_fingerprint is None:
+                self._warm_context_fingerprint = context_fingerprint
             accepted.append(evaluation)
+            self._warm_evaluation_ids.add(id(evaluation))
 
         self._warm_evals.extend(accepted)
         logger.info(
@@ -269,6 +304,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         if self._device != "cpu":
             self._train_X = self._train_X.to(self._device)
             self._train_y_bo = self._train_y_bo.to(self._device)
+        self._fitted_train_X = self._train_X.clone()
+        self._fitted_train_y_bo = self._train_y_bo.clone()
         if state.model_state is None:
             return
         self._model = SingleTaskGP(
@@ -301,6 +338,18 @@ class BayesianOptimizer(BaseSearchStrategy):
         for evaluation in [*self._warm_evals, *evaluations]:
             if not self._has_compatible_params(evaluation):
                 continue
+            requires_warm_fingerprint = id(evaluation) in self._warm_evaluation_ids
+            if requires_warm_fingerprint and self._warm_compatibility(evaluation) is None:
+                continue
+            if _WARM_COMPATIBILITY_METADATA in evaluation.metadata:
+                compatibility = self._warm_compatibility(evaluation)
+                if compatibility is None:
+                    continue
+                if (
+                    self._warm_context_fingerprint is not None
+                    and compatibility[-1] != self._warm_context_fingerprint
+                ):
+                    continue
             identity = self._evaluation_identity(evaluation)
             if identity in seen:
                 continue
@@ -317,6 +366,25 @@ class BayesianOptimizer(BaseSearchStrategy):
         return len(normalized) == self._space.dim and all(
             math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized
         )
+
+    def _warm_compatibility(self, evaluation: Evaluation) -> tuple[str, ...] | None:
+        """Validate the model/data contract carried by a warm-start record."""
+        payload = evaluation.metadata.get(_WARM_COMPATIBILITY_METADATA)
+        if not isinstance(payload, Mapping):
+            return None
+        values: list[str] = []
+        for field in _WARM_COMPATIBILITY_FIELDS:
+            value = payload.get(field)
+            if not isinstance(value, str) or not value.strip():
+                return None
+            values.append(value.strip())
+
+        if values[0] != self._space.sobol_space_fingerprint():
+            return None
+        for field, expected in _EXPECTED_WARM_COMPATIBILITY.items():
+            if payload.get(field) != expected:
+                return None
+        return tuple(values)
 
     @staticmethod
     def _origin_ref(evaluation: Evaluation) -> str | None:
@@ -381,7 +449,13 @@ class BayesianOptimizer(BaseSearchStrategy):
             return
 
         previous_X = self._model_train_x()
-        if previous_X is None or not self._is_append_update(previous_X, X):
+        if (
+            previous_X is None
+            or self._fitted_train_X is None
+            or self._fitted_train_y_bo is None
+            or not self._torch.equal(previous_X, self._fitted_train_X)
+            or not self._is_append_update(X, y_bo)
+        ):
             logger.info(
                 "Bayesian GP corpus changed outside append-only update; refitting model"
             )
@@ -405,6 +479,8 @@ class BayesianOptimizer(BaseSearchStrategy):
                 X=X[previous_size:],
                 Y=y_bo[previous_size:],
             )
+            self._fitted_train_X = X.detach().clone()
+            self._fitted_train_y_bo = y_bo.detach().clone()
         except Exception as exc:
             logger.warning(
                 "Bayesian GP conditioning unavailable; using bounded refit: {}", exc
@@ -421,6 +497,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         )
         mll = ExactMarginalLogLikelihood(self._model.likelihood, self._model)
         fit_gpytorch_mll(mll)
+        self._fitted_train_X = X.detach().clone()
+        self._fitted_train_y_bo = y_bo.detach().clone()
         self._last_refit_iteration = self._iteration
         self._last_train_size = X.shape[0]
 
@@ -436,12 +514,26 @@ class BayesianOptimizer(BaseSearchStrategy):
             return None
         return train_X.reshape(-1, train_X.shape[-1])
 
-    def _is_append_update(self, previous_X, X) -> bool:
-        """Check that the new corpus retains the fitted rows as an exact prefix."""
-        if previous_X.shape[-1] != X.shape[-1] or previous_X.shape[0] > X.shape[0]:
+    def _is_append_update(self, X, y_bo) -> bool:
+        """Check that the new corpus retains fitted X and y rows as a prefix."""
+        if self._fitted_train_X is None or self._fitted_train_y_bo is None:
+            return False
+        previous_X = self._fitted_train_X
+        previous_y_bo = self._fitted_train_y_bo
+        if (
+            previous_X.shape[-1] != X.shape[-1]
+            or previous_X.shape[0] > X.shape[0]
+            or previous_y_bo.ndim != y_bo.ndim
+            or previous_y_bo.shape[1:] != y_bo.shape[1:]
+            or previous_y_bo.shape[0] > y_bo.shape[0]
+        ):
             return False
         previous_X = previous_X.to(device=X.device, dtype=X.dtype)
-        return bool(self._torch.equal(previous_X, X[: previous_X.shape[0]]))
+        previous_y_bo = previous_y_bo.to(device=y_bo.device, dtype=y_bo.dtype)
+        return bool(
+            self._torch.equal(previous_X, X[: previous_X.shape[0]])
+            and self._torch.equal(previous_y_bo, y_bo[: previous_y_bo.shape[0]])
+        )
 
     def _select_acquisition(
         self,

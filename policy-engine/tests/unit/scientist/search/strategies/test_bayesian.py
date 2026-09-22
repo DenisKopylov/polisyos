@@ -157,6 +157,14 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         simple_space,
         BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),
     )
+    compatibility = {
+        "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+        "input_transform_fingerprint": "Normalize[0,1]",
+        "outcome_transform_fingerprint": "Standardize[m=1]",
+        "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+        "objective_fingerprint": "scalar_score[minimize]",
+        "context_fingerprint": "context/run-1",
+    }
     warm = [
         make_evaluation(
             candidate_id=f"warm-{index}",
@@ -168,9 +176,17 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     ]
     for index, evaluation in enumerate(warm):
         evaluation.provenance_ref = f"origin/run-1/evaluation-{index}"
-        evaluation.metadata = {"replicate_id": f"replica-{index}", "seed": index}
+        evaluation.metadata = {
+            "replicate_id": f"replica-{index}",
+            "seed": index,
+            "warm_start_compatibility": dict(compatibility),
+        }
     warm[2].provenance_ref = "origin/run-1/evaluation-2"
-    warm[2].metadata = {"replicate_id": "replica-1", "seed": 1}
+    warm[2].metadata = {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": dict(compatibility),
+    }
     duplicate = make_evaluation(
         candidate_id="warm-2",
         params={"x": -1.5},
@@ -178,7 +194,11 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         space=simple_space,
     )
     duplicate.provenance_ref = "origin/run-1/evaluation-2"
-    duplicate.metadata = {"replicate_id": "replica-1", "seed": 1}
+    duplicate.metadata = {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": dict(compatibility),
+    }
     independent_replica = make_evaluation(
         candidate_id="warm-2-replica",
         params={"x": -1.5},
@@ -186,7 +206,11 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         space=simple_space,
     )
     independent_replica.provenance_ref = "origin/run-1/evaluation-2"
-    independent_replica.metadata = {"replicate_id": "replica-2", "seed": 2}
+    independent_replica.metadata = {
+        "replicate_id": "replica-2",
+        "seed": 2,
+        "warm_start_compatibility": dict(compatibility),
+    }
     warm.extend([duplicate, independent_replica])
     malformed = make_evaluation(
         candidate_id="warm-foreign-basis",
@@ -198,6 +222,22 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     malformed.metadata = {"replicate_id": "foreign-basis", "seed": 99}
     malformed.params_normalized = (0.25, 0.75)
     warm.append(malformed)
+    incompatible_context = make_evaluation(
+        candidate_id="warm-incompatible-context",
+        params={"x": 3.75},
+        score=7.25,
+        space=simple_space,
+    )
+    incompatible_context.provenance_ref = "origin/run-1/incompatible-context"
+    incompatible_context.metadata = {
+        "replicate_id": "incompatible-context",
+        "seed": 98,
+        "warm_start_compatibility": {
+            **compatibility,
+            "context_fingerprint": "context/foreign",
+        },
+    }
+    warm.append(incompatible_context)
     unbound = make_evaluation(
         candidate_id="warm-unbound",
         params={"x": 4.25},
@@ -215,7 +255,11 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         )
     ]
     current[0].provenance_ref = "origin/run-2/evaluation-0"
-    current[0].metadata = {"replicate_id": "current-0", "seed": 101}
+    current[0].metadata = {
+        "replicate_id": "current-0",
+        "seed": 101,
+        "warm_start_compatibility": dict(compatibility),
+    }
 
     strategy.warm_start(warm)
     observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
@@ -228,14 +272,14 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
 
     original_fit = strategy._fit_gp
 
-    def observe_fit(X, y_bo):
+    def observe_fit(x, y_bo):
         x_rows = tuple(
             tuple(float(value) for value in row)
-            for row in X.detach().cpu().tolist()
+            for row in x.detach().cpu().tolist()
         )
         y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
         observed_corpus.append((x_rows, y_rows))
-        return original_fit(X, y_bo)
+        return original_fit(x, y_bo)
 
     monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
     monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
@@ -248,6 +292,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     ]
     assert sorted(observed_ids[0]) == sorted(expected_ids)
     assert "warm-foreign-basis" not in observed_ids[0]
+    assert "warm-incompatible-context" not in observed_ids[0]
     assert "warm-unbound" not in observed_ids[0]
     assert len(observed_corpus) == 1
     observed_x, observed_y = observed_corpus[0]
@@ -321,7 +366,8 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
             name: value.detach().clone() for name, value in transform.state_dict().items()
         }
 
-    expanded = initial + [
+    expanded = [
+        *initial,
         make_evaluation(
             candidate_id="new-observation",
             params={"x": 4.0},
@@ -357,3 +403,12 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
         assert set(after_state) == set(before_state)
         for name, value in before_state.items():
             assert strategy._torch.equal(value, after_state[name].detach())
+
+    changed_observation = make_evaluation(
+        candidate_id="new-observation",
+        params={"x": 4.0},
+        score=0.5,
+        space=simple_space,
+    )
+    strategy.suggest([*initial, changed_observation])
+    assert fit_calls == 2

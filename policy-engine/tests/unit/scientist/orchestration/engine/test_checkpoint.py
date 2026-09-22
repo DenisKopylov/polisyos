@@ -785,7 +785,7 @@ def test_checkpoint_hook_async_path_uses_async_artifact_store_adapter(
     assert head is not None
 
 
-def test_resume_requires_cache_refs_for_completed_cacheable_nodes(tmp_path: Path) -> None:
+def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path)
     run_id = "R_resume_missing_cache"
     workflow = _workflow("scientist.node_cached_counter@1.0.0")
@@ -813,8 +813,10 @@ def test_resume_requires_cache_refs_for_completed_cacheable_nodes(tmp_path: Path
         writer_hostname="localhost",
     )
 
-    with pytest.raises(CheckpointCorruptedError, match="cache seed refs"):
-        resume_from_checkpoint(store, run_id, workflow=workflow)
+    resumed = resume_from_checkpoint(store, run_id, workflow=workflow)
+
+    assert resumed.report.status == "ok"
+    assert resumed.report.nodes == []
 
 
 def test_incremental_checkpoint_materializes_full_state(tmp_path: Path) -> None:

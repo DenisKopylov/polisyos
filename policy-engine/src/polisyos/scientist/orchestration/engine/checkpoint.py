@@ -55,15 +55,6 @@ _CHECKPOINT_OP_DELETE = "delete"
 _CHECKPOINT_OP_PATCH = "patch"
 _CHECKPOINT_OP_REPLACE = "replace"
 _NO_DIFF = object()
-_CHECKPOINT_CACHE_DISABLED_NODE_IDS = frozenset(
-    {
-        "scientist.node_noop@1.0.0",
-        "scientist.node_set_state@1.0.0",
-        "scientist.node_emit_artifact@1.0.0",
-        "scientist.node_enrich_knowledge@1.0.0",
-        "scientist.node_enrich_knowledge@1.1.0",
-    }
-)
 _CHECKPOINT_OPERATION_ERRORS = (
     AttributeError,
     OSError,
@@ -198,6 +189,14 @@ class CheckpointMetadata(BaseModel):
     completed_nodes: list[str] = Field(default_factory=list)
     workflow_id: str
     workflow_fingerprint: str = Field(min_length=64, max_length=64)
+    # The current fingerprint may describe a pruned residual workflow after a
+    # resume. Keep the original functional workflow identity separately so a
+    # second resume validates the caller against the same source workflow.
+    origin_workflow_fingerprint: str | None = Field(
+        default=None,
+        min_length=64,
+        max_length=64,
+    )
     fsm_phase: str
     cache_entry_refs: list[ArtifactRef] = Field(default_factory=list)
     snapshot_mode: CheckpointSnapshotMode = "full"
@@ -638,6 +637,7 @@ class CASCheckpointHook:
         initial_checkpoint_ref: ArtifactRef | None = None,
         initial_state: dict[str, Any] | None = None,
         initial_chain_depth: int = 0,
+        initial_origin_workflow_fingerprint: str | None = None,
     ) -> None:
         self._store = store
         self._store_config = store_config or infer_artifact_store_config(store)
@@ -658,6 +658,7 @@ class CASCheckpointHook:
         self._previous_checkpoint_ref = initial_checkpoint_ref
         self._previous_state = deepcopy(initial_state) if initial_state is not None else None
         self._previous_chain_depth = max(0, int(initial_chain_depth))
+        self._origin_workflow_fingerprint = initial_origin_workflow_fingerprint
 
     def _append_cache_entry_refs(self, refs: list[ArtifactRef | None]) -> None:
         """Retain every cache entry reference represented by one commit."""
@@ -684,6 +685,10 @@ class CASCheckpointHook:
         sequence_number = self._sequence + max(0, sequence_advance - 1)
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        origin_workflow_fingerprint = (
+            self._origin_workflow_fingerprint or workflow_fingerprint
+        )
+        self._origin_workflow_fingerprint = origin_workflow_fingerprint
         created = create_checkpoint(
             self._store,
             run_id=state.run_id,
@@ -694,6 +699,7 @@ class CASCheckpointHook:
             completed_nodes=merged_completed_nodes,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
+            origin_workflow_fingerprint=origin_workflow_fingerprint,
             fsm_phase=str(state.params.get("phase", "UNKNOWN")),
             cache_entry_refs=list(self._cache_entry_refs),
             tenant_id=self._tenant_id,
@@ -747,6 +753,10 @@ class CASCheckpointHook:
         sequence_number = self._sequence + max(0, sequence_advance - 1)
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
+        origin_workflow_fingerprint = (
+            self._origin_workflow_fingerprint or workflow_fingerprint
+        )
+        self._origin_workflow_fingerprint = origin_workflow_fingerprint
         created = await create_checkpoint_async(
             self._async_store,
             run_id=state.run_id,
@@ -757,6 +767,7 @@ class CASCheckpointHook:
             completed_nodes=merged_completed_nodes,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
+            origin_workflow_fingerprint=origin_workflow_fingerprint,
             fsm_phase=str(state.params.get("phase", "UNKNOWN")),
             cache_entry_refs=list(self._cache_entry_refs),
             tenant_id=self._tenant_id,
@@ -1017,6 +1028,7 @@ class CASCheckpointHook:
             "cell_id": self._cell_id,
             "sequence_start": self._sequence,
             "checkpoint_policy": self._policy,
+            "origin_workflow_fingerprint": self._origin_workflow_fingerprint,
             "cache_entry_refs": [ref.model_dump(mode="json") for ref in self._cache_entry_refs],
             "completed_nodes": list(self._completed_nodes),
             "gc_policy": self._gc_policy.model_dump(mode="json"),
@@ -1102,6 +1114,13 @@ def restore_checkpoint_hook_from_runtime_metadata(
         else None
     )
 
+    origin_workflow_fingerprint = metadata.get("origin_workflow_fingerprint")
+    if origin_workflow_fingerprint is not None and (
+        not isinstance(origin_workflow_fingerprint, str)
+        or len(origin_workflow_fingerprint) != 64
+    ):
+        raise CheckpointCorruptedError("checkpoint runtime origin fingerprint is invalid")
+
     return CASCheckpointHook(
         store=build_artifact_store(store_config),
         run_dir=Path(run_dir),
@@ -1116,6 +1135,7 @@ def restore_checkpoint_hook_from_runtime_metadata(
         initial_checkpoint_ref=previous_checkpoint_ref,
         initial_state=metadata.get("previous_state"),
         initial_chain_depth=max(0, int(metadata.get("previous_chain_depth", 0) or 0)),
+        initial_origin_workflow_fingerprint=origin_workflow_fingerprint,
     )
 
 
@@ -1191,6 +1211,63 @@ def _build_resume_workflow_spec(
     return workflow.model_copy(update={"nodes": resumed_nodes})
 
 
+def _state_path_present(state: ExperimentState, path: str) -> bool:
+    """Return whether a dotted state path has a non-null value."""
+    current: Any = state
+    for part in path.split("."):
+        if isinstance(current, BaseModel):
+            if not hasattr(current, part):
+                return False
+            current = getattr(current, part)
+        elif isinstance(current, dict):
+            if part not in current:
+                return False
+            current = current[part]
+        else:
+            return False
+    return current is not None
+
+
+def _state_paths_overlap(read_path: str, write_path: str) -> bool:
+    """Match exact state paths and declared parent/child state writes."""
+    return (
+        read_path == write_path
+        or read_path.startswith(f"{write_path}.")
+        or write_path.startswith(f"{read_path}.")
+    )
+
+
+def _missing_completed_state_paths(
+    workflow: WorkflowSpec,
+    resumed_workflow: WorkflowSpec,
+    *,
+    completed_nodes: list[str],
+    state: ExperimentState,
+    registry: CheckpointRegistry,
+) -> tuple[str, ...]:
+    """Find remaining reads whose producer was marked complete but is absent."""
+    completed_set = set(completed_nodes)
+    completed_writes: list[str] = []
+    for invocation in workflow.nodes:
+        if invocation.alias not in completed_set:
+            continue
+        node = registry.get(invocation.node_id)
+        completed_writes.extend(getattr(node.spec, "state_writes", ()))
+
+    if not completed_writes:
+        return ()
+
+    missing: set[str] = set()
+    for invocation in resumed_workflow.nodes:
+        node = registry.get(invocation.node_id)
+        for read_path in getattr(node.spec, "state_reads", ()):
+            if _state_path_present(state, read_path):
+                continue
+            if any(_state_paths_overlap(read_path, write) for write in completed_writes):
+                missing.add(read_path)
+    return tuple(sorted(missing))
+
+
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
     """Hash the functional workflow shape used to validate checkpoint compatibility."""
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
@@ -1216,6 +1293,7 @@ def _checkpoint_payload(
     completed_nodes: list[str],
     workflow_id: str,
     workflow_fingerprint: str,
+    origin_workflow_fingerprint: str | None,
     fsm_phase: str,
     cache_entry_refs: list[ArtifactRef],
     snapshot_mode: CheckpointSnapshotMode,
@@ -1236,6 +1314,7 @@ def _checkpoint_payload(
             completed_nodes=completed_nodes,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
+            origin_workflow_fingerprint=origin_workflow_fingerprint or workflow_fingerprint,
             fsm_phase=fsm_phase,
             cache_entry_refs=cache_entry_refs,
             snapshot_mode=snapshot_mode,
@@ -1267,6 +1346,7 @@ def create_checkpoint(
     previous_checkpoint_ref: ArtifactRef | None = None,
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
+    origin_workflow_fingerprint: str | None = None,
 ) -> CreatedCheckpoint:
     """Create checkpoint."""
     tenant_id, cell_id = _reconcile_checkpoint_scope(
@@ -1308,6 +1388,7 @@ def create_checkpoint(
         completed_nodes=completed_nodes,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
+        origin_workflow_fingerprint=origin_workflow_fingerprint,
         fsm_phase=fsm_phase,
         cache_entry_refs=cache_entry_refs,
         snapshot_mode=snapshot_mode,
@@ -1358,6 +1439,7 @@ async def create_checkpoint_async(
     previous_checkpoint_ref: ArtifactRef | None = None,
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
+    origin_workflow_fingerprint: str | None = None,
 ) -> CreatedCheckpoint:
     """Create a checkpoint without blocking the active event loop."""
     tenant_id, cell_id = _reconcile_checkpoint_scope(
@@ -1399,6 +1481,7 @@ async def create_checkpoint_async(
         completed_nodes=completed_nodes,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
+        origin_workflow_fingerprint=origin_workflow_fingerprint,
         fsm_phase=fsm_phase,
         cache_entry_refs=cache_entry_refs,
         snapshot_mode=snapshot_mode,
@@ -1986,7 +2069,11 @@ def resume_from_checkpoint(
 
         workflow_spec = workflow or default_workflow_spec()
         current_fingerprint = compute_workflow_fingerprint(workflow_spec)
-        if checkpoint.metadata.workflow_fingerprint != current_fingerprint:
+        origin_workflow_fingerprint = (
+            checkpoint.metadata.origin_workflow_fingerprint
+            or checkpoint.metadata.workflow_fingerprint
+        )
+        if origin_workflow_fingerprint != current_fingerprint:
             raise WorkflowMismatchError(
                 "checkpoint workflow fingerprint does not match current workflow spec"
             )
@@ -1994,36 +2081,47 @@ def resume_from_checkpoint(
             workflow_spec,
             completed_nodes=checkpoint.metadata.completed_nodes,
         )
-        invocations = {inv.alias: inv for inv in workflow_spec.nodes}
-        cacheable_completed = [
-            alias
-            for alias in checkpoint.metadata.completed_nodes
-            if alias in invocations
-            and str(invocations[alias].node_id) not in _CHECKPOINT_CACHE_DISABLED_NODE_IDS
-        ]
-        if checkpoint_resume_strategy == "require_cache_seed" and len(
-            checkpoint.metadata.cache_entry_refs
-        ) < len(cacheable_completed):
-            raise CheckpointCorruptedError(
-                "checkpoint resume requires cache seed refs for completed cacheable nodes; "
-                "pass resume_strategy='allow_replay' only if re-running completed nodes is safe"
+        # A fully completed workflow has no residual node whose declared reads
+        # need checking.  Return its durable state without requiring registry
+        # implementations for nodes that are no longer executable.
+        resolved_registry = registry
+        missing_state_paths: tuple[str, ...] = ()
+        if resumed_workflow.nodes:
+            resolved_registry = registry or build_registry_with_builtin_nodes()
+            missing_state_paths = _missing_completed_state_paths(
+                workflow_spec,
+                resumed_workflow,
+                completed_nodes=checkpoint.metadata.completed_nodes,
+                state=restored_state,
+                registry=resolved_registry,
             )
-        if checkpoint_resume_strategy == "allow_replay" and len(
-            checkpoint.metadata.cache_entry_refs
-        ) < len(cacheable_completed):
-            emit_degraded_path(
-                component="scientist.checkpoint",
-                operation="resume",
-                reason="checkpoint_resume_replay_allowed",
-                message="Resuming with incomplete cache seed refs may re-run completed nodes",
-                retryable=False,
-                details={
-                    "run_id": run_id,
-                    "completed_cacheable_nodes": len(cacheable_completed),
-                    "cache_entry_refs": len(checkpoint.metadata.cache_entry_refs),
-                },
-                log=logger,
-            )
+        execution_workflow = resumed_workflow
+        if missing_state_paths:
+            if checkpoint_resume_strategy == "allow_replay":
+                # This is the one strategy that may re-run completed nodes. It
+                # is explicit and observable; allow_replay is not a warning
+                # label attached to the ordinary residual plan.
+                emit_degraded_path(
+                    component="scientist.checkpoint",
+                    operation="resume",
+                    reason="checkpoint_resume_replaying_completed_nodes",
+                    message=(
+                        "Required state written by completed nodes is missing; "
+                        "replaying the original workflow was explicitly allowed"
+                    ),
+                    retryable=False,
+                    details={
+                        "run_id": run_id,
+                        "missing_state_paths": list(missing_state_paths),
+                    },
+                    log=logger,
+                )
+                execution_workflow = workflow_spec
+            else:
+                raise CheckpointCorruptedError(
+                    "checkpoint resume state is incomplete for remaining nodes: "
+                    + ", ".join(missing_state_paths)
+                )
 
         registry_bundle_ref = registry_bundle_ref or restored_state.inputs.get(
             INPUT_REGISTRY_BUNDLE_REF
@@ -2058,10 +2156,10 @@ def resume_from_checkpoint(
             initial_checkpoint_ref=head.checkpoint_ref,
             initial_state=checkpoint.state,
             initial_chain_depth=head.chain_depth,
+            initial_origin_workflow_fingerprint=origin_workflow_fingerprint,
         )
 
         runner_config = WorkflowRunnerConfig.from_env()
-        resolved_registry = registry or build_registry_with_builtin_nodes()
         if len(resumed_workflow.nodes) == 0:
             return WorkflowExecutionResult(
                 state=restored_state,
@@ -2101,7 +2199,7 @@ def resume_from_checkpoint(
             else:
                 raise
         execution_coro = runner.execute_workflow(
-            resumed_workflow,
+            execution_workflow,
             restored_state,
             ctx,
             resolved_registry,

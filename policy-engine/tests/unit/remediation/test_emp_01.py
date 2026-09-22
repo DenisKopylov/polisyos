@@ -146,7 +146,7 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     )
     with pytest.raises(
         generation_cycle.ValueOwnerAccessError,
-        match="measurement-unit binding",
+        match="measurement-unit-binding",
     ):
         generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
             candidate=candidate,
@@ -270,7 +270,7 @@ def test_cross_period_mixed_dataset_units_fail_closed(
 
     with pytest.raises(
         generation_cycle.ValueOwnerAccessError,
-        match="measurement-unit binding",
+        match="measurement-unit-binding",
     ):
         generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
             candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",))),
@@ -462,6 +462,7 @@ def test_selection_diagram_requires_verified_causal_artifact(
         world_model_record_content_hash=world_record.content_hash,
         world_model_record=world_record,
         transport_context=transport_context,
+        content_hash="sha256:" + "f" * 64,
     )
     monkeypatch.setattr(
         cycle_substrate,
@@ -543,6 +544,7 @@ def test_raw_graph_without_artifact_bridge_fails_closed(
         world_model_record_content_hash=world_record.content_hash,
         world_model_record=world_record,
         transport_context=transport_context,
+        content_hash="sha256:" + "e" * 64,
     )
     monkeypatch.setattr(
         cycle_substrate,

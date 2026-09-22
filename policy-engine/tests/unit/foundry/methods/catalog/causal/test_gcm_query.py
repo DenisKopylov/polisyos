@@ -116,23 +116,25 @@ def test_gcm_query_shifted_and_truncated_soft_interventions() -> None:
     assert shifted_result.result_mean > 1.5
 
 
-def test_gcm_query_stochastic_fallback_to_atomic() -> None:
-    result = _run_query(
-        _simple_scm(),
-        {
-            "query_type": "interventional",
-            "treatment_variable": "X",
-            "treatment_value": 1.5,
-            "outcome_variable": "Y",
-            "n_samples": 512,
-            "intervention_spec": {"type": "stochastic", "distribution": "broken("},
-        },
-        seed=33,
-    )
-    query_result = CausalQueryResult.model_validate(result["query_result"])
-    assert query_result.result_mean == pytest.approx(3.5, abs=0.2)
-    warnings = result.get("warnings", [])
-    assert any("falling back to atomic" in str(item) for item in warnings)
+def test_gcm_query_rejects_malformed_stochastic_law() -> None:
+    with pytest.raises(ValueError, match="stochastic intervention"):
+        GCMQuery.pure_step(
+            SCMQueryData(
+                scm_spec=_simple_scm(),
+                query={
+                    "query_type": "interventional",
+                    "treatment_variable": "X",
+                    "treatment_value": 1.5,
+                    "outcome_variable": "Y",
+                    "n_samples": 512,
+                    "intervention_spec": {
+                        "type": "stochastic",
+                        "distribution": "broken(",
+                    },
+                },
+            ),
+            params={"__seed__": 33},
+        )
 
 
 def test_gcm_query_surfaces_mechanism_fallback_warning() -> None:

@@ -7,10 +7,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import duckdb
-import hnswlib
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.kernel.embeddings import (
+    _build_embedding_generation_from_vectors,
+    _generator_rule_version,
+    resolve_embedding_generation,
+)
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 from polisyos.data_forge.kernel.runtime import pause_between_batches
 
 if TYPE_CHECKING:
@@ -18,6 +23,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 logger = get_logger(__name__)
+
+LEGAL_EMBEDDING_PROJECTION_RULE_VERSION = "policyos.legal.embedding.v1"
+_LEGAL_GENERATION_ROOT = ".legal_embedding_generations"
 
 
 @dataclass
@@ -89,16 +97,107 @@ def _provision_embedding_text(row: tuple) -> str:
     return str(provision_text or "")
 
 
-def _load_existing_ids(npz_path: Path) -> set[str]:
-    """Load set of already-embedded IDs from a .npz file."""
-    if not npz_path.exists():
-        return set()
+def _generation_index_dir(output_dir: Path, npz_name: str) -> Path:
+    """Return the authoritative generation directory for one legal projection."""
+    return output_dir / _LEGAL_GENERATION_ROOT / npz_name
+
+
+def _load_reusable_vectors(
+    *,
+    index_dir: Path,
+    legacy_embeddings_path: Path,
+    legacy_index_path: Path,
+    current_basis,
+    embedding_model: str,
+    embedding_device: str,
+    embedding_dimension: int,
+    basis_kind: str,
+    projection_rule_version: str,
+    incremental: bool,
+) -> dict[str, np.ndarray]:
+    """Load only vectors proven reusable by the selected generation metadata."""
+    if not incremental:
+        return {}
+
+    reference = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=legacy_embeddings_path,
+        legacy_index_path=legacy_index_path,
+    )
+    # A legacy flat pair has no content-bound basis and is deliberately not a
+    # cache.  The selected generation is the only source eligible for reuse.
+    if reference is None or not reference.selected or reference.status != "complete":
+        return {}
+
+    inventory = reference.inventory
+    if (
+        inventory.get("embedding_model") != embedding_model
+        or inventory.get("embedding_device") != embedding_device
+    ):
+        return {}
     try:
-        data = np.load(str(npz_path), allow_pickle=True)
-        return {str(v) for v in data["ids"]}
-    except Exception:
-        logger.debug("Failed to load existing embedding IDs from %s", npz_path)
-        return set()
+        if int(inventory["embedding_dimension"]) != int(embedding_dimension):
+            return {}
+    except (KeyError, TypeError, ValueError):
+        return {}
+
+    expected_rule_version = _generator_rule_version(
+        projection_rule_version=projection_rule_version,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        embedding_dimension=embedding_dimension,
+    )
+    persisted_basis = inventory.get("basis")
+    if not isinstance(persisted_basis, dict):
+        return {}
+    if (
+        persisted_basis.get("basis_kind") != basis_kind
+        or persisted_basis.get("generator_rule_version") != expected_rule_version
+    ):
+        return {}
+
+    old_identities: dict[str, str] = {}
+    raw_members = persisted_basis.get("members")
+    if not isinstance(raw_members, list):
+        return {}
+    for raw_member in raw_members:
+        if not isinstance(raw_member, dict):
+            return {}
+        identifier = raw_member.get("identifier")
+        content_identity = raw_member.get("content_identity")
+        if not isinstance(identifier, str) or not isinstance(content_identity, str):
+            return {}
+        old_identities[identifier] = content_identity
+
+    current_identities = {
+        member.identifier: member.content_identity for member in current_basis.members
+    }
+    if not current_identities:
+        return {}
+
+    try:
+        with np.load(str(reference.embeddings_path), allow_pickle=True) as payload:
+            old_ids = tuple(str(value) for value in payload["ids"].tolist())
+            old_vectors = np.asarray(payload["vectors"], dtype=np.float32)
+    except (KeyError, OSError, TypeError, ValueError):
+        return {}
+
+    if (
+        old_ids != reference.ids
+        or old_vectors.ndim != 2
+        or old_vectors.shape != (len(old_ids), int(embedding_dimension))
+        or not np.isfinite(old_vectors).all()
+    ):
+        return {}
+    old_vectors_by_id = {
+        identifier: old_vectors[index] for index, identifier in enumerate(old_ids)
+    }
+    return {
+        identifier: old_vectors_by_id[identifier]
+        for identifier, content_identity in current_identities.items()
+        if old_identities.get(identifier) == content_identity
+        and identifier in old_vectors_by_id
+    }
 
 
 def _embed_table(
@@ -112,6 +211,8 @@ def _embed_table(
     npz_name: str,
     hnsw_name: str,
     model,
+    embedding_model: str,
+    embedding_device: str,
     batch_size: int,
     chunk_size: int,
     pause_seconds: float,
@@ -121,35 +222,17 @@ def _embed_table(
     npz_path = output_dir / f"{npz_name}.npz"
     hnsw_path = output_dir / f"{hnsw_name}.hnsw"
 
-    existing_ids: set[str] = set()
-    existing_id_list: list[str] = []
-    existing_vectors: np.ndarray | None = None
-
-    if incremental:
-        existing_ids = _load_existing_ids(npz_path)
-        if existing_ids and npz_path.exists():
-            data = np.load(str(npz_path), allow_pickle=True)
-            existing_id_list = [str(v) for v in data["ids"]]
-            existing_vectors = np.asarray(data["vectors"], dtype=np.float32)
-
     con = duckdb.connect(str(db_path), read_only=True)
     try:
         total = int(con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
     finally:
         con.close()
 
-    if total == 0:
-        return 0, 0
+    dim = int(model.get_sentence_embedding_dimension())
+    if dim < 1:
+        raise ValueError("embedding model dimension must be positive")
 
-    dim = model.get_sentence_embedding_dimension()
-
-    all_ids: list[str] = list(existing_id_list) if existing_id_list else []
-    chunks: list[np.ndarray] = []
-    if existing_vectors is not None and existing_vectors.size > 0:
-        chunks.append(existing_vectors)
-
-    new_count = 0
-    skipped = 0
+    current_rows: list[tuple[str, str]] = []
     offset = 0
 
     while offset < total:
@@ -164,45 +247,98 @@ def _embed_table(
 
         if not rows:
             break
-
-        # Filter out already-embedded IDs in incremental mode.
-        if incremental and existing_ids:
-            new_rows = [(r[0], r[1:]) for r in rows if str(r[0]) not in existing_ids]
-            skipped += len(rows) - len(new_rows)
-        else:
-            new_rows = [(r[0], r[1:]) for r in rows]
-
-        if new_rows:
-            ids = [str(r[0]) for r in new_rows]
-            texts = [text_builder(tuple(r[1]))[:32000] for r in new_rows]
-            vectors = model.encode(
-                texts,
-                batch_size=batch_size,
-                show_progress_bar=False,
-                normalize_embeddings=True,
-            ).astype(np.float32)
-
-            all_ids.extend(ids)
-            chunks.append(vectors)
-            new_count += len(ids)
-
+        current_rows.extend(
+            (str(row[0]), text_builder(tuple(row[1:]))[:32000]) for row in rows
+        )
         offset += len(rows)
+
+    current_rows.sort(key=lambda row: row[0])
+    if len({identifier for identifier, _ in current_rows}) != len(current_rows):
+        raise ValueError(f"{table} contains duplicate {id_column} values")
+
+    basis_kind = f"legal_{table}_embedding"
+    projection_rule_version = LEGAL_EMBEDDING_PROJECTION_RULE_VERSION
+    current_basis = None
+    if current_rows:
+        current_basis = build_generation_basis(
+            basis_kind=basis_kind,
+            generator_rule_version=_generator_rule_version(
+                projection_rule_version=projection_rule_version,
+                embedding_model=embedding_model,
+                embedding_device=embedding_device,
+                embedding_dimension=dim,
+            ),
+            members=[
+                (identifier, text.encode("utf-8")) for identifier, text in current_rows
+            ],
+        )
+
+    reusable_vectors = (
+        _load_reusable_vectors(
+            index_dir=_generation_index_dir(output_dir, npz_name),
+            legacy_embeddings_path=npz_path,
+            legacy_index_path=hnsw_path,
+            current_basis=current_basis,
+            embedding_model=embedding_model,
+            embedding_device=embedding_device,
+            embedding_dimension=dim,
+            basis_kind=basis_kind,
+            projection_rule_version=projection_rule_version,
+            incremental=incremental,
+        )
+        if current_basis is not None
+        else {}
+    )
+
+    rows_to_encode = [
+        row for row in current_rows if row[0] not in reusable_vectors
+    ]
+    encoded_vectors: dict[str, np.ndarray] = {}
+    for start in range(0, len(rows_to_encode), chunk_size):
+        batch_rows = rows_to_encode[start : start + chunk_size]
+        texts = [text for _identifier, text in batch_rows]
+        raw_vectors = model.encode(
+            texts,
+            batch_size=batch_size,
+            show_progress_bar=False,
+            normalize_embeddings=True,
+        )
+        vectors = np.asarray(raw_vectors, dtype=np.float32)
+        if (
+            vectors.ndim != 2
+            or vectors.shape != (len(batch_rows), dim)
+            or not np.isfinite(vectors).all()
+        ):
+            raise ValueError("embedding model returned invalid vector shape or values")
+        encoded_vectors.update(
+            (identifier, vectors[index])
+            for index, (identifier, _text) in enumerate(batch_rows)
+        )
         pause_between_batches(pause_seconds)
 
-    if not all_ids:
-        return 0, skipped
-
-    full_vectors = np.vstack(chunks) if chunks else np.zeros((0, dim), dtype=np.float32)
-
-    # Build HNSW from all vectors (existing + new).
-    total_elements = len(all_ids)
-    index = hnswlib.Index(space="cosine", dim=dim)
-    index.init_index(max_elements=total_elements, ef_construction=200, M=16)
-    labels = np.arange(total_elements)
-    index.add_items(full_vectors, labels)
-
-    np.savez(str(npz_path), ids=np.array(all_ids, dtype=object), vectors=full_vectors)
-    index.save_index(str(hnsw_path))
+    ordered_vectors = [
+        reusable_vectors.get(identifier, encoded_vectors[identifier])
+        for identifier, _text in current_rows
+    ]
+    full_vectors = (
+        np.vstack(ordered_vectors)
+        if ordered_vectors
+        else np.empty((0, dim), dtype=np.float32)
+    )
+    _build_embedding_generation_from_vectors(
+        rows=current_rows,
+        vectors=full_vectors,
+        index_dir=_generation_index_dir(output_dir, npz_name),
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
+        embedding_dimension=dim,
+        basis_kind=basis_kind,
+        projection_rule_version=projection_rule_version,
+        legacy_embeddings_path=npz_path,
+        legacy_index_path=hnsw_path,
+    )
+    new_count = len(rows_to_encode)
+    skipped = len(reusable_vectors)
     return new_count, skipped
 
 
@@ -253,6 +389,8 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_entity_embeddings",
         hnsw_name="lex_entity_index",
         model=model,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
@@ -277,6 +415,8 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_fact_embeddings",
         hnsw_name="lex_fact_index",
         model=model,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
@@ -296,6 +436,8 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_provision_embeddings",
         hnsw_name="lex_provision_index",
         model=model,
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
         batch_size=embedding_batch_size,
         chunk_size=embedding_chunk_size,
         pause_seconds=thermal_pause_seconds,
@@ -318,8 +460,12 @@ def build_embeddings_and_index(
     chunk_size: int = 2000,
 ) -> EmbeddingStats:
     """Build embeddings and index."""
+    if backend is not None:
+        raise ValueError("unsupported backend: local legal embeddings are canonical")
     return build_local_embeddings_and_indexes(
         db_path=db_path,
         output_dir=output_dir,
+        embedding_model="intfloat/multilingual-e5-large",
+        embedding_device="mps",
         embedding_chunk_size=chunk_size,
     )

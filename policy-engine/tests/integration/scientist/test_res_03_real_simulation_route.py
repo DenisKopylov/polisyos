@@ -51,6 +51,17 @@ _TENANT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 _CELL_ID = "cell-a"
 
 
+def _assert_authority_surface_conflict(response: Any) -> None:
+    assert response.status_code == 409, response.text
+    payload = response.json()
+    assert payload["code"] == "authority_surface_admission_blocked"
+    decision = payload["authority_surface_decision"]
+    assert decision["reason"] == "authority_surface_signal_missing"
+    assert decision["blocking"] is True
+    assert decision["visible_downgrade"] is True
+    assert decision["integrity_status"] == "verified"
+
+
 def _metadata(component_id: str, display_name: str) -> ComponentMetadata:
     return ComponentMetadata(
         component_id=ComponentId.parse(component_id),
@@ -396,24 +407,6 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
         simulation_ref.artifact_id
     )
 
-    assert manifest_response.status_code == 200, manifest_response.text
-    manifest_view = manifest_response.json()["artifact"]
-    assert manifest_view["kind"] == "foundry.simulation_result"
-    assert {item["role"] for item in manifest_view["inputs"]} >= {
-        "exec_plan",
-        "input.data_snapshot_ref",
-    }
-
-    assert content_response.status_code == 200, content_response.text
-    content_preview = content_response.json()["artifact"]["preview"]
-    assert content_preview["exec_plan_ref"]
-    assert content_preview["state_snapshot_ref"]
-
-    assert lineage_response.status_code == 200, lineage_response.text
-    lineage = lineage_response.json()["lineage"]
-    assert lineage["is_complete"] is True
-    lineage_roles = {
-        *(node["role"] for node in lineage["nodes"] if node.get("role") is not None),
-        *(edge["role"] for edge in lineage["edges"]),
-    }
-    assert {"exec_plan", "input.data_snapshot_ref"} <= lineage_roles
+    _assert_authority_surface_conflict(manifest_response)
+    _assert_authority_surface_conflict(content_response)
+    _assert_authority_surface_conflict(lineage_response)

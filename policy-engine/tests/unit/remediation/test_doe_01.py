@@ -108,6 +108,45 @@ def test_adaptive_sampler_stops_before_oversized_follow_up_without_override() ->
     assert result.stop_reason == "max_estimated_runs_exceeded"
 
 
+def test_adaptive_sampler_returns_last_result_when_later_round_fails() -> None:
+    """A later round failure must preserve the last completed result."""
+    calls: list[np.ndarray] = []
+
+    def evaluator(samples: np.ndarray) -> np.ndarray:
+        calls.append(samples.copy())
+        if len(calls) == 2:
+            raise ValueError("later round failed")
+        return samples[:, 0] + samples[:, 1]
+
+    result = AdaptiveSampler(
+        _adaptive_plan(n_trajectories=1, max_estimated_runs=100, allow_large_run=True),
+        convergence=ConvergenceConfig(
+            max_rounds=3,
+            ranking_stability_threshold=1.01,
+            trajectory_step=1,
+        ),
+    ).run(evaluator)
+
+    assert len(calls) == 2
+    assert len(result.rounds) == 1
+    assert result.total_evaluations == len(calls[0])
+    assert result.final_result.total_runs == len(calls[0])
+    assert result.stop_reason == "adaptive_round_failed:ValueError"
+
+
+def test_adaptive_sampler_propagates_first_round_failure() -> None:
+    """A failure before any completed round must remain an ordinary error."""
+
+    def evaluator(_: np.ndarray) -> np.ndarray:
+        raise ValueError("first round failed")
+
+    with pytest.raises(ValueError, match="first round failed"):
+        AdaptiveSampler(
+            _adaptive_plan(n_trajectories=1, max_estimated_runs=100, allow_large_run=True),
+            convergence=ConvergenceConfig(max_rounds=2),
+        ).run(evaluator)
+
+
 def test_adaptive_sampler_rejects_zero_round_budget_before_evaluation() -> None:
     with pytest.raises(ValueError, match="max_rounds"):
         ConvergenceConfig(max_rounds=0)

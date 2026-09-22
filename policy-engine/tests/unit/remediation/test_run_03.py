@@ -154,8 +154,6 @@ def test_sync_retry_starts_each_attempt_from_one_logical_baseline() -> None:
     assert result.state.params["counter"] == 1
     assert result.state.params["attempt_history"] == [2]
     assert state.params == {}
-    assert node.async_calls == 2
-    assert node.sync_calls == 0
     assert node.sync_calls == 2
     assert node.async_calls == 0
 
@@ -180,6 +178,8 @@ async def test_async_retry_starts_each_attempt_from_one_logical_baseline() -> No
     assert result.state.params["counter"] == 1
     assert result.state.params["attempt_history"] == [2]
     assert state.params == {}
+    assert node.async_calls == 2
+    assert node.sync_calls == 0
 
 
 @pytest.mark.parametrize("mode", ["return", "raise"])

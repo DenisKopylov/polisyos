@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunManifest
+from polisyos.core.trace.record import TraceRecord
+from polisyos.core.trace.sink import JsonlTraceSink
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
@@ -36,6 +41,36 @@ def _make_ctx(*, metrics=None):
         logger=MagicMock(),
         metrics=metrics,
     )
+
+
+def _make_durable_ctx(tmp_path):
+    """Build a real run context for reading back retry trace records."""
+    store = MagicMock()
+    store.put_json.return_value = ArtifactRef(
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
+    )
+    store.put_bytes.return_value = ArtifactRef(
+        artifact_id=_FAKE_SHA,
+        kind="trace",
+        media_type="application/jsonl",
+    )
+    trace_path = tmp_path / "trace.jsonl"
+    run = RunContext(
+        store=store,
+        trace=JsonlTraceSink(trace_path),
+        run_manifest=RunManifest(
+            run_id="retry-test-terminal",
+            registry_bundle=ArtifactRef(
+                artifact_id=_FAKE_SHA,
+                kind="registry",
+                media_type="application/json",
+            ),
+        ),
+        _trace_path=trace_path,
+    )
+    return ExecutionContext(store=store, run=run, logger=MagicMock()), trace_path
 
 
 # ---------------------------------------------------------------------------
@@ -125,6 +160,78 @@ class TestRetryIntegration:
 
         assert result.report.status == "fail"
         assert result.report.nodes[0].status == "fail"
+
+    def test_terminal_raised_retry_preserves_only_spend_in_final_result(self, tmp_path):
+        """Terminal retry keeps failed cost/history, not ordinary failed writes."""
+        state = ExperimentState(run_id="retry-test-terminal")
+        node = MagicMock()
+        node.spec.state_reads = []
+        node.spec.state_writes = [
+            "params.counter",
+            "params.attempt_history",
+            "budgets",
+        ]
+        node.spec.node_id = "test.costed_failure@1.0.0"
+        calls = {"n": 0}
+
+        def _execute(_ctx, attempt_state):
+            calls["n"] += 1
+            attempt_state.params["counter"] = int(
+                attempt_state.params.get("counter", 0)
+            ) + 1
+            attempt_state.params.setdefault("attempt_history", []).append(calls["n"])
+            attempt_state.budgets["run_spent_usd"] = attempt_state.budgets.get(
+                "run_spent_usd",
+                Decimal("0"),
+            ) + Decimal("0.25")
+            raise RuntimeError("terminal after an attempt-side effect")
+
+        node.execute.side_effect = _execute
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.return_value = node
+        workflow = WorkflowSpec(
+            workflow_id="test_retry_terminal_spend",
+            nodes=[
+                NodeInvocation(
+                    alias="costed_failure",
+                    node_id="test.costed_failure@1.0.0",
+                    retry=RetryPolicy(
+                        max_retries=1,
+                        backoff_base_s=0.1,
+                        backoff_factor=1.0,
+                        jitter="none",
+                    ),
+                ),
+            ],
+        )
+        context, trace_path = _make_durable_ctx(tmp_path)
+
+        with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
+            result = WorkflowExecutor(context, registry).execute(workflow, state)
+
+        assert result.report.status == "fail"
+        assert result.report.nodes[0].status == "fail"
+        assert calls["n"] == 2
+        assert result.state.params == {}
+        assert result.state.budgets["run_spent_usd"] == Decimal("0.50")
+        assert state.params == {}
+        assert state.budgets == {}
+
+        records = [
+            TraceRecord.model_validate_json(line)
+            for line in trace_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        retry_events = [record for record in records if record.event == "NODE_RETRY"]
+        dead_letter_events = [
+            record for record in records if record.event == "NODE_DEAD_LETTER"
+        ]
+        assert len(retry_events) == 1
+        assert retry_events[0].metrics["attempt"] == 1
+        assert retry_events[0].metrics["failed_cost_usd"] == 0.25
+        assert len(dead_letter_events) == 1
+        assert dead_letter_events[0].metrics["attempts"] == 2
+        assert dead_letter_events[0].metrics["failed_cost_usd"] == 0.5
 
     def test_node_with_timeout(self):
         import time as _time

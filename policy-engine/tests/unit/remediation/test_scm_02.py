@@ -643,7 +643,10 @@ def test_causal_result_loader_requires_manifest_schema(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError, match="manifest|schema"):
-        load_causal_query_result(store, CausalQueryResultRef.model_validate(ref))
+        load_causal_query_result(
+            store,
+            CausalQueryResultRef.model_validate(ref.model_dump(mode="json")),
+        )
 
 
 def test_causal_query_producer_reconciles_envelope_with_result(

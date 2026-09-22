@@ -1211,6 +1211,63 @@ def _build_resume_workflow_spec(
     return workflow.model_copy(update={"nodes": resumed_nodes})
 
 
+def _state_path_present(state: ExperimentState, path: str) -> bool:
+    """Return whether a dotted state path has a non-null value."""
+    current: Any = state
+    for part in path.split("."):
+        if isinstance(current, BaseModel):
+            if not hasattr(current, part):
+                return False
+            current = getattr(current, part)
+        elif isinstance(current, dict):
+            if part not in current:
+                return False
+            current = current[part]
+        else:
+            return False
+    return current is not None
+
+
+def _state_paths_overlap(read_path: str, write_path: str) -> bool:
+    """Match exact state paths and declared parent/child state writes."""
+    return (
+        read_path == write_path
+        or read_path.startswith(f"{write_path}.")
+        or write_path.startswith(f"{read_path}.")
+    )
+
+
+def _missing_completed_state_paths(
+    workflow: WorkflowSpec,
+    resumed_workflow: WorkflowSpec,
+    *,
+    completed_nodes: list[str],
+    state: ExperimentState,
+    registry: CheckpointRegistry,
+) -> tuple[str, ...]:
+    """Find remaining reads whose producer was marked complete but is absent."""
+    completed_set = set(completed_nodes)
+    completed_writes: list[str] = []
+    for invocation in workflow.nodes:
+        if invocation.alias not in completed_set:
+            continue
+        node = registry.get(invocation.node_id)
+        completed_writes.extend(getattr(node.spec, "state_writes", ()))
+
+    if not completed_writes:
+        return ()
+
+    missing: set[str] = set()
+    for invocation in resumed_workflow.nodes:
+        node = registry.get(invocation.node_id)
+        for read_path in getattr(node.spec, "state_reads", ()):
+            if _state_path_present(state, read_path):
+                continue
+            if any(_state_paths_overlap(read_path, write) for write in completed_writes):
+                missing.add(read_path)
+    return tuple(sorted(missing))
+
+
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
     """Hash the functional workflow shape used to validate checkpoint compatibility."""
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
@@ -1989,9 +2046,7 @@ def resume_from_checkpoint(
         run_dir = request.run_dir
 
     policy = normalize_checkpoint_policy(checkpoint_policy)
-    # Keep validating the public strategy for compatibility. Cache presence
-    # no longer gates a valid checkpoint state, regardless of that strategy.
-    normalize_checkpoint_resume_strategy(resume_strategy)
+    checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
     active_scope = _active_checkpoint_scope()
     run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
     lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
@@ -2026,11 +2081,41 @@ def resume_from_checkpoint(
             workflow_spec,
             completed_nodes=checkpoint.metadata.completed_nodes,
         )
-        # Cache refs are replay accelerators, not proof that the durable state
-        # is complete. The runner resumes from the checkpoint state and seeds
-        # only the refs that are present; exact-ref verification and key
-        # conflict handling live in NodeResultCache. A valid full state must
-        # therefore remain resumable even when no cache refs were retained.
+        resolved_registry = registry or build_registry_with_builtin_nodes()
+        missing_state_paths = _missing_completed_state_paths(
+            workflow_spec,
+            resumed_workflow,
+            completed_nodes=checkpoint.metadata.completed_nodes,
+            state=restored_state,
+            registry=resolved_registry,
+        )
+        execution_workflow = resumed_workflow
+        if missing_state_paths:
+            if checkpoint_resume_strategy == "allow_replay":
+                # This is the one strategy that may re-run completed nodes. It
+                # is explicit and observable; allow_replay is not a warning
+                # label attached to the ordinary residual plan.
+                emit_degraded_path(
+                    component="scientist.checkpoint",
+                    operation="resume",
+                    reason="checkpoint_resume_replaying_completed_nodes",
+                    message=(
+                        "Required state written by completed nodes is missing; "
+                        "replaying the original workflow was explicitly allowed"
+                    ),
+                    retryable=False,
+                    details={
+                        "run_id": run_id,
+                        "missing_state_paths": list(missing_state_paths),
+                    },
+                    log=logger,
+                )
+                execution_workflow = workflow_spec
+            else:
+                raise CheckpointCorruptedError(
+                    "checkpoint resume state is incomplete for remaining nodes: "
+                    + ", ".join(missing_state_paths)
+                )
 
         registry_bundle_ref = registry_bundle_ref or restored_state.inputs.get(
             INPUT_REGISTRY_BUNDLE_REF
@@ -2069,7 +2154,6 @@ def resume_from_checkpoint(
         )
 
         runner_config = WorkflowRunnerConfig.from_env()
-        resolved_registry = registry or build_registry_with_builtin_nodes()
         if len(resumed_workflow.nodes) == 0:
             return WorkflowExecutionResult(
                 state=restored_state,
@@ -2109,7 +2193,7 @@ def resume_from_checkpoint(
             else:
                 raise
         execution_coro = runner.execute_workflow(
-            resumed_workflow,
+            execution_workflow,
             restored_state,
             ctx,
             resolved_registry,

@@ -88,6 +88,11 @@ _DATA_PLANE_GATE_NODE_ID = "scientist.node_run_data_plane_gate@1.0.0"
 _MISSING = object()
 
 
+def _cache_ref_identity(ref: ArtifactRef) -> tuple[str, str, str]:
+    """Return the complete immutable identity used for cache-entry custody."""
+    return (str(ref.artifact_id), ref.kind, ref.media_type)
+
+
 def _active_tenant_context() -> ArtifactTenantContextInfo | None:
     """Resolve the active tenant/cell binding using the existing scope contract."""
     access_scope = get_current_access_scope_or_none()
@@ -315,7 +320,7 @@ class NodeResultCache:
         # Keep the successful verification identity separate from the key index:
         # an invalid/absent reference must remain retryable, while a verified
         # reference must not be counted as a second cache entry on every resume.
-        self._verified_entry_keys: dict[str, str] = {}
+        self._verified_entry_keys: dict[tuple[str, str, str], str] = {}
         self._lock = RLock()
 
     @property
@@ -353,7 +358,7 @@ class NodeResultCache:
             self._index.delete(key)
             self._mutation_journals.pop(key, None)
             if entry_ref is not None:
-                self._verified_entry_keys.pop(str(entry_ref.artifact_id), None)
+                self._verified_entry_keys.pop(_cache_ref_identity(entry_ref), None)
 
     def clear(self) -> None:
         with self._lock:
@@ -368,12 +373,10 @@ class NodeResultCache:
             for key in tuple(self._mutation_journals):
                 if key not in active_keys:
                     del self._mutation_journals[key]
-            active_refs = {
-                str(ref.artifact_id) for _key, ref in self._index.items()
-            }
-            for entry_id in tuple(self._verified_entry_keys):
-                if entry_id not in active_refs:
-                    del self._verified_entry_keys[entry_id]
+            active_refs = {_cache_ref_identity(ref) for _key, ref in self._index.items()}
+            for ref_identity in tuple(self._verified_entry_keys):
+                if ref_identity not in active_refs:
+                    del self._verified_entry_keys[ref_identity]
             return removed
 
     def _verify_cache_artifact(
@@ -677,8 +680,8 @@ class NodeResultCache:
                 self._index.set(key, entry_ref)
                 self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
                 if previous_ref is not None:
-                    self._verified_entry_keys.pop(str(previous_ref.artifact_id), None)
-                self._verified_entry_keys[str(entry_ref.artifact_id)] = key
+                    self._verified_entry_keys.pop(_cache_ref_identity(previous_ref), None)
+                self._verified_entry_keys[_cache_ref_identity(entry_ref)] = key
             else:
                 self.discard(key)
             if self._max_entries is not None:
@@ -687,15 +690,15 @@ class NodeResultCache:
 
     def load_entry(self, entry_ref: ArtifactRef) -> bool:
         with self._lock:
-            entry_id = str(entry_ref.artifact_id)
-            verified_key = self._verified_entry_keys.get(entry_id)
+            ref_identity = _cache_ref_identity(entry_ref)
+            verified_key = self._verified_entry_keys.get(ref_identity)
             if verified_key is not None:
                 indexed_ref = self._index.get(verified_key)
-                if indexed_ref is not None and str(indexed_ref.artifact_id) == entry_id:
+                if indexed_ref is not None and _cache_ref_identity(indexed_ref) == ref_identity:
                     return False
                 # The LRU may have evicted the entry since it was verified.
                 # The reference is eligible for one fresh verification.
-                self._verified_entry_keys.pop(entry_id, None)
+                self._verified_entry_keys.pop(ref_identity, None)
 
             entry, _decoded, proof_valid = self._read_entry(entry_ref)
             if entry.run_id != self._run_id or not proof_valid:
@@ -703,8 +706,8 @@ class NodeResultCache:
 
             existing_ref = self._index.get(entry.idempotency_key)
             if existing_ref is not None:
-                if str(existing_ref.artifact_id) == entry_id:
-                    self._verified_entry_keys[entry_id] = entry.idempotency_key
+                if _cache_ref_identity(existing_ref) == ref_identity:
+                    self._verified_entry_keys[ref_identity] = entry.idempotency_key
                 else:
                     # Two immutable entries with one idempotency key are not
                     # interchangeable. Keep the first verified entry rather
@@ -719,7 +722,7 @@ class NodeResultCache:
             self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
                 entry.state_mutations
             )
-            self._verified_entry_keys[entry_id] = entry.idempotency_key
+            self._verified_entry_keys[ref_identity] = entry.idempotency_key
             if self._max_entries is not None:
                 self.prune(self._max_entries)
             return True

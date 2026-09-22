@@ -413,17 +413,26 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
     return wrap_causal_output(report)
 
 
-def _cohort_time_att(
+def _cohort_time_cells(
     data: PanelObservationalData,
     *,
     control_group: str,
     anticipation: int,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[list[dict[str, Any]], list[tuple[int, int]]]:
+    """Build ATT(g,t) cells with unit-level influence values.
+
+    The returned cell records retain the independent panel-unit membership of
+    both sides of each contrast.  Bootstrap draws can therefore apply one
+    multiplier to a unit everywhere it contributes, including shared controls.
+    The second return value records cells for which the declared control rule
+    has no admissible units; callers must not silently drop those cells.
+    """
+
     assert data.treatment_timing is not None
     timing = data.treatment_timing.astype(int)
     valid_groups = sorted(int(value) for value in np.unique(timing) if value >= 0)
-    att_values: list[float] = []
-    weights: list[float] = []
+    cells: list[dict[str, Any]] = []
+    no_control_cells: list[tuple[int, int]] = []
 
     for group_start in valid_groups:
         if group_start <= 0 or group_start >= data.n_periods:
@@ -436,22 +445,55 @@ def _cohort_time_att(
             continue
         for t in range(group_start, data.n_periods):
             if control_group == "not_yet_treated":
-                control_mask = (timing == -1) | (timing > t)
+                control_mask = (timing == -1) | (timing > t + anticipation)
             else:
                 control_mask = timing == -1
             if not control_mask.any():
+                no_control_cells.append((group_start, t))
                 continue
+            treated_indices = np.flatnonzero(group_mask)
+            control_indices = np.flatnonzero(control_mask)
             treated_delta = (
-                data.outcome[group_mask, t].mean() - data.outcome[group_mask, baseline_t].mean()
+                data.outcome[treated_indices, t] - data.outcome[treated_indices, baseline_t]
             )
             control_delta = (
-                data.outcome[control_mask, t].mean() - data.outcome[control_mask, baseline_t].mean()
+                data.outcome[control_indices, t] - data.outcome[control_indices, baseline_t]
             )
-            att_values.append(float(treated_delta - control_delta))
-            weights.append(float(group_mask.sum()))
+            cells.append(
+                {
+                    "treated_indices": treated_indices,
+                    "control_indices": control_indices,
+                    "treated_delta": np.asarray(treated_delta, dtype=float),
+                    "control_delta": np.asarray(control_delta, dtype=float),
+                    "weight": float(treated_indices.size),
+                }
+            )
 
-    if not att_values:
+    return cells, no_control_cells
+
+
+def _cohort_time_att(
+    data: PanelObservationalData,
+    *,
+    control_group: str,
+    anticipation: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return ATT(g,t) point estimates and treated-group weights."""
+
+    cells, _ = _cohort_time_cells(
+        data,
+        control_group=control_group,
+        anticipation=anticipation,
+    )
+    if not cells:
         return np.array([], dtype=float), np.array([], dtype=float)
+
+    att_values = [
+        float(cell["treated_delta"].mean() - cell["control_delta"].mean())
+        for cell in cells
+    ]
+    weights = [float(cell["weight"]) for cell in cells]
+
     return np.asarray(att_values, dtype=float), np.asarray(weights, dtype=float)
 
 
@@ -473,12 +515,33 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
 
     control_group = str(params.get("control_group", "never_treated"))
     anticipation = int(params.get("anticipation", 0))
-    atts, weights = _cohort_time_att(
+    cells, no_control_cells = _cohort_time_cells(
         data,
         control_group=control_group,
         anticipation=anticipation,
     )
-    if atts.size == 0:
+    if no_control_cells:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.ASSUMPTION_FAILED,
+            reason="no admissible controls for one or more staggered ATT(g,t) cells",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int((data.treatment == 1).sum()),
+            n_control=int((data.treatment == 0).sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+            method_params={
+                "staggered": True,
+                "control_group": control_group,
+                "anticipation": anticipation,
+                "no_control_cells": [list(cell) for cell in no_control_cells],
+            },
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+
+    if not cells:
         report = build_failure_report(
             method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
             status=EstimationStatus.ASSUMPTION_FAILED,
@@ -493,19 +556,40 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         )
         return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
 
+    atts = np.asarray(
+        [float(cell["treated_delta"].mean() - cell["control_delta"].mean()) for cell in cells],
+        dtype=float,
+    )
+    weights = np.asarray([float(cell["weight"]) for cell in cells], dtype=float)
     weights = weights / weights.sum()
     att = float(np.sum(atts * weights))
 
     rng = params["__rng__"]
     n_bootstrap = int(params.get("n_bootstrap", 1000))
     boot = np.zeros(n_bootstrap, dtype=float)
-    idx = np.arange(atts.shape[0])
     for b in range(n_bootstrap):
-        sample = rng.choice(idx, size=idx.shape[0], replace=True)
-        boot[b] = float(np.sum(atts[sample] * weights[sample] / np.sum(weights[sample])))
+        unit_multiplier = rng.exponential(scale=1.0, size=data.n_units)
+        cell_bootstrap = np.asarray(
+            [
+                float(
+                    np.average(
+                        cell["treated_delta"],
+                        weights=unit_multiplier[cell["treated_indices"]],
+                    )
+                    - np.average(
+                        cell["control_delta"],
+                        weights=unit_multiplier[cell["control_indices"]],
+                    )
+                )
+                for cell in cells
+            ],
+            dtype=float,
+        )
+        boot[b] = float(np.sum(cell_bootstrap * weights))
     confidence_level = float(params.get("confidence_level", 0.95))
     ci = bootstrap_ci(boot, confidence_level=confidence_level)
-    p_value = float((np.sum(np.abs(boot) >= abs(att)) + 1) / (n_bootstrap + 1))
+    null_boot = boot - att
+    p_value = float((np.sum(np.abs(null_boot) >= abs(att)) + 1) / (n_bootstrap + 1))
 
     pre_diag = _parallel_trend_diagnostic(data.outcome, data.treatment, t0=data.time_treatment)
     diagnostics = [pre_diag]
@@ -536,6 +620,10 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             "control_group": control_group,
             "anticipation": anticipation,
             "n_cells": int(atts.shape[0]),
+            "bootstrap_independence": "panel_unit",
+            "bootstrap_shared_draw": True,
+            "p_value_null": "centered_unit_bootstrap",
+            "p_value_statistic": "ATT",
         },
     )
     return wrap_causal_output(report)

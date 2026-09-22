@@ -131,14 +131,12 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
     from tests.unit.runtime.http.test_control_service_di import (
         _NeverCalledEvalSafetyVerifier,
         _build_control_service,
-        _explicit_simulation_execution_context,
         _fixture_claims,
     )
     from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
     from polisyos.core.contracts.control import NaturalLanguageRunRequest
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
-    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
 
     service = _build_control_service(tmp_path)
     try:
@@ -159,14 +157,6 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             compile_problem,
         )
 
-        class _CanonicalFixtureN4Port(N4GenerationPort):
-            def __init__(self) -> None:
-                super().__init__(model_id="fixture-model")
-                self._delegate = _CgfGenerationPort()
-
-            async def __call__(self, problem, *, cycle_index):
-                return await self._delegate(problem, cycle_index=cycle_index)
-
         compiled_fixture = (
             await generation_cycle_service.compile_and_run_recursive_generation_cycle(
                 raw_request=problem.nl_provenance.raw_request,
@@ -180,9 +170,8 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
                     min_cycles_per_leaf=1,
                     max_cycles_per_leaf=3,
                 ),
-                root_n4_generation_port=_CanonicalFixtureN4Port(),
                 promotion_runtime=service._promotion_runtime,
-                root_evaluation_context=_explicit_simulation_execution_context(problem),
+                root_evaluation_context=None,
                 eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
                 repo_root=REPO_ROOT,
             )

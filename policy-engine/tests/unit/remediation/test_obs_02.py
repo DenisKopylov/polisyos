@@ -214,6 +214,56 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
     assert len(observation_ids) == len(set(observation_ids)) == 8
 
 
+def test_partial_resume_aborts_when_unchanged_snapshot_lacks_pending_metric_cursor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An unchanged snapshot cannot silently drop a pending metric frame."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, _, frame = _config(tmp_path)
+    original_mapper = sources._observation_metric_frames_from_frame
+    mapper_calls = 0
+    instances: list[int] = []
+
+    def fail_after_first_metric(*args: Any, **kwargs: Any):
+        nonlocal mapper_calls
+        mapper_calls += 1
+        mapped = iter(original_mapper(*args, **kwargs))
+        if mapper_calls == 1:
+            yield next(mapped)
+            raise OSError("controlled failure before the pending metric frame")
+        yield from mapped
+
+    class MissingResumeBatchParquetFile:
+        """Return the first batch, then an unchanged but empty restart."""
+
+        def __init__(self, _path: Path) -> None:
+            self.instance = len(instances)
+            instances.append(self.instance)
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size, columns
+            if self.instance == 0:
+                yield _batch(frame, size=len(frame))
+
+    import pyarrow.parquet as parquet
+
+    monkeypatch.setattr(parquet, "ParquetFile", MissingResumeBatchParquetFile)
+    monkeypatch.setattr(
+        sources,
+        "_observation_metric_frames_from_frame",
+        fail_after_first_metric,
+    )
+
+    with pytest.raises(RuntimeError, match="metric cursor"):
+        list(sources._iter_observation_metric_frames(config))
+
+    assert mapper_calls == 1
+    assert instances == [0, 1]
+
+
 def test_small_real_parquet_reader_preserves_metric_counts_and_snapshot_values(
     tmp_path: Path,
 ) -> None:

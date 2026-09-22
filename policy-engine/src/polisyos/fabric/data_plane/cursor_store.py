@@ -40,6 +40,12 @@ class CursorStoreConflict(CursorStoreError):
     """Raised when a conditional cursor/checkpoint update finds newer state."""
 
 
+def _cursor_id(connector_id: str, dataset_id: str, *, partition_key: str = "default") -> str:
+    """Build the stable cursor identity for a connector dataset partition."""
+    base_id = f"{connector_id}:{dataset_id}"
+    return base_id if partition_key == "default" else f"{base_id}:{partition_key}"
+
+
 class CursorStore:
     """Read/write cursor/checkpoint artifacts to CAS with lightweight indices."""
 
@@ -374,9 +380,11 @@ class CursorStore:
         self,
         connector_id: str,
         dataset_id: str,
+        *,
+        partition_key: str = "default",
     ) -> CursorState | None:
-        """Find the most recent cursor for a connector:dataset pair."""
-        cursor_id = f"{connector_id}:{dataset_id}"
+        """Find the most recent cursor for one connector dataset partition."""
+        cursor_id = _cursor_id(connector_id, dataset_id, partition_key=partition_key)
         with self._lock:
             self._index = self._load_index()
             artifact_id_str = self._index.get(cursor_id)
@@ -387,9 +395,8 @@ class CursorStore:
             return self.load_cursor(aid)
         except (FileNotFoundError, OSError, TypeError, ValueError):
             logger.debug(
-                "Failed to load cursor for %s:%s (artifact=%s)",
-                connector_id,
-                dataset_id,
+                "Failed to load cursor for %s (artifact=%s)",
+                cursor_id,
                 artifact_id_str,
                 exc_info=True,
             )
@@ -823,11 +830,14 @@ class AsyncCursorStoreAdapter:
         self,
         connector_id: str,
         dataset_id: str,
+        *,
+        partition_key: str = "default",
     ) -> CursorState | None:
         return await run_blocking_async(
             self.store.find_latest_cursor,
             connector_id,
             dataset_id,
+            partition_key=partition_key,
             timeout_seconds=self.timeout_seconds,
         )
 

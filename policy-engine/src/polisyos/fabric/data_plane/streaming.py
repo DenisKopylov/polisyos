@@ -35,6 +35,7 @@ from polisyos.fabric.data_plane.cursor_store import (
     CursorStore,
     CursorStoreConflict,
     CursorStoreError,
+    _cursor_id,
 )
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
@@ -1089,7 +1090,11 @@ def _stream_cursor_for_checkpoint(
 ) -> CursorState:
     """Build the cursor paired with one durable stream checkpoint."""
     return CursorState(
-        cursor_id=f"{connector_id}:{dataset_id}",
+        cursor_id=_cursor_id(
+            connector_id,
+            dataset_id,
+            partition_key=partition_key,
+        ),
         connector_id=connector_id,
         dataset_id=dataset_id,
         watermark_type=WatermarkType.OFFSET,
@@ -1288,6 +1293,7 @@ async def _verify_prepared_frontier(
     latest_cursor = await async_cursor_store.find_latest_cursor(
         cursor.connector_id,
         cursor.dataset_id,
+        partition_key=checkpoint.partition_key,
     )
     expected_intent = {**intent, "state": "prepared"}
     if latest_checkpoint is None or latest_cursor is None:
@@ -1348,6 +1354,7 @@ async def _verify_committed_frontier(
     cursor = await async_cursor_store.find_latest_cursor(
         checkpoint.connector_id,
         checkpoint.dataset_id,
+        partition_key=checkpoint.partition_key,
     )
     if cursor is None:
         raise CursorStoreError("committed stream frontier is missing its cursor")
@@ -1702,6 +1709,7 @@ async def process_stream_dataset(
                 latest_cursor = await async_cursor_store.find_latest_cursor(
                     connector_id,
                     dataset_id,
+                    partition_key=options.partition_key,
                 )
             # Let source rewind/reconnect failures remain the primary evidence
             # for a broken source lease.  State validation follows only after
@@ -1711,6 +1719,7 @@ async def process_stream_dataset(
                 latest_cursor = await async_cursor_store.find_latest_cursor(
                     connector_id,
                     dataset_id,
+                    partition_key=options.partition_key,
                 )
             # The deque is the persisted bounded horizon.  Rebuild membership
             # from the retained deque after maxlen clips any oversized or old

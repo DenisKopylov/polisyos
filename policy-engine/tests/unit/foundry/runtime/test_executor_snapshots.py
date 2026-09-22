@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.models import load_model
@@ -53,6 +53,28 @@ class _UnresolvedAnnotation:
     value: MissingSnapshotType
 
 
+def _seed_legacy_state_blob(tmp_path, state: GlobalState):
+    source = FileSystemCAS(tmp_path / "canonical-source")
+    source_snapshot_ref = put_state_snapshot(source, state=state)
+    source_snapshot = load_model(source, source_snapshot_ref, StateSnapshot)
+    blob_bytes = source.get_bytes(source_snapshot.state_ref.artifact_id)
+
+    store = FileSystemCAS(tmp_path / "legacy-target")
+    legacy_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("e" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("f" * 64), role="state_delta"),
+    ]
+    legacy_ref = store.put_bytes(
+        blob_bytes,
+        PutOptions(
+            kind="foundry.state_blob",
+            media_type="application/x-npz",
+            inputs=legacy_inputs,
+        ),
+    )
+    return store, legacy_ref, legacy_inputs
+
+
 def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     state = GlobalState.empty(n_agents=3, n_firms=2)
@@ -69,6 +91,112 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert snapshot.entry_count > 0
     assert snapshot.step == 4
     assert "snapshot_format:npz-v2" in snapshot.notes
+
+
+def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    first_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("a" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("b" * 64), role="state_delta"),
+    ]
+    second_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("c" * 64), role="base_state"),
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("d" * 64), role="state_delta"),
+    ]
+
+    first_ref = put_state_snapshot(store, state=state, step=1, inputs=first_inputs)
+    second_ref = put_state_snapshot(store, state=state, step=2, inputs=second_inputs)
+
+    first_snapshot = load_model(store, first_ref, StateSnapshot)
+    second_snapshot = load_model(store, second_ref, StateSnapshot)
+    blob_manifest = store.get_manifest(first_snapshot.state_ref.artifact_id)
+    first_manifest = store.get_manifest(first_ref.artifact_id)
+    second_manifest = store.get_manifest(second_ref.artifact_id)
+
+    assert first_snapshot.state_ref.artifact_id == second_snapshot.state_ref.artifact_id
+    assert blob_manifest.kind == "foundry.state_blob"
+    assert blob_manifest.inputs == []
+    assert {item.role for item in first_manifest.inputs} == {
+        "base_state",
+        "state_delta",
+        "state_blob",
+    }
+    assert {item.role for item in second_manifest.inputs} == {
+        "base_state",
+        "state_delta",
+        "state_blob",
+    }
+    assert first_manifest.inputs[:2] != second_manifest.inputs[:2]
+
+
+def test_legacy_state_blob_reuse_preserves_manifest_and_wrapper_lineage(tmp_path) -> None:
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    store, legacy_ref, legacy_inputs = _seed_legacy_state_blob(tmp_path, state)
+    prior_manifest_bytes = store.get_manifest_bytes(legacy_ref.artifact_id)
+    contextual_inputs = [
+        InputRef(artifact_id=ArtifactID.from_sha256_hex("1" * 64), role="input.data_snapshot_ref"),
+        InputRef(
+            artifact_id=ArtifactID.from_sha256_hex("2" * 64),
+            role="input.registry_bundle_ref",
+        ),
+    ]
+
+    snapshot_ref = put_state_snapshot(
+        store,
+        state=state,
+        step=3,
+        inputs=contextual_inputs,
+    )
+
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    blob_manifest = store.get_manifest(snapshot.state_ref.artifact_id)
+    wrapper_manifest = store.get_manifest(snapshot_ref.artifact_id)
+
+    assert snapshot.state_ref.artifact_id == legacy_ref.artifact_id
+    assert store.get_manifest_bytes(legacy_ref.artifact_id) == prior_manifest_bytes
+    assert blob_manifest.inputs == legacy_inputs
+    assert wrapper_manifest.inputs[:2] == contextual_inputs
+    assert wrapper_manifest.inputs[-1] == InputRef(
+        artifact_id=legacy_ref.artifact_id,
+        role="state_blob",
+    )
+
+
+def test_legacy_state_blob_profile_mismatch_other_than_inputs_stays_strict(tmp_path) -> None:
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    canonical_source = FileSystemCAS(tmp_path / "canonical-source")
+    source_snapshot_ref = put_state_snapshot(canonical_source, state=state)
+    source_snapshot = load_model(canonical_source, source_snapshot_ref, StateSnapshot)
+    blob_bytes = canonical_source.get_bytes(source_snapshot.state_ref.artifact_id)
+
+    store = FileSystemCAS(tmp_path / "legacy-target")
+    store.put_bytes(
+        blob_bytes,
+        PutOptions(
+            kind="foundry.state_blob",
+            media_type="application/x-legacy-npz",
+            inputs=[
+                InputRef(
+                    artifact_id=ArtifactID.from_sha256_hex("3" * 64),
+                    role="base_state",
+                )
+            ],
+        ),
+    )
+
+    with pytest.raises(ValueError, match="manifest profile conflict"):
+        put_state_snapshot(store, state=state, step=3)
+
+
+def test_corrupt_legacy_state_blob_fails_closed(tmp_path) -> None:
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    store, legacy_ref, _legacy_inputs = _seed_legacy_state_blob(tmp_path, state)
+    blob_path, _manifest_path = store.get_paths(legacy_ref.artifact_id)
+    blob_path.write_bytes(b"corrupt legacy state blob")
+
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+        put_state_snapshot(store, state=state, step=3)
 
 
 def test_load_state_snapshot_rejects_corrupt_blob_checksum(tmp_path) -> None:

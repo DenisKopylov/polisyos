@@ -14,6 +14,7 @@ from polisyos.ddm.integration import (
     DriftAndDegradationMonitor,
     MetricDirection,
     MonitoringWindow,
+    ModelRegistryReadinessRecord,
     PerformanceDegradationEvent,
     ReadinessState,
     ShiftDetectedEvent,
@@ -320,3 +321,29 @@ def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None
 
     assert gate.promotion_allowed is True
     assert gate.reason == "R2_owner_signoff_allows_limited_expansion"
+
+
+def test_registry_public_round_trip_fails_closed_without_durable_validity() -> None:
+    """Public registry reload loses private checker authority and fails closed."""
+
+    record = _valid_checker_bound_registry_record()
+    assert evaluate_registry_gate(record).promotion_allowed is True
+
+    payload = record.model_dump(mode="json")
+    for non_durable_field in {
+        "_calibration_validity_evidence",
+        "calibration_validity_evidence",
+        "report_digest",
+        "effective_at",
+        "expires_at",
+        "expiration",
+        "valid_until",
+        "invalidation_triggers",
+    }:
+        assert non_durable_field not in payload
+
+    reloaded = ModelRegistryReadinessRecord.model_validate(payload)
+    gate = evaluate_registry_gate(reloaded)
+
+    assert gate.promotion_allowed is False
+    assert gate.reason == "calibration_validity_not_established"

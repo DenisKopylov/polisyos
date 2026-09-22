@@ -99,13 +99,13 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     catalog_path = tmp_path / "l1.duckdb"
     catalog_path.touch()
     rows = (
-        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020"),
-        ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020"),
-        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-percent-2021"),
-        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-percent-2022"),
-        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-percent-2023"),
-        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020"),
-        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021"),
+        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-percent-2020", '{"unit":"percent"}'),
+        ("UA", 2020, 1000.0, "dataset-usd", "obs-ua-usd-2020", '{"unit":"usd"}'),
+        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-percent-2021", '{"unit":"percent"}'),
+        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-percent-2022", '{"unit":"percent"}'),
+        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-percent-2023", '{"unit":"percent"}'),
+        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
+        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
     )
     connection = _RowsConnection(rows)
 
@@ -170,14 +170,14 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     catalog_path = tmp_path / "l1.duckdb"
     catalog_path.touch()
     rows = (
-        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020"),
-        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021"),
-        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022"),
-        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-2023"),
-        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020"),
-        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021"),
-        ("PL", 2022, 97.0, "dataset-foreign", "obs-pl-2022"),
-        ("PL", 2023, 96.0, "dataset-foreign", "obs-pl-2023"),
+        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
+        ("UA", 2021, 11.0, "dataset-percent", "obs-ua-2021", '{"unit":"percent"}'),
+        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022", '{"unit":"percent"}'),
+        ("UA", 2023, 13.0, "dataset-percent", "obs-ua-2023", '{"unit":"percent"}'),
+        ("PL", 2020, 99.0, "dataset-foreign", "obs-pl-2020", '{"unit":"percent"}'),
+        ("PL", 2021, 98.0, "dataset-foreign", "obs-pl-2021", '{"unit":"percent"}'),
+        ("PL", 2022, 97.0, "dataset-foreign", "obs-pl-2022", '{"unit":"percent"}'),
+        ("PL", 2023, 96.0, "dataset-foreign", "obs-pl-2023", '{"unit":"percent"}'),
     )
     connection = _RowsConnection(rows)
 
@@ -225,6 +225,178 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     assert connection.calls[0][1] == ("outcome", "UA")
 
 
+def test_cross_period_mixed_dataset_units_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Distinct source identities across periods cannot masquerade as one unit."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    catalog_path.touch()
+    rows = (
+        ("UA", 2020, 10.0, "dataset-percent", "obs-ua-2020", '{"unit":"percent"}'),
+        ("UA", 2021, 1000.0, "dataset-usd", "obs-ua-2021", '{"unit":"usd"}'),
+        ("UA", 2022, 12.0, "dataset-percent", "obs-ua-2022", '{"unit":"percent"}'),
+        ("UA", 2023, 1100.0, "dataset-usd", "obs-ua-2023", '{"unit":"usd"}'),
+    )
+    connection = _RowsConnection(rows)
+
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=2,
+            metric_binding_count=1,
+            observation_count=len(rows),
+        ),
+    )
+
+    with pytest.raises(
+        generation_cycle.ValueOwnerAccessError,
+        match="measurement-unit binding",
+    ):
+        generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",))),
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region="UA"),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+
+
+def test_non_country_region_refuses_country_code_binding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A basin-like jurisdiction cannot be silently treated as a country."""
+
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=4,
+        ),
+    )
+
+    with pytest.raises(
+        generation_cycle.ValueOwnerAccessError,
+        match="country_code",
+    ):
+        generation_cycle.RealValueOwnerGateway(repo_root=tmp_path).load_value_data_profile(
+            candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",))),
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region="dnieper_basin"),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+
+
+def test_owner_row_cap_refuses_truncated_profile(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A bounded catalog read never classifies an incomplete owner panel."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    catalog_path.touch()
+    rows = tuple(
+        ("UA", 2000 + index, float(index), "dataset-percent", f"obs-{index}", '{"unit":"percent"}')
+        for index in range(20_001)
+    )
+    connection = _RowsConnection(rows)
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+
+    with pytest.raises(
+        generation_cycle.ValueOwnerAccessError,
+        match="row cap",
+    ) as exc_info:
+        generation_cycle._load_value_data_profile_from_l1_dcat(
+            repo_root=tmp_path,
+            outcome="outcome",
+            owner_access_ref="catalog://emp01/outcome",
+            scope_region="UA",
+        )
+
+    assert exc_info.value.code == "acquire_data:value_owner_rows_truncated"
+    assert connection.calls
+    assert "LIMIT 20001" in connection.calls[0][0]
+
+
+def test_empty_selected_profile_returns_no_profile_before_unit_binding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """An empty scoped selection is incomplete, not a unit-binding violation."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    catalog_path.touch()
+    connection = _RowsConnection(())
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+
+    assert (
+        generation_cycle._load_value_data_profile_from_l1_dcat(
+            repo_root=tmp_path,
+            outcome="outcome",
+            owner_access_ref="catalog://emp01/outcome",
+            scope_region="UA",
+        )
+        is None
+    )
+
+
 def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:
     """Point identification must not erase a non-zero native statistical interval."""
 
@@ -253,10 +425,10 @@ def test_asymmetric_interval_is_preserved_by_value_projection() -> None:
     assert value_set.lower != (0.0,)
 
 
-def test_selection_diagram_requires_bound_model_or_explicit_hypothesis(
+def test_selection_diagram_requires_verified_causal_artifact(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Measured context deltas alone cannot invent causal edges from variable names."""
+    """Measured context deltas alone cannot establish a verified causal artifact."""
 
     class _Problem:
         domain = "emp01-domain"
@@ -314,12 +486,10 @@ def test_selection_diagram_requires_bound_model_or_explicit_hypothesis(
         )
 
 
-def test_selection_diagram_uses_content_bound_graph_without_inventing_edges(
+def test_raw_graph_without_artifact_bridge_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A content-bound graph is used as supplied, including its sparse edge set."""
-
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    """Raw graph hints cannot cross the generation-cycle boundary unverified."""
 
     class _Problem:
         domain = "emp01-domain"
@@ -336,23 +506,24 @@ def test_selection_diagram_uses_content_bound_graph_without_inventing_edges(
         world_model_record_id="world_model_record_emp01",
         content_hash="sha256:" + "c" * 64,
     )
-    graph = CausalGraphModel(
-        graph_type="dag",
-        nodes=["treatment", "outcome", "income"],
-        edges=[
-            {
-                "src": "treatment",
-                "dst": "outcome",
-                "mark_src": "tail",
-                "mark_dst": "arrow",
-            }
-        ],
-        metadata={
-            "design_problem_ref": problem_ref,
-            "world_model_record_content_hash": world_record.content_hash,
-        },
+    problem = _Problem(
+        {
+            "graph_type": "dag",
+            "nodes": ["treatment", "outcome", "income"],
+            "edges": [
+                {
+                    "src": "treatment",
+                    "dst": "outcome",
+                    "mark_src": "tail",
+                    "mark_dst": "arrow",
+                }
+            ],
+            "metadata": {
+                "design_problem_ref": problem_ref,
+                "world_model_record_content_hash": world_record.content_hash,
+            },
+        }
     )
-    problem = _Problem(graph.model_dump(mode="json"))
     transport_context = SimpleNamespace(
         source_context_id="source",
         target_context_id="target",
@@ -379,19 +550,20 @@ def test_selection_diagram_uses_content_bound_graph_without_inventing_edges(
         lambda _context: bound_context,
     )
 
-    diagram = generation_cycle._build_candidate_selection_diagram(
-        candidate=SimpleNamespace(
-            candidate_id="emp01-candidate",
-            atom=SimpleNamespace(
-                treatment_variable="treatment",
-                target_world_slots=("outcome",),
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as exc_info:
+        generation_cycle._build_candidate_selection_diagram(
+            candidate=SimpleNamespace(
+                candidate_id="emp01-candidate",
+                atom=SimpleNamespace(
+                    treatment_variable="treatment",
+                    target_world_slots=("outcome",),
+                ),
             ),
-        ),
-        problem=problem,
-        world_record=world_record,
-        query_treatment="treatment",
-        query_outcome="outcome",
-        cycle_substrate_context=SimpleNamespace(),
-    )
+            problem=problem,
+            world_record=world_record,
+            query_treatment="treatment",
+            query_outcome="outcome",
+            cycle_substrate_context=SimpleNamespace(),
+        )
 
-    assert diagram.base_graph.model_dump(mode="json") == graph.model_dump(mode="json")
+    assert exc_info.value.code == "acquire_data:causal_graph_artifact_unresolved"

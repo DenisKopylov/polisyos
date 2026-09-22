@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import json
 import math
 import re
 import time
@@ -2165,7 +2166,10 @@ class RealValueOwnerGateway:
                 owner_gap_evidence=availability,
             )
         jurisdiction_time = _object_get(problem, "jurisdiction_time")
-        scope_region = _optional_text(_object_get(jurisdiction_time, "region"))
+        scope_region = _resolve_owner_scope_region(
+            _object_get(jurisdiction_time, "region"),
+            owner_access_ref=owner_access_ref,
+        )
         profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
             outcome=outcome,
@@ -5005,6 +5009,7 @@ def _load_value_data_profile_from_l1_dcat(
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     normalized_scope_region = _optional_text(scope_region)
+    owner_row_limit = 20_000
     scope_clause = "\n              AND country_code = ?" if normalized_scope_region else ""
     parameters: list[str] = [outcome]
     if normalized_scope_region:
@@ -5042,26 +5047,40 @@ def _load_value_data_profile_from_l1_dcat(
               COALESCE(year, survey_year, wave) AS period_id,
               value,
               dataset_id,
-              observation_id
+              observation_id,
+              condition_json
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
               {scope_clause}
             ORDER BY unit_id, period_id, dataset_id, observation_id, value
-            LIMIT 20000
+            LIMIT {owner_row_limit + 1}
             """,
             parameters,
         ).fetchall()
     finally:
         con.close()
-    grouped: dict[tuple[str, int], list[tuple[float, str, str]]] = {}
-    for unit, period, value, dataset_id, observation_id in raw_rows:
+    if len(raw_rows) > owner_row_limit:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_rows_truncated",
+            (
+                f"owner profile exceeded the bounded row cap of {owner_row_limit}; "
+                "refusing to classify a truncated panel"
+            ),
+            owner_access_ref=f"{owner_access_ref}#row-cap",
+        )
+    if not raw_rows:
+        return None
+    grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
+    for unit, period, value, dataset_id, observation_id, condition_json in raw_rows:
         numeric_value = float(value)
         if not math.isfinite(numeric_value):
             continue
+        source_dataset_id = _optional_text(dataset_id) or ""
+        measurement_unit = _measurement_unit_from_condition_json(condition_json) or ""
         grouped.setdefault((str(unit), int(period)), []).append(
-            (numeric_value, str(dataset_id), str(observation_id))
+            (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
         )
     ambiguous_keys = tuple(
         (unit_id, period_id)
@@ -5089,6 +5108,52 @@ def _load_value_data_profile_from_l1_dcat(
     )
     if len(owner_rows) < 4:
         return None
+    measurement_units = tuple(
+        sorted(
+            {
+                row[3]
+                for values in grouped.values()
+                for row in values
+            }
+        )
+    )
+    if not measurement_units or "" in measurement_units:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_unit_binding_ambiguous",
+            (
+                "owner observations do not carry a declared condition_json.unit over the "
+                "selected profile; refusing to infer measurement units from dataset identity"
+            ),
+            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+        )
+    if len(measurement_units) != 1:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_unit_binding_ambiguous",
+            (
+                "owner observations carry multiple condition_json.unit values over the "
+                "selected profile; refusing to combine measurement units"
+            ),
+            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+        )
+    source_dataset_ids = tuple(
+        sorted(
+            {
+                row[1]
+                for values in grouped.values()
+                for row in values
+            }
+        )
+    )
+    if len(source_dataset_ids) != 1 or "" in source_dataset_ids:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_unit_binding_ambiguous",
+            (
+                "owner observations span multiple or missing dataset/source identities, "
+                "but the catalog has no declared measurement-unit binding over the "
+                "selected profile; refusing to combine periods"
+            ),
+            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+        )
     unit_count = len({row.unit_id for row in owner_rows})
     period_count = len({row.period_id for row in owner_rows})
     modalities = _derived_value_data_modalities(owner_rows)
@@ -5113,7 +5178,7 @@ def _value_owner_row(
     outcome: str,
     unit_id: str,
     period_id: int,
-    source_rows: tuple[tuple[float, str, str], ...],
+    source_rows: tuple[tuple[float, str, str, str], ...],
 ) -> ValueOwnerRow:
     ordered = tuple(sorted(source_rows, key=lambda row: (row[1], row[2], row[0])))
     source_hashes = tuple(
@@ -5125,11 +5190,12 @@ def _value_owner_row(
                 "value": value,
                 "dataset_id": dataset_id,
                 "observation_id": observation_id,
+                "measurement_unit": measurement_unit,
             }
         )
-        for value, dataset_id, observation_id in ordered
+        for value, dataset_id, observation_id, measurement_unit in ordered
     )
-    outcome_value = math.fsum(value for value, _, _ in ordered) / len(ordered)
+    outcome_value = math.fsum(value for value, _, _, _ in ordered) / len(ordered)
     row_payload = {
         "unit_id": unit_id,
         "period_id": period_id,
@@ -5419,11 +5485,6 @@ def _build_candidate_selection_diagram(
     query_outcome: str,
     cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
-    from polisyos.ir.analytics.context import ContextProfile
-    from polisyos.ir.analytics.transportability import (
-        SelectionDiagramBuilder,
-        measured_transport_severity,
-    )
     from polisyos.runtime.quality.cycle_substrate import (
         revalidate_cycle_substrate_context,
     )
@@ -5465,128 +5526,34 @@ def _build_candidate_selection_diagram(
             "content-bound source/target transport measurements are absent",
             owner_access_ref=context.content_hash,
         )
-    transport_covariates = tuple(observation.canonical_var for observation in transport.covariates)
-    graph = _resolve_bound_transport_graph(
-        problem=problem,
-        world_record=world_record,
-        query_treatment=query_treatment,
-        query_outcome=query_outcome,
-        transport_covariates=transport_covariates,
+    runtime_hints = _object_get(problem, "runtime_hints")
+    graph_hint_present = isinstance(runtime_hints, Mapping) and any(
+        runtime_hints.get(key) is not None
+        for key in ("causal_graph_model", "causal_graph", "causal_hypothesis")
+    )
+    hypothesis_hint_present = isinstance(runtime_hints, Mapping) and (
+        runtime_hints.get("causal_hypothesis") is not None
+    )
+    if hypothesis_hint_present:
+        detail = (
+            "causal hypothesis is candidate-only and cannot enter a transport receipt without "
+            "a verified CausalGraphModelRef bridge"
+        )
+    elif graph_hint_present:
+        detail = (
+            "raw causal graph or hypothesis is present, but the generation-cycle boundary "
+            "has no ArtifactStore/CausalGraphModelRef verifier bridge"
+        )
+    else:
+        detail = (
+            "selection diagram requires a verified CausalGraphModelRef; the generation-cycle "
+            "boundary cannot derive topology from measured context deltas"
+        )
+    raise ValueOwnerAccessError(
+        "acquire_data:causal_graph_artifact_unresolved",
+        detail,
         owner_access_ref=context.content_hash,
     )
-    source_context = ContextProfile(
-        context_id=transport.source_context_id,
-        context_label=f"measured-source:{transport.source_context_id}",
-        data_sources=[observation.source_row_content_hash for observation in transport.covariates],
-    )
-    target_context = ContextProfile(
-        context_id=transport.target_context_id,
-        context_label=f"measured-target:{transport.target_context_id}",
-        data_sources=[observation.target_row_content_hash for observation in transport.covariates],
-    )
-    builder = SelectionDiagramBuilder(graph)
-    for observation in transport.covariates:
-        builder.add_measured_sigma_variable(
-            observation.canonical_var,
-            source_value=observation.source_value,
-            target_value=observation.target_value,
-            severity=measured_transport_severity(
-                observation.source_value,
-                observation.target_value,
-            ),
-            role=None,
-            source_ref=observation.source_row_content_hash,
-            target_ref=observation.target_row_content_hash,
-        )
-    return builder.build(
-        source_context=source_context,
-        target_context=target_context,
-    )
-
-
-def _resolve_bound_transport_graph(
-    *,
-    problem: DesignProblem,
-    world_record: WorldModelRecord,
-    query_treatment: str,
-    query_outcome: str,
-    transport_covariates: Sequence[str],
-    owner_access_ref: str,
-) -> object:
-    """Resolve a graph/hypothesis already bound to the active transport query.
-
-    Measured source/target deltas describe context shifts only.  They are not
-    sufficient evidence for causal edges, so this owner must consume an
-    explicitly supplied graph or graph-shaped hypothesis and never synthesize
-    topology from variable names.
-    """
-
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
-
-    runtime_hints = _object_get(problem, "runtime_hints")
-    if not isinstance(runtime_hints, Mapping):
-        runtime_hints = {}
-    raw_graph = next(
-        (
-            runtime_hints.get(key)
-            for key in ("causal_graph_model", "causal_graph", "causal_hypothesis")
-            if runtime_hints.get(key) is not None
-        ),
-        None,
-    )
-    if raw_graph is None:
-        raise ValueOwnerAccessError(
-            "acquire_data:causal_graph_unresolved",
-            "transport selection requires a content-bound causal graph or hypothesis",
-            owner_access_ref=owner_access_ref,
-        )
-    if isinstance(raw_graph, CausalGraphModel):
-        graph = raw_graph
-    else:
-        graph_payload: object = raw_graph
-        if isinstance(raw_graph, Mapping) and not {
-            "graph_type",
-            "nodes",
-            "edges",
-        }.issubset(raw_graph):
-            for key in ("graph", "causal_graph", "model", "hypothesis"):
-                nested = raw_graph.get(key)
-                if isinstance(nested, Mapping):
-                    graph_payload = nested
-                    break
-        try:
-            graph = CausalGraphModel.model_validate(graph_payload)
-        except (TypeError, ValueError) as exc:
-            raise ValueOwnerAccessError(
-                "acquire_data:causal_graph_invalid",
-                f"content-bound causal graph or hypothesis is invalid: {exc}",
-                owner_access_ref=owner_access_ref,
-            ) from exc
-    metadata = graph.metadata
-    expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-    graph_problem_ref = metadata.get("design_problem_ref")
-    if graph_problem_ref is not None and graph_problem_ref != expected_problem_ref:
-        raise ValueOwnerAccessError(
-            "acquire_data:causal_graph_unbound",
-            "causal graph is not bound to the active DesignProblem",
-            owner_access_ref=owner_access_ref,
-        )
-    graph_world_ref = metadata.get("world_model_record_content_hash")
-    if graph_world_ref is not None and graph_world_ref != world_record.content_hash:
-        raise ValueOwnerAccessError(
-            "acquire_data:causal_graph_unbound",
-            "causal graph is not bound to the active WorldModelRecord",
-            owner_access_ref=owner_access_ref,
-        )
-    required_nodes = {query_treatment, query_outcome, *transport_covariates}
-    missing_nodes = sorted(required_nodes.difference(graph.nodes))
-    if missing_nodes:
-        raise ValueOwnerAccessError(
-            "acquire_data:causal_graph_incomplete",
-            "causal graph omits transport query variables: " + ", ".join(missing_nodes),
-            owner_access_ref=owner_access_ref,
-        )
-    return graph
 
 
 def _candidate_transport_treatment_variable(candidate: object) -> str:
@@ -6426,6 +6393,65 @@ def _first_text(value: object) -> str | None:
 def _optional_text(value: object) -> str | None:
     text = str(value or "").strip()
     return text or None
+
+
+def _measurement_unit_from_condition_json(value: object) -> str | None:
+    """Read the catalog's declared measurement unit without inferring semantics."""
+
+    payload: object = value
+    if isinstance(value, str):
+        try:
+            payload = json.loads(value)
+        except (TypeError, ValueError):
+            return None
+    if not isinstance(payload, Mapping):
+        return None
+    return _optional_text(payload.get("unit"))
+
+
+def _resolve_owner_scope_region(
+    value: object,
+    *,
+    owner_access_ref: str,
+) -> str:
+    """Resolve the owner query scope to a declared catalog country code.
+
+    ``JurisdictionTimeSemantics.region`` may describe a basin, state, or other
+    domain scope.  The owner query currently has only a ``country_code``
+    discriminator, so silently copying an arbitrary region into that column
+    would claim a narrower panel than the evidence establishes.  Refuse
+    unsupported scopes until a matching owner binding exists.
+    """
+
+    raw_region = _optional_text(value)
+    if raw_region is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_scope_unbound",
+            "value owner rows require an explicit country_code scope",
+            owner_access_ref=owner_access_ref,
+        )
+    try:
+        from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+            normalize_country_code,
+        )
+
+        country_code = normalize_country_code(raw_region)
+    except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
+        raise ValueOwnerAccessError(
+            "acquire_data:value_scope_binding_missing",
+            f"country_code scope normalization failed for {raw_region!r}: {exc}",
+            owner_access_ref=owner_access_ref,
+        ) from exc
+    if not country_code:
+        raise ValueOwnerAccessError(
+            "acquire_data:value_scope_binding_missing",
+            (
+                f"region {raw_region!r} is not a supported country_code; refusing "
+                "to bind it to the owner catalog country_code column"
+            ),
+            owner_access_ref=owner_access_ref,
+        )
+    return country_code
 
 
 def _problem_ref(problem: DesignProblem) -> str:

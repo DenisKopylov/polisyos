@@ -72,22 +72,15 @@ def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
     assert report.confidence_interval is not None
     lower, upper = report.confidence_interval
     assert lower < report.point_estimate < upper
+    assert report.confidence_level is None
 
 
-def test_staggered_p_value_distinguishes_effect_from_numeric_null():
-    effect_report = _run_staggered(_single_cell_panel(), seed=19)
-    null_report = _run_staggered(
-        _single_cell_panel(effects=np.zeros(4, dtype=float)),
-        seed=19,
-    )
+def test_staggered_p_value_is_absent_without_calibrated_null_distribution():
+    report = _run_staggered(_single_cell_panel(), seed=19)
 
-    assert effect_report.status is EstimationStatus.SUCCESS
-    assert null_report.status is EstimationStatus.SUCCESS
-    assert effect_report.p_value is not None
-    assert null_report.p_value is not None
-    assert effect_report.p_value < 0.2
-    assert null_report.p_value > 0.2
-    assert effect_report.p_value < null_report.p_value
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.p_value is None
+    assert report.method_params["p_value_status"] == "not_established"
 
 
 def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
@@ -158,6 +151,34 @@ def test_staggered_partial_no_control_cells_fail_closed():
     assert report.status is EstimationStatus.ASSUMPTION_FAILED
     assert report.point_estimate is None
     assert report.status_reason == "no admissible controls for one or more staggered ATT(g,t) cells"
+
+
+def test_staggered_missing_baseline_cells_fail_closed():
+    timing = np.array([1, 2, -1], dtype=int)
+    data = PanelObservationalData(
+        outcome=np.zeros((3, 4), dtype=float),
+        treatment=(timing >= 0).astype(int),
+        time_treatment=1,
+        treatment_timing=timing,
+        unit_ids=np.arange(3),
+    )
+
+    report = _run_staggered(data, anticipation=1, n_bootstrap=50)
+
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate is None
+    assert report.status_reason == "no valid baseline for one or more staggered cohorts"
+
+
+def test_staggered_duplicate_unit_ids_fail_closed_for_unit_bootstrap():
+    data = _single_cell_panel()
+    data.unit_ids = np.array([0, 0, 1, 2, 3, 4, 5, 6])
+
+    report = _run_staggered(data, n_bootstrap=50)
+
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate is None
+    assert report.status_reason == "staggered bootstrap requires unique unit_ids"
 
 
 def test_staggered_no_admissible_controls_is_bounded_failure():

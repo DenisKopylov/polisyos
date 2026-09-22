@@ -148,11 +148,19 @@ def test_resume_preserves_original_per_node_outputs_and_seed(tmp_path) -> None:
     )
     checkpoint = ChainCheckpoint.load(checkpoint_path)
 
+    with pytest.raises(CheckpointError):
+        executor.execute(
+            chain,
+            initial_state={"value": 0},
+            checkpoint=checkpoint,
+            seed=99,
+        )
+
     resumed = executor.execute(
         chain,
         initial_state={"value": 0},
         checkpoint=checkpoint,
-        seed=99,
+        seed=7,
     )
 
     assert [result.output for _, result in resumed.node_results] == [

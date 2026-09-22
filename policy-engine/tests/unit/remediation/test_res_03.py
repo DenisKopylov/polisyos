@@ -38,7 +38,7 @@ def _make_method(
     step: Callable[[Any, Mapping[str, Any]], Any] | None = None,
 ) -> type:
     """Build a small real registry method for an async-chain witness."""
-    signature = MethodSignature(
+    method_signature = MethodSignature(
         name=name,
         namespace="tests.res03",
         version="1.0.0",
@@ -55,7 +55,7 @@ def _make_method(
     )
 
     class TestMethod:
-        signature: ClassVar[MethodSignature] = signature
+        signature: ClassVar[MethodSignature] = method_signature
         metadata: ClassVar[MethodMetadata] = MethodMetadata(
             description=f"RES-03 test method: {name}",
             tags=frozenset({"res03", "test"}),

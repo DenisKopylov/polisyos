@@ -63,6 +63,41 @@ def _rewrite_cache_entry(store: FileSystemCAS, entry_ref, **updates):
     )
 
 
+def _bound_cache(store: FileSystemCAS, run_id: str, tenant_context: ArtifactTenantContextInfo):
+    """Turn an absent scope-binding API into an explicit test failure."""
+    try:
+        return NodeResultCache(store, run_id=run_id, tenant_context=tenant_context)
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache tenant_context contract is missing: {exc}")
+
+
+def _cache_get_with_deadline(cache: NodeResultCache, key: str, deadline_monotonic: float):
+    """Turn an absent cache deadline API into an explicit test failure."""
+    try:
+        return cache.get(key, deadline_monotonic=deadline_monotonic)
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache deadline contract is missing: {exc}")
+
+
+def _cache_put_with_deadline(
+    cache: NodeResultCache,
+    key: str,
+    *,
+    deadline_monotonic: float,
+    outcome: NodeOutcome,
+):
+    """Turn an absent publication deadline API into an explicit test failure."""
+    try:
+        return cache.put(
+            key,
+            node_id="scientist.node_test@1.0.0",
+            outcome=outcome,
+            deadline_monotonic=deadline_monotonic,
+        )
+    except TypeError as exc:
+        pytest.fail(f"NodeResultCache deadline contract is missing: {exc}")
+
+
 def test_compute_idempotency_key_stable_for_same_inputs(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     exec_plan_ref = _artifact(store, {"value": 1}, kind="foundry.exec_plan")
@@ -235,10 +270,10 @@ def test_node_result_cache_reloads_legacy_v1_entry(tmp_path) -> None:
     assert loaded is not None
     assert loaded.model_dump(mode="python") == outcome.model_dump(mode="python")
 
-    bound = NodeResultCache(
+    bound = _bound_cache(
         store,
-        run_id=run_id,
-        tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
+        run_id,
+        ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a"),
     )
     with pytest.raises(ValueError, match="cache_entry: unbound_legacy_entry"):
         bound.load_entry(entry_ref)
@@ -252,7 +287,7 @@ def test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache(tmp_
     tenant_a = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
     tenant_b = ArtifactTenantContextInfo(tenant_id="tenant-b", cell_id="cell-b")
 
-    cache_a = NodeResultCache(store, run_id=run_id, tenant_context=tenant_a)
+    cache_a = _bound_cache(store, run_id, tenant_a)
     entry_ref = cache_a.put(
         key,
         node_id="scientist.node_test@1.0.0",
@@ -263,10 +298,10 @@ def test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache(tmp_
     )
     manifest = store.get_manifest(entry_ref.artifact_id)
 
-    assert entry.tenant_context == tenant_a
+    assert getattr(entry, "tenant_context", None) == tenant_a
     assert manifest.tenant_context == tenant_a
 
-    foreign = NodeResultCache(store, run_id=run_id, tenant_context=tenant_b)
+    foreign = _bound_cache(store, run_id, tenant_b)
     with pytest.raises(ValueError, match="cache_entry: tenant_scope_mismatch"):
         foreign.load_entry(entry_ref)
 
@@ -292,7 +327,7 @@ def test_node_result_cache_rejects_expired_deadline_before_store_io(tmp_path, mo
     monkeypatch.setattr(store, "get_bytes", count_get_bytes)
 
     with pytest.raises(TimeoutError, match="cache deadline exceeded"):
-        cache.get(key, deadline_monotonic=time.perf_counter() - 1.0)
+        _cache_get_with_deadline(cache, key, time.perf_counter() - 1.0)
 
     assert calls == 0
 
@@ -312,9 +347,9 @@ def test_node_result_cache_rejects_expired_deadline_before_publication(tmp_path,
     monkeypatch.setattr(store, "put_json", count_put_json)
 
     with pytest.raises(TimeoutError, match="cache deadline exceeded"):
-        cache.put(
+        _cache_put_with_deadline(
+            cache,
             "d" * 64,
-            node_id="scientist.node_test@1.0.0",
             outcome=_outcome(cache.run_id),
             deadline_monotonic=time.perf_counter() - 1.0,
         )

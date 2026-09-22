@@ -904,7 +904,7 @@ def _execute_with_timeout_process(
             result_queue,
             compute_deadline=compute_deadline,
         )
-        _join_worker_until(process, deadline=compute_deadline)
+        _join_worker_until(process, deadline=_delivery_deadline())
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(process, process_group_id)
         authority.revoke()
@@ -969,7 +969,7 @@ async def _execute_with_timeout_process_async(
             result_queue,
             compute_deadline=compute_deadline,
         )
-        await _join_worker_until_async(process, deadline=compute_deadline)
+        await _join_worker_until_async(process, deadline=_delivery_deadline())
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(process, process_group_id)
         authority.revoke()

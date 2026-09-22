@@ -1937,10 +1937,8 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
     assert coverage["hnsw_assets_status"] == "fail"
     assert freshness["hnsw_freshness_status"] == "fail"
     assert quality["hnsw_index_backed_status"] == "fail"
-    emitted_refs = [
-        record["artifact_ref"] for record in freshness["freshness_records"]
-    ] + list(quality["index_refs"])
-    assert emitted_refs
+    assert quality["index_refs"] == [g2.CANONICAL_L2_ROUTE]
+    emitted_refs = [record["artifact_ref"] for record in freshness["freshness_records"]]
     assert not any(
         ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
         for ref in emitted_refs
@@ -1949,6 +1947,17 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
         f"embedding_generations/{generation_id}/" in ref
         or ref.endswith("embedding_generation.json")
         for ref in emitted_refs
+    )
+    selected_evidence_records = [
+        record
+        for record in freshness["freshness_records"]
+        if f"embedding_generations/{generation_id}/" in record["artifact_ref"]
+        or record["artifact_ref"].endswith("embedding_generation.json")
+    ]
+    assert selected_evidence_records
+    assert all(
+        record["status"] == "not_required_for_request"
+        for record in selected_evidence_records
     )
 
 
@@ -1985,6 +1994,74 @@ def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
     assert report["hnsw_settings"]["ef"] == 100
     assert report["semantic_candidate_row_refs"] == ["skg-edge://edge-1"]
     assert report["post_hnsw_duckdb_validation_trace_refs"]
+    legacy_refs = {
+        record["artifact_ref"]
+        for record in report["freshness_records"]
+        if record["artifact_ref"].endswith(
+            ("ac_work_index.hnsw", "ac_work_embeddings.npz")
+        )
+    }
+    assert legacy_refs == {
+        "academic/ac_work_index.hnsw",
+        "academic/ac_work_embeddings.npz",
+    }
+    assert all(
+        record["status"] == "pass"
+        for record in report["freshness_records"]
+        if record["artifact_ref"] in legacy_refs
+    )
+
+
+def test_g2_malformed_selected_generation_has_no_search_refs(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A malformed selector must not make stale flat assets searchable."""
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    (academic_root / "embedding_generation.json").write_text("{\n", encoding="utf-8")
+    seed = g2.Layer3G2SearchRecallSeed(
+        seed_id="g2-recall-seed:fixture-semantic-edge",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        expected_row_refs=("skg-edge://edge-1",),
+        requires_semantic_retrieval=True,
+    )
+
+    freshness = _dump(
+        g2.build_g2_search_recall_freshness(
+            tmp_path,
+            seeds=(seed,),
+            semantic_retrieval_required=True,
+            query_vector_producer_ref="producer://fixture-query-vector",
+            query_vector_ref="query-vector://fixture",
+        )
+    )
+    quality = _dump(
+        g2.build_g2_search_engineering_quality_report(
+            tmp_path,
+            None,
+            semantic_retrieval_required=True,
+        )
+    )
+
+    assert freshness["hnsw_freshness_status"] == "fail"
+    assert quality["index_refs"] == [g2.CANONICAL_L2_ROUTE]
+    assert not any(
+        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
+        for ref in quality["index_refs"]
+    )
+    selector_records = [
+        record
+        for record in freshness["freshness_records"]
+        if record["artifact_ref"].endswith("embedding_generation.json")
+    ]
+    assert selector_records
+    assert all(
+        record["status"] == "not_required_for_request" for record in selector_records
+    )
 
 
 def test_g2_free_growth_discovers_added_skg_edge_and_method_fixture(

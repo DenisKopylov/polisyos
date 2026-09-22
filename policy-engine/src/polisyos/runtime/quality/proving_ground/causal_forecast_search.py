@@ -1496,6 +1496,12 @@ def build_g2_search_recall_freshness(
         hnsw_freshness_status = "not_required_for_request"
         hnsw_query_vector_producer_status = "not_required_for_request"
 
+    search_refs, generation_evidence_refs = _embedding_reference_sets(
+        index_dir,
+        root,
+        legacy_embeddings_path=embeddings_path,
+        legacy_index_path=hnsw_index_path,
+    )
     hnsw_records = tuple(
         Layer3G2IndexFreshnessRecord(
             artifact_ref=artifact_ref,
@@ -1504,12 +1510,15 @@ def build_g2_search_recall_freshness(
             if hnsw_freshness_status in {"pass", "not_required_for_request"}
             else ("layer3_g2_stale_index_blocks_domain_ceiling",),
         )
-        for artifact_ref in _embedding_evidence_refs(
-            index_dir,
-            root,
-            legacy_embeddings_path=embeddings_path,
-            legacy_index_path=hnsw_index_path,
+        for artifact_ref in search_refs
+    )
+    generation_records = tuple(
+        Layer3G2IndexFreshnessRecord(
+            artifact_ref=artifact_ref,
+            status="not_required_for_request",
         )
+        for artifact_ref in generation_evidence_refs
+        if artifact_ref not in search_refs
     )
     post_hnsw_trace_refs: tuple[str, ...] = ()
     hnsw_settings: dict[str, Any] = {}
@@ -1541,7 +1550,7 @@ def build_g2_search_recall_freshness(
         hnsw_freshness_status=hnsw_freshness_status,
         hnsw_query_vector_producer_status=hnsw_query_vector_producer_status,
         seed_records=seed_records,
-        freshness_records=(*freshness_records, *hnsw_records),
+        freshness_records=(*freshness_records, *hnsw_records, *generation_records),
         recalled_seed_refs=tuple(recalled_seed_refs),
         missed_seed_refs=tuple(missed_seed_refs),
         semantic_retrieval_required=hnsw_required,
@@ -1679,14 +1688,13 @@ def build_g2_search_engineering_quality_report(
     index_refs = [CANONICAL_L2_ROUTE]
     if hnsw_required:
         named_library_refs.append("hnswlib")
-        index_refs.extend(
-            _embedding_evidence_refs(
-                index_dir,
-                root,
-                legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
-                legacy_index_path=index_dir / "ac_work_index.hnsw",
-            )
+        search_refs, _ = _embedding_reference_sets(
+            index_dir,
+            root,
+            legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
+            legacy_index_path=index_dir / "ac_work_index.hnsw",
         )
+        index_refs.extend(search_refs)
     status: Literal["pass", "fail"] = "pass" if not issue_codes else "fail"
     return Layer3G2SearchEngineeringQualityReport(
         status=status,
@@ -6192,14 +6200,21 @@ def _relative_or_str(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix() if _is_relative_to(path, root) else str(path)
 
 
-def _embedding_evidence_refs(
+def _embedding_reference_sets(
     index_dir: Path,
     root: Path,
     *,
     legacy_embeddings_path: Path,
     legacy_index_path: Path,
-) -> tuple[str, ...]:
-    """Return evidence paths for the selected generation or legacy pair."""
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return searched index refs separately from selected-generation evidence.
+
+    ``search_refs`` is intentionally narrow: only the complete selected
+    generation's actual HNSW/embedding members, or the legacy flat pair when
+    there is no selector, are search inputs.  The wider evidence set retains
+    selector, inventory, IDs, basis, and member paths for provenance without
+    claiming that those sidecars were searched indexes.
+    """
 
     try:
         manifest = embedding_generation_manifest(
@@ -6212,19 +6227,36 @@ def _embedding_evidence_refs(
     if manifest is not None:
         metadata, artifact_paths = manifest
         if metadata.get("status") == "legacy":
-            return (
+            legacy_refs = (
                 _relative_or_str(legacy_index_path, root),
                 _relative_or_str(legacy_embeddings_path, root),
             )
-        return tuple(_relative_or_str(path, root) for path in artifact_paths)
+            return legacy_refs, legacy_refs
+        evidence_refs = tuple(_relative_or_str(path, root) for path in artifact_paths)
+        if metadata.get("status") != "complete":
+            return (), evidence_refs
+        member_refs = {
+            path.name: _relative_or_str(path, root)
+            for path in artifact_paths
+            if path.name in {"index.hnsw", "embeddings.npz"}
+        }
+        search_refs = tuple(
+            ref
+            for name in ("index.hnsw", "embeddings.npz")
+            if (ref := member_refs.get(name)) is not None
+        )
+        if len(search_refs) != 2:
+            return (), evidence_refs
+        return search_refs, evidence_refs
 
     selector_path = index_dir / GENERATION_SELECTOR_FILENAME
     if selector_path.exists():
-        return (_relative_or_str(selector_path, root),)
-    return (
+        return (), (_relative_or_str(selector_path, root),)
+    legacy_refs = (
         _relative_or_str(legacy_index_path, root),
         _relative_or_str(legacy_embeddings_path, root),
     )
+    return legacy_refs, legacy_refs
 
 
 def _stable_id(*parts: str) -> str:

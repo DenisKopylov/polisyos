@@ -479,18 +479,48 @@ def test_g1_selected_empty_generation_disables_stale_flat_semantic_search(
 
     semantic_status, hnsw_refs = g1._semantic_search_state(tmp_path)
     assert semantic_status == "disabled_missing_index"
-    assert hnsw_refs
+    assert hnsw_refs == ()
+    request = g1.Layer3G1SubstrateSearchRequest.model_validate(_request_payload())
+    result = _dump(g1.build_substrate_grounding_search_adapter(tmp_path, [request])[0])
+    evidence_refs = result["search_ledgers"][0]["index_freshness"].get(
+        "generation_evidence_refs", []
+    )
+    assert evidence_refs
     assert not any(
         ref.endswith(("ds_dataset_index.hnsw", "ds_dataset_embeddings.npz"))
-        for ref in hnsw_refs
+        for ref in evidence_refs
     )
     assert any(
         f"embedding_generations/{generation_id}/" in ref
         or ref.endswith("embedding_generation.json")
-        for ref in hnsw_refs
+        for ref in evidence_refs
     )
     report = _dump(g1.build_g1_search_engineering_quality_report(tmp_path, ()))
     assert report["index_backed"] is False
+
+
+def test_g1_malformed_selected_generation_has_no_search_refs(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A malformed selector is evidence of a selected attempt, not a search index."""
+
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    (index_dir / "ds_dataset_embeddings.npz").write_bytes(b"stale-embeddings")
+    (index_dir / "ds_dataset_index.hnsw").write_bytes(b"stale-index")
+    (index_dir / "embedding_generation.json").write_text("{\n", encoding="utf-8")
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+
+    semantic_status, hnsw_refs = g1._semantic_search_state(tmp_path)
+
+    assert semantic_status == "disabled_missing_index"
+    assert hnsw_refs == ()
 
 
 def test_task1_resolver_query_uses_scope_seed_rows_without_python_fallback(

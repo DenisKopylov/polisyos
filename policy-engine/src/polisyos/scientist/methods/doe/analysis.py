@@ -123,13 +123,19 @@ def analyze_sensitivity(
         return result
 
     if plan.method == SensitivityMethod.FAST:
+        if plan.seed is not None:
+            raise ValueError(
+                "FAST analysis is compatibility_pending for seeded plans: "
+                "SALib 1.5.2 mutates process-global NumPy RNG"
+            )
         from SALib.analyze import fast as fast_analyzer  # type: ignore[import-not-found]
 
-        salib_result = fast_analyzer.analyze(problem, prepared_outputs, seed=backend_seed)
+        salib_result = fast_analyzer.analyze(problem, prepared_outputs)
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
+        result.metadata["reproducibility_status"] = "compatibility_pending_fast_global_rng"
         if plan.uncertainty.enabled:
             _append_uncertainty_warning(result, "ci_unavailable_fast")
         return result

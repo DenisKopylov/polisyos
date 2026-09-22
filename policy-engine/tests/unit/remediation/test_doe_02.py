@@ -12,6 +12,7 @@ from polisyos.scientist.methods.doe.designs import (
     ParameterSpec,
     SensitivityMethod,
     SensitivityPlan,
+    _derive_backend_seed,
 )
 
 SALib = pytest.importorskip("SALib", reason="DOE-02 requires the pinned SALib backend")
@@ -101,7 +102,7 @@ def test_sampling_forwards_seed_without_resetting_external_numpy_state(
     after = np.random.get_state()
 
     assert _numpy_state_equal(before, after)
-    assert captured["seed"] == 13 or isinstance(captured["seed"], np.random.Generator)
+    assert captured["seed"] == _derive_backend_seed(13, "sampling:morris")
 
 
 def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
@@ -141,7 +142,31 @@ def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
 
     after = np.random.get_state()
     assert _numpy_state_equal(before, after)
-    assert captured["seed"] == 29 or isinstance(captured["seed"], np.random.Generator)
+    assert captured["seed"] == _derive_backend_seed(29, "analysis:morris")
+
+
+def test_seeded_fast_analysis_fails_closed_for_backend_global_rng() -> None:
+    """The pinned FAST analyzer cannot provide in-process seeded isolation."""
+    plan = SensitivityPlan(
+        method=SensitivityMethod.FAST,
+        parameter_specs=[ParameterSpec(name="x", lower_bound=0.0, upper_bound=1.0)],
+        n_trajectories=1,
+        seed=31,
+    )
+
+    with pytest.raises(ValueError, match="compatibility_pending"):
+        analysis_module.analyze_sensitivity(
+            plan,
+            np.zeros((1, 1), dtype=float),
+            np.array([0.0], dtype=float),
+        )
+
+
+def test_sampling_and_analysis_backend_streams_are_domain_separated() -> None:
+    assert _derive_backend_seed(13, "sampling:morris") != _derive_backend_seed(
+        13,
+        "analysis:morris",
+    )
 
 
 def test_same_seed_replays_complete_morris_sample_matrix() -> None:

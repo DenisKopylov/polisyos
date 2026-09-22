@@ -151,6 +151,54 @@ def test_resolve_parameters_node_persists_bundle_and_bridge_payload(tmp_path) ->
     assert any(event.code == "PARAMS_WITHOUT_EVIDENCE" for event in outcome.events)
 
 
+def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
+    """A bundle ref is a reuse candidate, not proof for a changed request."""
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_changed_request")
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path)
+    graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = ExperimentState(
+        run_id="R_phase15_changed_request",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+
+    first = ResolveParametersNode().execute(ctx, state)
+    assert first.status == "ok"
+    first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+
+    changed = first.state.model_copy(deep=True)
+    changed.params["target_context"] = {
+        "context_id": "US",
+        "income_level": "high",
+        "institutional_quality": 0.9,
+        "post_communist": False,
+    }
+
+    second = ResolveParametersNode().execute(ctx, changed)
+    assert second.status == "ok"
+    second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    assert second_ref != first_ref
+
+    second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+    assert second_bundle.target_context.context_id == "US"
+    assert second_bundle.parameters["fiscal_multiplier"].value == 2.1
+
+
 def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_phase15_resolve_skip")
     state = ExperimentState(run_id="R_phase15_resolve_skip", params={})

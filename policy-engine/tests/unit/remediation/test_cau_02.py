@@ -67,18 +67,22 @@ def _single_cell_panel(
 def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
     report = _run_staggered(_single_cell_panel())
 
-    assert report.status is EstimationStatus.SUCCESS
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
     assert report.point_estimate == pytest.approx(5.0)
-    assert report.confidence_interval is not None
-    lower, upper = report.confidence_interval
+    assert report.confidence_interval is None
+    assert report.confidence_level is None
+    lower, upper = report.method_params["descriptive_interval"]
     assert lower < report.point_estimate < upper
-    assert report.confidence_level == pytest.approx(0.95)
+    envelope = report.to_uncertainty_envelope()
+    assert envelope is not None
+    assert envelope.gate_eligible is False
 
 
 def test_staggered_p_value_is_absent_without_calibrated_null_distribution():
     report = _run_staggered(_single_cell_panel(), seed=19)
 
-    assert report.status is EstimationStatus.SUCCESS
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate == pytest.approx(5.0)
     assert report.p_value is None
     assert report.method_params["p_value_status"] == "not_established"
 
@@ -103,7 +107,7 @@ def test_staggered_anticipation_excludes_already_affected_not_yet_controls():
         n_bootstrap=100,
     )
 
-    assert report.status is EstimationStatus.SUCCESS
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
     assert report.point_estimate == pytest.approx(5.2)
 
 
@@ -127,7 +131,7 @@ def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization(
         n_bootstrap=100,
     )
 
-    assert report.status is EstimationStatus.SUCCESS
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
     assert report.point_estimate == pytest.approx(5.2)
 
 

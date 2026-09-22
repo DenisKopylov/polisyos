@@ -418,14 +418,16 @@ def _cohort_time_cells(
     *,
     control_group: str,
     anticipation: int,
-) -> tuple[list[dict[str, Any]], list[tuple[int, int]]]:
+) -> tuple[list[dict[str, Any]], list[tuple[int, int]], list[int]]:
     """Build ATT(g,t) cells with unit-level influence values.
 
     The returned cell records retain the independent panel-unit membership of
     both sides of each contrast.  Bootstrap draws can therefore apply one
     multiplier to a unit everywhere it contributes, including shared controls.
     The second return value records cells for which the declared control rule
-    has no admissible units; callers must not silently drop those cells.
+    has no admissible units; callers must not silently drop those cells.  The
+    third return value records cohorts whose requested anticipation window has
+    no valid baseline period.
     """
 
     assert data.treatment_timing is not None
@@ -433,6 +435,7 @@ def _cohort_time_cells(
     valid_groups = sorted(int(value) for value in np.unique(timing) if value >= 0)
     cells: list[dict[str, Any]] = []
     no_control_cells: list[tuple[int, int]] = []
+    missing_baseline_groups: list[int] = []
 
     for group_start in valid_groups:
         if group_start <= 0 or group_start >= data.n_periods:
@@ -442,6 +445,7 @@ def _cohort_time_cells(
             continue
         baseline_t = group_start - 1 - anticipation
         if baseline_t < 0:
+            missing_baseline_groups.append(group_start)
             continue
         for t in range(group_start, data.n_periods):
             if control_group == "not_yet_treated":
@@ -469,7 +473,7 @@ def _cohort_time_cells(
                 }
             )
 
-    return cells, no_control_cells
+    return cells, no_control_cells, missing_baseline_groups
 
 
 def _cohort_time_att(
@@ -480,7 +484,7 @@ def _cohort_time_att(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return ATT(g,t) point estimates and treated-group weights."""
 
-    cells, _ = _cohort_time_cells(
+    cells, _, _ = _cohort_time_cells(
         data,
         control_group=control_group,
         anticipation=anticipation,
@@ -515,11 +519,32 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
 
     control_group = str(params.get("control_group", "never_treated"))
     anticipation = int(params.get("anticipation", 0))
-    cells, no_control_cells = _cohort_time_cells(
+    cells, no_control_cells, missing_baseline_groups = _cohort_time_cells(
         data,
         control_group=control_group,
         anticipation=anticipation,
     )
+    if missing_baseline_groups:
+        report = build_failure_report(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            status=EstimationStatus.ASSUMPTION_FAILED,
+            reason="no valid baseline for one or more staggered cohorts",
+            estimand="ATT",
+            sample_size=data.n_units * data.n_periods,
+            n_treated=int((data.treatment == 1).sum()),
+            n_control=int((data.treatment == 0).sum()),
+            pre_periods=data.pre_periods,
+            post_periods=data.post_periods,
+            assumptions=dict(_DID_ASSUMPTIONS),
+            method_params={
+                "staggered": True,
+                "control_group": control_group,
+                "anticipation": anticipation,
+                "missing_baseline_groups": sorted(set(missing_baseline_groups)),
+            },
+        )
+        return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+
     if no_control_cells:
         report = build_failure_report(
             method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
@@ -564,6 +589,44 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
     weights = weights / weights.sum()
     att = float(np.sum(atts * weights))
 
+    if data.unit_ids is None:
+        unit_identity = "row_index"
+    else:
+        unit_ids = np.asarray(data.unit_ids)
+        if unit_ids.ndim != 1 or unit_ids.size != data.n_units:
+            report = build_failure_report(
+                method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+                status=EstimationStatus.INPUT_INVALID,
+                reason="staggered bootstrap requires one unit_id per panel row",
+                estimand="ATT",
+                sample_size=data.n_units * data.n_periods,
+                n_treated=int((data.treatment == 1).sum()),
+                n_control=int((data.treatment == 0).sum()),
+                pre_periods=data.pre_periods,
+                post_periods=data.post_periods,
+                assumptions=dict(_DID_ASSUMPTIONS),
+            )
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+        try:
+            unique_units = np.unique(unit_ids).size == data.n_units
+        except TypeError:
+            unique_units = False
+        if not unique_units:
+            report = build_failure_report(
+                method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason="staggered bootstrap requires unique unit_ids",
+                estimand="ATT",
+                sample_size=data.n_units * data.n_periods,
+                n_treated=int((data.treatment == 1).sum()),
+                n_control=int((data.treatment == 0).sum()),
+                pre_periods=data.pre_periods,
+                post_periods=data.post_periods,
+                assumptions=dict(_DID_ASSUMPTIONS),
+            )
+            return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+        unit_identity = "unit_ids"
+
     rng = params["__rng__"]
     n_bootstrap = int(params.get("n_bootstrap", 1000))
     boot = np.zeros(n_bootstrap, dtype=float)
@@ -588,8 +651,6 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         boot[b] = float(np.sum(cell_bootstrap * weights))
     confidence_level = float(params.get("confidence_level", 0.95))
     ci = bootstrap_ci(boot, confidence_level=confidence_level)
-    null_boot = boot - att
-    p_value = float((np.sum(np.abs(null_boot) >= abs(att)) + 1) / (n_bootstrap + 1))
 
     pre_diag = _parallel_trend_diagnostic(data.outcome, data.treatment, t0=data.time_treatment)
     diagnostics = [pre_diag]
@@ -604,7 +665,7 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         point_estimate=att,
         confidence_interval=ci,
         confidence_level=confidence_level,
-        p_value=p_value,
+        p_value=None,
         inference_method="bootstrap",
         n_bootstrap_samples=n_bootstrap,
         effect_size_cohen_d=effect_size,
@@ -622,8 +683,10 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             "n_cells": int(atts.shape[0]),
             "bootstrap_independence": "panel_unit",
             "bootstrap_shared_draw": True,
-            "p_value_null": "centered_unit_bootstrap",
-            "p_value_statistic": "ATT",
+            "bootstrap_unit_identity": unit_identity,
+            "confidence_procedure": "unit_multiplier_percentile",
+            "coverage_status": "not_established",
+            "p_value_status": "not_established",
         },
     )
     return wrap_causal_output(report)

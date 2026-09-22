@@ -15641,6 +15641,8 @@ export interface components {
       node_id?: string | null;
       /** Output Artifact Ids */
       output_artifact_ids?: string[];
+      /** Skip Reason */
+      skip_reason?: string | null;
       /**
        * Status
        * @default unknown

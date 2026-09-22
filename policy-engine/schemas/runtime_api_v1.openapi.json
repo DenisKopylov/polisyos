@@ -31836,6 +31836,17 @@
             "title": "Output Artifact Ids",
             "type": "array"
           },
+          "skip_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skip Reason"
+          },
           "status": {
             "default": "unknown",
             "enum": [

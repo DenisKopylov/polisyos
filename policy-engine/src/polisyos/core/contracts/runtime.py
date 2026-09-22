@@ -2294,6 +2294,7 @@ class RunWorkflowNodeView(BaseModel):
     depth: int = Field(default=0, ge=0)
     status: NodeStatus = "unknown"
     duration_ms: int = Field(default=0, ge=0)
+    skip_reason: str | None = None
     error_code: str | None = None
     error_message: str | None = None
     artifact_ids: list[str] = Field(default_factory=list)

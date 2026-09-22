@@ -880,6 +880,7 @@ class DebugService:
                     depth=0,
                     status=status,
                     duration_ms=duration_ms,
+                    skip_reason=_as_str(report_node.get("skip_reason")) if report_node else None,
                     error_code=_as_str(error_payload.get("code")),
                     error_message=_sanitize_string(_as_str(error_payload.get("message"))),
                     artifact_ids=artifact_ids,

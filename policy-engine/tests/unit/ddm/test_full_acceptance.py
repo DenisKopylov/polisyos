@@ -120,6 +120,7 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
             calibration_id="calib-1",
             report=calibration_report,
         ),
+        _calibration_report=calibration_report,
         upstream_versions={"feature_store": "2026-04-26"},
         timestamp=datetime(2026, 4, 26, tzinfo=UTC),
     )

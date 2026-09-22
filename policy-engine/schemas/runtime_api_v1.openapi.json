@@ -1260,6 +1260,9 @@
         "title": "ArtifactContentResponse",
         "type": "object"
       },
+      "ArtifactID": {
+        "$ref": "#/components/schemas/ArtifactID-Input"
+      },
       "ArtifactID-Input": {
         "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
         "title": "ArtifactID",
@@ -56884,18 +56887,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:38f5bddb2b1e18be39c12ce0f191e3c519c1640820d2c9d3741afd1c9a4b314a",
+                      "projection_hash": "sha256:b4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A38f5bddb2b1e18be39c12ce0f191e3c519c1640820d2c9d3741afd1c9a4b314a&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Af45b77884afde38e41fea2f33b3d768134953a747e941ad2aff1c4752f5e4adf",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ab4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ab72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:38f5bddb2b1e18be39c12ce0f191e3c519c1640820d2c9d3741afd1c9a4b314a",
+                        "projection_hash": "sha256:b4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:f45b77884afde38e41fea2f33b3d768134953a747e941ad2aff1c4752f5e4adf"
+                        "source_dependency_hash": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -56904,7 +56907,7 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:f45b77884afde38e41fea2f33b3d768134953a747e941ad2aff1c4752f5e4adf",
+                          "bound_dependency_aggregate_identity": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
                           "bound_dependency_count": 6491,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
@@ -56920,16 +56923,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:46d8c54c26625a22eb6bcbb396e087cefe562cfada2f12e993dbaf8ba809ceb5"
+                          "worker_validation_receipt_hash": "sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:f45b77884afde38e41fea2f33b3d768134953a747e941ad2aff1c4752f5e4adf",
+                      "source_dependency_hash": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:46d8c54c26625a22eb6bcbb396e087cefe562cfada2f12e993dbaf8ba809ceb5",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:46d8c54c26625a22eb6bcbb396e087cefe562cfada2f12e993dbaf8ba809ceb5"
+                      "worker_validation_receipt_hash": "sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771"
                     }
                   }
                 },

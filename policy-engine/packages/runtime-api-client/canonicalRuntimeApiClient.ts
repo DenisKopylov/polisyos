@@ -74,6 +74,8 @@ export type ArtifactContentPreview =
 export type ArtifactContentResponse =
   RuntimeApiComponents["schemas"]["ArtifactContentResponse"];
 
+export type ArtifactID = RuntimeApiComponents["schemas"]["ArtifactID"];
+
 export type ArtifactIDInput =
   RuntimeApiComponents["schemas"]["ArtifactID-Input"];
 

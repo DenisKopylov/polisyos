@@ -2459,6 +2459,7 @@ export interface components {
             artifact: components["schemas"]["ArtifactContentPreview"];
             meta: components["schemas"]["ApiMeta"];
         };
+        ArtifactID: components["schemas"]["ArtifactID-Input"];
         /**
          * ArtifactID
          * @description Represent a normalized CAS identifier in `sha256:<64hex>` form.

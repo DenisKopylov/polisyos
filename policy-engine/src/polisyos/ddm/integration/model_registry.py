@@ -124,6 +124,14 @@ def evaluate_registry_gate(
                 reason=applicability_reason,
                 required_actions=["revalidate_calibration"],
             )
+        if not record.promotion_allowed:
+            return RegistryGateDecision(
+                model_id=record.model_id,
+                model_version=record.model_version,
+                promotion_allowed=False,
+                reason="persisted_readiness_veto",
+                required_actions=[] if record.required_action is None else [record.required_action],
+            )
         return RegistryGateDecision(
             model_id=record.model_id,
             model_version=record.model_version,

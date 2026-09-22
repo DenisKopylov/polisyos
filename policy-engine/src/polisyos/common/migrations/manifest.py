@@ -28,8 +28,8 @@ def migrate_manifest_0_9_to_1_0(data: ArtifactPayload) -> ArtifactPayload:
 
 
 __all__ = [
-    "ArtifactPayload",
     "MANIFEST_CURRENT_VERSION",
+    "ArtifactPayload",
     "migrate_manifest_0_9_to_1_0",
     "register_migration",
 ]

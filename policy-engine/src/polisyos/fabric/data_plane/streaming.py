@@ -174,7 +174,7 @@ class StreamingSourceSession:
         self._subscription: Any = None
         self._paused = False
         self._closed = False
-        self._owns_pool = False
+        self._cleanup_pending = False
         self._stream_close_complete = False
         self._close_lock = asyncio.Lock()
         self._last_chunk: DataChunk[Any] | None = None
@@ -213,7 +213,6 @@ class StreamingSourceSession:
             request=request or FetchRequest(dataset_id=dataset_id),
             partition_key=partition_key,
         )
-        session._owns_pool = True
         await session.subscribe()
         return session
 
@@ -234,18 +233,30 @@ class StreamingSourceSession:
                     stream = await stream
                 self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
         except BaseException as exc:
+            cleanup_complete = False
             try:
                 await self.pool.release(handle)
-                if self._owns_pool:
-                    await self.pool.close_all()
             except BaseException as cleanup_exc:
-                exc.add_note(f"stream subscription cleanup failed: {cleanup_exc!r}")
-            finally:
+                exc.add_note(f"stream subscription release failed: {cleanup_exc!r}")
+            try:
+                await self.pool.close_all()
+            except BaseException as cleanup_exc:
+                exc.add_note(f"stream subscription pool close failed: {cleanup_exc!r}")
+            else:
+                cleanup_complete = True
+
+            if cleanup_complete:
                 self.connector = None
                 self.handle = None
-                self._generator = None
-                self._subscription = None
                 self._closed = True
+                self._cleanup_pending = False
+            else:
+                # Keep the physical handle attached to this session. ``close()`` can
+                # retry the pool-owned transition after the primary subscription error.
+                self._closed = False
+                self._cleanup_pending = True
+            self._generator = None
+            self._subscription = None
             raise
 
     async def poll(self) -> DataChunk[Any] | None:
@@ -373,7 +384,7 @@ class StreamingSourceSession:
     async def close(self) -> None:
         """Release the current stream handle and close owned pool resources."""
         async with self._close_lock:
-            if self._closed:
+            if self._closed and not self._cleanup_pending:
                 return
             if (
                 self.connector is not None
@@ -383,6 +394,7 @@ class StreamingSourceSession:
                     "close_stream",
                 )
                 and not self._stream_close_complete
+                and not self._cleanup_pending
             ):
                 await self.connector.close_stream(self.handle)
                 self._stream_close_complete = True
@@ -392,8 +404,9 @@ class StreamingSourceSession:
                 self.connector = None
                 self.handle = None
             if self._owns_pool:
-                await self.pool.close_all()
+            await self.pool.close_all()
             self._closed = True
+            self._cleanup_pending = False
             self.connector = None
             self.handle = None
             self._generator = None

@@ -10,7 +10,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamLifecycleState, WindowStrategy
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
-from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
+from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
@@ -34,9 +34,16 @@ if TYPE_CHECKING:
 class _Net01StreamingConnector:
     """Controlled stream connector for acquisition and close ownership probes."""
 
-    def __init__(self, *, fail_subscribe: bool = False, close_failures: int = 0) -> None:
+    def __init__(
+        self,
+        *,
+        fail_subscribe: bool = False,
+        close_failures: int = 0,
+        disconnect_failures: int = 0,
+    ) -> None:
         self.fail_subscribe = fail_subscribe
         self.close_failures = close_failures
+        self.disconnect_failures = disconnect_failures
         self.disconnect_calls: list[str] = []
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
@@ -44,6 +51,9 @@ class _Net01StreamingConnector:
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         self.disconnect_calls.append(handle.session_id)
+        if self.disconnect_failures:
+            self.disconnect_failures -= 1
+            raise RuntimeError("controlled disconnect failure")
 
     async def health_check(self, handle: ConnectionHandle) -> Any:
         del handle
@@ -92,9 +102,10 @@ async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
         await session.subscribe()
 
     assert pool.get_stats().in_use_connections == 0
-    replacement = await pool.acquire()
-    await pool.release(replacement)
-    await pool.close_all()
+    with pytest.raises(PoolClosedError):
+        await pool.acquire()
+    assert session._closed is True
+    assert session.handle is None
 
 
 @pytest.mark.asyncio
@@ -126,6 +137,47 @@ async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
     assert len(connector.disconnect_calls) == 1
     assert session._closed is True
     assert session.handle is None
+
+
+@pytest.mark.asyncio
+async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails() -> None:
+    """A failed release remains retryable without losing the subscription handle."""
+
+    connector = _Net01StreamingConnector(
+        fail_subscribe=True,
+        disconnect_failures=2,
+    )
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(
+            max_size=1,
+            max_connection_uses=1,
+            validate_on_acquire=False,
+            acquire_timeout_seconds=0.02,
+        ),
+    )
+    session = StreamingSourceSession(
+        connector_id="net01-stream",
+        dataset_id="subscribe-cleanup-retry",
+        pool=pool,
+        request=FetchRequest(dataset_id="subscribe-cleanup-retry"),
+    )
+
+    with pytest.raises(RuntimeError, match="controlled subscribe failure"):
+        await session.subscribe()
+
+    assert session._closed is False
+    assert session._cleanup_pending is True
+    assert session.handle is not None
+    failed_handle_id = session.handle.session_id
+    assert connector.disconnect_calls == [failed_handle_id, failed_handle_id]
+
+    await session.close()
+
+    assert session._closed is True
+    assert session.handle is None
+    assert connector.disconnect_calls == [failed_handle_id] * 3
 
 
 @pytest.mark.asyncio

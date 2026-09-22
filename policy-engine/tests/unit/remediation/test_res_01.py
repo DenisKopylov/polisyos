@@ -74,7 +74,10 @@ def test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load(
     assert not replay.has("a" * 64)
 
 
-def test_cache_seed_does_not_mix_different_content_under_same_key(tmp_path: Path) -> None:
+def test_cache_seed_does_not_mix_different_content_under_same_key(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     store = FileSystemCAS(tmp_path)
     run_id = "R_res_01_conflict"
     key = "b" * 64
@@ -89,8 +92,18 @@ def test_cache_seed_does_not_mix_different_content_under_same_key(tmp_path: Path
         outcome=_journaled_outcome(run_id, "second"),
     )
 
+    reads: list[str] = []
+    original_get_bytes = store.get_bytes
+
+    def counted_get_bytes(artifact_id):
+        reads.append(str(artifact_id))
+        return original_get_bytes(artifact_id)
+
+    monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.seed_from_entry_refs([first, second]) == 1
+    assert str(first.artifact_id) in reads
+    assert str(second.artifact_id) in reads
     loaded = replay.get(key)
     assert loaded is not None
     assert loaded.state.params["marker"] == "first"

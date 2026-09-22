@@ -106,11 +106,16 @@ class AdaptiveSampler:
                 break
             round_plan = SensitivityPlan(**plan_dict)
 
-            samples = generate_sensitivity_samples(round_plan)
-            outputs = evaluator(samples)
-            total_evals += len(outputs)
-
-            result = analyze_sensitivity(round_plan, samples, outputs)
+            try:
+                samples = generate_sensitivity_samples(round_plan)
+                outputs = evaluator(samples)
+                total_evals += len(outputs)
+                result = analyze_sensitivity(round_plan, samples, outputs)
+            except Exception as exc:
+                if last_result is None:
+                    raise
+                stop_reason = f"adaptive_round_failed:{type(exc).__name__}"
+                break
             last_result = result
 
             current_indices = self._extract_primary_indices(result)

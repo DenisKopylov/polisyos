@@ -1064,6 +1064,10 @@ class WorkflowExecutor:
                             ),
                         )
 
+                    if outcome.status == "fail":
+                        state = _preserve_retry_spend(state, outcome.state)
+                        outcome = outcome.model_copy(update={"state": state})
+
                     if outcome.status == "ok" and cache_key is not None and self._cache is not None:
                         try:
                             entry_ref = self._cache.put(cache_key, node_id=node_id, outcome=outcome)

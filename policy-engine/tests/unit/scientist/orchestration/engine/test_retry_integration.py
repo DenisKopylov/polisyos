@@ -5,6 +5,8 @@ from __future__ import annotations
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
@@ -161,8 +163,13 @@ class TestRetryIntegration:
         assert result.report.status == "fail"
         assert result.report.nodes[0].status == "fail"
 
-    def test_terminal_raised_retry_preserves_only_spend_in_final_result(self, tmp_path):
-        """Terminal retry keeps failed cost/history, not ordinary failed writes."""
+    @pytest.mark.parametrize("failure_mode", ["raise", "return"])
+    def test_terminal_raised_retry_preserves_only_spend_in_final_result(
+        self,
+        tmp_path,
+        failure_mode,
+    ):
+        """Terminal raised and returned failures keep cost, not ordinary writes."""
         state = ExperimentState(
             run_id="retry-test-terminal",
             params={"keep": "baseline"},
@@ -188,7 +195,18 @@ class TestRetryIntegration:
                 "run_spent_usd",
                 Decimal("0"),
             ) + Decimal("0.25")
-            raise RuntimeError("terminal after an attempt-side effect")
+            if failure_mode == "raise":
+                raise RuntimeError("terminal after an attempt-side effect")
+            return NodeOutcome(
+                status="fail",
+                state=attempt_state,
+                events=[],
+                artifacts=[],
+                error=NodeError(
+                    code="node.exception",
+                    message="terminal after an attempt-side effect",
+                ),
+            )
 
         node.execute.side_effect = _execute
         registry = MagicMock(spec=NodeRegistry)
@@ -234,9 +252,12 @@ class TestRetryIntegration:
         assert len(retry_events) == 1
         assert retry_events[0].metrics["attempt"] == 1
         assert retry_events[0].metrics["failed_cost_usd"] == 0.25
-        assert len(dead_letter_events) == 1
-        assert dead_letter_events[0].metrics["attempts"] == 2
-        assert dead_letter_events[0].metrics["failed_cost_usd"] == 0.5
+        if failure_mode == "raise":
+            assert len(dead_letter_events) == 1
+            assert dead_letter_events[0].metrics["attempts"] == 2
+            assert dead_letter_events[0].metrics["failed_cost_usd"] == 0.5
+        else:
+            assert dead_letter_events == []
 
     def test_node_with_timeout(self):
         import time as _time

@@ -22,7 +22,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
-from polisyos.data_forge.kernel.io import ensure_dirs
+from polisyos.data_forge.kernel.io import ensure_dirs, sha256_file
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
 from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
@@ -1367,6 +1367,8 @@ def _iter_observation_metric_frames(
                     requested_columns.append(column)
         batch_index = 0
         row_offset = 0
+        emitted_metric_ids: set[str] = set()
+        snapshot_sha256 = sha256_file(artifact_path)
         try:
             import pyarrow.parquet as pq
 
@@ -1379,16 +1381,63 @@ def _iter_observation_metric_frames(
                     row_offset=row_offset,
                 ):
                     yield source, metric_id, batch_index, metric_frame
+                    emitted_metric_ids.add(metric_id)
                 row_offset += len(frame)
                 batch_index += 1
+                emitted_metric_ids.clear()
                 del frame
-        except Exception:
-            frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-            for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                source, frame, row_offset=0
-            ):
-                yield source, metric_id, batch_index, metric_frame
-            del frame
+        except (ImportError, OSError):
+            if sha256_file(artifact_path) != snapshot_sha256:
+                raise RuntimeError(
+                    "normalized observation artifact changed during streaming; "
+                    "cannot resume from an unconfirmed snapshot"
+                )
+
+            if row_offset == 0 and not emitted_metric_ids:
+                # Before publication there is no cursor to preserve, so the
+                # established pandas reader remains an allowed fallback.
+                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source, frame, row_offset=0
+                ):
+                    yield source, metric_id, batch_index, metric_frame
+                del frame
+                continue
+
+            # A reader failure after publication must resume from the same
+            # immutable snapshot.  Re-open the streaming reader and discard
+            # complete batches already accounted for.  When the failure was
+            # between metric frames, the per-batch metric cursor removes only
+            # the metric(s) already yielded; equal values are never deduped.
+            resumed_row_offset = 0
+            pending_metric_ids = set(emitted_metric_ids)
+            parquet_file = pq.ParquetFile(artifact_path)
+            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+                frame = batch.to_pandas()
+                batch_start = resumed_row_offset
+                batch_end = batch_start + len(frame)
+                if batch_end <= row_offset:
+                    resumed_row_offset = batch_end
+                    del frame
+                    continue
+
+                effective_row_offset = batch_start
+                if batch_start < row_offset:
+                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                    effective_row_offset = row_offset
+
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source,
+                    frame,
+                    row_offset=effective_row_offset,
+                ):
+                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                        continue
+                    yield source, metric_id, batch_index, metric_frame
+                pending_metric_ids.clear()
+                batch_index += 1
+                resumed_row_offset = batch_end
+                del frame
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

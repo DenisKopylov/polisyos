@@ -158,7 +158,7 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
-    config, source, frame = _config(tmp_path)
+    config, _, frame = _config(tmp_path)
     original_mapper = sources._observation_metric_frames_from_frame
     mapper_calls = 0
 
@@ -185,15 +185,23 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
 
     monkeypatch.setattr(parquet, "ParquetFile", SingleBatchParquetFile)
     monkeypatch.setattr(sources, "_observation_metric_frames_from_frame", fail_after_first_metric)
+    read_calls: list[Path] = []
+
+    def forbidden_full_read(path: Path, *, columns: list[str] | None = None) -> pd.DataFrame:
+        del columns
+        read_calls.append(path)
+        return frame.copy()
+
     monkeypatch.setattr(
         sources,
         "_read_parquet_frame",
-        lambda _path, *, columns=None: frame.copy(),
+        forbidden_full_read,
     )
 
     emitted = list(sources._iter_observation_metric_frames(config))
 
     assert mapper_calls == 2
+    assert read_calls == []
     assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
         ("metric_a", 0),
         ("metric_b", 0),
@@ -222,3 +230,55 @@ def test_small_real_parquet_reader_preserves_metric_counts_and_snapshot_values(
         ("metric_b", 0),
     ]
     assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
+
+
+def test_partial_resume_aborts_when_normalized_snapshot_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A changed input cannot be resumed as though it were the old snapshot."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+
+    class MutatingParquetFile:
+        """Mutate the input only after the first published batch."""
+
+        def __init__(self, _path: Path) -> None:
+            pass
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size, columns
+            yield _batch(frame.iloc[:2], size=2)
+            artifact.write_bytes(artifact.read_bytes() + b"changed-after-yield")
+            raise OSError("controlled reader failure after input mutation")
+
+    import pyarrow.parquet as parquet
+
+    monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
+
+    with pytest.raises(RuntimeError, match="snapshot"):
+        list(sources._iter_observation_metric_frames(config))
+
+
+def test_build_d2_materializes_unique_observation_shards_and_counts(
+    tmp_path: Path,
+) -> None:
+    """The D2 consumer materializes the streamed frames without duplicate IDs."""
+    pytest.importorskip("pyarrow")
+    pytest.importorskip("duckdb")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, _, _ = _config(tmp_path)
+
+    result = sources.build_d2_stage(config)
+    panel_path = config.build_root.calibration_dir / "d2" / "observation_panel_monthly.parquet"
+    panel = pd.read_parquet(panel_path)
+
+    assert result.outputs["observation_panel_monthly.parquet"].row_count == 8
+    assert result.metrics["n_monthly_records"] == 8
+    assert len(panel) == 8
+    assert panel["observation_id"].is_unique
+    assert set(panel["metric_id"].astype(str)) == {"metric_a", "metric_b"}

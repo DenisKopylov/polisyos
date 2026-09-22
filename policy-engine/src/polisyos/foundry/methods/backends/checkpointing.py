@@ -51,12 +51,14 @@ Usage
 from __future__ import annotations
 
 import base64
+import fcntl
 import hashlib
 import json
 import logging
 import os
 import time
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -82,9 +84,6 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
     ValidatedMethodFamily,
     ValidatedStatus,
-)
-from polisyos.foundry.methods.backends.runtime_fingerprint import (
-    capture_backend_runtime_fingerprint,
 )
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
@@ -189,49 +188,50 @@ class ChainCheckpoint:
         tmp_paths: list[Path] = []
         published_sidecars: list[Path] = []
         try:
-            generation = _checkpoint_generation(path, self.intermediate_state)
-            stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-            force_encoded = generation is not None
-            payload, sidecars = _serialise_state(
-                self.intermediate_state,
-                stem,
-                force_encoded=force_encoded,
-            )
-            history_payload: dict[str, Any] | None = None
-            if self.history_complete:
-                history_payload, history_sidecars = _serialise_state(
-                    {"node_results": self.node_results},
+            with _checkpoint_write_lock(path):
+                generation = _checkpoint_generation(path, self.intermediate_state)
+                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
+                force_encoded = generation is not None
+                payload, sidecars = _serialise_state(
+                    self.intermediate_state,
                     stem,
-                    force_encoded=True,
+                    force_encoded=force_encoded,
                 )
-                sidecars.update(history_sidecars)
-            data = {
-                "chain_digest": self.chain_digest,
-                "completed_fqns": self.completed_fqns,
-                "completed_node_ids": self.completed_node_ids,
-                "intermediate_state": payload,
-                "node_timing_ms": self.node_timing_ms,
-                "created_at": self.created_at,
-                "execution_digest": self.execution_digest,
-                "history_complete": self.history_complete,
-            }
-            if history_payload is not None:
-                data["node_results"] = history_payload["node_results"]
+                history_payload: dict[str, Any] | None = None
+                if self.history_complete:
+                    history_payload, history_sidecars = _serialise_state(
+                        {"node_results": self.node_results},
+                        stem,
+                        force_encoded=True,
+                    )
+                    sidecars.update(history_sidecars)
+                data = {
+                    "chain_digest": self.chain_digest,
+                    "completed_fqns": self.completed_fqns,
+                    "completed_node_ids": self.completed_node_ids,
+                    "intermediate_state": payload,
+                    "node_timing_ms": self.node_timing_ms,
+                    "created_at": self.created_at,
+                    "execution_digest": self.execution_digest,
+                    "history_complete": self.history_complete,
+                }
+                if history_payload is not None:
+                    data["node_results"] = history_payload["node_results"]
 
-            for sidecar_name, arr in sidecars.items():
-                sidecar_path = path.parent / sidecar_name
-                published_sidecars.append(sidecar_path)
-                tmp_sidecar = _tmp_path_for(sidecar_path)
-                tmp_paths.append(tmp_sidecar)
-                _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
-                tmp_paths.remove(tmp_sidecar)
+                for sidecar_name, arr in sidecars.items():
+                    sidecar_path = path.parent / sidecar_name
+                    published_sidecars.append(sidecar_path)
+                    tmp_sidecar = _tmp_path_for(sidecar_path)
+                    tmp_paths.append(tmp_sidecar)
+                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                    tmp_paths.remove(tmp_sidecar)
 
-            json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
-            tmp_json = _tmp_path_for(path)
-            tmp_paths.append(tmp_json)
-            _atomic_write_bytes(tmp_json, path, json_bytes)
-            tmp_paths.remove(tmp_json)
-            self.checkpoint_path = path
+                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                tmp_json = _tmp_path_for(path)
+                tmp_paths.append(tmp_json)
+                _atomic_write_bytes(tmp_json, path, json_bytes)
+                tmp_paths.remove(tmp_json)
+                self.checkpoint_path = path
         except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
             _cleanup_paths(tmp_paths)
             _cleanup_paths(published_sidecars)
@@ -360,12 +360,14 @@ class CheckpointingChainExecutor:
         params_per_node = params_per_node or {}
 
         chain_digest = _compute_chain_digest(chain)
-        execution_digest = _compute_execution_digest(
-            chain,
-            initial_state=initial_state,
-            params_per_node=params_per_node,
-            seed=seed,
-        )
+        execution_digest = None
+        if checkpoint is not None or self._checkpoint_dir is not None:
+            execution_digest = _compute_execution_digest(
+                chain,
+                initial_state=initial_state,
+                params_per_node=params_per_node,
+                seed=seed,
+            )
         execution_order: list[UUID] = chain.execution_order
 
         # Validate checkpoint if provided
@@ -381,10 +383,12 @@ class CheckpointingChainExecutor:
                     "The checkpoint was created for a different chain."
                 )
             _validate_checkpoint_prefix(checkpoint, chain, execution_order)
-            if (
-                checkpoint.execution_digest is not None
-                and checkpoint.execution_digest != execution_digest
-            ):
+            if checkpoint.execution_digest is None:
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint lacks execution identity; legacy checkpoints cannot "
+                    "be resumed safely."
+                )
+            if checkpoint.execution_digest != execution_digest:
                 raise CheckpointDigestMismatchError(
                     "Checkpoint execution identity does not match the effective "
                     "chain plan, inputs, parameters, or seed."
@@ -401,60 +405,14 @@ class CheckpointingChainExecutor:
                     restored = _restore_node_result(snapshot, checkpoint)
                     expected_node_id = execution_order[index]
                     expected_fqn = chain.get_node(expected_node_id).method_fqn
-                    if restored[0] != expected_node_id or snapshot.get("method_fqn") != expected_fqn:
+                    if (
+                        restored[0] != expected_node_id
+                        or snapshot.get("method_fqn") != expected_fqn
+                    ):
                         raise CheckpointLoadError(
                             "Checkpoint per-node history does not match the execution prefix."
                         )
                     all_node_results.append(restored)
-            else:
-                # Legacy checkpoints contain only final intermediate_state.  Keep
-                # resume available, but never present that state as each node's
-                # historical output or current runtime provenance.
-                for node_id, method_fqn, ms in zip(
-                    [UUID(s) for s in checkpoint.completed_node_ids],
-                    checkpoint.completed_fqns,
-                    checkpoint.node_timing_ms or [0.0] * skip_until,
-                    strict=True,
-                ):
-                    method_class = reg.get(method_fqn)
-                    posture = capture_backend_runtime_fingerprint(
-                        method_class.signature.backend,
-                        method_class=method_class,
-                        seed=None,
-                    )
-                    legacy_result = MethodResult(
-                        output=None,
-                        timing=MethodTiming(wall_time_ms=ms),
-                        reproducibility=ReproducibilityInfo(
-                            backend=method_class.signature.backend,
-                            determinism_tier=(
-                                posture.determinism_tier or DeterminismTier.NONDETERMINISTIC
-                            ),
-                            seed=None,
-                            fingerprint=None,
-                            observed_tolerance_budget=posture.observed_tolerance_budget,
-                            note=(
-                                "Legacy checkpoint lacks per-node output and historical "
-                                "runtime provenance; restored result is incomplete."
-                            ),
-                        ),
-                        artifacts={
-                            "checkpoint_restore": {
-                                "status": "restored_from_checkpoint",
-                                "history_incomplete": True,
-                                "checkpoint_path": (
-                                    None
-                                    if checkpoint.checkpoint_path is None
-                                    else str(checkpoint.checkpoint_path)
-                                ),
-                                "method_fqn": method_fqn,
-                                "node_id": str(node_id),
-                                "final_state_not_node_output": True,
-                            }
-                        },
-                        warnings=("restored_from_checkpoint", "history_incomplete"),
-                    )
-                    all_node_results.append((node_id, legacy_result))
 
         # Execute remaining nodes
         for idx, node_id in enumerate(execution_order):
@@ -837,8 +795,8 @@ def _restore_validated_bound(payload: Any) -> ValidatedBound | None:
     return ValidatedBound(
         status=ValidatedStatus(payload["status"]),
         quantity=str(payload["quantity"]),
-        lower=payload.get("lower"),
-        upper=payload.get("upper"),
+        lower=_restore_bound_payload(payload.get("lower")),
+        upper=_restore_bound_payload(payload.get("upper")),
         contains_point_estimate=payload.get("contains_point_estimate"),
         method_family=ValidatedMethodFamily(payload["method_family"]),
         engine=str(payload["engine"]),
@@ -851,6 +809,14 @@ def _restore_validated_bound(payload: Any) -> ValidatedBound | None:
     )
 
 
+def _restore_bound_payload(value: Any) -> float | tuple[float, ...] | None:
+    if isinstance(value, list):
+        return tuple(float(item) for item in value)
+    if value is None:
+        return None
+    return float(value)
+
+
 def _checkpoint_generation(path: Path, state: Mapping[str, Any]) -> str | None:
     """Return a unique sidecar generation when a checkpoint path is reused."""
     if path.exists():
@@ -859,6 +825,18 @@ def _checkpoint_generation(path: Path, state: Mapping[str, Any]) -> str | None:
         if (path.parent / sidecar_name).exists():
             return uuid4().hex
     return None
+
+
+@contextmanager
+def _checkpoint_write_lock(path: Path) -> Iterator[None]:
+    """Serialize writers for one manifest without deleting a peer generation."""
+    lock_path = path.with_name(f".{path.name}.lock")
+    with lock_path.open("a+b") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
@@ -888,6 +866,18 @@ def _encoded_sidecar_name(stem: str, path: tuple[str, ...]) -> str:
     return f"{stem}__{encoded}.npy"
 
 
+def _array_content_digest(value: np.ndarray) -> str:
+    """Hash array semantics used by a manifest-bound sidecar reference."""
+    if value.dtype.hasobject:
+        raise CheckpointSerializationError("Object-dtype arrays cannot be checkpointed safely.")
+    array = np.ascontiguousarray(value)
+    digest = hashlib.sha256()
+    digest.update(array.dtype.str.encode("ascii"))
+    digest.update(json.dumps(list(array.shape), separators=(",", ":")).encode("ascii"))
+    digest.update(array.tobytes(order="C"))
+    return digest.hexdigest()
+
+
 def _serialise_state(
     state: dict[str, Any],
     stem: str,
@@ -912,7 +902,12 @@ def _serialise_state(
         if isinstance(value, np.ndarray):
             sidecar_name = sidecar_names[path]
             sidecars[sidecar_name] = value
-            return {"__npy_ref__": sidecar_name}
+            return {
+                "__npy_ref__": sidecar_name,
+                "__npy_dtype__": value.dtype.str,
+                "__npy_shape__": list(value.shape),
+                "__npy_sha256__": _array_content_digest(value),
+            }
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
@@ -940,15 +935,70 @@ def _serialise_state(
 def _deserialise_state(payload: Any, base_dir: Path) -> Any:
     """Inverse of ``_serialise_state`` for mappings and nested sequences."""
     if isinstance(payload, dict) and "__npy_ref__" in payload:
-        sidecar_path = base_dir / payload["__npy_ref__"]
+        sidecar_path = _resolve_sidecar_path(base_dir, payload)
         if not sidecar_path.exists():
             raise CheckpointLoadError(f"Checkpoint sidecar missing: {sidecar_path}")
-        return np.load(sidecar_path, allow_pickle=False)
+        try:
+            array = np.load(sidecar_path, allow_pickle=False)
+        except (EOFError, OSError, ValueError) as exc:
+            raise CheckpointLoadError(
+                f"Checkpoint sidecar is unreadable: {sidecar_path}"
+            ) from exc
+        if not isinstance(array, np.ndarray):
+            raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
+        expected_shape = payload.get("__npy_shape__")
+        expected_dtype = payload.get("__npy_dtype__")
+        expected_digest = payload.get("__npy_sha256__")
+        if (
+            not isinstance(expected_shape, list)
+            or not isinstance(expected_dtype, str)
+            or not isinstance(expected_digest, str)
+        ):
+            raise CheckpointLoadError(
+                f"Checkpoint sidecar content binding is missing: {sidecar_path}"
+            )
+        if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
+            raise CheckpointLoadError(
+                f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}"
+            )
+        if _array_content_digest(array) != expected_digest:
+            raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
+        return array
     if isinstance(payload, dict):
         return {key: _deserialise_state(value, base_dir) for key, value in payload.items()}
     if isinstance(payload, list):
         return [_deserialise_state(value, base_dir) for value in payload]
     return payload
+
+
+def _resolve_sidecar_path(base_dir: Path, payload: Mapping[str, Any]) -> Path:
+    """Resolve a sidecar only within the checkpoint directory, without links."""
+    reference = payload.get("__npy_ref__")
+    if not isinstance(reference, str) or not reference:
+        raise CheckpointLoadError("Checkpoint sidecar reference must be a non-empty string")
+    relative = Path(reference)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise CheckpointLoadError(
+            f"Checkpoint sidecar reference escapes its directory: {reference}"
+        )
+    root = base_dir.resolve()
+    candidate = root.joinpath(*relative.parts)
+    cursor = root
+    for part in relative.parts:
+        cursor /= part
+        if cursor.is_symlink():
+            raise CheckpointLoadError(f"Checkpoint sidecar path contains a symlink: {reference}")
+    try:
+        resolved = candidate.resolve(strict=False)
+    except (OSError, RuntimeError) as exc:
+        raise CheckpointLoadError(f"Checkpoint sidecar path is invalid: {reference}") from exc
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise CheckpointLoadError(
+            f"Checkpoint sidecar reference escapes its directory: {reference}"
+        ) from exc
+    return candidate
 
 
 def _tmp_path_for(path: Path) -> Path:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 
@@ -9,10 +11,17 @@ import numpy as np
 import pytest
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodSignature,
+)
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
+    CheckpointDigestMismatchError,
     CheckpointError,
+    CheckpointLoadError,
     CheckpointSaveError,
     CheckpointingChainExecutor,
     _compute_chain_digest,
@@ -21,6 +30,16 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.validated import (
+    ValidatedBound,
+    ValidatedMethodFamily,
+    ValidatedStatus,
+)
+from polisyos.foundry.methods.components.composer import (
+    CompiledMethodChain,
+    CompositionDAG,
+    MethodNode,
 )
 
 
@@ -170,6 +189,122 @@ def test_resume_preserves_original_per_node_outputs_and_seed(tmp_path) -> None:
     assert [result.reproducibility.seed for _, result in resumed.node_results] == [7, 7]
 
 
+@pytest.mark.parametrize("change", ["input", "parameter", "seed"])
+def test_legacy_checkpoint_fails_closed_for_unbound_request(tmp_path, change) -> None:
+    """Pre-identity checkpoints must never reuse an unverifiable state."""
+    chain = _chain()
+    checkpoint = ChainCheckpoint(
+        chain_digest=_compute_chain_digest(chain),
+        completed_fqns=["demo.multiply@1.0.0"],
+        completed_node_ids=[str(chain.execution_order[0])],
+        intermediate_state={"value": 6},
+        node_timing_ms=[1.0],
+    )
+    initial_state = {"value": 4 if change == "input" else 3}
+    params = (
+        {chain.execution_order[0]: {"factor": 3}}
+        if change == "parameter"
+        else None
+    )
+    seed = 99 if change == "seed" else 7
+
+    with pytest.raises(CheckpointDigestMismatchError, match="lacks execution identity"):
+        _executor(chain, tmp_path).execute(
+            chain,
+            initial_state=initial_state,
+            params_per_node=params,
+            checkpoint=checkpoint,
+            seed=seed,
+        )
+
+
+def test_no_checkpoint_path_does_not_require_stable_input_digest() -> None:
+    """Plain execution keeps accepting dispatcher-owned opaque state values."""
+    chain = _chain()
+    result = _executor(chain).execute(
+        chain,
+        initial_state={"value": 3, "opaque": object()},
+        seed=7,
+    )
+
+    assert result.final_state["value"] == 7
+
+
+def test_real_compiled_chain_round_trips_native_result_and_validated_bound(tmp_path) -> None:
+    """The persisted history path handles a compiled chain and typed result payload."""
+    node_id = uuid4()
+    method_fqn = "demo.real@1.0.0"
+    node = MethodNode(node_id, method_fqn, params={}, static_params={})
+    dag = CompositionDAG()
+    dag.add_node(node)
+    signature = MethodSignature(
+        name="real",
+        namespace="demo",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(),
+        parameters=(),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    chain = CompiledMethodChain(
+        dag=dag.freeze(),
+        signatures={node_id: signature},
+        execution_order=(node_id,),
+        bindings=(),
+        warnings=(),
+    )
+    method_class = type("RealFakeMethod", (), {"method_fqn": method_fqn, "signature": signature})
+    registry = SimpleNamespace(get=lambda _fqn: method_class)
+    bound = ValidatedBound(
+        status=ValidatedStatus.RIGOROUS_ENCLOSURE,
+        quantity="value",
+        lower=(0.1, 0.2),
+        upper=(0.3, 0.4),
+        contains_point_estimate=True,
+        method_family=ValidatedMethodFamily.INTERVAL,
+        engine="test-engine",
+    )
+
+    class _Dispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            return MethodResult(
+                output={"value": np.array([1.0])},
+                timing=MethodTiming(wall_time_ms=1.0),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+                artifacts={"native": np.array([2.0])},
+                validated_bound=bound,
+            )
+
+    producer = CheckpointingChainExecutor(
+        checkpoint_dir=tmp_path,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+    producer.execute(chain, initial_state={}, seed=13)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    resumed = CheckpointingChainExecutor(
+        checkpoint_dir=None,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    ).execute(chain, initial_state={}, checkpoint=checkpoint, seed=13)
+
+    restored = resumed.node_results[0][1]
+    np.testing.assert_array_equal(restored.output["value"], np.array([1.0]))
+    np.testing.assert_array_equal(restored.artifacts["native"], np.array([2.0]))
+    assert restored.validated_bound is not None
+    assert restored.validated_bound.lower == (0.1, 0.2)
+
+
 def test_resume_rejects_completed_ids_that_are_not_the_chain_prefix(tmp_path) -> None:
     """A count-only skip cannot accept a checkpoint for a non-prefix node."""
     chain = _chain()
@@ -188,6 +323,74 @@ def test_resume_rejects_completed_ids_that_are_not_the_chain_prefix(tmp_path) ->
             checkpoint=checkpoint,
             seed=7,
         )
+
+
+@pytest.mark.parametrize("reference", ["../foreign.npy", "/tmp/foreign.npy"])
+def test_sidecar_reference_cannot_escape_checkpoint_directory(tmp_path, reference) -> None:
+    path = tmp_path / "checkpoint_path_boundary.json"
+    ChainCheckpoint(
+        chain_digest="path-boundary",
+        completed_fqns=[],
+        completed_node_ids=[],
+        intermediate_state={"arr": np.array([1.0])},
+    ).save(path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["intermediate_state"]["arr"]["__npy_ref__"] = reference
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(CheckpointLoadError, match="escapes its directory"):
+        ChainCheckpoint.load(path)
+
+
+def test_sidecar_symlink_is_rejected_before_load(tmp_path) -> None:
+    path = tmp_path / "checkpoint_symlink.json"
+    ChainCheckpoint(
+        chain_digest="symlink",
+        completed_fqns=[],
+        completed_node_ids=[],
+        intermediate_state={"arr": np.array([1.0])},
+    ).save(path)
+    sidecar = tmp_path / "checkpoint_symlink_arr.npy"
+    foreign = tmp_path.parent / "foreign-sidecar.npy"
+    np.save(foreign, np.array([9.0]))
+    sidecar.unlink()
+    sidecar.symlink_to(foreign)
+
+    with pytest.raises(CheckpointLoadError, match="symlink"):
+        ChainCheckpoint.load(path)
+
+
+def test_foreign_sidecar_content_is_rejected(tmp_path) -> None:
+    path = tmp_path / "checkpoint_content_binding.json"
+    ChainCheckpoint(
+        chain_digest="content-binding",
+        completed_fqns=[],
+        completed_node_ids=[],
+        intermediate_state={"arr": np.array([1.0])},
+    ).save(path)
+    np.save(tmp_path / "checkpoint_content_binding_arr.npy", np.array([9.0]))
+
+    with pytest.raises(CheckpointLoadError, match="content mismatch"):
+        ChainCheckpoint.load(path)
+
+
+def test_same_manifest_concurrent_saves_publish_complete_generations(tmp_path) -> None:
+    path = tmp_path / "checkpoint_concurrent.json"
+
+    def save(value: float) -> None:
+        ChainCheckpoint(
+            chain_digest="concurrent",
+            completed_fqns=[],
+            completed_node_ids=[],
+            intermediate_state={"arr": np.array([value])},
+        ).save(path)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        list(pool.map(save, (1.0, 2.0)))
+
+    loaded = ChainCheckpoint.load(path)
+    assert loaded.intermediate_state["arr"].tolist() in ([1.0], [2.0])
+    assert len(list(tmp_path.glob("checkpoint_concurrent*.npy"))) >= 2
 
 
 def test_sidecar_encoding_keeps_flat_and_nested_paths_distinct(tmp_path) -> None:

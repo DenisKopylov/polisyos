@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
+    CheckpointDigestMismatchError,
     CheckpointingChainExecutor,
     CheckpointLoadError,
     CheckpointSaveError,
@@ -123,7 +124,7 @@ def test_checkpoint_save_failure_is_diagnostic_and_can_fail_closed(tmp_path, mon
         )
 
 
-def test_execute_resumes_with_checkpoint_stub_results(tmp_path) -> None:
+def test_execute_rejects_legacy_checkpoint_stub_results(tmp_path) -> None:
     from polisyos.core.observability.determinism import DeterminismTier
     from polisyos.foundry.methods.backends.protocol import (
         MethodResult,
@@ -168,19 +169,67 @@ def test_execute_resumes_with_checkpoint_stub_results(tmp_path) -> None:
         dispatcher=_Dispatcher(),
     )
 
-    result = executor.execute(
+    with pytest.raises(CheckpointDigestMismatchError, match="lacks execution identity"):
+        executor.execute(
+            chain,
+            initial_state={"value": 0},
+            checkpoint=checkpoint,
+            seed=11,
+        )
+
+
+def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) -> None:
+    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.foundry.methods.backends.protocol import (
+        MethodResult,
+        MethodTiming,
+        ReproducibilityInfo,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
+    method_class = type(
+        "FakeMethod",
+        (),
+        {
+            "signature": SimpleNamespace(backend=ComputeBackend.NUMPY),
+        },
+    )
+    registry = SimpleNamespace(get=lambda _fqn: method_class)
+
+    class _Dispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            return MethodResult(
+                output={"value": int(state["value"]) + 1},
+                timing=MethodTiming(wall_time_ms=1.25),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+            )
+
+    producer = CheckpointingChainExecutor(
+        checkpoint_dir=tmp_path,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+    producer.execute(chain, initial_state={"value": 0}, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    consumer = CheckpointingChainExecutor(
+        checkpoint_dir=None,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+    result = consumer.execute(
         chain,
         initial_state={"value": 0},
         checkpoint=checkpoint,
         seed=11,
     )
 
-    assert len(result.node_results) == 2
-    restored = result.node_results[0][1]
-    assert restored.warnings == ("restored_from_checkpoint",)
-    assert restored.artifacts["checkpoint_restore"]["status"] == "restored_from_checkpoint"
-    assert restored.reproducibility.backend == ComputeBackend.NUMPY
+    assert [item.output for _, item in result.node_results] == [{"value": 1}, {"value": 2}]
+    assert result.node_results[0][1].reproducibility.seed == 11
     assert result.final_state["value"] == 2
-    assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
     assert result.reproducibility_contract["node_count"] == 2
-    assert result.reproducibility_contract["composition_kind"] == "serial"

@@ -232,4 +232,6 @@ def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) ->
     assert [item.output for _, item in result.node_results] == [{"value": 1}, {"value": 2}]
     assert result.node_results[0][1].reproducibility.seed == 11
     assert result.final_state["value"] == 2
+    assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
     assert result.reproducibility_contract["node_count"] == 2
+    assert result.reproducibility_contract["composition_kind"] == "serial"

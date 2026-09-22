@@ -36,6 +36,10 @@ class CursorStoreError(ValueError):
     """Raised when the cursor index cannot be safely loaded or persisted."""
 
 
+class CursorStoreConflict(CursorStoreError):
+    """Raised when a conditional cursor/checkpoint update finds newer state."""
+
+
 class CursorStore:
     """Read/write cursor/checkpoint artifacts to CAS with lightweight indices."""
 
@@ -115,10 +119,135 @@ class CursorStore:
                     "cursor index expected artifact cannot be loaded"
                 ) from exc
             if current_cursor.model_dump(mode="json") != expected_cursor.model_dump(mode="json"):
-                raise CursorStoreError("cursor index changed before rollback")
+                raise CursorStoreConflict("cursor index changed before rollback")
             latest.pop(cursor_id)
             self._save_index_unlocked(latest)
             self._index = latest
+
+    def restore_stream_frontier(
+        self,
+        *,
+        expected_cursor: CursorState,
+        expected_checkpoint: StreamCheckpoint,
+        restore_cursor: CursorState | None,
+        restore_checkpoint: StreamCheckpoint,
+    ) -> None:
+        """Conditionally restore one cursor/checkpoint pair under both locks."""
+        if restore_checkpoint.stream_id != expected_checkpoint.stream_id:
+            raise ValueError("restore checkpoint does not match expected stream")
+        if (
+            restore_cursor is not None
+            and restore_cursor.cursor_id != expected_cursor.cursor_id
+        ):
+            raise ValueError("restore cursor does not match expected cursor")
+
+        restore_cursor_ref: ArtifactRef | None = None
+        if restore_cursor is not None:
+            restore_cursor_ref = self._store.put_json(
+                restore_cursor.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="fabric.cursor_state",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="cursor_state", version="1.0"),
+                ),
+            )
+        restore_checkpoint_ref = self._store.put_json(
+            restore_checkpoint.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind="fabric.stream_checkpoint",
+                media_type="application/json",
+                schema=SchemaInfo(name="stream_checkpoint", version="1.0"),
+            ),
+        )
+
+        with self._lock, file_lock(self._lock_path), file_lock(self._stream_lock_path):
+            previous_cursor_index = self._load_index_unlocked()
+            previous_stream_index = self._load_stream_index_unlocked()
+            current_cursor_artifact = previous_cursor_index.get(expected_cursor.cursor_id)
+            if current_cursor_artifact is not None:
+                try:
+                    current_cursor = self.load_cursor(
+                        ArtifactID.model_validate(current_cursor_artifact)
+                    )
+                except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                    raise CursorStoreConflict(
+                        "expected cursor artifact cannot be loaded during compensation"
+                    ) from exc
+                if current_cursor.model_dump(mode="json") != expected_cursor.model_dump(
+                    mode="json"
+                ):
+                    raise CursorStoreConflict(
+                        "cursor/checkpoint pair changed before compensation"
+                    )
+
+            current_checkpoint_artifact = previous_stream_index.get(
+                expected_checkpoint.stream_id
+            )
+            if current_checkpoint_artifact is None:
+                raise CursorStoreConflict(
+                    "expected stream checkpoint is missing during compensation"
+                )
+            try:
+                current_checkpoint = self.load_stream_checkpoint(
+                    ArtifactID.model_validate(current_checkpoint_artifact)
+                )
+            except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                raise CursorStoreConflict(
+                    "expected stream checkpoint artifact cannot be loaded during compensation"
+                ) from exc
+            if current_checkpoint.model_dump(mode="json") != expected_checkpoint.model_dump(
+                mode="json"
+            ):
+                raise CursorStoreConflict(
+                    "cursor/checkpoint pair changed before compensation"
+                )
+
+            latest_cursor_index = dict(previous_cursor_index)
+            cursor_index_changed = current_cursor_artifact is not None
+            if restore_cursor is None:
+                latest_cursor_index.pop(expected_cursor.cursor_id, None)
+            else:
+                if restore_cursor_ref is None:  # pragma: no cover - guarded above
+                    raise CursorStoreError("restore cursor artifact was not written")
+                latest_cursor_index[restore_cursor.cursor_id] = str(
+                    restore_cursor_ref.artifact_id
+                )
+                cursor_index_changed = True
+            latest_stream_index = dict(previous_stream_index)
+            latest_stream_index[restore_checkpoint.stream_id] = str(
+                restore_checkpoint_ref.artifact_id
+            )
+
+            stream_index_written = False
+            cursor_index_written = False
+            try:
+                # Keep the same cursor -> stream lock order and write the
+                # checkpoint side first, so a failed cursor write rolls back
+                # both indices without exposing a cursor-only frontier.
+                stream_index_written = True
+                self._save_stream_index_unlocked(latest_stream_index)
+                if cursor_index_changed:
+                    cursor_index_written = True
+                    self._save_index_unlocked(latest_cursor_index)
+            except Exception:
+                rollback_error: Exception | None = None
+                try:
+                    if stream_index_written:
+                        self._save_stream_index_unlocked(previous_stream_index)
+                    if cursor_index_written:
+                        self._save_index_unlocked(previous_cursor_index)
+                except Exception as rollback_exc:  # pragma: no cover - catastrophic I/O
+                    rollback_error = rollback_exc
+                self._index = previous_cursor_index
+                self._stream_index = previous_stream_index
+                if rollback_error is not None:
+                    raise CursorStoreError(
+                        "stream frontier compensation index rollback failed"
+                    ) from rollback_error
+                raise
+
+            self._index = latest_cursor_index
+            self._stream_index = latest_stream_index
 
     def save_stream_checkpoint(self, checkpoint: StreamCheckpoint) -> ArtifactRef:
         """Persist one stream checkpoint and update the latest index."""
@@ -643,6 +772,23 @@ class AsyncCursorStoreAdapter:
             timeout_seconds=self.timeout_seconds,
         )
 
+    async def restore_stream_frontier(
+        self,
+        *,
+        expected_cursor: CursorState,
+        expected_checkpoint: StreamCheckpoint,
+        restore_cursor: CursorState | None,
+        restore_checkpoint: StreamCheckpoint,
+    ) -> None:
+        await run_blocking_async(
+            self.store.restore_stream_frontier,
+            expected_cursor=expected_cursor,
+            expected_checkpoint=expected_checkpoint,
+            restore_cursor=restore_cursor,
+            restore_checkpoint=restore_checkpoint,
+            timeout_seconds=self.timeout_seconds,
+        )
+
     async def save_stream_checkpoint(self, checkpoint: StreamCheckpoint) -> ArtifactRef:
         return await run_blocking_async(
             self.store.save_stream_checkpoint,
@@ -727,4 +873,9 @@ class AsyncCursorStoreAdapter:
         )
 
 
-__all__ = ["AsyncCursorStoreAdapter", "CursorStore", "CursorStoreError"]
+__all__ = [
+    "AsyncCursorStoreAdapter",
+    "CursorStore",
+    "CursorStoreConflict",
+    "CursorStoreError",
+]

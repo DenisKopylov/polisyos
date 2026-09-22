@@ -33,6 +33,7 @@ from polisyos.fabric.connectors.pool import BackpressureLevel, ConnectionPool, P
 from polisyos.fabric.data_plane.cursor_store import (
     AsyncCursorStoreAdapter,
     CursorStore,
+    CursorStoreConflict,
     CursorStoreError,
 )
 from polisyos.fabric.data_plane.quarantine import (
@@ -1364,23 +1365,16 @@ async def _restore_local_frontier(
     previous_checkpoint: StreamCheckpoint | None,
     previous_cursor: CursorState | None,
     target_cursor: CursorState,
+    target_checkpoint: StreamCheckpoint,
     empty_frontier: StreamCheckpoint,
 ) -> None:
     """Restore the last local pair, or the explicit empty frontier."""
-    if previous_checkpoint is not None and previous_cursor is not None:
-        await async_cursor_store.commit_stream_progress(
-            cursor=previous_cursor,
-            checkpoint=previous_checkpoint,
-        )
-        return
-    # A first-pair failure can leave the cursor index advanced even when the
-    # paired checkpoint write failed.  Remove only that unpaired index entry;
-    # the immutable CAS artifact remains available for diagnosis/reconciliation.
-    await async_cursor_store.remove_cursor(
-        target_cursor.cursor_id,
+    await async_cursor_store.restore_stream_frontier(
         expected_cursor=target_cursor,
+        expected_checkpoint=target_checkpoint,
+        restore_cursor=previous_cursor,
+        restore_checkpoint=previous_checkpoint or empty_frontier,
     )
-    await async_cursor_store.save_stream_checkpoint(previous_checkpoint or empty_frontier)
 
 
 async def _commit_stream_frontier(
@@ -1437,7 +1431,13 @@ async def _commit_stream_frontier(
                 previous_checkpoint=previous_checkpoint,
                 previous_cursor=previous_cursor,
                 target_cursor=cursor,
+                target_checkpoint=prepared_checkpoint,
                 empty_frontier=empty_frontier,
+            )
+        except CursorStoreConflict as compensation_exc:
+            exc.add_note(
+                "source compensation found a changed cursor/checkpoint pair; "
+                f"newer local frontier preserved: {compensation_exc!r}"
             )
         except Exception as compensation_exc:
             await _save_unresolved_frontier(

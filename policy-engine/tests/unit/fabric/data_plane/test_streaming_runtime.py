@@ -1117,7 +1117,7 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     cursor_store = CursorStore(store)
     source_commits: list[StreamCheckpoint] = []
     compensating_rewinds: list[StreamCheckpoint] = []
-    original_save_stream_checkpoint = AsyncCursorStoreAdapter.save_stream_checkpoint
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
 
     async def record_source_commit(
         self: StreamingSourceSession,
@@ -1145,16 +1145,12 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
         self.store.save_cursor(cursor)
         raise RuntimeError("local pair failed after cursor index advance")
 
-    async def fail_empty_frontier_restore(
+    async def fail_frontier_restore(
         self: AsyncCursorStoreAdapter,
-        checkpoint: StreamCheckpoint,
+        **kwargs: Any,
     ) -> Any:
-        # The empty checkpoint is deliberately not written: this is the
-        # rollback failure that must leave an unresolved marker, not an empty
-        # checkpoint masking the orphaned cursor.
-        if "frontier_intent" not in checkpoint.metadata:
-            raise RuntimeError("empty frontier restore failed")
-        return await original_save_stream_checkpoint(self, checkpoint)
+        await original_restore_stream_frontier(self, **kwargs)
+        raise RuntimeError("frontier restore failed")
 
     monkeypatch.setattr(StreamingSourceSession, "commit", record_source_commit)
     monkeypatch.setattr(StreamingSourceSession, "rewind", compensate_source_commit)
@@ -1165,8 +1161,8 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     )
     monkeypatch.setattr(
         AsyncCursorStoreAdapter,
-        "save_stream_checkpoint",
-        fail_empty_frontier_restore,
+        "restore_stream_frontier",
+        fail_frontier_restore,
     )
 
     with pytest.raises(RuntimeError, match="local pair failed after cursor index advance"):
@@ -1190,7 +1186,8 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     assert unresolved is not None
     assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
     assert unresolved.metadata["frontier_committed"] is False
-    # The failed rollback must not leave a cursor that has no paired frontier.
+    # The pair was cleared before the post-restore failure; the unresolved
+    # marker remains the fail-closed guard for recovery.
     assert cursor_store.find_latest_cursor(
         "stream.jsonl",
         "partial-first-frontier",
@@ -1214,8 +1211,7 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
     cursor_store = CursorStore(store)
-    original_remove_cursor = AsyncCursorStoreAdapter.remove_cursor
-    original_save_stream_checkpoint = AsyncCursorStoreAdapter.save_stream_checkpoint
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
     target_cursors: list[Any] = []
     newer_cursors: list[Any] = []
 
@@ -1236,17 +1232,8 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
         self.store.save_cursor(cursor)
         raise RuntimeError("local pair failed before checkpoint index")
 
-    async def fail_empty_frontier_restore(
+    async def publish_newer_then_restore(
         self: AsyncCursorStoreAdapter,
-        checkpoint: StreamCheckpoint,
-    ) -> Any:
-        if "frontier_intent" not in checkpoint.metadata:
-            raise RuntimeError("empty frontier restore failed")
-        return await original_save_stream_checkpoint(self, checkpoint)
-
-    async def publish_newer_then_remove(
-        self: AsyncCursorStoreAdapter,
-        cursor_id: str,
         **kwargs: Any,
     ) -> Any:
         assert target_cursors
@@ -1259,7 +1246,7 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
         )
         newer_cursors.append(newer)
         self.store.save_cursor(newer)
-        return await original_remove_cursor(self, cursor_id, **kwargs)
+        return await original_restore_stream_frontier(self, **kwargs)
 
     monkeypatch.setattr(StreamingSourceSession, "commit", source_commit_succeeds)
     monkeypatch.setattr(
@@ -1269,13 +1256,8 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
     )
     monkeypatch.setattr(
         AsyncCursorStoreAdapter,
-        "save_stream_checkpoint",
-        fail_empty_frontier_restore,
-    )
-    monkeypatch.setattr(
-        AsyncCursorStoreAdapter,
-        "remove_cursor",
-        publish_newer_then_remove,
+        "restore_stream_frontier",
+        publish_newer_then_restore,
     )
 
     with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):
@@ -1296,17 +1278,17 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
     )
     assert latest_cursor is not None
     assert latest_cursor.watermark_value == newer_cursors[0].watermark_value
-    unresolved = cursor_store.find_latest_stream_checkpoint(
+    prepared = cursor_store.find_latest_stream_checkpoint(
         "stream.jsonl",
         "intervening-frontier",
     )
-    assert unresolved is not None
-    assert unresolved.metadata["frontier_intent"]["state"] == "unresolved"
-    assert unresolved.metadata["frontier_committed"] is False
+    assert prepared is not None
+    assert prepared.metadata["frontier_intent"]["state"] == "prepared"
+    assert prepared.metadata["frontier_committed"] is False
 
 
 @pytest.mark.asyncio
-async def test_stream_first_frontier_restore_preserves_aba_pair_after_cursor_delete(
+async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1322,7 +1304,7 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_cursor_del
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
     cursor_store = CursorStore(store)
-    original_remove_cursor = AsyncCursorStoreAdapter.remove_cursor
+    original_restore_stream_frontier = AsyncCursorStoreAdapter.restore_stream_frontier
     source_commits: list[StreamCheckpoint] = []
     target_cursors: list[Any] = []
     published_pairs: list[tuple[Any, StreamCheckpoint]] = []
@@ -1351,12 +1333,11 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_cursor_del
         self.store.save_cursor(cursor)
         raise RuntimeError("local pair failed before checkpoint index")
 
-    async def publish_aba_pair_after_remove(
+    async def publish_aba_pair_after_restore(
         self: AsyncCursorStoreAdapter,
-        cursor_id: str,
         **kwargs: Any,
     ) -> Any:
-        result = await original_remove_cursor(self, cursor_id, **kwargs)
+        result = await original_restore_stream_frontier(self, **kwargs)
         assert target_cursors
         assert source_commits
         target_cursor = target_cursors[0]
@@ -1385,8 +1366,8 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_cursor_del
     )
     monkeypatch.setattr(
         AsyncCursorStoreAdapter,
-        "remove_cursor",
-        publish_aba_pair_after_remove,
+        "restore_stream_frontier",
+        publish_aba_pair_after_restore,
     )
 
     with pytest.raises(RuntimeError, match="local pair failed before checkpoint index"):

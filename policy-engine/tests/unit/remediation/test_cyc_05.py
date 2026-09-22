@@ -13,6 +13,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import SearchTerminalKind, SubDesignContract, gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
+    _search_exit_binding_hash,
     derive_recursive_design_graph,
 )
 from polisyos.runtime.http.services.control.generation_cycle import (
@@ -31,7 +32,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     build_default_recursive_generation_cycle_controller,
     recompute_depth_n_strangle_receipt,
 )
-from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
+from polisyos.runtime.quality.workspace.loop import WorkspaceLoop, WorkspaceSearchExitContract
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.remediation.test_cyc_02 import (
     _recursive_contract_testing_controller,
@@ -651,6 +652,58 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     assert root_node.terminal.kind is not SearchTerminalKind.GROUNDED_ADMISSIBLE
 
 
+def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> None:
+    """The parent export aliases are unique while nested child evidence stays source-bound."""
+
+    loop = WorkspaceLoop()
+    children = tuple(
+        loop.decompose_fixture(
+            parent_workspace_id="design://cyc-05/alias-readback-parent",
+            child_fixture_ids=[
+                "ua_msme_credit_worldbank_measurement",
+                "ua_msme_credit_worldbank_measurement",
+            ],
+        )
+    )
+
+    alias_workspace_ids = tuple(child.workspace_id for child in children)
+    assert len(alias_workspace_ids) == len(children) == 2
+    assert len(set(alias_workspace_ids)) == len(children)
+    assert tuple(child.search_exit.workspace_id for child in children) == alias_workspace_ids
+
+    # The same fixture deliberately emits the same source exit handle.  The
+    # exported workspace alias and its content-bound search-exit hash provide
+    # the identity that distinguishes the two parent-facing children.
+    source_exit_ids = tuple(child.search_exit.exit_id for child in children)
+    assert len(set(source_exit_ids)) == 1
+    binding_hashes = tuple(
+        _search_exit_binding_hash(child.search_exit.model_dump(mode="json"))
+        for child in children
+    )
+    assert len(set(binding_hashes)) == len(children)
+
+    for child in children:
+        assert isinstance(child.search_exit, WorkspaceSearchExitContract)
+        source_workspace_id = child.search_exit.workspace_contract.workspace_id
+        assert source_workspace_id != child.workspace_id
+        assert child.search_exit.frontier_snapshot.workspace_id == source_workspace_id
+        assert child.search_exit.incompleteness_record.workspace_id == source_workspace_id
+        assert child.search_exit.search_ledger.workspace_id == source_workspace_id
+        assert child.search_exit.voi_audit.workspace_id == source_workspace_id
+
+        payload = child.search_exit.model_dump(mode="json")
+        roundtripped = WorkspaceSearchExitContract.model_validate(payload)
+        assert roundtripped.model_dump(mode="json") == payload
+        assert roundtripped.workspace_id == child.workspace_id
+        assert roundtripped.exit_id == child.search_exit.exit_id
+        assert roundtripped.workspace_contract_ref == child.search_exit.workspace_contract_ref
+        assert roundtripped.workspace_contract.workspace_id == source_workspace_id
+        assert roundtripped.frontier_snapshot.workspace_id == source_workspace_id
+        assert roundtripped.incompleteness_record.workspace_id == source_workspace_id
+        assert roundtripped.search_ledger.workspace_id == source_workspace_id
+        assert roundtripped.voi_audit.workspace_id == source_workspace_id
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("control", ("missing_child", "missing_coupling", "identity"))
 async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inputs(
@@ -696,4 +749,32 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
             "missing_coupling": "observed_coupling_evidence_missing",
             "identity": "recursive_subdesign_terminal_binding_mismatch",
         }[control]
+    ]
+
+
+@pytest.mark.asyncio
+async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_path: Path) -> None:
+    """A child exported under another parent cannot reach N5 or composition."""
+
+    root, subdesigns, graph, problems, request = _cyc05_recursive_fixture_case(tmp_path)
+    supplied = (
+        subdesigns[0].model_copy(update={"parent_workspace_id": "design://wrong-parent"}),
+        subdesigns[1],
+    )
+
+    result, calls = await _run_cyc05_recursive_case(
+        tmp_path=tmp_path,
+        root=root,
+        graph=graph,
+        problems=problems,
+        request=request,
+        subdesigns=supplied,
+    )
+    root_node = next(node for node in result.nodes if node.node_ref == root)
+    assert calls == []
+    assert root_node.joint_simulation is None
+    assert root_node.composition_certificate is None
+    assert root_node.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED
+    assert root_node.terminal.blocking_obligations == [
+        "recursive_subdesign_terminal_binding_mismatch"
     ]

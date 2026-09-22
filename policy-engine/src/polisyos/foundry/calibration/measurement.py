@@ -211,11 +211,11 @@ _SOURCE_CONFIDENCE_PRIORITY = {
 
 
 def _observation_selection_key(record: ObservationRecord) -> tuple[object, ...]:
-    """Rank duplicate observations without using technical lineage IDs.
+    """Rank duplicate observations by declared quality, not source identity.
 
-    Authority and quality signals precede source identity.  The source
-    identity fields are content-based deterministic tie-breakers; an
-    ``observation_id`` is deliberately not part of this key.
+    Source and lineage fields are deliberately absent from this key.  When
+    quality signals tie, the caller must reject conflicting records rather
+    than silently collapsing them by a technical or source identifier.
     """
     return (
         _SOURCE_CONFIDENCE_PRIORITY[record.source_confidence_tier.value],
@@ -225,11 +225,6 @@ def _observation_selection_key(record: ObservationRecord) -> tuple[object, ...]:
         float(record.coverage_estimate),
         float(record.trust_weight),
         -int(record.lag_days_estimate),
-        record.source_id,
-        record.source_version,
-        record.unit,
-        record.schema_regime_id,
-        record.regime_id,
     )
 
 

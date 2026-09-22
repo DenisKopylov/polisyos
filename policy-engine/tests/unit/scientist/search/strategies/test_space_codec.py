@@ -70,6 +70,91 @@ def test_legacy_sobol_checkpoint_fails_closed_with_exact_reason(
         restored._sobol_candidate(0)
 
 
+def test_sobol_checkpoint_rejects_same_dimension_space_change(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=123)
+    strategy._sobol_candidate(1)
+    state = strategy.get_state()
+    different_space = SearchSpace(
+        bounds=[ParameterBounds(name="x", lower=-10.0, upper=10.0)]
+    )
+
+    restored = RandomSearchStrategy(space=different_space, seed=999)
+    with pytest.raises(ValueError, match="search space changed"):
+        restored.set_state(StrategyState.from_artifact(state.to_artifact()))
+
+
+def test_sobol_checkpoint_rejects_cursor_cache_mismatch(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=123)
+    strategy._sobol_candidate(1)
+    state = strategy.get_state()
+    state.rng_state["sobol"]["cursor"] += 1
+
+    restored = RandomSearchStrategy(space=simple_space, seed=999)
+    with pytest.raises(ValueError, match="cursor/cache mismatch"):
+        restored.set_state(StrategyState.from_artifact(state.to_artifact()))
+
+
+def test_sobol_checkpoint_rejects_saved_prefix_divergence(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=123)
+    strategy._sobol_candidate(2)
+    state = strategy.get_state()
+    original = state.rng_state["sobol"]["cache"][1][0]
+    state.rng_state["sobol"]["cache"][1][0] = 0.0 if original != 0.0 else 1.0
+
+    restored = RandomSearchStrategy(space=simple_space, seed=999)
+    with pytest.raises(ValueError, match="cached prefix diverges"):
+        restored.set_state(StrategyState.from_artifact(state.to_artifact()))
+
+
+def test_sobol_checkpoint_rejects_unknown_sampler_version(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=123)
+    strategy._sobol_candidate(0)
+    state = strategy.get_state()
+    state.rng_state["sobol"]["sampler_version"] = "unknown"
+
+    restored = RandomSearchStrategy(space=simple_space, seed=999)
+    with pytest.raises(ValueError, match="sampler version is missing or unknown"):
+        restored.set_state(StrategyState.from_artifact(state.to_artifact()))
+
+
+def test_checkpoint_rejects_missing_python_rng_without_mutating_iteration(
+    simple_space: SearchSpace,
+) -> None:
+    restored = RandomSearchStrategy(space=simple_space, seed=999)
+    legacy = StrategyState(
+        strategy_name="RandomSearchStrategy",
+        iteration=99,
+        rng_state={},
+    )
+
+    with pytest.raises(ValueError, match="Python random state is missing"):
+        restored.set_state(legacy)
+    assert restored._iteration == 0
+
+
+def test_checkpoint_rejects_foreign_strategy_before_mutating_state(
+    simple_space: SearchSpace,
+) -> None:
+    restored = RandomSearchStrategy(space=simple_space, seed=999)
+    foreign = StrategyState(
+        strategy_name="GridSearchStrategy",
+        iteration=99,
+        rng_state={"python": random.Random(123).getstate()},
+    )
+
+    with pytest.raises(ValueError, match="strategy identity changed"):
+        restored.set_state(foreign)
+    assert restored._iteration == 0
+
+
 def test_scalar_codec_path_encode_decode() -> None:
     codec = ScalarParameterCodec(
         parameter_paths={

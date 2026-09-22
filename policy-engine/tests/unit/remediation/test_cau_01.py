@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from statistics import NormalDist
+
 import numpy as np
 import pytest
 from statsmodels.api import OLS
@@ -72,18 +74,32 @@ def test_cau_01_confidence_level_changes_did_interval() -> None:
     """Normal critical values must follow the requested DiD confidence level."""
 
     data = _panel()
-    intervals = {
+    report_values = {
         level: _report(
             StandardDifferenceInDifferences.pure_step(data, {"confidence_level": level})
-        ).confidence_interval
+        )
         for level in (0.80, 0.95, 0.99)
     }
+    intervals = {level: report.confidence_interval for level, report in report_values.items()}
+    critical_values = {
+        level: NormalDist().inv_cdf((1.0 + level) / 2.0)
+        for level in (0.80, 0.95, 0.99)
+    }
+    point_estimate = report_values[0.95].point_estimate
 
     assert intervals[0.80] != intervals[0.95]
     assert intervals[0.95] != intervals[0.99]
     assert (intervals[0.99][1] - intervals[0.99][0]) > (
         intervals[0.80][1] - intervals[0.80][0]
     )
+    for level, report in report_values.items():
+        assert report.point_estimate == pytest.approx(point_estimate)
+        assert report.confidence_interval == pytest.approx(
+            (
+                point_estimate - critical_values[level] * report.standard_error,
+                point_estimate + critical_values[level] * report.standard_error,
+            )
+        )
 
 
 def test_cau_01_confidence_level_changes_rdd_interval() -> None:
@@ -91,18 +107,86 @@ def test_cau_01_confidence_level_changes_rdd_interval() -> None:
 
     data = _rdd()
     params = {"bandwidth": 0.8, "kernel": "triangular", "manipulation_test": False}
-    intervals = {
+    reports = {
         level: _report(
             RegressionDiscontinuity.pure_step(data, {**params, "confidence_level": level})
-        ).confidence_interval
+        )
         for level in (0.80, 0.95, 0.99)
     }
+    intervals = {level: report.confidence_interval for level, report in reports.items()}
+    critical_values = {
+        level: NormalDist().inv_cdf((1.0 + level) / 2.0)
+        for level in (0.80, 0.95, 0.99)
+    }
+    point_estimate = reports[0.95].point_estimate
 
     assert intervals[0.80] != intervals[0.95]
     assert intervals[0.95] != intervals[0.99]
     assert (intervals[0.99][1] - intervals[0.99][0]) > (
         intervals[0.80][1] - intervals[0.80][0]
     )
+    for level, report in reports.items():
+        assert report.point_estimate == pytest.approx(point_estimate)
+        assert report.confidence_interval == pytest.approx(
+            (
+                point_estimate - critical_values[level] * report.standard_error,
+                point_estimate + critical_values[level] * report.standard_error,
+            )
+        )
+    assert reports[0.95].method_params["confidence_procedure"] == "normal_two_sided"
+    assert reports[0.95].method_params["critical_value"] == pytest.approx(
+        critical_values[0.95]
+    )
+
+
+def test_cau_01_did_95_interval_matches_normal_critical_value_and_preserves_point() -> None:
+    """The requested 95% level preserves the point estimate and uses z(.975)."""
+
+    data = _panel()
+    report_95 = _report(
+        StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.95})
+    )
+    report_80 = _report(
+        StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.80})
+    )
+    critical_value = NormalDist().inv_cdf((1.0 + 0.95) / 2.0)
+
+    assert report_95.point_estimate == pytest.approx(report_80.point_estimate)
+    assert report_95.confidence_interval == pytest.approx(
+        (
+            report_95.point_estimate - critical_value * report_95.standard_error,
+            report_95.point_estimate + critical_value * report_95.standard_error,
+        )
+    )
+    assert report_95.method_params["confidence_procedure"] == "normal_two_sided"
+    assert report_95.method_params["critical_value"] == pytest.approx(critical_value)
+
+
+def test_cau_01_invalid_did_confidence_level_fails_closed() -> None:
+    """An invalid DiD confidence level is an input failure, not a default to 95%."""
+
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(_panel(), {"confidence_level": 1.0})
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "confidence_level must be in (0, 1)"
+    assert report.point_estimate is None
+
+
+def test_cau_01_invalid_rdd_confidence_level_fails_closed() -> None:
+    """An invalid RDD confidence level is rejected before local fitting."""
+
+    report = _report(
+        RegressionDiscontinuity.pure_step(
+            _rdd(),
+            {"bandwidth": 0.8, "kernel": "triangular", "confidence_level": 0.0},
+        )
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "confidence_level must be in (0, 1)"
+    assert report.point_estimate is None
 
 
 def test_cau_01_cluster_covariance_uses_unit_ids() -> None:
@@ -120,6 +204,38 @@ def test_cau_01_cluster_covariance_uses_unit_ids() -> None:
     assert clustered.method_params["cov_type"] == "cluster"
     assert clustered.method_params["covariance_procedure"] == "unit_cluster_cr0"
     assert clustered.standard_error != pytest.approx(hc1.standard_error)
+
+
+def test_cau_01_cluster_covariance_requires_unit_identity() -> None:
+    """A cluster request without panel identities cannot silently fall back to HC1."""
+
+    data = PanelObservationalData(
+        outcome=_panel().outcome,
+        treatment=_panel().treatment,
+        time_treatment=2,
+    )
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(data, {"cov_type": "cluster"})
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "cluster covariance requires unit_ids"
+    assert report.point_estimate is None
+
+
+def test_cau_01_cluster_covariance_rejects_bad_identity_shape() -> None:
+    """A cluster request with an unbound identity shape fails closed."""
+
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            _panel(),
+            {"cov_type": "cluster", "cluster_var": np.array(["only-one-label"])},
+        )
+    )
+
+    assert report.status == EstimationStatus.INPUT_INVALID
+    assert report.status_reason == "cluster_var must have one label per unit or observation"
+    assert report.point_estimate is None
 
 
 def test_cau_01_cluster_covariance_stable_under_duplicate_periods() -> None:
@@ -195,6 +311,22 @@ def test_cau_01_dedicated_metadata_is_not_deprecated_owner() -> None:
         StandardDifferenceInDifferences.metadata.equations
         is not DifferenceInDifferences.metadata.equations
     )
+
+
+def test_cau_01_dedicated_metadata_survives_deprecated_metadata_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Changing the deprecated owner's assumptions cannot rewrite the dedicated owner."""
+
+    dedicated_assumptions = dict(StandardDifferenceInDifferences.metadata.assumptions)
+    monkeypatch.setattr(
+        DifferenceInDifferences.metadata,
+        "assumptions",
+        {"legacy_mutation": "not a dedicated contract"},
+    )
+
+    assert dict(StandardDifferenceInDifferences.metadata.assumptions) == dedicated_assumptions
+    assert dict(DifferenceInDifferences.metadata.assumptions) != dedicated_assumptions
 
 
 def test_cau_01_statsmodels_cluster_reference() -> None:

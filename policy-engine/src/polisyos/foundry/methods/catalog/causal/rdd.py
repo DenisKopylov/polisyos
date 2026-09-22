@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
+from statistics import NormalDist
 from typing import Any, ClassVar
 
 import numpy as np
@@ -29,6 +30,15 @@ from polisyos.foundry.methods.catalog.causal._common import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import RDDObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
+
+
+def _normal_critical_value(confidence_level: float) -> float:
+    """Return the two-sided normal critical value for a validated level."""
+
+    level = float(confidence_level)
+    if not math.isfinite(level) or not 0.0 < level < 1.0:
+        raise ValueError("confidence_level must be in (0, 1)")
+    return float(NormalDist().inv_cdf((1.0 + level) / 2.0))
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:
@@ -237,6 +247,24 @@ class RegressionDiscontinuity:
             return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
         try:
+            confidence_level = float(params.get("confidence_level", 0.95))
+            z_critical = _normal_critical_value(confidence_level)
+        except (TypeError, ValueError) as exc:
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=str(exc),
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=int(np.sum(x_centered >= 0)),
+                n_control=int(np.sum(x_centered < 0)),
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+            )
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+
+        try:
             right_mu, right_se, right_n = _fit_local_polynomial(
                 x_centered,
                 data.outcome,
@@ -270,8 +298,6 @@ class RegressionDiscontinuity:
 
         tau = float(right_mu - left_mu)
         tau_se = float(math.sqrt(right_se**2 + left_se**2))
-        confidence_level = float(params.get("confidence_level", 0.95))
-        z_critical = 1.959963984540054
         ci = (tau - z_critical * tau_se, tau + z_critical * tau_se)
         z_score = 0.0 if tau_se <= 0 else tau / tau_se
         p_value = _normal_two_sided_pvalue(z_score)
@@ -315,6 +341,8 @@ class RegressionDiscontinuity:
                 "kernel": kernel,
                 "polynomial_order": poly_order,
                 "bias_correction": bool(params.get("bias_correction", True)),
+                "confidence_procedure": "normal_two_sided",
+                "critical_value": z_critical,
             },
         )
         return wrap_causal_output(report)

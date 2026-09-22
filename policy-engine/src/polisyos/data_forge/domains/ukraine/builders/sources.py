@@ -1432,12 +1432,16 @@ def _iter_observation_metric_frames(
                     row_offset=effective_row_offset,
                 ):
                     if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                        pending_metric_ids.remove(metric_id)
                         continue
                     yield source, metric_id, batch_index, metric_frame
-                pending_metric_ids.clear()
                 batch_index += 1
                 resumed_row_offset = batch_end
                 del frame
+            if pending_metric_ids:
+                raise RuntimeError(
+                    "stream restart ended before the pending observation metric cursor"
+                )
             if resumed_row_offset < row_offset:
                 raise RuntimeError(
                     "stream restart ended before the confirmed observation cursor"

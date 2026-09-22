@@ -411,6 +411,15 @@ def _reuse_legacy_snapshot_blob(
         return None
 
     artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
+    _blob_path, manifest_path = store.get_paths(artifact_id)
+    if not manifest_path.exists():
+        # ``get_manifest`` enforces tenant ownership before checking the
+        # sidecar path.  A new content-addressed blob is therefore reported as
+        # unowned by a tenant-scoped view rather than missing.  Inspecting only
+        # the deterministic sidecar path lets the normal put path create and
+        # claim a genuinely absent artifact while preserving the ownership
+        # guard for an existing foreign manifest.
+        return None
     try:
         manifest = store.get_manifest(artifact_id)
     except FileNotFoundError:

@@ -220,6 +220,14 @@ def test_openapi_preserves_run_paper_design_record_binding_as_an_exact_alias() -
     }
 
 
+def test_openapi_preserves_artifact_id_as_an_exact_compatibility_alias() -> None:
+    schema = export_runtime_openapi_schema()
+
+    assert schema["components"]["schemas"]["ArtifactID"] == {
+        "$ref": "#/components/schemas/ArtifactID-Input"
+    }
+
+
 def test_capability_discovery_examples_cover_truthful_postures_without_authority() -> None:
     schema = export_runtime_openapi_schema()
     for method, path in (

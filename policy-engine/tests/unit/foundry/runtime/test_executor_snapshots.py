@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
@@ -98,6 +99,47 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert store.get_manifest(snapshot_ref.artifact_id).artifact_schema == SchemaInfo(
         name="polisyos.core.StateSnapshot", version="2.1.0"
     )
+
+
+def test_tenant_scoped_snapshot_creation_accepts_absent_blob(tmp_path) -> None:
+    """A missing deterministic blob falls through before ownership lookup."""
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+
+    snapshot_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=1, n_firms=1),
+        step=0,
+    )
+
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    blob_path, manifest_path = store.get_paths(snapshot.state_ref.artifact_id)
+    assert blob_path.is_file()
+    assert manifest_path.is_file()
+
+
+def test_tenant_scoped_snapshot_does_not_reuse_foreign_owned_blob(tmp_path) -> None:
+    """An existing same-content blob remains protected by the ownership guard."""
+    cas_root = tmp_path / "cas"
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    foreign_store = FileSystemCAS(cas_root, tenant_id="tenant-b", cell_id="cell-b")
+    foreign_snapshot_ref = put_state_snapshot(foreign_store, state=state, step=0)
+    foreign_snapshot = load_model(foreign_store, foreign_snapshot_ref, StateSnapshot)
+
+    tenant_store = FileSystemCAS(cas_root, tenant_id="tenant-a", cell_id="cell-a")
+    with pytest.raises(ArtifactOwnershipError):
+        put_state_snapshot(tenant_store, state=state, step=0)
+
+    _blob_path, manifest_path = tenant_store.get_paths(foreign_snapshot.state_ref.artifact_id)
+    assert manifest_path.is_file()
+    foreign_context = foreign_store.get_manifest(
+        foreign_snapshot.state_ref.artifact_id
+    ).tenant_context
+    assert foreign_context is not None
+    assert (foreign_context.tenant_id, foreign_context.cell_id) == ("tenant-b", "cell-b")
 
 
 def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) -> None:

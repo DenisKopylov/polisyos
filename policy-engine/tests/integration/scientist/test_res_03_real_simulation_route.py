@@ -495,45 +495,88 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
         report_cell_id: str | None = _CELL_ID,
         state_schema_version: str | None = None,
         report_schema_version: str | None = None,
+        state_payload_schema_version: str | None = None,
+        report_payload_schema_version: str | None = None,
+        state_ref_kind: str | None = None,
+        state_ref_media_type: str | None = None,
+        report_ref_kind: str | None = None,
+        report_ref_media_type: str | None = None,
+        node_ref_kind: str | None = None,
+        node_ref_media_type: str | None = None,
     ) -> Any:
         rebound_state = result.state.model_copy(update={"run_id": state_run_id}, deep=True)
         rebound_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = candidate_ref
+        state_payload = (
+            rebound_state.model_copy(
+                update={"schema_version": state_payload_schema_version}
+            )
+            if state_payload_schema_version is not None
+            else rebound_state
+        )
         state_options = PutOptions(
             kind="scientist.experiment_state",
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.orchestration.engine.ExperimentState",
-                version=state_schema_version or rebound_state.schema_version,
+                version=state_schema_version or result.state.schema_version,
             ),
         )
         if (state_tenant_id, state_cell_id) == (_TENANT_ID, _CELL_ID):
             state_ref = store.put_json(
-                rebound_state,
+                state_payload,
                 state_options,
                 canon_spec=CanonSpec(forbid_floats=False),
             )
         else:
             state_ref = store.put_json_for_tenant(
-                rebound_state,
+                state_payload,
                 state_options,
                 tenant_id=state_tenant_id,
                 cell_id=state_cell_id,
                 canon_spec=CanonSpec(forbid_floats=False),
+            )
+        if state_ref_kind is not None or state_ref_media_type is not None:
+            state_ref = state_ref.model_copy(
+                update={
+                    key: value
+                    for key, value in {
+                        "kind": state_ref_kind,
+                        "media_type": state_ref_media_type,
+                    }.items()
+                    if value is not None
+                }
             )
         rebound_nodes = []
         for node in result.report.nodes:
             if node.alias != "run_simulation":
                 rebound_nodes.append(node)
                 continue
+            node_artifacts = [
+                candidate_ref
+                if ref.artifact_id == simulation_ref.artifact_id
+                else ref
+                for ref in node.artifacts
+            ]
+            if node_ref_kind is not None or node_ref_media_type is not None:
+                node_artifacts = [
+                    ref.model_copy(
+                        update={
+                            key: value
+                            for key, value in {
+                                "kind": node_ref_kind,
+                                "media_type": node_ref_media_type,
+                            }.items()
+                            if value is not None
+                        }
+                    )
+                    if ref.artifact_id == candidate_ref.artifact_id
+                    else ref
+                    for ref in node_artifacts
+                ]
             rebound_nodes.append(
                 node.model_copy(
                     update={
-                        "artifacts": [
-                            candidate_ref
-                            if ref.artifact_id == simulation_ref.artifact_id
-                            else ref
-                            for ref in node.artifacts
-                        ]
+                        "artifacts": node_artifacts
                     }
                 )
             )
@@ -546,7 +589,15 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
             ),
         )
         report_payload = result.report.model_copy(
-            update={"nodes": rebound_nodes, "run_id": report_run_id}
+            update={
+                "nodes": rebound_nodes,
+                "run_id": report_run_id,
+                **(
+                    {"schema_version": report_payload_schema_version}
+                    if report_payload_schema_version is not None
+                    else {}
+                ),
+            }
         )
         if (report_tenant_id, report_cell_id) == (_TENANT_ID, _CELL_ID):
             report_ref = store.put_json(report_payload, report_options)
@@ -556,6 +607,17 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
                 report_options,
                 tenant_id=report_tenant_id,
                 cell_id=report_cell_id,
+            )
+        if report_ref_kind is not None or report_ref_media_type is not None:
+            report_ref = report_ref.model_copy(
+                update={
+                    key: value
+                    for key, value in {
+                        "kind": report_ref_kind,
+                        "media_type": report_ref_media_type,
+                    }.items()
+                    if value is not None
+                }
             )
         return replace(
             indexed_run,
@@ -667,6 +729,54 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
             _run_rebound_to(simulation_ref, report_schema_version="9.9"),
             alias="run_simulation",
         )
+    with pytest.raises(SimulationResultProjectionError) as state_ref_kind_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                state_ref_kind="wrong.binding_kind",
+            ),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as report_ref_media_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                report_ref_media_type="text/plain",
+            ),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as node_ref_kind_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                node_ref_kind="wrong.binding_kind",
+            ),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as node_ref_media_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                node_ref_media_type="text/plain",
+            ),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as state_payload_schema_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                state_payload_schema_version="9.9",
+            ),
+            alias="run_simulation",
+        )
+    with pytest.raises(SimulationResultProjectionError) as report_payload_schema_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                report_payload_schema_version="9.9",
+            ),
+            alias="run_simulation",
+        )
     assert unscoped_error.value.code == "simulation_result_tenant_unscoped"
     assert foreign_error.value.code == "simulation_result_tenant_binding_mismatch"
     assert malformed_error.value.code == "simulation_result_payload_invalid"
@@ -685,6 +795,12 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(tmp_path) -> No
         unsupported_report_schema_error.value.code
         == "simulation_result_binding_schema_mismatch"
     )
+    assert state_ref_kind_error.value.code == "simulation_result_binding_ref_mismatch"
+    assert report_ref_media_error.value.code == "simulation_result_binding_ref_mismatch"
+    assert node_ref_kind_error.value.code == "simulation_result_node_binding_mismatch"
+    assert node_ref_media_error.value.code == "simulation_result_node_binding_mismatch"
+    assert state_payload_schema_error.value.code == "simulation_result_binding_schema_mismatch"
+    assert report_payload_schema_error.value.code == "simulation_result_binding_schema_mismatch"
 
     audit_path = store.root / "runtime" / "audit" / "access.jsonl"
     audit_entries = [

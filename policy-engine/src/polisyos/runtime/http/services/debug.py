@@ -222,6 +222,7 @@ class DebugService:
         state_payload = self._load_verified_binding_json(
             run.experiment_state_ref,
             expected_kind="scientist.experiment_state",
+            expected_media_type=_SIMULATION_RESULT_MEDIA_TYPE,
             expected_schema_name=_EXPERIMENT_STATE_SCHEMA_NAME,
             expected_schema_versions=_EXPERIMENT_STATE_SCHEMA_VERSIONS,
             expected_run_id=run.run_id,
@@ -231,6 +232,7 @@ class DebugService:
         report_payload = self._load_verified_binding_json(
             run.workflow_report_ref,
             expected_kind="scientist.workflow_report",
+            expected_media_type=_SIMULATION_RESULT_MEDIA_TYPE,
             expected_schema_name=_WORKFLOW_REPORT_SCHEMA_NAME,
             expected_schema_versions=_WORKFLOW_REPORT_SCHEMA_VERSIONS,
             expected_run_id=run.run_id,
@@ -245,7 +247,7 @@ class DebugService:
             raise KeyError(alias)
 
         state_ref = _simulation_result_ref_from_state_payload(state_payload)
-        node_bound_ids = _simulation_result_ids_bound_to_node(record)
+        node_bound_refs = _artifact_refs_bound_to_node(report_payload, alias=alias)
         requested_id = _artifact_id_from_string(artifact_id)
         if artifact_id is not None and requested_id is None:
             raise SimulationResultProjectionError(
@@ -259,13 +261,13 @@ class DebugService:
                     "simulation_result_ref_missing",
                     "The run state has no persisted simulation result reference",
                 )
-            if str(state_ref.artifact_id) not in node_bound_ids:
+            if not _artifact_ref_matches_any(state_ref, node_bound_refs):
                 raise SimulationResultProjectionError(
                     "simulation_result_node_binding_missing",
-                    "The named workflow node is not bound to the run simulation result",
+                    "The named workflow node is not bound to the exact run simulation result ref",
                 )
             requested_id = state_ref.artifact_id
-        elif str(requested_id) not in node_bound_ids:
+        elif not any(ref.artifact_id == requested_id for ref in node_bound_refs):
             raise SimulationResultProjectionError(
                 "simulation_result_node_binding_mismatch",
                 "The requested reference is not bound to the named workflow node",
@@ -275,6 +277,11 @@ class DebugService:
             raise SimulationResultProjectionError(
                 "simulation_result_run_binding_mismatch",
                 "The requested reference is not bound to the persisted run state",
+            )
+        if not _artifact_ref_matches_any(state_ref, node_bound_refs):
+            raise SimulationResultProjectionError(
+                "simulation_result_node_binding_mismatch",
+                "The named workflow node carries a conflicting simulation result ref",
             )
         if (
             state_ref.kind != _SIMULATION_RESULT_KIND
@@ -1202,6 +1209,7 @@ class DebugService:
         ref: ArtifactRef | None,
         *,
         expected_kind: str,
+        expected_media_type: str,
         expected_schema_name: str,
         expected_schema_versions: frozenset[str],
         expected_run_id: str,
@@ -1214,6 +1222,11 @@ class DebugService:
                 "simulation_result_binding_missing",
                 "The run has no persisted workflow binding artifact",
             )
+        if ref.kind != expected_kind or ref.media_type != expected_media_type:
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_ref_mismatch",
+                "A workflow binding reference has an unexpected kind or media type",
+            )
         try:
             verification = self._store.verify(ref.artifact_id)
             if not verification.ok:
@@ -1225,7 +1238,7 @@ class DebugService:
             schema = manifest.artifact_schema
             if (
                 manifest.kind != expected_kind
-                or manifest.media_type != _SIMULATION_RESULT_MEDIA_TYPE
+                or manifest.media_type != expected_media_type
                 or schema is None
                 or schema.name != expected_schema_name
                 or schema.version not in expected_schema_versions
@@ -1246,6 +1259,7 @@ class DebugService:
                     "simulation_result_binding_tenant_mismatch",
                     "A persisted workflow binding artifact has an unexpected tenant or cell",
                 )
+            manifest_schema_version = schema.version
             payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
         except SimulationResultProjectionError:
             raise
@@ -1270,6 +1284,11 @@ class DebugService:
             raise SimulationResultProjectionError(
                 "simulation_result_binding_run_mismatch",
                 "A persisted workflow binding artifact belongs to another run",
+            )
+        if payload.get("schema_version") != manifest_schema_version:
+            raise SimulationResultProjectionError(
+                "simulation_result_binding_schema_mismatch",
+                "A persisted workflow binding payload disagrees with its manifest schema version",
             )
         return payload
 
@@ -1410,17 +1429,37 @@ def _simulation_result_ref_from_state_payload(payload: dict[str, Any]) -> Artifa
     return _artifact_ref_from_payload(artifacts_index.get(_SIMULATION_RESULT_STATE_KEY))
 
 
-def _simulation_result_ids_bound_to_node(record: RunNodeRecord) -> set[str]:
-    """Collect artifact ids explicitly emitted by one producing node."""
-    # Only producer-owned artifact/output fields authorize a projection.
-    # Error details are diagnostic context and may repeat an upstream ref
-    # without proving that this node produced or retained it.
-    bound_ids = set(record.artifact_ids).union(record.output_artifact_ids)
-    return {
-        artifact_id
-        for artifact_id in bound_ids
-        if _artifact_id_from_string(artifact_id) is not None
-    }
+def _artifact_refs_bound_to_node(
+    payload: dict[str, Any],
+    *,
+    alias: str,
+) -> tuple[ArtifactRef, ...]:
+    """Resolve complete producer refs from one persisted workflow node."""
+    rows = payload.get("nodes")
+    if not isinstance(rows, list):
+        return ()
+    for row in rows:
+        if not isinstance(row, dict) or _as_str(row.get("alias")) != alias:
+            continue
+        raw_artifacts = row.get("artifacts")
+        if not isinstance(raw_artifacts, list):
+            return ()
+        return tuple(
+            ref
+            for raw_ref in raw_artifacts
+            if (ref := _artifact_ref_from_payload(raw_ref)) is not None
+        )
+    return ()
+
+
+def _artifact_ref_matches_any(ref: ArtifactRef, candidates: tuple[ArtifactRef, ...]) -> bool:
+    """Require an exact ID/kind/media match across binding surfaces."""
+    return any(
+        candidate.artifact_id == ref.artifact_id
+        and candidate.kind == ref.kind
+        and candidate.media_type == ref.media_type
+        for candidate in candidates
+    )
 
 
 def _workflow_edges_from_nodes(nodes: list[RunWorkflowNodeView]) -> list[RunWorkflowEdgeView]:

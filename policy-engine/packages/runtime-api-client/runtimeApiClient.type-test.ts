@@ -1,4 +1,5 @@
 import type {
+  ArtifactID,
   ArtifactMissingGovernedProjectionPacket,
   AvailableGovernedProjectionPacket,
   ChannelRegistryEntry,
@@ -88,6 +89,7 @@ type CanonicalLiteralWitnesses = [
   Assert<Equal<ChannelRegistryEntry["include_in_schema"], false>>,
   Assert<Equal<ChannelRegistryEntry["status"], "active">>,
   Assert<Equal<RunPaperDesignRecordBinding, RunBoundDesignRecordBinding>>,
+  Assert<Equal<ArtifactID, RawRuntimeApiComponents["schemas"]["ArtifactID"]>>,
   Assert<
     Equal<DecisionGrade, RawRuntimeApiComponents["schemas"]["DecisionGrade"]>
   >,

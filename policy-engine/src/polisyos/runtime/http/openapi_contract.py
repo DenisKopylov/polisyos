@@ -67,6 +67,7 @@ _RUN_ID_SAMPLE = "R_core_api_001"
 _REQUEST_ID_SAMPLE = "req_0123456789abcdef"
 _TS_SAMPLE = "2026-02-11T12:00:00Z"
 _SCHEMA_COMPATIBILITY_ALIASES = {
+    "ArtifactID": "ArtifactID-Input",
     "RunPaperDesignRecordBinding": "RunBoundDesignRecordBinding",
 }
 _ANALYST_PERMISSION_EXAMPLE = [

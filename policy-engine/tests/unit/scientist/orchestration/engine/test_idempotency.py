@@ -262,13 +262,15 @@ def test_node_result_cache_serializes_concurrent_journals_consistently(tmp_path)
     cache = NodeResultCache(store, run_id="R_cache_concurrency")
     keys = [f"{index:064x}" for index in range(6)]
 
-    def publish(key: str):
-        return cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+    def publish_and_read(key: str):
+        ref = cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(cache.run_id))
+        return ref, cache.get(key)
 
     with ThreadPoolExecutor(max_workers=6) as pool:
-        refs = list(pool.map(publish, keys))
-        outcomes = list(pool.map(cache.get, keys))
+        results = list(pool.map(publish_and_read, keys))
 
+    refs = [ref for ref, _outcome in results]
+    outcomes = [outcome for _ref, outcome in results]
     assert len(refs) == len(keys)
     assert cache.size == len(keys)
     assert all(outcome is not None for outcome in outcomes)

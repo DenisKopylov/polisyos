@@ -15,10 +15,15 @@ from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolClosedError, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
-from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.data_plane.cursor_store import (
+    AsyncCursorStoreAdapter,
+    CursorStore,
+    CursorStoreError,
+)
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
+    StreamWindowAccumulator,
     StreamRuntimeOptions,
     iter_record_batches,
     process_stream_dataset,
@@ -495,6 +500,284 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
     assert latest is not None
     assert latest.lifecycle_state == StreamLifecycleState.CLOSED
     assert latest.offset == 1
+
+
+@pytest.mark.asyncio
+async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Observed poll/dedupe state must not become a resumable frontier."""
+
+    stream_path = tmp_path / "pre-chunk-failure.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "1"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_persist = __import__(
+        "polisyos.fabric.data_plane.streaming",
+        fromlist=["_persist_stream_chunk_async"],
+    )._persist_stream_chunk_async
+
+    async def fail_before_persist(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise RuntimeError("pre-chunk persistence failure")
+
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.streaming._persist_stream_chunk_async",
+        fail_before_persist,
+    )
+    with pytest.raises(RuntimeError, match="pre-chunk persistence failure"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="pre-chunk-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+            registry=registry,
+        )
+
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "pre-chunk-failure",
+    )
+    assert paused is not None
+    assert paused.offset == 0
+    assert paused.dedupe_keys == ()
+
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.streaming._persist_stream_chunk_async",
+        original_persist,
+    )
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="pre-chunk-failure",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+        registry=registry,
+    )
+    assert recovered.rows_emitted == 2
+    assert recovered.dedupe_dropped == 0
+
+
+@pytest.mark.asyncio
+async def test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An uncheckpointed raw chunk cannot advance dedupe or window frontier."""
+
+    stream_path = tmp_path / "post-raw-failure.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n'
+        '{"_message_id":"m3","value":3}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_poll = StreamingSourceSession.poll
+    state = {"calls": 0}
+
+    async def fail_on_second_poll(self):
+        if state["calls"] == 1:
+            raise RuntimeError("post-raw checkpoint failure")
+        state["calls"] += 1
+        return await original_poll(self)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", fail_on_second_poll)
+    with pytest.raises(RuntimeError, match="post-raw checkpoint failure"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="post-raw-failure",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                checkpoint_every_chunks=2,
+                window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+            ),
+            registry=registry,
+        )
+
+    paused = cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        "post-raw-failure",
+    )
+    assert paused is not None
+    assert paused.offset == 0
+    assert paused.dedupe_keys == ()
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="post-raw-failure",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+        ),
+        registry=registry,
+    )
+    assert recovered.rows_emitted == 3
+    assert len(recovered.window_refs) == 1
+    assert list(store.get_bytes(recovered.window_refs[0].artifact_id))
+
+
+@pytest.mark.parametrize(
+    ("policy", "rows"),
+    [
+        (WindowPolicy(strategy=WindowStrategy.COUNT, size=3), [{"value": 1}, {"value": 2}]),
+        (
+            WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=60,
+                session_gap_seconds=60,
+                timestamp_field="event_time",
+            ),
+            [
+                {"value": 1, "event_time": "2024-01-01T00:00:00+00:00"},
+                {"value": 2, "event_time": "2024-01-01T00:00:10+00:00"},
+            ],
+        ),
+        (
+            WindowPolicy(strategy=WindowStrategy.SLIDING, size=3, slide=1),
+            [{"value": 1}, {"value": 2}],
+        ),
+    ],
+)
+def test_stream_window_operator_state_round_trips_pending_rows(
+    policy: WindowPolicy,
+    rows: list[dict[str, Any]],
+) -> None:
+    """COUNT, SESSION, and SLIDING keep pending rows and ordinal on restart."""
+
+    first = StreamWindowAccumulator(policy)
+    first.add_rows(rows)
+    state = first.snapshot()
+
+    resumed = StreamWindowAccumulator(policy)
+    resumed.restore(state)
+    assert resumed.snapshot() == state
+    assert resumed.buffered_rows() == len(rows)
+
+
+@pytest.mark.asyncio
+async def test_stream_window_manifest_contains_all_contributor_chunks(tmp_path: Path) -> None:
+    """A window spanning chunks carries both raw chunk refs in its manifest."""
+
+    stream_path = tmp_path / "lineage.jsonl"
+    stream_path.write_text(
+        '{"_message_id":"m1","value":1}\n'
+        '{"_message_id":"m2","value":2}\n'
+        '{"_message_id":"m3","value":3}\n',
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="lineage",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=3),
+        ),
+        registry=registry,
+    )
+
+    assert len(result.chunk_refs) == 2
+    assert len(result.window_refs) == 1
+    manifest = store.get_manifest(result.window_refs[0].artifact_id)
+    assert {str(item.artifact_id) for item in manifest.inputs} == {
+        str(ref.artifact_id) for ref in result.chunk_refs
+    }
+
+
+@pytest.mark.asyncio
+async def test_stream_checkpoint_missing_operator_state_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A current-format checkpoint without operator state cannot resume silently."""
+
+    stream_path = tmp_path / "missing-state.jsonl"
+    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(url=stream_path.as_uri()),
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    original_lookup = AsyncCursorStoreAdapter.find_latest_stream_checkpoint
+
+    async def corrupt_lookup(self, *args: Any, **kwargs: Any) -> StreamCheckpoint | None:
+        checkpoint = await original_lookup(self, *args, **kwargs)
+        if checkpoint is None:
+            checkpoint = StreamCheckpoint(
+                checkpoint_id="stream.jsonl:missing-state:default:0",
+                stream_id="stream.jsonl:missing-state:default",
+                connector_id="stream.jsonl",
+                dataset_id="missing-state",
+                metadata={
+                    "operator_state_required": True,
+                    "rows_emitted": 1,
+                },
+                created_at=datetime.now(UTC),
+            )
+        else:
+            checkpoint = checkpoint.model_copy(
+                update={
+                    "metadata": {
+                        **checkpoint.metadata,
+                        "operator_state_required": True,
+                    },
+                }
+            )
+        return checkpoint
+
+    monkeypatch.setattr(
+        AsyncCursorStoreAdapter,
+        "find_latest_stream_checkpoint",
+        corrupt_lookup,
+    )
+    with pytest.raises(CursorStoreError, match="operator state"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="missing-state",
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            registry=registry,
+        )
 
 
 @pytest.mark.asyncio

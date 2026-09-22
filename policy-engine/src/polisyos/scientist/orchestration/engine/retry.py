@@ -595,7 +595,7 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         budgets[key] = current_decimal + value
 
 
-def preserve_retry_spend(
+def _preserve_retry_spend(
     base_state: ExperimentState,
     terminal_state: ExperimentState,
 ) -> ExperimentState:

@@ -14,6 +14,27 @@ Required registry fields:
 | `stationarity_regime_id` | Declared regime under which FP claims are valid |
 | `active_incident_id` | Linked incident or `null` |
 | `promotion_allowed` | Persisted baseline permission; for R4/R3, `false` is a binding veto |
+| `calibration_validity` | Optional durable projection of checker context; it is not authority by itself |
+
+`calibration_validity` carries the calibration and detector identities, stationarity
+regime, canonical report digest, verifier id/version, effective time, expiration,
+configured and observed invalidation triggers, observation status, current status,
+and checker reasons. `observation_status=unavailable` is distinct from an observed
+empty trigger list. A legacy payload with no projection is
+`calibration_validity_not_established`.
+
+The projection is an inspectable persisted record, not a self-authenticating
+permission. A reloaded record can become current only through
+`rebind_calibration_validity` with the exact `CalibrationReport`, matching
+`CalibrationAudit`, effective `now`, and observed-trigger context. The rebind
+recomputes the canonical report digest and validity result, compares the
+persisted report identity/digest, and emits a current projection before
+attaching fresh private checker evidence. Effective time, observed triggers,
+status, and reasons therefore reflect the new rebind context rather than a
+stale payload. Missing context, tampered identity/digest, unavailable
+observations, or a mismatch remain fail-closed; an unavailable observation
+still preserves the deterministic `calibration_expired` reason when the
+current time is past `valid_until`.
 
 Promotion rules:
 

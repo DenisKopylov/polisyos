@@ -42,7 +42,10 @@ class CursorState(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     cursor_id: str = Field(
-        description="Unique identifier: '{connector_id}:{dataset_id}'",
+        description=(
+            "Unique identifier: '{connector_id}:{dataset_id}' for the default partition; "
+            "'{connector_id}:{dataset_id}:{partition_key}' for a non-default stream partition"
+        ),
     )
     connector_id: str
     dataset_id: str

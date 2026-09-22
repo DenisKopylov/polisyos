@@ -77,7 +77,12 @@ class DriftAndDegradationMonitor:
         _calibration_report: CalibrationReport | None = None,
         _observed_invalidation_triggers: list[str] | None = None,
     ) -> DDMWindowResult:
-        """Evaluate one production window and emit all DDM-15.7 outputs."""
+        """Evaluate one production window and emit all DDM-15.7 outputs.
+
+        ``_observed_invalidation_triggers=None`` records unavailable trigger
+        observations; an explicit empty list records an observed empty set.
+        Neither state is inferred from the public registry payload.
+        """
 
         effective_timestamp = timestamp or datetime.now(UTC)
         shift_risks = [adapt_shift_event(event) for event in shift_events or []]

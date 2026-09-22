@@ -108,6 +108,7 @@ def test_registry_requires_checker_bound_report_and_rejects_foreign_report() -> 
         metric_budget=metric_budget,
         calibration_audit=audit_a,
         _calibration_report=report_a,
+        _observed_invalidation_triggers=[],
         timestamp=datetime(2026, 4, 10, tzinfo=UTC),
     )
     assert accepted.registry_record is not None
@@ -120,6 +121,7 @@ def test_registry_requires_checker_bound_report_and_rejects_foreign_report() -> 
         metric_budget=metric_budget,
         calibration_audit=audit_a,
         _calibration_report=report_b,
+        _observed_invalidation_triggers=[],
         timestamp=datetime(2026, 4, 10, tzinfo=UTC),
     )
     assert altered.registry_record is not None

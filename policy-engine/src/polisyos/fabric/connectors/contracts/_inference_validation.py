@@ -98,10 +98,11 @@ def validate_dataframe_against_schema(
     """
     errors: list[str] = []
 
-    schema_fields = {f.name for f in schema.fields}
+    schema_fields = {field.name for field in schema.fields}
+    required_fields = set(schema.required_field_names())
     df_columns = set(df.columns)
 
-    missing = schema_fields - df_columns
+    missing = required_fields - df_columns
     if missing:
         errors.append(f"Missing required columns: {missing}")
 
@@ -262,6 +263,8 @@ def coerce_dataframe_to_schema(
 
     for field in schema.fields:
         if field.name not in df_work.columns:
+            if field.presence == "optional":
+                continue
             errors.append(f"Missing required column '{field.name}'")
             continue
 

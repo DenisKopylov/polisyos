@@ -57,13 +57,7 @@ class VectorMemoryStore:
         self._ef_construction = ef_construction
         self._M = M
 
-        self._index = hnswlib.Index(space="cosine", dim=dim)
-        self._index.init_index(
-            max_elements=max_elements,
-            ef_construction=ef_construction,
-            M=M,
-        )
-        self._index.set_ef(50)
+        self._index = self._new_index()
 
         self._keys: list[str] = []
         self._metadata: list[dict[str, Any]] = []
@@ -75,6 +69,34 @@ class VectorMemoryStore:
 
     def __len__(self) -> int:
         return len(self._keys)
+
+    def _new_index(self) -> Any:
+        """Create an empty native index for the current configuration."""
+        index = hnswlib.Index(space="cosine", dim=self._dim)
+        index.init_index(
+            max_elements=self._max_elements,
+            ef_construction=self._ef_construction,
+            M=self._M,
+        )
+        index.set_ef(50)
+        return index
+
+    def _save_index_bytes(self) -> bytes:
+        """Capture the current native generation before a mutating operation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "hnsw.index"
+            self._index.save_index(str(index_path))
+            return index_path.read_bytes()
+
+    def _restore_index_bytes(self, index_bytes: bytes) -> None:
+        """Restore a previously captured native generation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "hnsw.index"
+            index_path.write_bytes(index_bytes)
+            restored = hnswlib.Index(space="cosine", dim=self._dim)
+            restored.load_index(str(index_path), max_elements=self._max_elements)
+            restored.set_ef(50)
+        self._index = restored
 
     def add(self, key: str, embedding: list[float], metadata: dict[str, Any] | None = None) -> None:
         """Add a vector with associated key and metadata.
@@ -89,15 +111,33 @@ class VectorMemoryStore:
         idx = self._key_to_idx.get(key)
         if idx is not None:
             # Overwrite existing
+            snapshot = self._save_index_bytes()
+            try:
+                self._index.add_items([embedding], [idx])
+            except Exception:
+                self._restore_index_bytes(snapshot)
+                raise
             self._metadata[idx] = metadata or {}
-            self._index.add_items([embedding], [idx])
             return
 
+        if len(self._keys) >= self._max_elements:
+            raise RuntimeError(
+                "Vector memory capacity exhausted; resize before adding another element"
+            )
+
         idx = len(self._keys)
+        snapshot = self._save_index_bytes() if self._keys else None
+        try:
+            self._index.add_items([embedding], [idx])
+        except Exception:
+            if snapshot is None:
+                self._index = self._new_index()
+            else:
+                self._restore_index_bytes(snapshot)
+            raise
         self._keys.append(key)
         self._metadata.append(metadata or {})
         self._key_to_idx[key] = idx
-        self._index.add_items([embedding], [idx])
 
     def query(
         self,
@@ -181,24 +221,36 @@ class VectorMemoryStore:
         bundle_bytes = store.get_bytes(ref.artifact_id)
         bundle = json.loads(bundle_bytes)
 
-        self._dim = bundle["dim"]
-        self._max_elements = bundle["max_elements"]
-        self._ef_construction = bundle["ef_construction"]
-        self._M = bundle["M"]
-        self._keys = bundle["keys"]
-        self._metadata = bundle["metadata"]
-        self._key_to_idx = {k: i for i, k in enumerate(self._keys)}
+        dim = int(bundle["dim"])
+        max_elements = int(bundle["max_elements"])
+        ef_construction = int(bundle["ef_construction"])
+        M = int(bundle["M"])
+        keys = bundle["keys"]
+        metadata = bundle["metadata"]
+        if not isinstance(keys, list) or not isinstance(metadata, list):
+            raise ValueError("Vector memory bundle keys and metadata must be lists")
+        if len(keys) != len(metadata):
+            raise ValueError("Vector memory bundle keys and metadata lengths differ")
 
-        # Load HNSW index
         index_artifact_id = bundle["index_artifact_id"]
         index_bytes = store.get_bytes(index_artifact_id)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             index_path = Path(tmpdir) / "hnsw.index"
             index_path.write_bytes(index_bytes)
-            self._index = hnswlib.Index(space="cosine", dim=self._dim)
-            self._index.load_index(
+            candidate_index = hnswlib.Index(space="cosine", dim=dim)
+            candidate_index.load_index(
                 str(index_path),
-                max_elements=self._max_elements,
+                max_elements=max_elements,
             )
-            self._index.set_ef(50)
+            candidate_index.set_ef(50)
+
+        # Publish only after every native and metadata check has succeeded.
+        self._dim = dim
+        self._max_elements = max_elements
+        self._ef_construction = ef_construction
+        self._M = M
+        self._keys = list(keys)
+        self._metadata = list(metadata)
+        self._key_to_idx = {k: i for i, k in enumerate(self._keys)}
+        self._index = candidate_index

@@ -11,11 +11,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import BoundedLivenessConfig
-from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
-from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunManifest
 from polisyos.scientist.orchestration.engine import retry as retry_module
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
+from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _backoff_delay,
@@ -317,6 +320,74 @@ class TestExecuteWithRetrySync:
         assert run_audit.emit_calls
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
+
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state):
+        class _RecordingStore:
+            def put_json(self, payload: object, options: object) -> object:
+                return object()
+
+        class _RecordingTrace:
+            def __init__(self) -> None:
+                self.emit_calls: list[object] = []
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+        class _RecordingAuditSink:
+            def __init__(self) -> None:
+                self.emit_calls: list[object] = []
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingClaimOwner:
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                return object()
+
+        store = _RecordingStore()
+        trace = _RecordingTrace()
+        audit_sink = _RecordingAuditSink()
+        run = RunContext(
+            store=store,
+            trace=trace,
+            run_manifest=RunManifest(
+                run_id="run",
+                registry_bundle=ArtifactRef(
+                    artifact_id="sha256:" + "0" * 64,
+                    kind="registry",
+                    media_type="application/json",
+                ),
+            ),
+            _audit_sink=audit_sink,
+        )
+        ctx = ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=MagicMock(),
+            claim_ledger_owner=_RecordingClaimOwner(),
+        )
+
+        class _OnTimeRunNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                passed_ctx.run.emit("on-time", "ON_TIME")
+                return _ok_outcome(passed_state)
+
+        result = execute_with_retry_sync(
+            _OnTimeRunNode(),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=0.5,
+            alias="on-time-run",
+        )
+
+        assert result.status == "ok"
+        assert len(trace.emit_calls) == 1
+        assert len(audit_sink.emit_calls) == 1
 
     def test_fast_path_no_retry_no_timeout(self, ctx, state):
         """With default policy, delegates directly to node.execute()."""

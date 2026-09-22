@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -39,7 +40,7 @@ def analyze_sensitivity(
         raise ValueError("samples and outputs must have the same row count")
 
     raw_outputs = np.asarray(outputs, dtype=float)
-    prepared_samples, prepared_outputs, successful, failed = _prepare_analysis_inputs(
+    prepared = _prepare_analysis_inputs(
         plan,
         np.asarray(samples, dtype=float),
         raw_outputs,
@@ -49,8 +50,8 @@ def analyze_sensitivity(
         method=plan.method,
         parameter_names=[item.name for item in plan.parameter_specs],
         total_runs=len(outputs),
-        successful_runs=successful,
-        failed_runs=failed,
+        successful_runs=prepared.successful_runs,
+        failed_runs=prepared.failed_runs,
         metadata={
             "run_failure_policy": plan.run_failure_policy.value,
             "estimated_runs": plan.estimated_runs,
@@ -60,6 +61,7 @@ def analyze_sensitivity(
             ),
         },
     )
+    result.metadata.update(prepared.metadata)
 
     problem, distribution_fingerprint = _build_salib_problem(plan)
     result.metadata.update(
@@ -78,8 +80,8 @@ def analyze_sensitivity(
 
         salib_result = morris_analyzer.analyze(
             problem,
-            prepared_samples,
-            prepared_outputs,
+            prepared.samples,
+            prepared.outputs,
             conf_level=plan.confidence_level,
             num_levels=plan.parameter_specs[0].num_levels,
             seed=backend_seed,
@@ -91,7 +93,7 @@ def analyze_sensitivity(
             if conf is not None:
                 result.mu_star_conf[name] = [float(conf[idx])]
         result.ranking = sorted(names, key=lambda item: result.mu_star.get(item, 0.0), reverse=True)
-        _attach_morris_uncertainty(result, plan, prepared_samples, prepared_outputs)
+        _attach_morris_uncertainty(result, plan, prepared.samples, prepared.outputs)
         return result
 
     if plan.method == SensitivityMethod.SOBOL:
@@ -99,7 +101,7 @@ def analyze_sensitivity(
 
         salib_result = sobol_analyzer.analyze(
             problem,
-            prepared_outputs,
+            prepared.outputs,
             calc_second_order=True,
             conf_level=plan.confidence_level,
             seed=backend_seed,
@@ -130,7 +132,7 @@ def analyze_sensitivity(
             interaction_pairs.sort(key=lambda x: abs(x[2]), reverse=True)
             result.top_interactions = interaction_pairs
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
-        _attach_sobol_uncertainty(result, plan, prepared_outputs)
+        _attach_sobol_uncertainty(result, plan, prepared.outputs)
         return result
 
     if plan.method == SensitivityMethod.FAST:
@@ -141,7 +143,7 @@ def analyze_sensitivity(
             )
         from SALib.analyze import fast as fast_analyzer  # type: ignore[import-not-found]
 
-        salib_result = fast_analyzer.analyze(problem, prepared_outputs)
+        salib_result = fast_analyzer.analyze(problem, prepared.outputs)
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])
@@ -154,15 +156,49 @@ def analyze_sensitivity(
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
 
 
+@dataclass(frozen=True)
+class _PreparedAnalysisInputs:
+    """Prepared arrays plus original-run accounting for one sensitivity analysis."""
+
+    samples: np.ndarray
+    outputs: np.ndarray
+    successful_runs: int
+    failed_runs: int
+    metadata: dict[str, object]
+
+
 def _prepare_analysis_inputs(
     plan: SensitivityPlan,
     samples: np.ndarray,
     outputs: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, int, int]:
-    valid_mask = np.isfinite(outputs)
+) -> _PreparedAnalysisInputs:
+    if outputs.ndim not in {1, 2}:
+        raise ValueError("outputs must be 1-D or 2-D")
+    if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
+        raise ValueError("samples and outputs must have the same row count")
+
+    if outputs.ndim == 1:
+        valid_mask = np.isfinite(outputs)
+    else:
+        valid_mask = np.all(np.isfinite(outputs), axis=1)
+
     success_count = int(np.sum(valid_mask))
     failed_count = int(outputs.shape[0] - success_count)
     min_success = int(math.ceil(outputs.shape[0] * plan.min_success_rate))
+    failed_row_indices = np.flatnonzero(~valid_mask).astype(int).tolist()
+    metadata: dict[str, object] = {
+        "original_total_runs": int(outputs.shape[0]),
+        "failed_row_indices": failed_row_indices,
+        "effective_run_count": int(outputs.shape[0]),
+    }
+
+    trajectory_size = plan.num_parameters + 1
+    trajectory_count: int | None = None
+    if plan.method == SensitivityMethod.MORRIS and trajectory_size > 0:
+        metadata["morris_trajectory_size"] = trajectory_size
+        if outputs.shape[0] % trajectory_size == 0:
+            trajectory_count = outputs.shape[0] // trajectory_size
+            metadata["original_trajectory_ids"] = list(range(trajectory_count))
 
     if success_count < min_success:
         raise ValueError(
@@ -171,7 +207,15 @@ def _prepare_analysis_inputs(
         )
 
     if failed_count == 0:
-        return samples, outputs, success_count, failed_count
+        if trajectory_count is not None:
+            metadata["effective_trajectory_ids"] = list(range(trajectory_count))
+        return _PreparedAnalysisInputs(
+            samples=samples,
+            outputs=outputs,
+            successful_runs=success_count,
+            failed_runs=failed_count,
+            metadata=metadata,
+        )
 
     if plan.run_failure_policy == RunFailurePolicy.FAIL_FAST:
         raise ValueError(
@@ -185,16 +229,56 @@ def _prepare_analysis_inputs(
                 "DROP_FAILED is only supported for MORRIS; use IMPUTE_BASELINE for "
                 "structured SOBOL/FAST designs to preserve SALib sample geometry."
             )
-        return samples[valid_mask], outputs[valid_mask], success_count, failed_count
+        if trajectory_count is None:
+            raise ValueError(
+                "DROP_FAILED requires complete Morris trajectory blocks; "
+                f"{outputs.shape[0]} rows cannot be partitioned into blocks of {trajectory_size}."
+            )
+        block_valid = valid_mask.reshape(trajectory_count, trajectory_size).all(axis=1)
+        effective_trajectory_ids = np.flatnonzero(block_valid).astype(int).tolist()
+        dropped_trajectory_ids = np.flatnonzero(~block_valid).astype(int).tolist()
+        prepared_mask = np.repeat(block_valid, trajectory_size)
+        prepared_samples = samples[prepared_mask]
+        prepared_outputs = outputs[prepared_mask]
+        metadata.update(
+            {
+                "effective_trajectory_ids": effective_trajectory_ids,
+                "dropped_trajectory_ids": dropped_trajectory_ids,
+                "effective_run_count": int(prepared_outputs.shape[0]),
+            }
+        )
+        return _PreparedAnalysisInputs(
+            samples=prepared_samples,
+            outputs=prepared_outputs,
+            successful_runs=success_count,
+            failed_runs=failed_count,
+            metadata=metadata,
+        )
 
     # IMPUTE_BASELINE
-    if success_count == 0:
-        imputed = np.zeros_like(outputs)
+    if outputs.ndim == 1:
+        if success_count == 0:
+            imputed = np.zeros_like(outputs)
+        else:
+            baseline = float(np.nanmedian(outputs[valid_mask]))
+            imputed = outputs.copy()
+            imputed[~valid_mask] = baseline
     else:
-        baseline = float(np.nanmedian(outputs[valid_mask]))
         imputed = outputs.copy()
-        imputed[~valid_mask] = baseline
-    return samples, imputed, success_count, failed_count
+        if success_count == 0:
+            imputed[~valid_mask, :] = 0.0
+        else:
+            baselines = np.nanmedian(outputs[valid_mask], axis=0)
+            imputed[~valid_mask, :] = baselines
+    if trajectory_count is not None:
+        metadata["effective_trajectory_ids"] = list(range(trajectory_count))
+    return _PreparedAnalysisInputs(
+        samples=samples,
+        outputs=imputed,
+        successful_runs=success_count,
+        failed_runs=failed_count,
+        metadata=metadata,
+    )
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
@@ -232,11 +316,22 @@ def _attach_morris_uncertainty(
 ) -> None:
     if not plan.uncertainty.enabled:
         return
+    if any(spec.distribution.value != "uniform" for spec in plan.parameter_specs):
+        _append_uncertainty_warning(
+            result,
+            "morris_uncertainty_unavailable:unsupported_coordinate_transform",
+        )
+        return
     try:
+        parameter_bounds = {
+            spec.name: (spec.lower_bound, spec.upper_bound)
+            for spec in plan.parameter_specs
+        }
         elementary_effects = morris_elementary_effects_from_samples(
             samples,
             outputs,
             result.parameter_names,
+            parameter_bounds=parameter_bounds,
         )
         result.uncertainty = analyze_morris_trajectory_bootstrap(
             elementary_effects,

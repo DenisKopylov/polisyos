@@ -59,7 +59,7 @@ class MultiOutputAnalyzer:
             Output array ``(n_samples, n_outputs)``.  If 1-D, treated as
             single-output fallback.
         """
-        from .analysis import analyze_sensitivity
+        from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if outputs.ndim == 1:
             single = analyze_sensitivity(plan, samples, outputs)
@@ -74,10 +74,19 @@ class MultiOutputAnalyzer:
         if outputs.ndim != 2:
             raise ValueError("outputs must be 1-D or 2-D")
 
-        # Remove non-finite values
-        valid_mask = np.all(np.isfinite(outputs), axis=1) & np.all(np.isfinite(samples), axis=1)
-        clean_samples = samples[valid_mask]
-        clean_outputs = outputs[valid_mask]
+        if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
+            raise ValueError("samples and outputs must have the same row count")
+
+        # Apply the plan's failure policy to the original run matrix before
+        # PCA.  In particular, complete-case filtering must not erase the
+        # denominator or make FAIL_FAST/min_success_rate unreachable.
+        prepared = _prepare_analysis_inputs(
+            plan,
+            np.asarray(samples, dtype=float),
+            np.asarray(outputs, dtype=float),
+        )
+        clean_samples = prepared.samples
+        clean_outputs = prepared.outputs
 
         if clean_outputs.shape[0] < 3:
             raise ValueError("Too few valid samples for multi-output analysis")
@@ -97,6 +106,24 @@ class MultiOutputAnalyzer:
         per_component: list[SensitivityResult] = []
         for i, pc_scores in enumerate(components):
             result = analyze_sensitivity(plan, clean_samples, pc_scores)
+            # The component is derived from the policy-prepared matrix, so
+            # restore the original run accounting rather than reporting the
+            # imputed/PCA representation as a fresh all-successful experiment.
+            result.total_runs = int(outputs.shape[0])
+            result.successful_runs = prepared.successful_runs
+            result.failed_runs = prepared.failed_runs
+            result.metadata.update(prepared.metadata)
+            result.metadata.update(
+                {
+                    "pca_sample_count": int(clean_outputs.shape[0]),
+                    "pca_output_count": int(active_outputs.shape[1]),
+                    "pca_rank_cap": max(
+                        min(clean_outputs.shape[0] - 1, active_outputs.shape[1]),
+                        0,
+                    ),
+                    "pca_scientific_sufficiency": "not_established",
+                }
+            )
             per_component.append(result)
 
         # Aggregate ranking weighted by explained variance
@@ -116,12 +143,16 @@ class MultiOutputAnalyzer:
     ) -> tuple[list[np.ndarray], list[float]]:
         """Run PCA and return (list of score arrays, variance ratios)."""
         n_outputs = outputs.shape[1]
-        n_components = self._max_components or n_outputs
+        rank_cap = max(min(outputs.shape[0] - 1, n_outputs), 0)
+        requested_components = self._max_components or n_outputs
+        n_components = min(requested_components, n_outputs, rank_cap)
+        if n_components < 1:
+            raise ValueError("Too few valid samples for PCA")
 
         try:
             from sklearn.decomposition import PCA  # type: ignore[import-untyped]
 
-            pca = PCA(n_components=min(n_components, n_outputs))
+            pca = PCA(n_components=n_components)
             scores = pca.fit_transform(outputs)
             var_ratio = pca.explained_variance_ratio_.tolist()
         except ImportError:

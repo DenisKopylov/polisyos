@@ -37,6 +37,11 @@ from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
     merge_and_checkpoint_tier,
     seed_runner_cache,
 )
+from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
+    HealthFailureDisposition,
+    _HealthFailureSample,
+    _classify_health_probe_exception,
+)
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.runner.serialization import (
     deserialize_state,
@@ -50,6 +55,29 @@ _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
 _TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
 _TEMPORAL_HEALTH_ERRORS = (OSError, RuntimeError, TypeError, ValueError)
 _TEMPORAL_PROBE_ERRORS = (TemporalRPCError,) + _TEMPORAL_HEALTH_ERRORS
+_TEMPORAL_TRANSIENT_STATUS_NAMES = frozenset(
+    {
+        "ABORTED",
+        "DEADLINE_EXCEEDED",
+        "RESOURCE_EXHAUSTED",
+        "UNAVAILABLE",
+    }
+)
+
+
+def _temporal_probe_disposition(exc: BaseException) -> HealthFailureDisposition:
+    """Classify Temporal probe failures from typed RPC status, not text."""
+
+    disposition = _classify_health_probe_exception(exc)
+    if disposition is HealthFailureDisposition.ALLOW:
+        return disposition
+    if not _HAS_TEMPORAL or not isinstance(exc, TemporalRPCError):
+        return HealthFailureDisposition.BLOCK
+    status = getattr(exc, "status", None)
+    status_name = getattr(status, "name", None)
+    if status_name in _TEMPORAL_TRANSIENT_STATUS_NAMES:
+        return HealthFailureDisposition.ALLOW
+    return HealthFailureDisposition.BLOCK
 
 
 # ---------------------------------------------------------------------------
@@ -269,6 +297,12 @@ class TemporalWorkflowRunner:
         self._max_parallelism = max_parallelism
         self._merge_conflict_policy = merge_conflict_policy
         self._client: TemporalClient | None = None
+        self._health_probe_id = 0
+        self._health_sample: _HealthFailureSample | None = None
+
+    def _get_health_sample(self) -> _HealthFailureSample | None:
+        """Return the private authority witness for the latest Temporal probe."""
+        return self._health_sample
 
     async def _get_client(self) -> TemporalClient:
         if self._client is None:
@@ -282,24 +316,38 @@ class TemporalWorkflowRunner:
         """Probe Temporal server health."""
         import time
 
+        self._health_probe_id += 1
+        self._health_sample = None
         try:
             t0 = time.monotonic()
             client = await self._get_client()
             # Use service health check RPC
             await client.service_client.check_health()
             latency = (time.monotonic() - t0) * 1000
-            return RunnerHealth(
+            health = RunnerHealth(
                 backend="temporal",
                 healthy=True,
                 latency_ms=round(latency, 2),
                 message=f"namespace={self._namespace}",
             )
+            self._health_sample = _HealthFailureSample(
+                health=health,
+                disposition=HealthFailureDisposition.BLOCK,
+                probe_id=self._health_probe_id,
+            )
+            return health
         except _TEMPORAL_PROBE_ERRORS as exc:
-            return RunnerHealth(
+            health = RunnerHealth(
                 backend="temporal",
                 healthy=False,
                 message=f"probe failed: {exc}",
             )
+            self._health_sample = _HealthFailureSample(
+                health=health,
+                disposition=_temporal_probe_disposition(exc),
+                probe_id=self._health_probe_id,
+            )
+            return health
 
     async def execute_workflow(
         self,

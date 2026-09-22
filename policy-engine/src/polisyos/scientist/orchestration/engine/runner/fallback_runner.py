@@ -13,11 +13,13 @@ from __future__ import annotations
 import logging
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
@@ -31,6 +33,7 @@ _PRIMARY_EXECUTION_ERRORS = (
     TypeError,
     ValidationError,
     ValueError,
+    PolicyOSError,
 )
 
 
@@ -42,6 +45,32 @@ class HealthFailureDisposition(StrEnum):
 
 
 HealthFailureClassifier = Callable[[RunnerHealth], HealthFailureDisposition]
+
+
+@dataclass(frozen=True)
+class _HealthFailureSample:
+    """Private, probe-bound authority emitted by a concrete backend."""
+
+    health: RunnerHealth
+    disposition: HealthFailureDisposition
+    probe_id: int
+
+
+_HealthSampleProvider = Callable[[], object]
+
+
+def _classify_health_probe_exception(exc: BaseException) -> HealthFailureDisposition:
+    """Classify a probe exception using typed facts, never its message."""
+
+    if isinstance(exc, PolicyOSError):
+        return (
+            HealthFailureDisposition.ALLOW
+            if exc.category == ErrorCategory.TRANSIENT
+            else HealthFailureDisposition.BLOCK
+        )
+    if isinstance(exc, (ConnectionError, TimeoutError)):
+        return HealthFailureDisposition.ALLOW
+    return HealthFailureDisposition.BLOCK
 
 
 class PrimaryExecutionOutcomeUnknownError(RuntimeError):
@@ -66,6 +95,9 @@ class FallbackWorkflowRunner:
     health_failure_classifier:
         Typed authority resolver for a pre-dispatch unhealthy result.  If no
         resolver is supplied by the primary or caller, fallback is denied.
+    _health_sample_provider:
+        Private backend probe hand-off used by the factory.  It is deliberately
+        not part of the public runner configuration contract.
     """
 
     def __init__(
@@ -76,6 +108,7 @@ class FallbackWorkflowRunner:
         max_parallelism: int = 4,
         merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
         health_failure_classifier: HealthFailureClassifier | None = None,
+        _health_sample_provider: _HealthSampleProvider | None = None,
     ) -> None:
         self._primary = primary
         self._fallback = LocalWorkflowRunner(
@@ -84,11 +117,49 @@ class FallbackWorkflowRunner:
         )
         self._health_ttl_s = health_ttl_s
         self._health_failure_classifier = health_failure_classifier
+        discovered_provider = getattr(primary, "_get_health_sample", None)
+        self._health_sample_provider = _health_sample_provider or (
+            discovered_provider if callable(discovered_provider) else None
+        )
         self._last_health: RunnerHealth | None = None
+        self._last_health_sample: _HealthFailureSample | None = None
         self._last_health_at: float = 0.0
+        self._last_probe_id: int | None = None
+        self._probe_id = 0
 
-    def _classify_health_failure(self, health: RunnerHealth) -> HealthFailureDisposition:
+    def _read_health_sample(self, health: RunnerHealth) -> _HealthFailureSample | None:
+        """Read and validate the authority witness for one concrete probe."""
+        provider = self._health_sample_provider
+        if provider is None:
+            return None
+        try:
+            sample = provider()
+        except Exception:  # pragma: no cover - defensive boundary
+            return None
+        if not isinstance(sample, _HealthFailureSample):
+            return None
+        if sample.health is not health:
+            return None
+        if not isinstance(sample.disposition, HealthFailureDisposition):
+            return None
+        if isinstance(sample.probe_id, bool) or not isinstance(sample.probe_id, int):
+            return None
+        if self._last_probe_id is not None and sample.probe_id <= self._last_probe_id:
+            return None
+        self._last_probe_id = sample.probe_id
+        return sample
+
+    def _classify_health_failure(
+        self,
+        health: RunnerHealth,
+        sample: _HealthFailureSample | None,
+    ) -> HealthFailureDisposition:
         """Resolve explicit pre-dispatch fallback authority without parsing prose."""
+        if self._health_sample_provider is not None:
+            if sample is None:
+                return HealthFailureDisposition.BLOCK
+            return sample.disposition
+
         classifier = self._health_failure_classifier
         if classifier is None:
             candidate = getattr(self._primary, "classify_health_failure", None)
@@ -119,9 +190,10 @@ class FallbackWorkflowRunner:
         checkpoint_cache_seed_refs: Any | None,
         max_parallelism: int,
         health: RunnerHealth,
+        health_sample: _HealthFailureSample | None,
     ) -> Any:
         """Execute local work only after an explicit pre-dispatch typed decision."""
-        disposition = self._classify_health_failure(health)
+        disposition = self._classify_health_failure(health, health_sample)
         if disposition is not HealthFailureDisposition.ALLOW:
             emit_degraded_path(
                 component="engine.runner.fallback",
@@ -149,6 +221,7 @@ class FallbackWorkflowRunner:
             health.backend,
         )
         self._last_health = None
+        self._last_health_sample = None
         return await self._fallback.execute_workflow(
             workflow,
             state,
@@ -165,9 +238,12 @@ class FallbackWorkflowRunner:
         if self._last_health is not None and (now - self._last_health_at) < self._health_ttl_s:
             return self._last_health
 
+        self._probe_id += 1
+        self._last_health_sample = None
         health = await self._primary.health_check()
         self._last_health = health
         self._last_health_at = now
+        self._last_health_sample = self._read_health_sample(health)
         return health
 
     async def execute_workflow(
@@ -190,6 +266,12 @@ class FallbackWorkflowRunner:
                 healthy=False,
                 message="primary health probe raised before dispatch",
             )
+            self._last_health = health
+            self._last_health_sample = _HealthFailureSample(
+                health=health,
+                disposition=_classify_health_probe_exception(exc),
+                probe_id=self._probe_id,
+            )
             try:
                 return await self._execute_local_fallback(
                     workflow,
@@ -200,6 +282,7 @@ class FallbackWorkflowRunner:
                     checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
                     max_parallelism=max_parallelism,
                     health=health,
+                    health_sample=self._last_health_sample,
                 )
             except FallbackNotAuthorizedError as fallback_exc:
                 raise fallback_exc from exc
@@ -237,6 +320,7 @@ class FallbackWorkflowRunner:
                 checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
                 max_parallelism=max_parallelism,
                 health=health,
+                health_sample=self._last_health_sample,
             )
 
 

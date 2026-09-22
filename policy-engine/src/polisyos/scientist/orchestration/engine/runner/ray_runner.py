@@ -34,6 +34,11 @@ from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
     merge_and_checkpoint_tier,
     seed_runner_cache,
 )
+from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
+    HealthFailureDisposition,
+    _HealthFailureSample,
+    _classify_health_probe_exception,
+)
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.runner.serialization import (
     deserialize_state,
@@ -46,6 +51,31 @@ _logger = logging.getLogger(__name__)
 _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
 _TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
 _RAY_PROBE_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError)
+_RAY_TRANSIENT_EXCEPTION_NAMES = (
+    "GetTimeoutError",
+    "RayConnectionError",
+    "NodeDiedError",
+    "WorkerCrashedError",
+    "ObjectLostError",
+)
+
+
+def _ray_probe_disposition(exc: BaseException) -> HealthFailureDisposition:
+    """Classify Ray probe failures from typed exception classes only."""
+
+    disposition = _classify_health_probe_exception(exc)
+    if disposition is HealthFailureDisposition.ALLOW:
+        return disposition
+    if not _HAS_RAY:
+        return HealthFailureDisposition.BLOCK
+    ray_exceptions = getattr(ray, "exceptions", None)
+    if ray_exceptions is None:
+        return HealthFailureDisposition.BLOCK
+    for exception_name in _RAY_TRANSIENT_EXCEPTION_NAMES:
+        exception_type = getattr(ray_exceptions, exception_name, None)
+        if isinstance(exception_type, type) and isinstance(exc, exception_type):
+            return HealthFailureDisposition.ALLOW
+    return HealthFailureDisposition.BLOCK
 
 
 # ---------------------------------------------------------------------------
@@ -122,6 +152,12 @@ class RayWorkflowRunner:
         self._max_parallelism = max_parallelism
         self._merge_conflict_policy = merge_conflict_policy
         self._initialised = False
+        self._health_probe_id = 0
+        self._health_sample: _HealthFailureSample | None = None
+
+    def _get_health_sample(self) -> _HealthFailureSample | None:
+        """Return the private authority witness for the latest Ray probe."""
+        return self._health_sample
 
     def _ensure_init(self) -> None:
         if not self._initialised:
@@ -137,25 +173,39 @@ class RayWorkflowRunner:
         """Probe Ray cluster resources."""
         import time
 
+        self._health_probe_id += 1
+        self._health_sample = None
         try:
             self._ensure_init()
             t0 = time.monotonic()
             resources = ray.cluster_resources()
             latency = (time.monotonic() - t0) * 1000
             cpu_count = int(resources.get("CPU", 0))
-            return RunnerHealth(
+            health = RunnerHealth(
                 backend="ray",
                 healthy=True,
                 latency_ms=round(latency, 2),
                 worker_count=cpu_count,
                 message=f"cluster CPUs={cpu_count}",
             )
+            self._health_sample = _HealthFailureSample(
+                health=health,
+                disposition=HealthFailureDisposition.BLOCK,
+                probe_id=self._health_probe_id,
+            )
+            return health
         except _RAY_PROBE_ERRORS as exc:
-            return RunnerHealth(
+            health = RunnerHealth(
                 backend="ray",
                 healthy=False,
                 message=f"probe failed: {exc}",
             )
+            self._health_sample = _HealthFailureSample(
+                health=health,
+                disposition=_ray_probe_disposition(exc),
+                probe_id=self._health_probe_id,
+            )
+            return health
 
     async def execute_workflow(
         self,

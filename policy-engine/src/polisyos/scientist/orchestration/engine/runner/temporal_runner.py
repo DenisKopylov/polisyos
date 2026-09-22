@@ -68,16 +68,13 @@ _TEMPORAL_TRANSIENT_STATUS_NAMES = frozenset(
 def _temporal_probe_disposition(exc: BaseException) -> HealthFailureDisposition:
     """Classify Temporal probe failures from typed RPC status, not text."""
 
-    disposition = _classify_health_probe_exception(exc)
-    if disposition is HealthFailureDisposition.ALLOW:
-        return disposition
-    if not _HAS_TEMPORAL or not isinstance(exc, TemporalRPCError):
+    if _HAS_TEMPORAL and isinstance(exc, TemporalRPCError):
+        status = getattr(exc, "status", None)
+        status_name = getattr(status, "name", None)
+        if status_name in _TEMPORAL_TRANSIENT_STATUS_NAMES:
+            return HealthFailureDisposition.ALLOW
         return HealthFailureDisposition.BLOCK
-    status = getattr(exc, "status", None)
-    status_name = getattr(status, "name", None)
-    if status_name in _TEMPORAL_TRANSIENT_STATUS_NAMES:
-        return HealthFailureDisposition.ALLOW
-    return HealthFailureDisposition.BLOCK
+    return _classify_health_probe_exception(exc)
 
 
 # ---------------------------------------------------------------------------

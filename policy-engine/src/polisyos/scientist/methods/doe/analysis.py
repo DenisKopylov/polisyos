@@ -11,6 +11,9 @@ from .designs import (
     SensitivityMethod,
     SensitivityPlan,
     SensitivityResult,
+    _DOE_DISTRIBUTION_SCHEMA_VERSION,
+    _SALIB_BACKEND_ID,
+    _build_salib_problem,
     _derive_backend_seed,
 )
 from .uncertainty import (
@@ -58,7 +61,15 @@ def analyze_sensitivity(
         },
     )
 
-    problem = _plan_to_salib_problem(plan)
+    problem, distribution_fingerprint = _build_salib_problem(plan)
+    result.metadata.update(
+        {
+            "distribution_schema_version": _DOE_DISTRIBUTION_SCHEMA_VERSION,
+            "distribution_mapping_fingerprint": distribution_fingerprint,
+            "salib_backend": _SALIB_BACKEND_ID,
+            "plan_seed": plan.seed,
+        }
+    )
     names = result.parameter_names
     backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
 
@@ -187,27 +198,7 @@ def _prepare_analysis_inputs(
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
-    from .designs import ParameterDist
-
-    problem: dict = {
-        "num_vars": len(plan.parameter_specs),
-        "names": [item.name for item in plan.parameter_specs],
-        "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
-    }
-    # Add distribution hints for SALib when non-uniform distributions are used
-    has_non_uniform = any(p.distribution != ParameterDist.UNIFORM for p in plan.parameter_specs)
-    if has_non_uniform:
-        dists: list[str] = []
-        for p in plan.parameter_specs:
-            if p.distribution == ParameterDist.NORMAL:
-                dists.append("norm")
-            elif p.distribution == ParameterDist.LOGNORMAL:
-                dists.append("lognorm")
-            elif p.distribution == ParameterDist.TRIANGULAR:
-                dists.append("triang")
-            else:
-                dists.append("unif")
-        problem["dists"] = dists
+    problem, _ = _build_salib_problem(plan)
     return problem
 
 

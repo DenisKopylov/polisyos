@@ -8,10 +8,14 @@ import pytest
 from polisyos.scientist.methods.doe import analysis as analysis_module
 from polisyos.scientist.methods.doe import sampling as sampling_module
 from polisyos.scientist.methods.doe.designs import (
+    LognormalDistributionSpecV1,
+    NormalDistributionSpecV1,
     ParameterDist,
     ParameterSpec,
     SensitivityMethod,
     SensitivityPlan,
+    TriangularDistributionSpecV1,
+    _build_salib_problem,
     _derive_backend_seed,
 )
 
@@ -51,10 +55,106 @@ def test_legacy_nonuniform_plan_fails_closed_without_typed_distribution_spec() -
     """Physical bounds must not be silently reinterpreted as SALib parameters."""
     plan = _morris_plan(seed=13, distribution=ParameterDist.NORMAL)
 
-    with pytest.raises(ValueError, match="DistributionSpecV1"):
-        sampling_module.generate_sensitivity_samples(plan)
+    errors: list[str] = []
+    for operation in (
+        lambda: sampling_module.generate_sensitivity_samples(plan),
+        lambda: analysis_module._plan_to_salib_problem(plan),
+    ):
+        try:
+            operation()
+        except ValueError as exc:
+            errors.append(str(exc))
 
-    with pytest.raises(ValueError, match="DistributionSpecV1"):
+    assert len(errors) == 2
+    assert all("DistributionSpecV1" in error for error in errors)
+
+
+def test_explicit_normal_uses_bounded_truncated_samples_and_roundtrips() -> None:
+    """Normal moments are explicit and samples remain inside physical support."""
+    plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=-1.0,
+                upper_bound=1.0,
+                distribution=ParameterDist.NORMAL,
+                distribution_spec=NormalDistributionSpecV1(mean=0.0, std=0.35),
+            ),
+        ],
+        n_trajectories=16,
+        seed=13,
+    )
+
+    problem, fingerprint = _build_salib_problem(plan)
+    assert problem["dists"] == ["truncnorm"]
+    assert problem["bounds"] == [[-1.0, 1.0, 0.0, 0.35]]
+    samples = sampling_module.generate_sensitivity_samples(plan)
+    quantiles = np.quantile(samples[:, 0], [0.1, 0.5, 0.9])
+    assert np.all(np.isfinite(samples))
+    assert np.all((samples[:, 0] >= -1.0) & (samples[:, 0] <= 1.0))
+    assert -1.0 <= quantiles[0] <= quantiles[1] <= quantiles[2] <= 1.0
+    assert quantiles[1] == pytest.approx(0.0, abs=0.25)
+
+    restored = SensitivityPlan.model_validate(plan.model_dump(mode="json"))
+    restored_problem, restored_fingerprint = _build_salib_problem(restored)
+    assert restored_problem == problem
+    assert restored_fingerprint == fingerprint
+
+
+def test_explicit_triangular_uses_mode_fraction_and_support() -> None:
+    """Triangular mode is represented as a fraction of the physical support."""
+    plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=0.0,
+                upper_bound=1.0,
+                distribution=ParameterDist.TRIANGULAR,
+                distribution_spec=TriangularDistributionSpecV1(mode_fraction=0.75),
+            ),
+        ],
+        n_trajectories=16,
+        seed=23,
+    )
+
+    problem, _ = _build_salib_problem(plan)
+    assert problem["dists"] == ["triang"]
+    assert problem["bounds"] == [[0.0, 1.0, 0.75]]
+    samples = sampling_module.generate_sensitivity_samples(plan)
+    assert np.all((samples[:, 0] >= 0.0) & (samples[:, 0] <= 1.0))
+    assert float(np.quantile(samples[:, 0], 0.5)) > 0.4
+
+
+def test_unsupported_lognormal_and_malformed_specs_fail_closed() -> None:
+    """No unbounded lognormal mapping or invalid typed parameters is admitted."""
+    with pytest.raises(ValueError):
+        ParameterSpec(
+            name="x",
+            lower_bound=0.0,
+            upper_bound=1.0,
+            distribution=ParameterDist.NORMAL,
+            distribution_spec=NormalDistributionSpecV1(mean=0.0, std=0.0),
+        )
+
+    plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=0.1,
+                upper_bound=2.0,
+                distribution=ParameterDist.LOGNORMAL,
+                distribution_spec=LognormalDistributionSpecV1(log_mean=0.0, log_std=0.2),
+            ),
+        ],
+        n_trajectories=2,
+        seed=13,
+    )
+    with pytest.raises(ValueError, match="compatibility_pending"):
+        sampling_module.generate_sensitivity_samples(plan)
+    with pytest.raises(ValueError, match="compatibility_pending"):
         analysis_module._plan_to_salib_problem(plan)
 
 

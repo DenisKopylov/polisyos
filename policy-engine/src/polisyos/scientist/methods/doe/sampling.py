@@ -11,6 +11,7 @@ from .designs import (
     AdversarialStrategy,
     SensitivityMethod,
     SensitivityPlan,
+    _build_salib_problem,
     _derive_backend_seed,
 )
 
@@ -102,8 +103,5 @@ def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
-    return {
-        "num_vars": len(plan.parameter_specs),
-        "names": [item.name for item in plan.parameter_specs],
-        "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
-    }
+    problem, _ = _build_salib_problem(plan)
+    return problem

@@ -1194,13 +1194,11 @@ def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> Non
 
     try:
         with pytest.raises(RuntimeError, match="result delivery exceeded"):
-            execute_with_retry_sync(
+            retry_module._execute_with_timeout_process(
                 node,
                 ctx,
                 state,
-                retry_policy=RetryPolicy(),
                 timeout_s=0.5,
-                alias="exited-worker-descendant-cleanup",
             )
         assert pid_path.exists()
         descendant_pid = int(pid_path.read_text())

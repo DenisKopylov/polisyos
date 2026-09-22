@@ -174,6 +174,150 @@ class TestExecuteWithRetrySync:
         attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
         target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
 
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(
+        self, state, monkeypatch
+    ):
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_json_calls: list[tuple[object, object]] = []
+
+            def put_json(self, payload: object, options: object) -> object:
+                self.put_json_calls.append((payload, options))
+                return object()
+
+        class _RecordingAudit:
+            def __init__(self) -> None:
+                self.append_calls: list[dict[str, object]] = []
+                self.emit_calls: list[object] = []
+
+            def append(self, **kwargs: object) -> None:
+                self.append_calls.append(kwargs)
+
+            def emit(self, record: object) -> None:
+                self.emit_calls.append(record)
+
+            def close(self) -> None:
+                return None
+
+        class _RecordingRun:
+            def __init__(self, audit_sink: _RecordingAudit) -> None:
+                self.emit_calls: list[tuple[object, ...]] = []
+                self.run_manifest = type(
+                    "_Manifest",
+                    (),
+                    {
+                        "status": "running",
+                        "errors": [{"nested": {"events": []}}],
+                    },
+                )()
+                self._audit_sink = audit_sink
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.emit_calls.append((*args, kwargs))
+
+        class _RecordingClaimOwner:
+            def __init__(self) -> None:
+                self.persist_calls: list[dict[str, object]] = []
+
+            def persist_candidate_ledger(self, **kwargs: object) -> object:
+                self.persist_calls.append(kwargs)
+                return object()
+
+        store = _RecordingStore()
+        run_audit = _RecordingAudit()
+        run = _RecordingRun(run_audit)
+        audit = _RecordingAudit()
+        claim_owner = _RecordingClaimOwner()
+        ctx = ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=MagicMock(),
+            audit=audit,
+            claim_ledger_owner=claim_owner,
+        )
+        started = threading.Event()
+        release = threading.Event()
+        completed = threading.Event()
+
+        class _LateClaimNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                started.set()
+                release.wait(timeout=1.0)
+                passed_ctx.run.run_manifest.status = "late"
+                passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("late")
+                passed_ctx.store.put_json({"late": "write"}, object())
+                passed_ctx.run.emit("late", "LATE_WRITE")
+                passed_ctx.run._audit_sink.emit({"late": "audit"})
+                passed_ctx.audit.append(action="late")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                completed.set()
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+        try:
+            with pytest.raises(NodeTimeoutError):
+                execute_with_retry_sync(
+                    _LateClaimNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=0.01,
+                    alias="late-claim",
+                )
+            assert started.wait(timeout=0.5)
+            release.set()
+            assert completed.wait(timeout=0.5)
+        finally:
+            release.set()
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert run.run_manifest.status == "running"
+        assert run.run_manifest.errors == [{"nested": {"events": []}}]
+        assert store.put_json_calls == []
+        assert run.emit_calls == []
+        assert run_audit.emit_calls == []
+        assert audit.append_calls == []
+        assert claim_owner.persist_calls == []
+
+        class _OnTimeClaimNode:
+            def execute(self, passed_ctx, passed_state):
+                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                passed_ctx.run.run_manifest.status = "on_time"
+                passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("on_time")
+                passed_ctx.store.put_json({"on_time": True}, object())
+                passed_ctx.run.emit("on-time", "ON_TIME")
+                passed_ctx.run._audit_sink.emit({"on_time": "audit"})
+                passed_ctx.audit.append(action="on_time")
+                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
+                return _ok_outcome(passed_state)
+
+        result = execute_with_retry_sync(
+            _OnTimeClaimNode(),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=0.5,
+            alias="on-time-claim",
+        )
+
+        assert result.status == "ok"
+        assert run.run_manifest.status == "on_time"
+        assert run.run_manifest.errors == [{"nested": {"events": ["on_time"]}}]
+        assert store.put_json_calls
+        assert run.emit_calls
+        assert run_audit.emit_calls
+        assert audit.append_calls
+        assert claim_owner.persist_calls == [{"ledger": "on_time"}]
+
     def test_fast_path_no_retry_no_timeout(self, ctx, state):
         """With default policy, delegates directly to node.execute()."""
         node = MagicMock()

@@ -507,7 +507,7 @@ def test_explicit_identical_target_and_comparator_have_zero_contrast() -> None:
 
 
 def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> None:
-    """Two explicit stochastic policies execute as distinct attribution arms."""
+    """Two non-overlapping stochastic policies contribute to the contrast."""
     output = _run_query(
         _linear_chain(noise_std=0.0, coefficient=3.0, root_intercept=4.0),
         {
@@ -517,13 +517,13 @@ def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> 
             "contrast": {
                 "target": {
                     "type": "stochastic",
-                    "distribution": "uniform(1,3)",
+                    "distribution": "uniform(1,2)",
                 },
                 "comparator": {
                     "kind": "interventional",
                     "intervention": {
                         "type": "stochastic",
-                        "distribution": "uniform(0,1)",
+                        "distribution": "uniform(3,4)",
                     },
                 },
             },
@@ -535,13 +535,13 @@ def test_stochastic_policy_comparison_executes_and_preserves_distinct_arms() -> 
     assert result.result_distribution is not None
     assert len(result.result_distribution) == 64
     assert result.result_std > 0.0
-    assert all(0.0 <= value <= 9.0 for value in result.result_distribution)
+    assert all(-9.0 <= value <= -3.0 for value in result.result_distribution)
     assert result.metadata["contrast_target"]["type"] == "stochastic"
-    assert result.metadata["contrast_target"]["distribution"] == "uniform(1,3)"
+    assert result.metadata["contrast_target"]["distribution"] == "uniform(1,2)"
     assert result.metadata["contrast_comparator"]["intervention"]["type"] == "stochastic"
     assert (
         result.metadata["contrast_comparator"]["intervention"]["distribution"]
-        == "uniform(0,1)"
+        == "uniform(3,4)"
     )
 
 

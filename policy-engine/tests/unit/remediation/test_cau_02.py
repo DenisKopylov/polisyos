@@ -118,7 +118,7 @@ def test_staggered_zero_anticipation_preserves_not_yet_treated_characterization(
     timing = np.array([2, 2, 3, 3, -1, -1], dtype=int)
     outcome = np.zeros((timing.size, 5), dtype=float)
     outcome[:2, 2:] = 2.0
-    outcome[2:4, 2:] = 10.0
+    outcome[2:4, 3:] = 10.0
     data = PanelObservationalData(
         outcome=outcome,
         treatment=(timing >= 0).astype(int),

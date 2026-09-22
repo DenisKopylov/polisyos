@@ -13,6 +13,7 @@ import re
 import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -232,6 +233,10 @@ class FieldSpec(BaseModel):
     )
 
     # Constraints
+    presence: Literal["required", "optional"] = Field(
+        default="required",
+        description="Whether the field key must be present in every record",
+    )
     nullable: bool = Field(default=True, description="Whether NULL values are allowed")
     bounds: tuple[float | None, float | None] = Field(
         default=(None, None),
@@ -494,6 +499,11 @@ class FieldSpec(BaseModel):
             display_unit=self.display_unit or other.display_unit,
             semantic_type=self.semantic_type or other.semantic_type,
             additivity=self.additivity or other.additivity,
+            presence=(
+                "optional"
+                if self.presence == "optional" or other.presence == "optional"
+                else "required"
+            ),
             nullable=self.nullable or other.nullable,
             bounds=(min_bound, max_bound),
             allowed_values=merged_allowed,

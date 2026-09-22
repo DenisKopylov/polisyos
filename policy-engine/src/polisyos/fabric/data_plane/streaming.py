@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, DataSchema
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.types import DataChunk
 else:
@@ -112,6 +113,57 @@ class StreamDatasetRunResult:
     final_cursor: CursorState | None = None
     final_checkpoint_ref: str | None = None
     final_cursor_ref: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class StreamSchemaBinding:
+    """Frozen source-schema identity carried through one stream run."""
+
+    contract_id: str
+    contract_version: str
+    contract_content_hash: str
+    schema_id: str
+    schema_version: str
+    schema_content_hash: str
+    registry_revision: int
+    schema: DataSchema
+
+    @classmethod
+    def from_contract(
+        cls,
+        contract: ConnectorSchemaContract,
+        *,
+        registry_revision: int,
+    ) -> StreamSchemaBinding:
+        """Freeze contract and schema identity at stream admission."""
+        return cls(
+            contract_id=contract.contract_id,
+            contract_version=str(contract.schema_version),
+            contract_content_hash=contract.content_hash,
+            schema_id=contract.schema.schema_id,
+            schema_version=str(contract.schema.version),
+            schema_content_hash=contract.schema.content_hash,
+            registry_revision=registry_revision,
+            schema=contract.schema,
+        )
+
+    def snapshot(self) -> dict[str, Any]:
+        """Return the persisted identity without duplicating the schema body."""
+        return {
+            "status": "bound",
+            "contract_id": self.contract_id,
+            "contract_version": self.contract_version,
+            "contract_content_hash": self.contract_content_hash,
+            "schema_id": self.schema_id,
+            "schema_version": self.schema_version,
+            "schema_content_hash": self.schema_content_hash,
+            "registry_revision": self.registry_revision,
+        }
+
+    @property
+    def fingerprint(self) -> str:
+        """Return the contract identity used for checkpoint binding."""
+        return self.contract_content_hash
 
 
 def normalize_connection_config(
@@ -1059,12 +1111,23 @@ def _stream_checkpoint_metadata(
     accumulator: StreamWindowAccumulator,
     ordering_state: _StreamOrderingState,
     previous_schema: tuple[str, ...] | None,
+    visible_schema: tuple[str, ...] | None,
+    schema_binding: StreamSchemaBinding | None,
     result: StreamDatasetRunResult,
     processing_contract: ProcessingGuaranteeContract,
 ) -> dict[str, Any]:
     """Build metadata whose operator state matches the committed outputs."""
     return {
         "schema_fields": list(previous_schema or ()),
+        "declared_schema_fields": list(
+            schema_binding.schema.field_names() if schema_binding is not None else ()
+        ),
+        "visible_fields": list(visible_schema or previous_schema or ()),
+        "schema_binding": (
+            schema_binding.snapshot()
+            if schema_binding is not None
+            else {"status": "not_established"}
+        ),
         "rows_emitted": result.rows_emitted,
         "window_count": len(result.window_refs),
         "cdc_event_count": len(result.cdc_event_refs),
@@ -1641,6 +1704,58 @@ def _should_fail_closed_cdc_schema_change(
     )
 
 
+def _resolve_stream_schema_binding(
+    registry: ConnectorRegistry | None,
+    *,
+    connector_id: str,
+    dataset_id: str,
+) -> StreamSchemaBinding | None:
+    """Resolve one frozen contract binding without creating a second registry."""
+    if registry is None:
+        return None
+    resolver = getattr(registry, "resolve_schema_contract", None)
+    if resolver is None:
+        return None
+    contract, revision = resolver(connector_id=connector_id, dataset_id=dataset_id)
+    if contract is None:
+        return None
+    return StreamSchemaBinding.from_contract(
+        contract,
+        registry_revision=int(revision),
+    )
+
+
+def _stream_schema_fingerprint(
+    schema_binding: StreamSchemaBinding | None,
+    fields: tuple[str, ...] | None,
+) -> str:
+    """Return a stable contract fingerprint, retaining legacy unknown fallback."""
+    if schema_binding is not None:
+        return schema_binding.fingerprint
+    return "|".join(fields or ())
+
+
+def _assert_stream_schema_binding_current(
+    registry: ConnectorRegistry | None,
+    schema_binding: StreamSchemaBinding | None,
+    *,
+    connector_id: str,
+    dataset_id: str,
+) -> None:
+    """Reject a registry change instead of committing mixed-contract output."""
+    if registry is None or schema_binding is None:
+        return
+    current = _resolve_stream_schema_binding(
+        registry,
+        connector_id=connector_id,
+        dataset_id=dataset_id,
+    )
+    if current is None or current.snapshot() != schema_binding.snapshot():
+        raise CursorStoreError(
+            "stream schema binding changed during processing; refusing mixed-contract commit"
+        )
+
+
 async def process_stream_dataset(
     *,
     connector_id: str,
@@ -1652,6 +1767,7 @@ async def process_stream_dataset(
     connection_config: ConnectionConfig | dict[str, Any] | None = None,
     registry: ConnectorRegistry | None = None,
     registry_provider: ConnectorRegistryProvider | None = None,
+    schema_binding: StreamSchemaBinding | None = None,
 ) -> StreamDatasetRunResult:
     """Process one streamed dataset with checkpoint recovery and bounded buffering."""
     options = runtime_options or StreamRuntimeOptions()
@@ -1663,6 +1779,12 @@ async def process_stream_dataset(
             "process_stream_dataset requires a sync ArtifactStore companion for row sanitization"
         )
     async_cursor_store = _ensure_async_cursor_store(cursor_store)
+    if schema_binding is None:
+        schema_binding = _resolve_stream_schema_binding(
+            registry,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+        )
     session = await StreamingSourceSession.create(
         connector_id=connector_id,
         dataset_id=dataset_id,
@@ -1685,6 +1807,7 @@ async def process_stream_dataset(
         )
         dedupe_seen: set[str] = set()
         previous_schema: tuple[str, ...] | None = None
+        visible_schema: tuple[str, ...] | None = None
         committed_checkpoint: StreamCheckpoint | None = None
         committed_cursor: CursorState | None = None
         empty_frontier = _empty_stream_frontier_checkpoint(
@@ -1698,6 +1821,23 @@ async def process_stream_dataset(
             partition_key=options.partition_key,
         )
         if latest_checkpoint is not None:
+            stored_binding = latest_checkpoint.metadata.get("schema_binding")
+            if schema_binding is not None and stored_binding is None:
+                raise CursorStoreError(
+                    "stream schema binding is missing from recovered checkpoint; "
+                    "refusing mixed-contract recovery"
+                )
+            if stored_binding is not None:
+                current_binding = (
+                    schema_binding.snapshot()
+                    if schema_binding is not None
+                    else {"status": "not_established"}
+                )
+                if stored_binding != current_binding:
+                    raise CursorStoreError(
+                        "stream schema binding changed before resume; "
+                        "refusing mixed-contract recovery"
+                    )
             frontier_intent = _validated_frontier_intent(latest_checkpoint)
             latest_cursor: CursorState | None = None
             if frontier_intent is not None:
@@ -1765,8 +1905,14 @@ async def process_stream_dataset(
             committed_checkpoint = latest_checkpoint
             committed_cursor = latest_cursor
 
-        previous_schema = (
-            tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
+        if schema_binding is not None:
+            previous_schema = tuple(sorted(schema_binding.schema.field_names()))
+        elif latest_checkpoint is not None:
+            previous_schema = tuple(
+                str(field) for field in latest_checkpoint.metadata.get("schema_fields", ())
+            )
+        visible_schema = (
+            tuple(str(field) for field in latest_checkpoint.metadata.get("visible_fields", ()))
             if latest_checkpoint is not None
             else None
         )
@@ -1907,7 +2053,15 @@ async def process_stream_dataset(
             if not clean_rows:
                 continue
 
-            current_schema = tuple(sorted({str(key) for row in clean_rows for key in row}))
+            visible_schema = tuple(sorted({str(key) for row in clean_rows for key in row}))
+            declared_schema = (
+                set(schema_binding.schema.field_names()) if schema_binding is not None else set()
+            )
+            # The declared schema is the stable CDC baseline, while observed
+            # extras remain visible and can still produce an explicit additive
+            # diagnostic.  Optional absence therefore cannot look like removal,
+            # but unknown fields are not silently hidden from CDC.
+            current_schema = tuple(sorted(declared_schema | set(visible_schema)))
             if previous_schema is not None and current_schema != previous_schema:
                 compatibility = classify_cdc_schema_change(
                     previous_schema,
@@ -1928,6 +2082,8 @@ async def process_stream_dataset(
                     handling_action=handling_action,
                     observed_at=datetime.now(UTC),
                     processing_contract=processing_contract,
+                    schema_binding=schema_binding,
+                    visible_fields=visible_schema,
                 )
                 result.cdc_event_refs.append(cdc_ref)
                 result.warnings.append(
@@ -1988,6 +2144,8 @@ async def process_stream_dataset(
                 rows=clean_rows,
                 dedupe_dropped=result.dedupe_dropped,
                 processing_contract=processing_contract,
+                schema_binding=schema_binding,
+                visible_fields=visible_schema,
             )
             result.chunk_refs.append(chunk_ref)
             result.rows_emitted += len(clean_rows)
@@ -2010,10 +2168,19 @@ async def process_stream_dataset(
                 )
 
             if result.chunks_processed % max(1, int(options.checkpoint_every_chunks)) == 0:
+                _assert_stream_schema_binding_current(
+                    registry,
+                    schema_binding,
+                    connector_id=connector_id,
+                    dataset_id=dataset_id,
+                )
                 checkpoint = session.checkpoint(
                     chunk=chunk,
                     dedupe_keys=tuple(dedupe_keys),
-                    schema_fingerprint="|".join(previous_schema),
+                    schema_fingerprint=_stream_schema_fingerprint(
+                        schema_binding,
+                        previous_schema,
+                    ),
                 )
                 checkpoint = checkpoint.model_copy(
                     update={
@@ -2023,6 +2190,8 @@ async def process_stream_dataset(
                                 accumulator=accumulator,
                                 ordering_state=ordering_state,
                                 previous_schema=previous_schema,
+                                visible_schema=visible_schema,
+                                schema_binding=schema_binding,
                                 result=result,
                                 processing_contract=processing_contract,
                             ),
@@ -2076,6 +2245,12 @@ async def process_stream_dataset(
                 )
             )
 
+        _assert_stream_schema_binding_current(
+            registry,
+            schema_binding,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+        )
         if session.last_chunk is None and committed_checkpoint is not None:
             final_checkpoint = committed_checkpoint.model_copy(
                 update={"lifecycle_state": StreamLifecycleState.CLOSED}
@@ -2083,7 +2258,10 @@ async def process_stream_dataset(
         else:
             final_checkpoint = session.checkpoint(
                 dedupe_keys=tuple(dedupe_keys),
-                schema_fingerprint="|".join(previous_schema or ()),
+                schema_fingerprint=_stream_schema_fingerprint(
+                    schema_binding,
+                    previous_schema,
+                ),
                 lifecycle_state=StreamLifecycleState.CLOSED,
             )
         final_checkpoint = final_checkpoint.model_copy(
@@ -2094,6 +2272,8 @@ async def process_stream_dataset(
                         accumulator=accumulator,
                         ordering_state=ordering_state,
                         previous_schema=previous_schema,
+                        visible_schema=visible_schema,
+                        schema_binding=schema_binding,
                         result=result,
                         processing_contract=processing_contract,
                     ),
@@ -2167,6 +2347,14 @@ async def process_stream_dataset(
                     options.window_policy
                 )
             frontier_metadata.setdefault("frontier_committed", committed_checkpoint is not None)
+            frontier_metadata.setdefault(
+                "schema_binding",
+                (
+                    schema_binding.snapshot()
+                    if schema_binding is not None
+                    else {"status": "not_established"}
+                ),
+            )
             frontier_schema = tuple(
                 str(field) for field in frontier_metadata.get("schema_fields", ())
             )
@@ -2213,6 +2401,8 @@ async def _persist_stream_chunk_async(
     rows: list[dict[str, Any]],
     dedupe_dropped: int,
     processing_contract: ProcessingGuaranteeContract,
+    schema_binding: StreamSchemaBinding | None = None,
+    visible_fields: tuple[str, ...] | None = None,
 ) -> ArtifactRef:
     payload = {
         "connector_id": connector_id,
@@ -2225,6 +2415,12 @@ async def _persist_stream_chunk_async(
         "is_first": bool(getattr(chunk, "is_first", False)),
         "is_last": bool(getattr(chunk, "is_last", False)),
         "dedupe_dropped": int(dedupe_dropped),
+        "schema_binding": (
+            schema_binding.snapshot()
+            if schema_binding is not None
+            else {"status": "not_established"}
+        ),
+        "visible_fields": list(visible_fields or ()),
         "processing": processing_contract_snapshot(processing_contract),
         "data": rows,
     }
@@ -2330,6 +2526,8 @@ def persist_stream_chunk(
     rows: list[dict[str, Any]],
     dedupe_dropped: int,
     processing_contract: ProcessingGuaranteeContract | None = None,
+    schema_binding: StreamSchemaBinding | None = None,
+    visible_fields: tuple[str, ...] | None = None,
 ) -> ArtifactRef:
     """Persist one cleaned stream chunk as a deterministic CAS artifact."""
     contract = processing_contract or stream_processing_contract()
@@ -2344,6 +2542,12 @@ def persist_stream_chunk(
         "is_first": bool(getattr(chunk, "is_first", False)),
         "is_last": bool(getattr(chunk, "is_last", False)),
         "dedupe_dropped": int(dedupe_dropped),
+        "schema_binding": (
+            schema_binding.snapshot()
+            if schema_binding is not None
+            else {"status": "not_established"}
+        ),
+        "visible_fields": list(visible_fields or ()),
         "processing": processing_contract_snapshot(contract),
         "data": rows,
     }
@@ -2426,6 +2630,8 @@ async def _persist_cdc_schema_change_event_async(
     handling_action: str,
     observed_at: datetime,
     processing_contract: ProcessingGuaranteeContract,
+    schema_binding: StreamSchemaBinding | None = None,
+    visible_fields: tuple[str, ...] | None = None,
 ) -> ArtifactRef:
     previous = set(previous_fields)
     current = set(current_fields)
@@ -2436,8 +2642,14 @@ async def _persist_cdc_schema_change_event_async(
         "observed_at": observed_at.isoformat(),
         "previous_fields": list(previous_fields),
         "current_fields": list(current_fields),
+        "visible_fields": list(visible_fields or current_fields),
         "added_fields": sorted(current - previous),
         "removed_fields": sorted(previous - current),
+        "schema_binding": (
+            schema_binding.snapshot()
+            if schema_binding is not None
+            else {"status": "not_established"}
+        ),
         "compatibility": compatibility.value,
         "handling_action": handling_action,
         "processing": processing_contract_snapshot(processing_contract),
@@ -2479,6 +2691,8 @@ def persist_cdc_schema_change_event(
     compatibility: CDCSchemaCompatibility | None = None,
     handling_action: str | None = None,
     processing_contract: ProcessingGuaranteeContract | None = None,
+    schema_binding: StreamSchemaBinding | None = None,
+    visible_fields: tuple[str, ...] | None = None,
 ) -> ArtifactRef:
     """Persist one schema-change event with lineage/impact payloads."""
     previous = set(previous_fields)
@@ -2495,8 +2709,14 @@ def persist_cdc_schema_change_event(
         "observed_at": observed_at.isoformat(),
         "previous_fields": list(previous_fields),
         "current_fields": list(current_fields),
+        "visible_fields": list(visible_fields or current_fields),
         "added_fields": sorted(current - previous),
         "removed_fields": sorted(previous - current),
+        "schema_binding": (
+            schema_binding.snapshot()
+            if schema_binding is not None
+            else {"status": "not_established"}
+        ),
         "compatibility": resolved_compatibility.value,
         "handling_action": handling_action or "review",
         "processing": processing_contract_snapshot(contract),

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
-from polisyos.ddm.calibration.audit import _CalibrationValidityEvidence
+from polisyos.ddm.calibration.audit import (
+    _CalibrationValidityEvidence,
+    _check_bound_calibration_validity,
+)
 from polisyos.ddm.integration.events import (
     CalibrationAudit,
+    CalibrationValidityProjection,
     PerformanceDegradationEvent,
     ReadinessState,
     ReadinessStateEvent,
@@ -16,6 +21,7 @@ from polisyos.ddm.integration.events import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.ddm.calibration.calibrate import CalibrationReport
     from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy
 
 
@@ -38,6 +44,7 @@ class ModelRegistryReadinessRecord(BaseModel):
     required_action: str | None = None
     active_incident_id: str | None = None
     promotion_allowed: bool
+    calibration_validity: CalibrationValidityProjection | None = None
     _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(
         default=None
     )
@@ -94,9 +101,47 @@ def build_model_registry_record(
             and calibration_audit.pass_
             and _calibration_validity_is_authoritative(_calibration_validity_evidence)
         ),
+        calibration_validity=(
+            None
+            if _calibration_validity_evidence is None
+            else _calibration_validity_evidence.projection
+        ),
     )
     record._calibration_validity_evidence = _calibration_validity_evidence
     return record
+
+
+def rebind_calibration_validity(
+    record: ModelRegistryReadinessRecord,
+    *,
+    report: CalibrationReport,
+    calibration_audit: CalibrationAudit,
+    now: datetime,
+    observed_invalidation_triggers: list[str] | None,
+) -> ModelRegistryReadinessRecord:
+    """Recheck a persisted projection against its exact source context.
+
+    A public registry payload never carries checker authority.  A caller must
+    provide the exact calibration report, projected audit, effective time, and
+    trigger observation context before this function can attach fresh private
+    checker evidence.  Legacy records without the projection remain
+    ``not_established`` even when source context is later available.
+    """
+
+    rebound = record.model_copy(deep=True)
+    if record.calibration_validity is None:
+        rebound._calibration_validity_evidence = None
+        return rebound
+    evidence = _check_bound_calibration_validity(
+        calibration_id=calibration_audit.calibration_id,
+        report=report,
+        audit=calibration_audit,
+        now=now,
+        observed_invalidation_triggers=observed_invalidation_triggers,
+        expected_projection=record.calibration_validity,
+    )
+    rebound._calibration_validity_evidence = evidence
+    return rebound
 
 
 def evaluate_registry_gate(
@@ -170,7 +215,13 @@ def _calibration_validity_is_authoritative(
 ) -> bool:
     """Return whether checker-owned current validity is available and true."""
 
-    return evidence is not None and evidence.is_bound and evidence.status.valid
+    return (
+        evidence is not None
+        and evidence.is_bound
+        and evidence.status.valid
+        and evidence.projection.observation_status == "observed"
+        and evidence.projection.status == "valid"
+    )
 
 
 def _calibration_validity_block_reason(
@@ -179,12 +230,24 @@ def _calibration_validity_block_reason(
     """Return a fail-closed reason for missing or invalid checker evidence."""
 
     evidence = record._calibration_validity_evidence
-    if evidence is None:
+    projection = record.calibration_validity
+    if evidence is None or projection is None:
         return "calibration_validity_not_established"
     if not evidence.is_bound:
+        if (
+            evidence.projection.observation_status != "observed"
+            or evidence.projection.status == "not_established"
+        ):
+            return "calibration_validity_not_established"
         return "calibration_report_binding_not_established"
     if evidence.calibration_id != record.calibration_id:
         return "calibration_identity_mismatch"
+    if evidence.projection != projection:
+        return "calibration_validity_projection_mismatch"
+    if projection.stationarity_regime_id != record.stationarity_regime_id:
+        return "calibration_regime_identity_mismatch"
+    if projection.observation_status != "observed" or projection.status == "not_established":
+        return "calibration_validity_not_established"
     if not evidence.status.valid:
         if evidence.status.reasons:
             return "calibration_" + "_".join(evidence.status.reasons)

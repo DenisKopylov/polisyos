@@ -232,6 +232,45 @@ def test_cau_03_nonpositive_bandwidth_remains_input_invalid() -> None:
     assert report.status_reason == "invalid bandwidth=0.0"
 
 
+def test_cau_03_unknown_kernel_fails_closed() -> None:
+    """An unsupported kernel cannot silently select triangular weights."""
+
+    report = _report(
+        RegressionDiscontinuity.pure_step(
+            _curved_rdd(n=200),
+            {"bandwidth": 0.8, "kernel": "quartic", "bias_correction": False},
+        )
+    )
+
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert report.point_estimate is None
+    assert report.status_reason == (
+        "kernel must be one of: triangular, epanechnikov, uniform"
+    )
+
+
+@pytest.mark.parametrize("polynomial_order", [1.5, "2", True, 0, -1, 3, 99])
+def test_cau_03_unsupported_polynomial_order_fails_closed(
+    polynomial_order: object,
+) -> None:
+    """Only the characterized linear and quadratic profiles are supported."""
+
+    report = _report(
+        RegressionDiscontinuity.pure_step(
+            _curved_rdd(n=200),
+            {
+                "bandwidth": 0.8,
+                "polynomial_order": polynomial_order,
+                "bias_correction": False,
+            },
+        )
+    )
+
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert report.point_estimate is None
+    assert report.status_reason == "polynomial_order must be an integer in {1, 2}"
+
+
 def test_cau_03_insufficient_weighted_support_remains_non_success() -> None:
     """A narrow bandwidth cannot silently return a low-support estimate."""
 

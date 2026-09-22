@@ -521,6 +521,104 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
 
 
 @pytest.mark.asyncio
+async def test_stream_partitions_keep_frontiers_isolated_across_restart(
+    tmp_path: Path,
+) -> None:
+    """A restart of one partition must not validate against another partition."""
+
+    left_path = tmp_path / "left.jsonl"
+    left_path.write_text('{"value":"left"}\n', encoding="utf-8")
+    right_path = tmp_path / "right.jsonl"
+    right_path.write_text(
+        '{"value":"right-1"}\n{"value":"right-2"}\n',
+        encoding="utf-8",
+    )
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    left_options = StreamRuntimeOptions(
+        checkpoint_every_chunks=1,
+        partition_key="left",
+    )
+    right_options = StreamRuntimeOptions(
+        checkpoint_every_chunks=1,
+        partition_key="right",
+    )
+
+    await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="shared-events",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        connection_config=ConnectionConfig(
+            url=left_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+        runtime_options=left_options,
+        registry=registry,
+    )
+    await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="shared-events",
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        connection_config=ConnectionConfig(
+            url=right_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+        runtime_options=right_options,
+        registry=registry,
+    )
+
+    reopened = CursorStore(FileSystemCAS(tmp_path / ".polisyos"))
+    left_checkpoint = reopened.find_latest_stream_checkpoint(
+        "stream.jsonl", "shared-events", partition_key="left"
+    )
+    right_checkpoint = reopened.find_latest_stream_checkpoint(
+        "stream.jsonl", "shared-events", partition_key="right"
+    )
+    assert left_checkpoint is not None
+    assert right_checkpoint is not None
+    assert left_checkpoint.partition_key == "left"
+    assert right_checkpoint.partition_key == "right"
+    assert left_checkpoint.offset == 0
+    assert right_checkpoint.offset == 1
+
+    resumed_left = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="shared-events",
+        store=store,
+        cursor_store=reopened,
+        sanitize_rows=_valid_rows,
+        connection_config=ConnectionConfig(
+            url=left_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+        runtime_options=left_options,
+        registry=registry,
+    )
+
+    assert resumed_left.final_checkpoint is not None
+    assert resumed_left.final_checkpoint.partition_key == "left"
+    left_cursor = reopened.find_latest_cursor(
+        "stream.jsonl", "shared-events", partition_key="left"
+    )
+    right_cursor = reopened.find_latest_cursor(
+        "stream.jsonl", "shared-events", partition_key="right"
+    )
+    assert left_cursor is not None
+    assert right_cursor is not None
+    assert left_cursor.metadata["partition_key"] == "left"
+    assert right_cursor.metadata["partition_key"] == "right"
+    assert left_cursor.watermark_value == "0"
+    assert right_cursor.watermark_value == "1"
+
+
+@pytest.mark.asyncio
 async def test_stream_dedupe_count_horizon_is_restart_invariant(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

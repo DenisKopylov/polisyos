@@ -9,6 +9,8 @@ import pytest
 
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleError,
     JointSimulationPort,
@@ -38,6 +40,21 @@ def _real_n5_observation(tmp_path: Path):
             }
         }
     )
+    # The request is an operational hint, but adding it changes the problem
+    # envelope hash.  Rebuild only that envelope around the unchanged WMR and
+    # registry so the context remains honestly bound to the final problem.
+    context = build_cycle_substrate_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        domain=context.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
     producer = JointSimulationHorizonController()
     produced_results: list[object] = []
 
@@ -52,7 +69,11 @@ def _real_n5_observation(tmp_path: Path):
         repo_root=tmp_path,
         cycle_substrate_context=context,
     )(candidate=candidate, problem=problem, cycle_index=0)
-    assert observation.status == "joint_simulated"
+    assert observation.status == "joint_simulated", {
+        "status": observation.status,
+        "authority_blockers": observation.authority_blockers,
+        "diagnostics": observation.diagnostics,
+    }
     assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
     assert len(produced_results) == 1
     return problem, context, candidate, observation, produced_results[0]

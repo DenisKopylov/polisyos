@@ -6,6 +6,11 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.parameters import (
+    ContextAdaptiveParameterBundle,
+    persist_context_adaptive_parameter_bundle,
+)
 from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
@@ -76,14 +81,35 @@ def test_skip_when_required_parameters_empty_list(execution_context, minimal_sta
     )
 
 
-def test_ok_when_already_present(execution_context, minimal_state, artifact_ref_factory):
-    """If context_adaptive_parameter_bundle_ref already in artifacts_index, short-circuit ok."""
-    ref = artifact_ref_factory(kind="ir.context_adaptive_parameter_bundle")
-    state = minimal_state.model_copy(deep=True)
-    state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = ref
-    outcome = ResolveParametersNode().execute(execution_context, state)
-    assert outcome.status == "ok"
-    assert outcome.state is state
+def test_existing_bundle_requires_valid_cas_artifact(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    """A valid persisted bundle reuses; a non-CAS ref cannot claim success."""
+    valid_ref = persist_context_adaptive_parameter_bundle(
+        execution_context.store,
+        ContextAdaptiveParameterBundle(
+            target_context=ContextProfile(context_id="control"),
+            simulation_domain="unknown",
+        ),
+    )
+    valid_state = minimal_state.model_copy(deep=True)
+    valid_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = valid_ref
+
+    valid_outcome = ResolveParametersNode().execute(execution_context, valid_state)
+
+    assert valid_outcome.status == "ok"
+    assert valid_outcome.state is valid_state
+
+    invalid_state = minimal_state.model_copy(deep=True)
+    invalid_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (
+        artifact_ref_factory(kind="ir.context_adaptive_parameter_bundle")
+    )
+
+    invalid_outcome = ResolveParametersNode().execute(execution_context, invalid_state)
+
+    assert invalid_outcome.status == "skip"
 
 
 def test_target_context_assertion_is_not_swallowed(

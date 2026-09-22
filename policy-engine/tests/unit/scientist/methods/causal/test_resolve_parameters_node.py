@@ -78,7 +78,10 @@ def _seed_skg(db_path) -> None:
                             "name": "fiscal_multiplier",
                             "value": 2.1,
                             "parameter_type": "quantitative",
-                            "evidence_strength": "theoretical",
+                            # Keep the changed-context oracle independent of
+                            # evidence-strength weighting: an exact US source
+                            # should beat the distant PL source on context.
+                            "evidence_strength": "observational",
                         }
                     ),
                     json.dumps(

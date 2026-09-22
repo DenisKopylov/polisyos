@@ -127,6 +127,92 @@ def test_explicit_triangular_uses_mode_fraction_and_support() -> None:
     assert float(np.quantile(samples[:, 0], 0.5)) > 0.4
 
 
+def test_bounded_distribution_shapes_match_scipy_and_not_uniform() -> None:
+    """Pinned SciPy quantiles distinguish each bounded mapping from uniform."""
+    from scipy.stats import triang, truncnorm, uniform
+
+    quantile_levels = np.array([0.1, 0.5, 0.9])
+
+    normal_plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=-1.0,
+                upper_bound=1.0,
+                distribution=ParameterDist.NORMAL,
+                distribution_spec=NormalDistributionSpecV1(mean=0.0, std=0.35),
+            ),
+        ],
+        n_trajectories=64,
+        seed=71,
+    )
+    triangular_plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=0.0,
+                upper_bound=1.0,
+                distribution=ParameterDist.TRIANGULAR,
+                distribution_spec=TriangularDistributionSpecV1(mode_fraction=0.75),
+            ),
+        ],
+        n_trajectories=64,
+        seed=73,
+    )
+
+    normal_samples = sampling_module.generate_sensitivity_samples(normal_plan)[:, 0]
+    triangular_samples = sampling_module.generate_sensitivity_samples(triangular_plan)[:, 0]
+    normal_reference = truncnorm(
+        (-1.0 - 0.0) / 0.35,
+        (1.0 - 0.0) / 0.35,
+        loc=0.0,
+        scale=0.35,
+    )
+    triangular_reference = triang(0.75, loc=0.0, scale=1.0)
+    normal_uniform = uniform(loc=-1.0, scale=2.0)
+    triangular_uniform = uniform(loc=0.0, scale=1.0)
+
+    for samples, reference, uniform_reference in (
+        (normal_samples, normal_reference, normal_uniform),
+        (triangular_samples, triangular_reference, triangular_uniform),
+    ):
+        observed = np.quantile(samples, quantile_levels)
+        expected = reference.ppf(quantile_levels)
+        uniform_expected = uniform_reference.ppf(quantile_levels)
+        reference_error = float(np.max(np.abs(observed - expected)))
+        uniform_error = float(np.max(np.abs(observed - uniform_expected)))
+        assert reference_error < 0.15
+        assert reference_error < uniform_error
+
+
+def test_analysis_metadata_fingerprint_matches_canonical_distribution_mapping() -> None:
+    """Analysis receipts bind to the exact mapping used to create the plan."""
+    plan = SensitivityPlan(
+        method=SensitivityMethod.MORRIS,
+        parameter_specs=[
+            ParameterSpec(
+                name="x",
+                lower_bound=-1.0,
+                upper_bound=1.0,
+                distribution=ParameterDist.NORMAL,
+                distribution_spec=NormalDistributionSpecV1(mean=0.0, std=0.35),
+            ),
+        ],
+        n_trajectories=16,
+        seed=79,
+    )
+    samples = sampling_module.generate_sensitivity_samples(plan)
+    result = analysis_module.analyze_sensitivity(plan, samples, samples[:, 0] ** 2)
+    _, fingerprint = _build_salib_problem(plan)
+
+    assert result.metadata["distribution_mapping_fingerprint"] == fingerprint
+    assert result.metadata["distribution_schema_version"] == "doe-distribution-v1"
+    assert result.metadata["salib_backend"] == "SALib@1.5.2"
+    assert result.metadata["plan_seed"] == 79
+
+
 def test_unsupported_lognormal_and_malformed_specs_fail_closed() -> None:
     """No unbounded lognormal mapping or invalid typed parameters is admitted."""
     with pytest.raises(ValueError):

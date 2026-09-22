@@ -21,6 +21,12 @@ from ._integrity_ops import (
     VerificationReport as VerificationReport,
 )
 from ._integrity_ops import (
+    VerifiedArtifactSnapshot as _VerifiedArtifactSnapshot,
+)
+from ._integrity_ops import (
+    load_verified_artifact_snapshot as _load_verified_artifact_snapshot,
+)
+from ._integrity_ops import (
     read_verified_blob as _read_verified_blob,
 )
 from ._integrity_ops import (
@@ -96,7 +102,7 @@ from .signing import (
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
 
     from ..observability import MetricsRegistry, PolicyOSTracer
     from .backends.config import ArtifactStoreConfig
@@ -557,6 +563,7 @@ class FileSystemCAS:
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
             write_signature=self.put_signature,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def verify_signature(
@@ -575,6 +582,7 @@ class FileSystemCAS:
             load_signature=self.get_signature,
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def sign_all_artifacts(
@@ -585,9 +593,11 @@ class FileSystemCAS:
         signer_identity: str | None = None,
         only_unsigned: bool = True,
         max_workers: int = 8,
+        pending_window: int | None = None,
+        cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
-        ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
+        ids = artifact_ids if artifact_ids is not None else self._iter_artifact_ids_lazy()
         return _sign_all_artifacts(
             signer=signer,
             artifact_ids=ids,
@@ -598,6 +608,9 @@ class FileSystemCAS:
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
             write_signature=self.put_signature,
+            pending_window=pending_window,
+            cancel_event=cancel_event,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def verify_all_signatures(
@@ -607,9 +620,11 @@ class FileSystemCAS:
         artifact_ids: Iterable[ArtifactID] | None = None,
         max_workers: int = 8,
         strict_identity: bool | None = None,
+        pending_window: int | None = None,
+        cancel_event: threading.Event | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
-        ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
+        ids = artifact_ids if artifact_ids is not None else self._iter_artifact_ids_lazy()
         return _verify_all_signatures(
             verifier=verifier,
             artifact_ids=ids,
@@ -620,6 +635,8 @@ class FileSystemCAS:
                 v,
                 strict_identity=strict,
             ),
+            pending_window=pending_window,
+            cancel_event=cancel_event,
         )
 
     def _put_blob_and_manifest_once(
@@ -1065,8 +1082,11 @@ class FileSystemCAS:
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         """List all artifact IDs that have manifest sidecars under this CAS root."""
-        ids: list[ArtifactID] = []
-        for manifest_path in sorted(self.base.rglob("*.manifest.json")):
+        return sorted(self._iter_artifact_ids_lazy(), key=lambda artifact_id: artifact_id.hex)
+
+    def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
+        """Yield owned manifest IDs lazily for bounded batch operations."""
+        for manifest_path in self.base.rglob("*.manifest.json"):
             name = manifest_path.name
             if not name.endswith(".manifest.json"):
                 continue
@@ -1084,8 +1104,7 @@ class FileSystemCAS:
                     cell_id=cell_id,
                 ):
                     continue
-            ids.append(artifact_id)
-        return ids
+            yield artifact_id
 
     def export_subgraph(
         self,
@@ -1141,5 +1160,16 @@ class FileSystemCAS:
             artifact_id,
             blob_path,
             load_manifest=self.get_manifest,
+            record_integrity_failure=self._record_integrity_failure,
+        )
+
+    def _load_verified_snapshot(self, artifact_id: ArtifactID) -> _VerifiedArtifactSnapshot:
+        """Load one owned, integrity-checked bytes/manifest snapshot."""
+        self._require_artifact_owner(artifact_id, operation="verify")
+        blob, manifest = self._paths(artifact_id)
+        return _load_verified_artifact_snapshot(
+            artifact_id,
+            blob_path=blob,
+            manifest_path=manifest,
             record_integrity_failure=self._record_integrity_failure,
         )

@@ -1071,29 +1071,20 @@
       "suggested_target": "tests/integration/<package_bridge>/"
     },
     {
-      "count": 1,
-      "current_status": "observed",
+      "count": 0,
+      "current_status": "not_observed",
       "finding_id": "LM-012",
       "kind": "redirect_only_directory",
       "owner": "team-frontend",
       "package": "frontend",
-      "path": "frontend",
-      "paths": [
-        "frontend"
-      ],
+      "path": "",
+      "paths": [],
       "suggested_target": "apps/ and packages/",
       "sunset": {
-        "metadata_present": true,
-        "rows": [
-          {
-            "metadata_present": true,
-            "path": "frontend",
-            "source": "frontend/README.md",
-            "sunset_date": "2026-08-05"
-          }
-        ],
-        "source": "frontend/README.md",
-        "sunset_date": "2026-08-05"
+        "metadata_present": false,
+        "rows": [],
+        "source": null,
+        "sunset_date": null
       }
     },
     {
@@ -1661,7 +1652,7 @@
       }
     },
     {
-      "count": 94,
+      "count": 100,
       "current_status": "needs_review",
       "finding_id": "LM-025",
       "kind": "stale_frontend_path_reference",
@@ -1710,6 +1701,14 @@
         "docs/plans/active/POLICYOS_PRODUCTION_E2E_TESTING_AND_DEBUGGING_PLAN.md",
         "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md",
         "docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/LEGACY_CROSSWALK.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PROTECTED_BOUNDARIES.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CLI-01.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/legacy_card_index.json",
         "docs/plans/active/atlas-slices/DS0-source-of-truth-freeze-and-governing-decisions.md",
         "docs/plans/active/atlas-slices/DS1-live-application-audit.md",
         "docs/plans/active/atlas-slices/DS10-capability-discovery.md",
@@ -1735,7 +1734,6 @@
         "docs/reference/frontend/atlas-live-application-audit.md",
         "docs/reference/frontend/atlas-phase-a-synthesis.md",
         "docs/reference/generated-artifacts.md",
-        "docs/reference/ownership.md",
         "docs/reference/quality-gates.md",
         "docs/reference/repository-hygiene.md",
         "docs/reference/repository-topology.md",
@@ -1758,7 +1756,6 @@
         "tests/repo_quality/tools/test_phase4_consolidation.py",
         "tests/repo_quality/tools/test_repository_last_mile_inventory.py",
         "tools/devx/workspace/bootstrap.py",
-        "tools/quality/validation/check_docs_gate.py",
         "tools/quality/validation/check_docs_lifecycle.py",
         "tools/quality/validation/directory_health.py",
         "tools/quality/validation/inventory_legacy_quality_evidence.py",
@@ -2526,8 +2523,8 @@
   "summary": {
     "finding_count": 26,
     "needs_review_count": 8,
-    "not_observed_count": 7,
-    "observed_count": 11,
-    "path_count": 300
+    "not_observed_count": 8,
+    "observed_count": 10,
+    "path_count": 305
   }
 }

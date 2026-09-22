@@ -22,6 +22,11 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.contracts import SearchCandidate, SearchLedger
 from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.data_forge.kernel.embeddings import (
+    GENERATION_SELECTOR_FILENAME,
+    embedding_generation_manifest,
+    resolve_embedding_generation,
+)
 from polisyos.fabric import (
     ConnectorSchemaContract,
     DataSchema,
@@ -182,6 +187,7 @@ class _L1DcatSearchMeasurement:
     unverified_alias_refs: tuple[str, ...] = ()
     can_support_positive_recall: bool = False
     match_mode_candidate_refs: tuple[dict[str, str], ...] = ()
+    generation_evidence_refs: tuple[str, ...] = ()
     issue_codes: tuple[str, ...] = ()
 
 
@@ -204,6 +210,7 @@ class _G1QueryExpansion:
     unverified_alias_refs: tuple[str, ...]
     can_support_positive_recall: bool
     issue_codes: tuple[str, ...]
+    generation_evidence_refs: tuple[str, ...] = ()
 
 
 class _G1Model(BaseModel):
@@ -838,6 +845,7 @@ def build_substrate_grounding_search_adapter(
             index_freshness={
                 "status": "pass" if (root / L1_DCAT_PATH).exists() else "fail",
                 "index_freshness_refs": ["g1-index-freshness:l1-dcat"],
+                "generation_evidence_refs": list(measurement.generation_evidence_refs),
             },
             query_expansion_traces=(
                 {
@@ -899,7 +907,10 @@ def build_substrate_grounding_search_adapter(
                 selected_candidate_refs=selected_refs,
                 no_hit_candidate_refs=no_hit_refs,
             ),
-            index_freshness_refs=("g1-index-freshness:l1-dcat",),
+            index_freshness_refs=(
+                "g1-index-freshness:l1-dcat",
+                *measurement.generation_evidence_refs,
+            ),
             known_seed_refs=("g1-recall-seed:credit-access",),
             g0_ledger_ref="repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
         )
@@ -1286,9 +1297,16 @@ def build_g1_search_engineering_quality_report(
     query_trace_refs = tuple(
         dict.fromkeys(ledger.search_frontier_ref or ledger.ledger_id for ledger in ledgers)
     )
-    index_backed = (index_dir / "ds_dataset_index.hnsw").exists() and (
-        index_dir / "ds_dataset_embeddings.npz"
-    ).exists()
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    index_backed = bool(
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+    )
     issue_codes: list[str] = []
     if not catalog_path.exists() or not query_trace_refs:
         issue_codes.append("layer3_g1_search_engineering_quality_not_measured")
@@ -1649,15 +1667,86 @@ def _semantic_search_state(
     repo_root: Path,
 ) -> tuple[G1_SEMANTIC_SEARCH_STATUS, tuple[str, ...]]:
     index_dir = Path(repo_root) / L1_DCAT_INDEX_DIR
-    hnsw_refs = (
+    legacy_refs = (
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_index.hnsw",
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_embeddings.npz",
     )
-    if (index_dir / "ds_dataset_index.hnsw").exists() and (
-        index_dir / "ds_dataset_embeddings.npz"
-    ).exists():
-        return "enabled", hnsw_refs
-    return "disabled_missing_index", hnsw_refs
+    generation = resolve_embedding_generation(
+        index_dir,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    search_refs, _ = _embedding_reference_sets(
+        repo_root=Path(repo_root),
+        index_dir=index_dir,
+        legacy_refs=legacy_refs,
+    )
+    if (
+        generation is not None
+        and generation.status != "empty_generation"
+        and generation.index_path is not None
+    ):
+        return "enabled", search_refs
+    return "disabled_missing_index", search_refs
+
+
+def _embedding_reference_sets(
+    *,
+    repo_root: Path,
+    index_dir: Path,
+    legacy_refs: tuple[str, ...],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return actual search refs separately from generation evidence refs.
+
+    A selected generation contributes HNSW search refs only when it is a
+    complete generation and both search members are present in its validated
+    manifest.  Selector, inventory, IDs, basis, and other member refs remain
+    provenance evidence, never a claim that those sidecars were searched.
+    Without a selector, the established legacy flat pair remains the search
+    and evidence representation.
+    """
+
+    try:
+        manifest = embedding_generation_manifest(
+            index_dir,
+            legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+            legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+        )
+    except (AttributeError, IndexError, KeyError, OSError, TypeError, ValueError):
+        manifest = None
+    if manifest is not None:
+        metadata, artifact_paths = manifest
+        if metadata.get("status") == "legacy":
+            return legacy_refs, legacy_refs
+        evidence_refs = tuple(_duckdb_path_ref(path, repo_root) for path in artifact_paths)
+        if metadata.get("status") != "complete":
+            return (), evidence_refs
+        member_refs = {
+            path.name: _duckdb_path_ref(path, repo_root)
+            for path in artifact_paths
+            if path.name in {"index.hnsw", "embeddings.npz"}
+        }
+        search_refs = tuple(
+            ref
+            for name in ("index.hnsw", "embeddings.npz")
+            if (ref := member_refs.get(name)) is not None
+        )
+        if len(search_refs) != 2:
+            return (), evidence_refs
+        return search_refs, evidence_refs
+
+    selector_path = index_dir / GENERATION_SELECTOR_FILENAME
+    if selector_path.exists():
+        return (), (_duckdb_path_ref(selector_path, repo_root),)
+    return legacy_refs, legacy_refs
+
+
+def _duckdb_path_ref(path: Path, repo_root: Path) -> str:
+    try:
+        relative = path.relative_to(repo_root).as_posix()
+    except ValueError:
+        relative = str(path)
+    return f"duckdb://{relative}"
 
 
 def _l1_query_ref(repo_root: Path, construct: str) -> str:
@@ -1673,6 +1762,16 @@ def _query_expansion_for_construct(repo_root: Path, construct: str) -> _G1QueryE
     root = Path(repo_root)
     graph = load_layer3_gx_concept_alias_graph(root)
     semantic_status, hnsw_refs = _semantic_search_state(root)
+    index_dir = root / L1_DCAT_INDEX_DIR
+    legacy_refs = (
+        f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_index.hnsw",
+        f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_embeddings.npz",
+    )
+    _, generation_evidence_refs = _embedding_reference_sets(
+        repo_root=root,
+        index_dir=index_dir,
+        legacy_refs=legacy_refs,
+    )
     alias_graph_ref = f"repo://{CONCEPT_ALIAS_GRAPH_PATH.as_posix()}"
     normalized = _dcat_metric_key(construct)
     lexical = _l1_query_text(construct)
@@ -1771,6 +1870,7 @@ def _query_expansion_for_construct(repo_root: Path, construct: str) -> _G1QueryE
         unverified_alias_refs=unverified_refs,
         can_support_positive_recall=bool(resolved_refs) and graph_status == "ready",
         issue_codes=tuple(dict.fromkeys(issue_codes)),
+        generation_evidence_refs=generation_evidence_refs,
     )
 
 
@@ -1827,6 +1927,7 @@ def _search_l1_dcat_cached(repo_root: str, construct: str) -> _L1DcatSearchMeasu
             unverified_alias_refs=expansion.unverified_alias_refs,
             can_support_positive_recall=False,
             match_mode_candidate_refs=_expansion_candidate_refs(expansion, query_hash),
+            generation_evidence_refs=expansion.generation_evidence_refs,
             issue_codes=tuple(
                 dict.fromkeys(
                     (
@@ -1919,6 +2020,7 @@ def _search_l1_dcat_cached(repo_root: str, construct: str) -> _L1DcatSearchMeasu
             can_support_positive_recall=bool(resolved_refs)
             and expansion.can_support_positive_recall,
             match_mode_candidate_refs=mode_candidate_refs,
+            generation_evidence_refs=expansion.generation_evidence_refs,
             issue_codes=expansion.issue_codes,
         )
     except Exception:
@@ -1953,6 +2055,7 @@ def _search_l1_dcat_cached(repo_root: str, construct: str) -> _L1DcatSearchMeasu
             unverified_alias_refs=expansion.unverified_alias_refs,
             can_support_positive_recall=False,
             match_mode_candidate_refs=_expansion_candidate_refs(expansion, query_hash),
+            generation_evidence_refs=expansion.generation_evidence_refs,
             issue_codes=tuple(
                 dict.fromkeys(
                     (

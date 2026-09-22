@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
@@ -15,6 +15,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.methods.search.funnel.types import (
+    FunnelEvaluationStatus,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
@@ -276,6 +277,7 @@ class FunnelOutcome:
     parent_ticket_id: str | None = None
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
+    evaluation_status: FunnelEvaluationStatus = "evaluated"
 
 
 class FunnelOrchestrator:
@@ -332,7 +334,7 @@ class FunnelOrchestrator:
             ticket_context.update(sentinel_meta)
             ticket_context["is_sentinel"] = True
         continuation_key = self._continuation_context_key(candidate, ticket_context)
-        routing_mode = self._routing_mode()
+        routing_mode = self._routing_mode(ticket_context)
         cache_key = self._ticket_cache_key(
             candidate,
             context,
@@ -392,7 +394,7 @@ class FunnelOrchestrator:
 
         resolved_ticket = self._resolve_ticket(ticket)
         execution_target = self._resolve_target_level(target_level, policy)
-        resolved_ticket.degradation_mode = self._routing_mode()
+        resolved_ticket.degradation_mode = self._routing_mode(resolved_ticket.context)
         burn_in_calibration = (
             policy == "burn_in"
             and str(resolved_ticket.context.get("burn_in_cohort", "")) == "calibration"
@@ -534,6 +536,17 @@ class FunnelOrchestrator:
 
             self._maybe_record_correlation(resolved_ticket)
 
+        if (
+            policy != "stage_a"
+            and resolved_ticket.stage_results
+            and execution_target < self._stage_levels[-1]
+            and resolved_ticket.is_terminal
+            and resolved_ticket.final_action == "complete"
+        ):
+            # A full request capped below the available funnel is complete as
+            # control flow, but not an evaluated full-fidelity result.
+            resolved_ticket.final_action = "defer"
+
         self._maybe_record_correlation(resolved_ticket)
         if (
             resolved_ticket.is_terminal
@@ -569,12 +582,27 @@ class FunnelOrchestrator:
         if not envelopes:
             uncertainty_envelope = UncertaintyEnvelope.unknown()
 
+        outcome_stage_results = dict(resolved_ticket.stage_results)
+        final_result = resolved_ticket.last_result
+        if final_result is not None:
+            # Keep the existing historical max on FunnelOutcome while making
+            # the latest same-ticket/same-context estimate explicit to readers.
+            current_uncertainty = final_result.uncertainty_envelope
+            feedback = dict(final_result.feedback or {})
+            feedback["uncertainty_current"] = current_uncertainty.model_dump(mode="json")
+            feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")
+            final_result = replace(final_result, feedback=feedback)
+            for level, result in outcome_stage_results.items():
+                if result is resolved_ticket.last_result:
+                    outcome_stage_results[level] = final_result
+                    break
+
         return FunnelOutcome(
             ticket_id=resolved_ticket.ticket_id,
             candidate_hash=resolved_ticket.candidate_hash,
             trace=list(resolved_ticket.trace),
-            stage_results=dict(resolved_ticket.stage_results),
-            final_result=resolved_ticket.last_result,
+            stage_results=outcome_stage_results,
+            final_result=final_result,
             failure_cards=failure_cards,
             uncertainty_envelope=uncertainty_envelope,
             compute_actual_usd=sum(step.compute_actual_usd for step in resolved_ticket.trace),
@@ -590,6 +618,7 @@ class FunnelOrchestrator:
             parent_ticket_id=resolved_ticket.parent_ticket_id,
             lineage=resolved_ticket.lineage,
             continuation_reason=resolved_ticket.continuation_reason,
+            evaluation_status=self._evaluation_status(resolved_ticket),
         )
 
     def evaluate(
@@ -601,7 +630,8 @@ class FunnelOrchestrator:
 
         ticket = self.submit(candidate, context)
         outcome = self.advance(ticket, policy="full")
-        return outcome.final_result or self._empty_result(candidate)
+        result = outcome.final_result or self._empty_result(candidate)
+        return self._compatibility_result(outcome, result)
 
     def as_stage_a_callable(
         self,
@@ -632,7 +662,7 @@ class FunnelOrchestrator:
             context: dict[str, Any],
         ) -> dict[str, Any]:
             sentinel_meta = extract_sentinel_metadata(candidate) or {}
-            routing_mode = self._routing_mode()
+            routing_mode = self._routing_mode(context)
             cache_key = self._ticket_cache_key(
                 candidate,
                 context,
@@ -645,14 +675,9 @@ class FunnelOrchestrator:
             ) is not None
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="full")
-            result = outcome.final_result or self._empty_result(candidate)
+            stage_result = outcome.final_result or self._empty_result(candidate)
+            result = self._compatibility_result(outcome, stage_result)
             feedback = dict(result.feedback)
-            feedback.setdefault(
-                "verdict",
-                "APPROVE"
-                if result.is_promising and outcome.final_action in {"complete", "advance"}
-                else "REJECT",
-            )
             feedback["funnel_action"] = outcome.final_action
             feedback["funnel_degradation_mode"] = outcome.degradation_mode
             feedback["funnel_cache"] = "hit" if cache_hit else "miss"
@@ -661,7 +686,7 @@ class FunnelOrchestrator:
                 "feedback": feedback,
                 "objective_value": result.objective_value,
                 "is_promising": result.is_promising,
-                "_funnel_result": result,
+                "_funnel_result": stage_result,
                 "_funnel_outcome": outcome,
             }
 
@@ -925,8 +950,36 @@ class FunnelOrchestrator:
             context["correlation_metrics"] = self._correlation_tracker.compute_metrics()
         return context
 
-    def _routing_mode(self) -> DegradationMode:
+    def _routing_mode(self, context: Mapping[str, Any] | None = None) -> DegradationMode:
         if self._correlation_tracker is None:
+            # A persisted calibration projection can be authoritative even
+            # when no mutable tracker snapshot is available for this run.
+            candidate_mode = context.get("funnel_degradation_mode") if context else None
+            if candidate_mode in {
+                "normal",
+                "conservative_routing",
+                "no_promotion",
+                "reduced_judge",
+                "freeze_frontier",
+                "prior_free",
+                "auto_cap",
+            }:
+                return candidate_mode
+            candidate_metrics = context.get("correlation_metrics") if context else None
+            if isinstance(candidate_metrics, Mapping):
+                if bool(candidate_metrics.get("promotion_ban_active")):
+                    return "no_promotion"
+                candidate_mode = candidate_metrics.get("routing_mode")
+                if candidate_mode in {
+                    "normal",
+                    "conservative_routing",
+                    "no_promotion",
+                    "reduced_judge",
+                    "freeze_frontier",
+                    "prior_free",
+                    "auto_cap",
+                }:
+                    return candidate_mode
             return "normal"
         if hasattr(self._correlation_tracker, "routing_mode"):
             mode = self._correlation_tracker.routing_mode()
@@ -969,6 +1022,12 @@ class FunnelOrchestrator:
 
     def _mark_terminal(self, ticket: FunnelTicket) -> None:
         ticket.is_terminal = True
+        if not ticket.stage_results:
+            # The control flow completed, but no requested evaluation ran.  A
+            # configuration/level cap is not a scientific approval or a zero
+            # objective; leave an explicit path for a later continuation.
+            ticket.final_action = "defer"
+            return
         if (
             ticket.degradation_mode in {"no_promotion", "reduced_judge", "auto_cap"}
             and (ticket.current_level or 0) >= 5
@@ -984,11 +1043,76 @@ class FunnelOrchestrator:
     def _empty_result(candidate: dict[str, Any]) -> FunnelStageResult:
         return FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=0.0,
-            is_promising=True,
+            objective_value=float("inf"),
+            is_promising=False,
             stage_name="funnel_empty",
+            feedback={
+                "verdict": "NOT_EVALUATED",
+                "funnel_evaluation_status": "not_evaluated",
+                "reason": "no stage executed",
+            },
             uncertainty_envelope=UncertaintyEnvelope.unknown(),
             fidelity_level=0,
+            terminal_action="defer",
+        )
+
+    @staticmethod
+    def _evaluation_status(ticket: FunnelTicket) -> FunnelEvaluationStatus:
+        if not ticket.stage_results:
+            return "not_evaluated"
+        if not ticket.is_terminal:
+            return "partial"
+        if ticket.final_action in _CONTINUABLE_ACTIONS or ticket.final_action == "defer_to_human":
+            return "partial"
+        return "evaluated"
+
+    @staticmethod
+    def _compatibility_result(
+        outcome: FunnelOutcome,
+        stage_result: FunnelStageResult,
+    ) -> FunnelStageResult:
+        """Project stage evidence into the aggregate compatibility decision."""
+
+        if outcome.evaluation_status == "not_evaluated":
+            compatibility_verdict = "NOT_EVALUATED"
+            compatibility_promising = False
+        elif outcome.evaluation_status != "evaluated":
+            compatibility_verdict = "DEFER"
+            compatibility_promising = False
+        elif outcome.final_action == "reject" or not stage_result.is_promising:
+            compatibility_verdict = "REJECT"
+            compatibility_promising = False
+        elif outcome.final_action in {"complete", "advance"}:
+            compatibility_verdict = "APPROVE"
+            compatibility_promising = True
+        else:
+            compatibility_verdict = "DEFER"
+            compatibility_promising = False
+
+        feedback = dict(stage_result.feedback)
+        feedback["stage_verdict"] = feedback.get("verdict")
+        feedback["verdict"] = compatibility_verdict
+        feedback["funnel_action"] = outcome.final_action
+        feedback["funnel_evaluation_status"] = outcome.evaluation_status
+        return FunnelStageResult(
+            policy_candidate=stage_result.policy_candidate,
+            objective_value=stage_result.objective_value,
+            is_promising=compatibility_promising,
+            stage_name=stage_result.stage_name,
+            duration_seconds=stage_result.duration_seconds,
+            timestamp=stage_result.timestamp,
+            simulation_results=stage_result.simulation_results,
+            feedback=feedback,
+            predicted_score=stage_result.predicted_score,
+            actual_score=stage_result.actual_score,
+            uncertainty_envelope=stage_result.uncertainty_envelope,
+            cheap_signal=stage_result.cheap_signal,
+            failure_cards=list(stage_result.failure_cards),
+            compute_actual_usd=stage_result.compute_actual_usd,
+            fidelity_level=stage_result.fidelity_level,
+            audit_refs=list(stage_result.audit_refs),
+            actionable_side_information_ref=stage_result.actionable_side_information_ref,
+            terminal_action=stage_result.terminal_action,
         )
 
     @staticmethod

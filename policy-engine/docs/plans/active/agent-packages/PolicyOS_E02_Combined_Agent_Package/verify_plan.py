@@ -62,7 +62,16 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require(len(m['evolution']) == 8 and {e['source_direction'] for e in m['evolution']} == {f'S{x:02d}' for x in range(1,9)}, 'S directions not preserved')
     r = m['local_execution']
     ledger_resource_profile = load(root, 'templates/run_ledger.json')['resource_profile']
+    test_job_template = load(root, 'templates/test_job.json')
     require(ledger_resource_profile == r, 'Ledger resource profile drift')
+    require(
+        set(r['immutable_request_fields']) <= set(test_job_template),
+        'Test-job template lacks immutable request fields',
+    )
+    require(
+        test_job_template['immutable_request_fields'] == r['immutable_request_fields'],
+        'Test-job immutable field declaration drift',
+    )
     require(
         r['light_max_jobs'] == 7
         and r['light_equivalent_budget'] == 7

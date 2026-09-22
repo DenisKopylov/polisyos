@@ -1,16 +1,21 @@
 {
   "template_only": true,
   "bundle_id": null,
-  "class": "L",
-  "resource_cost": 1,
-  "command": null,
-  "cwd": null,
-  "exact_commit": null,
+  "executable": null,
   "argv": [],
+  "cwd": null,
   "worktree": null,
+  "code_sha": null,
+  "selectors": [],
+  "identities": [],
+  "timeout": null,
+  "class": "L",
+  "cost": 1,
+  "named_resources": [],
+  "output_root": null,
+  "basetemp": null,
   "import_owner_check": null,
   "expected_scope": null,
-  "named_resources": [],
   "request_frozen": false,
   "immutable_request_fields": [
     "executable",
@@ -30,9 +35,8 @@
   "broker": "I1",
   "agent_concurrency_independent": true,
   "native_dependencies": [],
-  "isolated_output_root": null,
   "completed": false,
   "exit_code": null,
   "log_path": null,
-  "note": "I1 admits one immutable request at a time through the shared broker: seven-unit L-equivalent budget; N/C is exclusive; no per-agent pools or load-polling ritual."
+  "note": "I1 serializes only the admission/claim critical section. Accepted jobs may run concurrently within the seven-unit L-equivalent budget; N/C is exclusive; no per-agent pools or load-polling ritual."
 }

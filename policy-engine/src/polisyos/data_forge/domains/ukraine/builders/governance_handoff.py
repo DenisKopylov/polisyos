@@ -6,8 +6,8 @@ from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
 from polisyos.data_forge.kernel.io import ensure_dirs
 
-from .common import _stage_dir, _write_json
 from .contracts import StageBuildResult
+from .io import _stage_dir, _write_json
 
 _D4_GOVERNANCE_REQUEST_OUTPUT = "d4_governance_request.json"
 

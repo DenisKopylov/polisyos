@@ -34,6 +34,39 @@ def test_policy_candidate_hash_ignores_volatile_metadata() -> None:
     assert policy_candidate_hash(base) != policy_candidate_hash(semantic_change)
 
 
+def test_policy_candidate_hash_preserves_semantic_dates() -> None:
+    base = {
+        "candidate_id": "policy-a",
+        "semantic": {
+            "interventions": [
+                {"target": "households", "starts_at": "2026-04-11T10:00:00Z"}
+            ]
+        },
+        "_strategy_metadata": {
+            "trace_id": "trace-1",
+            "generated_at": "2026-04-11T10:00:00Z",
+        },
+    }
+    same_semantic_input = {
+        **base,
+        "_strategy_metadata": {
+            "trace_id": "trace-2",
+            "generated_at": "2026-04-11T11:00:00Z",
+        },
+    }
+    changed_subject_matter = {
+        **same_semantic_input,
+        "semantic": {
+            "interventions": [
+                {"target": "households", "starts_at": "2026-04-12T10:00:00Z"}
+            ]
+        },
+    }
+
+    assert policy_candidate_hash(base) == policy_candidate_hash(same_semantic_input)
+    assert policy_candidate_hash(base) != policy_candidate_hash(changed_subject_matter)
+
+
 def test_update_legacy_pareto_front_dedupes_by_stable_candidate_hash() -> None:
     objectives = [
         ObjectiveValue(

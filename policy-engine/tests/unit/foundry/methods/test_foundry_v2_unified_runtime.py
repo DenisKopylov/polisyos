@@ -35,7 +35,7 @@ def test_mechanism_registry_is_backed_by_unified_method_catalog() -> None:
     assert "income_tax" in MECHANISM_REGISTRY
     descriptor = get_mechanism_descriptor("income_tax")
     assert descriptor.method_fqn == "mechanism.runtime.income_tax@1.0.0"
-    assert descriptor.mechanism_class_path == "polisyos.foundry.mechanisms:IncomeTax"
+    assert descriptor.mechanism_class_path == "polisyos.foundry.execute.mechanisms:IncomeTax"
 
 
 def test_mechanism_runtime_method_dispatches_patch_payload() -> None:

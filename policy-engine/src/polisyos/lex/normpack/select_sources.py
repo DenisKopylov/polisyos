@@ -6,12 +6,12 @@ from datetime import date
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.world import load_world_facts
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
 from polisyos.lex.artifacts import load_doc_meta_artifact
 from polisyos.lex.common import latest_object_by_subject, parse_iso_date
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
-from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import ActiveVersionStrategy, NormPackBuildRequest, SelectedDocVersion
 
 if TYPE_CHECKING:

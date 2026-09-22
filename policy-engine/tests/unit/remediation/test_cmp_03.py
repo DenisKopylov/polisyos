@@ -19,7 +19,11 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
-from polisyos.foundry.methods.components.linker import LinkerConfig, SlotLinker
+from polisyos.foundry.methods.components.linker import (
+    LinkerConfig,
+    SlotLinker,
+    check_linkable,
+)
 from polisyos.foundry.methods.components.slot_schema import SemanticCompatibilityError
 from polisyos.foundry.methods.exceptions import (
     ShapeMismatchError,
@@ -154,6 +158,14 @@ def test_auto_and_explicit_reject_the_same_named_semantic_mismatch() -> None:
         linker.link(source, target, explicit_mapping={"outcome": "treatment"})
     with pytest.raises(SemanticCompatibilityError):
         linker.link(source, target)
+
+
+def test_check_linkable_rejects_semantic_mismatch_without_raising() -> None:
+    """B48: the preflight helper reports forbidden edges as non-linkable."""
+    source = _signature("producer", outputs=(_slot("outcome"),))
+    target = _signature("consumer", inputs=(_slot("treatment"),))
+
+    assert check_linkable(source, target) is False
 
 
 @pytest.mark.parametrize("explicit", [True, False], ids=["explicit", "auto"])

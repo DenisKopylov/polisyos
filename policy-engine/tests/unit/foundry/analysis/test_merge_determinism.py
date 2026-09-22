@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hypothesis.strategies as st
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -319,6 +320,23 @@ class TestJAXMergeEngine:
         result = engine.merge_sum_jax(base, deltas, masks)
         expected = jnp.array([11.0, 102.0, 13.0])
         np.testing.assert_allclose(result, expected, rtol=1e-5)
+
+    def test_sum_jax_masked_payload_is_neutral_under_jit(self):
+        engine = JAXMergeEngine(DEFAULT_SLOT_REGISTRY, DEFAULT_MERGE_RULE_REGISTRY)
+
+        @jax.jit
+        def merge_with_mask(base, deltas):
+            masks = [jnp.array([False, True])]
+            return engine.merge_sum_jax(base, [deltas], masks)
+
+        base = jnp.array([1.0, 2.0])
+        payload = jnp.array([jnp.inf, 0.5])
+        result = merge_with_mask(base, payload)
+
+        # The inactive payload is not selected by the merge; only the active
+        # component contributes, including through the compiled path.
+        np.testing.assert_allclose(result, jnp.array([1.0, 2.5]), rtol=1e-5)
+        assert jnp.all(jnp.isfinite(result))
 
     def test_priority_jax_deterministic(self):
         engine = JAXMergeEngine(DEFAULT_SLOT_REGISTRY, DEFAULT_MERGE_RULE_REGISTRY)

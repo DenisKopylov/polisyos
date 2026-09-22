@@ -490,7 +490,7 @@ def check_linkable(
     try:
         result = link_methods(source, target)
         return result.binding_count > 0
-    except SlotConnectionError:
+    except (SlotConnectionError, SemanticCompatibilityError):
         return False
 
 

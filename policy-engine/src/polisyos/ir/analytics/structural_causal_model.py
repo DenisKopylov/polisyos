@@ -127,6 +127,67 @@ class StructuralCausalModelSpec(BaseModel):
         missing_non_roots = sorted(missing & non_roots)
         if missing_non_roots:
             raise ValueError(f"Non-root nodes without mechanisms: {missing_non_roots}")
+
+        roots = graph_vars - non_roots
+        invalid_root_carriers = sorted(
+            mechanism.variable
+            for mechanism in self.mechanisms
+            if mechanism.variable in roots
+            and "observed_samples" in mechanism.family_params
+            and mechanism.family is not MechanismFamily.EMPIRICAL
+        )
+        if invalid_root_carriers:
+            raise ValueError(
+                f"Observed root samples require an EMPIRICAL mechanism: {invalid_root_carriers}"
+            )
+        root_carriers = [
+            mechanism
+            for mechanism in self.mechanisms
+            if mechanism.variable in roots
+            and not mechanism.parents
+            and "observed_samples" in mechanism.family_params
+        ]
+        if root_carriers:
+            carrier_lengths: set[int] = set()
+            carrier_sources: set[str] = set()
+            carrier_alignments: set[str] = set()
+            carrier_groups: set[str] = set()
+            for mechanism in root_carriers:
+                params = mechanism.family_params
+                samples = params.get("observed_samples")
+                if (
+                    not isinstance(samples, list)
+                    or not samples
+                    or not all(
+                        isinstance(value, (int, float)) and np.isfinite(value) for value in samples
+                    )
+                ):
+                    raise ValueError(
+                        f"Observed root samples for '{mechanism.variable}' must be a "
+                        "non-empty finite list"
+                    )
+                source = params.get("observed_samples_source")
+                alignment = params.get("observed_sample_alignment")
+                group = params.get("joint_sample_group")
+                if not all(
+                    isinstance(value, str) and value.strip() for value in (source, alignment, group)
+                ):
+                    raise ValueError(
+                        f"Observed root carrier '{mechanism.variable}' requires "
+                        "source, alignment, and joint group"
+                    )
+                carrier_lengths.add(len(samples))
+                carrier_sources.add(source)
+                carrier_alignments.add(alignment)
+                carrier_groups.add(group)
+            if len(carrier_lengths) != 1:
+                raise ValueError("Observed root samples must share one row count")
+            if (
+                len(carrier_sources) != 1
+                or len(carrier_alignments) != 1
+                or len(carrier_groups) != 1
+            ):
+                raise ValueError("Observed root carriers must share provenance and alignment")
         return self
 
 

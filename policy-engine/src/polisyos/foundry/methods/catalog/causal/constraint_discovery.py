@@ -2885,7 +2885,28 @@ def _build_graph(
             pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
             metadata=metadata,
         )
-        resolved_graph, _ = pag_to_dag_projection(graph)
+        try:
+            resolved_graph, _ = pag_to_dag_projection(graph)
+        except ValueError as exc:
+            # A PAG is the source result.  A conservative projection may be
+            # unavailable when a circle endpoint remains unresolved; do not
+            # turn that result into the empty fallback graph used for a failed
+            # discovery run.  Keep the typed PAG and expose the limitation to
+            # report consumers through the existing warning/metadata surfaces.
+            limitation = str(exc)
+            graph = graph.model_copy(
+                update={
+                    "metadata": {
+                        **metadata,
+                        "resolved_graph_status": "blocked_unresolved_pag",
+                        "resolved_graph_limitation": limitation,
+                    }
+                }
+            )
+            conversion_warnings.append(
+                "resolved_graph_blocked: unresolved PAG orientation retained as PAG"
+            )
+            return graph, None, conversion_warnings
         return graph, resolved_graph, conversion_warnings
 
     graph = CausalGraphModel(

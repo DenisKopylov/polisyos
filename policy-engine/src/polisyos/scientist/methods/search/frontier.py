@@ -33,6 +33,16 @@ _VOLATILE_CANDIDATE_SUFFIXES = (
     "_ts",
     "_timestamp",
 )
+_TECHNICAL_CANDIDATE_ENVELOPES = frozenset(
+    {
+        "audit",
+        "execution",
+        "metadata",
+        "provenance",
+        "telemetry",
+        "transport",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -137,27 +147,46 @@ def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
     return at_least_one_better
 
 
-def _strip_volatile_candidate_fields(value: Any) -> Any:
+def _strip_volatile_candidate_fields(
+    value: Any,
+    *,
+    technical: bool = False,
+    root: bool = True,
+) -> Any:
     if isinstance(value, dict):
         sanitized: dict[str, Any] = {}
         for raw_key, raw_item in value.items():
             key = str(raw_key)
             lowered = key.lower()
-            if _is_volatile_candidate_key(lowered):
+            if key.startswith("_"):
                 continue
-            sanitized[key] = _strip_volatile_candidate_fields(raw_item)
+            if _is_volatile_candidate_key(lowered, technical=technical, root=root):
+                continue
+            sanitized[key] = _strip_volatile_candidate_fields(
+                raw_item,
+                technical=technical or lowered in _TECHNICAL_CANDIDATE_ENVELOPES,
+                root=False,
+            )
         return sanitized
     if isinstance(value, list):
-        return [_strip_volatile_candidate_fields(item) for item in value]
+        return [
+            _strip_volatile_candidate_fields(item, technical=technical, root=False)
+            for item in value
+        ]
     return value
 
 
-def _is_volatile_candidate_key(key: str) -> bool:
+def _is_volatile_candidate_key(
+    key: str,
+    *,
+    technical: bool = False,
+    root: bool = False,
+) -> bool:
     if key.startswith("_"):
         return True
-    if key in _VOLATILE_CANDIDATE_KEYS:
+    if key in _VOLATILE_CANDIDATE_KEYS and (technical or root):
         return True
-    return key.endswith(_VOLATILE_CANDIDATE_SUFFIXES)
+    return technical and key.endswith(_VOLATILE_CANDIDATE_SUFFIXES)
 
 
 __all__ = [

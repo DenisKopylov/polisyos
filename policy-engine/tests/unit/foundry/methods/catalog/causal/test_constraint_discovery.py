@@ -265,6 +265,35 @@ def test_fci_discovery_graceful_fallback_on_timeout(monkeypatch) -> None:
     assert any("timeout" in warning.lower() for warning in report.warnings)
 
 
+def test_fci_boundary_retains_unresolved_pag_instead_of_empty_fallback() -> None:
+    adjacency = np.array(
+        [
+            [0, 2],
+            [1, 0],
+        ],
+        dtype=int,
+    )
+
+    graph, resolved_graph, warnings = constraint_module._build_graph(
+        algorithm="fci",
+        adjacency=adjacency,
+        variable_names=["X", "Y"],
+        extra_metadata={"ci_runtime": "fixture"},
+    )
+
+    assert graph.graph_type is GraphType.PAG
+    assert len(graph.edges) == 1
+    edge = graph.edges[0]
+    assert edge.src == "X"
+    assert edge.dst == "Y"
+    assert edge.mark_src is EdgeMark.CIRCLE
+    assert edge.mark_dst is EdgeMark.ARROW
+    assert resolved_graph is None
+    assert graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
+    assert "resolved_graph_limitation" in graph.metadata
+    assert any("retained as PAG" in warning for warning in warnings)
+
+
 def test_ges_discovery_bootstrap_stability_is_bounded(monkeypatch) -> None:
     call_count = {"value": 0}
 
@@ -314,7 +343,7 @@ def test_endpoint_code_mapping_is_deterministic_and_warns_on_unknown_codes() -> 
     assert any("unsupported_endpoint_code_pair" in warning for warning in warnings)
 
 
-def test_fci_report_keeps_pag_and_emits_resolved_dag(monkeypatch) -> None:
+def test_fci_report_keeps_pag_when_projection_is_unresolved(monkeypatch) -> None:
     adjacency = np.array(
         [
             [0, 2, 0],
@@ -340,8 +369,12 @@ def test_fci_report_keeps_pag_and_emits_resolved_dag(monkeypatch) -> None:
 
     assert report.graph.graph_type is GraphType.PAG
     assert report.graph.pag_identification_policy is PAGIdentificationPolicy.CONSERVATIVE
-    assert report.resolved_graph is not None
-    assert report.resolved_graph.graph_type is GraphType.DAG
+    assert len(report.graph.edges) == 1
+    assert report.graph.edges[0].mark_src is EdgeMark.CIRCLE
+    assert report.graph.edges[0].mark_dst is EdgeMark.ARROW
+    assert report.resolved_graph is None
+    assert report.graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
+    assert any("retained as PAG" in warning for warning in report.warnings)
 
 
 def test_pc_discovery_auto_prefers_dagma_for_high_dim(monkeypatch) -> None:
@@ -1068,14 +1101,22 @@ def test_fci_var1_emits_pag_uncertainty_when_causallearn_available() -> None:
     report = output["report"]
 
     assert report.graph.graph_type is GraphType.PAG
-    assert report.resolved_graph is not None
-    assert report.resolved_graph.graph_type is GraphType.DAG
-    assert any(
+    has_unresolved_endpoint = any(
         edge.mark_src is EdgeMark.CIRCLE
         or edge.mark_dst is EdgeMark.CIRCLE
-        or (edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW)
         for edge in report.graph.edges
     )
+    has_bidirected_edge = any(
+        edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
+        for edge in report.graph.edges
+    )
+    assert has_unresolved_endpoint or has_bidirected_edge
+    if has_unresolved_endpoint:
+        assert report.resolved_graph is None
+        assert report.graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
+    else:
+        assert report.resolved_graph is not None
+        assert report.resolved_graph.graph_type is GraphType.DAG
 
 
 @pytest.mark.integration

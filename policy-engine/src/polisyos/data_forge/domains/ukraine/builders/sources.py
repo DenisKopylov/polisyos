@@ -22,7 +22,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
-from polisyos.data_forge.kernel.io import ensure_dirs
+from polisyos.data_forge.kernel.io import ensure_dirs, sha256_file
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
 from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
@@ -53,37 +53,41 @@ from polisyos.ir.observation.measurement import (
     ShockCalendarEntry,
 )
 
+from .bindings_validation import (
+    _augment_lookup_with_identity_bridge,
+    _build_edr_identity_bridge,
+    _build_synthetic_multiscale_payload,
+    _extract_unresolved_identity_rows,
+    _int_env,
+    _link_participants,
+    _normalize_identity_key,
+    _participant_resolution_coverage,
+    _resolve_agent_lookup,
+    _validation_subset,
+)
 from .common import (
     OBSERVATION_FRAME_COLUMNS,
     StageBuildResult,
     _adjacency_from_edge_arrays,
-    _augment_lookup_with_identity_bridge,
-    _build_edr_identity_bridge,
-    _build_synthetic_multiscale_payload,
-    _cas_put_json,
     _coerce_string_series,
     _collect_graph_node_ids,
     _compact_locator_value,
     _ensure_agent_numeric_columns,
-    _extract_unresolved_identity_rows,
     _graph_arrays_from_edges,
-    _int_env,
     _kernel_safe_id,
-    _link_participants,
-    _load_source_frame,
     _node_features_from_agent_registry,
-    _normalize_identity_key,
-    _participant_resolution_coverage,
-    _read_parquet_frame,
     _reindex_edge_arrays_to_node_subset,
-    _resolve_agent_lookup,
     _safe_numeric_series,
     _sanitize_numeric_series,
     _select_contract_graph_node_ids,
-    _select_procurement_frame,
     _stable_cell_id,
+)
+from .io import (
+    _cas_put_json,
+    _load_source_frame,
+    _read_parquet_frame,
+    _select_procurement_frame,
     _stage_dir,
-    _validation_subset,
     _write_frame,
     _write_json,
     _write_npz,
@@ -1363,6 +1367,8 @@ def _iter_observation_metric_frames(
                     requested_columns.append(column)
         batch_index = 0
         row_offset = 0
+        emitted_metric_ids: set[str] = set()
+        snapshot_sha256 = sha256_file(artifact_path)
         try:
             import pyarrow.parquet as pq
 
@@ -1375,16 +1381,71 @@ def _iter_observation_metric_frames(
                     row_offset=row_offset,
                 ):
                     yield source, metric_id, batch_index, metric_frame
+                    emitted_metric_ids.add(metric_id)
                 row_offset += len(frame)
                 batch_index += 1
+                emitted_metric_ids.clear()
                 del frame
-        except Exception:
-            frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-            for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                source, frame, row_offset=0
-            ):
-                yield source, metric_id, batch_index, metric_frame
-            del frame
+        except (ImportError, OSError):
+            if sha256_file(artifact_path) != snapshot_sha256:
+                raise RuntimeError(
+                    "normalized observation artifact changed during streaming; "
+                    "cannot resume from an unconfirmed snapshot"
+                )
+
+            if row_offset == 0 and not emitted_metric_ids:
+                # Before publication there is no cursor to preserve, so the
+                # established pandas reader remains an allowed fallback.
+                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source, frame, row_offset=0
+                ):
+                    yield source, metric_id, batch_index, metric_frame
+                del frame
+                continue
+
+            # A reader failure after publication must resume from the same
+            # immutable snapshot.  Re-open the streaming reader and discard
+            # complete batches already accounted for.  When the failure was
+            # between metric frames, the per-batch metric cursor removes only
+            # the metric(s) already yielded; equal values are never deduped.
+            resumed_row_offset = 0
+            pending_metric_ids = set(emitted_metric_ids)
+            parquet_file = pq.ParquetFile(artifact_path)
+            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+                frame = batch.to_pandas()
+                batch_start = resumed_row_offset
+                batch_end = batch_start + len(frame)
+                if batch_end <= row_offset:
+                    resumed_row_offset = batch_end
+                    del frame
+                    continue
+
+                effective_row_offset = batch_start
+                if batch_start < row_offset:
+                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                    effective_row_offset = row_offset
+
+                for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                    source,
+                    frame,
+                    row_offset=effective_row_offset,
+                ):
+                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                        pending_metric_ids.remove(metric_id)
+                        continue
+                    yield source, metric_id, batch_index, metric_frame
+                batch_index += 1
+                resumed_row_offset = batch_end
+                del frame
+            if pending_metric_ids:
+                raise RuntimeError(
+                    "stream restart ended before the pending observation metric cursor"
+                )
+            if resumed_row_offset < row_offset:
+                raise RuntimeError(
+                    "stream restart ended before the confirmed observation cursor"
+                )
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

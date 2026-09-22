@@ -122,13 +122,14 @@ def test_observation_id_renaming_does_not_change_compiled_value() -> None:
                     observation_id=first_id,
                     period_start=date(2024, 1, 1),
                     observed_value=10.0,
+                    trust_weight=0.9,
                     source_id="source_a",
                 ),
                 _record(
                     observation_id=second_id,
                     period_start=date(2024, 1, 1),
                     observed_value=20.0,
-                    source_id="source_b",
+                    source_id="source_a",
                 ),
             ]
         )
@@ -138,6 +139,27 @@ def test_observation_id_renaming_does_not_change_compiled_value() -> None:
     renamed = compile_value("obs_z", "obs_a")
 
     npt.assert_array_equal(renamed, original)
+
+
+def test_conflicting_same_period_sources_fail_closed_before_source_tie_break() -> None:
+    """A source ID cannot silently choose one conflicting measurement."""
+    with pytest.raises(ValueError, match=r"Ambiguous observations|aggregation"):
+        _compile(
+            [
+                _record(
+                    observation_id="obs_a",
+                    period_start=date(2024, 1, 1),
+                    observed_value=10.0,
+                    source_id="source_a",
+                ),
+                _record(
+                    observation_id="obs_b",
+                    period_start=date(2024, 1, 1),
+                    observed_value=20.0,
+                    source_id="source_b",
+                ),
+            ]
+        )
 
 
 def test_compiler_keeps_time_value_and_metadata_pairs_after_record_reordering() -> None:
@@ -190,6 +212,24 @@ def test_unsorted_time_axis_resamples_values_with_their_time_pairs() -> None:
     )
 
     npt.assert_allclose(result, [5.0, 15.0])
+
+
+def test_mismatched_time_and_value_lengths_fail_closed_before_alignment() -> None:
+    """A shorter calendar axis cannot silently discard observed values."""
+    target = _target(align=TargetAlignConfig(steps=2))
+    config = _config(target, steps=2)
+
+    with pytest.raises(ValueError, match="equal lengths"):
+        prepare_targets(
+            config,
+            raw_targets={
+                target.target_id: {
+                    "values": np.asarray([1.0, 2.0, 3.0]),
+                    "time": np.asarray([0.0, 1.0]),
+                }
+            },
+            steps=2,
+        )
 
 
 def test_missing_requested_time_column_fails_closed() -> None:

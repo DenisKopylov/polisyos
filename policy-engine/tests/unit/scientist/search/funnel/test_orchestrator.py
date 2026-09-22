@@ -176,10 +176,12 @@ class TestFunnelOrchestrator:
         orch = FunnelOrchestrator(stages)
         assert [s.fidelity_level for s in orch.stages] == [0, 1, 2]
 
-    def test_empty_stages_returns_passing_result(self):
+    def test_empty_stages_returns_not_evaluated_result(self):
         orch = FunnelOrchestrator([])
         result = orch.evaluate({}, {})
-        assert result.is_promising is True
+        assert result.is_promising is False
+        assert result.objective_value == float("inf")
+        assert result.feedback["verdict"] == "NOT_EVALUATED"
 
     def test_context_enriched_with_level_results(self):
         """Each stage should receive previous stage results in context."""

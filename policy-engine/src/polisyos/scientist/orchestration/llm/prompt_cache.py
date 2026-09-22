@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import inspect
 import json
 import threading
 import time
+import uuid
 from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -70,6 +72,36 @@ class _SerializedGatewayResponse:
     response_headers: dict[str, str] | None
     raw_json: bytes | None
     tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
+
+
+class _CacheReuseGatewayResponse(GatewayLLMResponse):
+    """Gateway response carrying cache-owned provenance outside provider raw data."""
+
+    __slots__ = (
+        "_polisyos_cache_hit",
+        "_polisyos_cache_key",
+        "_polisyos_reuse_event_id",
+    )
+
+    def __init__(
+        self,
+        response: GatewayLLMResponse,
+        *,
+        cache_key: str,
+    ) -> None:
+        super().__init__(
+            content=response.content,
+            usage=response.usage,
+            model=response.model,
+            provider=response.provider,
+            request_id=response.request_id,
+            response_headers=response.response_headers,
+            raw=response.raw,
+            tool_calls=response.tool_calls,
+        )
+        self._polisyos_cache_hit = True
+        self._polisyos_cache_key = cache_key
+        self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
 
 
 class PromptCacheProtocol(Protocol):
@@ -229,11 +261,17 @@ class CachingLLMClient:
         cache: PromptCacheProtocol,
         model: str,
         ttl_s: float = 300.0,
+        inflight_timeout_s: float | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
         self._model = model
         self._ttl_s = max(float(ttl_s), 0.0)
+        configured_timeout = inflight_timeout_s
+        if configured_timeout is None:
+            configured_timeout = getattr(client, "timeout_s", None)
+        self._inflight_timeout_s = _coerce_timeout(configured_timeout)
+        self._inflight: dict[str, asyncio.Task[Any]] = {}
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -242,6 +280,7 @@ class CachingLLMClient:
         return self._client
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        args, kwargs = _normalize_prompt_call(args, kwargs)
         reason = _cache_skip_reason(
             model=self._model,
             args=args,
@@ -249,7 +288,9 @@ class CachingLLMClient:
         )
         if reason is not None:
             _record_cache_skip(self._cache, reason)
-            return await _maybe_await(self._client.generate(*args, **kwargs))
+            return await _maybe_await(
+                self._client.generate(*args, **_provider_kwargs(kwargs))
+            )
 
         cache_key = compute_cache_key(
             prompt=args[0] if args else kwargs.get("prompt"),
@@ -288,18 +329,115 @@ class CachingLLMClient:
         cached = self._cache.get(cache_key)
         if cached is not None:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
-            if isinstance(cached, GatewayLLMResponse) and cached.raw is not None:
-                cached.raw.setdefault("_polisyos_cache", {})["status"] = "hit"
-                cached.raw["_polisyos_cache"]["cache_key"] = cache_key
+            if isinstance(cached, GatewayLLMResponse):
+                _mark_cache_response(cached, status="hit", cache_key=cache_key)
+                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
             return cached
 
-        response = await _maybe_await(self._client.generate(*args, **kwargs))
-        self._cache.put(cache_key, response, ttl_s=self._ttl_s)
-        if isinstance(response, GatewayLLMResponse) and response.raw is not None:
-            response.raw.setdefault("_polisyos_cache", {})["status"] = "miss"
-            response.raw["_polisyos_cache"]["cache_key"] = cache_key
-        logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+        provider_kwargs = _provider_kwargs(kwargs)
+        owner_task = self._inflight.get(cache_key)
+        is_owner = owner_task is None
+        if is_owner:
+            owner_task = asyncio.create_task(
+                self._produce(
+                    cache_key,
+                    args,
+                    provider_kwargs,
+                )
+            )
+            self._inflight[cache_key] = owner_task
+            owner_task.add_done_callback(_consume_task_exception)
+
+        response = await asyncio.shield(owner_task)
+        if is_owner:
+            return response
+
+        # Followers receive a detached cache snapshot and the same provenance
+        # marker as an ordinary cache hit.  They must not share the producer's
+        # mutable response object or charge LLM-01 accounting as a miss.
+        cached = self._cache.get(cache_key)
+        if cached is not None:
+            if isinstance(cached, GatewayLLMResponse):
+                _mark_cache_response(cached, status="hit", cache_key=cache_key)
+                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+            return cached
+        if isinstance(response, GatewayLLMResponse):
+            return _CacheReuseGatewayResponse(response, cache_key=cache_key)
         return response
+
+    async def _produce(
+        self,
+        cache_key: str,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        """Produce and publish one cache miss, always releasing its flight."""
+
+        current_task = asyncio.current_task()
+        try:
+            response = await self._call_provider(args, kwargs)
+            if isinstance(response, GatewayLLMResponse):
+                _mark_cache_response(response, status="miss", cache_key=cache_key)
+            self._cache.put(cache_key, response, ttl_s=self._ttl_s)
+            logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+            return response
+        finally:
+            if self._inflight.get(cache_key) is current_task:
+                self._inflight.pop(cache_key, None)
+
+    async def _call_provider(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        """Run one provider call under the configured in-flight deadline."""
+
+        provider_call = _maybe_await(self._client.generate(*args, **kwargs))
+        timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
+        if timeout is None:
+            return await provider_call
+        return await asyncio.wait_for(provider_call, timeout=timeout)
+
+
+def _normalize_prompt_call(
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> tuple[tuple[Any, ...], dict[str, Any]]:
+    """Collapse an equivalent positional/named prompt pair before forwarding."""
+
+    if len(args) > 1:
+        raise TypeError("generate() accepts at most one positional prompt")
+    normalized_kwargs = dict(kwargs)
+    if not args or "prompt" not in normalized_kwargs:
+        return args, normalized_kwargs
+    if args[0] != normalized_kwargs["prompt"]:
+        raise TypeError("generate() received conflicting prompt values")
+    normalized_kwargs["prompt"] = args[0]
+    return (), normalized_kwargs
+
+
+def _mark_cache_response(
+    response: GatewayLLMResponse,
+    *,
+    status: str,
+    cache_key: str,
+) -> None:
+    """Attach cache provenance even when the provider returned no raw payload."""
+
+    if response.raw is None:
+        response.raw = {}
+    marker = response.raw.setdefault("_polisyos_cache", {})
+    if not isinstance(marker, dict):
+        marker = {}
+        response.raw["_polisyos_cache"] = marker
+    marker.update(
+        {
+            "status": status,
+            "cache_key": cache_key,
+            "provider_call": status == "miss",
+            "usage_origin": "provider",
+        }
+    )
 
 
 def _cache_skip_reason(
@@ -325,9 +463,12 @@ def _cache_skip_reason(
         except (TypeError, ValueError):
             return "non_deterministic_temperature"
     metadata = kwargs.get("metadata")
-    if isinstance(metadata, dict):
+    reuse_context = _cache_reuse_context(metadata)
+    if isinstance(metadata, Mapping):
         if metadata.get("cacheable") is False:
             return "cache_disabled_by_metadata"
+        if "cache_reuse" in metadata and reuse_context is None:
+            return "invalid_cache_reuse_context"
         if any(
             key in metadata
             for key in (
@@ -359,7 +500,7 @@ def _cache_skip_reason(
             "uncertainty_notes",
             "recency_days",
         )
-    ):
+    ) and reuse_context is None:
         return "retrieval_freshness_guard"
     return None
 
@@ -374,6 +515,173 @@ async def _maybe_await(value: Any) -> Any:
     if inspect.isawaitable(value):
         return await value
     return value
+
+
+def _coerce_timeout(value: Any) -> float | None:
+    """Return a positive timeout, treating absent/non-positive values as unset."""
+
+    if value is None:
+        return None
+    try:
+        timeout = float(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
+def _consume_task_exception(task: asyncio.Task[Any]) -> None:
+    """Consume an unobserved producer exception after all waiters cancel."""
+
+    if task.cancelled():
+        return
+    try:
+        task.exception()
+    except asyncio.CancelledError:
+        return
+
+
+def _provider_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Prepare provider kwargs without forwarding snapshot content bytes."""
+
+    normalized = dict(kwargs)
+    metadata = kwargs.get("metadata")
+    if isinstance(metadata, Mapping) and "cache_reuse" in metadata:
+        normalized["metadata"] = _normalize_cache_metadata(metadata)
+    return normalized
+
+
+def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
+    """Recompute and return a bounded immutable-snapshot reuse identity.
+
+    The cache admission contract deliberately requires the actual snapshot
+    bytes, their declared digest, and an explicit permission context.  A
+    provider-supplied ``cacheable`` flag or a URI alone cannot establish this
+    identity.  The returned value excludes bytes so it is safe for cache keys
+    and provider payloads while retaining every substantive identity field.
+    """
+
+    if not isinstance(metadata, Mapping):
+        return None
+    raw_context = metadata.get("cache_reuse")
+    if not isinstance(raw_context, Mapping):
+        return None
+    snapshot = raw_context.get("snapshot")
+    permission = raw_context.get("permission")
+    if not isinstance(snapshot, Mapping) or not isinstance(permission, Mapping):
+        return None
+
+    content = snapshot.get("content")
+    if not isinstance(content, (bytes, bytearray, memoryview)):
+        return None
+    content_bytes = bytes(content)
+    expected_hash = "sha256:" + hashlib.sha256(content_bytes).hexdigest()
+    if snapshot.get("content_hash") != expected_hash:
+        return None
+    if snapshot.get("immutable") is not True:
+        return None
+
+    ref = snapshot.get("ref")
+    version = snapshot.get("version")
+    tenant = raw_context.get("tenant")
+    scope = raw_context.get("scope")
+    outer_tenant = metadata.get("tenant")
+    outer_scope = metadata.get("scope")
+    if (outer_tenant is not None and outer_tenant != tenant) or (
+        outer_scope is not None and outer_scope != scope
+    ):
+        return None
+    if not all(isinstance(value, str) and value for value in (ref, version, tenant, scope)):
+        return None
+    if permission.get("allowed") is not True:
+        return None
+    if permission.get("tenant") != tenant or permission.get("scope") != scope:
+        return None
+
+    normalized_snapshot = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in snapshot.items()
+        if key != "content"
+    }
+    normalized_snapshot["content_hash"] = expected_hash
+    normalized_permission = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in permission.items()
+    }
+    normalized_context = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in raw_context.items()
+        if key not in {"snapshot", "permission"}
+    }
+    normalized_context["snapshot"] = normalized_snapshot
+    normalized_context["permission"] = normalized_permission
+    return normalized_context
+
+
+def _normalize_cache_identity_value(value: Any) -> Any:
+    """Make substantive identity values deterministic without retaining bytes."""
+
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
+    if isinstance(value, Mapping):
+        return {
+            str(key): _normalize_cache_identity_value(item) for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_normalize_cache_identity_value(item) for item in value]
+    return value
+
+
+def _normalize_cache_metadata(value: Any) -> Any:
+    """Normalize a valid reuse proof recursively, preserving other metadata."""
+
+    if isinstance(value, Mapping):
+        if "cache_reuse" in value:
+            context = _cache_reuse_context(value)
+            if context is not None:
+                return {
+                    str(key): (
+                        context
+                        if key == "cache_reuse"
+                        else _normalize_cache_metadata(item)
+                    )
+                    for key, item in value.items()
+                }
+            return {
+                str(key): (
+                    _normalize_invalid_reuse_context(item)
+                    if key == "cache_reuse"
+                    else _normalize_cache_metadata(item)
+                )
+                for key, item in value.items()
+            }
+        return {
+            str(key): _normalize_cache_metadata(item) for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_normalize_cache_metadata(item) for item in value]
+    if isinstance(value, tuple):
+        return [_normalize_cache_metadata(item) for item in value]
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
+    return value
+
+
+def _normalize_invalid_reuse_context(value: Any) -> Any:
+    """Strip non-JSON snapshot bytes from a rejected reuse proof."""
+
+    if not isinstance(value, Mapping):
+        return _normalize_cache_metadata(value)
+    normalized: dict[str, Any] = {}
+    for key, item in value.items():
+        if key == "snapshot" and isinstance(item, Mapping):
+            normalized[str(key)] = {
+                str(snapshot_key): _normalize_cache_metadata(snapshot_value)
+                for snapshot_key, snapshot_value in item.items()
+                if snapshot_key != "content"
+            }
+        else:
+            normalized[str(key)] = _normalize_cache_metadata(item)
+    return normalized
 
 
 def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse:
@@ -450,7 +758,7 @@ def _deserialize_payload(payload: bytes | None) -> Any:
 
 
 def _sanitize_cache_metadata(value: Any) -> Any:
-    normalized = to_python_data(value, sort_keys=True)
+    normalized = to_python_data(_normalize_cache_metadata(value), sort_keys=True)
     return _strip_volatile_cache_metadata(normalized)
 
 

@@ -96,6 +96,71 @@ def test_snapshot_copy_preflight_rejects_a_duplicated_typed_vocabulary_key() -> 
         )
 
 
+def test_runtime_gate_rejects_stale_flat_embeddings_after_empty_selection(tmp_path) -> None:
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    component_dir = tmp_path / "academic"
+    component_dir.mkdir()
+    np.savez(
+        component_dir / "ac_work_embeddings.npz",
+        ids=np.array([], dtype=object),
+        vectors=np.empty((0, 2), dtype=np.float32),
+    )
+    (component_dir / "ac_work_index.hnsw").write_bytes(b"stale-index")
+    build_embedding_generation(
+        rows=(),
+        index_dir=component_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=component_dir / "ac_work_embeddings.npz",
+        legacy_index_path=component_dir / "ac_work_index.hnsw",
+    )
+    for relative_path in {
+        *best_snapshot._REQUIRED_RUNTIME_FILES,
+        *best_snapshot._REQUIRED_EVIDENCE_FILES,
+    }:
+        path = component_dir / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+
+    candidate_metrics = {
+        "scholar_query_coverage_ratio": 1.0,
+        "parameter_supported_ratio": 1.0,
+        "causal_supported_plus_mixed_ratio": 1.0,
+        "non_default_transport_evidence_ratio": 1.0,
+        "global_canonical_resolution_rate_pct": 100.0,
+        "runtime_demanded_canonical_resolution_rate_pct": 100.0,
+    }
+    comparison = {
+        "candidate": {
+            "component_dir": str(component_dir),
+            "benchmark_metrics": candidate_metrics,
+            "qc_metrics": candidate_metrics,
+            "family_edge_count": 16000,
+            "review_queue_count": 0,
+            "scenario_statuses": {},
+        },
+        "original_current": {
+            "benchmark_metrics": {},
+            "qc_metrics": {},
+            "family_edge_count": 15945,
+            "review_queue_count": 0,
+            "scenario_statuses": {},
+        },
+    }
+
+    report = best_snapshot._evaluate_promotion(
+        candidate_comparison=comparison,
+        functional_checks={"passed": True},
+        manifest_consistency={"passed": True},
+        promote_on_pass=True,
+    )
+
+    assert report["promoted"] is False
+    assert report["gates"]["runtime_files_complete"] is False
+
+
 def test_snapshot_clone_preserves_claim_constraints_and_defaults(tmp_path: Path) -> None:
     source_path = tmp_path / "source.duckdb"
     target_path = tmp_path / "target.duckdb"
@@ -772,7 +837,11 @@ def _install_stage_fakes(
 
     def fake_embed(config, *, thermal=False):  # type: ignore[no-untyped-def]
         del thermal
-        (config.index_dir / "ac_work_embeddings.npz").write_bytes(b"npz")
+        np.savez(
+            config.index_dir / "ac_work_embeddings.npz",
+            ids=np.array([], dtype=object),
+            vectors=np.empty((0, config.embedding_dimension), dtype=np.float32),
+        )
         (config.index_dir / "ac_work_index.hnsw").write_bytes(b"hnsw")
         write_stage_manifest(
             manifest_path=config.manifests_dir / "embed.json",

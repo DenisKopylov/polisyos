@@ -250,7 +250,8 @@ def test_node_result_cache_rejects_tampered_embedded_outcome(tmp_path) -> None:
 
     restored = NodeResultCache(store, run_id=run_id)
 
-    assert restored.load_entry(forged_ref) is False
+    with pytest.raises(ValueError, match="run_identity_mismatch"):
+        restored.load_entry(forged_ref)
     assert not restored.has(key)
 
 
@@ -496,6 +497,7 @@ def _base_epoch_output_aware_cache_entry(store, outcome, key):
         canon_spec=CanonSpec(forbid_floats=False),
     )
     entry = NodeCacheEntry(
+        schema_version="1.0",
         run_id=outcome.state.run_id,
         node_id="scientist.node_transport@2.0.0",
         idempotency_key=key,

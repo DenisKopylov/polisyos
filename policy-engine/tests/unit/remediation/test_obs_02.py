@@ -271,16 +271,55 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
     pytest.importorskip("duckdb")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
-    config, _, _ = _config(tmp_path)
+    config, source, frame = _config(tmp_path)
+    family_sources = {source.source_id: source}
+    for family in ObservationFamily:
+        if family is source.observation_family:
+            continue
+        metric_id = f"fixture_{family.value}"
+        fixture_source = SourceConfig(
+            source_id=f"d2_fixture_{family.value}",
+            display_name=f"D2 fixture {family.value}",
+            stage_id=StageId.D1,
+            normalized_artifact=f"{family.value}.parquet",
+            required_columns=[
+                "agent_id",
+                "cell_id",
+                "region_code",
+                "sector_id",
+                "period_id",
+                metric_id,
+            ],
+            metric_columns=[metric_id],
+            observation_family=family,
+            entity_scope=EntityScope.AGENT,
+        )
+        family_sources[fixture_source.source_id] = fixture_source
+        fixture_frame = frame.copy()
+        fixture_frame[metric_id] = fixture_frame["metric_a"]
+        artifact = (
+            config.build_root.normalized_dir
+            / fixture_source.source_id
+            / fixture_source.normalized_artifact
+        )
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        fixture_frame.to_parquet(artifact, index=False)
+    config = config.model_copy(update={"sources": family_sources})
 
     result = sources.build_d2_stage(config)
     panel_path = config.build_root.calibration_dir / "d2" / "observation_panel_monthly.parquet"
     panel = pd.read_parquet(panel_path)
 
+    expected_rows = sum(
+        len(frame) * len(fixture_source.metric_columns)
+        for fixture_source in family_sources.values()
+    )
     output = result.outputs["observation_panel_monthly.parquet"]
     assert Path(output.path) == panel_path
     assert output.size_bytes == panel_path.stat().st_size
-    assert result.metrics["n_monthly_records"] == 8
-    assert len(panel) == 8
+    assert result.metrics["n_monthly_records"] == expected_rows
+    assert len(panel) == expected_rows
     assert panel["observation_id"].is_unique
-    assert set(panel["metric_id"].astype(str)) == {"metric_a", "metric_b"}
+    custom_rows = panel[panel["source_id"] == source.source_id]
+    assert len(custom_rows) == 8
+    assert set(custom_rows["metric_id"].astype(str)) == {"metric_a", "metric_b"}

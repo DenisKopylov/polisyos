@@ -53,7 +53,11 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     NodeStatus,
 )
-from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
+from polisyos.scientist.orchestration.engine.retry import (
+    RetryPolicy,
+    execute_with_retry_sync,
+    _preserve_retry_spend,
+)
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state,
     mutation_journal_for_state,
@@ -1027,6 +1031,7 @@ class WorkflowExecutor:
                         )
                     except RetryExhaustedError as exc:
                         self._ctx.logger.error("Node %s exhausted retries", alias)
+                        state = _preserve_retry_spend(state, node_state)
                         outcome = NodeOutcome(
                             status="fail",
                             state=state,
@@ -1058,6 +1063,10 @@ class WorkflowExecutor:
                                 details={"type": exc.__class__.__name__},
                             ),
                         )
+
+                    if outcome.status == "fail":
+                        state = _preserve_retry_spend(state, outcome.state)
+                        outcome = outcome.model_copy(update={"state": state})
 
                     if outcome.status == "ok" and cache_key is not None and self._cache is not None:
                         try:

@@ -3,20 +3,21 @@ title = "Expose confidence-ledger risk spend"
 type = "added"
 component = "runtime"
 owner = "team-polisyos"
-summary = "Expose owner-validated confidence-ledger risk spend through a review-protected runtime API operation and both generated TypeScript client families."
+summary = "Expose owner-validated confidence-ledger risk spend through a review-protected runtime API operation, the canonical runtime client package, and dashboard generated API types."
 evidence = [
   "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
   "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
   "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
   "schemas/runtime_api_v1.openapi.json",
-  "packages/runtime-api-client/runtimeApiClient.ts",
+  "packages/runtime-api-client/types.ts",
   "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
   "apps/runtime-dashboard/src/api/types.ts",
 ]
-compatibility = "The static GET, specialized four-arm wire response, and generated client method are additive; both generated client families require regeneration before consumers can use them."
+compatibility = "The static GET, specialized four-arm wire response, and generated client method are additive; regenerate the canonical runtime client package and dashboard generated API types. The package generator keeps raw renderer outputs in private scratch and does not commit them."
 change_class = "schema-openapi-abi; js-package-api"
 surface_classification = "public_stable: polisyos.runtime confidence-ledger risk-spend reviewer projection"
-migration = "Regenerate both runtime OpenAPI client families, call getConfidenceLedgerRiskSpendProjection, and handle available, source_blocked, artifact_missing, and invalid_source as distinct response arms."
+migration = "Regenerate the canonical runtime client package and dashboard generated API types, call getConfidenceLedgerRiskSpendProjection, and handle available, source_blocked, artifact_missing, and invalid_source as distinct response arms."
 api = "Adds review-protected GET /api/v1/exports/governed-projections/confidence-ledger-risk-spend with exact authorization metadata, replay pins, and a specialized four-arm response union."
 limitations = "The surface provides owner-validated reviewer evidence only; it does not execute protected actions, and dashboard rendering remains outside this release fragment."
 generated_client_compatibility = "requires_regeneration"

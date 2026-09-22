@@ -11,6 +11,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
+from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
@@ -148,6 +149,51 @@ def test_compute_idempotency_key_changes_on_artifact_change(tmp_path) -> None:
         node.spec,
         state_b,
     )
+
+
+def test_idempotency_key_preserves_presence_and_nested_missing_semantics(tmp_path) -> None:
+    """Declared reads distinguish absent values from explicit null and falsy values."""
+    del tmp_path
+
+    def _key(read_path: str, params: dict[str, object]) -> str:
+        spec = DataPlaneGateNode().spec.model_copy(update={"state_reads": [read_path]})
+        return compute_idempotency_key(
+            spec,
+            ExperimentState(run_id="R_presence_semantics", params=params),
+        )
+
+    missing = _key("params.threshold", {})
+    explicit_null = _key("params.threshold", {"threshold": None})
+    zero = _key("params.threshold", {"threshold": 0})
+    false = _key("params.threshold", {"threshold": False})
+    empty = _key("params.threshold", {"threshold": []})
+
+    assert missing not in {explicit_null, zero, false, empty}
+    assert len({explicit_null, zero, false, empty}) == 4
+
+    missing_intermediate = _key("params.nested.value", {})
+    missing_leaf = _key("params.nested.value", {"nested": {}})
+    nested_null = _key("params.nested.value", {"nested": {"value": None}})
+    assert missing_intermediate == missing_leaf
+    assert missing_intermediate != nested_null
+
+
+def test_idempotency_key_applies_only_declared_consumer_default(tmp_path) -> None:
+    """A real consumer default reuses the effective value, not explicit null."""
+    del tmp_path
+    spec = DataPlaneGateNode().spec
+
+    def _key(params: dict[str, object]) -> str:
+        return compute_idempotency_key(
+            spec,
+            ExperimentState(run_id="R_data_plane_presence", params=params),
+        )
+
+    assert _key({}) == _key({"tenant_tier": "shared"})
+    assert _key({}) != _key({"tenant_tier": None})
+    assert _key({}) != _key({"tenant_tier": 0})
+    assert _key({}) != _key({"tenant_tier": False})
+    assert _key({}) != _key({"tenant_tier": []})
 
 
 def test_compute_idempotency_key_available_for_all_builtin_nodes(tmp_path) -> None:

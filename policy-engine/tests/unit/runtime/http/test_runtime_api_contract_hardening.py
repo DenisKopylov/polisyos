@@ -857,13 +857,6 @@ def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: 
     expected_ts = generate_runtime_client._render_ts(spec, operations)
     expected_js = generate_runtime_client._render_js(operations)
 
-    client_root = repo_root / "packages" / "runtime-api-client"
-    committed_ts = (client_root / "runtimeApiClient.ts").read_text(encoding="utf-8")
-    committed_js = (client_root / "runtimeApiClient.js").read_text(encoding="utf-8")
-
-    assert committed_ts == expected_ts
-    assert committed_js == expected_js
-
     generated_ts = tmp_path / "runtimeApiClient.ts"
     generated_js = tmp_path / "runtimeApiClient.js"
     canonical_ts = tmp_path / "canonicalRuntimeApiClient.ts"
@@ -878,6 +871,7 @@ def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: 
         canonical_ts,
         canonical_js,
     )
+    client_root = repo_root / "packages" / "runtime-api-client"
     assert (client_root / "canonicalRuntimeApiClient.ts").read_bytes() == (
         canonical_ts.read_bytes()
     )
@@ -889,9 +883,12 @@ def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: 
 def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Path) -> None:
     result = subprocess.run(
         [
-            "npx",
-            "--yes",
-            f"openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}",
+            "corepack",
+            "pnpm",
+            "--dir",
+            str(repo_root / "packages" / "runtime-api-client"),
+            "exec",
+            "openapi-typescript",
             str(spec_path),
             "-o",
             str(output_path),
@@ -908,28 +905,59 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
 def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     client_root = repo_root / "packages" / "runtime-api-client"
+    dashboard_root = repo_root / "apps" / "runtime-dashboard"
     manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
+    dashboard_manifest = json.loads(
+        (dashboard_root / "package.json").read_text(encoding="utf-8")
+    )
+    lockfile = (repo_root / "pnpm-lock.yaml").read_text(encoding="utf-8")
     generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(encoding="utf-8")
+    dashboard_generator = (
+        dashboard_root / "scripts/generate-api-client.sh"
+    ).read_text(encoding="utf-8")
     readme = (client_root / "README.md").read_text(encoding="utf-8")
-    expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
+    package_importer = re.search(
+        r"(?ms)^  packages/runtime-api-client:\n(?P<body>.*?)(?=^  [^ \n].*:\n|\Z)",
+        lockfile,
+    )
 
     generate_command = manifest["scripts"]["generate"]
     assert generate_command == "bash ./scripts/generate-runtime-api-client.sh"
-    assert expected_invocation in generator
+    assert manifest["devDependencies"]["openapi-typescript"] == OPENAPI_TYPESCRIPT_VERSION
+    assert package_importer is not None
+    assert f"specifier: {OPENAPI_TYPESCRIPT_VERSION}" in package_importer.group("body")
+    assert f"version: {OPENAPI_TYPESCRIPT_VERSION}(typescript@" in package_importer.group("body")
+    dashboard_importer = re.search(
+        r"(?ms)^  apps/runtime-dashboard:\n(?P<body>.*?)(?=^  [^ \n].*:\n|\Z)",
+        lockfile,
+    )
+    assert dashboard_importer is not None
+    assert "openapi-typescript" not in dashboard_manifest["devDependencies"]
+    assert "openapi-typescript" not in dashboard_importer.group("body")
+    assert (
+        'corepack pnpm --dir "${CLIENT_PACKAGE_ROOT}" exec openapi-typescript'
+        in dashboard_generator
+    )
+    assert 'corepack pnpm --dir "${PROJECT_ROOT}/packages/runtime-api-client" exec' in generator
+    assert "openapi-typescript" in generator
+    assert "--openapi" in generator
+    assert '--openapi "${OPENAPI_FILE}"' in generator
     assert "apps/runtime-dashboard" not in generator
     assert "--prefix" not in generator
     assert "--output-root" in generator
-    assert expected_invocation in readme
+    assert "corepack pnpm --dir packages/runtime-api-client exec openapi-typescript" in readme
+    assert "--openapi schemas/runtime_api_v1.openapi.json" in readme
     assert "npx --prefix apps/runtime-dashboard" not in readme
 
 
 def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     output_root = tmp_path / "generated"
+    spec_path = tmp_path / "runtime_api_v1.openapi.json"
+    source_spec = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec_path.write_bytes(source_spec.read_bytes())
     package_outputs = {
         "packages/runtime-api-client/types.ts",
-        "packages/runtime-api-client/runtimeApiClient.ts",
-        "packages/runtime-api-client/runtimeApiClient.js",
         "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "packages/runtime-api-client/canonicalRuntimeApiClient.js",
     }
@@ -952,6 +980,8 @@ def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> 
                 "run",
                 script,
                 "--",
+                "--openapi",
+                str(spec_path),
                 "--output-root",
                 str(output_root),
             ],

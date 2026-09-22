@@ -5,6 +5,10 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import multiprocessing as mp
+import os
+import signal
+import subprocess
+import sys
 import threading
 import time as _time
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -1002,6 +1006,231 @@ class TestRetryTimeoutWorker:
             _node_execute_worker(node, ctx, state, result_queue)
 
         result_queue.put.assert_not_called()
+
+
+class _PayloadTransportNode:
+    """Return a deterministic result large enough to exercise Queue backpressure."""
+
+    def __init__(self, payload_size: int) -> None:
+        self.payload_size = payload_size
+
+    def execute(self, _ctx, passed_state):
+        result_state = passed_state.model_copy(deep=True)
+        result_state.params["payload"] = "x" * self.payload_size
+        return _ok_outcome(result_state)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("payload_size", [64, 1024 * 1024], ids=["small", "one-mib"])
+def test_fork_transport_drains_small_and_large_outcomes(ctx, state, mode, payload_size) -> None:
+    """A fork worker delivers results without joining before Queue drain."""
+    node = _PayloadTransportNode(payload_size)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 2.0, "alias": "payload-wire"}
+
+    if mode == "sync":
+        result = execute_with_retry_sync(node, ctx, state, **kwargs)
+    else:
+        result = asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+
+    assert result.status == "ok"
+    assert result.state.params["payload"] == "x" * payload_size
+
+
+class _BrokenResultQueue:
+    """A result channel that fails every send; success must never be fabricated."""
+
+    def __init__(self) -> None:
+        self.attempts = 0
+
+    def put(self, _value) -> None:
+        self.attempts += 1
+        raise OSError("result channel closed")
+
+
+def test_worker_send_failure_is_fail_closed(ctx, state) -> None:
+    node = _PayloadTransportNode(64)
+    result_queue = _BrokenResultQueue()
+
+    with pytest.raises(RuntimeError, match="failed to send result"):
+        _node_execute_worker(node, ctx, state, result_queue)
+
+    assert result_queue.attempts >= 2
+
+
+class _SerializationFailureOutcome:
+    def model_dump(self, *, mode: str):
+        raise TypeError(f"cannot serialize in {mode} mode")
+
+
+class _SerializationFailureNode:
+    def execute(self, _ctx, _state):
+        return _SerializationFailureOutcome()
+
+
+def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
+    """A worker serialization error reaches the caller as a transport failure."""
+    with pytest.raises(RuntimeError, match="TypeError: cannot serialize"):
+        retry_module._execute_with_timeout_process(
+            _SerializationFailureNode(),
+            ctx,
+            state,
+            timeout_s=2.0,
+        )
+
+
+class _ExitedWorker:
+    """Minimal process double for a result arriving after the compute window."""
+
+    def is_alive(self) -> bool:
+        return False
+
+
+class _StoppedProcessHandle:
+    def is_alive(self) -> bool:
+        return False
+
+    def join(self, *, timeout: float) -> None:
+        _ = timeout
+
+
+def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
+    """A stopped worker without a group cannot prove descendants are gone."""
+    assert (
+        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
+    )
+
+
+class _ImmediateResultQueue:
+    def get(self, *, timeout: float):
+        _ = timeout
+        return ("ok", {})
+
+    def get_nowait(self):
+        return ("ok", {})
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_late_worker_completion_is_not_delivery_success(mode) -> None:
+    """A dead worker alone cannot prove computation met its deadline."""
+    process = _ExitedWorker()
+    result_queue = _ImmediateResultQueue()
+    compute_deadline = _time.monotonic() - 1.0
+
+    with pytest.raises(retry_module._WorkerComputeTimeout):
+        if mode == "sync":
+            retry_module._drain_result_sync(
+                process,
+                result_queue,
+                compute_deadline=compute_deadline,
+            )
+        else:
+            asyncio.run(
+                retry_module._drain_result_async(
+                    process,
+                    result_queue,
+                    compute_deadline=compute_deadline,
+                )
+            )
+
+
+class _DescendantProcessNode:
+    """Keep an owned descendant alive long enough to exercise group cleanup."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        _time.sleep(30)
+        raise AssertionError("timeout should terminate the worker first")
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+    """Timeout cleanup owns the worker group and does not leave descendants."""
+    pid_path = tmp_path / "descendant-pid"
+    node = _DescendantProcessNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(NodeTimeoutError):
+            kwargs = {
+                "retry_policy": RetryPolicy(),
+                "timeout_s": 0.5,
+                "alias": "descendant-cleanup",
+            }
+            if mode == "sync":
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+            else:
+                asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        with pytest.raises(ProcessLookupError):
+            os.kill(descendant_pid, 0)
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+
+class _ExitedWorkerWithDescendantNode:
+    """Exit the worker while leaving a descendant in its owned process group."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        os._exit(0)
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
+    """Cleanup must still reap an owned group after its worker has exited."""
+    pid_path = tmp_path / "exited-worker-descendant-pid"
+    node = _ExitedWorkerWithDescendantNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(NodeTimeoutError):
+            retry_module._execute_with_timeout_process(
+                node,
+                ctx,
+                state,
+                timeout_s=0.5,
+            )
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        for _ in range(20):
+            try:
+                os.kill(descendant_pid, 0)
+            except ProcessLookupError:
+                break
+            _time.sleep(0.05)
+        else:
+            pytest.fail("owned descendant survived worker cleanup")
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 
 class _OutputAwareTransportNode:

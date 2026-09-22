@@ -450,18 +450,43 @@ def morris_elementary_effects_from_samples(
     samples: np.ndarray,
     outputs: np.ndarray,
     parameter_names: Sequence[str],
+    *,
+    parameter_bounds: Mapping[str, tuple[float, float]] | None = None,
 ) -> np.ndarray:
-    """Infer Morris elementary effects from trajectory-ordered samples and outputs."""
+    """Infer Morris effects in the plan's normalized coordinate system.
+
+    SALib's ordinary Morris analyzer reports effects per unit change on the
+    normalized design grid, while samples may be expressed in physical units.
+    ``parameter_bounds`` binds that conversion to the originating uniform plan;
+    without it the coordinate convention is unknown and the helper fails closed.
+    Transformed distributions and scaled/grouped Morris designs must use a
+    producer-specific adapter instead of this uniform conversion.
+    """
 
     x = np.asarray(samples, dtype=float)
     y = _as_1d_float("outputs", outputs)
-    d = len(tuple(parameter_names))
+    names = tuple(parameter_names)
+    d = len(names)
     if x.ndim != 2:
         raise ValueError("samples must be a 2D array")
     if x.shape[0] != y.size:
         raise ValueError("samples and outputs must have the same row count")
     if x.shape[1] != d:
         raise ValueError("samples column count must match parameter_names")
+    if parameter_bounds is None:
+        raise ValueError(
+            "Morris elementary-effect coordinate convention is unknown; "
+            "explicit parameter bounds are required"
+        )
+    spans = np.empty(d, dtype=float)
+    for idx, name in enumerate(names):
+        bounds = parameter_bounds.get(name)
+        if bounds is None or len(bounds) != 2:
+            raise ValueError(f"missing Morris coordinate bounds for parameter '{name}'")
+        lower, upper = (float(bounds[0]), float(bounds[1]))
+        if not np.isfinite(lower) or not np.isfinite(upper) or lower >= upper:
+            raise ValueError(f"invalid Morris coordinate bounds for parameter '{name}'")
+        spans[idx] = upper - lower
     trajectory_size = d + 1
     if y.size % trajectory_size != 0:
         raise ValueError(
@@ -480,7 +505,12 @@ def morris_elementary_effects_from_samples(
             if changed.size == 0:
                 continue
             factor_idx = int(changed[np.argmax(np.abs(delta_x[changed]))])
-            effects[t, factor_idx] = (y_traj[t, step + 1] - y_traj[t, step]) / delta_x[factor_idx]
+            normalized_delta = delta_x[factor_idx] / spans[factor_idx]
+            if abs(normalized_delta) <= _EPS:
+                continue
+            effects[t, factor_idx] = (
+                y_traj[t, step + 1] - y_traj[t, step]
+            ) / normalized_delta
 
     if np.any(~np.isfinite(effects)):
         raise ValueError("could not infer a complete elementary-effect matrix from samples")

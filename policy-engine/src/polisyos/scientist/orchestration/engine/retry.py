@@ -17,12 +17,15 @@ import contextvars
 import dataclasses
 import logging
 import multiprocessing as mp
+import os
 import queue
 import random
+import signal
 import threading
 import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -45,6 +48,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     decode_node_outcome,
 )
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -54,6 +58,40 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _logger = logging.getLogger(__name__)
+
+# A process timeout bounds node computation.  Queue delivery is a separate,
+# short grace period: a worker may have exited while its multiprocessing.Queue
+# feeder is still flushing a result.  Keeping the windows distinct prevents a
+# large result from consuming an unbounded extension of the node deadline.
+_PROCESS_RESULT_POLL_S = 0.01
+_PROCESS_GROUP_READY_S = 0.05
+_PROCESS_DELIVERY_GRACE_S = 1.0
+_PROCESS_CLEANUP_GRACE_S = 1.0
+
+
+class _WorkerComputeTimeout(Exception):
+    """The worker did not finish computation before the node deadline."""
+
+
+class _WorkerDeliveryTimeout(Exception):
+    """The worker finished, but its result was not delivered in bounded time."""
+
+
+@dataclasses.dataclass
+class _WorkerLifecycle:
+    """Shared state for one forked worker's compute and cleanup lifetimes."""
+
+    compute_deadline: float
+    completion_time: Any
+    process_group_id: int | None = None
+
+    def completed_before_deadline(self) -> bool:
+        """Return whether the worker marked node execution complete in time."""
+        return _completion_before_deadline(
+            self.completion_time,
+            self.compute_deadline,
+        )
+
 
 _RETRY_RUNTIME_ERRORS = (
     ArithmeticError,
@@ -439,6 +477,200 @@ def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
     return error.code in policy.retry_on
 
 
+def _retry_write_paths(node: Any) -> tuple[str, ...]:
+    """Return the node's declared state write paths for retry isolation."""
+    spec = getattr(node, "spec", None)
+    raw_paths = getattr(spec, "state_writes", ()) if spec is not None else ()
+    if isinstance(raw_paths, str):
+        raw_paths = (raw_paths,)
+    try:
+        return tuple(
+            path
+            for path in raw_paths
+            if isinstance(path, str) and path.strip()
+        )
+    except TypeError:
+        return ()
+
+
+def _fresh_retry_state(baseline: ExperimentState, node: Any) -> ExperimentState:
+    """Create one isolated attempt branch from the immutable logical baseline."""
+    return branch_state(baseline, write_paths=_retry_write_paths(node)).state
+
+
+def _typed_error_category(exc: BaseException) -> str | None:
+    """Return an explicit PolicyOS error category when one is declared."""
+    category = getattr(exc, "category", None)
+    if category is None:
+        category = getattr(exc, "default_category", None)
+    value = getattr(category, "value", category)
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    return normalized if normalized in {"transient", "fatal", "validation"} else None
+
+
+def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
+    """Apply the same retry policy to raised and returned node errors.
+
+    Explicit PolicyOS categories take precedence over the coarse shared
+    classifier.  Built-in contract failures are also terminal; transient and
+    unknown runtime failures retain the established ``node.exception`` retry
+    route and its policy ceiling.
+    """
+    # Import lazily because ``runner.protocol`` imports ``RetryPolicy``.  A
+    # module-level import would make the direct ``engine.retry`` import enter
+    # ``runner.__init__`` while ``RetryPolicy`` is still being defined.
+    from polisyos.scientist.orchestration.engine.runner.error_classifier import (
+        RemoteErrorCategory,
+        classify_remote_error,
+    )
+
+    typed_category = _typed_error_category(exc)
+    if typed_category in {"fatal", "validation"}:
+        return False
+    if typed_category == "transient":
+        category = RemoteErrorCategory.TRANSIENT
+    else:
+        category = classify_remote_error(exc)
+    if category is RemoteErrorCategory.FATAL:
+        return False
+    if isinstance(exc, (AssertionError, AttributeError, LookupError)):
+        return False
+    error_code = getattr(exc, "code", None)
+    if not isinstance(error_code, str) or not error_code:
+        error_code = "node.exception"
+    return error_code in policy.retry_on
+
+
+def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
+    """Read the declared cumulative spend fields from one attempt state."""
+    budgets = getattr(state, "budgets", {})
+    if not isinstance(budgets, dict):
+        return {}
+    snapshot: dict[str, Decimal] = {}
+    for key, value in budgets.items():
+        if not isinstance(key, str) or not key.endswith("_spent_usd"):
+            continue
+        try:
+            snapshot[key] = value if isinstance(value, Decimal) else Decimal(str(value))
+        except (InvalidOperation, TypeError, ValueError):
+            continue
+    return snapshot
+
+
+def _spend_delta(
+    baseline: ExperimentState,
+    attempt_state: ExperimentState,
+) -> dict[str, Decimal]:
+    """Return positive spend added by one attempt relative to its baseline."""
+    before = _spend_snapshot(baseline)
+    after = _spend_snapshot(attempt_state)
+    delta: dict[str, Decimal] = {}
+    for key, value in after.items():
+        change = value - before.get(key, Decimal(0))
+        if change > 0:
+            delta[key] = change
+    return delta
+
+
+def _accumulate_spend(
+    total: dict[str, Decimal],
+    delta: dict[str, Decimal],
+) -> None:
+    """Accumulate spend without carrying ordinary failed state mutations."""
+    for key, value in delta.items():
+        total[key] = total.get(key, Decimal(0)) + value
+
+
+def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
+    """Publish cumulative failed-attempt spend onto the accepted state branch."""
+    if not spend:
+        return
+    budgets = getattr(state, "budgets", None)
+    if not isinstance(budgets, dict):
+        return
+    for key, value in spend.items():
+        current = budgets.get(key, Decimal(0))
+        try:
+            current_decimal = current if isinstance(current, Decimal) else Decimal(str(current))
+        except (InvalidOperation, TypeError, ValueError):
+            continue
+        budgets[key] = current_decimal + value
+
+
+def _preserve_retry_spend(
+    base_state: ExperimentState,
+    terminal_state: ExperimentState,
+) -> ExperimentState:
+    """Carry failed-attempt spend without publishing ordinary failed writes.
+
+    A synchronous executor catches :class:`RetryExhaustedError` outside this
+    wrapper and deliberately falls back to its pre-node state.  The retry
+    wrapper has already accumulated only the typed ``*_spent_usd`` fields on
+    ``terminal_state``; reapply that delta to a fresh branch of ``base_state``
+    instead of replacing the state with the failed branch wholesale.
+    """
+    spend = _spend_delta(base_state, terminal_state)
+    if not spend:
+        return base_state
+    preserved = branch_state(base_state, write_paths=("budgets",)).state
+    _merge_spend(preserved, spend)
+    return preserved
+
+
+def _retry_metrics(
+    *,
+    attempt: int,
+    delay: float,
+    spend: dict[str, Decimal],
+) -> dict[str, float | int]:
+    """Build the typed, durable trace metrics for one failed attempt."""
+    metrics: dict[str, float | int] = {
+        "attempt": attempt,
+        "delay_s": delay,
+    }
+    if spend:
+        metrics["failed_cost_usd"] = float(sum(spend.values(), Decimal(0)))
+    return metrics
+
+
+def _emit_retry_event(
+    ctx: ExecutionContext,
+    alias: str,
+    *,
+    attempt: int,
+    delay: float,
+    spend: dict[str, Decimal],
+) -> None:
+    """Persist one typed failed-attempt record in the canonical run trace."""
+    ctx.run.emit(
+        f"scientist.node.{alias}",
+        "NODE_RETRY",
+        metrics=_retry_metrics(attempt=attempt, delay=delay, spend=spend),
+    )
+
+
+def _emit_dead_letter_event(
+    ctx: ExecutionContext,
+    alias: str,
+    *,
+    attempt: int,
+    output: ArtifactRef,
+    spend: dict[str, Decimal],
+) -> None:
+    """Persist terminal attempt count and spend with the dead-letter event."""
+    metrics: dict[str, float | int] = {"attempts": attempt}
+    if spend:
+        metrics["failed_cost_usd"] = float(sum(spend.values(), Decimal(0)))
+    ctx.run.emit(
+        f"scientist.node.{alias}",
+        "NODE_DEAD_LETTER",
+        outputs=[output],
+        metrics=metrics,
+    )
+
+
 def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
     base = policy.backoff_base_s * (policy.backoff_factor**attempt)
     if policy.jitter == "none":
@@ -553,6 +785,7 @@ def execute_with_retry_sync(
         return node.execute(ctx, state)
 
     last_outcome: NodeOutcome | None = None
+    failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -562,13 +795,24 @@ def execute_with_retry_sync(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
+        attempt_state = (
+            _fresh_retry_state(state, node)
+            if retry_policy.max_retries > 0
+            else state
+        )
         try:
             if timeout_s is not None:
-                outcome = _execute_with_timeout_sync(node, ctx, state, timeout_s=timeout_s)
+                outcome = _execute_with_timeout_sync(
+                    node,
+                    ctx,
+                    attempt_state,
+                    timeout_s=timeout_s,
+                )
             else:
-                outcome = node.execute(ctx, state)
+                outcome = node.execute(ctx, attempt_state)
 
             if outcome.status != "fail":
+                _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 return outcome
@@ -578,6 +822,8 @@ def execute_with_retry_sync(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                attempt_spend = _spend_delta(state, outcome.state)
+                _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
@@ -587,14 +833,17 @@ def execute_with_retry_sync(
                     retry_policy.max_retries,
                     delay,
                 )
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_RETRY",
-                    metrics={"attempt": attempt + 1, "delay_s": delay},
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
                 )
                 time.sleep(delay)
                 continue
 
+            _merge_spend(outcome.state, failed_spend)
             return outcome
 
         except (NodeTimeoutError, CircuitBreakerOpenError):
@@ -604,7 +853,12 @@ def execute_with_retry_sync(
         except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries:
+            attempt_spend = _spend_delta(state, attempt_state)
+            _accumulate_spend(failed_spend, attempt_spend)
+            if attempt < retry_policy.max_retries and _should_retry_exception(
+                exc,
+                retry_policy,
+            ):
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
@@ -613,27 +867,32 @@ def execute_with_retry_sync(
                     retry_policy.max_retries,
                     exc,
                 )
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_RETRY",
-                    metrics={"attempt": attempt + 1, "delay_s": delay},
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
                 )
                 time.sleep(delay)
                 continue
 
+            _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
                 node_id,
                 exc,
-                attempts=retry_policy.max_retries + 1,
+                attempts=attempt + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_DEAD_LETTER",
-                    outputs=[dlq_ref],
+                _emit_dead_letter_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    output=dlq_ref,
+                    spend=failed_spend,
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
@@ -690,6 +949,236 @@ def _can_use_forked_timeout_worker() -> bool:
         return False
 
 
+def _delivery_deadline() -> float:
+    """Return a bounded deadline for Queue feeder delivery."""
+    return time.monotonic() + _PROCESS_DELIVERY_GRACE_S
+
+
+def _completion_before_deadline(
+    completion_time: Any,
+    compute_deadline: float,
+) -> bool:
+    """Require an explicit worker completion mark before draining delivery."""
+    if completion_time is None:
+        return False
+    try:
+        completed_at = float(completion_time.value)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return 0.0 < completed_at <= compute_deadline
+
+
+def _owned_process_group_id(
+    process: mp.Process,
+    group_ready: Any,
+    *,
+    deadline: float,
+) -> int | None:
+    """Resolve a worker-owned process group without ever targeting our own.
+
+    The worker creates its own session before executing user code.  The parent
+    waits only briefly for that handshake; if it is unavailable, cleanup falls
+    back to the owned ``multiprocessing.Process`` handle rather than guessing
+    at a process group.  A group is accepted only when its id is the worker
+    pid and it differs from the parent's group.
+    """
+    if group_ready is not None and not group_ready.is_set():
+        remaining = max(0.0, deadline - time.monotonic())
+        group_ready.wait(timeout=min(_PROCESS_GROUP_READY_S, remaining))
+    if group_ready is not None and not group_ready.is_set():
+        return None
+    if not process.is_alive():
+        return None
+    try:
+        process_group_id = os.getpgid(process.pid)
+    except OSError:
+        return None
+    if process_group_id != process.pid or process_group_id == os.getpgrp():
+        return None
+    return process_group_id
+
+
+def _owned_process_group_is_alive(process_group_id: int | None) -> bool:
+    """Check only a validated non-parent process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return False
+    if process_group_id == os.getpgrp():
+        return False
+    try:
+        os.killpg(process_group_id, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _signal_owned_process_group(process_group_id: int | None, signum: int) -> None:
+    """Signal an owned group, never the caller's process group."""
+    if process_group_id is None or process_group_id <= 0:
+        return
+    if process_group_id == os.getpgrp():
+        return
+    try:
+        os.killpg(process_group_id, signum)
+    except OSError:
+        return
+
+
+def _wait_for_owned_process_group_exit(process_group_id: int | None) -> bool:
+    """Bounded wait for descendants after the worker itself has stopped."""
+    deadline = time.monotonic() + _PROCESS_CLEANUP_GRACE_S
+    while _owned_process_group_is_alive(process_group_id):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(_PROCESS_RESULT_POLL_S)
+    return True
+
+
+def _terminate_owned_process(
+    process: mp.Process,
+    process_group_id: int | None,
+) -> bool:
+    """Terminate one worker and any descendants in its owned process group."""
+    _signal_owned_process_group(process_group_id, signal.SIGTERM)
+    if process.is_alive():
+        process.terminate()
+    process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
+
+    if process.is_alive():
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        process.kill()
+        process.join(timeout=_PROCESS_CLEANUP_GRACE_S)
+
+    group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if not group_clean:
+        _signal_owned_process_group(process_group_id, signal.SIGKILL)
+        group_clean = _wait_for_owned_process_group_exit(process_group_id)
+    if process_group_id is None:
+        # A direct Process handle proves only worker termination; descendant
+        # absence is not established without the owned-group handshake.
+        return False
+    return not process.is_alive() and group_clean
+
+
+def _close_worker_process(process: mp.Process) -> None:
+    """Release process resources after the owned process has stopped."""
+    if process.is_alive():
+        return
+    process.join(timeout=0.0)
+    process.close()
+
+
+def _close_result_queue(result_queue: Any) -> None:
+    """Close the result queue after all needed bytes have been drained."""
+    result_queue.close()
+    result_queue.join_thread()
+
+
+def _drain_result_sync(
+    process: mp.Process,
+    result_queue: mp.Queue[Any],
+    *,
+    compute_deadline: float,
+    completion_time: Any = None,
+) -> tuple[str, Any]:
+    """Receive a worker result without joining before Queue drain."""
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        remaining = compute_deadline - time.monotonic()
+        if remaining <= 0:
+            raise _WorkerComputeTimeout
+        try:
+            result = result_queue.get(
+                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
+            )
+        except queue.Empty:
+            continue
+        if not _completion_before_deadline(completion_time, compute_deadline):
+            raise _WorkerComputeTimeout
+        return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
+
+    delivery_deadline = _delivery_deadline()
+    while time.monotonic() < delivery_deadline:
+        remaining = delivery_deadline - time.monotonic()
+        try:
+            return result_queue.get(
+                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
+            )
+        except queue.Empty:
+            continue
+    raise _WorkerDeliveryTimeout
+
+
+async def _drain_result_async(
+    process: mp.Process,
+    result_queue: mp.Queue[Any],
+    *,
+    compute_deadline: float,
+    completion_time: Any = None,
+) -> tuple[str, Any]:
+    """Async counterpart of :func:`_drain_result_sync`."""
+    while process.is_alive() and not _completion_before_deadline(
+        completion_time,
+        compute_deadline,
+    ):
+        try:
+            result = result_queue.get_nowait()
+        except queue.Empty:
+            remaining = compute_deadline - time.monotonic()
+            if remaining <= 0:
+                raise _WorkerComputeTimeout
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+        else:
+            if not _completion_before_deadline(completion_time, compute_deadline):
+                raise _WorkerComputeTimeout
+            return result
+
+    if not _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerComputeTimeout
+
+    delivery_deadline = _delivery_deadline()
+    while time.monotonic() < delivery_deadline:
+        try:
+            return result_queue.get_nowait()
+        except queue.Empty:
+            remaining = delivery_deadline - time.monotonic()
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+    raise _WorkerDeliveryTimeout
+
+
+def _join_worker_until(process: mp.Process, *, deadline: float) -> None:
+    """Wait for a result-producing worker to exit before decoding it."""
+    while process.is_alive():
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise _WorkerDeliveryTimeout
+        process.join(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+
+
+async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> None:
+    """Async wait for a result-producing worker to exit."""
+    while process.is_alive():
+        if deadline - time.monotonic() <= 0:
+            raise _WorkerDeliveryTimeout
+        process.join(timeout=0.0)
+        await asyncio.sleep(
+            min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic()))
+        )
+
+
+def _worker_timeout_error(
+    timeout_s: float,
+    *,
+    cleanup_complete: bool,
+) -> NodeTimeoutError:
+    suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
+    return NodeTimeoutError(f"Node exceeded timeout of {timeout_s}s{suffix}")
+
+
 def _execute_with_timeout_process(
     node: Any,
     ctx: Any,
@@ -701,35 +1190,59 @@ def _execute_with_timeout_process(
     authority = authority or _AttemptAuthority()
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    process.start()
-    process.join(timeout=timeout_s)
-    if process.is_alive():
-        process.terminate()
-        process.join(timeout=1.0)
-        if process.is_alive():
-            process.kill()
-            process.join(timeout=1.0)
-        result_queue.close()
-        result_queue.join_thread()
-        authority.revoke()
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
-
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
-        status, payload = result_queue.get_nowait()
-    except queue.Empty as exc:
+        process.start()
+        lifecycle.process_group_id = _owned_process_group_id(
+            process,
+            group_ready,
+            deadline=lifecycle.compute_deadline,
+        )
+        status, payload = _drain_result_sync(
+            process,
+            result_queue,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
+        )
+        _join_worker_until(process, deadline=_delivery_deadline())
+    except _WorkerComputeTimeout:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        raise _worker_timeout_error(
+            timeout_s,
+            cleanup_complete=cleanup_complete,
+        ) from None
+    except _WorkerDeliveryTimeout as exc:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        cleanup_suffix = (
+            "" if cleanup_complete else "; owned process cleanup incomplete"
+        )
         raise RuntimeError(
-            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+            "Node timeout worker result delivery exceeded bounded grace "
+            f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        result_queue.close()
-        result_queue.join_thread()
+        if process.is_alive():
+            _terminate_owned_process(process, lifecycle.process_group_id)
+        _close_worker_process(process)
+        _close_result_queue(result_queue)
 
     if status == "ok":
         return decode_node_outcome(payload)
@@ -752,37 +1265,59 @@ async def _execute_with_timeout_process_async(
         state = state.model_copy(deep=True)
     mp_ctx = mp.get_context("fork")
     result_queue: mp.Queue[Any] = mp_ctx.Queue(maxsize=1)
+    group_ready = mp_ctx.Event()
+    completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
         target=_node_execute_worker,
-        args=(node, ctx, state, result_queue),
+        args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
-    process.start()
-    deadline = time.monotonic() + timeout_s
-    while process.is_alive() and time.monotonic() < deadline:
-        await asyncio.sleep(min(0.01, max(0.0, deadline - time.monotonic())))
-    if process.is_alive():
-        process.terminate()
-        process.join(timeout=1.0)
-        if process.is_alive():
-            process.kill()
-            process.join(timeout=1.0)
-        result_queue.close()
-        result_queue.join_thread()
-        authority.revoke()
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
-
+    lifecycle = _WorkerLifecycle(
+        compute_deadline=time.monotonic() + timeout_s,
+        completion_time=completion_time,
+    )
     try:
-        status, payload = result_queue.get_nowait()
-    except queue.Empty as exc:
+        process.start()
+        lifecycle.process_group_id = _owned_process_group_id(
+            process,
+            group_ready,
+            deadline=lifecycle.compute_deadline,
+        )
+        status, payload = await _drain_result_async(
+            process,
+            result_queue,
+            compute_deadline=lifecycle.compute_deadline,
+            completion_time=lifecycle.completion_time,
+        )
+        await _join_worker_until_async(process, deadline=_delivery_deadline())
+    except _WorkerComputeTimeout:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        raise _worker_timeout_error(
+            timeout_s,
+            cleanup_complete=cleanup_complete,
+        ) from None
+    except _WorkerDeliveryTimeout as exc:
+        cleanup_complete = _terminate_owned_process(
+            process,
+            lifecycle.process_group_id,
+        )
+        authority.revoke()
+        cleanup_suffix = (
+            "" if cleanup_complete else "; owned process cleanup incomplete"
+        )
         raise RuntimeError(
-            f"Node timeout worker exited without result (exitcode={process.exitcode})"
+            "Node timeout worker result delivery exceeded bounded grace "
+            f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        result_queue.close()
-        result_queue.join_thread()
+        if process.is_alive():
+            _terminate_owned_process(process, lifecycle.process_group_id)
+        _close_worker_process(process)
+        _close_result_queue(result_queue)
 
     if status == "ok":
         return decode_node_outcome(payload)
@@ -830,15 +1365,50 @@ def _node_execute_worker(
     ctx: ExecutionContext,
     state: ExperimentState,
     result_queue: mp.Queue[Any],
+    group_ready: Any = None,
+    completion_time: Any = None,
 ) -> None:
+    if group_ready is not None:
+        try:
+            os.setsid()
+        except OSError:
+            # Parent-side validation refuses to target an unowned group.
+            pass
+        finally:
+            group_ready.set()
+
+    def _send(status: str, payload: Any) -> None:
+        try:
+            result_queue.put((status, payload))
+        except _RETRY_RUNTIME_ERRORS as send_exc:
+            try:
+                result_queue.put(
+                    (
+                        "error",
+                        "failed to send result: "
+                        f"{type(send_exc).__name__}: {send_exc}",
+                    )
+                )
+            except _RETRY_RUNTIME_ERRORS as fallback_exc:
+                raise RuntimeError(
+                    "failed to send result: "
+                    f"{type(send_exc).__name__}: {send_exc}"
+                ) from fallback_exc
+
+    def _mark_completion() -> None:
+        if completion_time is not None:
+            completion_time.value = time.monotonic()
+
     try:
         outcome = node.execute(ctx, state)
+        _mark_completion()
         if hasattr(outcome, "model_dump"):
-            result_queue.put(("ok", outcome.model_dump(mode="python")))
+            _send("ok", outcome.model_dump(mode="python"))
         else:
-            result_queue.put(("error", f"invalid node outcome: {type(outcome).__name__}"))
+            _send("error", f"invalid node outcome: {type(outcome).__name__}")
     except _RETRY_RUNTIME_ERRORS as exc:
-        result_queue.put(("error", f"{type(exc).__name__}: {exc}"))
+        _mark_completion()
+        _send("error", f"{type(exc).__name__}: {exc}")
 
 
 async def execute_with_retry_async(
@@ -870,14 +1440,14 @@ async def execute_with_retry_async(
         and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
     )
 
-    async def _invoke() -> NodeOutcome:
+    async def _invoke(attempt_state: ExperimentState) -> NodeOutcome:
         if _has_async:
             if timeout_s is None:
-                return await node.execute_async(ctx, state)
+                return await node.execute_async(ctx, attempt_state)
             return await _execute_with_timeout_async(
                 node,
                 ctx,
-                state,
+                attempt_state,
                 timeout_s=timeout_s,
             )
         if timeout_s is not None:
@@ -885,26 +1455,27 @@ async def execute_with_retry_async(
                 return await _execute_with_timeout_process_async(
                     node,
                     ctx,
-                    state,
+                    attempt_state,
                     timeout_s=timeout_s,
                 )
             return await run_blocking_async(
                 _execute_with_timeout_sync,
                 node,
                 ctx,
-                state,
+                attempt_state,
                 timeout_s=timeout_s,
                 timeout_seconds=timeout_s,
             )
-        return await run_blocking_async(node.execute, ctx, state)
+        return await run_blocking_async(node.execute, ctx, attempt_state)
 
     # Fast path
     if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
-        return await _invoke()
+        return await _invoke(state)
 
     last_outcome: NodeOutcome | None = None
+    failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -914,10 +1485,16 @@ async def execute_with_retry_async(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
+        attempt_state = (
+            _fresh_retry_state(state, node)
+            if retry_policy.max_retries > 0
+            else state
+        )
         try:
-            outcome = await _invoke()
+            outcome = await _invoke(attempt_state)
 
             if outcome.status != "fail":
+                _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 if retry_stats is not None:
@@ -928,6 +1505,8 @@ async def execute_with_retry_async(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                attempt_spend = _spend_delta(state, outcome.state)
+                _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
@@ -937,11 +1516,19 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     delay,
                 )
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
+                )
                 await asyncio.sleep(delay)
                 continue
 
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
+            _merge_spend(outcome.state, failed_spend)
             return outcome
 
         except (NodeTimeoutError, CircuitBreakerOpenError):
@@ -952,7 +1539,12 @@ async def execute_with_retry_async(
         except _RETRY_RUNTIME_ERRORS as exc:
             if circuit_breaker is not None:
                 circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries:
+            attempt_spend = _spend_delta(state, attempt_state)
+            _accumulate_spend(failed_spend, attempt_spend)
+            if attempt < retry_policy.max_retries and _should_retry_exception(
+                exc,
+                retry_policy,
+            ):
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
@@ -961,24 +1553,34 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     exc,
                 )
+                _emit_retry_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    delay=delay,
+                    spend=attempt_spend,
+                )
                 await asyncio.sleep(delay)
                 continue
 
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
+            _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
                 node_id,
                 exc,
-                attempts=retry_policy.max_retries + 1,
+                attempts=attempt + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
-                ctx.run.emit(
-                    f"scientist.node.{alias}",
-                    "NODE_DEAD_LETTER",
-                    outputs=[dlq_ref],
+                _emit_dead_letter_event(
+                    ctx,
+                    alias,
+                    attempt=attempt + 1,
+                    output=dlq_ref,
+                    spend=failed_spend,
                 )
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",

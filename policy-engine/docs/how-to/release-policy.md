@@ -211,8 +211,9 @@ When a PR changes Runtime API shape or generated frontend contract surfaces, the
 same PR must update or verify:
 
 - `schemas/runtime_api_v1.openapi.json`
-- `packages/runtime-api-client/runtimeApiClient.ts`
-- `packages/runtime-api-client/runtimeApiClient.js`
+- `packages/runtime-api-client/types.ts`
+- `packages/runtime-api-client/canonicalRuntimeApiClient.ts`
+- `packages/runtime-api-client/canonicalRuntimeApiClient.js`
 - `apps/runtime-dashboard/src/api/types.ts`, when generated types change
 - runtime contract verification and frontend contract checks
 

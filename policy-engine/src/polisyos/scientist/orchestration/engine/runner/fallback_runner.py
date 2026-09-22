@@ -149,35 +149,57 @@ class FallbackWorkflowRunner:
         self._last_probe_id = sample.probe_id
         return sample
 
-    def _classify_health_failure(
+    def _legacy_health_failure_disposition(
         self,
         health: RunnerHealth,
-        sample: _HealthFailureSample | None,
-    ) -> HealthFailureDisposition:
-        """Resolve explicit pre-dispatch fallback authority without parsing prose."""
-        if sample is not None:
-            return sample.disposition
-        if self._health_sample_provider is not None:
-            return HealthFailureDisposition.BLOCK
-
+    ) -> HealthFailureDisposition | None:
+        """Read a valid legacy classifier result, if one is available."""
         classifier = self._health_failure_classifier
+        explicit_classifier = classifier is not None
         if classifier is None:
             candidate = getattr(self._primary, "classify_health_failure", None)
             if callable(candidate):
                 classifier = candidate
         if classifier is None:
-            return HealthFailureDisposition.BLOCK
+            return None
         try:
             disposition = classifier(health)
         except Exception as exc:  # pragma: no cover - defensive authority boundary
-            raise FallbackNotAuthorizedError(
-                "primary health failure classifier did not establish fallback authority"
-            ) from exc
+            if explicit_classifier:
+                raise FallbackNotAuthorizedError(
+                    "primary health failure classifier did not establish fallback authority"
+                ) from exc
+            return None
         if not isinstance(disposition, HealthFailureDisposition):
-            raise FallbackNotAuthorizedError(
-                "primary health failure classifier returned an untyped disposition"
-            )
+            if explicit_classifier:
+                raise FallbackNotAuthorizedError(
+                    "primary health failure classifier returned an untyped disposition"
+                )
+            return None
         return disposition
+
+    def _classify_health_failure(
+        self,
+        health: RunnerHealth,
+        sample: _HealthFailureSample | None,
+    ) -> HealthFailureDisposition:
+        """Resolve pre-dispatch authority with limiting legacy semantics."""
+        if sample is not None:
+            # A typed BLOCK is terminal.  A typed ALLOW remains usable unless
+            # a valid legacy classifier supplies a narrower BLOCK decision.
+            if sample.disposition is HealthFailureDisposition.BLOCK:
+                return HealthFailureDisposition.BLOCK
+            legacy = self._legacy_health_failure_disposition(health)
+            if legacy is HealthFailureDisposition.BLOCK:
+                return HealthFailureDisposition.BLOCK
+            return HealthFailureDisposition.ALLOW
+        if self._health_sample_provider is not None:
+            return HealthFailureDisposition.BLOCK
+
+        legacy = self._legacy_health_failure_disposition(health)
+        if legacy is None:
+            return HealthFailureDisposition.BLOCK
+        return legacy
 
     async def _execute_local_fallback(
         self,

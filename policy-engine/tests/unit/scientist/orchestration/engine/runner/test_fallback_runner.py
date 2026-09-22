@@ -7,7 +7,10 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from polisyos.scientist.orchestration.engine.runner import fallback_runner as fallback_runner_module
+from polisyos.scientist.orchestration.engine.runner import (
+    fallback_runner as fallback_runner_module,
+    temporal_runner as temporal_runner_module,
+)
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     FallbackNotAuthorizedError,
     FallbackWorkflowRunner,
@@ -224,3 +227,79 @@ def test_probe_exception_classification_is_typed_not_message_based(
         with pytest.raises(FallbackNotAuthorizedError, match="fallback"):
             asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
         fallback.assert_not_awaited()
+
+
+def test_synthetic_value_error_sample_precedes_legacy_allow_for_generic_backend() -> None:
+    """A generic validation failure cannot inherit an old ALLOW classifier."""
+
+    primary = SimpleNamespace(
+        health_check=AsyncMock(side_effect=ValueError("contract text says connection refused")),
+        execute_workflow=AsyncMock(),
+    )
+    runner = FallbackWorkflowRunner(
+        primary,
+        health_ttl_s=0,
+        health_failure_classifier=lambda _health: HealthFailureDisposition.ALLOW,
+    )
+    fallback = AsyncMock(return_value="local-result")
+    runner._fallback = SimpleNamespace(execute_workflow=fallback)
+
+    with pytest.raises(FallbackNotAuthorizedError, match="fallback"):
+        asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
+
+    fallback.assert_not_awaited()
+
+
+def test_synthetic_connection_error_sample_allows_generic_backend_without_classifier() -> None:
+    """A typed transport failure can authorize fallback without a legacy hook."""
+
+    primary = SimpleNamespace(
+        health_check=AsyncMock(side_effect=ConnectionError("contract text is irrelevant")),
+        execute_workflow=AsyncMock(),
+    )
+    runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+    fallback = AsyncMock(return_value="local-result")
+    runner._fallback = SimpleNamespace(execute_workflow=fallback)
+
+    assert asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg")) == "local-result"
+    fallback.assert_awaited_once()
+
+
+def test_returned_unhealthy_health_retains_legacy_classifier_without_probe_sample() -> None:
+    """A backend-returned health result still supports the existing classifier API."""
+
+    health = RunnerHealth(backend="generic", healthy=False, message="legacy health result")
+    primary = SimpleNamespace(
+        health_check=AsyncMock(return_value=health),
+        execute_workflow=AsyncMock(),
+        classify_health_failure=lambda _health: HealthFailureDisposition.ALLOW,
+    )
+    runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+    fallback = AsyncMock(return_value="local-result")
+    runner._fallback = SimpleNamespace(execute_workflow=fallback)
+
+    assert asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg")) == "local-result"
+    fallback.assert_awaited_once()
+
+
+def test_temporal_rpc_status_controls_fallback_disposition(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Typed Temporal status controls authority even when optional deps are absent."""
+
+    class _FakeRPCError(Exception):
+        def __init__(self, status_name: str) -> None:
+            super().__init__(status_name)
+            self.status = SimpleNamespace(name=status_name)
+
+    monkeypatch.setattr(temporal_runner_module, "_HAS_TEMPORAL", True)
+    monkeypatch.setattr(temporal_runner_module, "TemporalRPCError", _FakeRPCError)
+
+    denied = _FakeRPCError("PERMISSION_DENIED")
+    transient = _FakeRPCError("UNAVAILABLE")
+    assert (
+        temporal_runner_module._temporal_probe_disposition(denied)
+        is HealthFailureDisposition.BLOCK
+    )
+    assert (
+        temporal_runner_module._temporal_probe_disposition(transient)
+        is HealthFailureDisposition.ALLOW
+    )

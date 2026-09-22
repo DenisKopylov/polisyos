@@ -5,6 +5,10 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import multiprocessing as mp
+import os
+import signal
+import subprocess
+import sys
 import threading
 import time as _time
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -1075,6 +1079,54 @@ def test_serialization_failure_is_not_reported_as_success(ctx, state) -> None:
             state,
             timeout_s=2.0,
         )
+
+
+class _DescendantProcessNode:
+    """Keep an owned descendant alive long enough to exercise group cleanup."""
+
+    def __init__(self, pid_path) -> None:
+        self.pid_path = pid_path
+
+    def execute(self, _ctx, _state):
+        child = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        self.pid_path.write_text(str(child.pid))
+        _time.sleep(30)
+        raise AssertionError("timeout should terminate the worker first")
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
+    """Timeout cleanup owns the worker group and does not leave descendants."""
+    pid_path = tmp_path / "descendant-pid"
+    node = _DescendantProcessNode(pid_path)
+    descendant_pid: int | None = None
+
+    try:
+        with pytest.raises(NodeTimeoutError):
+            kwargs = {
+                "retry_policy": RetryPolicy(),
+                "timeout_s": 0.5,
+                "alias": "descendant-cleanup",
+            }
+            if mode == "sync":
+                execute_with_retry_sync(node, ctx, state, **kwargs)
+            else:
+                asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+        assert pid_path.exists()
+        descendant_pid = int(pid_path.read_text())
+        with pytest.raises(ProcessLookupError):
+            os.kill(descendant_pid, 0)
+    finally:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 
 class _OutputAwareTransportNode:

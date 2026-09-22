@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
+import asyncio
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.errors import ErrorCategory
+from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunManifest
+from polisyos.core.trace.record import TraceRecord
+from polisyos.core.trace.sink import JsonlTraceSink
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
@@ -37,6 +44,25 @@ def _context() -> MagicMock:
     return context
 
 
+def _durable_context(tmp_path):
+    """Build a real RunContext whose JSONL sink can be read back as TraceRecord."""
+    store = MagicMock()
+    trace_path = tmp_path / "trace.jsonl"
+    run = RunContext(
+        store=store,
+        trace=JsonlTraceSink(trace_path),
+        run_manifest=RunManifest(
+            run_id="run-03-durable",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+        ),
+    )
+    return ExecutionContext(store=store, run=run, logger=MagicMock()), trace_path
+
+
 class _MutatingRetryNode:
     """Mutate declared state and fail once before succeeding."""
 
@@ -47,17 +73,27 @@ class _MutatingRetryNode:
 
     def __init__(self) -> None:
         self.calls = 0
+        self.sync_calls = 0
+        self.async_calls = 0
         self.seen_counters: list[int] = []
 
     def execute(self, _ctx: object, state: ExperimentState) -> NodeOutcome:
         self.calls += 1
+        self.sync_calls += 1
         state.params["counter"] = int(state.params.get("counter", 0)) + 1
         state.params.setdefault("attempt_history", []).append(self.calls)
         self.seen_counters.append(int(state.params["counter"]))
         return _fail(state) if self.calls == 1 else _ok(state)
 
     async def execute_async(self, ctx: object, state: ExperimentState) -> NodeOutcome:
-        return self.execute(ctx, state)
+        del ctx
+        self.calls += 1
+        self.async_calls += 1
+        await asyncio.sleep(0)
+        state.params["counter"] = int(state.params.get("counter", 0)) + 1
+        state.params.setdefault("attempt_history", []).append(self.calls)
+        self.seen_counters.append(int(state.params["counter"]))
+        return _fail(state) if self.calls == 1 else _ok(state)
 
 
 class _CostedRetryNode:
@@ -70,9 +106,12 @@ class _CostedRetryNode:
 
     def __init__(self) -> None:
         self.calls = 0
+        self.sync_calls = 0
+        self.async_calls = 0
 
     def execute(self, _ctx: object, state: ExperimentState) -> NodeOutcome:
         self.calls += 1
+        self.sync_calls += 1
         state.params["counter"] = int(state.params.get("counter", 0)) + 1
         state.params.setdefault("attempt_history", []).append(self.calls)
         state.budgets["run_spent_usd"] = state.budgets.get(
@@ -82,7 +121,17 @@ class _CostedRetryNode:
         return _fail(state) if self.calls == 1 else _ok(state)
 
     async def execute_async(self, ctx: object, state: ExperimentState) -> NodeOutcome:
-        return self.execute(ctx, state)
+        del ctx
+        self.calls += 1
+        self.async_calls += 1
+        await asyncio.sleep(0)
+        state.params["counter"] = int(state.params.get("counter", 0)) + 1
+        state.params.setdefault("attempt_history", []).append(self.calls)
+        state.budgets["run_spent_usd"] = state.budgets.get(
+            "run_spent_usd",
+            Decimal("0"),
+        ) + Decimal("0.25")
+        return _fail(state) if self.calls == 1 else _ok(state)
 
 
 def test_sync_retry_starts_each_attempt_from_one_logical_baseline() -> None:
@@ -105,6 +154,10 @@ def test_sync_retry_starts_each_attempt_from_one_logical_baseline() -> None:
     assert result.state.params["counter"] == 1
     assert result.state.params["attempt_history"] == [2]
     assert state.params == {}
+    assert node.async_calls == 2
+    assert node.sync_calls == 0
+    assert node.sync_calls == 2
+    assert node.async_calls == 0
 
 
 @pytest.mark.asyncio
@@ -176,11 +229,11 @@ def test_permanent_error_shape_does_not_change_retry_count(mode: str) -> None:
     assert node.calls == 1
 
 
-def test_sync_retry_preserves_failed_spend_in_durable_trace_and_result() -> None:
+def test_sync_retry_preserves_failed_spend_in_durable_trace_and_result(tmp_path) -> None:
     """Retry isolation drops ordinary writes, not recorded attempt cost."""
     state = ExperimentState(run_id="run-03-cost-sync")
     node = _CostedRetryNode()
-    context = _context()
+    context, trace_path = _durable_context(tmp_path)
 
     with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
         result = execute_with_retry_sync(
@@ -198,19 +251,24 @@ def test_sync_retry_preserves_failed_spend_in_durable_trace_and_result() -> None
     assert result.state.budgets["run_spent_usd"] == Decimal("0.50")
     assert state.params == {}
     assert state.budgets == {}
-    retry_events = [
-        call for call in context.run.emit.call_args_list if call[0][1] == "NODE_RETRY"
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     ]
+    retry_events = [record for record in records if record.event == "NODE_RETRY"]
     assert len(retry_events) == 1
-    assert retry_events[0][1]["metrics"]["failed_cost_usd"] == pytest.approx(0.25)
+    assert retry_events[0].phase == "scientist.node.run-03-cost-sync"
+    assert retry_events[0].metrics["attempt"] == 1
+    assert retry_events[0].metrics["failed_cost_usd"] == pytest.approx(0.25)
 
 
 @pytest.mark.asyncio
-async def test_async_retry_preserves_failed_spend_in_durable_trace_and_result() -> None:
+async def test_async_retry_preserves_failed_spend_in_durable_trace_and_result(tmp_path) -> None:
     """Async retry records failed spend while returning a clean success branch."""
     state = ExperimentState(run_id="run-03-cost-async")
     node = _CostedRetryNode()
-    context = _context()
+    context, trace_path = _durable_context(tmp_path)
     retry_stats: dict[str, int] = {}
 
     result = await execute_with_retry_async(
@@ -228,11 +286,18 @@ async def test_async_retry_preserves_failed_spend_in_durable_trace_and_result() 
     assert result.state.params["attempt_history"] == [2]
     assert result.state.budgets["run_spent_usd"] == Decimal("0.50")
     assert retry_stats == {"attempts": 2}
-    retry_events = [
-        call for call in context.run.emit.call_args_list if call[0][1] == "NODE_RETRY"
+    assert node.async_calls == 2
+    assert node.sync_calls == 0
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     ]
+    retry_events = [record for record in records if record.event == "NODE_RETRY"]
     assert len(retry_events) == 1
-    assert retry_events[0][1]["metrics"]["failed_cost_usd"] == pytest.approx(0.25)
+    assert retry_events[0].phase == "scientist.node.run-03-cost-async"
+    assert retry_events[0].metrics["attempt"] == 1
+    assert retry_events[0].metrics["failed_cost_usd"] == pytest.approx(0.25)
 
 
 def test_typed_transient_and_validation_categories_control_raised_retry() -> None:

@@ -143,8 +143,8 @@ def test_node_result_cache_roundtrip(tmp_path) -> None:
     )
 
     assert entry_ref.kind == "scientist.node_cache_entry"
-    assert entry.outcome_ref is None
-    assert entry.outcome_payload is not None
+    assert getattr(entry, "outcome_ref", None) is None
+    assert getattr(entry, "outcome_payload", None) is not None
     assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} - ids_before == {
         str(entry_ref.artifact_id)
     }
@@ -242,7 +242,9 @@ def test_node_result_cache_rejects_tampered_embedded_outcome(tmp_path) -> None:
     cache = NodeResultCache(store, run_id=run_id)
     entry_ref = cache.put(key, node_id="scientist.node_test@1.0.0", outcome=_outcome(run_id))
     entry_payload = dict(from_canonical_bytes(store.get_bytes(entry_ref.artifact_id)))
-    embedded = dict(entry_payload["outcome_payload"])
+    embedded_payload = entry_payload.get("outcome_payload")
+    assert isinstance(embedded_payload, dict), "self-contained outcome payload is missing"
+    embedded = dict(embedded_payload)
     state = dict(embedded["state"])
     state["run_id"] = "foreign-run"
     embedded["state"] = state
@@ -450,9 +452,10 @@ def test_output_aware_cache_preserves_complete_outcome(tmp_path) -> None:
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    assert entry.outcome_ref is None
-    assert entry.outcome_payload is not None
-    assert "output_dispositions" in entry.outcome_payload
+    assert getattr(entry, "outcome_ref", None) is None
+    embedded_payload = getattr(entry, "outcome_payload", None)
+    assert embedded_payload is not None
+    assert "output_dispositions" in embedded_payload
     entry_manifest = store.get_manifest(entry_ref.artifact_id)
     assert entry_manifest.artifact_schema.name == (
         "polisyos.scientist.orchestration.engine.NodeCacheEntry"
@@ -469,8 +472,8 @@ def test_ordinary_cache_embeds_outcome_in_current_entry_epoch(tmp_path) -> None:
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    assert entry.outcome_ref is None
-    assert entry.outcome_payload is not None
+    assert getattr(entry, "outcome_ref", None) is None
+    assert getattr(entry, "outcome_payload", None) is not None
     manifest = store.get_manifest(entry_ref.artifact_id)
     assert manifest.artifact_schema.name == (
         "polisyos.scientist.orchestration.engine.NodeCacheEntry"

@@ -403,7 +403,6 @@ class StreamingSourceSession:
                 await self.pool.release(self.handle)
                 self.connector = None
                 self.handle = None
-            if self._owns_pool:
             await self.pool.close_all()
             self._closed = True
             self._cleanup_pending = False

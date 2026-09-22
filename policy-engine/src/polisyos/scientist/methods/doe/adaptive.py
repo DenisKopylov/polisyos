@@ -19,6 +19,12 @@ class ConvergenceConfig:
     index_rtol: float = 0.05
     trajectory_step: int = 5
 
+    def __post_init__(self) -> None:
+        if self.max_rounds < 1:
+            raise ValueError("max_rounds must be at least 1")
+        if self.trajectory_step < 1:
+            raise ValueError("trajectory_step must be at least 1")
+
 
 @dataclass
 class AdaptiveRound:
@@ -38,6 +44,7 @@ class AdaptiveResult:
     rounds: list[AdaptiveRound] = field(default_factory=list)
     converged: bool = False
     total_evaluations: int = 0
+    stop_reason: str | None = None
 
 
 class AdaptiveSampler:
@@ -73,6 +80,8 @@ class AdaptiveSampler:
         prev_ranking: list[str] | None = None
         prev_indices: dict[str, float] | None = None
         total_evals = 0
+        last_result: SensitivityResult | None = None
+        stop_reason: str | None = None
 
         current_n = self._plan.n_trajectories
 
@@ -80,7 +89,21 @@ class AdaptiveSampler:
             # Create a plan copy with updated n_trajectories
             plan_dict = self._plan.model_dump()
             plan_dict["n_trajectories"] = current_n
-            plan_dict["allow_large_run"] = True
+            # Preserve the caller's explicit permission.  Constructing the
+            # round plan keeps the existing SensitivityPlan guardrail as the
+            # single source of truth for estimated-run admission.
+            plan_dict["allow_large_run"] = self._plan.allow_large_run
+            if (
+                not self._plan.allow_large_run
+                and self._plan.estimated_runs_for(current_n) > self._plan.max_estimated_runs
+            ):
+                if last_result is None:
+                    raise ValueError(
+                        "SensitivityPlan estimated_runs exceeds max_estimated_runs. "
+                        "Increase max_estimated_runs or set allow_large_run=true to override."
+                    )
+                stop_reason = "max_estimated_runs_exceeded"
+                break
             round_plan = SensitivityPlan(**plan_dict)
 
             samples = generate_sensitivity_samples(round_plan)
@@ -88,6 +111,7 @@ class AdaptiveSampler:
             total_evals += len(outputs)
 
             result = analyze_sensitivity(round_plan, samples, outputs)
+            last_result = result
 
             current_indices = self._extract_primary_indices(result)
             stability = self._compute_stability(
@@ -117,20 +141,17 @@ class AdaptiveSampler:
             prev_indices = current_indices
             current_n += self._conv.trajectory_step
 
-        # Did not converge — return last result
-        last_plan_dict = self._plan.model_dump()
-        last_plan_dict["n_trajectories"] = current_n - self._conv.trajectory_step
-        last_plan_dict["allow_large_run"] = True
-        last_plan = SensitivityPlan(**last_plan_dict)
-        samples = generate_sensitivity_samples(last_plan)
-        outputs = evaluator(samples)
-        final_result = analyze_sensitivity(last_plan, samples, outputs)
+        if last_result is None:
+            raise RuntimeError("AdaptiveSampler completed without a result")
+        if stop_reason is None:
+            stop_reason = "max_rounds_reached"
 
         return AdaptiveResult(
-            final_result=final_result,
+            final_result=last_result,
             rounds=rounds,
             converged=False,
-            total_evaluations=total_evals + len(outputs),
+            total_evaluations=total_evals,
+            stop_reason=stop_reason,
         )
 
     def _extract_primary_indices(self, result: SensitivityResult) -> dict[str, float]:

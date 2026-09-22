@@ -470,7 +470,7 @@ def test_selection_diagram_requires_verified_causal_artifact(
         lambda _context: bound_context,
     )
 
-    with pytest.raises(generation_cycle.ValueOwnerAccessError, match="causal"):
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as exc_info:
         generation_cycle._build_candidate_selection_diagram(
             candidate=SimpleNamespace(
                 candidate_id="emp01-candidate",
@@ -485,6 +485,8 @@ def test_selection_diagram_requires_verified_causal_artifact(
             query_outcome="outcome",
             cycle_substrate_context=SimpleNamespace(),
         )
+
+    assert exc_info.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
 
 def test_raw_graph_without_artifact_bridge_fails_closed(

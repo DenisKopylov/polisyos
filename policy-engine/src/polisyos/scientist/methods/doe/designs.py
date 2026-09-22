@@ -110,18 +110,24 @@ class SensitivityPlan(BaseModel):
     def num_parameters(self) -> int:
         return len(self.parameter_specs)
 
-    @property
-    def estimated_runs(self) -> int:
+    def estimated_runs_for(self, n_trajectories: int) -> int:
+        """Estimate runs for a candidate trajectory count."""
+        if n_trajectories < 1:
+            raise ValueError("n_trajectories must be at least 1")
         k = self.num_parameters
         if k == 0:
             return 0
         if self.method == SensitivityMethod.MORRIS:
-            return self.n_trajectories * (k + 1)
+            return n_trajectories * (k + 1)
         if self.method == SensitivityMethod.SOBOL:
-            return self.n_trajectories * (2 * k + 2)
+            return n_trajectories * (2 * k + 2)
         if self.method == SensitivityMethod.FAST:
-            return self.n_trajectories * k
+            return n_trajectories * k
         return 0
+
+    @property
+    def estimated_runs(self) -> int:
+        return self.estimated_runs_for(self.n_trajectories)
 
     @model_validator(mode="after")
     def _validate_plan(self) -> SensitivityPlan:

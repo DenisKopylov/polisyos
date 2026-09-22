@@ -56,8 +56,9 @@ def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
 
     if plan.strategy == AdversarialStrategy.GRID_EXTREME:
         corners = itertools.product(*[(lo, hi) for lo, hi in bounds])
-        matrix = np.array(list(corners), dtype=float)
-        return matrix[: plan.max_iterations]
+        # Cap the iterator before materialization.  Slicing a fully-built
+        # NumPy array would still enumerate and retain every corner first.
+        return np.array(list(itertools.islice(corners, plan.max_iterations)), dtype=float)
 
     if plan.strategy == AdversarialStrategy.RANDOM_TAIL:
         rng = np.random.default_rng(plan.seed)

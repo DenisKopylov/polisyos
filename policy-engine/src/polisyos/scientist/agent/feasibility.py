@@ -229,8 +229,10 @@ class StateSnapshotFeasibilityProbe:
     def _load_state_for_snapshot(self, data_snapshot_ref: str) -> Any:
         try:
             from polisyos.foundry.execute.executor import load_state_snapshot
+            from polisyos.foundry.execute._internal.snapshots import _SnapshotStateLayoutError
         except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
             load_state_snapshot = None
+            _SnapshotStateLayoutError = None
             _ = exc
 
         data_snapshot_id = ArtifactID.model_validate(data_snapshot_ref)
@@ -246,8 +248,8 @@ class StateSnapshotFeasibilityProbe:
         if load_state_snapshot is not None:
             try:
                 return load_state_snapshot(self._cas, snapshot_ref=state_ref.artifact_id)
-            except Exception:
-                # Some snapshots originate from agent_sim state layout and are not
+            except _SnapshotStateLayoutError:
+                # Some legacy/agent_sim snapshots have a valid NPZ but are not
                 # compatible with strict contracts-state dataclass reconstruction.
                 pass
         return self._load_raw_state_snapshot(state_ref.artifact_id)

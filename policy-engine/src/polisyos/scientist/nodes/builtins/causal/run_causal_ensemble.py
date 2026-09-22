@@ -156,6 +156,13 @@ class _ResolvedMember:
     raw_weight: float
 
 
+def _canonical_contrast_arms(query: CausalQuery | None) -> dict[str, Any] | None:
+    """Return the canonical target/comparator payload used by ensemble members."""
+    if query is None or query.contrast is None:
+        return None
+    return query.contrast.model_dump(mode="json")
+
+
 def _coerce_ref(raw: Any, *, default_kind: str) -> ArtifactRef | None:
     if raw is None:
         return None
@@ -522,6 +529,8 @@ class RunCausalEnsembleNode:
         methods: list[str] = []
         input_refs: list[InputRef] = []
         query_results_for_envelope: dict[str, list[float]] = {}
+        canonical_arms: dict[str, Any] | None = None
+        arms_initialized = False
 
         run_id = str(state.run_id)
         seed_base = int(state.params.get("random_seed", 0) or 0)
@@ -596,6 +605,28 @@ class RunCausalEnsembleNode:
                             message=f"Failed to load causal_query_result for member #{idx}: {exc}",
                         ),
                     )
+
+            member_arms = _canonical_contrast_arms(query_result.query)
+            if not arms_initialized:
+                canonical_arms = member_arms
+                arms_initialized = True
+            elif member_arms != canonical_arms:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=(
+                            "causal ensemble members carry mismatched canonical "
+                            "target/comparator arms"
+                        ),
+                        details={
+                            "expected_contrast": canonical_arms,
+                            "observed_contrast": member_arms,
+                            "member_index": idx,
+                        },
+                    ),
+                )
 
             stability = (
                 float(candidate.bootstrap_stability)
@@ -721,6 +752,28 @@ class RunCausalEnsembleNode:
         )
 
         envelope = ensemble.to_uncertainty_envelope(query_results_for_envelope)
+        envelope_metadata = dict(envelope.metadata)
+        if canonical_arms is not None:
+            envelope_metadata.update(
+                {
+                    "contrast_target": canonical_arms["target"],
+                    "contrast_comparator": canonical_arms["comparator"],
+                    "contrast_arms_match": True,
+                }
+            )
+        member_gate_eligible = all(
+            bool(item.query_result.metadata.get("abduction_gate_eligible", True))
+            and not item.query_result.metadata.get("declared_root_hypothesis")
+            for item in normalized_members
+        )
+        if not member_gate_eligible:
+            envelope_metadata["member_gate_eligible"] = False
+        envelope = envelope.model_copy(
+            update={
+                "gate_eligible": bool(envelope.gate_eligible and member_gate_eligible),
+                "metadata": envelope_metadata,
+            }
+        )
         envelope_ref = persist_uncertainty_envelope(
             ctx.store,
             envelope,

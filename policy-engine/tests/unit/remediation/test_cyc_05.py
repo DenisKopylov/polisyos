@@ -54,6 +54,17 @@ def test_depth_n_strangle_receipt_fails_closed_when_source_is_missing(tmp_path: 
     assert receipt.default_controller == "unresolved"
 
 
+def test_depth_n_strangle_receipt_requires_explicit_source_root() -> None:
+    """The legacy diagnostic receipt cannot adopt the process working directory."""
+
+    receipt = recompute_depth_n_strangle_receipt()
+
+    assert receipt.status == "not_established"
+    assert receipt.source_state == "not_established"
+    assert receipt.source_content_hash is None
+    assert receipt.default_controller == "unresolved"
+
+
 def test_generation_cycle_strangle_receipt_fails_closed_when_source_is_missing(
     tmp_path: Path,
 ) -> None:

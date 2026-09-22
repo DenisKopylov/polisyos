@@ -72,7 +72,7 @@ def test_staggered_bootstrap_resamples_panel_units_not_att_cells():
     assert report.confidence_interval is not None
     lower, upper = report.confidence_interval
     assert lower < report.point_estimate < upper
-    assert report.confidence_level is None
+    assert report.confidence_level == pytest.approx(0.95)
 
 
 def test_staggered_p_value_is_absent_without_calibrated_null_distribution():

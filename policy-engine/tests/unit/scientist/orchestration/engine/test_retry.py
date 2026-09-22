@@ -303,14 +303,18 @@ class TestExecuteWithRetrySync:
                 passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
                 return _ok_outcome(passed_state)
 
-        result = execute_with_retry_sync(
-            _OnTimeClaimNode(),
-            ctx,
-            state,
-            retry_policy=RetryPolicy(),
-            timeout_s=0.5,
-            alias="on-time-claim",
-        )
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        try:
+            result = execute_with_retry_sync(
+                _OnTimeClaimNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time-claim",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
 
         assert result.status == "ok"
         assert run.run_manifest.status == "on_time"
@@ -321,7 +325,9 @@ class TestExecuteWithRetrySync:
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
 
-    def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state):
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(
+        self, state, monkeypatch
+    ):
         class _RecordingStore:
             def put_json(self, payload: object, options: object) -> object:
                 return object()
@@ -369,6 +375,15 @@ class TestExecuteWithRetrySync:
             logger=MagicMock(),
             claim_ledger_owner=_RecordingClaimOwner(),
         )
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
 
         class _OnTimeRunNode:
             def execute(self, passed_ctx, passed_state):
@@ -376,14 +391,17 @@ class TestExecuteWithRetrySync:
                 passed_ctx.run.emit("on-time", "ON_TIME")
                 return _ok_outcome(passed_state)
 
-        result = execute_with_retry_sync(
-            _OnTimeRunNode(),
-            ctx,
-            state,
-            retry_policy=RetryPolicy(),
-            timeout_s=0.5,
-            alias="on-time-run",
-        )
+        try:
+            result = execute_with_retry_sync(
+                _OnTimeRunNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.5,
+                alias="on-time-run",
+            )
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
 
         assert result.status == "ok"
         assert len(trace.emit_calls) == 1

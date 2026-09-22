@@ -95,6 +95,8 @@ def _stage_input_basis(config: DatasetBatchConfig, stage: str) -> dict[str, obje
         inputs = {
             "raw_manifests": sorted(config.raw_dir.rglob("manifest.json")),
             "raw_payloads": sorted(config.raw_dir.rglob("payload.jsonl")),
+            "source_registry": config.registry_path or config.default_registry_path,
+            "metrics_map": config.resolved_metrics_map_path,
         }
         settings = {
             "run_signature": config.run_signature,

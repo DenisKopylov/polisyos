@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -42,6 +43,8 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_content_hash,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
+    _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES,
+    _is_authenticated_legacy_v1,
     RecursiveCycleBudget,
     RecursiveCycleNode,
     RecursiveGenerationCycleController,
@@ -102,6 +105,62 @@ def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -
     injected_node["legacy_v1_missing_joint_simulation_ref"] = True
     with pytest.raises(ValueError, match="extra_forbidden"):
         RecursiveCycleNode.model_validate(injected_node)
+
+
+def test_legacy_recursive_v1_allowlist_covers_tracked_sources() -> None:
+    """Keep the compatibility allowlist bounded to every tracked v1 identity."""
+
+    repo_root = Path(__file__).resolve().parents[3]
+    tracked_paths = subprocess.run(
+        [
+            "git",
+            "grep",
+            "-l",
+            "--fixed-strings",
+            "--",
+            "policyos.runtime.recursive_generation_cycle.v1",
+            "--",
+            "*.json",
+            "*.jsonl",
+        ],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    discovered: list[dict[str, object]] = []
+
+    def collect(value: object) -> None:
+        if isinstance(value, dict):
+            if value.get("schema_version") == "policyos.runtime.recursive_generation_cycle.v1":
+                discovered.append(value)
+            for child in value.values():
+                collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                collect(child)
+
+    for relative_path in tracked_paths:
+        path = repo_root / relative_path
+        source = path.read_text(encoding="utf-8")
+        if path.suffix == ".jsonl":
+            documents = [json.loads(line) for line in source.splitlines() if line.strip()]
+        else:
+            documents = [json.loads(source)]
+        for document in documents:
+            collect(document)
+
+    discovered_hashes = {str(item["content_hash"]) for item in discovered}
+    assert len(discovered) == 7
+    assert discovered_hashes == _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES
+    assert all(_is_authenticated_legacy_v1(item) for item in discovered)
+
+    invalid = json.loads(json.dumps(discovered[0]))
+    invalid["run_id"] = "recursive:untrusted-recomputed-v1"
+    invalid["content_hash"] = gy_content_hash(
+        {key: value for key, value in invalid.items() if key != "content_hash"}
+    )
+    assert not _is_authenticated_legacy_v1(invalid)
 
 
 def _real_n5_observation(tmp_path: Path):

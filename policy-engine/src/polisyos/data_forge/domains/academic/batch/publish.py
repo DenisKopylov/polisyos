@@ -13,6 +13,7 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     skg_materialized_schema_identity,
     skg_schema_generation_basis,
 )
+from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.io.generation_basis import compare_generation_basis
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
@@ -168,10 +169,15 @@ def run_publish(config: AcademicBatchConfig) -> Path:
     """Write publish manifest for academic pipeline outputs."""
     started_at = datetime.now(UTC).isoformat()
     readiness_report_path, readiness = _write_pipeline_readiness_manifest(config)
+    generation = embedding_generation_manifest(
+        config.index_dir,
+        legacy_embeddings_path=config.index_dir / "ac_work_embeddings.npz",
+        legacy_index_path=config.index_dir / "ac_work_index.hnsw",
+    )
+    generation_metadata = generation[0] if generation else None
+    generation_artifacts = generation[1] if generation else ()
     artifacts = [
         config.db_path,
-        config.index_dir / "ac_work_embeddings.npz",
-        config.index_dir / "ac_work_index.hnsw",
         config.merged_records_path,
         config.topic_links_path,
         config.duplicates_report_path,
@@ -209,6 +215,7 @@ def run_publish(config: AcademicBatchConfig) -> Path:
         config.llm_gate_audit_path,
         config.qc_report_path,
     ]
+    artifacts.extend(generation_artifacts)
     existing = [path for path in artifacts if path.exists()]
 
     manifest_path = write_publish_manifest(
@@ -226,6 +233,7 @@ def run_publish(config: AcademicBatchConfig) -> Path:
             else "",
             "readiness_report": str(readiness_report_path),
             "readiness": readiness,
+            "embedding_generation": generation_metadata or {},
             "claim_adjudication": {
                 "authority_source": str(config.claim_adjudication_result_ref_path)
                 if config.claim_adjudication_result_ref_path.exists()

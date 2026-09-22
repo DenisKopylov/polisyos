@@ -24,6 +24,7 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -149,9 +150,16 @@ class DatasetCatalogStore:
 
     def has_vector_index(self) -> bool:
         if self._index_files_available is None:
-            npz_path = self._index_dir / "ds_dataset_embeddings.npz"
-            hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
-            self._index_files_available = npz_path.exists() and hnsw_path.exists()
+            generation = resolve_embedding_generation(
+                self._index_dir,
+                legacy_embeddings_path=self._index_dir / "ds_dataset_embeddings.npz",
+                legacy_index_path=self._index_dir / "ds_dataset_index.hnsw",
+            )
+            self._index_files_available = bool(
+                generation is not None
+                and generation.status != "empty_generation"
+                and generation.index_path is not None
+            )
         return bool(self._index_files_available)
 
     def _table_exists(self, table_name: str) -> bool:
@@ -205,23 +213,36 @@ class DatasetCatalogStore:
     def _load_dataset_index(self) -> None:
         if self._dataset_index is not None:
             return
-        import hnswlib
-
         npz_path = self._index_dir / "ds_dataset_embeddings.npz"
         hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
-        if not self.has_vector_index():
+        generation = resolve_embedding_generation(
+            self._index_dir,
+            legacy_embeddings_path=npz_path,
+            legacy_index_path=hnsw_path,
+        )
+        if (
+            generation is None
+            or generation.status == "empty_generation"
+            or generation.index_path is None
+        ):
             if not self._index_warning_logged:
                 logger.warning("Dataset index files not found in {}", self._index_dir)
                 self._index_warning_logged = True
             return
+        try:
+            import hnswlib
 
-        data = np.load(str(npz_path), allow_pickle=True)
-        self._dataset_ids = list(data["ids"])
-        dim = int(data["vectors"].shape[1])
-
-        idx = hnswlib.Index(space="cosine", dim=dim)
-        idx.load_index(str(hnsw_path), max_elements=len(self._dataset_ids))
-        idx.set_ef(100)
+            with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
+                ids = [str(identifier) for identifier in data["ids"].tolist()]
+            idx = hnswlib.Index(space="cosine", dim=generation.dimension)
+            idx.load_index(str(generation.index_path), max_elements=len(ids))
+            idx.set_ef(100)
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            logger.warning("Selected dataset index is unreadable: {}", exc)
+            self._dataset_index = None
+            self._dataset_ids = None
+            return
+        self._dataset_ids = ids
         self._dataset_index = idx
 
     @staticmethod

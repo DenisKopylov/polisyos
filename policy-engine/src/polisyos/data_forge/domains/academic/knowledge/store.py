@@ -39,6 +39,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ParameterEstimateResult,
     WorkSearchResult,
 )
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 from polisyos.ir.analytics import (
     ClaimVocabularyAxisStatus,
     DesignFamily,
@@ -162,21 +163,34 @@ class ScholarKnowledgeStore:
     def _load_work_index(self) -> None:
         if self._work_index is not None:
             return
-        import hnswlib
-
         npz_path = self._index_dir / "ac_work_embeddings.npz"
         hnsw_path = self._index_dir / "ac_work_index.hnsw"
-        if not npz_path.exists() or not hnsw_path.exists():
+        generation = resolve_embedding_generation(
+            self._index_dir,
+            legacy_embeddings_path=npz_path,
+            legacy_index_path=hnsw_path,
+        )
+        if (
+            generation is None
+            or generation.status == "empty_generation"
+            or generation.index_path is None
+        ):
             logger.warning("Work index files not found in %s", self._index_dir)
             return
+        try:
+            import hnswlib
 
-        data = np.load(str(npz_path), allow_pickle=True)
-        self._work_ids = list(data["ids"])
-        dim = int(data["vectors"].shape[1])
-
-        idx = hnswlib.Index(space="cosine", dim=dim)
-        idx.load_index(str(hnsw_path), max_elements=len(self._work_ids))
-        idx.set_ef(100)
+            with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
+                ids = [str(identifier) for identifier in data["ids"].tolist()]
+            idx = hnswlib.Index(space="cosine", dim=generation.dimension)
+            idx.load_index(str(generation.index_path), max_elements=len(ids))
+            idx.set_ef(100)
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            logger.warning("Selected work index is unreadable: %s", exc)
+            self._work_index = None
+            self._work_ids = None
+            return
+        self._work_ids = ids
         self._work_index = idx
 
     def _to_work_result(

@@ -13,6 +13,7 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     stage_can_skip,
     write_json,
 )
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 from polisyos.data_forge.kernel.runtime import cooldown
 
 if TYPE_CHECKING:
@@ -64,10 +65,7 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
         "graph_load": [config.db_path],
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
-        "embed": [
-            config.index_dir / "ds_dataset_index.hnsw",
-            config.index_dir / "ds_dataset_embeddings.npz",
-        ],
+        "embed": [config.index_dir / "embedding_generation.json"],
         "benchmark": [config.benchmark_report_path],
         "qc": [config.qc_report_path],
         "publish": [config.publish_manifest_path, config.consumer_readiness_path],
@@ -78,6 +76,17 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
 def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
     if not config.resume or config.resume_mode == "off":
         return False
+    if stage == "embed":
+        # The selector is the authoritative output.  A valid typed-empty
+        # generation is still a completed stage; an invalid selector must not
+        # let a stale compatibility pair satisfy resume.
+        generation = resolve_embedding_generation(
+            config.index_dir,
+            legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+            legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+        )
+        if generation is None:
+            return False
     fingerprint = _stage_input_fingerprint(config, stage)
     return stage_can_skip(
         config.stage_state_path,

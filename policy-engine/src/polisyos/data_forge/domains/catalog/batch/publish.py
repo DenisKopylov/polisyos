@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.data_forge.domains.catalog.batch.benchmark import readiness_thresholds_for_profile
+from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
     write_stage_manifest,
@@ -169,16 +170,23 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             f"Dataset publish blocked: consumer readiness failed ({', '.join(failed)})"
         )
 
+    generation = embedding_generation_manifest(
+        config.index_dir,
+        legacy_embeddings_path=config.index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=config.index_dir / "ds_dataset_index.hnsw",
+    )
+    generation_metadata = generation[0] if generation else None
+    generation_artifacts = generation[1] if generation else ()
+
     artifacts = [
         config.db_path,
-        config.index_dir / "ds_dataset_embeddings.npz",
-        config.index_dir / "ds_dataset_index.hnsw",
         config.merged_records_path,
         config.duplicates_report_path,
         config.benchmark_report_path,
         config.qc_report_path,
         consumer_readiness_path,
     ]
+    artifacts.extend(generation_artifacts)
     existing = [path for path in artifacts if path.exists()]
 
     readiness_summary: dict[str, object] = {}
@@ -265,6 +273,7 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             "consumer_ready": readiness["consumer_ready"],
             "full_publish_ready": readiness["full_publish_ready"],
             "evaluation_mode": evaluation_mode,
+            "embedding_generation": generation_metadata or {},
         },
     )
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 FIXTURE_DIR = REPO_ROOT / "tests/fixtures/layer3/g1"
@@ -444,6 +445,198 @@ def test_task7_search_health_reports_semantic_hnsw_state() -> None:
     assert payload["hnsw_index_refs"]
     if payload["semantic_search_status"] == "disabled_missing_index":
         assert all("hnsw" in ref for ref in payload["hnsw_index_refs"])
+
+
+def test_g1_selected_empty_generation_disables_stale_flat_semantic_search(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A selected typed-empty generation must not enable the legacy flat pair."""
+
+    from polisyos.data_forge.kernel.embeddings import build_embedding_generation
+
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    (index_dir / "ds_dataset_embeddings.npz").write_bytes(b"stale-embeddings")
+    (index_dir / "ds_dataset_index.hnsw").write_bytes(b"stale-index")
+    build_embedding_generation(
+        rows=(),
+        index_dir=index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    selector = json.loads(
+        (index_dir / "embedding_generation.json").read_text(encoding="utf-8")
+    )
+    generation_id = selector["generation_id"]
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+
+    semantic_status, hnsw_refs = g1._semantic_search_state(tmp_path)
+    assert semantic_status == "disabled_missing_index"
+    assert hnsw_refs == ()
+    request = g1.Layer3G1SubstrateSearchRequest.model_validate(_request_payload())
+    result = _dump(g1.build_substrate_grounding_search_adapter(tmp_path, [request])[0])
+    evidence_refs = result["search_ledgers"][0]["index_freshness"].get(
+        "generation_evidence_refs", []
+    )
+    assert evidence_refs
+    assert not any(
+        ref.endswith(("ds_dataset_index.hnsw", "ds_dataset_embeddings.npz"))
+        for ref in evidence_refs
+    )
+    assert any(
+        f"embedding_generations/{generation_id}/" in ref
+        or ref.endswith("embedding_generation.json")
+        for ref in evidence_refs
+    )
+    report = _dump(g1.build_g1_search_engineering_quality_report(tmp_path, ()))
+    assert report["index_backed"] is False
+
+
+def test_g1_complete_selected_generation_separates_search_and_evidence(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A complete selected generation exposes two search members only."""
+
+    from polisyos.data_forge.kernel import embeddings as embedding_kernel
+
+    def _fake_build_embedding_index(
+        *,
+        rows: Any,
+        embeddings_path: Path,
+        index_path: Path,
+        **_: Any,
+    ) -> tuple[int, int]:
+        identifiers = [str(identifier) for identifier, _ in rows]
+        np.savez(
+            str(embeddings_path),
+            ids=np.asarray(identifiers, dtype=object),
+            vectors=np.ones((len(identifiers), 2), dtype=np.float32),
+        )
+        index_path.write_bytes(b"fixture-hnsw")
+        return len(identifiers), 2
+
+    monkeypatch.setattr(
+        embedding_kernel, "build_embedding_index", _fake_build_embedding_index
+    )
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    embedding_kernel.build_embedding_generation(
+        rows=(("dataset-1", "fixture text"),),
+        index_dir=index_dir,
+        embedding_model="fixture-model",
+        embedding_device="cpu",
+        embedding_dimension=2,
+        legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+        legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+    )
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+    request = g1.Layer3G1SubstrateSearchRequest.model_validate(_request_payload())
+
+    result = _dump(g1.build_substrate_grounding_search_adapter(tmp_path, [request])[0])
+    ledger = result["search_ledgers"][0]
+    searched_refs = ledger["searched_index_refs"]
+    query_hnsw_refs = ledger["query_plan"]["hnsw_index_refs"]
+    evidence_refs = ledger["index_freshness"]["generation_evidence_refs"]
+
+    assert searched_refs[0] == g1.L1_DCAT_REF
+    assert len(searched_refs[1:]) == 2
+    assert searched_refs[1:] == query_hnsw_refs
+    assert all(
+        ref.endswith(("index.hnsw", "embeddings.npz"))
+        for ref in searched_refs[1:]
+    )
+    assert set(searched_refs[1:]) <= set(evidence_refs)
+    assert any(ref.endswith("inventory.json") for ref in evidence_refs)
+    assert any(ref.endswith("ids.json") for ref in evidence_refs)
+    assert any(ref.endswith("basis.json") for ref in evidence_refs)
+    assert any(ref.endswith("embedding_generation.json") for ref in evidence_refs)
+    assert all(
+        not ref.endswith(
+            ("inventory.json", "ids.json", "basis.json", "embedding_generation.json")
+        )
+        for ref in searched_refs[1:]
+    )
+
+
+def test_g1_malformed_selected_generation_has_no_search_refs(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """A malformed selector is evidence of a selected attempt, not a search index."""
+
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    (index_dir / "ds_dataset_embeddings.npz").write_bytes(b"stale-embeddings")
+    (index_dir / "ds_dataset_index.hnsw").write_bytes(b"stale-index")
+    (index_dir / "embedding_generation.json").write_text("{\n", encoding="utf-8")
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+
+    semantic_status, hnsw_refs = g1._semantic_search_state(tmp_path)
+
+    assert semantic_status == "disabled_missing_index"
+    assert hnsw_refs == ()
+    request = g1.Layer3G1SubstrateSearchRequest.model_validate(_request_payload())
+    result = _dump(g1.build_substrate_grounding_search_adapter(tmp_path, [request])[0])
+    ledger = result["search_ledgers"][0]
+    selector_ref = "duckdb://production_data/test_dcat/embedding_generation.json"
+    evidence_refs = ledger["index_freshness"].get("generation_evidence_refs", [])
+
+    assert ledger["searched_index_refs"] == [g1.L1_DCAT_REF]
+    assert ledger["query_plan"]["hnsw_index_refs"] == []
+    assert selector_ref in evidence_refs
+    assert selector_ref in ledger["index_freshness_refs"]
+    assert not any(
+        ref.endswith(("ds_dataset_index.hnsw", "ds_dataset_embeddings.npz"))
+        for ref in ledger["searched_index_refs"]
+    )
+
+
+def test_g1_no_selector_legacy_pair_remains_search_refs(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """Without a selector, the established flat pair remains the search input."""
+
+    g1 = _g1()
+    _write_minimal_dcat_metric_binding(tmp_path)
+    index_dir = tmp_path / "production_data/test_dcat"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    np.savez(
+        str(index_dir / "ds_dataset_embeddings.npz"),
+        ids=np.asarray(["legacy-1"], dtype=object),
+        vectors=np.ones((1, 2), dtype=np.float32),
+    )
+    (index_dir / "ds_dataset_index.hnsw").write_bytes(b"legacy-hnsw")
+    monkeypatch.setattr(
+        g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
+    )
+    monkeypatch.setattr(g1, "L1_DCAT_INDEX_DIR", Path("production_data/test_dcat"))
+
+    semantic_status, search_refs = g1._semantic_search_state(tmp_path)
+
+    assert semantic_status == "enabled"
+    assert search_refs == (
+        "duckdb://production_data/test_dcat/ds_dataset_index.hnsw",
+        "duckdb://production_data/test_dcat/ds_dataset_embeddings.npz",
+    )
 
 
 def test_task1_resolver_query_uses_scope_seed_rows_without_python_fallback(

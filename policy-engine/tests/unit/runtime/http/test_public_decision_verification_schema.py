@@ -44,7 +44,12 @@ def test_public_verification_schema_generates_json_typed_client(tmp_path: Path) 
     )
     subprocess.run(
         [
-            str(product_root / "apps/runtime-dashboard/node_modules/.bin/openapi-typescript"),
+            "corepack",
+            "pnpm",
+            "--dir",
+            str(product_root / "packages/runtime-api-client"),
+            "exec",
+            "openapi-typescript",
             str(schema_path),
             "--output",
             str(tmp_path / "types.ts"),
@@ -116,8 +121,12 @@ void [valid, functionValue, undefinedValue];
         consumers.append(consumer)
     result = subprocess.run(
         [
-            "node",
-            str(product_root / "packages/runtime-api-client/node_modules/typescript/bin/tsc"),
+            "corepack",
+            "pnpm",
+            "--dir",
+            str(product_root / "packages/runtime-api-client"),
+            "exec",
+            "tsc",
             "--noEmit",
             "--strict",
             "--skipLibCheck",

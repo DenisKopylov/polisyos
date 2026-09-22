@@ -127,10 +127,12 @@ def test_security_sensitive_changes_require_docs_and_runbook_evidence() -> None:
 
 
 def test_frontend_api_client_changes_run_contract_check_and_require_docs() -> None:
-    missing_docs = build_gate_plan(("packages/runtime-api-client/runtimeApiClient.ts",))
+    missing_docs = build_gate_plan(
+        ("packages/runtime-api-client/canonicalRuntimeApiClient.ts",)
+    )
     with_docs = build_gate_plan(
         (
-            "packages/runtime-api-client/runtimeApiClient.ts",
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
             "packages/runtime-api-client/README.md",
         )
     )

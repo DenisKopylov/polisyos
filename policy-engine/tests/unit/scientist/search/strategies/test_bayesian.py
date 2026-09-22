@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 
+from polisyos.scientist.methods.search.strategies import bayesian as bayesian_module
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
@@ -142,3 +145,270 @@ def test_bayesian_batch_shape_when_deps_available(simple_space: SearchSpace) -> 
     ]
     batch = strategy.suggest_batch(evaluations, batch_size=3)
     assert len(batch) == 3
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
+    simple_space: SearchSpace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Warm history and current observations form one compatible GP corpus."""
+    strategy = BayesianOptimizer(
+        simple_space,
+        BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),
+    )
+    compatibility = {
+        "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+        "input_transform_fingerprint": "Normalize[0,1]",
+        "outcome_transform_fingerprint": "Standardize[m=1]",
+        "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+        "objective_fingerprint": "scalar_score[minimize]",
+        "context_fingerprint": "context/run-1",
+    }
+    warm = [
+        make_evaluation(
+            candidate_id=f"warm-{index}",
+            params={"x": -3.5 + index},
+            score=float(index),
+            space=simple_space,
+        )
+        for index in range(6)
+    ]
+    for index, evaluation in enumerate(warm):
+        evaluation.provenance_ref = f"origin/run-1/evaluation-{index}"
+        evaluation.metadata = {
+            "replicate_id": f"replica-{index}",
+            "seed": index,
+            "warm_start_compatibility": dict(compatibility),
+        }
+    warm[2].provenance_ref = "origin/run-1/evaluation-2"
+    warm[2].metadata = {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": dict(compatibility),
+    }
+    duplicate = make_evaluation(
+        candidate_id="warm-2",
+        params={"x": -1.5},
+        score=2.0,
+        space=simple_space,
+    )
+    duplicate.provenance_ref = "origin/run-1/evaluation-2"
+    duplicate.metadata = {
+        "replicate_id": "replica-1",
+        "seed": 1,
+        "warm_start_compatibility": dict(compatibility),
+    }
+    independent_replica = make_evaluation(
+        candidate_id="warm-2-replica",
+        params={"x": -1.5},
+        score=2.25,
+        space=simple_space,
+    )
+    independent_replica.provenance_ref = "origin/run-1/evaluation-2"
+    independent_replica.metadata = {
+        "replicate_id": "replica-2",
+        "seed": 2,
+        "warm_start_compatibility": dict(compatibility),
+    }
+    warm.extend([duplicate, independent_replica])
+    malformed = make_evaluation(
+        candidate_id="warm-foreign-basis",
+        params={"x": 4.5},
+        score=7.0,
+        space=simple_space,
+    )
+    malformed.provenance_ref = "origin/run-1/foreign-basis"
+    malformed.metadata = {"replicate_id": "foreign-basis", "seed": 99}
+    malformed.params_normalized = (0.25, 0.75)
+    warm.append(malformed)
+    incompatible_context = make_evaluation(
+        candidate_id="warm-incompatible-context",
+        params={"x": 3.75},
+        score=7.25,
+        space=simple_space,
+    )
+    incompatible_context.provenance_ref = "origin/run-1/incompatible-context"
+    incompatible_context.metadata = {
+        "replicate_id": "incompatible-context",
+        "seed": 98,
+        "warm_start_compatibility": {
+            **compatibility,
+            "context_fingerprint": "context/foreign",
+        },
+    }
+    warm.append(incompatible_context)
+    unbound = make_evaluation(
+        candidate_id="warm-unbound",
+        params={"x": 4.25},
+        score=7.5,
+        space=simple_space,
+    )
+    unbound.metadata = {"replicate_id": "unbound", "seed": 100}
+    warm.append(unbound)
+    current = [
+        make_evaluation(
+            candidate_id="current-0",
+            params={"x": 4.0},
+            score=8.0,
+            space=simple_space,
+        )
+    ]
+    current[0].provenance_ref = "origin/run-2/evaluation-0"
+    current[0].metadata = {
+        "replicate_id": "current-0",
+        "seed": 101,
+        "warm_start_compatibility": dict(compatibility),
+    }
+
+    strategy.warm_start(warm)
+    observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
+    observed_ids: list[tuple[str, ...]] = []
+    original_prepare = strategy._prepare_training_data
+
+    def observe_prepare(evaluations):
+        observed_ids.append(tuple(evaluation.candidate_id for evaluation in evaluations))
+        return original_prepare(evaluations)
+
+    original_fit = strategy._fit_gp
+
+    def observe_fit(x, y_bo):
+        x_rows = tuple(
+            tuple(float(value) for value in row)
+            for row in x.detach().cpu().tolist()
+        )
+        y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
+        observed_corpus.append((x_rows, y_rows))
+        return original_fit(x, y_bo)
+
+    monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
+    monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
+    candidate = strategy.suggest(current)
+
+    assert len(observed_ids) == 1
+    expected_ids = [evaluation.candidate_id for evaluation in warm[:6]] + [
+        "warm-2-replica",
+        "current-0",
+    ]
+    assert sorted(observed_ids[0]) == sorted(expected_ids)
+    assert "warm-foreign-basis" not in observed_ids[0]
+    assert "warm-incompatible-context" not in observed_ids[0]
+    assert "warm-unbound" not in observed_ids[0]
+    assert len(observed_corpus) == 1
+    observed_x, observed_y = observed_corpus[0]
+    expected_by_id = {
+        evaluation.candidate_id: evaluation for evaluation in [*warm, *current]
+    }
+    expected_evaluations = [expected_by_id[candidate_id] for candidate_id in observed_ids[0]]
+    expected_x = tuple(
+        tuple(float(value) for value in evaluation.params_normalized)
+        for evaluation in expected_evaluations
+    )
+    expected_y = tuple(-float(evaluation.scalar_score) for evaluation in expected_evaluations)
+    for actual_row, expected_row in zip(observed_x, expected_x, strict=True):
+        assert actual_row == pytest.approx(expected_row)
+    assert observed_y == pytest.approx(expected_y)
+    assert candidate.source_strategy == "bayesian_acquisition"
+    assert candidate.acquisition_value is not None
+    assert candidate.predicted_mean is not None
+    assert candidate.predicted_std is not None
+    assert math.isfinite(candidate.acquisition_value)
+    assert math.isfinite(candidate.predicted_mean)
+    assert math.isfinite(candidate.predicted_std)
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
+    simple_space: SearchSpace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A pre-refit-interval observation conditions the fitted GP instead of resetting it."""
+    strategy = BayesianOptimizer(
+        simple_space,
+        BayesianConfig(
+            n_initial=1,
+            num_restarts=3,
+            raw_samples=32,
+            refit_interval=10,
+            seed=22,
+        ),
+    )
+    fit_calls = 0
+    original_fit = bayesian_module.fit_gpytorch_mll
+
+    def observe_fit(mll):
+        nonlocal fit_calls
+        fit_calls += 1
+        return original_fit(mll)
+
+    monkeypatch.setattr(bayesian_module, "fit_gpytorch_mll", observe_fit)
+    initial = [
+        make_evaluation(
+            candidate_id=f"initial-{index}",
+            params={"x": -3.5 + index},
+            score=float((index - 3) ** 2),
+            space=simple_space,
+        )
+        for index in range(8)
+    ]
+    strategy.suggest(initial)
+    assert strategy._model is not None
+    model_before = strategy._model
+    learned_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model_before.named_parameters()
+    }
+    transform_state_before = {}
+    for attribute in ("input_transform", "outcome_transform"):
+        transform = getattr(model_before, attribute, None)
+        assert transform is not None
+        transform_state_before[attribute] = {
+            name: value.detach().clone() for name, value in transform.state_dict().items()
+        }
+    expanded = [
+        *initial,
+        make_evaluation(
+            candidate_id="new-observation",
+            params={"x": 4.0},
+            score=0.25,
+            space=simple_space,
+        )
+    ]
+    strategy.suggest(expanded)
+
+    assert fit_calls == 1
+    assert strategy._model is not None
+    model_train_X = strategy._model._original_train_inputs
+    assert model_train_X is not None
+    model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
+    actual_train_rows = tuple(
+        tuple(float(value) for value in row)
+        for row in model_train_X.detach().cpu().tolist()
+    )
+    expected_train_rows = tuple(
+        tuple(float(value) for value in evaluation.params_normalized)
+        for evaluation in expanded
+    )
+    assert len(actual_train_rows) == len(expected_train_rows) == 9
+    for actual_row, expected_row in zip(actual_train_rows, expected_train_rows, strict=True):
+        assert actual_row == pytest.approx(expected_row)
+    learned_after = dict(strategy._model.named_parameters())
+    assert set(learned_before).issubset(learned_after)
+    for name, parameter in learned_before.items():
+        assert strategy._torch.equal(parameter, learned_after[name].detach())
+    for attribute, before_state in transform_state_before.items():
+        transform_after = getattr(strategy._model, attribute, None)
+        assert transform_after is not None
+        after_state = transform_after.state_dict()
+        assert set(after_state) == set(before_state)
+        for name, value in before_state.items():
+            assert strategy._torch.equal(value, after_state[name].detach())
+
+    changed_observation = make_evaluation(
+        candidate_id="new-observation",
+        params={"x": 4.0},
+        score=0.5,
+        space=simple_space,
+    )
+    strategy.suggest([*initial, changed_observation])
+    assert fit_calls == 2

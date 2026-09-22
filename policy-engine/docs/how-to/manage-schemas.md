@@ -90,7 +90,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 Если вы меняли HTTP routes или DTO, после экспорта обычно нужно ещё обновить generated client:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
 ## 5. Как думать про drift

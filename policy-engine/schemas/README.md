@@ -24,7 +24,9 @@
   - `snapshots/fabric/_manifest.json`: `generated_at=2026-03-02T16:48:08+00:00`.
 - Connector snapshot: `version=1`, контрактов `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
 - Runtime OpenAPI: `openapi=3.1.0`, `PolicyOS Runtime API 1.0.0`, `37` операций (`27 GET`, `10 POST`).
-- `tools/ops_runners/runtime/generate_runtime_client.py` генерирует клиент только по `GET`; типы для полного OpenAPI генерируются отдельно в `apps/runtime-dashboard/src/api/types.ts`.
+- `packages/runtime-api-client` owns the full generated client chain; its
+  low-level renderer writes only to a caller-provided private scratch path,
+  while `types.ts` and the canonical TS/JS client are the committed outputs.
 
 ## Архитектурные потоки
 
@@ -48,7 +50,8 @@ src/polisyos/runtime/http/app.py
   -> tools/ops_runners/runtime/export_runtime_openapi.py
   -> schemas/runtime_api_v1.openapi.json
   -> tools/ops_runners/runtime/check_runtime_api_contract.py
-  -> tools/ops_runners/runtime/generate_runtime_client.py -> packages/runtime-api-client/*
+  -> packages/runtime-api-client/scripts/generate-runtime-api-client.sh
+  -> packages/runtime-api-client/{types.ts,canonicalRuntimeApiClient.ts,canonicalRuntimeApiClient.js}
   -> apps/runtime-dashboard/scripts/generate-api-client.sh -> apps/runtime-dashboard/src/api/types.ts
 ```
 
@@ -80,7 +83,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 uv run --extra ml polisyos-tools diagnostics gen-schema
 uv run polisyos-tools connectors check-contracts --update
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --dir packages/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json
 ```
 
 ```bash
@@ -106,7 +109,7 @@ python3 tools/quality/diagnostics/abi_diff.py \
 - Не редактировать вручную `snapshots/connectors/contracts.json`, использовать `check_contracts.py --update`.
 - Любое изменение Runtime API сопровождается синхронным обновлением:
   - `schemas/runtime_api_v1.openapi.json`,
-  - `packages/runtime-api-client/runtimeApiClient.ts` и `runtimeApiClient.js`,
+  - `packages/runtime-api-client/types.ts` и canonical TS/JS client,
   - `apps/runtime-dashboard/src/api/types.ts`.
 
 ## Подробности по подпапкам

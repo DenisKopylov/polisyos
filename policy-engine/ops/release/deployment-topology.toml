@@ -100,7 +100,7 @@ artifact_roots = [
 deployment_targets = ["runtime dashboard", "reference shell"]
 release_evidence = [
   "apps/runtime-dashboard/src/api/types.ts",
-  "packages/runtime-api-client/runtimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
 ]
 rollback_runbooks = ["docs/runbooks/canary-rollback-or-promotion-failure.md"]
 required_gates = [

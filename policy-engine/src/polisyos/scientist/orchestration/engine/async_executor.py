@@ -11,6 +11,7 @@ Feature-flagged via ``POLISYOS_ASYNC_EXECUTOR=1`` and opt-in through
 from __future__ import annotations
 
 import asyncio
+import threading
 import time
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -20,7 +21,11 @@ from pydantic import ValidationError
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
@@ -36,6 +41,7 @@ from polisyos.scientist.orchestration.engine.errors import (
     WorkflowTimeoutError,
 )
 from polisyos.scientist.orchestration.engine.executor import (
+    _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
     _EXECUTOR_DEGRADED_ERRORS,
     NodeBindError,
     NodeRunRecord,
@@ -62,6 +68,7 @@ from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.state_merge import (
     MergeConflict,
     MergeConflictPolicy,
+    StateReplayIncompatible,
     merge_parallel_outcomes,
 )
 from polisyos.scientist.orchestration.engine.telemetry import set_span_attribute
@@ -131,6 +138,7 @@ class AsyncWorkflowExecutor:
         self._provenance_dag = provenance_dag
         self._semaphore_timeout_s = semaphore_timeout_s
         self._workflow_timeout_s = workflow_timeout_s
+        self._workflow_deadline: float | None = None
         self._budget_middleware = budget_middleware
         self._merge_conflict_policy = merge_conflict_policy
         self._compensation_hook = compensation_hook
@@ -152,6 +160,11 @@ class AsyncWorkflowExecutor:
 
         tiers = topo_sort_tiers(invocations)
         workflow_started = time.perf_counter()
+        self._workflow_deadline = (
+            workflow_started + self._workflow_timeout_s
+            if self._workflow_timeout_s is not None
+            else None
+        )
 
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_workflow_state(
@@ -166,7 +179,11 @@ class AsyncWorkflowExecutor:
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
-        self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
+        self._cache = NodeResultCache(
+            self._ctx.store,
+            run_id=state.run_id,
+            tenant_context=self._run_tenant_context(),
+        )
         restored = self._cache.seed_from_trace(self._ctx.run.trace_path)
         restored_cp = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
         if restored:
@@ -636,14 +653,50 @@ class AsyncWorkflowExecutor:
             else:
                 await semaphore.acquire()
             sem_wait_s = time.perf_counter() - sem_wait_start
-            if self._ctx.metrics is not None and sem_wait_s > 0.001:
-                self._ctx.metrics.record_semaphore_wait(
-                    tier_index=tier_index,
-                    wait_seconds=sem_wait_s,
-                    workflow_id=workflow.workflow_id,
-                )
 
             try:
+                # A fail-fast signal can arrive while this task waits for the
+                # semaphore.  Recheck after admission, inside the release
+                # guard, so queued producers never start after the failure.
+                if cancel_event.is_set():
+                    results[alias] = (
+                        NodeOutcome(
+                            status="skip",
+                            state=state,
+                            events=[
+                                NodeEvent(
+                                    level="info",
+                                    message="Cancelled by fail_fast",
+                                    code="node.cancelled",
+                                    attrs={},
+                                )
+                            ],
+                        ),
+                        0,
+                        False,
+                        None,
+                    )
+                    return
+
+                if self._ctx.metrics is not None and sem_wait_s > 0.001:
+                    try:
+                        self._ctx.metrics.record_semaphore_wait(
+                            tier_index=tier_index,
+                            wait_seconds=sem_wait_s,
+                            workflow_id=workflow.workflow_id,
+                        )
+                    except _EXECUTOR_DEGRADED_ERRORS as exc:
+                        _executor_degraded(
+                            operation="record_semaphore_wait",
+                            reason="metrics_degraded",
+                            exc=exc,
+                            details={
+                                "alias": alias,
+                                "tier_index": tier_index,
+                                "workflow_id": workflow.workflow_id,
+                            },
+                        )
+
                 outcome, duration_ms, cache_hit, cache_entry_ref = await self._execute_node(
                     alias,
                     invocations[alias],
@@ -740,6 +793,136 @@ class AsyncWorkflowExecutor:
                 )
         return records, state, tier_failed, cache_entry_refs
 
+    def _run_tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Capture tenant/cell ownership from the existing run context."""
+        run = self._ctx.run
+        tenant_id = getattr(run, "tenant_id", None)
+        cell_id = getattr(run, "cell_id", None)
+        if not isinstance(tenant_id, str) or not tenant_id:
+            run_manifest = getattr(run, "run_manifest", None)
+            manifest_tenant_id = getattr(run_manifest, "tenant_id", None)
+            manifest_cell_id = getattr(run_manifest, "cell_id", None)
+            tenant_id = manifest_tenant_id if isinstance(manifest_tenant_id, str) else None
+            cell_id = manifest_cell_id if isinstance(manifest_cell_id, str) else None
+        elif cell_id is not None and not isinstance(cell_id, str):
+            cell_id = None
+        if tenant_id is None:
+            return None
+        return ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+
+    def _cache_deadline(
+        self,
+        inv: NodeInvocation,
+        *,
+        started_at: float | None = None,
+    ) -> float | None:
+        """Return one absolute deadline shared by cache and node admission."""
+        started = time.perf_counter() if started_at is None else started_at
+        deadlines: list[float] = []
+        if inv.timeout_s is not None:
+            deadlines.append(started + inv.timeout_s)
+        if self._workflow_deadline is not None:
+            deadlines.append(self._workflow_deadline)
+        elif self._workflow_timeout_s is not None:
+            deadlines.append(started + self._workflow_timeout_s)
+        return min(deadlines) if deadlines else None
+
+    @staticmethod
+    def _remaining_deadline_seconds(deadline: float | None) -> float | None:
+        if deadline is None:
+            return None
+        return max(0.001, deadline - time.perf_counter())
+
+    def _cache_timeout_seconds(
+        self,
+        inv: NodeInvocation,
+        *,
+        started_at: float | None = None,
+    ) -> float | None:
+        """Return the remaining time budget for one cache I/O operation.
+
+        Cache work is part of the node/workflow deadline.  Passing the raw
+        configured timeout here would give a cache miss or publication a fresh
+        full timeout after the producer had already consumed most of it.
+        ``run_blocking_async`` rejects a non-positive timeout, so an expired
+        deadline is represented by its smallest bounded slice and reported as
+        the normal timeout/degraded path.
+        """
+        return self._remaining_deadline_seconds(
+            self._cache_deadline(inv, started_at=started_at)
+        )
+
+    def _check_budget(self, alias: str, *, budget_key: str) -> None:
+        """Check one action-specific budget and emit its threshold alerts."""
+        if self._budget_middleware is None:
+            return
+        self._budget_middleware.pre_check(alias, budget_key=budget_key)
+        for level in self._budget_middleware.check_thresholds(budget_key):
+            self._ctx.run.emit(
+                "scientist.budget",
+                "BUDGET_ALERT",
+                metrics={"threshold_pct": level, "budget_key": budget_key},
+            )
+
+    async def _put_cache_entry(
+        self,
+        cache_key: str,
+        *,
+        node_id: str,
+        outcome: NodeOutcome,
+        timeout_seconds: float | None,
+        deadline_monotonic: float | None,
+    ) -> ArtifactRef:
+        """Publish a cache entry off-loop and quarantine it if cancelled."""
+        cache = self._cache
+        if cache is None:
+            raise RuntimeError("cache is not initialized")
+
+        cancelled = threading.Event()
+
+        def put_and_reconcile() -> ArtifactRef:
+            try:
+                return cache.put(
+                    cache_key,
+                    node_id=node_id,
+                    outcome=outcome,
+                    deadline_monotonic=deadline_monotonic,
+                )
+            finally:
+                # A timeout/cancellation only cancels the awaitable; the
+                # executor worker may still finish its synchronous CAS write.
+                # Reconcile the in-memory publication after that worker exits
+                # so a late completion cannot resurrect a cancelled cache key.
+                if cancelled.is_set():
+                    cache.discard(cache_key)
+
+        put_task = asyncio.create_task(
+            run_blocking_async(
+                put_and_reconcile,
+                timeout_seconds=timeout_seconds,
+            )
+        )
+        try:
+            return await asyncio.shield(put_task)
+        except asyncio.CancelledError:
+            cancelled.set()
+            # Shield lets the synchronous writer finish before the key is
+            # discarded; cancellation of the await is not cancellation of the
+            # underlying worker thread.
+            try:
+                await asyncio.shield(put_task)
+            except _EXECUTOR_DEGRADED_ERRORS:
+                pass
+            cache.discard(cache_key)
+            raise
+        except _EXECUTOR_DEGRADED_ERRORS:
+            cancelled.set()
+            # On a bounded wait, the underlying shared-executor call may
+            # continue after run_blocking_async has returned.  Discard now and
+            # again from the worker's finally block to close that race.
+            cache.discard(cache_key)
+            raise
+
     async def _execute_node(
         self,
         alias: str,
@@ -807,6 +990,7 @@ class AsyncWorkflowExecutor:
             )
 
         started = time.perf_counter()
+        cache_deadline = self._cache_deadline(inv, started_at=started)
         cache_hit = False
         cache_entry_ref: ArtifactRef | None = None
 
@@ -827,17 +1011,11 @@ class AsyncWorkflowExecutor:
                     details={"alias": alias, "node_id": node_id},
                 )
 
-        # Budget pre-check
-        if self._budget_middleware is not None:
+        cached_outcome: NodeOutcome | None = None
+        retry_stats: dict[str, int] = {}
+        if cache_key and self._cache:
             try:
-                self._budget_middleware.pre_check(alias)
-                new_alerts = self._budget_middleware.check_thresholds()
-                for level in new_alerts:
-                    self._ctx.run.emit(
-                        "scientist.budget",
-                        "BUDGET_ALERT",
-                        metrics={"threshold_pct": level},
-                    )
+                self._check_budget(alias, budget_key="read")
             except BudgetExhaustedError as budget_exc:
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 return (
@@ -847,7 +1025,7 @@ class AsyncWorkflowExecutor:
                         error=NodeError(
                             code="node.budget_exhausted",
                             message=str(budget_exc),
-                            details={},
+                            details={"budget_key": "read"},
                         ),
                     ),
                     duration_ms,
@@ -855,25 +1033,84 @@ class AsyncWorkflowExecutor:
                     None,
                 )
 
-        cached_outcome: NodeOutcome | None = None
-        retry_stats: dict[str, int] = {}
-        if cache_key and self._cache:
-            cached_outcome = self._cache.get(cache_key)
-            if cached_outcome:
-                cache_hit = True
+            try:
+                cached_outcome = await run_blocking_async(
+                    self._cache.get,
+                    cache_key,
+                    deadline_monotonic=cache_deadline,
+                    timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                )
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                _executor_degraded(
+                    operation="load_cache_entry",
+                    reason="cache_bypass",
+                    exc=exc,
+                    details={"alias": alias, "node_id": node_id},
+                )
 
         if cached_outcome is not None:
-            outcome = cached_outcome.model_copy(
-                update={
-                    "state": _merge_cached_outcome_state(
-                        alias=alias,
-                        node=node,
-                        base_state=state,
-                        outcome=cached_outcome,
-                    )
-                }
-            )
-        else:
+            try:
+                merged_cached_state = _merge_cached_outcome_state(
+                    alias=alias,
+                    node=node,
+                    base_state=state,
+                    outcome=cached_outcome,
+                )
+            except StateReplayIncompatible as exc:
+                if self._cache is not None and cache_key is not None:
+                    self._cache.discard(cache_key)
+                cached_outcome = None
+                self._ctx.run.emit(
+                    f"scientist.node.{alias}",
+                    "NODE_CACHE_BYPASS",
+                    metrics={
+                        "duration_ms": int((time.perf_counter() - started) * 1000),
+                        "cache_bypass": 1,
+                        "reason_code": _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
+                    },
+                )
+                self._ctx.logger.warning(
+                    "Node %s cache replay bypassed: %s",
+                    alias,
+                    exc,
+                )
+                span_attrs["polisyos.node.cache.bypass_reason"] = (
+                    _CACHE_BYPASS_REPLAY_INCOMPATIBLE
+                )
+            else:
+                cache_hit = True
+                self._ctx.run.emit(
+                    f"scientist.node.{alias}",
+                    "NODE_CACHE_HIT",
+                    metrics={
+                        "duration_ms": int((time.perf_counter() - started) * 1000),
+                        "cache_hit": 1,
+                    },
+                )
+                outcome = cached_outcome.model_copy(
+                    update={"state": merged_cached_state}
+                )
+
+        if cached_outcome is None:
+            try:
+                self._check_budget(alias, budget_key="run")
+            except BudgetExhaustedError as budget_exc:
+                duration_ms = int((time.perf_counter() - started) * 1000)
+                return (
+                    NodeOutcome(
+                        status="fail",
+                        state=state,
+                        error=NodeError(
+                            code="node.budget_exhausted",
+                            message=str(budget_exc),
+                            details={"budget_key": "run"},
+                        ),
+                    ),
+                    duration_ms,
+                    False,
+                    None,
+                )
+
             retry_policy = inv.retry or RetryPolicy()
             try:
                 raw_outcome = await execute_with_retry_async(
@@ -881,7 +1118,7 @@ class AsyncWorkflowExecutor:
                     self._ctx,
                     node_state,
                     retry_policy=retry_policy,
-                    timeout_s=inv.timeout_s,
+                    timeout_s=self._remaining_deadline_seconds(cache_deadline),
                     alias=alias,
                     retry_stats=retry_stats,
                 )
@@ -931,12 +1168,15 @@ class AsyncWorkflowExecutor:
             # Cache store
             if outcome.status == "ok" and cache_key and self._cache:
                 try:
-                    cache_entry_ref = self._cache.put(
+                    cache_entry_ref = await self._put_cache_entry(
                         cache_key,
                         node_id=node_id,
                         outcome=outcome,
+                        timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                        deadline_monotonic=cache_deadline,
                     )
-                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                except _EXECUTOR_DEGRADED_ERRORS as exc:
+                    self._cache.discard(cache_key)
                     envelope = _executor_degraded(
                         operation="store_cache_entry",
                         reason="cache_bypass",

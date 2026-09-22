@@ -9,8 +9,9 @@ consumers.
 ## Covered Surfaces
 
 - `schemas/runtime_api_v1.openapi.json`
-- `packages/runtime-api-client/runtimeApiClient.ts`
-- `packages/runtime-api-client/runtimeApiClient.js`
+- `packages/runtime-api-client/types.ts`
+- `packages/runtime-api-client/canonicalRuntimeApiClient.ts`
+- `packages/runtime-api-client/canonicalRuntimeApiClient.js`
 - dashboard API types derived from Runtime OpenAPI
 - common persisted manifests migrated through `polisyos.common.migrations`
 

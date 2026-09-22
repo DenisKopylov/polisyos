@@ -12,8 +12,20 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 
-def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
+def _normal_env(
+    point: float,
+    std: float,
+    *,
+    origin_id: str | None = None,
+    dependency: str | None = None,
+) -> UncertaintyEnvelope:
+    """Build an envelope; omitted admission metadata is a fail-closed control."""
     z = 1.96
+    metadata: dict[str, object] = {}
+    if origin_id is not None:
+        metadata["envelope_id"] = origin_id
+    if dependency is not None:
+        metadata["dependency"] = dependency
     return UncertaintyEnvelope(
         point_estimate=point,
         confidence_interval=(point - z * std, point + z * std),
@@ -23,14 +35,25 @@ def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
         gate_eligible=True,
+        metadata=metadata,
     )
 
 
 class TestPrecisionWeighted:
     def test_precision_weighted_narrows_ci(self) -> None:
         """Combined CI should be narrower than any individual envelope."""
-        env1 = _normal_env(10.0, 2.0)
-        env2 = _normal_env(10.5, 3.0)
+        env1 = _normal_env(
+            10.0,
+            2.0,
+            origin_id="native-pw-narrows-left",
+            dependency="independent",
+        )
+        env2 = _normal_env(
+            10.5,
+            3.0,
+            origin_id="native-pw-narrows-right",
+            dependency="independent",
+        )
 
         result = aggregate_envelopes(
             [env1, env2],
@@ -44,8 +67,18 @@ class TestPrecisionWeighted:
 
     def test_precision_weighted_equal_variance_averages(self) -> None:
         """With equal variances, point estimate should be the simple average."""
-        env1 = _normal_env(10.0, 1.0)
-        env2 = _normal_env(12.0, 1.0)
+        env1 = _normal_env(
+            10.0,
+            1.0,
+            origin_id="native-pw-equal-left",
+            dependency="independent",
+        )
+        env2 = _normal_env(
+            12.0,
+            1.0,
+            origin_id="native-pw-equal-right",
+            dependency="independent",
+        )
 
         result = aggregate_envelopes(
             [env1, env2],
@@ -53,11 +86,25 @@ class TestPrecisionWeighted:
         )
 
         assert result.point_estimate == pytest.approx(11.0, abs=0.01)
+        assert result.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert result.gate_eligible is True
+        assert result.metadata["effective_information_count"] == 2
+        assert result.sample_size == 2
 
     def test_precision_weighted_favors_precise(self) -> None:
         """Point estimate should be closer to the more precise (lower variance) source."""
-        env_precise = _normal_env(10.0, 0.5)
-        env_imprecise = _normal_env(20.0, 5.0)
+        env_precise = _normal_env(
+            10.0,
+            0.5,
+            origin_id="native-pw-favors-precise",
+            dependency="independent",
+        )
+        env_imprecise = _normal_env(
+            20.0,
+            5.0,
+            origin_id="native-pw-favors-imprecise",
+            dependency="independent",
+        )
 
         result = aggregate_envelopes(
             [env_precise, env_imprecise],
@@ -70,24 +117,59 @@ class TestPrecisionWeighted:
 class TestBayesianCombination:
     def test_bayesian_equivalent_to_precision_weighted_for_normals(self) -> None:
         """For independent normals, Bayesian and precision-weighted should agree."""
-        envs = [_normal_env(10.0, 2.0), _normal_env(11.0, 3.0)]
+        envs = [
+            _normal_env(
+                10.0,
+                2.0,
+                origin_id="native-bayes-equivalent-left",
+                dependency="independent",
+            ),
+            _normal_env(
+                11.0,
+                3.0,
+                origin_id="native-bayes-equivalent-right",
+                dependency="independent",
+            ),
+        ]
 
         pw = aggregate_envelopes(envs, method=AggregationStrategy.PRECISION_WEIGHTED)
         bc = aggregate_envelopes(envs, method=AggregationStrategy.BAYESIAN_COMBINATION)
 
         assert pw.point_estimate == pytest.approx(bc.point_estimate, abs=0.01)
         assert pw.ci_width == pytest.approx(bc.ci_width, abs=0.05)
+        assert pw.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+        assert bc.interval_semantics is IntervalSemantics.CREDIBLE_INTERVAL
+        assert pw.gate_eligible is True
+        assert bc.gate_eligible is True
+        assert pw.metadata["effective_information_count"] == 2
+        assert bc.metadata["effective_information_count"] == 2
 
     def test_bayesian_interval_semantics(self) -> None:
         result = aggregate_envelopes(
-            [_normal_env(5.0, 1.0), _normal_env(6.0, 1.0)],
+            [
+                _normal_env(
+                    5.0,
+                    1.0,
+                    origin_id="native-bayes-interval-left",
+                    dependency="independent",
+                ),
+                _normal_env(
+                    6.0,
+                    1.0,
+                    origin_id="native-bayes-interval-right",
+                    dependency="independent",
+                ),
+            ],
             method=AggregationStrategy.BAYESIAN_COMBINATION,
         )
         assert result.interval_semantics == IntervalSemantics.CREDIBLE_INTERVAL
+        assert result.gate_eligible is True
+        assert result.metadata["effective_information_count"] == 2
 
 
 class TestWidestBackwardCompat:
     def test_widest_backward_compat(self) -> None:
+        """Unbound widest aggregation remains a fail-closed control."""
         env1 = _normal_env(10.0, 2.0)
         env2 = _normal_env(12.0, 1.0)
 
@@ -102,6 +184,9 @@ class TestWidestBackwardCompat:
             env2.confidence_interval[1],
         )
         assert result.metadata["aggregation_method"] == "widest"
+        assert result.gate_eligible is False
+        assert result.metadata["effective_information_count"] is None
+        assert result.sample_size is None
 
     def test_aggregated_ci_contains_all_points(self) -> None:
         """Property: widest CI must contain all source point estimates."""
@@ -136,8 +221,18 @@ class TestAggregatorEdgeCases:
             aggregate_envelopes([], method="widest")
 
     def test_bayesian_combination_narrows_ci(self) -> None:
-        env1 = _normal_env(10.0, 2.0)
-        env2 = _normal_env(10.5, 2.0)
+        env1 = _normal_env(
+            10.0,
+            2.0,
+            origin_id="native-bayes-narrows-left",
+            dependency="independent",
+        )
+        env2 = _normal_env(
+            10.5,
+            2.0,
+            origin_id="native-bayes-narrows-right",
+            dependency="independent",
+        )
         result = aggregate_envelopes(
             [env1, env2],
             method=AggregationStrategy.BAYESIAN_COMBINATION,

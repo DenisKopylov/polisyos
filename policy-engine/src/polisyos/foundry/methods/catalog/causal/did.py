@@ -33,10 +33,8 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
 
-
 _DID_CITATIONS = (
-    "Callaway, B., & Sant'Anna, P. (2021). "
-    "Difference-in-Differences with Multiple Time Periods.",
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
     "Angrist, J., & Pischke, J. (2009). Mostly Harmless Econometrics.",
 )
 _DID_EQUATIONS = {
@@ -95,6 +93,37 @@ def _materialize_did_data(
     payload = _did_payload(fallback_state)
     payload.update(bound_inputs)
     return PanelObservationalData.model_validate(payload)
+
+
+def _invalid_did_request_output(
+    data: PanelObservationalData,
+    reason: str,
+) -> dict[str, Any]:
+    """Return a typed failure for an ambiguous or unsupported DiD request."""
+
+    treated_mask = data.treatment == 1
+    report = build_failure_report(
+        method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        status=EstimationStatus.INPUT_INVALID,
+        reason=reason,
+        estimand="ATT",
+        sample_size=data.n_units * data.n_periods,
+        n_treated=int(treated_mask.sum()),
+        n_control=int((data.treatment == 0).sum()),
+        pre_periods=data.pre_periods,
+        post_periods=data.post_periods,
+        assumptions=dict(_DID_ASSUMPTIONS),
+    )
+    return wrap_causal_output(report, warnings=[reason])
+
+
+def _legacy_staggered_flag(params: Mapping[str, Any]) -> bool:
+    """Resolve the historical mode flag without truthiness-based coercion."""
+
+    value = params.get("staggered", False)
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    raise ValueError("staggered must be a boolean")
 
 
 def _standard_did_input_slots() -> frozenset[SlotSpec]:
@@ -493,8 +522,7 @@ def _cohort_time_att(
         return np.array([], dtype=float), np.array([], dtype=float)
 
     att_values = [
-        float(cell["treated_delta"].mean() - cell["control_delta"].mean())
-        for cell in cells
+        float(cell["treated_delta"].mean() - cell["control_delta"].mean()) for cell in cells
     ]
     weights = [float(cell["weight"]) for cell in cells]
 
@@ -517,7 +545,16 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         )
         return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
-    control_group = str(params.get("control_group", "never_treated"))
+    raw_control_group = params.get("control_group", "never_treated")
+    if not isinstance(raw_control_group, str) or raw_control_group not in {
+        "never_treated",
+        "not_yet_treated",
+    }:
+        return _invalid_did_request_output(
+            data,
+            f"unsupported control_group: {raw_control_group}",
+        )
+    control_group = raw_control_group
     anticipation = int(params.get("anticipation", 0))
     cells, no_control_cells, missing_baseline_groups = _cohort_time_cells(
         data,
@@ -624,7 +661,9 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
                 post_periods=data.post_periods,
                 assumptions=dict(_DID_ASSUMPTIONS),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "assumption failed"])
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "assumption failed"]
+            )
         unit_identity = "unit_ids"
 
     rng = params["__rng__"]
@@ -771,16 +810,25 @@ class DifferenceInDifferences:
             if isinstance(state, PanelObservationalData)
             else PanelObservationalData.model_validate(state)
         )
-        staggered = bool(params.get("staggered", False))
+        try:
+            staggered = _legacy_staggered_flag(params)
+        except ValueError as exc:
+            return _invalid_did_request_output(data, str(exc))
         if staggered:
-            return _run_staggered_did(data, params)
-        return _run_standard_did(data, params)
+            return StaggeredDifferenceInDifferences.pure_step(data, params)
+        return StandardDifferenceInDifferences.pure_step(data, params)
 
     @staticmethod
     def materialize_input(
         bound_inputs: Mapping[str, Any],
         fallback_state: Any,
     ) -> PanelObservationalData:
+        for legacy_name, dedicated_name in (
+            ("outcome_panel", "outcome"),
+            ("treatment_indicator", "treatment"),
+        ):
+            if legacy_name in bound_inputs and dedicated_name in bound_inputs:
+                raise ValueError(f"{legacy_name} and {dedicated_name} cannot both be supplied")
         payload = _did_payload(fallback_state)
         if "outcome_panel" in bound_inputs and "outcome" not in bound_inputs:
             payload["outcome"] = bound_inputs["outcome_panel"]

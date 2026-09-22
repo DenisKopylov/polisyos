@@ -33,7 +33,7 @@ from polisyos.scientist.orchestration.engine.state_branching import (
 
 logger = get_logger(__name__)
 
-IDEMPOTENCY_CONTRACT_VERSION = "1.0"
+IDEMPOTENCY_CONTRACT_VERSION = "2.0"
 NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
 STATE_MUTATIONS_VERSION = "1.0"
 REPLAY_EPOCH = "2.0"
@@ -66,6 +66,9 @@ _JOURNAL_PROOF_CANON = CanonSpec(
     version="1.0",
     forbid_floats=False,
 )
+
+_DATA_PLANE_GATE_NODE_ID = "scientist.node_run_data_plane_gate@1.0.0"
+_MISSING = object()
 
 
 class NodeCacheEntry(BaseModel):
@@ -141,24 +144,57 @@ def _resolve_path(state: ExperimentState, path: str) -> Any:
     parts = path.split(".")
     current: Any = state
     for part in parts:
+        if current is _MISSING:
+            return _MISSING
         if isinstance(current, BaseModel):
-            current = getattr(current, part, None)
+            current = getattr(current, part, _MISSING)
         elif isinstance(current, dict):
-            current = current.get(part)
+            current = current.get(part, _MISSING)
         else:
-            return None
+            return _MISSING
     return current
+
+
+def _effective_state_read_value(
+    state: ExperimentState,
+    read_path: str,
+    *,
+    node_id: str | None,
+) -> Any:
+    """Resolve a declared read while applying only a known consumer default."""
+    value = _resolve_path(state, read_path)
+    if (
+        node_id == _DATA_PLANE_GATE_NODE_ID
+        and read_path == "params.tenant_tier"
+        and "tenant_tier" not in state.params
+    ):
+        # DataPlaneGateNode uses state.params.get("tenant_tier", "shared").
+        # Apply that one declared consumer contract, not a global null policy.
+        return "shared"
+    return value
+
+
+def _state_read_snapshot_value(value: Any, read_path: str) -> dict[str, Any]:
+    """Encode presence separately so missing and explicit null cannot collide."""
+    if value is _MISSING:
+        return {"presence": "missing", "path": read_path}
+    return {
+        "presence": "present",
+        "value": to_python_data(value, sort_keys=True),
+    }
 
 
 def extract_state_slice(
     state: ExperimentState,
     state_reads: list[str],
+    *,
+    node_id: str | None = None,
 ) -> dict[str, Any]:
     """Capture the declared state-read paths that participate in a node idempotency hash."""
     slice_data: dict[str, Any] = {}
     for read_path in sorted(state_reads):
-        value = _resolve_path(state, read_path)
-        slice_data[read_path] = to_python_data(value, sort_keys=True)
+        value = _effective_state_read_value(state, read_path, node_id=node_id)
+        slice_data[read_path] = _state_read_snapshot_value(value, read_path)
     return slice_data
 
 
@@ -178,7 +214,11 @@ def compute_idempotency_payload(
         "scope": "run",
         "run_id": state.run_id,
         "node_id": str(spec.metadata.component_id),
-        "state_reads_snapshot": extract_state_slice(state, spec.state_reads),
+        "state_reads_snapshot": extract_state_slice(
+            state,
+            spec.state_reads,
+            node_id=str(spec.metadata.component_id),
+        ),
         "bind_params": _normalize_bind_params(bind_params),
     }
 

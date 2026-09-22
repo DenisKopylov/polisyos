@@ -538,6 +538,7 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     recursive = build_default_recursive_generation_cycle_controller(
         promotion_runtime=runtime,
         eval_safety_verifier=verifier,
+        repo_root=REPO_ROOT,
     )
     assert recursive._promotion_runtime is runtime
 

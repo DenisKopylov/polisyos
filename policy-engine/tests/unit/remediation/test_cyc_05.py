@@ -8,6 +8,9 @@ from pathlib import Path
 import pytest
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.http.services.control.generation_cycle import (
+    _build_cycle_substrate_context_from_owner,
+)
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
@@ -89,6 +92,46 @@ def test_generation_cycle_receipt_replay_requires_explicit_source_root(tmp_path:
         match="generation_cycle_strangle_receipt_currentness_not_established",
     ):
         receipt.verify_current()
+
+
+def test_generation_cycle_receipt_recompute_without_root_is_not_established() -> None:
+    """Receipt production must not adopt the process cwd as a source checkout."""
+
+    receipt = StrangleReceipt.recompute()
+
+    assert receipt.status == "not_established"
+    assert receipt.source_state == "not_established"
+    assert receipt.source_content_hash is None
+
+
+def test_generation_cycle_receipt_replay_binds_bounded_limitations(tmp_path: Path) -> None:
+    """Replay must bind the declared bounded census limitations as well as bytes."""
+
+    source = _source_root(tmp_path)
+    (source / "owner.py").write_text("def owner():\n    return None\n", encoding="utf-8")
+    receipt = StrangleReceipt.recompute(tmp_path)
+    changed_limitations = receipt.model_copy(
+        update={"limitation_refs": ("build_identity_unavailable",)}
+    )
+
+    with pytest.raises(GenerationCycleError, match="generation_cycle_strangle_receipt_stale"):
+        changed_limitations.verify_current(tmp_path)
+
+
+def test_http_owner_context_requires_explicit_source_root() -> None:
+    """HTTP source-owner preparation must not inspect the process cwd."""
+
+    problem = _problem("cyc_05_http_rootless_context")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+
+    assert (
+        _build_cycle_substrate_context_from_owner(
+            problem=problem,
+            problem_ref=problem_ref,
+            repo_root=None,
+        )
+        is None
+    )
 
 
 @pytest.mark.asyncio

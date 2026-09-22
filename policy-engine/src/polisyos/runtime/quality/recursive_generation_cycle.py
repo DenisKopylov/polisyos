@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
     CompositionCertificate,
     SearchTerminalKind,
@@ -25,10 +26,12 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
+    GenerationCycleError,
     GenerationCycleController,
     GenerationCycleRun,
     N4GenerationPort,
     generation_cycle_terminal_state,
+    persist_joint_simulation_result,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -112,11 +115,21 @@ class RecursiveCycleNode(_StrictModel):
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     cycle_run: GenerationCycleRun | None = None
     joint_simulation: JointSimulationResult | None = None
+    joint_simulation_ref: CASArtifactRef | None = None
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
 
     @model_validator(mode="after")
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:
+        if self.joint_simulation is None and self.joint_simulation_ref is not None:
+            raise ValueError("recursive_simulation_ref_without_result")
+        if self.joint_simulation is not None and self.joint_simulation_ref is None:
+            raise ValueError("recursive_simulation_result_requires_cas_ref")
+        if self.joint_simulation_ref is not None and (
+            self.joint_simulation_ref.kind != "polisyos.runtime.joint_simulation_result"
+            or self.joint_simulation_ref.media_type != "application/json"
+        ):
+            raise ValueError("recursive_simulation_ref_contract_mismatch")
         if self.child_refs and self.cycle_run is not None:
             raise ValueError("recursive_internal_node_cannot_run_leaf_cycle")
         if not self.child_refs and self.cycle_run is None:
@@ -763,6 +776,16 @@ class RecursiveGenerationCycleController:
                     node_results[node_ref] = result
                     return result
                 joint_simulation = self._joint_simulation_controller.run(request)
+                try:
+                    joint_simulation_ref = persist_joint_simulation_result(
+                        joint_simulation,
+                        repo_root=self._repo_root,
+                    )
+                except GenerationCycleError as exc:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_n5_result_persistence_failed",
+                        str(exc),
+                    ) from exc
                 if _joint_simulation_is_unsupported(joint_simulation):
                     result = RecursiveCycleNode(
                         node_ref=node_ref,
@@ -771,6 +794,7 @@ class RecursiveGenerationCycleController:
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
                         joint_simulation=joint_simulation,
+                        joint_simulation_ref=joint_simulation_ref,
                         terminal=_blocked_parent_terminal("unsupported_coupling_gated"),
                     )
                     node_results[node_ref] = result
@@ -792,6 +816,7 @@ class RecursiveGenerationCycleController:
                     child_refs=child_refs,
                     design_problem_ref=problem_ref,
                     joint_simulation=joint_simulation,
+                    joint_simulation_ref=joint_simulation_ref,
                     composition_certificate=certificate,
                     terminal=_fold_composed_terminal(
                         children=routed_children,

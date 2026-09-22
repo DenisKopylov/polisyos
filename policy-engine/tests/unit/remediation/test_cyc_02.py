@@ -3,19 +3,37 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.pdc import (
+    ArtifactRef as PDCArtifactRef,
+    SearchTerminalKind,
+    SearchTerminalState,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.generation_cycle import (
+    CandidateGroundingObservation,
     GenerationCycleError,
+    GenerationCycleController,
     JointSimulationPort,
+    PendingN8ValuePort,
+    PromotionPortObservation,
+    SimulationPortObservation,
     _DefaultSimulationBoundFoundryValuePort,
     simulation_evaluation_input_ref,
+)
+from polisyos.runtime.quality.design_axes.coupling_composition import (
+    CouplingEdge,
+    build_coupling_graph,
+    derive_recursive_design_graph,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
@@ -23,7 +41,13 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
 from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_content_hash,
 )
+from polisyos.runtime.quality.recursive_generation_cycle import (
+    RecursiveCycleBudget,
+    RecursiveGenerationCycleController,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
+from tests.unit.runtime.quality.test_generation_cycle import _problem
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 
@@ -91,6 +115,169 @@ def _real_n5_observation(tmp_path: Path):
     assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
     assert len(produced_results) == 1
     return problem, context, candidate, observation, produced_results[0]
+
+
+class _RecursiveGenerationPort:
+    async def __call__(self, problem: object, *, cycle_index: int) -> SimpleNamespace:
+        del problem, cycle_index
+        atom = SimpleNamespace(
+            intervention_id="recursive_leaf_intervention",
+            content_hash="sha256:" + "4" * 64,
+            status="candidate_unverified",
+            world_model_record_ref="world_model_record_recursive_leaf",
+            target_world_slots=("firm_survival",),
+        )
+        candidate = SimpleNamespace(
+            candidate_id="candidate_recursive_leaf",
+            atom=atom,
+            diversity_key=("recursive", "cyc-02", "leaf", "baseline"),
+            status="candidate_unverified",
+        )
+        ranking = SimpleNamespace(
+            candidate_id=candidate.candidate_id,
+            score=0.2,
+            voi_estimate=0.1,
+            trust_level="search_guiding",
+            promotion_allowed=False,
+        )
+        return SimpleNamespace(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(ranking,),
+            grounding_dispositions=(),
+        )
+
+
+class _RecursiveGroundingPort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> CandidateGroundingObservation:
+        del kwargs
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="grounding_gap",
+            grounding_score=0.2,
+            issue_codes=("recursive_leaf_grounding_gap",),
+            current_valid=False,
+        )
+
+
+class _RecursiveSimulationPort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> SimulationPortObservation:
+        del candidate, kwargs
+        return SimulationPortObservation(
+            candidate_id="candidate_recursive_leaf",
+            status="simulation_pending_n5",
+            authority_blockers=("recursive_leaf_joint_request_not_owned",),
+        )
+
+
+class _RecursivePromotionPort:
+    def __call__(self, **kwargs: Any) -> PromotionPortObservation:
+        del kwargs
+        return PromotionPortObservation()
+
+
+def _recursive_contract_testing_controller(
+    repo_root: Path,
+) -> RecursiveGenerationCycleController:
+    def factory(_node_ref: str, _problem_input: object) -> GenerationCycleController:
+        return GenerationCycleController(
+            generation_port=_RecursiveGenerationPort(),
+            grounding_port=_RecursiveGroundingPort(),
+            simulation_port=_RecursiveSimulationPort(),
+            value_port=PendingN8ValuePort(),
+            promotion_port=_RecursivePromotionPort(),
+            authority_scope="contract_testing",
+            repo_root=repo_root,
+        )
+
+    return RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=factory,
+        repo_root=repo_root,
+    )
+
+
+def _recursive_leaf_terminal() -> SearchTerminalState:
+    return SearchTerminalState(
+        kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
+        reason="Terminal emitted by the bounded CYC-02 recursive witness.",
+        blocking_obligations=["recursive_leaf_grounding_gap", "value_gate_pending_n8"],
+    )
+
+
+def _recursive_subdesigns(
+    *,
+    parent_ref: str,
+    child_refs: tuple[str, str],
+) -> tuple[object, ...]:
+    from tools.quality.validation.check_layer3_gy_composition_artifacts import (
+        _synthetic_composition_subdesigns,
+    )
+
+    originals = _synthetic_composition_subdesigns(
+        artifact_ref_factory=PDCArtifactRef.from_payload,
+    )
+    return tuple(
+        child.model_copy(
+            update={
+                "workspace_id": child_ref,
+                "parent_workspace_id": parent_ref,
+                "search_exit": child.search_exit.model_copy(
+                    update={
+                        "workspace_id": child_ref,
+                        "terminal_state": _recursive_leaf_terminal(),
+                    }
+                ),
+            }
+        )
+        for child, child_ref in zip(originals, child_refs, strict=True)
+    )
+
+
+def _recursive_parent_request(
+    *,
+    parent_ref: str,
+    child_refs: tuple[str, str],
+    problem: object,
+    world_model_record: object,
+) -> object:
+    request = _request(
+        record=world_model_record,
+        world_model_record_ref=world_model_record.world_model_record_id,
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    rebound_atoms = []
+    for atom in request.intervention_atoms:
+        rebound = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        content_hash = intervention_atom_content_hash(rebound)
+        rebound_atoms.append(
+            rebound.model_copy(
+                update={
+                    "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+                    "content_hash": content_hash,
+                }
+            )
+        )
+    graph = build_coupling_graph(
+        design_ref=parent_ref,
+        module_refs=child_refs,
+        module_discovery_ref="discovery://cyc-02/recursive-witness",
+        interaction_edges=(
+            CouplingEdge(
+                boundary_ref="boundary://cyc-02/recursive-independent",
+                source_module_ref=child_refs[0],
+                target_module_ref=child_refs[1],
+                relation="independent",
+                interaction_strength="none",
+                feedback_intensity="none",
+                evidence_ref="evidence://cyc-02/recursive-independent",
+            ),
+        ),
+        evidence_state="observed",
+        rule_version_ref="repo://rules/cyc-02-recursive-cas",
+    )
+    return request.model_copy(
+        update={"intervention_atoms": tuple(rebound_atoms), "coupling_graph": graph}
+    )
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
@@ -227,3 +414,65 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
             repo_root=tmp_path,
             expected_atom_ids=("foreign-model-atom",),
         )
+
+
+@pytest.mark.asyncio
+async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
+    """The real recursive parent route persists the N5 result before composition."""
+
+    root = "design://cyc-02/recursive-root"
+    child_refs = ("design://cyc-02/recursive-a", "design://cyc-02/recursive-b")
+    parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    problems = {
+        root: parent_problem,
+        child_refs[0]: _problem("cyc02_recursive_a"),
+        child_refs[1]: _problem("cyc02_recursive_b"),
+    }
+    graph = derive_recursive_design_graph(
+        design_ref=root,
+        module_refs=child_refs,
+        parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
+        rule_version_ref="repo://rules/cyc-02-recursive-cas",
+    )
+    request = _recursive_parent_request(
+        parent_ref=root,
+        child_refs=child_refs,
+        problem=parent_problem,
+        world_model_record=context.world_model_record,
+    )
+    controller = _recursive_contract_testing_controller(tmp_path)
+
+    run = await controller.run(
+        graph,
+        problems_by_node=problems,
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+        ),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=1,
+            max_nodes=3,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+        joint_simulation_requests_by_node={root: request},
+        subdesign_contracts_by_node={
+            root: _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
+        },
+    )
+
+    root_node = next(node for node in run.nodes if node.node_ref == root)
+    assert root_node.joint_simulation is not None
+    assert root_node.joint_simulation_ref is not None
+    assert root_node.joint_simulation_ref.kind == "polisyos.runtime.joint_simulation_result"
+
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    reopened = load_joint_simulation_result(
+        root_node.joint_simulation_ref,
+        repo_root=tmp_path,
+        expected_world_model_record_content_hash=(
+            root_node.joint_simulation.world_model_record_content_hash
+        ),
+        expected_atom_ids=root_node.joint_simulation.atom_ids,
+    )
+    assert reopened.trajectories == root_node.joint_simulation.trajectories

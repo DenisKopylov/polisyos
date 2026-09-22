@@ -30,6 +30,7 @@ class ChangeType(str, Enum):
 
     # Non-breaking (minor version)
     FIELD_ADDED = "field_added"
+    FIELD_PRESENCE_MADE_OPTIONAL = "field_presence_made_optional"
     FIELD_MADE_NULLABLE = "field_made_nullable"
     TYPE_WIDENED = "type_widened"
     BOUNDS_RELAXED = "bounds_relaxed"
@@ -43,6 +44,7 @@ class ChangeType(str, Enum):
 
     # Breaking (major version)
     FIELD_REMOVED = "field_removed"
+    FIELD_PRESENCE_MADE_REQUIRED = "field_presence_made_required"
     FIELD_MADE_REQUIRED = "field_made_required"
     TYPE_NARROWED = "type_narrowed"
     TYPE_CHANGED = "type_changed"
@@ -76,6 +78,7 @@ class ChangeType(str, Enum):
             ChangeType.SCHEMA_ID_CHANGED,
             ChangeType.FIELD_RENAMED,
             ChangeType.FIELD_ID_CHANGED,
+            ChangeType.FIELD_PRESENCE_MADE_REQUIRED,
             ChangeType.FIELD_MADE_REQUIRED,
             ChangeType.TYPE_NARROWED,
             ChangeType.TYPE_CHANGED,
@@ -539,6 +542,28 @@ class SchemaEvolution:
                     )
                 )
 
+        if source.presence != target.presence:
+            if target.presence == "optional":
+                changes.append(
+                    SchemaChange(
+                        change_type=ChangeType.FIELD_PRESENCE_MADE_OPTIONAL,
+                        field_name=name,
+                        old_value="required",
+                        new_value="optional",
+                        description=f"Field '{name}' presence changed from required to optional",
+                    )
+                )
+            else:
+                changes.append(
+                    SchemaChange(
+                        change_type=ChangeType.FIELD_PRESENCE_MADE_REQUIRED,
+                        field_name=name,
+                        old_value="optional",
+                        new_value="required",
+                        description=f"Field '{name}' presence changed from optional to required",
+                    )
+                )
+
         if source.bounds != target.bounds:
             src_min, src_max = source.bounds
             tgt_min, tgt_max = target.bounds
@@ -850,6 +875,7 @@ class SchemaEvolution:
                 ChangeType.TAGS_UPDATED,
                 ChangeType.BOUNDS_RELAXED,
                 ChangeType.ALLOWED_VALUES_EXPANDED,
+                ChangeType.FIELD_PRESENCE_MADE_OPTIONAL,
                 ChangeType.PRECISION_WIDENED,
                 ChangeType.SCALE_WIDENED,
                 ChangeType.PATTERN_RELAXED,

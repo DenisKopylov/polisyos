@@ -23,7 +23,11 @@ if TYPE_CHECKING:
         FetchResult,
         SourceConnector,
     )
-    from polisyos.fabric.connectors.contracts import ContractRegistry, FetchResultContractValidation
+    from polisyos.fabric.connectors.contracts import (
+        ConnectorSchemaContract,
+        ContractRegistry,
+        FetchResultContractValidation,
+    )
     from polisyos.fabric.connectors.pool import ConnectionPool
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.ir.connectors import ConnectorMetadataSpec
@@ -138,6 +142,30 @@ class RegistryLifecycleMixin:
                 contract_content_hash=contract.content_hash,
                 errors=tuple(errors),
             )
+
+    def resolve_schema_contract(
+        self,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> tuple[ConnectorSchemaContract | None, int]:
+        """Resolve one immutable stream schema contract and its registry revision.
+
+        The caller should retain this pair for the lifetime of one stream job.
+        A stream must not resolve a different contract independently for each
+        technical batch.
+        """
+        from polisyos.fabric.connectors.contracts import ContractRegistry
+
+        with self._instance_lock:
+            registry = self._contract_registry
+            if not isinstance(registry, ContractRegistry):
+                return None, 0
+            selected = registry.resolve(connector_id, dataset_id)
+            revision = registry.revision
+            if selected is None:
+                return None, revision
+            return selected.model_copy(deep=True), revision
 
     def _bootstrap_contract_registry(self) -> None:
         try:

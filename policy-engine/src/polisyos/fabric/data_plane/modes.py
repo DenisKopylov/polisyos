@@ -10,7 +10,6 @@ Provides:
 from __future__ import annotations
 
 import math
-from collections import Counter
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
@@ -30,8 +29,12 @@ from polisyos.fabric.data_plane.quarantine import (
 from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchRequest, VersionStrategy
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.contracts import DataSchema
     from polisyos.fabric.data_plane.cursor_store import CursorStore
+    from polisyos.fabric.data_plane.streaming import StreamSchemaBinding
     from polisyos.fabric.ingestion import IngestionDependencies
 
 logger = get_logger(__name__)
@@ -699,22 +702,28 @@ def _sanitize_stream_rows(
     dataset_id: str,
     store: Any,
     chunk_index: int,
+    schema: DataSchema | None = None,
+    schema_binding: StreamSchemaBinding | None = None,
 ) -> tuple[list[dict[str, Any]], list[str], int]:
     if not isinstance(rows, list):
         rows = [rows]
 
-    signature_counts = Counter(
-        tuple(sorted(str(key) for key in row)) for row in rows if isinstance(row, dict)
-    )
-    expected_keys = max(
-        signature_counts,
-        key=lambda item: (signature_counts[item], -len(item), item),
-        default=(),
-    )
-
     valid_rows: list[dict[str, Any]] = []
     warnings: list[str] = []
     quarantined = 0
+    if schema is None:
+        signatures = {
+            tuple(sorted(str(key) for key in row)) for row in rows if isinstance(row, dict)
+        }
+        if len(signatures) > 1:
+            warnings.append(
+                f"schema_not_established for {connector_id}:{dataset_id}; "
+                "heterogeneous object rows retained for investigation"
+            )
+
+    field_by_name = {field.name: field for field in schema.fields} if schema else {}
+    required_fields = set(schema.required_field_names()) if schema else set()
+    schema_version = str(schema.version) if schema else "1.0"
     for row_index, row in enumerate(rows):
         reason: str | None = None
         context: dict[str, Any] = {
@@ -724,15 +733,34 @@ def _sanitize_stream_rows(
         if not isinstance(row, dict):
             reason = "poison_stream_message"
             context["message"] = "stream message is not a JSON object"
-        elif expected_keys and tuple(sorted(str(key) for key in row)) != expected_keys:
-            reason = "poison_stream_message"
-            context["expected_fields"] = list(expected_keys)
-            context["actual_fields"] = sorted(str(key) for key in row)
         else:
-            non_finite = _non_finite_fields(row)
-            if non_finite:
-                reason = "non_finite_metric"
-                context["fields"] = non_finite
+            if schema is not None:
+                actual_fields = set(row)
+                missing_required = sorted(required_fields - actual_fields)
+                if missing_required:
+                    reason = "poison_stream_message"
+                    context["missing_required_fields"] = missing_required
+                else:
+                    non_nullable = sorted(
+                        field_name
+                        for field_name, field in field_by_name.items()
+                        if field_name in row
+                        and row[field_name] is None
+                        and not field.nullable
+                        and field_name not in schema.allowed_null_fields
+                    )
+                    if non_nullable:
+                        reason = "poison_stream_message"
+                        context["non_nullable_fields"] = non_nullable
+
+            if reason is None:
+                non_finite = _non_finite_fields(row)
+                if non_finite:
+                    reason = "non_finite_metric"
+                    context["fields"] = non_finite
+
+            if schema_binding is not None:
+                context["schema_binding"] = schema_binding.snapshot()
 
         if reason is None:
             valid_rows.append(row)
@@ -749,7 +777,7 @@ def _sanitize_stream_rows(
                 reason=reason,
                 severity="error",
                 source=f"connector.stream:{connector_id}:{dataset_id}",
-                schema_version="1.0",
+                schema_version=schema_version,
                 trace_id=f"{connector_id}:{dataset_id}:chunk:{chunk_index}:row:{row_index}",
                 downstream_impacts=(
                     "streaming_windowed",
@@ -762,6 +790,26 @@ def _sanitize_stream_rows(
         )
 
     return valid_rows, warnings, quarantined
+
+
+def _bind_stream_sanitizer(
+    schema_binding: StreamSchemaBinding | None,
+) -> Callable[..., tuple[list[dict[str, Any]], list[str], int]]:
+    """Bind one admitted schema without changing custom sanitizer call shape."""
+    schema = getattr(schema_binding, "schema", None)
+
+    def _bound(
+        rows: object,
+        **kwargs: object,
+    ) -> tuple[list[dict[str, Any]], list[str], int]:
+        return _sanitize_stream_rows(
+            rows,
+            schema=schema,
+            schema_binding=schema_binding,
+            **kwargs,
+        )
+
+    return _bound
 
 
 def run_streaming_windowed(
@@ -809,7 +857,10 @@ async def _run_streaming_windowed_async(
     from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.orchestrator import IngestionResult
-    from polisyos.fabric.data_plane.streaming import process_stream_dataset
+    from polisyos.fabric.data_plane.streaming import (
+        _resolve_stream_schema_binding,
+        process_stream_dataset,
+    )
     from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 
     store = _build_filesystem_store(cas_root)
@@ -833,16 +884,23 @@ async def _run_streaming_windowed_async(
             connector_manifest,
             dataset_id=ds_dataset_id,
         )
+        schema_binding = _resolve_stream_schema_binding(
+            connector_registry,
+            connector_id=ds_connector_id,
+            dataset_id=ds_dataset_id,
+        )
+        bound_sanitizer = _bind_stream_sanitizer(schema_binding)
         if _connector_is_registered(ds_connector_id, registry=connector_registry):
             dataset_result = await process_stream_dataset(
                 connector_id=ds_connector_id,
                 dataset_id=ds_dataset_id,
                 store=store,
                 cursor_store=cursor_store,
-                sanitize_rows=_sanitize_stream_rows,
+                sanitize_rows=bound_sanitizer,
                 runtime_options=runtime_options,
                 connection_config=connection_config,
                 registry=connector_registry,
+                schema_binding=schema_binding,
             )
         else:
             dataset_result = await _run_legacy_stream_dataset_from_fetch_async(
@@ -852,6 +910,7 @@ async def _run_streaming_windowed_async(
                 connector_manifest=connector_manifest,
                 connection_config=connection_config,
                 registry=connector_registry,
+                schema_binding=schema_binding,
             )
         warnings.extend(dataset_result.warnings)
         source_refs.extend(dataset_result.chunk_refs)
@@ -1021,6 +1080,7 @@ def _run_legacy_stream_dataset(
     connector_id: str,
     dataset_id: str,
     chunks: list[dict[str, Any]],
+    schema_binding: StreamSchemaBinding | None = None,
 ) -> Any:
     from types import SimpleNamespace
 
@@ -1039,6 +1099,8 @@ def _run_legacy_stream_dataset(
             dataset_id=dataset_id,
             store=store,
             chunk_index=int(chunk_data.get("chunk_index", 0)),
+            schema=getattr(schema_binding, "schema", None),
+            schema_binding=schema_binding,
         )
         warnings.extend(chunk_warnings)
         quarantined_rows += chunk_quarantined
@@ -1059,6 +1121,8 @@ def _run_legacy_stream_dataset(
                 ),
                 rows=clean_rows,
                 dedupe_dropped=0,
+                schema_binding=schema_binding,
+                visible_fields=tuple(sorted({str(key) for row in clean_rows for key in row})),
             )
         )
 
@@ -1080,6 +1144,7 @@ async def _run_legacy_stream_dataset_async(
     connector_id: str,
     dataset_id: str,
     chunks: list[dict[str, Any]],
+    schema_binding: StreamSchemaBinding | None = None,
 ) -> Any:
     from types import SimpleNamespace
 
@@ -1102,6 +1167,8 @@ async def _run_legacy_stream_dataset_async(
             dataset_id=dataset_id,
             store=store,
             chunk_index=int(chunk_data.get("chunk_index", 0)),
+            schema=getattr(schema_binding, "schema", None),
+            schema_binding=schema_binding,
         )
         warnings.extend(chunk_warnings)
         quarantined_rows += chunk_quarantined
@@ -1127,6 +1194,12 @@ async def _run_legacy_stream_dataset_async(
                     "is_first": bool(getattr(chunk, "is_first", False)),
                     "is_last": bool(getattr(chunk, "is_last", False)),
                     "dedupe_dropped": 0,
+                    "schema_binding": (
+                        schema_binding.snapshot()
+                        if schema_binding is not None
+                        else {"status": "not_established"}
+                    ),
+                    "visible_fields": sorted({str(key) for row in clean_rows for key in row}),
                     "data": clean_rows,
                 },
                 ArtifactWriteOptions(
@@ -1158,6 +1231,7 @@ async def _run_legacy_stream_dataset_from_fetch_async(
     connector_manifest: Any,
     connection_config: Any | None,
     registry: Any | None = None,
+    schema_binding: StreamSchemaBinding | None = None,
 ) -> Any:
     chunks = await _fetch_stream_for_dataset_async(
         connector_id=connector_id,
@@ -1171,6 +1245,7 @@ async def _run_legacy_stream_dataset_from_fetch_async(
         connector_id=connector_id,
         dataset_id=dataset_id,
         chunks=chunks,
+        schema_binding=schema_binding,
     )
 
 

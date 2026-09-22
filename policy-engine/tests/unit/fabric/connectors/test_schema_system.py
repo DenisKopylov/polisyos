@@ -281,6 +281,18 @@ class TestFieldSpec:
         assert field.unit is not None
         assert field.unit.unit_id == "usd"
 
+    def test_presence_is_independent_from_nullability(self) -> None:
+        """Optional presence permits omission without permitting explicit nulls."""
+        field = FieldSpec(
+            name="note",
+            data_type=SchemaType.STRING,
+            nullable=False,
+            presence="optional",
+        )
+
+        assert field.presence == "optional"
+        assert field.nullable is False
+
     def test_field_name_validation(self) -> None:
         """Test that invalid field names are rejected."""
         with pytest.raises(ValueError):
@@ -452,6 +464,27 @@ class TestDataSchema:
         )
 
         assert schema1.content_hash == schema2.content_hash
+
+    def test_content_hash_records_non_default_presence_only(self) -> None:
+        """Optional presence changes identity while legacy required hashes remain stable."""
+        required = DataSchema(
+            schema_id="test.required",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="note", data_type=SchemaType.STRING),),
+        )
+        explicit_required = DataSchema(
+            schema_id="test.explicit-required",
+            version=SchemaVersion(2, 0, 0),
+            fields=(FieldSpec(name="note", data_type=SchemaType.STRING, presence="required"),),
+        )
+        optional = DataSchema(
+            schema_id="test.optional",
+            version=SchemaVersion(1, 1, 0),
+            fields=(FieldSpec(name="note", data_type=SchemaType.STRING, presence="optional"),),
+        )
+
+        assert required.content_hash == explicit_required.content_hash
+        assert required.content_hash != optional.content_hash
 
     def test_select_fields(self, sample_schema: DataSchema) -> None:
         """Test selecting a subset of fields."""
@@ -780,6 +813,37 @@ class TestSchemaEvolution:
 
         assert report.is_compatible
         assert any(c.change_type == ChangeType.FIELD_MADE_NULLABLE for c in report.changes)
+
+    def test_detect_presence_changes_separately_from_nullability(
+        self, evolution: SchemaEvolution
+    ) -> None:
+        """Presence evolution has its own compatibility classification."""
+        required = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="note", data_type=SchemaType.STRING),),
+        )
+        optional = DataSchema(
+            schema_id="test",
+            version=SchemaVersion(1, 1, 0),
+            fields=(FieldSpec(name="note", data_type=SchemaType.STRING, presence="optional"),),
+        )
+
+        relaxed = evolution.compare(required, optional)
+        tightened = evolution.compare(optional, required)
+
+        assert relaxed.is_compatible
+        assert relaxed.recommended_version_bump == "minor"
+        assert any(
+            change.change_type == ChangeType.FIELD_PRESENCE_MADE_OPTIONAL
+            for change in relaxed.changes
+        )
+        assert not tightened.is_compatible
+        assert tightened.recommended_version_bump == "major"
+        assert any(
+            change.change_type == ChangeType.FIELD_PRESENCE_MADE_REQUIRED
+            for change in tightened.changes
+        )
 
     def test_mixed_bounds_emit_relaxed_and_tightened_changes(
         self, evolution: SchemaEvolution
@@ -1116,6 +1180,31 @@ class TestDataFrameValidation:
         errors = validate_dataframe_against_schema(df, sample_schema)
         assert any("Missing" in e for e in errors)
 
+    def test_missing_optional_column_is_allowed_but_present_null_is_checked(self) -> None:
+        """Optional omission does not weaken nullable validation when present."""
+        schema = DataSchema(
+            schema_id="test.optional-validation",
+            version=SchemaVersion(1, 0, 0),
+            fields=(
+                FieldSpec(name="id", data_type=SchemaType.STRING, nullable=False),
+                FieldSpec(
+                    name="note",
+                    data_type=SchemaType.STRING,
+                    nullable=False,
+                    presence="optional",
+                ),
+            ),
+            required_completeness=0.0,
+        )
+
+        missing_errors = validate_dataframe_against_schema(pd.DataFrame({"id": ["a"]}), schema)
+        null_errors = validate_dataframe_against_schema(
+            pd.DataFrame({"id": ["a"], "note": [None]}), schema
+        )
+
+        assert not any("Missing" in error for error in missing_errors)
+        assert any("null" in error.lower() for error in null_errors)
+
     def test_null_in_non_nullable(self, sample_schema: DataSchema) -> None:
         """Test detecting nulls in non-nullable fields."""
         df = pd.DataFrame(
@@ -1167,6 +1256,25 @@ class TestDataFrameValidation:
 
 class TestDataFrameCoercion:
     """Tests for coercion to schema types."""
+
+    def test_coerce_missing_optional_column_without_error(self) -> None:
+        schema = DataSchema(
+            schema_id="test.optional-coercion",
+            version=SchemaVersion(1, 0, 0),
+            fields=(
+                FieldSpec(name="id", data_type=SchemaType.STRING),
+                FieldSpec(
+                    name="note",
+                    data_type=SchemaType.STRING,
+                    presence="optional",
+                ),
+            ),
+        )
+
+        result = coerce_dataframe_to_schema(pd.DataFrame({"id": ["a"]}), schema)
+
+        assert result.errors == ()
+        assert "note" not in result.dataframe.columns
 
     def test_coerce_basic(self, sample_schema: DataSchema) -> None:
         df = pd.DataFrame(

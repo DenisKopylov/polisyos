@@ -78,6 +78,10 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "expected_completeness": _float_token(field.expected_completeness),
         "tags": _sorted_list(field.tags),
     }
+    # Required is the historical default.  Keep legacy schema hashes stable,
+    # while ensuring an explicit optional declaration changes identity.
+    if field.presence != "required":
+        payload["presence"] = field.presence
     if field.field_id is not None:
         payload["field_id"] = field.field_id
     return payload
@@ -233,6 +237,14 @@ class DataSchema(BaseModel):
     def field_names(self) -> list[str]:
         """Get ordered list of field names."""
         return [f.name for f in self.fields]
+
+    def required_field_names(self) -> list[str]:
+        """Get ordered names of fields required to be present in each record."""
+        return [f.name for f in self.fields if f.presence == "required"]
+
+    def optional_field_names(self) -> list[str]:
+        """Get ordered names of fields that may be absent from a record."""
+        return [f.name for f in self.fields if f.presence == "optional"]
 
     def field_ids(self) -> list[str]:
         """Get ordered list of stable field identities."""

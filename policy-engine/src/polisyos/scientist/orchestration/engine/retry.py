@@ -298,7 +298,7 @@ def _wrap_manifest_value(value: Any, authority: _AttemptAuthority) -> Any:
 
 def _unwrap_manifest_value(value: Any) -> Any:
     """Recover the underlying object when a gated value is passed to a write."""
-    if isinstance(value, (_AttemptCollectionFacade, _AttemptModelFacade)):
+    if isinstance(value, (_AttemptFacade, _AttemptCollectionFacade, _AttemptModelFacade)):
         return value._target
     if isinstance(value, tuple):
         return tuple(_unwrap_manifest_value(item) for item in value)

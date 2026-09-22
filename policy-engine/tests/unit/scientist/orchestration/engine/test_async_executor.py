@@ -527,8 +527,15 @@ class TestAsyncCacheBoundaries:
         workflow = WorkflowSpec(workflow_id="async_cache_put", nodes=[invocation])
 
         original_put_json = store.put_json
+        put_calls = 0
 
         def slow_put_json(*args, **kwargs):
+            nonlocal put_calls, ticks
+            put_calls += 1
+            if put_calls == 1:
+                # Isolate event-loop progress to the cache publication itself;
+                # producer/retry awaits must not satisfy the witness.
+                ticks = 0
             time.sleep(0.08)
             return original_put_json(*args, **kwargs)
 
@@ -557,9 +564,11 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 1
+        assert put_calls >= 2
         assert ticks > 0
 
         executor._cache.clear()
+        ids_before_failed_publication = set(store.iter_artifact_ids())
         calls = 0
 
         def fail_entry_put(*args, **kwargs):
@@ -579,6 +588,7 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 0
+        assert set(store.iter_artifact_ids()) == ids_before_failed_publication
 
     @pytest.mark.asyncio
     async def test_incompatible_cached_replay_is_discarded_and_recomputed(self, tmp_path):

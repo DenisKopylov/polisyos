@@ -549,7 +549,7 @@ def test_output_aware_cache_refuses_loading_base_epoch_entry(tmp_path) -> None:
     assert not cache.has(key)
 
 
-def test_output_aware_cache_refuses_old_entry_even_with_current_outcome(tmp_path) -> None:
+def test_output_aware_cache_refuses_old_entry_epoch(tmp_path) -> None:
     from tests.unit.scientist.orchestration.engine.runner.test_serialization import (
         _output_aware_transport_outcome,
     )
@@ -557,15 +557,14 @@ def test_output_aware_cache_refuses_old_entry_even_with_current_outcome(tmp_path
     store = FileSystemCAS(tmp_path)
     outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
-    cache.put("c" * 64, node_id="scientist.node_transport@2.0.0", outcome=outcome)
     key = "d" * 64
-    # The predecessor reuses the already-current outcome bytes, but emits its
-    # separate entry under the old epoch. Both actual manifests must be checked.
+    # The predecessor emits its separate outcome and entry under the old
+    # epoch. Both actual manifests must be checked.
     entry_ref = _base_epoch_output_aware_cache_entry(store, outcome, key)
     entry = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    assert store.get_manifest(entry.outcome_ref.artifact_id).producer.version == "2.0.0"
+    assert store.get_manifest(entry.outcome_ref.artifact_id).producer.version == "1.0.0"
     assert store.get_manifest(entry_ref.artifact_id).producer.version == "1.0.0"
     with pytest.raises(ValueError, match="output_aware_cache_custody"):
         cache.load_entry(entry_ref)

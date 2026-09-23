@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from fractions import Fraction
 from functools import lru_cache
@@ -987,6 +987,62 @@ class ResolvedMeasurementRootEvidence:
     measurement_root_ref: artifacts.ArtifactRef
     fetch_receipt_ref: artifacts.ArtifactRef
     catalog_binding_ref: artifacts.ArtifactRef
+    _verification_token: object = field(repr=False, compare=False)
+
+
+_MEASUREMENT_ROOT_EVIDENCE_TOKEN = object()
+
+
+def _validate_resolved_measurement_root_evidence(
+    evidence: ResolvedMeasurementRootEvidence,
+) -> None:
+    """Recheck the immutable projection before registry persistence.
+
+    The resolver is the only producer of the verification token.  This second
+    check prevents a caller from retaining that typed object while replacing
+    one of its lineage refs with a merely well-shaped or foreign ref.
+    """
+
+    if not isinstance(evidence, ResolvedMeasurementRootEvidence):
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid")
+    if evidence._verification_token is not _MEASUREMENT_ROOT_EVIDENCE_TOKEN:
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_unverified")
+    if not isinstance(evidence.envelope, ArtifactEnvelope) or not isinstance(
+        evidence.payload, FabricMeasurementRootPayload
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid")
+    if (
+        evidence.envelope.ref.artifact_type != "BaseDataset"
+        or evidence.envelope.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+        or not isinstance(evidence.envelope.payload_ref, str)
+        or not evidence.envelope.payload_ref.startswith("sha256:")
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid")
+    try:
+        expected_envelope = _fabric_measurement_envelope(
+            evidence.payload,
+            evidence.envelope.payload_ref,
+        )
+        expected_payload_id = artifacts.ArtifactID(evidence.envelope.payload_ref)
+        expected_payload_ref = artifacts.ArtifactRef(
+            artifact_id=expected_payload_id,
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+        )
+    except (TypeError, ValueError, RuntimeError) as exc:
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_evidence_invalid"
+        ) from exc
+    if evidence.payload.payload_ref.artifact_id != expected_payload_id:
+        raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
+    if expected_envelope.model_dump(mode="json") != evidence.envelope.model_dump(mode="json"):
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_projection_mismatch")
+    if evidence.measurement_root_ref != expected_payload_ref:
+        raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
+    if evidence.fetch_receipt_ref != evidence.payload.fetch_receipt_ref:
+        raise FabricMeasurementRootBindingError("measurement_root_fetch_ref_mismatch")
+    if evidence.catalog_binding_ref != evidence.payload.catalog_binding_ref:
+        raise FabricMeasurementRootBindingError("measurement_root_catalog_ref_mismatch")
 
 
 def resolve_measurement_root_evidence(
@@ -1006,7 +1062,7 @@ def resolve_measurement_root_evidence(
     if not isinstance(measurement_root, ArtifactEnvelope):
         raise FabricMeasurementRootBindingError("measurement_root_envelope_invalid")
     if (
-        measurement_root.ref.artifact_type != "MeasurementRoot"
+        measurement_root.ref.artifact_type != "BaseDataset"
         or measurement_root.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
         or not isinstance(measurement_root.payload_ref, str)
         or not measurement_root.payload_ref.startswith("sha256:")
@@ -1041,12 +1097,19 @@ def resolve_measurement_root_evidence(
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         raise FabricMeasurementRootBindingError("measurement_root_custody_unresolved") from exc
 
-    # Compare the complete envelope, not just a type marker or root ID.  This
-    # catches a foreign root envelope carrying a valid payload reference.
+    # The canonical producer emits a BaseDataset envelope whose
+    # ``producer_roots`` carries the MeasurementRoot.  Compare the complete
+    # canonical projection, including that root, before accepting custody.
+    expected_envelope = _fabric_measurement_envelope(payload, measurement_root.payload_ref)
+    if expected_envelope.model_dump(mode="json") != measurement_root.model_dump(mode="json"):
+        raise FabricMeasurementRootBindingError("measurement_root_envelope_projection_mismatch")
+    if measurement_root.producer_roots != expected_envelope.producer_roots:
+        raise FabricMeasurementRootBindingError("measurement_root_producer_root_mismatch")
+    # Replay is the independent source-side check; it must emit the same
+    # canonical BaseDataset and producer root as the supplied envelope.
     if resolved.model_dump(mode="json") != measurement_root.model_dump(mode="json"):
         raise FabricMeasurementRootBindingError("measurement_root_envelope_projection_mismatch")
-    expected_root_content_hash = gy_content_hash(payload.model_dump(mode="json"))
-    if measurement_root.ref.content_hash != expected_root_content_hash:
+    if measurement_root.ref.content_hash != expected_envelope.ref.content_hash:
         raise FabricMeasurementRootBindingError("measurement_root_content_hash_mismatch")
     expected_input_artifact = ArtifactRef(
         artifact_id=f"fabric-fetch-{payload.fetch_receipt_ref.artifact_id.hex}",
@@ -1064,6 +1127,7 @@ def resolve_measurement_root_evidence(
         measurement_root_ref=measurement_root_payload_ref,
         fetch_receipt_ref=payload.fetch_receipt_ref,
         catalog_binding_ref=payload.catalog_binding_ref,
+        _verification_token=_MEASUREMENT_ROOT_EVIDENCE_TOKEN,
     )
 
 
@@ -1099,9 +1163,7 @@ def admit_measurement_root_to_substrate_registry(
         baseline_registry=baseline_registry,
         registration=registration,
         l5_authority=l5_authority,
-        measurement_root_ref=evidence.measurement_root_ref,
-        fetch_receipt_ref=evidence.fetch_receipt_ref,
-        catalog_binding_ref=evidence.catalog_binding_ref,
+        evidence=evidence,
         baseline_registry_ref=baseline_registry_ref,
     )
 

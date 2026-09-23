@@ -431,137 +431,36 @@ def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: 
     assert not list((REPO_ROOT / "src/polisyos/runtime/quality").rglob("gy_s0_*.py"))
 
 
-def test_measurement_root_registration_persists_and_reloads_with_custody_inputs(
-    tmp_path: Path,
-) -> None:
-    """A replayed root contributes lineage only; the owner registration supplies fields."""
-
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
-    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
-    registration = _future_registration(l5.latest_schema_regime())
-    store = FileSystemCAS(tmp_path / "cas")
-    baseline_ref = persist_substrate_registry(store, baseline)
-    measurement_root_ref = store.put_json(
-        {"measurement_root": "custody-only"},
-        substrate_module.core.artifacts.PutOptions(
-            kind="policyos.gy.measurement_root_payload",
-            media_type="application/json",
-            schema=substrate_module.core.artifacts.SchemaInfo(
-                name="policyos.gy.fabric_measurement_root.v2", version="v2"
-            ),
-        ),
-    )
-    fetch_ref = store.put_json(
-        {"fetch": "receipt"},
-        substrate_module.core.artifacts.PutOptions(
-            kind="fabric.fetch_receipt",
-            media_type="application/json",
-        ),
-    )
-    catalog_ref = store.put_json(
-        {"catalog": "binding"},
-        substrate_module.core.artifacts.PutOptions(
-            kind="fabric.catalog_fetch_binding",
-            media_type="application/json",
-        ),
-    )
-
-    admission = persist_measurement_root_substrate_registry(
-        store,
-        baseline_registry=baseline,
-        registration=registration,
-        l5_authority=l5,
-        measurement_root_ref=measurement_root_ref,
-        fetch_receipt_ref=fetch_ref,
-        catalog_binding_ref=catalog_ref,
-        baseline_registry_ref=baseline_ref,
-    )
-
-    loaded = load_substrate_registry(
-        store,
-        admission.registry_ref,
-        expected_inputs=admission.input_refs,
-    )
-    assert loaded == admission.registry
-    assert loaded.resolve(
-        source_id=registration.source_id,
-        family_id=registration.family_id,
-        layer=registration.layer,
-    )[0].coverage.coverage_score == registration.coverage.coverage_score
-    assert store.get_manifest(admission.registry_ref.artifact_id).inputs == list(
-        admission.input_refs
-    )
-    assert baseline.content_hash != loaded.content_hash
-
-
 @pytest.mark.parametrize(
-    "failure",
-    ("wrong_root_kind", "incomplete_owner", "inflated", "stale_baseline"),
+    "evidence",
+    (
+        None,
+        {"measurement_root_ref": "sha256:foreign", "fetch_receipt_ref": "sha256:foreign"},
+        object(),
+    ),
 )
-def test_measurement_root_registration_refuses_unbound_or_inflated_inputs(
+def test_measurement_root_registration_rejects_shape_only_evidence(
     tmp_path: Path,
-    failure: str,
+    evidence: object,
 ) -> None:
-    """Generic admission failures leave the baseline registry untouched."""
+    """Raw or unverified refs never reach registry persistence."""
 
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_substrate_registry(store, baseline)
-    measurement_root_ref = store.put_json(
-        {"measurement_root": "custody-only"},
-        substrate_module.core.artifacts.PutOptions(
-            kind=(
-                "not.measurement_root"
-                if failure == "wrong_root_kind"
-                else "policyos.gy.measurement_root_payload"
-            ),
-            media_type="application/json",
-        ),
-    )
-    fetch_ref = store.put_json(
-        {"fetch": "receipt"},
-        substrate_module.core.artifacts.PutOptions(
-            kind="fabric.fetch_receipt",
-            media_type="application/json",
-        ),
-    )
-    catalog_ref = store.put_json(
-        {"catalog": "binding"},
-        substrate_module.core.artifacts.PutOptions(
-            kind="fabric.catalog_fetch_binding", media_type="application/json"
-        ),
-    )
     registration = _future_registration(l5.latest_schema_regime())
-    if failure == "incomplete_owner":
-        registration = registration.model_copy(update={"provenance_refs": ()})
-    elif failure == "inflated":
-        registration = registration.model_copy(
-            update={
-                "trust_tier": registration.trust_tier.model_copy(
-                    update={"trust_cap": registration.trust_tier.trust_cap + 0.01}
-                )
-            }
-        )
-    mismatched_baseline = (
-        build_substrate_registry(
-            baseline.entries,
-            producer_ref="test.mismatched.baseline",
-            source_catalog_refs=("test://different-baseline",),
-        )
-        if failure == "stale_baseline"
-        else baseline
-    )
 
-    with pytest.raises(SubstrateRegistryError):
+    with pytest.raises(
+        SubstrateRegistryError,
+        match="substrate_registry_measurement_root_evidence_invalid",
+    ):
         persist_measurement_root_substrate_registry(
             store,
-            baseline_registry=mismatched_baseline,
+            baseline_registry=baseline,
             registration=registration,
             l5_authority=l5,
-            measurement_root_ref=measurement_root_ref,
-            fetch_receipt_ref=fetch_ref,
-            catalog_binding_ref=catalog_ref,
+            evidence=evidence,
             baseline_registry_ref=baseline_ref,
         )
 

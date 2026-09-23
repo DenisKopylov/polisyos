@@ -17,13 +17,16 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 import polisyos.core as core
 from polisyos.pdc import SubstrateLayer, gy_content_hash
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.data_forge_binding import ResolvedMeasurementRootEvidence
 
 ArtifactID = core.artifacts.ArtifactID
 ArtifactRef = core.artifacts.ArtifactRef
@@ -1024,19 +1027,55 @@ def persist_measurement_root_substrate_registry(
     baseline_registry: SubstrateRegistry,
     registration: SubstrateRegistration,
     l5_authority: L5CatalogAuthority,
+    evidence: ResolvedMeasurementRootEvidence,
+    baseline_registry_ref: ArtifactRef | None = None,
+) -> MeasurementRootRegistryAdmission:
+    """Admit one owner registration from replay-verified root evidence.
+
+    The public seam accepts only the typed evidence object emitted by the
+    measurement-root resolver.  Raw refs are deliberately not an admission
+    API: accepting them would turn a shape-only lineage claim into a custody
+    claim.  The resolver's content-bound projection is rechecked before the
+    private persistence helper is reached.
+    """
+
+    from polisyos.runtime.quality.data_forge_binding import (
+        ResolvedMeasurementRootEvidence,
+        _validate_resolved_measurement_root_evidence,
+    )
+
+    if not isinstance(evidence, ResolvedMeasurementRootEvidence):
+        raise SubstrateRegistryError("substrate_registry_measurement_root_evidence_invalid")
+    try:
+        _validate_resolved_measurement_root_evidence(evidence)
+    except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
+        raise SubstrateRegistryError(
+            "substrate_registry_measurement_root_evidence_invalid"
+        ) from exc
+    return _persist_measurement_root_substrate_registry(
+        store,
+        baseline_registry=baseline_registry,
+        registration=registration,
+        l5_authority=l5_authority,
+        measurement_root_ref=evidence.measurement_root_ref,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog_binding_ref=evidence.catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
+
+
+def _persist_measurement_root_substrate_registry(
+    store: _SubstrateRegistryStore,
+    *,
+    baseline_registry: SubstrateRegistry,
+    registration: SubstrateRegistration,
+    l5_authority: L5CatalogAuthority,
     measurement_root_ref: ArtifactRef,
     fetch_receipt_ref: ArtifactRef,
     catalog_binding_ref: ArtifactRef,
     baseline_registry_ref: ArtifactRef | None = None,
 ) -> MeasurementRootRegistryAdmission:
-    """Admit one owner registration and persist its custody-bound registry.
-
-    This is intentionally a thin handoff after the measurement-root owner has
-    replayed and verified the root.  No registration field is derived from
-    that root.  The baseline is loaded and compared before any new registry is
-    written, so a foreign baseline, incomplete owner response, or inflated
-    L5 field cannot alter the existing registry.
-    """
+    """Persist refs after the public resolver seam has verified their custody."""
 
     _validate_measurement_root_registry_inputs(
         measurement_root_ref=measurement_root_ref,

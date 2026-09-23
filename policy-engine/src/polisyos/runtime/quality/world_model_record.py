@@ -21,7 +21,14 @@ from pydantic import (
     ValidationError,
 )
 
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    FileSystemCAS,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+)
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
     ExecPlanRef,
@@ -54,9 +61,11 @@ from polisyos.pdc import (
     world_model_record_content_hash as _world_model_record_content_hash,
 )
 from polisyos.runtime.quality.substrate_registry import (
+    SUBSTRATE_REGISTRY_ARTIFACT_KIND,
     SubstrateRegistry,
     SubstrateRegistryEntry,
     SubstrateRegistryError,
+    load_substrate_registry,
 )
 
 if TYPE_CHECKING:
@@ -189,6 +198,7 @@ def build_world_model_record(
     required_substrate_sources: Sequence[str] = (),
     required_substrate_families: Sequence[str] = (),
     substrate_registry_artifact_ref: ArtifactRef | str | None = None,
+    _loaded_substrate_registry: SubstrateRegistry | None = None,
     foundry_binding_rules: Sequence[FoundryInputBindingRule] | None = None,
     mechanism_refs: Sequence[str] = (),
     gcm_refs: Sequence[str] = (),
@@ -225,6 +235,8 @@ def build_world_model_record(
         required_substrate_families: Family ids that must resolve in S0.
         substrate_registry_artifact_ref: Optional CAS ref to the persisted S0
             registry artifact.
+        _loaded_substrate_registry: Internal S1 handoff that avoids rereading
+            a registry already loaded and validated from this CAS.
         foundry_binding_rules: Optional explicit Foundry input binding rules.
         mechanism_refs: Existing mechanism refs to name; mechanisms remain
             owned by Foundry/IR registries.
@@ -262,10 +274,12 @@ def build_world_model_record(
     resolved_fabric_world_ref = _resolve_fabric_world_ref(fabric_world_ref)
     _resolve_skg_causal_prior_ref(skg_causal_prior_ref)
     substrate_registry_ref = _resolve_substrate_registry_ref(
+        store,
         substrate_registry,
         required_sources=required_substrate_sources,
         required_families=required_substrate_families,
         registry_artifact_ref=substrate_registry_artifact_ref,
+        loaded_registry=_loaded_substrate_registry,
     )
     _assert_same_world_version(
         fabric_world_ref=resolved_fabric_world_ref,
@@ -369,22 +383,30 @@ def build_world_model_record(
         content_hash=content_hash,
         **fields,
     )
+    record_inputs = [
+        InputRef(artifact_id=data_snapshot_ref.artifact_id, role="input.data_snapshot_ref"),
+        InputRef(artifact_id=registry_bundle_ref.artifact_id, role="input.registry_bundle_ref"),
+        InputRef(artifact_id=model_spec_ref.artifact_id, role="input.model_spec_ref"),
+        InputRef(
+            artifact_id=input_bindings.input_bindings_ref.artifact_id,
+            role="artifact.input_bindings_ref",
+        ),
+        InputRef(
+            artifact_id=input_bindings.bound_state_snapshot_ref.artifact_id,
+            role="artifact.bound_state_snapshot_ref",
+        ),
+    ]
+    if substrate_registry_ref.registry_artifact_ref is not None:
+        record_inputs.append(
+            InputRef(
+                artifact_id=substrate_registry_ref.registry_artifact_ref,
+                role="input.substrate_registry_ref",
+            )
+        )
     record_ref = persist_world_model_record(
         store,
         record,
-        inputs=[
-            InputRef(artifact_id=data_snapshot_ref.artifact_id, role="input.data_snapshot_ref"),
-            InputRef(artifact_id=registry_bundle_ref.artifact_id, role="input.registry_bundle_ref"),
-            InputRef(artifact_id=model_spec_ref.artifact_id, role="input.model_spec_ref"),
-            InputRef(
-                artifact_id=input_bindings.input_bindings_ref.artifact_id,
-                role="artifact.input_bindings_ref",
-            ),
-            InputRef(
-                artifact_id=input_bindings.bound_state_snapshot_ref.artifact_id,
-                role="artifact.bound_state_snapshot_ref",
-            ),
-        ],
+        inputs=record_inputs,
     )
     bound_state = load_state_snapshot(store, snapshot_ref=input_bindings.bound_state_snapshot_ref)
     return WorldModelBuildResult(
@@ -813,14 +835,90 @@ def _resolve_skg_causal_prior_ref(skg_causal_prior_ref: SkgCausalPriorRef) -> No
         )
 
 
+def _load_substrate_registry_artifact_ref(
+    store: FileSystemCAS,
+    ref: ArtifactRef | str,
+    *,
+    loaded_registry: SubstrateRegistry | None = None,
+) -> tuple[ArtifactRef, SubstrateRegistry]:
+    """Normalize and load one persisted S0 registry artifact from this CAS."""
+
+    try:
+        if isinstance(ref, ArtifactRef):
+            if (
+                ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+                or ref.media_type != "application/json"
+            ):
+                raise ValueError("substrate registry artifact kind or media type is invalid")
+            artifact_id = ArtifactID.model_validate(str(ref.artifact_id))
+        elif isinstance(ref, str):
+            artifact_id = ArtifactID.model_validate(ref)
+        else:
+            raise TypeError("substrate registry artifact ref must be ArtifactRef or sha256 string")
+        normalized = ArtifactRef(
+            artifact_id=artifact_id,
+            kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            media_type="application/json",
+        )
+        loaded = (
+            SubstrateRegistry.model_validate(loaded_registry.model_dump(mode="json"))
+            if loaded_registry is not None
+            else load_substrate_registry(store, normalized)
+        )
+    except Exception as exc:
+        raise WorldModelRecordError(
+            "substrate_registry_artifact_ref_invalid",
+            "supplied substrate registry ref is not a valid persisted CAS artifact",
+        ) from exc
+    return normalized, loaded
+
+
+def _substrate_registry_entries_for_comparison(
+    registry: SubstrateRegistry,
+) -> tuple[dict[str, Any], ...]:
+    """Return complete, deterministic registry-entry projections for equality."""
+
+    return tuple(
+        sorted(
+            (entry.model_dump(mode="json") for entry in registry.entries),
+            key=lambda entry: (
+                str(entry["source_id"]),
+                str(entry["family_id"]),
+                str(entry["layer"]),
+                str(entry["entry_content_hash"]),
+            ),
+        )
+    )
+
+
 def _resolve_substrate_registry_ref(
+    store: FileSystemCAS,
     substrate_registry: SubstrateRegistry,
     *,
     required_sources: Sequence[str],
     required_families: Sequence[str],
     registry_artifact_ref: ArtifactRef | str | None,
+    loaded_registry: SubstrateRegistry | None = None,
 ) -> SubstrateRegistryRef:
     validated = SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="json"))
+    normalized_registry_ref: ArtifactRef | None = None
+    if registry_artifact_ref is not None:
+        normalized_registry_ref, persisted_registry = _load_substrate_registry_artifact_ref(
+            store,
+            registry_artifact_ref,
+            loaded_registry=loaded_registry,
+        )
+        if (
+            persisted_registry.substrate_version_id != validated.substrate_version_id
+            or persisted_registry.content_hash != validated.content_hash
+            or _substrate_registry_entries_for_comparison(persisted_registry)
+            != _substrate_registry_entries_for_comparison(validated)
+        ):
+            raise WorldModelRecordError(
+                "substrate_registry_artifact_ref_content_mismatch",
+                "persisted registry does not match the supplied in-memory registry",
+            )
+        validated = persisted_registry
     resolved: list[SubstrateRegistryEntry] = []
     try:
         for source_id in required_sources:
@@ -843,7 +941,11 @@ def _resolve_substrate_registry_ref(
     return SubstrateRegistryRef(
         substrate_version_id=validated.substrate_version_id,
         content_hash=validated.content_hash,
-        registry_artifact_ref=_artifact_ref_text(registry_artifact_ref),
+        registry_artifact_ref=(
+            str(normalized_registry_ref.artifact_id)
+            if normalized_registry_ref is not None
+            else None
+        ),
         resolved_entries=tuple(
             ResolvedSubstrateEntryRef(
                 source_id=entry.source_id,
@@ -862,15 +964,6 @@ def _resolve_substrate_registry_ref(
             for entry in unique.values()
         ),
     )
-
-
-def _artifact_ref_text(ref: ArtifactRef | str | None) -> str | None:
-    if ref is None:
-        return None
-    if isinstance(ref, ArtifactRef):
-        return str(ref.artifact_id)
-    return str(ref)
-
 
 def _parse_skg_snapshot_ref(raw_ref: str) -> _ParsedSkgSnapshotRef:
     prefix = "duckdb://"

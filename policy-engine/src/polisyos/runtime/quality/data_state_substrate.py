@@ -34,6 +34,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.substrate_registry import (
     L5CatalogAuthority,
+    SubstrateRegistry,
     SubstrateRegistryError,
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
@@ -50,6 +51,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelLimitations,
     WorldModelRecordError,
     WorldModelSimulationInput,
+    _load_substrate_registry_artifact_ref,
     build_world_model_record,
     consume_world_model_record_for_simulation,
 )
@@ -338,6 +340,7 @@ def materialize_l4_data_state_snapshot(
     agent_limit: int | None = 1024,
     required_l1_variables: Sequence[str] = DEFAULT_DATA_STATE_VARIABLES,
     families: Sequence[str] = DEFAULT_DATA_STATE_FAMILIES,
+    substrate_registry: SubstrateRegistry | None = None,
     period_start: str = DEFAULT_DATA_STATE_PERIOD_START,
     period_end: str = DEFAULT_DATA_STATE_PERIOD_END,
 ) -> DataStateMaterializationResult:
@@ -365,7 +368,8 @@ def materialize_l4_data_state_snapshot(
         period_start=period_start,
         period_end=period_end,
     )
-    substrate_registry = build_substrate_registry_from_existing_catalogs(root)
+    if substrate_registry is None:
+        substrate_registry = build_substrate_registry_from_existing_catalogs(root)
     world_preimage_ref = _world_preimage_ref(
         substrate_version_id=substrate_registry.substrate_version_id,
         agent_limit=agent_limit,
@@ -479,24 +483,42 @@ def build_production_data_state_world_model_record(
     agent_limit: int | None = 1024,
     required_l1_variables: Sequence[str] = DEFAULT_DATA_STATE_VARIABLES,
     required_substrate_families: Sequence[str] = DEFAULT_DATA_STATE_FAMILIES,
+    substrate_registry_artifact_ref: ArtifactRef | str | None = None,
     period_start: str = DEFAULT_DATA_STATE_PERIOD_START,
     period_end: str = DEFAULT_DATA_STATE_PERIOD_END,
 ) -> ProductionDataStateWorldBuildResult:
     """Build an N3 ``WorldModelRecord`` over the real S1 data-state substrate."""
 
     try:
-        materialized = materialize_l4_data_state_snapshot(
-            store,
-            repo_root=repo_root,
-            workspace_dir=workspace_dir,
-            agent_limit=agent_limit,
-            required_l1_variables=required_l1_variables,
-            families=DEFAULT_DATA_STATE_FAMILIES,
-            period_start=period_start,
-            period_end=period_end,
-        )
-        registry = build_substrate_registry_from_existing_catalogs(repo_root)
-        substrate_registry_ref = persist_substrate_registry(store, registry)
+        if substrate_registry_artifact_ref is None:
+            materialized = materialize_l4_data_state_snapshot(
+                store,
+                repo_root=repo_root,
+                workspace_dir=workspace_dir,
+                agent_limit=agent_limit,
+                required_l1_variables=required_l1_variables,
+                families=DEFAULT_DATA_STATE_FAMILIES,
+                period_start=period_start,
+                period_end=period_end,
+            )
+            registry = build_substrate_registry_from_existing_catalogs(repo_root)
+            persisted_registry_ref = persist_substrate_registry(store, registry)
+        else:
+            persisted_registry_ref, registry = _load_substrate_registry_artifact_ref(
+                store,
+                substrate_registry_artifact_ref,
+            )
+            materialized = materialize_l4_data_state_snapshot(
+                store,
+                repo_root=repo_root,
+                workspace_dir=workspace_dir,
+                agent_limit=agent_limit,
+                required_l1_variables=required_l1_variables,
+                families=DEFAULT_DATA_STATE_FAMILIES,
+                substrate_registry=registry,
+                period_start=period_start,
+                period_end=period_end,
+            )
         registry_bundle = build_default_registry_bundle(store)
         model_spec = ModelSpec(
             model_id="model_ua_real_l4_data_state",
@@ -549,7 +571,8 @@ def build_production_data_state_world_model_record(
             model_spec=model_spec,
             skg_causal_prior_ref=skg_ref,
             substrate_registry=registry,
-            substrate_registry_artifact_ref=substrate_registry_ref,
+            substrate_registry_artifact_ref=persisted_registry_ref,
+            _loaded_substrate_registry=registry,
             region_or_jurisdiction="UA",
             population_scope="ukraine_real_l4_representative_firms",
             policy_domain="fiscal_credit",
@@ -592,7 +615,7 @@ def build_production_data_state_world_model_record(
         simulation_input=consume_world_model_record_for_simulation(world_model.record),
         model_spec=model_spec,
         registry_bundle_ref=registry_bundle.bundle_ref,
-        substrate_registry_ref=substrate_registry_ref,
+        substrate_registry_ref=persisted_registry_ref,
     )
 
 

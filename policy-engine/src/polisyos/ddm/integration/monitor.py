@@ -86,6 +86,14 @@ class DriftAndDegradationMonitor:
 
         effective_timestamp = timestamp or datetime.now(UTC)
         shift_risks = [adapt_shift_event(event) for event in shift_events or []]
+        _validate_window_input_identities(
+            model_id=model_id,
+            model_version=model_version,
+            metric_budget=metric_budget,
+            shift_events=shift_risks,
+            degradation_event=degradation_event,
+            data_quality_signals=data_quality_signals,
+        )
         readiness = map_readiness(
             model_id=model_id,
             model_version=model_version,
@@ -137,6 +145,37 @@ class DriftAndDegradationMonitor:
             incident_payload=incident,
             registry_record=registry_record,
         )
+
+
+def _validate_window_input_identities(
+    *,
+    model_id: str,
+    model_version: str,
+    metric_budget: MetricBudgetPolicy | None,
+    shift_events: list[ShiftRiskEvent],
+    degradation_event: PerformanceDegradationEvent | None,
+    data_quality_signals: list[DataQualitySignal] | None,
+) -> None:
+    """Reject window evidence belonging to a different model subject."""
+
+    mismatches: list[str] = []
+    if metric_budget is not None and (
+        metric_budget.model_id != model_id or metric_budget.model_version != model_version
+    ):
+        mismatches.append("metric_budget")
+    for index, event in enumerate(shift_events):
+        if event.model_id != model_id or event.model_version != model_version:
+            mismatches.append(f"shift_events[{index}]")
+    if degradation_event is not None and (
+        degradation_event.model_id != model_id
+        or degradation_event.model_version != model_version
+    ):
+        mismatches.append("degradation_event")
+    for index, signal in enumerate(data_quality_signals or []):
+        if signal.model_id != model_id or signal.model_version != model_version:
+            mismatches.append(f"data_quality_signals[{index}]")
+    if mismatches:
+        raise ValueError("monitor input model identity mismatch: " + ", ".join(mismatches))
 
 
 def _attach_readiness(

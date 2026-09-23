@@ -171,7 +171,8 @@ def test_registry_rejects_calibration_report_for_foreign_target_model() -> None:
 
     assert result.registry_record is not None
     gate = evaluate_registry_gate(result.registry_record)
-    assert gate.promotion_allowed is False, gate.reason
+    assert gate.promotion_allowed is False
+    assert gate.reason == "calibration_model_identity_mismatch"
 
 
 def test_moving_block_bootstrap_is_reproducible_and_preserves_length() -> None:

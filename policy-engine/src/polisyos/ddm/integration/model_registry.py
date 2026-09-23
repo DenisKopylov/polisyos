@@ -48,6 +48,7 @@ class ModelRegistryReadinessRecord(BaseModel):
     _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(
         default=None
     )
+    _identity_binding_reasons: tuple[str, ...] = PrivateAttr(default=())
 
 
 class RegistryGateDecision(BaseModel):
@@ -74,6 +75,14 @@ def build_model_registry_record(
 ) -> ModelRegistryReadinessRecord:
     """Build the durable registry state described by the Phase 5 plan."""
 
+    identity_binding_reasons = _registry_identity_binding_reasons(
+        model_id=readiness_event.model_id,
+        model_version=readiness_event.model_version,
+        calibration_audit=calibration_audit,
+        metric_budget=metric_budget,
+        last_shift_event=last_shift_event,
+        last_degradation_event=last_degradation_event,
+    )
     record = ModelRegistryReadinessRecord(
         model_id=readiness_event.model_id,
         model_version=readiness_event.model_version,
@@ -104,6 +113,7 @@ def build_model_registry_record(
                 model_id=readiness_event.model_id,
                 model_version=readiness_event.model_version,
             )
+            and not identity_binding_reasons
         ),
         calibration_validity=(
             None
@@ -112,6 +122,7 @@ def build_model_registry_record(
         ),
     )
     record._calibration_validity_evidence = _calibration_validity_evidence
+    record._identity_binding_reasons = identity_binding_reasons
     return record
 
 
@@ -164,6 +175,14 @@ def evaluate_registry_gate(
             promotion_allowed=False,
             reason="calibration_fp_certificate_failed",
             required_actions=["recalibrate_detector"],
+        )
+    if record._identity_binding_reasons:
+        return RegistryGateDecision(
+            model_id=record.model_id,
+            model_version=record.model_version,
+            promotion_allowed=False,
+            reason=record._identity_binding_reasons[0],
+            required_actions=["reconcile_registry_bindings"],
         )
     if record.readiness_state in {ReadinessState.R4, ReadinessState.R3}:
         applicability_reason = _calibration_validity_block_reason(record)
@@ -233,6 +252,44 @@ def _calibration_validity_is_authoritative(
         and evidence.projection.observation_status == "observed"
         and evidence.projection.status == "valid"
     )
+
+
+def _registry_identity_binding_reasons(
+    *,
+    model_id: str,
+    model_version: str,
+    calibration_audit: CalibrationAudit,
+    metric_budget: MetricBudgetPolicy,
+    last_shift_event: ShiftRiskEvent | None,
+    last_degradation_event: PerformanceDegradationEvent | None,
+) -> tuple[str, ...]:
+    """Return fail-closed reasons for foreign or legacy window inputs."""
+
+    reasons: list[str] = []
+    if calibration_audit.model_id is None or calibration_audit.model_version is None:
+        reasons.append("calibration_model_identity_not_established")
+    elif (
+        calibration_audit.model_id != model_id
+        or calibration_audit.model_version != model_version
+    ):
+        reasons.append("calibration_model_identity_mismatch")
+
+    if metric_budget.model_id != model_id or metric_budget.model_version != model_version:
+        reasons.append("metric_budget_model_identity_mismatch")
+
+    if last_shift_event is not None and (
+        last_shift_event.model_id != model_id
+        or last_shift_event.model_version != model_version
+    ):
+        reasons.append("shift_event_model_identity_mismatch")
+
+    if last_degradation_event is not None and (
+        last_degradation_event.model_id != model_id
+        or last_degradation_event.model_version != model_version
+    ):
+        reasons.append("degradation_event_model_identity_mismatch")
+
+    return tuple(dict.fromkeys(reasons))
 
 
 def _calibration_validity_block_reason(

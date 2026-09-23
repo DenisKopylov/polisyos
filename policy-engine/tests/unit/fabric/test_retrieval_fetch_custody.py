@@ -201,6 +201,13 @@ def build_recorded_file_fetch_owner(
         if catalog_connector_params is not None
         else {"url": str(csv_path)}
     )
+    if catalog_locator is not None:
+        canonical_catalog_locator = catalog_locator.resolve(strict=True)
+        configured_locator = primary_connector_params.get("url")
+        if configured_locator is None:
+            configured_locator = primary_connector_params.get("path")
+        if configured_locator is not None:
+            assert Path(configured_locator).resolve(strict=True) == canonical_catalog_locator
     dataset_records = [
         DatasetRecord(
             id=f"catalog-{name}",
@@ -225,6 +232,11 @@ def build_recorded_file_fetch_owner(
                         if name == "primary"
                         else {"url": str(csv_path)}
                     ),
+                    # Canonical capture fixtures must resolve the intended
+                    # primary target before the read-only route check.  Keep
+                    # the symbolic fallback binding available for the CAS
+                    # foreign-binding negative case.
+                    quality_score=1.0 if name == "primary" and catalog_locator else 0.0,
                 )
             ],
         )

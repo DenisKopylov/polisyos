@@ -10,8 +10,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import pytest
+
+import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 from polisyos.data_requirement import (
     DataQualityMinimums,
     DataRequirementScope,
@@ -1114,7 +1115,10 @@ async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_wri
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("binding_mode", ("foreign_hash", "foreign_target_slots"))
+@pytest.mark.parametrize(
+    "binding_mode",
+    [("foreign_hash",), ("foreign_target_slots",)],
+)
 async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
     binding_mode: str,
 ) -> None:

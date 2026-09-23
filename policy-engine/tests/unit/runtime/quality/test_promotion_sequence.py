@@ -2474,6 +2474,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     """Project resolved measurement custody into a DataSnapshot without replay."""
 
     from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.fabric.retrieval import custody as retrieval_custody
     from polisyos.runtime.quality import data_forge_binding as binding_owner
 
     owner = fabric_measurement_owner
@@ -2490,6 +2491,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
 
     monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
     monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
 
@@ -2499,8 +2501,9 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     snapshot = DataSnapshot.model_validate(
         canon.from_canonical_bytes(owner.store.get_bytes(snapshot_ref.artifact_id))
     )
-    assert str(snapshot.data_ref.artifact_id) == evidence.payload.payload_ref
-    assert snapshot.stats["snapshot_id"] == evidence.payload.payload_ref
+    expected_payload_artifact_id = str(evidence.payload.payload_ref.artifact_id)
+    assert str(snapshot.data_ref.artifact_id) == expected_payload_artifact_id
+    assert snapshot.stats["snapshot_id"] == expected_payload_artifact_id
     assert snapshot.stats["observed_row_count"] == evidence.payload.observed_row_count
 
     manifest = owner.store.get_manifest(snapshot_ref.artifact_id)
@@ -2513,7 +2516,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert [
         (input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs
     ] == [
-        ("fetched_payload", evidence.payload.payload_ref),
+        ("fetched_payload", expected_payload_artifact_id),
         ("measurement_root", str(evidence.measurement_root_ref.artifact_id)),
         ("fabric_fetch", str(evidence.fetch_receipt_ref.artifact_id)),
         ("catalog_binding", str(evidence.catalog_binding_ref.artifact_id)),
@@ -2526,6 +2529,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
 ) -> None:
     """A rebound evidence object is refused before DataSnapshot CAS persistence."""
 
+    from polisyos.fabric.retrieval import custody as retrieval_custody
     from polisyos.runtime.quality import data_forge_binding as binding_owner
 
     owner = fabric_measurement_owner
@@ -2555,6 +2559,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
 
     monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
     monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
     cas_before = {
@@ -2562,9 +2567,19 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
         for path in owner.store.root.rglob("*")
         if path.is_file()
     }
+    cas_writes: list[object] = []
+    real_put_json = owner.store.put_json
+
+    def _put_json_spy(*args: object, **kwargs: object):
+        cas_writes.append((args, kwargs))
+        return real_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
 
     with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
         persist(store=owner.store, evidence=forged)
+
+    assert cas_writes == []
 
     cas_after = {
         path.relative_to(owner.store.root): path.read_bytes()

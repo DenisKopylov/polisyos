@@ -16,6 +16,10 @@ import pytest
 
 from polisyos.calibration.forecast_bridge import (
     EmpiricalCalibrationContext,
+    EmpiricalCalibrationEvidenceRef,
+    EvidenceArtifactRef,
+    load_empirical_calibration_evidence,
+    persist_empirical_calibration_evidence,
     produce_empirical_calibration_evidence,
 )
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
@@ -26,6 +30,7 @@ from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
+from polisyos.ir.artifacts import ArtifactID, put_json_artifact
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.registry.refs import BacktestReportRef
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
@@ -244,10 +249,44 @@ def test_different_plan_ref_pairs_fail_closed_in_persisted_report(
     )
 
 
+def _persist_binding_ref(
+    store: FileSystemCAS | None,
+    *,
+    role: str,
+    identity: str,
+) -> EvidenceArtifactRef:
+    """Create a typed reference whose manifest and payload can be reconciled."""
+
+    if store is None:
+        payload: dict[str, object] = {
+            "artifact_id": ArtifactID.from_sha256_hex("0" * 64),
+            "kind": f"test.frc02.{role}",
+            "media_type": "application/json",
+        }
+    else:
+        payload = put_json_artifact(
+            store,
+            {"identity": identity, "role": role, "source": "measured-panel"},
+            kind=f"test.frc02.{role}",
+            schema_name="test.frc02.binding",
+            schema_version="1",
+        )
+    payload.update(
+        {
+            "schema_name": "test.frc02.binding",
+            "schema_version": "1",
+            "identity_path": "identity",
+            "identity_value": identity,
+        }
+    )
+    return EvidenceArtifactRef.model_validate(payload)
+
+
 def _calibration_context(
     *,
     model_spec_ref: str,
     policy_spec_ref: str,
+    store: FileSystemCAS | None = None,
     **overrides: object,
 ) -> EmpiricalCalibrationContext:
     """Build the explicit semantic/time binding required by the producer."""
@@ -261,13 +300,31 @@ def _calibration_context(
         "method_version": "1.0.0",
         "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
         "calibration_threshold": 0.5,
-        "calibration_threshold_ref": "threshold://frc02/s10-floor",
-        "observed_outcome_ref": "observation://frc02/outcomes/v1",
-        "prediction_ref": "prediction://frc02/held-out/v1",
-        "evaluation_design_ref": "evaluation://frc02/design/v1",
-        "credible_evaluation_evidence_ref": "evaluation-evidence://frc02/v1",
-        "source_lineage_refs": ("source://panel/v1",),
-        "method_lineage_refs": ("method-lineage://did/v1",),
+        "calibration_threshold_ref": _persist_binding_ref(
+            store, role="calibration-threshold", identity="threshold://frc02/s10-floor"
+        ),
+        "observed_outcome_ref": _persist_binding_ref(
+            store, role="observed-outcome", identity="observation://frc02/outcomes/v1"
+        ),
+        "prediction_ref": _persist_binding_ref(
+            store, role="prediction", identity="prediction://frc02/held-out/v1"
+        ),
+        "evaluation_design_ref": _persist_binding_ref(
+            store, role="evaluation-design", identity="evaluation://frc02/design/v1"
+        ),
+        "credible_evaluation_evidence_ref": _persist_binding_ref(
+            store,
+            role="credible-evaluation",
+            identity="evaluation-evidence://frc02/v1",
+        ),
+        "source_lineage_refs": (
+            _persist_binding_ref(store, role="source-lineage", identity="source://panel/v1"),
+        ),
+        "method_lineage_refs": (
+            _persist_binding_ref(
+                store, role="method-lineage", identity="method-lineage://did/v1"
+            ),
+        ),
         "prediction_time": start,
         "observation_time": start + timedelta(days=1),
         "policy_effective_time": start + timedelta(days=2),
@@ -289,8 +346,10 @@ def _persist_empirical_report(
     persisted_hit_count: int | None = None,
     persisted_evaluated_count: int | None = None,
     metadata: dict[str, object] | None = None,
+    scenario_metadata: dict[str, object] | None = None,
     nominal_confidence_level: float | None = 0.95,
     force_first_observation_outside: bool = False,
+    omit_interval_projections: bool = False,
 ) -> tuple[FileSystemCAS, BacktestReportRef, str | None, str | None]:
     """Persist a report whose interval counters can be reconciled from rows."""
 
@@ -331,10 +390,17 @@ def _persist_empirical_report(
             evaluated if persisted_evaluated_count is None else persisted_evaluated_count
         ),
         interval_hit_count=hits if persisted_hit_count is None else persisted_hit_count,
-        interval_availability=evaluated / len(comparisons) if comparisons else 0.0,
-        interval_hit_rate=(hits / evaluated if evaluated else None),
+        interval_availability=(
+            None
+            if omit_interval_projections
+            else evaluated / len(comparisons) if comparisons else 0.0
+        ),
+        interval_hit_rate=(
+            None if omit_interval_projections else hits / evaluated if evaluated else None
+        ),
         nominal_confidence_level=nominal_confidence_level,
         interval_type="prediction",
+        metadata=scenario_metadata or {},
     )
     report_metadata: dict[str, object] = {
         "model_spec_ref": model_spec_ref,
@@ -350,7 +416,9 @@ def _persist_empirical_report(
         model_spec_ref=model_spec_ref,
         policy_spec_ref=policy_spec_ref,
         scenarios=[scenario],
-        overall_coverage_probability=(hits / evaluated if evaluated else None),
+        overall_coverage_probability=(
+            None if omit_interval_projections else hits / evaluated if evaluated else None
+        ),
         n_scenarios=1,
         n_metrics_evaluated=len(comparisons),
         metadata=report_metadata,
@@ -377,6 +445,7 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_evidence(
         context=_calibration_context(
             model_spec_ref=str(model_ref),
             policy_spec_ref=str(policy_ref),
+            store=store,
         ),
     )
 
@@ -392,8 +461,45 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_evidence(
     ) == (1, 2, 0.5)
     assert (evidence.within_ci_numerator, evidence.within_ci_denominator) == (1, 2)
     assert (evidence.persisted_numerator, evidence.persisted_denominator) == (1, 2)
-    assert evidence.observed_outcome_ref == "observation://frc02/outcomes/v1"
+    assert evidence.observed_outcome_ref is not None
+    assert evidence.observed_outcome_ref.identity_value == "observation://frc02/outcomes/v1"
     assert evidence.failure_codes == ()
+
+
+def test_neutral_evidence_persists_and_reads_back_with_typed_ref(tmp_path: Path) -> None:
+    """Evidence identity comes from a CAS ref and a checked manifest, not a URI."""
+
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True, False),
+        label="persisted-evidence",
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+        ),
+    )
+
+    evidence_ref = persist_empirical_calibration_evidence(store, evidence)
+    assert isinstance(evidence_ref, EmpiricalCalibrationEvidenceRef)
+    assert evidence_ref.kind == "ir.empirical_calibration_evidence"
+    assert evidence_ref.media_type == "application/json"
+    manifest = store.get_manifest(evidence_ref.artifact_id)
+    assert manifest.kind == evidence_ref.kind
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == "polisyos.calibration.empirical_calibration_evidence"
+    assert manifest.artifact_schema.version == "1.0"
+
+    readback = load_empirical_calibration_evidence(store, evidence_ref)
+    assert readback == evidence
+
+    wrong_ref = evidence_ref.model_copy(update={"kind": "wrong.kind"})
+    with pytest.raises(ValueError, match="kind|manifest"):
+        load_empirical_calibration_evidence(store, wrong_ref)
 
 
 def test_observed_comparisons_change_empirical_admission_not_nominal_confidence(
@@ -414,11 +520,13 @@ def test_observed_comparisons_change_empirical_admission_not_nominal_confidence(
     pass_context = _calibration_context(
         model_spec_ref=str(pass_model),
         policy_spec_ref=str(pass_policy),
+        store=pass_store,
         calibration_threshold=1.0,
     )
     fail_context = _calibration_context(
         model_spec_ref=str(fail_model),
         policy_spec_ref=str(fail_policy),
+        store=fail_store,
         calibration_threshold=1.0,
     )
 
@@ -453,6 +561,7 @@ def test_nominal_confidence_without_observations_is_not_empirical_evidence(
         context=_calibration_context(
             model_spec_ref=str(model_ref),
             policy_spec_ref=str(policy_ref),
+            store=store,
         ),
     )
 
@@ -502,12 +611,207 @@ def test_empirical_producer_fail_closed_negative_matrix(case: str, tmp_path: Pat
     context = _calibration_context(
         model_spec_ref=str(model_ref or "model://frc02/v1"),
         policy_spec_ref=str(policy_ref or "policy://frc02/v1"),
+        store=store,
         **context_overrides,
     )
     evidence = produce_empirical_calibration_evidence(store, report_ref, context=context)
 
     assert evidence.usable_for_calibration is False
     assert evidence.failure_codes
+
+
+class _StoreOverride:
+    """Small read-only CAS facade for manifest/content negative probes."""
+
+    def __init__(
+        self,
+        store: FileSystemCAS,
+        *,
+        manifest: object | None = None,
+        bytes_override: bytes | None = None,
+    ) -> None:
+        self._store = store
+        self._manifest = manifest
+        self._bytes_override = bytes_override
+
+    def get_manifest(self, artifact_id: object) -> object:
+        return (
+            self._manifest
+            if self._manifest is not None
+            else self._store.get_manifest(artifact_id)
+        )
+
+    def get_bytes(self, artifact_id: object) -> bytes:
+        return (
+            self._bytes_override
+            if self._bytes_override is not None
+            else self._store.get_bytes(artifact_id)
+        )
+
+
+def test_report_ref_manifest_and_content_binding_are_checked_before_load(
+    tmp_path: Path,
+) -> None:
+    """A typed ref cannot bypass the report manifest or content digest."""
+
+    store, report_ref, _model_ref, _policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True,),
+        label="report-binding",
+    )
+    with pytest.raises(ValueError, match="kind|manifest"):
+        produce_empirical_calibration_evidence(
+            store,
+            report_ref.model_copy(update={"kind": "wrong.kind"}),
+        )
+
+    manifest = store.get_manifest(report_ref.artifact_id).model_copy(update={"kind": "wrong.kind"})
+    with pytest.raises(ValueError, match="manifest kind"):
+        produce_empirical_calibration_evidence(
+            _StoreOverride(store, manifest=manifest),
+            report_ref,
+        )
+    schema_manifest = store.get_manifest(report_ref.artifact_id).model_copy(
+        update={"artifact_schema": {"name": "wrong.schema", "version": "1.0"}}
+    )
+    with pytest.raises(ValueError, match="schema binding"):
+        produce_empirical_calibration_evidence(
+            _StoreOverride(store, manifest=schema_manifest),
+            report_ref,
+        )
+    with pytest.raises(ValueError, match="content binding"):
+        produce_empirical_calibration_evidence(
+            _StoreOverride(store, bytes_override=b"not-the-report"),
+            report_ref,
+        )
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    ("method_ref", "method_version", "rule_version_ref", "estimand"),
+)
+def test_missing_report_bound_scope_fails_closed(
+    missing_field: str,
+    tmp_path: Path,
+) -> None:
+    """A caller context cannot fill a missing report-bound identity field."""
+
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True,),
+        label=f"missing-{missing_field}",
+        metadata={missing_field: None},
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+        ),
+    )
+
+    assert evidence.usable_for_calibration is False
+    assert f"report_{missing_field}_missing" in evidence.failure_codes
+
+
+def test_positive_denominator_requires_complete_persisted_projections(tmp_path: Path) -> None:
+    """Observed rows with missing interval projections remain non-usable."""
+
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True, False),
+        label="incomplete-projections",
+        omit_interval_projections=True,
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+        ),
+    )
+
+    assert evidence.recomputed_denominator == 2
+    assert evidence.usable_for_calibration is False
+    assert "persisted_projection_incomplete" in evidence.failure_codes
+
+
+def test_nested_scope_mixing_fails_closed(tmp_path: Path) -> None:
+    """A nested scenario identity cannot silently widen report scope."""
+
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True, False),
+        label="nested-scope-mix",
+        scenario_metadata={"nested": {"method_ref": "method://other"}},
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+        ),
+    )
+
+    assert evidence.usable_for_calibration is False
+    assert "mixed_method_ref_scope" in evidence.failure_codes
+
+
+def test_provenance_refs_require_manifest_content_and_identity_binding(
+    tmp_path: Path,
+) -> None:
+    """Marker-free but unresolved or identity-mismatched refs fail closed."""
+
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True,),
+        label="provenance-binding",
+    )
+    source_ref = _persist_binding_ref(
+        store,
+        role="source-lineage-bad",
+        identity="source://not-the-declared-source",
+    )
+    context = _calibration_context(
+        model_spec_ref=str(model_ref),
+        policy_spec_ref=str(policy_ref),
+        store=store,
+        source_lineage_refs=(source_ref,),
+    )
+    evidence = produce_empirical_calibration_evidence(store, report_ref, context=context)
+    assert evidence.usable_for_calibration is False
+    assert "provenance_ref_identity_mismatch" in evidence.failure_codes
+
+    missing_source = EvidenceArtifactRef.model_validate(
+        {
+            "artifact_id": ArtifactID.from_sha256_hex("f" * 64),
+            "kind": "test.frc02.missing-source",
+            "media_type": "application/json",
+            "schema_name": "test.frc02.binding",
+            "schema_version": "1",
+            "identity_path": "identity",
+            "identity_value": "source://missing",
+        }
+    )
+    missing_context = _calibration_context(
+        model_spec_ref=str(model_ref),
+        policy_spec_ref=str(policy_ref),
+        store=store,
+        source_lineage_refs=(missing_source,),
+    )
+    missing_evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=missing_context,
+    )
+    assert missing_evidence.usable_for_calibration is False
+    assert "provenance_ref_unresolved" in missing_evidence.failure_codes
 
 
 def test_within_ci_flags_cannot_override_recomputed_bounds(tmp_path: Path) -> None:
@@ -525,6 +829,7 @@ def test_within_ci_flags_cannot_override_recomputed_bounds(tmp_path: Path) -> No
         context=_calibration_context(
             model_spec_ref=str(model_ref),
             policy_spec_ref=str(policy_ref),
+            store=store,
         ),
     )
 
@@ -551,7 +856,9 @@ def test_producer_without_explicit_context_remains_non_usable(tmp_path: Path) ->
     assert "explicit_context_missing" in evidence.failure_codes
 
 
-def test_calibration_context_rejects_duplicate_times_and_synthetic_lineage() -> None:
+def test_calibration_context_rejects_duplicate_times_and_synthetic_lineage(
+    tmp_path: Path,
+) -> None:
     """The typed caller context rejects temporal aliasing and fake provenance."""
 
     with pytest.raises(ValueError, match="temporal roles"):
@@ -560,9 +867,25 @@ def test_calibration_context_rejects_duplicate_times_and_synthetic_lineage() -> 
             policy_spec_ref="policy://frc02/v1",
             observation_time=datetime(2026, 1, 1, tzinfo=UTC),
         )
-    with pytest.raises(ValueError, match="synthetic|self-attested"):
-        _calibration_context(
-            model_spec_ref="model://frc02/v1",
-            policy_spec_ref="policy://frc02/v1",
-            source_lineage_refs=("synthetic_fixture://not-evidence",),
-        )
+    store, report_ref, model_ref, policy_ref = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True,),
+        label="synthetic-lineage",
+    )
+    synthetic_ref = _persist_binding_ref(
+        store,
+        role="synthetic-source",
+        identity="synthetic_fixture://not-evidence",
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+            source_lineage_refs=(synthetic_ref,),
+        ),
+    )
+    assert evidence.usable_for_calibration is False
+    assert "forbidden_provenance_marker" in evidence.failure_codes

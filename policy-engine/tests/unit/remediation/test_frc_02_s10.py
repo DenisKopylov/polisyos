@@ -795,9 +795,13 @@ def test_predictive_denials_and_non_causal_family_survive_s10_projection(
 @pytest.mark.parametrize(
     ("bad_ref", "expected_code"),
     [
-        ("missing", "empirical_evidence_ref_missing"),
-        ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
-        ("foreign", "empirical_evidence_ref_unresolved"),
+        pytest.param("missing", "empirical_evidence_ref_missing", id="missing"),
+        pytest.param(
+            "wrong_kind",
+            "empirical_evidence_ref_kind_mismatch",
+            id="wrong_kind",
+        ),
+        pytest.param("foreign", "empirical_evidence_ref_unresolved", id="foreign"),
     ],
 )
 def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
@@ -867,19 +871,27 @@ def test_corrupt_existing_evidence_bytes_fail_closed_at_gateway(
         "expected_code",
     ),
     [
-        (
+        pytest.param(
             "method-mismatch",
             "forecasting.univariate.other",
             "9.9.9",
             RULE_VERSION_REF,
             "empirical_evidence_method_mismatch",
+            id=(
+                "method-mismatch-forecasting.univariate.other-9.9.9-"
+                "rolling-origin-residual-conformal.v1"
+            ),
         ),
-        (
+        pytest.param(
             "rule-mismatch",
             METHOD_REF,
             METHOD_VERSION,
             "rolling-origin-residual-conformal.v9",
             "empirical_evidence_rule_mismatch",
+            id=(
+                "rule-mismatch-forecasting.univariate.exponential_smoothing-"
+                "1.0.0-rolling-origin-residual-conformal.v9"
+            ),
         ),
     ],
 )

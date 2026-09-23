@@ -543,7 +543,7 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     # predictive calibration observation cannot mint causal, treatment, or S10
     # authority merely because it has a finite interval hit rate.
     assert evidence.authority_scope == PREDICTIVE_AUTHORITY_SCOPE
-    assert PREDICTIVE_AUTHORITY_DENIALS <= set(evidence.may_not_use_for)
+    assert set(evidence.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
     assert evidence.failure_codes == ()
 
     evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)

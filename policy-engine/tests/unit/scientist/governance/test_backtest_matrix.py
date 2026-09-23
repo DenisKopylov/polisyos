@@ -52,8 +52,13 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 5
-    assert report.trust_eligible is True
-    assert report.degraded is False
+    assert report.model_spec_ref is None
+    assert report.policy_spec_ref is None
+    assert report.trust_eligible is False
+    assert report.degraded is True
+    assert report.degraded_reasons == [
+        "bias_statistical_test_not_computable:metric:zero_variance"
+    ]
     assert all("backtest_kind" in scenario.metadata for scenario in report.scenarios)
     assert all(":" in scenario.scenario_id for scenario in report.scenarios)
 
@@ -69,7 +74,13 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 1
-    assert report.trust_eligible is True
+    assert report.model_spec_ref is None
+    assert report.policy_spec_ref is None
+    assert report.trust_eligible is False
+    assert report.degraded is True
+    assert report.degraded_reasons == [
+        "bias_statistical_test_not_computable:metric:insufficient_observations"
+    ]
 
 
 def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, cas_store) -> None:

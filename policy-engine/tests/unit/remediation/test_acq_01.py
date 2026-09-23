@@ -585,7 +585,7 @@ def _real_acq01_route(
     *,
     candidate_content_hash: str,
 ) -> Any:
-    """Build one local FileTabular route through the existing owners.
+    """Build one recorded WorldBank route through the existing owners.
 
     This fixture deliberately stops at the owner-produced route payload.  The
     controller is expected to consume that payload during N7 re-entry; the
@@ -615,7 +615,7 @@ def _real_acq01_route(
         build_world_model_record,
     )
     from tests.unit.fabric.test_retrieval_fetch_custody import (
-        build_recorded_file_fetch_owner,
+        build_worldbank_fetch_owner,
     )
     from tests.unit.runtime.quality.test_world_model_record import (
         _fabric_ref,
@@ -634,10 +634,7 @@ def _real_acq01_route(
         }
     )
     capture_root = tmp_path / "capture"
-    with build_recorded_file_fetch_owner(
-        capture_root,
-        canonicalize_catalog_source=True,
-    ) as owner:
+    with build_worldbank_fetch_owner(capture_root) as owner:
         resolved = owner.service.resolve(
             DataResolveRequest(
                 data_needs=[DataNeed(metric=owner.plan.metric_id)],

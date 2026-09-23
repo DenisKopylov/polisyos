@@ -1215,7 +1215,7 @@
         "polisyos.ir.api"
       ],
       "major_subsystem": true,
-      "export_count": 283,
+      "export_count": 284,
       "exports": [
         "ABMBifurcationReport",
         "ABMIdentifiabilityCertificate",
@@ -1230,6 +1230,7 @@
         "AgentConfig",
         "AgentTypeConfig",
         "ArticleExtractionResult",
+        "ArtifactRefModel",
         "AssumptionSpec",
         "AssumptionType",
         "BacktestPlanBundle",
@@ -1510,7 +1511,7 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 283,
+          "export_count": 284,
           "exports": [
             "ABMBifurcationReport",
             "ABMIdentifiabilityCertificate",
@@ -1525,6 +1526,7 @@
             "AgentConfig",
             "AgentTypeConfig",
             "ArticleExtractionResult",
+            "ArtifactRefModel",
             "AssumptionSpec",
             "AssumptionType",
             "BacktestPlanBundle",
@@ -2143,7 +2145,7 @@
         "polisyos.fabric.world"
       ],
       "major_subsystem": true,
-      "export_count": 40,
+      "export_count": 41,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -2153,6 +2155,7 @@
         "FabricDecisionData",
         "FabricDecisionDataCoverage",
         "FabricDecisionDataResponse",
+        "FabricFetchReceipt",
         "FieldSpec",
         "LineageRef",
         "ProcessingGuarantee",
@@ -2195,7 +2198,7 @@
         {
           "module": "polisyos.fabric",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 40,
+          "export_count": 41,
           "exports": [
             "AccessRef",
             "AuthoredText",
@@ -2205,6 +2208,7 @@
             "FabricDecisionData",
             "FabricDecisionDataCoverage",
             "FabricDecisionDataResponse",
+            "FabricFetchReceipt",
             "FieldSpec",
             "LineageRef",
             "ProcessingGuarantee",

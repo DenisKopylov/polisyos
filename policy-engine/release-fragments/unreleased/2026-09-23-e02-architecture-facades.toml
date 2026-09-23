@@ -1,0 +1,25 @@
+id = "2026-09-23-e02-architecture-facades"
+title = "Route E02 runtime consumers through stable facades"
+type = "fixed"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "E02 runtime consumers now use the supported IR, Core artifact, Core contracts, and Fabric facades while preserving the existing custody and predictive-only semantics."
+evidence = [
+  "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/ir/__init__.py",
+  "src/polisyos/fabric/__init__.py",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "The change is import-path-only for existing runtime behavior. ArtifactRefModel and FabricFetchReceipt are additive lazy-facade exports; existing deep import paths remain available to their owning packages."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir and polisyos.fabric facades; internal: E02 runtime consumer import wiring"
+migration = "Use polisyos.ir.ArtifactRefModel and polisyos.fabric.FabricFetchReceipt for new cross-package consumers. Existing persisted artifacts, custody checks, authority guards, and predictive-only limitations retain their current schemas and semantics."
+limitations = "This repair does not remove inherited architecture baseline drift or promote the FRC predictive evidence into causal/value authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/ir/README.md",
+  "src/polisyos/fabric/README.md",
+]
+runbook_docs = []

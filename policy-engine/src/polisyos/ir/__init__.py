@@ -34,6 +34,7 @@ __all__ = [
     "AgentConfig",
     "AgentTypeConfig",
     "ArticleExtractionResult",
+    "ArtifactRefModel",
     "AssumptionSpec",
     "AssumptionType",
     "BacktestPlanBundle",
@@ -308,6 +309,7 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ArticleExtractionResult": ("polisyos.ir.analytics.literature", "ArticleExtractionResult"),
+    "ArtifactRefModel": ("polisyos.ir.registry.refs", "ArtifactRefModel"),
     "TrinityBundle": ("polisyos.ir.trinity", "TrinityBundle"),
     "ABMBifurcationReport": (
         "polisyos.ir.analytics.phase4_dynamics",

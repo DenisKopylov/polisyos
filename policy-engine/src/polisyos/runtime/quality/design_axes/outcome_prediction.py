@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from pydantic import AwareDatetime, Field, model_validator
 
-from polisyos.ir.registry.refs import ArtifactRefModel  # noqa: TC001
+from polisyos.ir import ArtifactRefModel  # noqa: TC001
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
     ForecastClaimScope,

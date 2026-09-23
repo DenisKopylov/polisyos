@@ -88,12 +88,12 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 283 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 284 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 40 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 41 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 27 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
@@ -1175,7 +1175,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 283 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 284 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
@@ -1185,7 +1185,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (283)</summary>
+<details><summary>Entrypoint exports (284)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1201,6 +1201,7 @@ AdministrativeMissingnessUnitScope
 AgentConfig
 AgentTypeConfig
 ArticleExtractionResult
+ArtifactRefModel
 AssumptionSpec
 AssumptionType
 BacktestPlanBundle
@@ -1505,7 +1506,7 @@ resolve_lazy_export
 
 </details>
 
-<details><summary>Supported exports (283)</summary>
+<details><summary>Supported exports (284)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1521,6 +1522,7 @@ AdministrativeMissingnessUnitScope
 AgentConfig
 AgentTypeConfig
 ArticleExtractionResult
+ArtifactRefModel
 AssumptionSpec
 AssumptionType
 BacktestPlanBundle
@@ -2116,7 +2118,7 @@ write_participation_requirement_bundle
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 40 |
+| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 41 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `module_doc_only` | 0 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | 41 |
 
@@ -2126,7 +2128,7 @@ write_participation_requirement_bundle
 - Facade: `lazy_facade`
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Entrypoint exports (40)</summary>
+<details><summary>Entrypoint exports (41)</summary>
 
 ```text
 AccessRef
@@ -2137,6 +2139,7 @@ DataSchema
 FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
+FabricFetchReceipt
 FieldSpec
 LineageRef
 ProcessingGuarantee
@@ -2233,7 +2236,7 @@ write_world_snapshot
 
 </details>
 
-<details><summary>Supported exports (40)</summary>
+<details><summary>Supported exports (41)</summary>
 
 ```text
 AccessRef
@@ -2244,6 +2247,7 @@ DataSchema
 FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
+FabricFetchReceipt
 FieldSpec
 LineageRef
 ProcessingGuarantee

@@ -33,6 +33,7 @@ IR-подсистеме.
 | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `polisyos.ir.load_policy()`                                               | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes     | [`loading/loaders.py`](./loading/loaders.py)             |
 | `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Нужны базовые Trinity contracts с root import path                           | [`__init__.py`](./__init__.py)                           |
+| `polisyos.ir.ArtifactRefModel`                                            | Нужна typed-ссылка на persisted IR/CAS artifact через root facade             | [`registry/refs.py`](./registry/refs.py)                 |
 | `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Нужен reflection/catalog API для local discovery и generated docs            | [`schemas`](./schemas/__init__.py)                       |
 | `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Нужен базовый observation surface для record/panel payloads                  | [`observation/contracts.py`](./observation/contracts.py) |
 | `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Нужны readiness/execution bundles для downstream foundry/scientist execution | [`observation`](./observation/README.md)                 |

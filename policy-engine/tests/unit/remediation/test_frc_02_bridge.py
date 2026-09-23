@@ -13,6 +13,7 @@ import importlib
 import json
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -193,7 +194,7 @@ def _persist_context_refs(
             role="calibration_threshold",
             report_id=report_id,
             identity=f"threshold://frc02/{threshold:.2f}",
-            payload_fields={"threshold": threshold},
+            payload_fields={"threshold": Decimal(f"{threshold:.2f}")},
         ),
         "observed_outcome": _persist_context_ref(
             store,

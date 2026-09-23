@@ -99,7 +99,11 @@ def build_model_registry_record(
         promotion_allowed=(
             readiness_event.promotion_allowed
             and calibration_audit.pass_
-            and _calibration_validity_is_authoritative(_calibration_validity_evidence)
+            and _calibration_validity_is_authoritative(
+                _calibration_validity_evidence,
+                model_id=readiness_event.model_id,
+                model_version=readiness_event.model_version,
+            )
         ),
         calibration_validity=(
             None
@@ -214,12 +218,17 @@ def evaluate_registry_gate(
 
 def _calibration_validity_is_authoritative(
     evidence: _CalibrationValidityEvidence | None,
+    *,
+    model_id: str,
+    model_version: str,
 ) -> bool:
     """Return whether checker-owned current validity is available and true."""
 
     return (
         evidence is not None
         and evidence.is_bound
+        and evidence.model_id == model_id
+        and evidence.model_version == model_version
         and evidence.status.valid
         and evidence.projection.observation_status == "observed"
         and evidence.projection.status == "valid"
@@ -241,6 +250,10 @@ def _calibration_validity_block_reason(
         return "calibration_identity_mismatch"
     if evidence.projection != projection:
         return "calibration_validity_projection_mismatch"
+    if evidence.model_id is None or evidence.model_version is None:
+        return "calibration_model_identity_not_established"
+    if evidence.model_id != record.model_id or evidence.model_version != record.model_version:
+        return "calibration_model_identity_mismatch"
     if projection.stationarity_regime_id != record.stationarity_regime_id:
         return "calibration_regime_identity_mismatch"
     if projection.observation_status != "observed" or projection.status == "not_established":

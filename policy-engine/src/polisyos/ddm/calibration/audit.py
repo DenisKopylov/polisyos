@@ -47,6 +47,8 @@ class _CalibrationValidityEvidence:
 
     issuer_token: object
     calibration_id: str
+    model_id: str | None
+    model_version: str | None
     report_digest: str
     effective_at: datetime
     status: CalibrationInvalidationStatus
@@ -71,6 +73,8 @@ def build_calibration_audit(
     """Project a calibration report into the runtime audit output."""
 
     return CalibrationAudit(
+        model_id=report.model_id,
+        model_version=report.model_version,
         calibration_id=calibration_id,
         detector_id=report.detector_id,
         stationarity_regime_id=report.stationarity_regime_id,
@@ -208,6 +212,8 @@ def _check_bound_calibration_validity(
     return _CalibrationValidityEvidence(
         issuer_token=_CHECKER_EVIDENCE_TOKEN,
         calibration_id=calibration_id,
+        model_id=report.model_id,
+        model_version=report.model_version,
         report_digest=projection.report_digest,
         effective_at=now,
         status=status,

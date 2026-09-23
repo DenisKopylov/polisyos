@@ -101,6 +101,11 @@ class CalibrationReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    # Legacy reports may omit the subject identity, but such reports are not
+    # eligible for a current registry decision.  The producer below always
+    # copies these fields from the declared stationarity regime.
+    model_id: str | None = Field(default=None, min_length=1)
+    model_version: str | None = Field(default=None, min_length=1)
     detector_id: str = Field(min_length=1)
     stationarity_regime_id: str = Field(min_length=1)
     fp_target: FpTarget
@@ -141,6 +146,8 @@ def calibrate_detector(
     valid_until = stationarity_regime.holdout_stationary_period.end + timedelta(days=30)
 
     return CalibrationReport(
+        model_id=stationarity_regime.model_id,
+        model_version=stationarity_regime.model_version,
         detector_id=detector_id,
         stationarity_regime_id=stationarity_regime.id,
         fp_target=fp_target,

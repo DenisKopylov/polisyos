@@ -267,10 +267,14 @@ class CalibrationValidityProjection(BaseModel):
 
 
 class CalibrationAudit(BaseModel):
-    """False-positive certification under a declared stationarity regime."""
+    """False-positive certification bound to a declared model subject."""
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
+    # Optional keeps legacy payloads readable; registry authority remains
+    # fail-closed until the producer identity is present and reconciled.
+    model_id: str | None = Field(default=None, min_length=1)
+    model_version: str | None = Field(default=None, min_length=1)
     calibration_id: str = Field(min_length=1)
     detector_id: str = Field(min_length=1)
     stationarity_regime_id: str = Field(min_length=1)

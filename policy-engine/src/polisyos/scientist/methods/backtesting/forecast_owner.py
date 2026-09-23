@@ -44,7 +44,6 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
 )
 from polisyos.ir.artifacts import (
     ArtifactID,
-    ArtifactRefModel,
     ArtifactStore,
     InputRef,
     get_json_artifact,
@@ -52,7 +51,11 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import BacktestReportRef, ForecastingUncertaintyBundleRef
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    BacktestReportRef,
+    ForecastingUncertaintyBundleRef,
+)
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
     HistoricalValidationPlan,

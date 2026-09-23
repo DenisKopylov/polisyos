@@ -1033,8 +1033,6 @@ def _validate_resolved_measurement_root_evidence(
         raise FabricMeasurementRootBindingError(
             "measurement_root_evidence_invalid"
         ) from exc
-    if evidence.payload.payload_ref.artifact_id != expected_payload_id:
-        raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
     if expected_envelope.model_dump(mode="json") != evidence.envelope.model_dump(mode="json"):
         raise FabricMeasurementRootBindingError("measurement_root_evidence_projection_mismatch")
     if evidence.measurement_root_ref != expected_payload_ref:

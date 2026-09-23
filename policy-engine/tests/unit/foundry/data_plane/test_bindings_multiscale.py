@@ -478,6 +478,7 @@ def _assert_no_binding_outputs_written(
 
     monkeypatch.setattr(bindings_module, "put_state_snapshot", _fail_state_write)
     original_put_json = store.put_json
+    original_put_bytes = store.put_bytes
 
     def _fail_report_write(obj, opts, *args, **kwargs):
         if opts.kind in {
@@ -489,7 +490,20 @@ def _assert_no_binding_outputs_written(
             )
         return original_put_json(obj, opts, *args, **kwargs)
 
+    def _fail_direct_output_write(data, opts, *args, **kwargs):
+        if opts.kind in {
+            "foundry.state_blob",
+            "foundry.state_snapshot",
+            "foundry.input_bindings",
+            "foundry.input_binding_report",
+        }:
+            raise UnexpectedBindingOutputWrite(
+                f"direct output '{opts.kind}' written before input rejection"
+            )
+        return original_put_bytes(data, opts, *args, **kwargs)
+
     monkeypatch.setattr(store, "put_json", _fail_report_write)
+    monkeypatch.setattr(store, "put_bytes", _fail_direct_output_write)
     invoke()
 
 
@@ -562,6 +576,40 @@ def test_build_input_bindings_rejects_snapshot_media_mismatch_before_output_cas_
     store = FileSystemCAS(tmp_path / "cas")
     arrow_ref = _put_arrow_payload(store)
     mismatched_ref = arrow_ref.model_copy(update={"media_type": "application/json"})
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=mismatched_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    with pytest.raises(ValueError, match="media type"):
+        _assert_no_binding_outputs_written(
+            store,
+            monkeypatch,
+            lambda: build_input_bindings(
+                store,
+                data_snapshot_ref=data_snapshot_ref,
+                registry_bundle_ref=registry_bundle_ref,
+                rules=_arrow_binding_rules(),
+            ),
+        )
+
+
+def test_build_input_bindings_rejects_json_manifest_when_snapshot_ref_claims_arrow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A JSON CAS manifest cannot be consumed through an Arrow-typed snapshot ref."""
+    store = FileSystemCAS(tmp_path / "cas")
+    json_payload_ref = _put_json(
+        store,
+        {"agents": {"income": [1200.0, 1800.0]}},
+        kind="fabric.data_payload",
+    )
+    mismatched_ref = json_payload_ref.model_copy(
+        update={"media_type": "application/vnd.apache.arrow.stream"}
+    )
     data_snapshot_ref = _put_json(
         store,
         DataSnapshot(data_ref=mismatched_ref),

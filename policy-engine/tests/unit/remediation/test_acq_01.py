@@ -1009,6 +1009,19 @@ def _build_acq01_real_route_controller(
     return controller
 
 
+def _assert_n7_world_model_record_semantics(actual: Any, expected: Any) -> None:
+    """Compare every stable WMR field while allowing reconstruction time to advance."""
+
+    actual_projection = actual.model_dump(mode="json")
+    expected_projection = expected.model_dump(mode="json")
+    actual_created_at = datetime.fromisoformat(actual_projection.pop("created_at"))
+    expected_created_at = datetime.fromisoformat(expected_projection.pop("created_at"))
+    assert actual_projection == expected_projection
+    assert actual.world_model_record_id == expected.world_model_record_id
+    assert actual.content_hash == expected.content_hash
+    assert actual_created_at >= expected_created_at
+
+
 @pytest.mark.asyncio
 async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
     tmp_path: Path,
@@ -1086,7 +1099,10 @@ async def test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7(
         assert before[0] is case.before_context
         assert after[0] is not None
         assert after[0] is not case.before_context
-        assert after[0].world_model_record == route.world_build.record
+        _assert_n7_world_model_record_semantics(
+            after[0].world_model_record,
+            route.world_build.record,
+        )
         assert after[0].content_hash != case.before_context.content_hash
         assert {
             "grounding_authority",
@@ -1177,7 +1193,10 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         assert len(n5.requests) == 2
         before_request, after_request = n5.requests
         assert before_request.world_model_record == case.before_context.world_model_record
-        assert after_request.world_model_record == route.world_build.record
+        _assert_n7_world_model_record_semantics(
+            after_request.world_model_record,
+            route.world_build.record,
+        )
         assert after_request.world_model_record_ref == route.world_build.record.world_model_record_id
         assert isinstance(
             controller._value_port,
@@ -1185,7 +1204,10 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         )
         assert controller._value_port.cycle_substrate_context is controller._cycle_substrate_context
         assert controller._cycle_substrate_context is not case.before_context
-        assert controller._cycle_substrate_context.world_model_record == route.world_build.record
+        _assert_n7_world_model_record_semantics(
+            controller._cycle_substrate_context.world_model_record,
+            route.world_build.record,
+        )
         assert run.cycles[0].value_port.status == "value_conditional"
         assert (
             run.cycles[0].value_port.world_model_record_content_hash
@@ -1412,6 +1434,42 @@ async def test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo(
 
         assert invoked is False
         assert run.acquisition_receipts[0]["status"] == "completed"
+
+
+def test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement(
+    tmp_path: Path,
+) -> None:
+    """The real MeasurementRoot producer rejects same-ID source drift."""
+
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        MeasurementRootProducer,
+    )
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_source_requirement_drift")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        source_requirement = route.evidence.payload.source_requirement
+        altered_source_requirement = source_requirement.model_copy(
+            update={
+                "scope": source_requirement.scope.model_copy(update={"geography": "ZZ"}),
+            }
+        )
+        assert altered_source_requirement.requirement_id == source_requirement.requirement_id
+        with pytest.raises(
+            FabricMeasurementRootBindingError,
+            match="measurement_root_source_requirement_mismatch",
+        ):
+            MeasurementRootProducer(artifact_store=route.store).produce_from_fabric_fetch(
+                fetch_receipt_ref=route.evidence.payload.fetch_receipt_ref,
+                catalog=route.catalog,
+                providers=route.providers,
+                design_problem=case.problem,
+                source_requirement=altered_source_requirement,
+            )
 
 
 def test_n7_grounding_fails_closed_without_structural_dependency_membership() -> None:

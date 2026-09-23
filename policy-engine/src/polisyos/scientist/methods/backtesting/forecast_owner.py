@@ -651,12 +651,44 @@ class ForecastOwner:
             raise ValueError("predictive calibration denominator must be non-zero")
         empirical_coverage = coverage_numerator / coverage_denominator
         interval_meta = calibration.metadata.get("interval_coverage", {})
+        if not isinstance(interval_meta, Mapping):
+            raise ValueError("calibration diagnostics lack interval-coverage metadata")
+        interval_bins = calibration.curves.get("interval_coverage")
+        n_comparisons = interval_meta.get("n_comparisons")
         if (
-            not isinstance(interval_meta, Mapping)
-            or interval_meta.get("status") != "evaluated"
-            or int(interval_meta.get("n_comparisons", 0)) != coverage_denominator
+            interval_meta.get("status") != "evaluated"
+            or not isinstance(n_comparisons, int)
+            or isinstance(n_comparisons, bool)
+            or n_comparisons <= 0
+            or not isinstance(interval_bins, (list, tuple))
+            or len(interval_bins) != 1
+            or n_comparisons != len(interval_bins)
         ):
-            raise ValueError("calibration diagnostics did not evaluate the complete holdout")
+            raise ValueError(
+                "calibration diagnostics did not evaluate exactly one interval-coverage curve"
+            )
+        if calibration.metrics.n_obs != coverage_denominator:
+            raise ValueError("calibration diagnostics observation count disagrees with holdout")
+        if any(item.count != coverage_denominator for item in interval_bins):
+            raise ValueError("calibration diagnostics bin count disagrees with holdout")
+        selected_bin = interval_bins[0]
+        if (
+            selected_bin.mean_observed is None
+            or not math.isclose(
+                selected_bin.mean_observed,
+                empirical_coverage,
+                rel_tol=0.0,
+                abs_tol=1e-12,
+            )
+            or selected_bin.mean_predicted is None
+            or not math.isclose(
+                selected_bin.mean_predicted,
+                nominal_coverage,
+                rel_tol=0.0,
+                abs_tol=1e-12,
+            )
+        ):
+            raise ValueError("calibration diagnostics curve values disagree with holdout")
 
         calibration_payload = calibration.model_dump(mode="json")
         calibration_payload["metadata"] = {

@@ -11,6 +11,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -166,8 +167,23 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     diagnostics = get_json_artifact(store, result.calibration_diagnostics_ref.artifact_id)
     assert diagnostics["metadata"]["coverage_numerator"] == result.numerator
     assert diagnostics["metadata"]["coverage_denominator"] == result.denominator
+    assert diagnostics["metrics"]["n_obs"] == result.denominator
+    interval_metadata = diagnostics["metadata"]["interval_coverage"]
+    assert interval_metadata["status"] == "evaluated"
+    assert interval_metadata["n_comparisons"] == 1
+    interval_bins = diagnostics["curves"]["interval_coverage"]
+    assert len(interval_bins) == 1
+    assert interval_bins[0]["count"] == result.denominator
+    assert interval_bins[0]["mean_observed"] == pytest.approx(result.empirical_coverage)
+    assert interval_bins[0]["mean_predicted"] == pytest.approx(result.nominal_coverage)
 
     report = load_backtest_report(store, result.backtest_report_ref)
+    assert report.overall_coverage_probability == pytest.approx(result.empirical_coverage)
+    assert report.metadata["authority_scope"] == "predictive_only"
+    assert (
+        report.metadata["calibration_diagnostics_ref"]["artifact_id"]
+        == str(result.calibration_diagnostics_ref.artifact_id)
+    )
     assert report.trust_eligible is False
     assert report.trust_score is None
     assert "trust_screening:predictive_only_bridge_pending" in report.degraded_reasons
@@ -244,8 +260,16 @@ def test_owner_rejects_subfloor_effective_ets_parameter(tmp_path: Path) -> None:
     )
     payload["method_params"]["alpha"] = 1e-7
 
-    with pytest.raises(ValueError, match="1e-06"):
+    with pytest.raises(ValidationError) as exc_info:
         ForecastOwnerRequest.model_validate(payload)
+    matching_errors = [
+        error
+        for error in exc_info.value.errors()
+        if error["loc"] == ("method_params", "alpha")
+        and error["type"] == "greater_than_equal"
+    ]
+    assert matching_errors
+    assert matching_errors[0]["ctx"]["ge"] == 1e-6
 
 
 @pytest.mark.parametrize(

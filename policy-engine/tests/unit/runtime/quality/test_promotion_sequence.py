@@ -2467,6 +2467,113 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
     ) == admission.registry
 
 
+def test_measurement_root_data_snapshot_projects_replayed_payload(
+    fabric_measurement_owner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Project resolved measurement custody into a DataSnapshot without replay."""
+
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+
+    def _replay_forbidden(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("persisting a DataSnapshot must not replay resolved evidence")
+
+    monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
+    monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
+    assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
+
+    snapshot_ref = persist(store=owner.store, evidence=evidence)
+
+    assert isinstance(snapshot_ref, DataSnapshotRef)
+    snapshot = DataSnapshot.model_validate(
+        canon.from_canonical_bytes(owner.store.get_bytes(snapshot_ref.artifact_id))
+    )
+    assert str(snapshot.data_ref.artifact_id) == evidence.payload.payload_ref
+    assert snapshot.stats["snapshot_id"] == evidence.payload.payload_ref
+    assert snapshot.stats["observed_row_count"] == evidence.payload.observed_row_count
+
+    manifest = owner.store.get_manifest(snapshot_ref.artifact_id)
+    assert manifest.kind == "fabric.data_snapshot"
+    assert manifest.media_type == "application/json"
+    assert manifest.artifact_schema == core_artifacts.SchemaInfo(
+        name="polisyos.core.DataSnapshot",
+        version="0.2.0",
+    )
+    assert [
+        (input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs
+    ] == [
+        ("fetched_payload", evidence.payload.payload_ref),
+        ("measurement_root", str(evidence.measurement_root_ref.artifact_id)),
+        ("fabric_fetch", str(evidence.fetch_receipt_ref.artifact_id)),
+        ("catalog_binding", str(evidence.catalog_binding_ref.artifact_id)),
+    ]
+
+
+def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_write(
+    fabric_measurement_owner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rebound evidence object is refused before DataSnapshot CAS persistence."""
+
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    rebound_payload_ref = "sha256:" + "4" * 64
+    forged = replace(
+        evidence,
+        envelope=binding_owner._fabric_measurement_envelope(
+            evidence.payload,
+            rebound_payload_ref,
+        ),
+        measurement_root_ref=core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(rebound_payload_ref),
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+        ),
+    )
+
+    def _replay_forbidden(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("forged evidence must be rejected before any replay")
+
+    monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
+    monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
+    assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
+    cas_before = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+
+    with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
+        persist(store=owner.store, evidence=forged)
+
+    cas_after = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    assert cas_after == cas_before
+
+
 @pytest.mark.parametrize(
     "mutation",
     [

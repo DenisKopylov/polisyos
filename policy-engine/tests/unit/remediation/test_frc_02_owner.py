@@ -46,8 +46,12 @@ def _source(
     store: FileSystemCAS,
     *,
     holdout: list[float],
+    training: list[float] | None = None,
 ) -> DataSnapshotRef:
-    values = [float(index) for index in range(1, 31)] + holdout
+    training_values = (
+        training if training is not None else [float(index) for index in range(1, 31)]
+    )
+    values = training_values + holdout
     data_ref = _put_json(
         store,
         {"metric": values},
@@ -105,19 +109,21 @@ def _request(
     *,
     report_id: str,
     manifest_inputs: tuple[InputRef, ...] = (),
+    train_end: int = 30,
+    horizon: int = 4,
 ) -> ForecastOwnerRequest:
     return ForecastOwnerRequest(
         observed_source_ref=source_ref,
         split=TrainHoldoutSplit(
             train_start=0,
-            train_end=30,
-            holdout_start=30,
-            holdout_end=34,
-            horizon=4,
+            train_end=train_end,
+            holdout_start=train_end,
+            holdout_end=train_end + horizon,
+            horizon=horizon,
         ),
         target_metric="metric",
         method_fqn=METHOD_FQN,
-        method_params={"horizon": 4, "alpha": 0.3, "beta": 0.1},
+        method_params={"horizon": horizon, "alpha": 0.3, "beta": 0.1},
         report_id=report_id,
         estimand=ESTIMAND,
         calibration_rule=CalibrationRuleBinding(
@@ -149,7 +155,9 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert result.denominator == 4
     assert 0.0 <= result.empirical_coverage <= 1.0
     assert result.nominal_coverage == pytest.approx(0.90)
-    assert result.observed_source_ref.artifact_id == source_ref.artifact_id
+    assert str(result.observed_source_ref.artifact_id) == str(source_ref.artifact_id)
+    assert result.observed_source_ref.kind == source_ref.kind
+    assert result.observed_source_ref.media_type == source_ref.media_type
     assert result.training_slice_ref.kind == "ir.forecast_training_slice"
     assert result.method_artifact_ref.kind == "foundry.method_artifact"
     assert result.uncertainty_bundle_ref.kind == "ir.forecasting_uncertainty_bundle"
@@ -192,28 +200,38 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
 def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     rule_ref = _rule(store)
+    training = [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0]
     in_profile = ForecastOwner(store).run(
         _request(
-            _source(store, holdout=[31.0, 32.0, 33.0, 34.0]),
+            _source(store, training=training, holdout=[20.0, 21.0, 22.0]),
             rule_ref,
             report_id="frc-owner-ets-in-profile",
+            train_end=len(training),
+            horizon=3,
         )
     )
     out_of_profile = ForecastOwner(store).run(
         _request(
-            _source(store, holdout=[1000.0, 1001.0, 1002.0, 1003.0]),
+            _source(store, training=training, holdout=[1000.0, 1001.0, 1002.0]),
             rule_ref,
             report_id="frc-owner-ets-out-of-profile",
+            train_end=len(training),
+            horizon=3,
         )
     )
 
+    in_bundle = load_forecasting_uncertainty_bundle(store, in_profile.uncertainty_bundle_ref)
+    out_bundle = load_forecasting_uncertainty_bundle(store, out_of_profile.uncertainty_bundle_ref)
+    assert in_bundle.horizon_policy.gate_eligible is True
+    assert out_bundle.horizon_policy.gate_eligible is True
     assert in_profile.method_fqn == out_of_profile.method_fqn
     assert in_profile.point_forecast == out_of_profile.point_forecast
     assert in_profile.predictive_intervals == out_of_profile.predictive_intervals
     assert in_profile.empirical_coverage != out_of_profile.empirical_coverage
     assert in_profile.coverage_numerator != out_of_profile.coverage_numerator
     assert in_profile.coverage_denominator == out_of_profile.coverage_denominator
-    assert in_profile.empirical_suitability != out_of_profile.empirical_suitability
+    assert in_profile.empirical_suitability == "supported"
+    assert out_of_profile.empirical_suitability == "limited"
 
 
 def test_owner_rejects_incomplete_model_policy_pair_and_duplicate_inputs(

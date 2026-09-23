@@ -42,6 +42,8 @@ from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
+)
+from polisyos.core.artifacts import (
     FileSystemCAS,
     PutOptions,
     SchemaInfo,

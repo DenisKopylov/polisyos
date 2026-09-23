@@ -38,14 +38,14 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core import components as core_components
+from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
 )
-from polisyos.core import components as core_components
-from polisyos.core import contracts as core_contracts
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,

@@ -11,6 +11,7 @@ import zlib
 from collections.abc import Callable
 from contextlib import suppress
 from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime
 from functools import lru_cache
 from inspect import Parameter, signature
@@ -75,6 +76,7 @@ from polisyos.runtime.quality.credal_reference import (
 from polisyos.runtime.quality.data_forge_binding import (
     MeasurementRootProducer,
     build_fabric_measurement_requirement,
+    resolve_measurement_root_evidence,
 )
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
@@ -106,6 +108,19 @@ from polisyos.runtime.quality.promotion_sequence import (
     recompute_authority_trace_hash,
     run_canonical_promotion_sequence,
     validate_canonical_promotion_receipt,
+)
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateCoverage,
+    SubstrateLayer,
+    SubstrateRegistration,
+    SubstrateRegistryError,
+    build_substrate_registry,
+    build_substrate_registry_from_existing_catalogs,
+    default_substrate_catalog_paths,
+    load_l5_catalog_authority,
+    load_substrate_registry,
+    persist_measurement_root_substrate_registry,
+    persist_substrate_registry,
 )
 from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manifest
 
@@ -2024,6 +2039,29 @@ def _fabric_measurement_envelope(owner, *, include_requirement=True):
     )
 
 
+def _future_substrate_registration(l5):
+    return SubstrateRegistration(
+        source_id="acquisition:test_future_source",
+        family_id="future_observation_family",
+        layer=SubstrateLayer.L4,
+        coverage=SubstrateCoverage(
+            coverage_score=0.42,
+            coverage_kind="acquisition_receipt.coverage",
+            coverage_rule_ref="receipt://acquisition/test-future-source#coverage",
+            dataset_count=1,
+            metric_binding_count=1,
+        ),
+        trust_tier=l5.trust_tiers["weak_anchor"],
+        identification_mode="bounds_only",
+        schema_regime=l5.latest_schema_regime(),
+        data_version="future-source-v1",
+        snapshot_id="future-source-snapshot-v1",
+        source_snapshot_id="future-source-snapshot-v1",
+        provenance_refs=("receipt://acquisition/test-future-source",),
+        authority_refs=("repo://measurement_registry.json",),
+    )
+
+
 def test_n9_measurement_refuses_all_null_observations(fabric_measurement_owner):
     owner = fabric_measurement_owner
     complete_rows = [row for page in owner.http_responses.values() for row in page[1]]
@@ -2376,6 +2414,179 @@ def test_measurement_root_refuses_unestablished_observations(
     }[mutation]
     with pytest.raises(ValueError, match=code):
         _fabric_measurement_envelope(owner)
+
+
+def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
+    fabric_measurement_owner,
+) -> None:
+    """The resolver accepts the producer's BaseDataset/MeasurementRoot pair."""
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+
+    assert evidence.envelope == envelope
+    assert evidence.envelope.ref.artifact_type == "BaseDataset"
+    assert len(evidence.envelope.producer_roots) == 1
+    assert evidence.envelope.producer_roots[0].artifact_type == "MeasurementRoot"
+    assert str(evidence.measurement_root_ref.artifact_id) == envelope.payload_ref
+    assert evidence.fetch_receipt_ref == evidence.payload.fetch_receipt_ref
+    assert evidence.catalog_binding_ref == evidence.payload.catalog_binding_ref
+
+    root_only = envelope.model_copy(
+        update={"ref": envelope.producer_roots[0], "producer_roots": []}
+    )
+    with pytest.raises(ValueError):
+        resolve_measurement_root_evidence(
+            store=owner.store,
+            measurement_root=root_only,
+            catalog=owner.graph,
+            providers=owner.providers,
+        )
+
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    baseline_ref = persist_substrate_registry(owner.store, baseline)
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    admission = persist_measurement_root_substrate_registry(
+        owner.store,
+        baseline_registry=baseline,
+        registration=_future_substrate_registration(l5),
+        l5_authority=l5,
+        evidence=evidence,
+        baseline_registry_ref=baseline_ref,
+    )
+    assert load_substrate_registry(
+        owner.store,
+        admission.registry_ref,
+        expected_inputs=admission.input_refs,
+    ) == admission.registry
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "ref_shaped",
+        "nonexistent_root",
+        "wrong_content",
+        "mismatched_fetch",
+        "mismatched_catalog",
+        "stale_baseline",
+        "rebound_evidence",
+    ],
+)
+def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
+    fabric_measurement_owner,
+    mutation: str,
+) -> None:
+    """Registry persistence cannot be reached through a forged custody ref."""
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    baseline_ref = persist_substrate_registry(owner.store, baseline)
+    cas_before = {
+        path: path.read_bytes()
+        for path in owner.store.root.rglob("*.manifest.json")
+    }
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    registration = _future_substrate_registration(l5)
+    forged: object
+    baseline_for_admission = baseline
+    if mutation == "stale_baseline":
+        forged = evidence
+        baseline_for_admission = build_substrate_registry(
+            baseline.entries,
+            producer_ref="test.mismatched.baseline",
+            source_catalog_refs=("test://different-baseline",),
+        )
+    elif mutation == "rebound_evidence":
+        from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+        rebound_payload_ref = "sha256:" + "4" * 64
+        rebound_envelope = binding_owner._fabric_measurement_envelope(
+            evidence.payload,
+            rebound_payload_ref,
+        )
+        forged = replace(
+            evidence,
+            envelope=rebound_envelope,
+            measurement_root_ref=core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID(rebound_payload_ref),
+                kind="policyos.gy.measurement_root_payload",
+                media_type="application/json",
+            ),
+        )
+    elif mutation == "ref_shaped":
+        forged = {
+            "measurement_root_ref": evidence.measurement_root_ref,
+            "fetch_receipt_ref": evidence.fetch_receipt_ref,
+            "catalog_binding_ref": evidence.catalog_binding_ref,
+        }
+    elif mutation == "nonexistent_root":
+        forged = replace(
+            evidence,
+            measurement_root_ref=core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID("sha256:" + "0" * 64),
+                kind="policyos.gy.measurement_root_payload",
+                media_type="application/json",
+            ),
+        )
+    elif mutation == "wrong_content":
+        forged = replace(
+            evidence,
+            envelope=evidence.envelope.model_copy(
+                update={
+                    "ref": evidence.envelope.ref.model_copy(
+                        update={"content_hash": "sha256:" + "1" * 64}
+                    )
+                }
+            ),
+        )
+    elif mutation == "mismatched_fetch":
+        forged = replace(
+            evidence,
+            fetch_receipt_ref=core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID("sha256:" + "2" * 64),
+                kind="fabric.fetch_receipt",
+                media_type="application/json",
+            ),
+        )
+    else:
+        forged = replace(
+            evidence,
+            catalog_binding_ref=core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID("sha256:" + "3" * 64),
+                kind="fabric.catalog_fetch_binding",
+                media_type="application/json",
+            ),
+        )
+
+    with pytest.raises(SubstrateRegistryError):
+        persist_measurement_root_substrate_registry(
+            owner.store,
+            baseline_registry=baseline_for_admission,
+            registration=registration,
+            l5_authority=l5,
+            evidence=forged,
+            baseline_registry_ref=baseline_ref,
+        )
+    cas_after = {
+        path: path.read_bytes()
+        for path in owner.store.root.rglob("*.manifest.json")
+    }
+    assert cas_after == cas_before
+    assert load_substrate_registry(owner.store, baseline_ref) == baseline
 
 
 def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_owner) -> None:

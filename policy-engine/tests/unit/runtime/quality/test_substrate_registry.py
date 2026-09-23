@@ -25,6 +25,7 @@ from polisyos.runtime.quality.substrate_registry import (
     default_substrate_catalog_paths,
     load_l5_catalog_authority,
     load_substrate_registry,
+    persist_measurement_root_substrate_registry,
     persist_substrate_registry,
     register_substrate_entry,
     resolve_l5_schema_regime_projection,
@@ -428,6 +429,42 @@ def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: 
     assert loaded.content_hash == registry.content_hash
     assert loaded.substrate_version_id == registry.substrate_version_id
     assert not list((REPO_ROOT / "src/polisyos/runtime/quality").rglob("gy_s0_*.py"))
+
+
+@pytest.mark.parametrize(
+    "evidence",
+    (
+        None,
+        {"measurement_root_ref": "sha256:foreign", "fetch_receipt_ref": "sha256:foreign"},
+        object(),
+    ),
+)
+def test_measurement_root_registration_rejects_shape_only_evidence(
+    tmp_path: Path,
+    evidence: object,
+) -> None:
+    """Raw or unverified refs never reach registry persistence."""
+
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    store = FileSystemCAS(tmp_path / "cas")
+    baseline_ref = persist_substrate_registry(store, baseline)
+    registration = _future_registration(l5.latest_schema_regime())
+
+    with pytest.raises(
+        SubstrateRegistryError,
+        match="substrate_registry_measurement_root_evidence_invalid",
+    ):
+        persist_measurement_root_substrate_registry(
+            store,
+            baseline_registry=baseline,
+            registration=registration,
+            l5_authority=l5,
+            evidence=evidence,
+            baseline_registry_ref=baseline_ref,
+        )
+
+    assert load_substrate_registry(store, baseline_ref) == baseline
 
 
 def test_l5_scope_relation_not_projection_mapping_decides_applicability() -> None:

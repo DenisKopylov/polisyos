@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from contextlib import contextmanager, nullcontext
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Literal
 
 import pandas as pd
 import pytest
@@ -24,6 +26,17 @@ from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.retrieval.providers import RetrievalProviders
 from polisyos.fabric.retrieval.service import RetrievalService
 from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
+
+
+@dataclass(frozen=True)
+class _RecordedHTTPExchange:
+    """Capture the minimal World Bank transport protocol used by the real owner."""
+
+    kind: Literal["health", "data"]
+    url: str
+    params: dict[str, str]
+    response: object
+    headers: dict[str, str]
 
 
 @contextmanager
@@ -303,7 +316,7 @@ def build_worldbank_fetch_owner(tmp_path):
         and node.target.id == "responses"
     )
     responses = ast.literal_eval(declaration.value)
-    requests = []
+    requests: list[_RecordedHTTPExchange] = []
     raw_rows = [row for page in sorted(responses) for row in responses[page][1]]
     indicator_ids = {row["indicator"]["id"] for row in raw_rows}
     assert indicator_ids == {"NY.GDP.MKTP.CD"}
@@ -339,16 +352,43 @@ def build_worldbank_fetch_owner(tmp_path):
     async def request_json(_session, url, *, params, connector_id):
         assert connector_id == "worldbank.wdi"
         assert url.endswith("/indicator/NY.GDP.MKTP.CD")
-        requests.append((url, dict(params)))
-        body = responses[int(params["page"])]
-        return (
-            body,
-            {"ETag": '"wdi-etag-1"', "Last-Modified": "Mon, 01 Jan 2024 00:00:00 GMT"},
-            json.dumps(body).encode(),
+        if "page" in params:
+            request_kind: Literal["health", "data"] = "data"
+            body = responses[int(params["page"])]
+        else:
+            request_kind = "health"
+            assert params == {"format": "json", "per_page": "1"}
+            body = [{"pages": 1}, [raw_rows[0]]]
+        headers = {
+            "ETag": '"wdi-etag-1"',
+            "Last-Modified": "Mon, 01 Jan 2024 00:00:00 GMT",
+        }
+        requests.append(
+            _RecordedHTTPExchange(
+                kind=request_kind,
+                url=url,
+                params=dict(params),
+                response=body,
+                headers=headers,
+            )
         )
+        return body, headers, json.dumps(body).encode()
 
-    async def get_session(self, _handle):
-        return object()
+    class _RecordedSession:
+        """Provide the lifecycle surface used by the real HTTP connector cleanup."""
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        async def close(self) -> None:
+            self.closed = True
+
+    async def get_session(self, handle):
+        session = handle.get_state(self._STATE_SESSION_KEY)
+        if session is None or session.closed:
+            session = _RecordedSession()
+            handle.set_state(self._STATE_SESSION_KEY, session)
+        return session
 
     registry = ConnectorRegistry()
     registry.register(
@@ -406,6 +446,26 @@ def _execute(owner, plan=None):
     return owner.service.execute_fetch_plans(
         [plan or resolved.fetch_plans[0]], persist_payload=True
     ).previews[0]
+
+
+def _exercise_worldbank_pool_protocol(owner) -> None:
+    """Reuse one real pool so its health validation and data pagination both run."""
+    from polisyos.common.async_tools import run_coro_sync
+    from polisyos.fabric.retrieval.executor import _fetch_request
+
+    async def _exercise() -> None:
+        registry = owner.providers.registry
+        connector = registry.get("worldbank.wdi", enable_cache=False)
+        config = registry.get_default_config("worldbank.wdi")
+        request = _fetch_request(owner.plan, page_size=None)
+        for _ in range(2):
+            handle = await registry.get_connection("worldbank.wdi", config)
+            try:
+                await connector.fetch(handle, request)
+            finally:
+                await registry.release_connection("worldbank.wdi", handle)
+
+    run_coro_sync(_exercise())
 
 
 def test_persisted_fetch_carries_complete_payload_and_actual_catalog(real_fetch_owner):
@@ -774,9 +834,52 @@ def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tm
         )
         pd.testing.assert_frame_equal(resolved.result.data, owner.frame)
         pd.testing.assert_frame_equal(resolved.replayed_result.data, owner.frame)
-        assert owner.http_requests[len(before) :] == list(before[-2:])
+        replayed_requests = owner.http_requests[len(before) :]
+        assert [request.kind for request in replayed_requests] == ["health", "data", "data"]
+        health = replayed_requests[0]
+        data = replayed_requests[1:]
+        assert health.params == {"format": "json", "per_page": "1"}
+        assert "page" not in health.params
+        assert [request.params["page"] for request in data] == ["1", "2"]
+        assert all(
+            request.response in owner.http_responses.values()
+            for request in data
+        )
+        assert all(
+            request.headers["ETag"] == '"wdi-etag-1"'
+            for request in replayed_requests
+        )
         assert resolved.used_plan.connector_id == "worldbank.wdi"
         assert resolved.used_plan.dataset_id == "NY.GDP.MKTP.CD"
+
+
+def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_path):
+    """Witness one pool health check and two complete paginated data fetches."""
+    with build_worldbank_fetch_owner(tmp_path) as owner:
+        start = len(owner.http_requests)
+        _exercise_worldbank_pool_protocol(owner)
+        exchanges = owner.http_requests[start:]
+
+        assert [exchange.kind for exchange in exchanges] == [
+            "health",
+            "data",
+            "data",
+            "data",
+            "data",
+        ]
+        health = [exchange for exchange in exchanges if exchange.kind == "health"]
+        data = [exchange for exchange in exchanges if exchange.kind == "data"]
+        assert len(health) == 1
+        assert all(
+            exchange.params == {"format": "json", "per_page": "1"}
+            for exchange in health
+        )
+        assert all("page" not in exchange.params for exchange in health)
+        assert [exchange.params["page"] for exchange in data] == ["1", "2", "1", "2"]
+        assert all("page" in exchange.params for exchange in data)
+        assert all(
+            exchange.response is not None and exchange.headers for exchange in exchanges
+        )
 
 
 @pytest.mark.parametrize(

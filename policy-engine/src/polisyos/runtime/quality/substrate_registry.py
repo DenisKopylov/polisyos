@@ -17,13 +17,16 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 import polisyos.core as core
 from polisyos.pdc import SubstrateLayer, gy_content_hash
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.data_forge_binding import ResolvedMeasurementRootEvidence
 
 ArtifactID = core.artifacts.ArtifactID
 ArtifactRef = core.artifacts.ArtifactRef
@@ -91,6 +94,10 @@ class _SubstrateRegistryStore(Protocol):
 
     def get_bytes(self, artifact_id: object) -> bytes:
         """Load artifact bytes by id."""
+        ...
+
+    def get_manifest(self, artifact_id: object) -> Any:
+        """Load the manifest needed for lineage verification."""
         ...
 
 
@@ -251,6 +258,25 @@ class SubstrateRegistry(_StrictModel):
                 ),
             )
         return tuple(matches)
+
+
+@dataclass(frozen=True)
+class MeasurementRootRegistryAdmission:
+    """Persisted registry update admitted from an already replayed root.
+
+    The root, fetch, and catalog references are lineage inputs only.  Source,
+    family, coverage, trust, identification, and schema fields always come
+    from the separately issued :class:`SubstrateRegistration` and are checked
+    against the existing L5 authority before a new registry version is built.
+    """
+
+    registry: SubstrateRegistry
+    registry_ref: ArtifactRef
+    input_refs: tuple[core.artifacts.InputRef, ...]
+    measurement_root_ref: ArtifactRef
+    fetch_receipt_ref: ArtifactRef
+    catalog_binding_ref: ArtifactRef
+    baseline_registry_ref: ArtifactRef | None
 
 
 @dataclass(frozen=True)
@@ -995,6 +1021,189 @@ def register_substrate_entry(
     )
 
 
+def persist_measurement_root_substrate_registry(
+    store: _SubstrateRegistryStore,
+    *,
+    baseline_registry: SubstrateRegistry,
+    registration: SubstrateRegistration,
+    l5_authority: L5CatalogAuthority,
+    evidence: ResolvedMeasurementRootEvidence,
+    baseline_registry_ref: ArtifactRef | None = None,
+) -> MeasurementRootRegistryAdmission:
+    """Admit one owner registration from replay-verified root evidence.
+
+    The public seam accepts only the typed evidence object emitted by the
+    measurement-root resolver.  Raw refs are deliberately not an admission
+    API: accepting them would turn a shape-only lineage claim into a custody
+    claim.  The resolver's content-bound projection and deterministic evidence
+    fingerprint are rechecked before the private persistence helper is reached.
+    """
+
+    from polisyos.runtime.quality.data_forge_binding import (
+        ResolvedMeasurementRootEvidence,
+        _validate_resolved_measurement_root_evidence,
+    )
+
+    if not isinstance(evidence, ResolvedMeasurementRootEvidence):
+        raise SubstrateRegistryError("substrate_registry_measurement_root_evidence_invalid")
+    try:
+        _validate_resolved_measurement_root_evidence(evidence)
+    except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
+        raise SubstrateRegistryError(
+            "substrate_registry_measurement_root_evidence_invalid"
+        ) from exc
+    return _persist_measurement_root_substrate_registry(
+        store,
+        baseline_registry=baseline_registry,
+        registration=registration,
+        l5_authority=l5_authority,
+        measurement_root_ref=evidence.measurement_root_ref,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog_binding_ref=evidence.catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
+
+
+def _persist_measurement_root_substrate_registry(
+    store: _SubstrateRegistryStore,
+    *,
+    baseline_registry: SubstrateRegistry,
+    registration: SubstrateRegistration,
+    l5_authority: L5CatalogAuthority,
+    measurement_root_ref: ArtifactRef,
+    fetch_receipt_ref: ArtifactRef,
+    catalog_binding_ref: ArtifactRef,
+    baseline_registry_ref: ArtifactRef | None = None,
+) -> MeasurementRootRegistryAdmission:
+    """Persist refs after the public resolver seam has verified their custody."""
+
+    _validate_measurement_root_registry_inputs(
+        measurement_root_ref=measurement_root_ref,
+        fetch_receipt_ref=fetch_receipt_ref,
+        catalog_binding_ref=catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
+    _validate_owner_registration(registration)
+    if baseline_registry_ref is not None:
+        persisted_baseline = load_substrate_registry(store, baseline_registry_ref)
+        if persisted_baseline != baseline_registry:
+            raise SubstrateRegistryError("substrate_registry_baseline_mismatch")
+
+    # This is the sole authority check for the registration.  In particular,
+    # the MeasurementRoot is never used to select or inflate any registration
+    # property.
+    updated = register_substrate_entry(
+        baseline_registry,
+        registration,
+        l5_authority=l5_authority,
+        producer_ref=(
+            "polisyos.runtime.quality.substrate_registry."
+            "persist_measurement_root_substrate_registry"
+        ),
+    )
+    input_refs = _measurement_root_registry_input_refs(
+        measurement_root_ref=measurement_root_ref,
+        fetch_receipt_ref=fetch_receipt_ref,
+        catalog_binding_ref=catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
+    registry_ref = ArtifactRef.model_validate(
+        persist_substrate_registry(store, updated, inputs=input_refs)
+    )
+    loaded = load_substrate_registry(
+        store,
+        registry_ref,
+        expected_inputs=input_refs,
+    )
+    return MeasurementRootRegistryAdmission(
+        registry=loaded,
+        registry_ref=registry_ref,
+        input_refs=input_refs,
+        measurement_root_ref=measurement_root_ref,
+        fetch_receipt_ref=fetch_receipt_ref,
+        catalog_binding_ref=catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
+
+
+def _validate_measurement_root_registry_inputs(
+    *,
+    measurement_root_ref: ArtifactRef,
+    fetch_receipt_ref: ArtifactRef,
+    catalog_binding_ref: ArtifactRef,
+    baseline_registry_ref: ArtifactRef | None,
+) -> None:
+    """Validate immutable CAS reference kinds before building a registry."""
+
+    refs = (
+        (measurement_root_ref, "measurement_root", "policyos.gy.measurement_root_payload"),
+        (fetch_receipt_ref, "fabric_fetch", "fabric.fetch_receipt"),
+        (catalog_binding_ref, "catalog_binding", "fabric.catalog_fetch_binding"),
+    )
+    if baseline_registry_ref is not None:
+        refs += (
+            (
+                baseline_registry_ref,
+                "baseline_substrate_registry",
+                SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            ),
+        )
+    seen: set[str] = set()
+    for ref, role, expected_kind in refs:
+        if not isinstance(ref, ArtifactRef):
+            raise SubstrateRegistryError(f"substrate_registry_{role}_ref_invalid")
+        artifact_id = str(ref.artifact_id)
+        if not artifact_id.startswith("sha256:") or artifact_id in seen:
+            raise SubstrateRegistryError(f"substrate_registry_{role}_ref_invalid")
+        if ref.kind != expected_kind:
+            raise SubstrateRegistryError(f"substrate_registry_{role}_kind_invalid")
+        seen.add(artifact_id)
+
+
+def _validate_owner_registration(registration: SubstrateRegistration) -> None:
+    """Reject owner responses that omit the provenance needed for admission."""
+
+    if not isinstance(registration, SubstrateRegistration):
+        raise SubstrateRegistryError("substrate_registration_incomplete")
+    if any(not isinstance(ref, str) or not ref.strip() for ref in registration.provenance_refs):
+        raise SubstrateRegistryError("substrate_registration_provenance_missing")
+    if any(not isinstance(ref, str) or not ref.strip() for ref in registration.authority_refs):
+        raise SubstrateRegistryError("substrate_registration_authority_missing")
+    if not registration.provenance_refs or not registration.authority_refs:
+        raise SubstrateRegistryError("substrate_registration_incomplete")
+
+
+def _measurement_root_registry_input_refs(
+    *,
+    measurement_root_ref: ArtifactRef,
+    fetch_receipt_ref: ArtifactRef,
+    catalog_binding_ref: ArtifactRef,
+    baseline_registry_ref: ArtifactRef | None,
+) -> tuple[core.artifacts.InputRef, ...]:
+    refs = [
+        core.artifacts.InputRef(
+            artifact_id=measurement_root_ref.artifact_id,
+            role="measurement_root",
+        ),
+        core.artifacts.InputRef(
+            artifact_id=fetch_receipt_ref.artifact_id,
+            role="fabric_fetch",
+        ),
+        core.artifacts.InputRef(
+            artifact_id=catalog_binding_ref.artifact_id,
+            role="catalog_binding",
+        ),
+    ]
+    if baseline_registry_ref is not None:
+        refs.append(
+            core.artifacts.InputRef(
+                artifact_id=baseline_registry_ref.artifact_id,
+                role="baseline_substrate_registry",
+            )
+        )
+    return tuple(refs)
+
+
 def persist_substrate_registry(
     store: _SubstrateRegistryStore,
     registry: SubstrateRegistry,
@@ -1024,11 +1233,36 @@ def persist_substrate_registry(
 def load_substrate_registry(
     store: _SubstrateRegistryStore,
     ref: _ArtifactRefLike | str,
+    *,
+    expected_inputs: Sequence[object] | None = None,
 ) -> SubstrateRegistry:
-    """Load a persisted registry and verify its content hash."""
+    """Load a persisted registry, optionally checking its direct lineage."""
 
     artifacts = core.artifacts
     artifact_id = ref.artifact_id if isinstance(ref, artifacts.ArtifactRef) else ref
+    manifest = store.get_manifest(artifact_id)
+    if isinstance(ref, artifacts.ArtifactRef) and ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND:
+        raise SubstrateRegistryError("substrate_registry_ref_kind_invalid")
+    if (
+        manifest.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(
+            name=SUBSTRATE_REGISTRY_SCHEMA_NAME,
+            version=SUBSTRATE_REGISTRY_SCHEMA_VERSION,
+        )
+    ):
+        raise SubstrateRegistryError("substrate_registry_manifest_invalid")
+    if expected_inputs is not None:
+        actual_inputs = tuple(manifest.inputs)
+        expected = tuple(
+            input_ref
+            if isinstance(input_ref, artifacts.InputRef)
+            else artifacts.InputRef.model_validate(input_ref)
+            for input_ref in expected_inputs
+        )
+        if actual_inputs != expected:
+            raise SubstrateRegistryError("substrate_registry_manifest_inputs_mismatch")
     payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
     return SubstrateRegistry.model_validate(payload)
 

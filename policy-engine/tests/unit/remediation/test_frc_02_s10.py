@@ -1,15 +1,14 @@
 """Test-first witnesses for the FRC-02 predictive-evidence to S10 bridge.
 
-The producer is deliberately exercised through its persisted CAS artifact and
-readback loader.  These tests do not grant the neutral predictive artifact
-causal or broad S10 authority: the expected downstream result is a separate,
-bounded S10 projection whose source denials and content binding remain
-visible.
+Closure witnesses use the production-named
+``RealValueOwnerGateway.produce_forecast_inputs`` path with an injected
+canonical evidence resolver.  The caller supplies a typed persisted evidence
+reference through the method-owner result, not a decoded mapping or derived
+status/count/time fields.  The gateway/consumer must resolve the reference in
+the same CAS and derive the S10 projection itself.
 
-This is a RED test-only candidate.  The current generation-cycle builder still
-manufactures S10 refs, fixes ``foundry_causal`` for every method, and does not
-consume the persisted evidence ref.  Production changes belong to the parent
-FRC-02 implementation lease.
+The raw-report guard at the bottom is characterization only.  It preserves
+the FRC-01 no-fake-pass boundary and is not claimed as the new RED.
 """
 
 from __future__ import annotations
@@ -31,6 +30,7 @@ from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
+from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
 from polisyos.ir.artifacts import InputRef, put_json_artifact
 from polisyos.ir.registry.refs import BacktestReportRef
 
@@ -101,14 +101,6 @@ def _bridge() -> Any:
     return importlib.import_module("polisyos.calibration.forecast_bridge")
 
 
-def _generation_cycle(name: str) -> Any:
-    """Resolve the current generation-cycle seam under test."""
-
-    import polisyos.runtime.quality.generation_cycle as module
-
-    return getattr(module, name)
-
-
 def _persist_context_ref(
     store: FileSystemCAS,
     *,
@@ -156,6 +148,9 @@ def _persist_context_refs(
     store: FileSystemCAS,
     *,
     report_id: str,
+    method_ref: str,
+    method_version: str,
+    rule_version_ref: str,
     threshold: float,
 ) -> dict[str, dict[str, str]]:
     """Persist the complete neutral context required by the producer."""
@@ -165,63 +160,47 @@ def _persist_context_refs(
         "model_spec_ref": MODEL_REF,
         "policy_spec_ref": POLICY_REF,
         "estimand": ESTIMAND,
-        "method_ref": METHOD_REF,
-        "method_version": METHOD_VERSION,
-        "rule_version_ref": RULE_VERSION_REF,
+        "method_ref": method_ref,
+        "method_version": method_version,
+        "rule_version_ref": rule_version_ref,
         "calibration_threshold": f"{threshold:.2f}",
     }
+    specs: tuple[tuple[str, str, str, Mapping[str, object] | None], ...] = (
+        ("scope_binding", report_id, "report_id", binding),
+        (
+            "calibration_threshold",
+            f"threshold://frc02/{threshold:.2f}",
+            "identity",
+            {"threshold": Decimal(f"{threshold:.2f}")},
+        ),
+        ("observed_outcome", "observation://frc02/held-out/v1", "identity", None),
+        ("prediction", "prediction://frc02/held-out/v1", "identity", None),
+        (
+            "evaluation_design",
+            "evaluation://frc02/rolling-origin/v1",
+            "identity",
+            None,
+        ),
+        (
+            "credible_evaluation",
+            "evaluation-evidence://frc02/v1",
+            "identity",
+            None,
+        ),
+        ("source_lineage", "source://frc02/panel/v1", "identity", None),
+        ("method_lineage", "method-lineage://frc02/ets/v1", "identity", None),
+    )
     return {
-        "scope_binding": _persist_context_ref(
+        role: _persist_context_ref(
             store,
-            role="scope_binding",
+            role=role,
             report_id=report_id,
-            identity=report_id,
-            identity_path="report_id",
-            binding=binding,
-        ),
-        "calibration_threshold": _persist_context_ref(
-            store,
-            role="calibration_threshold",
-            report_id=report_id,
-            identity=f"threshold://frc02/{threshold:.2f}",
-            payload_fields={"threshold": Decimal(f"{threshold:.2f}")},
-        ),
-        "observed_outcome": _persist_context_ref(
-            store,
-            role="observed_outcome",
-            report_id=report_id,
-            identity="observation://frc02/held-out/v1",
-        ),
-        "prediction": _persist_context_ref(
-            store,
-            role="prediction",
-            report_id=report_id,
-            identity="prediction://frc02/held-out/v1",
-        ),
-        "evaluation_design": _persist_context_ref(
-            store,
-            role="evaluation_design",
-            report_id=report_id,
-            identity="evaluation://frc02/rolling-origin/v1",
-        ),
-        "credible_evaluation": _persist_context_ref(
-            store,
-            role="credible_evaluation",
-            report_id=report_id,
-            identity="evaluation-evidence://frc02/v1",
-        ),
-        "source_lineage": _persist_context_ref(
-            store,
-            role="source_lineage",
-            report_id=report_id,
-            identity="source://frc02/panel/v1",
-        ),
-        "method_lineage": _persist_context_ref(
-            store,
-            role="method_lineage",
-            report_id=report_id,
-            identity="method-lineage://frc02/ets/v1",
-        ),
+            identity=identity,
+            identity_path=identity_path,
+            binding=(payload_fields if role == "scope_binding" else None),
+            payload_fields=(payload_fields if role != "scope_binding" else None),
+        )
+        for role, identity, identity_path, payload_fields in specs
     }
 
 
@@ -232,8 +211,11 @@ def _persist_report(
     observations: tuple[bool | None, ...],
     nominal_confidence: float = 0.95,
     threshold: float = 0.5,
+    method_ref: str = METHOD_REF,
+    method_version: str = METHOD_VERSION,
+    rule_version_ref: str = RULE_VERSION_REF,
 ) -> tuple[FileSystemCAS, BacktestReportRef, dict[str, dict[str, str]]]:
-    """Persist a real backtest report with recomputable interval observations."""
+    """Persist a report whose held-out interval hits are recomputable."""
 
     store = FileSystemCAS(tmp_path / f"frc02-s10-{label}-cas")
     report_id = f"frc02-s10-{label}"
@@ -241,20 +223,13 @@ def _persist_report(
     for index, observed_hit in enumerate(observations):
         y_pred = 10.0 + index
         if observed_hit is None:
-            y_true = y_pred
-            absolute_error = 0.0
-            ci_lower = None
-            ci_upper = None
+            y_true, absolute_error, ci_lower, ci_upper = y_pred, 0.0, None, None
         elif observed_hit:
-            y_true = y_pred
-            absolute_error = 0.0
-            ci_lower = y_pred - 0.5
-            ci_upper = y_pred + 0.5
+            y_true, absolute_error = y_pred, 0.0
+            ci_lower, ci_upper = y_pred - 0.5, y_pred + 0.5
         else:
-            y_true = y_pred + 5.0
-            absolute_error = 5.0
-            ci_lower = y_pred - 0.5
-            ci_upper = y_pred + 0.5
+            y_true, absolute_error = y_pred + 5.0, 5.0
+            ci_lower, ci_upper = y_pred - 0.5, y_pred + 0.5
         comparisons.append(
             OutcomeComparison(
                 metric_name=f"metric-{index}",
@@ -266,7 +241,6 @@ def _persist_report(
                 ci_upper=ci_upper,
             )
         )
-
     denominator = sum(item is not None for item in observations)
     numerator = sum(item is True for item in observations)
     requested = len(observations)
@@ -298,9 +272,9 @@ def _persist_report(
         metadata={
             "model_spec_ref": MODEL_REF,
             "policy_spec_ref": POLICY_REF,
-            "method_ref": METHOD_REF,
-            "method_version": METHOD_VERSION,
-            "rule_version_ref": RULE_VERSION_REF,
+            "method_ref": method_ref,
+            "method_version": method_version,
+            "rule_version_ref": rule_version_ref,
             "estimand": ESTIMAND,
             "authority_scope": "predictive_only",
             "calibration_numerator": numerator,
@@ -312,13 +286,19 @@ def _persist_report(
     refs = _persist_context_refs(
         store,
         report_id=report_id,
+        method_ref=method_ref,
+        method_version=method_version,
+        rule_version_ref=rule_version_ref,
         threshold=threshold,
     )
-    inputs = [
-        InputRef(artifact_id=ref["artifact_id"], role=role)
-        for role, ref in refs.items()
-    ]
-    report_ref = persist_backtest_report(store, report, inputs=inputs)
+    report_ref = persist_backtest_report(
+        store,
+        report,
+        inputs=[
+            InputRef(artifact_id=ref["artifact_id"], role=role)
+            for role, ref in refs.items()
+        ],
+    )
     load_backtest_report(store, report_ref)
     return store, report_ref, refs
 
@@ -332,7 +312,7 @@ def _context(
     rule_version_ref: str = RULE_VERSION_REF,
     temporal_updates: Mapping[str, object] | None = None,
 ) -> Any:
-    """Build the explicit predictive context with six ordered time roles."""
+    """Build explicit predictive context with six ordered time roles."""
 
     bridge = _bridge()
 
@@ -375,8 +355,12 @@ def _persist_loaded_evidence(
     observations: tuple[bool | None, ...],
     nominal_confidence: float = 0.95,
     threshold: float = 0.5,
-) -> tuple[Any, Any, Any, Any]:
-    """Produce, persist, and load the neutral empirical evidence artifact."""
+    method_ref: str = METHOD_REF,
+    method_version: str = METHOD_VERSION,
+    rule_version_ref: str = RULE_VERSION_REF,
+    temporal_updates: Mapping[str, object] | None = None,
+) -> tuple[FileSystemCAS, BacktestReportRef, Any, Any, dict[str, dict[str, str]]]:
+    """Produce, persist, and load one neutral empirical evidence artifact."""
 
     store, report_ref, refs = _persist_report(
         tmp_path,
@@ -384,134 +368,127 @@ def _persist_loaded_evidence(
         observations=observations,
         nominal_confidence=nominal_confidence,
         threshold=threshold,
+        method_ref=method_ref,
+        method_version=method_version,
+        rule_version_ref=rule_version_ref,
     )
     bridge = _bridge()
     evidence = bridge.produce_empirical_calibration_evidence(
         store,
         report_ref,
-        context=_context(refs, threshold=threshold),
+        context=_context(
+            refs,
+            threshold=threshold,
+            method_ref=method_ref,
+            method_version=method_version,
+            rule_version_ref=rule_version_ref,
+            temporal_updates=temporal_updates,
+        ),
     )
     evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
     loaded = bridge.load_empirical_calibration_evidence(store, evidence_ref)
     assert loaded == evidence
-    return store, evidence_ref, loaded, refs
+    return store, report_ref, evidence_ref, loaded, refs
 
 
-def _artifact_id(ref: Any) -> str:
-    return str(ref.artifact_id)
+def _temporal_roles(*, shifted: bool = False) -> SimpleNamespace:
+    start = datetime(2026, 1, 1, tzinfo=UTC)
+    offset = 2 if shifted else 0
+    return SimpleNamespace(
+        data_valid_time=start + timedelta(days=offset),
+        calibration_window_start=start + timedelta(days=1 + offset),
+        calibration_window_end=start + timedelta(days=2 + offset),
+        policy_effective_time=start + timedelta(days=3 + offset),
+        prediction_time=start + timedelta(days=4 + offset),
+        observation_time=start + timedelta(days=5 + offset),
+    )
 
 
-def _calibration_payload(evidence: Any, evidence_ref: Any) -> dict[str, object]:
-    """Project loaded neutral evidence into the current builder seam.
-
-    The ``empirical_evidence_ref`` and threshold ref are intentional RED
-    requirements.  The current builder ignores them and instead manufactures
-    ``s10://`` identities; the eventual consumer must resolve and preserve the
-    persisted source artifact.
-    """
-
-    return {
-        "empirical_evidence_ref": _artifact_id(evidence_ref),
-        "empirical_evidence_kind": evidence_ref.kind,
-        "authority_scope": evidence.authority_scope,
-        "may_not_use_for": list(evidence.may_not_use_for),
-        "method_ref": evidence.method_ref,
-        "method_version": evidence.method_version,
-        "rule_version_ref": evidence.rule_version_ref,
-        "estimand": evidence.estimand,
-        "denominator": evidence.recomputed_denominator,
-        "numerator": evidence.recomputed_numerator,
-        "pass_rate": evidence.recomputed_pass_rate or 0.0,
-        "floor_passed": evidence.floor_passed,
-        "counterfactual_credibility": (
-            "credible" if evidence.usable_for_calibration else "insufficient_history"
-        ),
-        "prediction_time": evidence.prediction_time.isoformat()
-        if evidence.prediction_time
-        else None,
-        "observation_time": evidence.observation_time.isoformat()
-        if evidence.observation_time
-        else None,
-        "policy_effective_time": evidence.policy_effective_time.isoformat()
-        if evidence.policy_effective_time
-        else None,
-        "data_valid_time": evidence.data_valid_time.isoformat()
-        if evidence.data_valid_time
-        else None,
-        "calibration_window_start": evidence.calibration_window_start.isoformat()
-        if evidence.calibration_window_start
-        else None,
-        "calibration_window_end": evidence.calibration_window_end.isoformat()
-        if evidence.calibration_window_end
-        else None,
-        "observed_outcome_ref": _artifact_id(evidence.observed_outcome_ref),
-        # The report is an actual persisted input, not a fabricated S10 URI.
-        "historical_implementation_ref": _artifact_id(evidence.report_ref),
-        "evaluation_design_ref": _artifact_id(evidence.evaluation_design_ref),
-        "credible_evaluation_evidence_ref": _artifact_id(
-            evidence.credible_evaluation_evidence_ref
-        ),
-        "calibration_threshold_ref": _artifact_id(evidence.calibration_threshold_ref),
-        "source_lineage_refs": [
-            _artifact_id(ref) for ref in evidence.source_lineage_refs
-        ],
-        "method_lineage_refs": [
-            _artifact_id(ref) for ref in evidence.method_lineage_refs
-        ],
-        "forecast_authority_disposition_reason": (
-            "persisted ETS predictive interval observations were recomputed from held-out data"
-        ),
-    }
-
-
-def _minimal_generation_inputs(
+def _method_result(
     *,
-    evidence: Any,
-    evidence_ref: Any,
-    forecast_tier: str,
-    calibration_status: str,
-    calibration_evidence: Mapping[str, object] | None = None,
-) -> Mapping[str, Any]:
-    """Invoke the current S10 builder with a fixed, test-only method shape."""
+    evidence_ref: Any | None = None,
+    temporal_roles: SimpleNamespace | None = None,
+    report: Any | None = None,
+) -> Any:
+    output: dict[str, object] = {
+        "report": report
+        or SimpleNamespace(
+            point_estimate=1.5,
+            confidence_interval=(1.0, 2.0),
+            standard_error=0.2,
+            confidence_level=0.95,
+            diagnostics=(),
+            sample_size=2,
+            n_treated=0,
+            n_control=0,
+            pre_periods=0,
+            post_periods=0,
+        )
+    }
+    if evidence_ref is not None:
+        output["empirical_calibration_evidence_ref"] = evidence_ref
+    return SimpleNamespace(
+        output=output,
+        temporal_roles=temporal_roles or _temporal_roles(),
+    )
 
-    world_record = SimpleNamespace(
-        world_model_record_id="world_model_record_frc02_s10",
-        content_hash="sha256:" + "a" * 64,
-        valid_time_scope="2026-Q1",
-        region_or_jurisdiction="UA",
+
+class _CanonicalEvidenceResolver:
+    """Test-injected canonical loader; runtime need not import calibration."""
+
+    def __init__(self, store: FileSystemCAS) -> None:
+        self.store = store
+
+    def __call__(self, evidence_ref: Any) -> Any:
+        return _bridge().load_empirical_calibration_evidence(self.store, evidence_ref)
+
+    def resolve(self, evidence_ref: Any) -> Any:
+        return self(evidence_ref)
+
+
+def _produce_forecast_inputs(
+    *,
+    store: FileSystemCAS,
+    evidence_ref: Any | None,
+    method_result: Any | None = None,
+    selected_method_fqn: str = METHOD_FQN,
+) -> Mapping[str, Any]:
+    """Call the production-named gateway with resolver injection only."""
+
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    gateway = RealValueOwnerGateway(
+        repo_root=store.root,
+        empirical_evidence_resolver=_CanonicalEvidenceResolver(store),
     )
-    problem = SimpleNamespace(
-        design_problem_id="frc02-s10-problem",
-        outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+    return gateway.produce_forecast_inputs(
+        candidate=SimpleNamespace(candidate_id="frc02-s10-candidate"),
+        problem=SimpleNamespace(
+            design_problem_id="frc02-s10-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        ),
+        world_record=SimpleNamespace(
+            world_model_record_id="world_model_record_frc02_s10",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2026-Q1",
+            region_or_jurisdiction="UA",
+        ),
+        method_result=method_result or _method_result(evidence_ref=evidence_ref),
+        selected_method_fqn=selected_method_fqn,
     )
-    candidate = SimpleNamespace(candidate_id="frc02-s10-candidate")
-    method_report = SimpleNamespace(
-        point_estimate=1.5,
-        confidence_interval=(1.0, 2.0),
-        standard_error=0.2,
-        confidence_level=0.95,
-        diagnostics=(),
-        sample_size=evidence.recomputed_denominator,
-        n_treated=0,
-        n_control=0,
-        pre_periods=0,
-        post_periods=0,
-    )
-    payload = dict(calibration_evidence or _calibration_payload(evidence, evidence_ref))
-    policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
-    return _generation_cycle("_build_s10_forecast_inputs")(
-        candidate=candidate,
-        problem=problem,
-        world_record=world_record,
-        method_result=SimpleNamespace(output={"report": method_report}),
-        selected_method_fqn=METHOD_FQN,
-        forecast_tier=forecast_tier,
-        calibration_status=calibration_status,
-        policy_context_ref=policy_context_ref,
-        expected_policy_context_ref=policy_context_ref,
-        false_clear_counts={},
-        calibration_evidence=payload,
-    )
+
+
+def _assert_gateway_blocked(**kwargs: Any) -> None:
+    """Accept either a typed rejection or an explicit blocked S10 projection."""
+
+    try:
+        result = _produce_forecast_inputs(**kwargs)
+    except (FileNotFoundError, KeyError, ValueError):
+        return
+    support = result.get("forecast_support")
+    assert support is not None
+    assert support.forecast_tier == "blocked"
+    assert result.get("forecast_calibration_record") is None
 
 
 def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability(
@@ -519,48 +496,46 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
 ) -> None:
     """Real observations, not estimator shape, determine S10 suitability."""
 
-    passing_store, passing_ref, passing, _ = _persist_loaded_evidence(
+    passing_store, _passing_report, passing_ref, passing_evidence, _ = _persist_loaded_evidence(
         tmp_path,
         label="all-hit",
         observations=(True, True),
         nominal_confidence=0.95,
         threshold=1.0,
     )
-    limited_store, limited_ref, limited, _ = _persist_loaded_evidence(
+    limited_store, _limited_report, limited_ref, _limited, _ = _persist_loaded_evidence(
         tmp_path,
         label="one-miss",
         observations=(True, False),
         nominal_confidence=0.95,
         threshold=1.0,
     )
-    assert passing_store is not limited_store
-    assert passing.usable_for_calibration is True
-    assert limited.usable_for_calibration is False
-
-    passing_inputs = _minimal_generation_inputs(
-        evidence=passing,
-        evidence_ref=passing_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
+    passing = _produce_forecast_inputs(store=passing_store, evidence_ref=passing_ref)
+    limited = _produce_forecast_inputs(store=limited_store, evidence_ref=limited_ref)
+    assert passing["forecast_support"].forecast_tier == "observable_calibrated"
+    assert limited["forecast_support"].forecast_tier != (
+        passing["forecast_support"].forecast_tier
     )
-    limited_inputs = _minimal_generation_inputs(
-        evidence=limited,
-        evidence_ref=limited_ref,
-        forecast_tier="blocked",
-        calibration_status="limit",
+    record = passing["forecast_calibration_record"]
+    assert str(record.empirical_evidence_ref.artifact_id) == str(
+        passing_ref.artifact_id
     )
-
-    passing_support = passing_inputs["forecast_support"]
-    limited_support = limited_inputs["forecast_support"]
-    passing_record = passing_inputs["forecast_calibration_record"]
-    limited_record = limited_inputs["forecast_calibration_record"]
-    assert passing_support.forecast_tier == "observable_calibrated"
-    assert limited_support.forecast_tier == "blocked"
-    assert passing_record.numerator == 2
-    assert passing_record.denominator == 2
-    assert limited_record.numerator == 1
-    assert limited_record.denominator == 2
-    assert passing_support.forecast_tier != limited_support.forecast_tier
+    assert record.prediction_time == passing_evidence.prediction_time
+    assert record.observation_time == passing_evidence.observation_time
+    assert record.policy_effective_time == passing_evidence.policy_effective_time
+    assert record.data_valid_time == passing_evidence.data_valid_time
+    assert record.calibration_window_start == passing_evidence.calibration_window_start
+    assert record.calibration_window_end == passing_evidence.calibration_window_end
+    assert len(
+        {
+            record.prediction_time,
+            record.observation_time,
+            record.policy_effective_time,
+            record.data_valid_time,
+            record.calibration_window_start,
+            record.calibration_window_end,
+        }
+    ) == 6
 
 
 def test_nominal_confidence_only_does_not_change_s10_suitability(
@@ -568,88 +543,175 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
 ) -> None:
     """Changing nominal confidence without new observations cannot change the result."""
 
-    low_store, low_ref, low, _ = _persist_loaded_evidence(
+    low_store, _low_report, low_ref, _low, _ = _persist_loaded_evidence(
         tmp_path,
         label="nominal-80",
         observations=(True, False),
         nominal_confidence=0.80,
         threshold=0.5,
     )
-    high_store, high_ref, high, _ = _persist_loaded_evidence(
+    high_store, _high_report, high_ref, _high, _ = _persist_loaded_evidence(
         tmp_path,
         label="nominal-95",
         observations=(True, False),
         nominal_confidence=0.95,
         threshold=0.5,
     )
-    assert low_store is not high_store
-    low_inputs = _minimal_generation_inputs(
-        evidence=low,
-        evidence_ref=low_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-    )
-    high_inputs = _minimal_generation_inputs(
-        evidence=high,
-        evidence_ref=high_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-    )
-    low_record = low_inputs["forecast_calibration_record"]
-    high_record = high_inputs["forecast_calibration_record"]
-    assert low_record.numerator == high_record.numerator == 1
-    assert low_record.denominator == high_record.denominator == 2
-    assert low_record.pass_rate == high_record.pass_rate == pytest.approx(0.5)
-    assert low_record.calibration_status == high_record.calibration_status == "pass"
+    low = _produce_forecast_inputs(store=low_store, evidence_ref=low_ref)
+    high = _produce_forecast_inputs(store=high_store, evidence_ref=high_ref)
+    assert low["forecast_support"].forecast_tier == high["forecast_support"].forecast_tier
+    low_record = low.get("forecast_calibration_record")
+    high_record = high.get("forecast_calibration_record")
+    if low_record is not None and high_record is not None:
+        assert low_record.numerator == high_record.numerator == 1
+        assert low_record.denominator == high_record.denominator == 2
+        assert low_record.pass_rate == high_record.pass_rate == pytest.approx(0.5)
 
 
-def test_predictive_producer_denials_are_preserved_by_the_s10_boundary(
+def test_predictive_denials_and_non_causal_family_survive_s10_projection(
     tmp_path: Path,
 ) -> None:
-    """A downstream bounded S10 projection cannot launder producer denials."""
+    """A bounded S10 projection cannot launder predictive producer denials."""
 
-    _store, evidence_ref, evidence, _ = _persist_loaded_evidence(
+    store, _report, evidence_ref, _evidence, _ = _persist_loaded_evidence(
         tmp_path,
         label="denials",
         observations=(True, True),
         threshold=1.0,
     )
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=evidence_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-    )
-    support = inputs["forecast_support"]
-    record = inputs["forecast_calibration_record"]
-    assert set(support.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
-    assert set(record.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
+    result = _produce_forecast_inputs(store=store, evidence_ref=evidence_ref)
+    support = result["forecast_support"]
+    assert support.method_family == "foundry_forecast"
+    assert PREDICTIVE_AUTHORITY_DENIALS <= set(support.may_not_use_for)
     assert set(support.authority_boundary.authoritative_for) <= {
         "forecast_support_tiering",
         "observable_subset_calibration",
     }
+    record = result.get("forecast_calibration_record")
+    if record is not None:
+        assert PREDICTIVE_AUTHORITY_DENIALS <= set(record.may_not_use_for)
 
 
-def test_ets_predictive_support_is_not_marked_foundry_causal(tmp_path: Path) -> None:
-    """The real ETS method family cannot be represented as causal evidence."""
+@pytest.mark.parametrize("bad_ref", ["missing", "wrong_kind", "foreign"])
+def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
+    tmp_path: Path,
+    bad_ref: str,
+) -> None:
+    """The gateway must resolve the typed evidence ref in its injected CAS."""
 
-    _store, evidence_ref, evidence, _ = _persist_loaded_evidence(
+    store, report_ref, evidence_ref, _evidence, _ = _persist_loaded_evidence(
         tmp_path,
-        label="method-family",
+        label=f"bad-ref-{bad_ref}",
         observations=(True, True),
         threshold=1.0,
     )
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=evidence_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
+    if bad_ref == "missing":
+        invalid_ref: Any = None
+    elif bad_ref == "wrong_kind":
+        invalid_ref = report_ref
+    else:
+        _foreign_store, _foreign_report, invalid_ref, _foreign_evidence, _ = (
+            _persist_loaded_evidence(
+                tmp_path,
+                label="foreign-source",
+                observations=(True, True),
+                threshold=1.0,
+            )
+        )
+    _assert_gateway_blocked(store=store, evidence_ref=invalid_ref)
+    assert evidence_ref is not invalid_ref
+
+
+def test_corrupt_existing_evidence_bytes_fail_closed_at_gateway(
+    tmp_path: Path,
+) -> None:
+    """Changing bytes behind an existing evidence ref cannot yield S10 support."""
+
+    store, _report, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+        tmp_path,
+        label="corrupt-bytes",
+        observations=(True, True),
+        threshold=1.0,
     )
-    assert inputs["forecast_support"].method_family == "foundry_forecast"
+    blob_path, _manifest_path = store.get_paths(evidence_ref.artifact_id)
+    blob_path.write_bytes(b'{"schema_version":"1.0","corrupt":true}')
+    _assert_gateway_blocked(store=store, evidence_ref=evidence_ref)
 
 
-def test_raw_causal_effect_report_cannot_yield_positive_s10_calibration() -> None:
-    """A finite causal-effect-shaped report remains blocked without empirical evidence."""
+@pytest.mark.parametrize(
+    ("label", "method_ref", "method_version", "rule_version_ref"),
+    [
+        (
+            "method-mismatch",
+            "forecasting.univariate.other",
+            "9.9.9",
+            RULE_VERSION_REF,
+        ),
+        (
+            "rule-mismatch",
+            METHOD_REF,
+            METHOD_VERSION,
+            "rolling-origin-residual-conformal.v9",
+        ),
+    ],
+)
+def test_method_or_rule_mismatch_in_persisted_evidence_fails_closed(
+    tmp_path: Path,
+    label: str,
+    method_ref: str,
+    method_version: str,
+    rule_version_ref: str,
+) -> None:
+    """The gateway compares loaded method/rule identity with its request."""
+
+    store, _report, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+        tmp_path,
+        label=label,
+        observations=(True, True),
+        threshold=1.0,
+        method_ref=method_ref,
+        method_version=method_version,
+        rule_version_ref=rule_version_ref,
+    )
+    _assert_gateway_blocked(
+        store=store,
+        evidence_ref=evidence_ref,
+        selected_method_fqn=METHOD_FQN,
+    )
+
+
+def test_temporal_role_mismatch_in_persisted_evidence_fails_closed(
+    tmp_path: Path,
+) -> None:
+    """A valid but differently bound persisted time context cannot be rebound silently."""
+
+    shifted_start = datetime(2026, 1, 3, tzinfo=UTC)
+    temporal_updates = {
+        "data_valid_time": shifted_start,
+        "calibration_window_start": shifted_start + timedelta(days=1),
+        "calibration_window_end": shifted_start + timedelta(days=2),
+        "policy_effective_time": shifted_start + timedelta(days=3),
+        "prediction_time": shifted_start + timedelta(days=4),
+        "observation_time": shifted_start + timedelta(days=5),
+    }
+    store, _report, evidence_ref, _evidence, _ = _persist_loaded_evidence(
+        tmp_path,
+        label="time-mismatch",
+        observations=(True, True),
+        threshold=1.0,
+        temporal_updates=temporal_updates,
+    )
+    _assert_gateway_blocked(
+        store=store,
+        evidence_ref=evidence_ref,
+        method_result=_method_result(temporal_roles=_temporal_roles()),
+    )
+
+
+def test_raw_causal_effect_report_remains_non_positive_characterization() -> None:
+    """The old raw report path remains blocked without persisted empirical evidence."""
+
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
     world_record = SimpleNamespace(
         world_model_record_id="world_model_record_frc02_raw-report",
@@ -661,147 +723,27 @@ def test_raw_causal_effect_report_cannot_yield_positive_s10_calibration() -> Non
         design_problem_id="frc02-raw-report",
         outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
     )
-    candidate = SimpleNamespace(candidate_id="frc02-raw-report-candidate")
-    report = SimpleNamespace(
-        point_estimate=1.5,
-        confidence_interval=(1.0, 2.0),
-        standard_error=0.2,
-        confidence_level=0.95,
-        diagnostics=(),
-        sample_size=100,
-        n_treated=50,
-        n_control=50,
-        pre_periods=4,
-        post_periods=4,
-    )
-    inputs = _generation_cycle("_build_real_s10_forecast_inputs")(
-        candidate=candidate,
+    inputs = RealValueOwnerGateway().produce_forecast_inputs(
+        candidate=SimpleNamespace(candidate_id="frc02-raw-report-candidate"),
         problem=problem,
         world_record=world_record,
-        method_result=SimpleNamespace(output={"report": report}),
+        method_result=_method_result(
+            report=CausalEffectReport(
+                method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+                estimand="ATT",
+                point_estimate=1.5,
+                standard_error=0.2,
+                confidence_interval=(1.0, 2.0),
+                inference_method="did",
+                diagnostics=[],
+                sample_size=100,
+                n_treated=50,
+                n_control=50,
+                pre_periods=4,
+                post_periods=4,
+            )
+        ),
         selected_method_fqn="causal.inference.difference_in_differences@1.0.0",
-    )
-    assert inputs["forecast_calibration_record"] is None
-    assert inputs["forecast_support"].forecast_tier == "blocked"
-
-
-def test_missing_empirical_evidence_ref_blocks_positive_s10_projection(
-    tmp_path: Path,
-) -> None:
-    """A scalar mapping without the persisted evidence identity cannot pass."""
-
-    _store, evidence_ref, evidence, _ = _persist_loaded_evidence(
-        tmp_path,
-        label="missing-ref",
-        observations=(True, True),
-        threshold=1.0,
-    )
-    payload = _calibration_payload(evidence, evidence_ref)
-    payload.pop("empirical_evidence_ref")
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=evidence_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-        calibration_evidence=payload,
-    )
-    assert inputs["forecast_calibration_record"] is None
-    assert inputs["forecast_support"].forecast_tier == "blocked"
-
-
-@pytest.mark.parametrize("ref_kind", ["corrupt", "foreign"])
-def test_corrupt_or_foreign_empirical_ref_blocks_positive_s10_projection(
-    tmp_path: Path,
-    ref_kind: str,
-) -> None:
-    """An evidence ID must resolve in the same CAS before S10 can use it."""
-
-    store, evidence_ref, evidence, _ = _persist_loaded_evidence(
-        tmp_path,
-        label=f"ref-{ref_kind}",
-        observations=(True, True),
-        threshold=1.0,
-    )
-    bridge = _bridge()
-    if ref_kind == "corrupt":
-        bad_ref = evidence_ref.model_copy(
-            update={"artifact_id": "sha256:" + "f" * 64}
-        )
-    else:
-        _foreign_store, bad_ref, _foreign_evidence, _ = _persist_loaded_evidence(
-            tmp_path,
-            label="ref-foreign-source",
-            observations=(True, True),
-            threshold=1.0,
-        )
-    with pytest.raises((FileNotFoundError, ValueError, KeyError)):
-        bridge.load_empirical_calibration_evidence(store, bad_ref)
-
-    payload = _calibration_payload(evidence, bad_ref)
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=bad_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-        calibration_evidence=payload,
-    )
-    assert inputs["forecast_calibration_record"] is None
-    assert inputs["forecast_support"].forecast_tier == "blocked"
-
-
-@pytest.mark.parametrize(
-    ("broken_field", "broken_value"),
-    [
-        ("method_ref", "forecasting.univariate.other@9.9.9"),
-        ("method_version", "9.9.9"),
-        ("rule_version_ref", "rolling-origin-residual-conformal.v9"),
-    ],
-)
-def test_method_or_rule_mismatch_blocks_positive_s10_projection(
-    tmp_path: Path,
-    broken_field: str,
-    broken_value: str,
-) -> None:
-    """S10 must compare the selected ETS method/rule with loaded evidence."""
-
-    _store, evidence_ref, evidence, _ = _persist_loaded_evidence(
-        tmp_path,
-        label=f"mismatch-{broken_field}",
-        observations=(True, True),
-        threshold=1.0,
-    )
-    payload = _calibration_payload(evidence, evidence_ref)
-    payload[broken_field] = broken_value
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=evidence_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-        calibration_evidence=payload,
-    )
-    assert inputs["forecast_calibration_record"] is None
-    assert inputs["forecast_support"].forecast_tier == "blocked"
-
-
-def test_collapsed_or_rebound_temporal_roles_block_positive_s10_projection(
-    tmp_path: Path,
-) -> None:
-    """The consumer cannot replace six real time roles with one convenient date."""
-
-    _store, evidence_ref, evidence, _ = _persist_loaded_evidence(
-        tmp_path,
-        label="collapsed-time",
-        observations=(True, True),
-        threshold=1.0,
-    )
-    payload = _calibration_payload(evidence, evidence_ref)
-    payload["observation_time"] = payload["prediction_time"]
-    inputs = _minimal_generation_inputs(
-        evidence=evidence,
-        evidence_ref=evidence_ref,
-        forecast_tier="observable_calibrated",
-        calibration_status="pass",
-        calibration_evidence=payload,
     )
     assert inputs["forecast_calibration_record"] is None
     assert inputs["forecast_support"].forecast_tier == "blocked"

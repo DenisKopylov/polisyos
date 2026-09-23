@@ -48,6 +48,7 @@ from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
 )
+from polisyos.core.artifacts.store import ArtifactIntegrityError
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -6359,6 +6360,8 @@ def _s10_empirical_projection(
 def _s10_loader_error_code(raw_ref: object | None, error: BaseException) -> str:
     """Classify resolver failures without exposing loader implementation details."""
 
+    if isinstance(error, ArtifactIntegrityError):
+        return "empirical_evidence_ref_integrity_mismatch"
     if raw_ref is None:
         return "empirical_evidence_ref_missing"
     kind = _optional_text(_object_get(raw_ref, "kind"))

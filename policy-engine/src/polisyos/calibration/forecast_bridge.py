@@ -59,7 +59,11 @@ REPORT_SCHEMA_NAME = "ir.backtest_report"
 REPORT_SCHEMA_VERSION = "1.0"
 EVIDENCE_KIND = "ir.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_NAME = "polisyos.calibration.empirical_calibration_evidence"
-EVIDENCE_SCHEMA_VERSION = "1.0"
+LEGACY_EVIDENCE_SCHEMA_VERSION = "1.0"
+EVIDENCE_SCHEMA_VERSION = "1.1"
+_SUPPORTED_EVIDENCE_SCHEMA_VERSIONS = frozenset(
+    {LEGACY_EVIDENCE_SCHEMA_VERSION, EVIDENCE_SCHEMA_VERSION}
+)
 
 ReferenceRole = Literal[
     "scope_binding",
@@ -320,7 +324,7 @@ class EmpiricalCalibrationEvidence(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = EVIDENCE_SCHEMA_VERSION
     report_id: str = Field(min_length=1)
     report_ref: BacktestReportRef
 
@@ -509,7 +513,13 @@ def persist_empirical_calibration_evidence(
 ) -> EmpiricalCalibrationEvidenceRef:
     """Persist neutral evidence and return its typed CAS reference."""
 
+    if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+        raise ValueError(
+            "legacy empirical calibration evidence must not be repersisted"
+        )
     expected = _reproduce_evidence(store, evidence)
+    if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+        raise ValueError("new empirical calibration evidence must use schema 1.1")
     if not expected.context_bound or any(
         code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
     ):
@@ -539,17 +549,37 @@ def load_empirical_calibration_evidence(
     """Validate a typed evidence artifact's manifest and read its payload."""
 
     validated_ref = EmpiricalCalibrationEvidenceRef.model_validate(evidence_ref)
+    manifest_payload = _as_mapping(store.get_manifest(validated_ref.artifact_id))
+    schema_payload = _field(manifest_payload, "schema")
+    if schema_payload is None:
+        schema_payload = _field(manifest_payload, "artifact_schema")
+    artifact_schema = _as_mapping(schema_payload)
+    if _field(artifact_schema, "name") != EVIDENCE_SCHEMA_NAME:
+        raise ValueError("empirical evidence manifest schema binding mismatch")
+    evidence_schema_version = _field(artifact_schema, "version")
+    if (
+        not isinstance(evidence_schema_version, str)
+        or evidence_schema_version not in _SUPPORTED_EVIDENCE_SCHEMA_VERSIONS
+    ):
+        raise ValueError("unsupported empirical evidence schema version")
     _validate_json_artifact(
         store,
         validated_ref,
         expected_kind=EVIDENCE_KIND,
         expected_media_type="application/json",
         expected_schema_name=EVIDENCE_SCHEMA_NAME,
-        expected_schema_version=EVIDENCE_SCHEMA_VERSION,
+        expected_schema_version=evidence_schema_version,
     )
     evidence = EmpiricalCalibrationEvidence.model_validate(
         get_json_artifact(store, validated_ref.artifact_id)
     )
+    if evidence.schema_version != evidence_schema_version:
+        raise ValueError("empirical evidence payload schema version mismatch")
+    if (
+        evidence_schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION
+        and evidence.nominal_confidence_level is not None
+    ):
+        raise ValueError("legacy empirical evidence cannot carry nominal confidence")
     _validate_evidence_input_edges(store, validated_ref, evidence)
     _validate_json_artifact(
         store,
@@ -624,7 +654,11 @@ def _reproduce_evidence(
         evidence.report_ref,
         context=context,
     )
-    if expected.model_dump(mode="json") != evidence.model_dump(mode="json"):
+    expected_payload = expected.model_dump(mode="json")
+    if evidence.schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION:
+        expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
+        expected_payload["nominal_confidence_level"] = None
+    if expected_payload != evidence.model_dump(mode="json"):
         raise ValueError(
             "empirical evidence payload is not reproducible from its report"
         )

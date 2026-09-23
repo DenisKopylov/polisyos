@@ -14,7 +14,6 @@ the FRC-01 no-fake-pass boundary and is not claimed as the new RED.
 from __future__ import annotations
 
 import hashlib
-import json
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -34,6 +33,7 @@ from polisyos.ir.analytics.backtest import (
 )
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
 from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.registry.refs import BacktestReportRef
 
 MODEL_REF = "model://frc02/ets/v1"
@@ -565,7 +565,7 @@ def _assert_evidence_binding(
     assert manifest.artifact_schema.name == (
         "polisyos.calibration.empirical_calibration_evidence"
     )
-    assert manifest.artifact_schema.version == "1.0"
+    assert manifest.artifact_schema.version == "1.1"
     assert manifest.integrity.sha256 == evidence_ref.artifact_id.hex
     evidence_bytes = store.get_bytes(evidence_ref.artifact_id)
     assert hashlib.sha256(evidence_bytes).hexdigest() == evidence_ref.artifact_id.hex
@@ -731,8 +731,8 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
     assert low_report.scenarios[0].nominal_confidence_level == pytest.approx(0.80)
     assert high_report.scenarios[0].nominal_confidence_level == pytest.approx(0.95)
     assert low_ref.artifact_id != high_ref.artifact_id
-    low_payload = json.loads(low_store.get_bytes(low_ref.artifact_id))
-    high_payload = json.loads(high_store.get_bytes(high_ref.artifact_id))
+    low_payload = from_canonical_bytes(low_store.get_bytes(low_ref.artifact_id))
+    high_payload = from_canonical_bytes(high_store.get_bytes(high_ref.artifact_id))
     assert low_payload["nominal_confidence_level"] == pytest.approx(0.80)
     assert high_payload["nominal_confidence_level"] == pytest.approx(0.95)
     assert low_evidence.nominal_confidence_level == pytest.approx(0.80)
@@ -767,6 +767,66 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
     assert high_resolver.trace[-1]["nominal_confidence_level"] == pytest.approx(0.95)
     _assert_evidence_binding(low_store, low_record, low_ref)
     _assert_evidence_binding(high_store, high_record, high_ref)
+
+
+def test_legacy_v1_0_evidence_loads_without_nominal_and_preserves_cas_bytes(
+    tmp_path: Path,
+) -> None:
+    """Legacy evidence remains readable without being rewritten or enriched."""
+
+    store, _report, _current_ref, evidence, refs = _persist_loaded_evidence(
+        tmp_path,
+        label="legacy-v1-0",
+        observations=(True, True),
+        nominal_confidence=0.95,
+        threshold=1.0,
+    )
+    bridge = _bridge()
+    legacy_payload = evidence.model_dump(mode="json")
+    legacy_payload["schema_version"] = "1.0"
+    legacy_payload.pop("nominal_confidence_level", None)
+    legacy_ref_payload = put_json_artifact(
+        store,
+        legacy_payload,
+        kind="ir.empirical_calibration_evidence",
+        schema_name="polisyos.calibration.empirical_calibration_evidence",
+        schema_version="1.0",
+        inputs=[
+            {
+                "artifact_id": str(evidence.report_ref.artifact_id),
+                "role": "backtest_report",
+            },
+            *(
+                {"artifact_id": ref["artifact_id"], "role": role}
+                for role, ref in refs.items()
+            ),
+        ],
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+        legacy_ref_payload
+    )
+    before = store.get_bytes(legacy_ref.artifact_id)
+    before_sha = hashlib.sha256(before).hexdigest()
+
+    loaded = bridge.load_empirical_calibration_evidence(store, legacy_ref)
+
+    after = store.get_bytes(legacy_ref.artifact_id)
+    expected_payload = evidence.model_dump(mode="json")
+    expected_payload["schema_version"] = "1.0"
+    expected_payload["nominal_confidence_level"] = None
+    assert loaded.model_dump(mode="json") == expected_payload
+    assert loaded.nominal_confidence_level is None
+    assert loaded.may_not_use_for == evidence.may_not_use_for
+    assert loaded.recomputed_numerator == evidence.recomputed_numerator
+    assert loaded.recomputed_denominator == evidence.recomputed_denominator
+    assert after == before
+    assert hashlib.sha256(after).hexdigest() == before_sha
+    with pytest.raises(
+        ValueError,
+        match="legacy empirical calibration evidence must not be repersisted",
+    ):
+        bridge.persist_empirical_calibration_evidence(store, loaded)
 
 
 def test_predictive_denials_and_non_causal_family_survive_s10_projection(

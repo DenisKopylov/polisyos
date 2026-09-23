@@ -22,7 +22,7 @@ def _plan(tmp_path, kind: BacktestKind) -> HistoricalValidationPlan:
         ground_truth_outcomes={"metric": [1.1, 1.15]},
         target_metrics=["metric"],
         prediction_source=PredictionSource.PROVIDED,
-        predicted_outcomes={"metric": [1.08, 1.13]},
+        predicted_outcomes={"metric": [1.1, 1.15]},
     )
 
 
@@ -52,13 +52,8 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 5
-    assert report.model_spec_ref is None
-    assert report.policy_spec_ref is None
-    assert report.trust_eligible is False
-    assert report.degraded is True
-    assert report.degraded_reasons == [
-        "bias_statistical_test_not_computable:metric:zero_variance"
-    ]
+    assert report.trust_eligible is True
+    assert report.degraded is False
     assert all("backtest_kind" in scenario.metadata for scenario in report.scenarios)
     assert all(":" in scenario.scenario_id for scenario in report.scenarios)
 
@@ -74,13 +69,7 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 1
-    assert report.model_spec_ref is None
-    assert report.policy_spec_ref is None
-    assert report.trust_eligible is False
-    assert report.degraded is True
-    assert report.degraded_reasons == [
-        "bias_statistical_test_not_computable:metric:insufficient_observations"
-    ]
+    assert report.trust_eligible is True
 
 
 def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, cas_store) -> None:

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Mapping, Sequence
+from decimal import Decimal, InvalidOperation
 from typing import Literal
 
 from pydantic import (
@@ -38,6 +39,20 @@ from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 
 EmpiricalEvidenceKind = Literal["observed_interval_comparisons", "unavailable"]
+PredictiveAuthorityScope = Literal["predictive_only"]
+AuthorityDenial = Literal[
+    "causal_effect_authority",
+    "treatment_assignment_authority",
+    "s10_authority",
+]
+
+PREDICTIVE_ESTIMAND = "predictive_interval_coverage"
+PREDICTIVE_AUTHORITY_SCOPE = "predictive_only"
+PREDICTIVE_AUTHORITY_DENIALS: tuple[str, ...] = (
+    "causal_effect_authority",
+    "treatment_assignment_authority",
+    "s10_authority",
+)
 
 REPORT_KIND = "ir.backtest_report"
 REPORT_SCHEMA_NAME = "ir.backtest_report"
@@ -104,6 +119,36 @@ REFERENCE_PROFILES: dict[str, tuple[str, str, str]] = {
     ),
 }
 
+# Identity paths are part of the role contract.  They are not caller-selected
+# JSON paths: the producer resolves the one field that gives each role its
+# stable, semantic identity and rejects aliases or self-selected paths.
+REFERENCE_IDENTITY_PATHS: dict[str, str] = {
+    "scope_binding": "report_id",
+    "calibration_threshold": "identity",
+    "observed_outcome": "identity",
+    "prediction": "identity",
+    "evaluation_design": "identity",
+    "credible_evaluation": "identity",
+    "source_lineage": "identity",
+    "method_lineage": "identity",
+}
+_REFERENCE_INPUT_ROLES = frozenset(REFERENCE_PROFILES)
+_TRIVIAL_IDENTITY_VALUES = frozenset(
+    {
+        "",
+        "identity",
+        "report_id",
+        "artifact_id",
+        "role",
+        "kind",
+        "value",
+        "true",
+        "false",
+        "none",
+        "null",
+    }
+)
+
 _OBSERVATION_BLOCKERS = frozenset(
     {
         "interval_bounds_missing",
@@ -122,6 +167,13 @@ _OBSERVATION_BLOCKERS = frozenset(
         "persisted_metadata_numerator_mismatch",
         "persisted_metadata_denominator_mismatch",
         "persisted_metadata_counter_invalid",
+        "zero_observation_denominator",
+        "nominal_confidence_only",
+    }
+)
+_PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
+    {
+        "calibration_floor_not_met",
         "zero_observation_denominator",
         "nominal_confidence_only",
     }
@@ -155,6 +207,11 @@ class EvidenceArtifactRef(BaseModel):
             raise ValueError("evidence artifact reference text must be non-empty")
         return value.strip()
 
+    @model_validator(mode="after")
+    def _validate_identity_binding(self) -> EvidenceArtifactRef:
+        _validate_reference_identity_contract(self, self.role)
+        return self
+
 
 class EmpiricalCalibrationEvidenceRef(ArtifactRefModel):
     """Typed CAS reference for a persisted neutral empirical evidence artifact."""
@@ -177,10 +234,12 @@ class EmpiricalCalibrationContext(BaseModel):
 
     model_spec_ref: str = Field(min_length=1, max_length=300)
     policy_spec_ref: str = Field(min_length=1, max_length=300)
-    estimand: str = Field(min_length=1, max_length=240)
+    estimand: Literal[PREDICTIVE_ESTIMAND] = PREDICTIVE_ESTIMAND
     method_ref: str = Field(min_length=1, max_length=300)
     method_version: str = Field(min_length=1, max_length=120)
     rule_version_ref: str = Field(min_length=1, max_length=300)
+    authority_scope: PredictiveAuthorityScope = PREDICTIVE_AUTHORITY_SCOPE
+    may_not_use_for: tuple[AuthorityDenial, ...] = PREDICTIVE_AUTHORITY_DENIALS
     calibration_threshold: float = Field(gt=0.0, le=1.0)
     scope_binding_ref: EvidenceArtifactRef
     calibration_threshold_ref: EvidenceArtifactRef
@@ -228,8 +287,21 @@ class EmpiricalCalibrationContext(BaseModel):
         )
         if len(set(temporal_roles)) != len(temporal_roles):
             raise ValueError("all six empirical calibration temporal roles must be distinct")
-        if self.calibration_window_end < self.calibration_window_start:
-            raise ValueError("calibration window end cannot precede its start")
+        if self.data_valid_time >= self.calibration_window_start:
+            raise ValueError("data-valid time must precede the calibration window")
+        if self.calibration_window_start >= self.calibration_window_end:
+            raise ValueError("calibration window end must follow its start")
+        if self.calibration_window_end > self.prediction_time:
+            raise ValueError("calibration window must end no later than prediction time")
+        if self.policy_effective_time > self.prediction_time:
+            raise ValueError("policy effective time cannot follow prediction time")
+        if self.prediction_time >= self.observation_time:
+            raise ValueError("prediction time must precede observation time")
+
+        if self.authority_scope != PREDICTIVE_AUTHORITY_SCOPE:
+            raise ValueError("empirical calibration evidence is predictive-only")
+        if tuple(self.may_not_use_for) != PREDICTIVE_AUTHORITY_DENIALS:
+            raise ValueError("predictive evidence authority denials are immutable")
 
         source_ids = {str(ref.artifact_id) for ref in self.source_lineage_refs}
         method_ids = {str(ref.artifact_id) for ref in self.method_lineage_refs}
@@ -254,10 +326,12 @@ class EmpiricalCalibrationEvidence(BaseModel):
 
     model_spec_ref: str | None = None
     policy_spec_ref: str | None = None
-    estimand: str | None = None
+    estimand: Literal[PREDICTIVE_ESTIMAND] | None = None
     method_ref: str | None = None
     method_version: str | None = None
     rule_version_ref: str | None = None
+    authority_scope: PredictiveAuthorityScope = PREDICTIVE_AUTHORITY_SCOPE
+    may_not_use_for: tuple[AuthorityDenial, ...] = PREDICTIVE_AUTHORITY_DENIALS
     evidence_origin: str | None = None
     calibration_threshold: float | None = Field(default=None, gt=0.0, le=1.0)
     scope_binding_ref: EvidenceArtifactRef | None = None
@@ -290,6 +364,14 @@ class EmpiricalCalibrationEvidence(BaseModel):
     persisted_numerator: int = Field(ge=0)
     persisted_denominator: int = Field(ge=0)
     failure_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_authority_boundary(self) -> EmpiricalCalibrationEvidence:
+        if self.authority_scope != PREDICTIVE_AUTHORITY_SCOPE:
+            raise ValueError("empirical calibration evidence is predictive-only")
+        if tuple(self.may_not_use_for) != PREDICTIVE_AUTHORITY_DENIALS:
+            raise ValueError("predictive evidence authority denials are immutable")
+        return self
 
 
 def produce_empirical_calibration_evidence(
@@ -370,6 +452,12 @@ def produce_empirical_calibration_evidence(
         method_ref=context.method_ref if context else None,
         method_version=context.method_version if context else None,
         rule_version_ref=context.rule_version_ref if context else None,
+        authority_scope=(
+            context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE
+        ),
+        may_not_use_for=(
+            context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS
+        ),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
         scope_binding_ref=context.scope_binding_ref if context else None,
@@ -415,6 +503,10 @@ def persist_empirical_calibration_evidence(
     """Persist neutral evidence and return its typed CAS reference."""
 
     expected = _reproduce_evidence(store, evidence)
+    if not expected.context_bound or any(
+        code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+    ):
+        raise ValueError("blocked empirical calibration evidence cannot be persisted")
     inputs: list[dict[str, object]] = [
         {"artifact_id": str(expected.report_ref.artifact_id), "role": "backtest_report"}
     ]
@@ -451,6 +543,7 @@ def load_empirical_calibration_evidence(
     evidence = EmpiricalCalibrationEvidence.model_validate(
         get_json_artifact(store, validated_ref.artifact_id)
     )
+    _validate_evidence_input_edges(store, validated_ref, evidence)
     _validate_json_artifact(
         store,
         evidence.report_ref,
@@ -461,6 +554,50 @@ def load_empirical_calibration_evidence(
     )
     _reproduce_evidence(store, evidence)
     return evidence
+
+
+def _validate_evidence_input_edges(
+    store: ArtifactStore,
+    evidence_ref: EmpiricalCalibrationEvidenceRef,
+    evidence: EmpiricalCalibrationEvidence,
+) -> None:
+    """Require the persisted evidence manifest's complete input edge set."""
+
+    expected = [
+        (str(evidence.report_ref.artifact_id), "backtest_report"),
+        *(
+            (str(ref.artifact_id), role)
+            for role, ref in _context_refs(evidence)
+        ),
+    ]
+    actual = _manifest_input_edges(store, evidence_ref.artifact_id)
+    if sorted(actual) != sorted(expected):
+        raise ValueError(
+            "empirical evidence manifest input edge/role binding mismatch"
+        )
+
+
+def _manifest_input_edges(
+    store: ArtifactStore,
+    artifact_id: ArtifactID,
+) -> tuple[tuple[str, str], ...]:
+    """Decode an artifact manifest's input edges without trusting its shape."""
+
+    manifest = _as_mapping(store.get_manifest(artifact_id))
+    raw_inputs = _field(manifest, "inputs")
+    if not isinstance(raw_inputs, Sequence) or isinstance(
+        raw_inputs, (str, bytes, bytearray)
+    ):
+        raise ValueError("artifact manifest inputs are missing or malformed")
+    edges: list[tuple[str, str]] = []
+    for raw_input in raw_inputs:
+        input_payload = _as_mapping(raw_input)
+        raw_artifact_id = _field(input_payload, "artifact_id")
+        raw_role = _field(input_payload, "role")
+        if raw_artifact_id is None or not isinstance(raw_role, str) or not raw_role.strip():
+            raise ValueError("artifact manifest input edge is malformed")
+        edges.append((str(raw_artifact_id), raw_role.strip()))
+    return tuple(edges)
 
 
 def _reproduce_evidence(
@@ -524,6 +661,8 @@ def _context_from_evidence(
         "method_ref": evidence.method_ref,
         "method_version": evidence.method_version,
         "rule_version_ref": evidence.rule_version_ref,
+        "authority_scope": evidence.authority_scope,
+        "may_not_use_for": evidence.may_not_use_for,
         "calibration_threshold": evidence.calibration_threshold,
         "scope_binding_ref": evidence.scope_binding_ref,
         "calibration_threshold_ref": evidence.calibration_threshold_ref,
@@ -556,6 +695,8 @@ def _context_from_evidence(
             "method_ref": evidence.method_ref,
             "method_version": evidence.method_version,
             "rule_version_ref": evidence.rule_version_ref,
+            "authority_scope": evidence.authority_scope,
+            "may_not_use_for": evidence.may_not_use_for,
             "evidence_origin": evidence.evidence_origin,
             "calibration_threshold": evidence.calibration_threshold,
             "scope_binding_ref": evidence.scope_binding_ref,
@@ -657,10 +798,22 @@ def _context_reference_issues(
 
     issues: list[str] = []
     payloads: dict[str, list[object]] = {}
-    relations = _report_input_relations(store, report_ref)
+    input_edges = _report_input_edges(store, report_ref)
+    relations = set(input_edges)
     relation_roles: dict[str, set[str]] = {}
     for artifact_id, role in relations:
         relation_roles.setdefault(artifact_id, set()).add(role)
+
+    expected_context_edges = tuple(
+        (str(ref.artifact_id), role) for role, ref in _context_refs(context)
+    )
+    actual_context_edges = tuple(
+        (artifact_id, role)
+        for artifact_id, role in input_edges
+        if role in _REFERENCE_INPUT_ROLES
+    )
+    if sorted(actual_context_edges) != sorted(expected_context_edges):
+        issues.append("report_context_input_edges_mismatch")
 
     for role, ref in _context_refs(context):
         artifact_id = str(ref.artifact_id)
@@ -696,15 +849,22 @@ def _context_reference_issues(
             )
         if _payload_contains_forbidden_marker(payload):
             issues.append("forbidden_provenance_marker")
+        issues.extend(_authority_payload_issues(payload))
+    issues.extend(
+        _threshold_binding_issues(
+            payloads.get("calibration_threshold", ()),
+            context,
+        )
+    )
     return _dedupe(issues), {
         role: tuple(values) for role, values in payloads.items()
     }
 
 
-def _report_input_relations(
+def _report_input_edges(
     store: ArtifactStore,
     report_ref: BacktestReportRef,
-) -> set[tuple[str, str]]:
+) -> tuple[tuple[str, str], ...]:
     """Return the report's declared artifact input edges.
 
     Missing or malformed input edges intentionally produce an empty set.  The
@@ -715,20 +875,29 @@ def _report_input_relations(
     try:
         manifest = _as_mapping(store.get_manifest(report_ref.artifact_id))
     except (FileNotFoundError, OSError, TypeError, ValueError):
-        return set()
+        return ()
     raw_inputs = _field(manifest, "inputs")
     if not isinstance(raw_inputs, Sequence) or isinstance(
         raw_inputs, (str, bytes, bytearray)
     ):
-        return set()
-    relations: set[tuple[str, str]] = set()
+        return ()
+    relations: list[tuple[str, str]] = []
     for raw_input in raw_inputs:
         input_payload = _as_mapping(raw_input)
         artifact_id = _field(input_payload, "artifact_id")
         role = _field(input_payload, "role")
         if artifact_id is not None and isinstance(role, str) and role.strip():
-            relations.add((str(artifact_id), role.strip()))
-    return relations
+            relations.append((str(artifact_id), role.strip()))
+    return tuple(relations)
+
+
+def _report_input_relations(
+    store: ArtifactStore,
+    report_ref: BacktestReportRef,
+) -> set[tuple[str, str]]:
+    """Return report input edges as a set for relation membership checks."""
+
+    return set(_report_input_edges(store, report_ref))
 
 
 def _scope_binding_issues(
@@ -757,6 +926,14 @@ def _scope_binding_issues(
         actual = _field(binding, field_name)
         if actual is None or str(actual) != str(expected_value):
             issues.append("scope_binding_relation_not_established")
+    authority_scope = _field(binding, "authority_scope")
+    if authority_scope is not None and str(authority_scope) != PREDICTIVE_AUTHORITY_SCOPE:
+        issues.append("authority_scope_mismatch")
+    raw_threshold = _field(binding, "calibration_threshold")
+    if raw_threshold is not None:
+        declared_threshold = _coerce_decimal(raw_threshold, allow_text=True)
+        if declared_threshold != _coerce_decimal(context.calibration_threshold):
+            issues.append("calibration_threshold_binding_mismatch")
     return _dedupe(issues)
 
 
@@ -770,6 +947,7 @@ def _validate_and_load_reference(
 
     if ref.role != role:
         raise ValueError("evidence reference role mismatch")
+    _validate_reference_identity_contract(ref, role)
     try:
         expected_kind, expected_schema_name, expected_schema_version = (
             REFERENCE_PROFILES[role]
@@ -938,6 +1116,12 @@ def _binding_issues(
     """Check report identity and complete scope against the caller context."""
 
     issues: list[str] = []
+    if context.estimand != PREDICTIVE_ESTIMAND:
+        issues.append("unsupported_estimand")
+    if context.authority_scope != PREDICTIVE_AUTHORITY_SCOPE:
+        issues.append("authority_scope_mismatch")
+    if tuple(context.may_not_use_for) != PREDICTIVE_AUTHORITY_DENIALS:
+        issues.append("authority_denials_mismatch")
     if not report.model_spec_ref or not report.policy_spec_ref:
         issues.append("incomplete_model_policy_pair")
     elif (
@@ -957,6 +1141,7 @@ def _binding_issues(
         ("method_version", context.method_version, "report_method_version_missing"),
         ("rule_version_ref", context.rule_version_ref, "report_rule_version_ref_missing"),
         ("estimand", context.estimand, "report_estimand_missing"),
+        ("authority_scope", PREDICTIVE_AUTHORITY_SCOPE, "report_authority_scope_missing"),
     )
     for field_name, expected, missing_code in required_report_fields:
         raw = metadata.get(field_name)
@@ -964,6 +1149,15 @@ def _binding_issues(
             issues.append(missing_code)
         elif raw.strip() != expected:
             issues.append(f"{field_name}_mismatch")
+
+    raw_denials = metadata.get("may_not_use_for")
+    if raw_denials is not None:
+        declared_denials = tuple(_as_text_sequence(raw_denials))
+        if declared_denials != PREDICTIVE_AUTHORITY_DENIALS:
+            issues.append("authority_denials_mismatch")
+    issues.extend(_authority_payload_issues(metadata))
+    for scenario in report.scenarios:
+        issues.extend(_authority_payload_issues(scenario.metadata))
 
     direct_expected = (
         ("model_spec_ref", context.model_spec_ref),
@@ -1087,6 +1281,112 @@ def _as_mapping(value: object) -> Mapping[str, object]:
     }
 
 
+def _validate_reference_identity_contract(
+    ref: EvidenceArtifactRef,
+    role: str,
+) -> None:
+    """Enforce the canonical identity field assigned to a reference role."""
+
+    expected_path = REFERENCE_IDENTITY_PATHS.get(role)
+    if expected_path is None:
+        raise ValueError("unsupported evidence reference role")
+    if ref.identity_path != expected_path:
+        raise ValueError(
+            f"evidence reference identity path must be {expected_path!r} for {role}"
+        )
+    normalized = ref.identity_value.strip().casefold()
+    if (
+        normalized in _TRIVIAL_IDENTITY_VALUES
+        or normalized == role.casefold()
+        or normalized == f"{role}_ref".casefold()
+        or normalized == str(ref.artifact_id).casefold()
+    ):
+        raise ValueError("evidence reference identity must be semantic and non-trivial")
+
+
+def _coerce_decimal(value: object, *, allow_text: bool = False) -> Decimal | None:
+    """Coerce a finite numeric value without accepting booleans as numbers."""
+
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, Decimal):
+        candidate = value
+    elif isinstance(value, (int, float)):
+        candidate = Decimal(str(value))
+    elif allow_text and isinstance(value, str):
+        try:
+            candidate = Decimal(value.strip())
+        except (InvalidOperation, ValueError):
+            return None
+    else:
+        return None
+    return candidate if candidate.is_finite() else None
+
+
+def _threshold_binding_issues(
+    payloads: Sequence[object],
+    context: EmpiricalCalibrationContext,
+) -> tuple[str, ...]:
+    """Bind the typed threshold to the canonical threshold artifact value."""
+
+    if len(payloads) != 1:
+        return ("calibration_threshold_relation_not_established",)
+    raw_threshold = _lookup_identity(payloads[0], "threshold")
+    if raw_threshold is _MISSING:
+        return ("calibration_threshold_value_missing",)
+    persisted_threshold = _coerce_decimal(raw_threshold)
+    expected_threshold = _coerce_decimal(context.calibration_threshold)
+    if persisted_threshold is None:
+        return ("calibration_threshold_value_invalid",)
+    if expected_threshold is None or persisted_threshold != expected_threshold:
+        return ("calibration_threshold_binding_mismatch",)
+    return ()
+
+
+def _authority_payload_issues(payload: object) -> tuple[str, ...]:
+    """Reject causal, treatment, or S10 purpose declarations in context data."""
+
+    issues: list[str] = []
+
+    def visit(node: object) -> None:
+        if isinstance(node, Mapping):
+            for key, child in node.items():
+                key_name = str(key).casefold().replace("-", "_").replace(" ", "_")
+                if key_name == "authority_scope":
+                    if str(child) != PREDICTIVE_AUTHORITY_SCOPE:
+                        issues.append("authority_scope_mismatch")
+                elif key_name == "estimand":
+                    if str(child) != PREDICTIVE_ESTIMAND:
+                        issues.append("unsupported_estimand")
+                elif key_name in {
+                    "purpose",
+                    "authority_purpose",
+                    "claim_purpose",
+                    "intended_use",
+                    "use_for",
+                }:
+                    if any(_forbidden_authority_text(text) for text in _as_text_sequence(child)):
+                        issues.append("forbidden_authority_purpose")
+                elif key_name in {"may_not_use_for", "authority_denials", "denials"}:
+                    declared = tuple(_as_text_sequence(child))
+                    if declared != PREDICTIVE_AUTHORITY_DENIALS:
+                        issues.append("authority_denials_mismatch")
+                visit(child)
+        elif isinstance(node, Sequence) and not isinstance(node, (str, bytes, bytearray)):
+            for child in node:
+                visit(child)
+
+    visit(payload)
+    return _dedupe(issues)
+
+
+def _forbidden_authority_text(value: str) -> bool:
+    """Recognize purpose text that would grant a non-predictive authority."""
+
+    normalized = value.casefold().replace("-", "_").replace(" ", "_")
+    return any(token in normalized for token in ("causal", "treatment", "s10"))
+
+
 def _field(value: Mapping[str, object], name: str) -> object | None:
     return value.get(name)
 
@@ -1143,12 +1443,17 @@ def _dedupe(values: Sequence[str]) -> tuple[str, ...]:
 
 
 __all__ = [
+    "AuthorityDenial",
     "EmpiricalCalibrationContext",
     "EmpiricalCalibrationEvidence",
     "EmpiricalCalibrationEvidenceRef",
     "EmpiricalEvidenceKind",
     "EvidenceArtifactRef",
+    "PREDICTIVE_AUTHORITY_DENIALS",
+    "PREDICTIVE_AUTHORITY_SCOPE",
+    "PREDICTIVE_ESTIMAND",
     "REFERENCE_PROFILES",
+    "REFERENCE_IDENTITY_PATHS",
     "ReferenceRole",
     "load_empirical_calibration_evidence",
     "persist_empirical_calibration_evidence",

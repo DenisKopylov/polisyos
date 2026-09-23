@@ -10,6 +10,7 @@ test-only RED commit still collects while the producer module is absent.
 from __future__ import annotations
 
 import importlib
+import json
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -413,17 +414,27 @@ class _StoreOverride:
         *,
         manifest: object | None = None,
         bytes_override: bytes | None = None,
+        manifest_overrides: Mapping[str, object] | None = None,
+        bytes_overrides: Mapping[str, bytes] | None = None,
     ) -> None:
         self._store = store
         self._manifest = manifest
         self._bytes_override = bytes_override
+        self._manifest_overrides = dict(manifest_overrides or {})
+        self._bytes_overrides = dict(bytes_overrides or {})
 
     def get_manifest(self, artifact_id: object) -> object:
+        artifact_key = str(artifact_id)
+        if artifact_key in self._manifest_overrides:
+            return self._manifest_overrides[artifact_key]
         if self._manifest is not None:
             return self._manifest
         return self._store.get_manifest(artifact_id)
 
     def get_bytes(self, artifact_id: object) -> bytes:
+        artifact_key = str(artifact_id)
+        if artifact_key in self._bytes_overrides:
+            return self._bytes_overrides[artifact_key]
         if self._bytes_override is not None:
             return self._bytes_override
         return self._store.get_bytes(artifact_id)
@@ -696,7 +707,7 @@ def test_context_rejects_collapsed_naive_and_out_of_order_temporal_roles(
 
 
 def test_context_binding_mismatches_fail_closed_before_cas_write(tmp_path: Path) -> None:
-    """Report, method, rule, threshold, and corrupt refs cannot be admitted."""
+    """Report, scope, policy, method, rule, threshold, and corrupt refs cannot be admitted."""
 
     store, report_ref, _persisted, refs = _persist_report(
         tmp_path,
@@ -721,6 +732,19 @@ def test_context_binding_mismatches_fail_closed_before_cas_write(tmp_path: Path)
             store,
             report_ref,
             context=_context(refs, model_ref="model://frc02/wrong-model/v1"),
+        ),
+        lambda: bridge.produce_empirical_calibration_evidence(
+            store,
+            report_ref,
+            context=_context(refs, policy_ref="policy://frc02/wrong-policy/v1"),
+        ),
+        lambda: bridge.produce_empirical_calibration_evidence(
+            store,
+            report_ref,
+            context=_context(
+                refs,
+                method_ref="forecasting.univariate.wrong_method",
+            ),
         ),
         lambda: bridge.produce_empirical_calibration_evidence(
             store,
@@ -830,4 +854,59 @@ def test_forged_report_manifest_or_content_binding_is_refused_before_persistence
     _assert_rejected_without_write(
         store,
         lambda: bridge.persist_empirical_calibration_evidence(store, forged_evidence),
+    )
+
+
+def test_forged_context_scope_bytes_and_threshold_manifest_fail_before_cas_write(
+    tmp_path: Path,
+) -> None:
+    """Context refs remain typed while forged CAS witnesses fail content binding."""
+
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path,
+        label="context-binding",
+        observations=(True,),
+    )
+    bridge = _bridge()
+    context = _context(refs)
+
+    # Keep the EvidenceArtifactRef unchanged and plausible; only the bytes
+    # returned by the CAS are forged.  A caller-declared ref mutation would not
+    # exercise the persisted content-binding check this witness requires.
+    scope_artifact_id = refs["scope_binding"]["artifact_id"]
+    scope_payload = json.loads(store.get_bytes(scope_artifact_id))
+    scope_payload["report_id"] = "frc02-bridge-forged-context"
+    forged_scope_bytes = json.dumps(
+        scope_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    _assert_rejected_without_write(
+        store,
+        lambda: bridge.produce_empirical_calibration_evidence(
+            _StoreOverride(
+                store,
+                bytes_overrides={scope_artifact_id: forged_scope_bytes},
+            ),
+            report_ref,
+            context=context,
+        ),
+    )
+
+    threshold_artifact_id = refs["calibration_threshold"]["artifact_id"]
+    forged_threshold_manifest = store.get_manifest(threshold_artifact_id).model_copy(
+        update={"kind": "ir.calibration.threshold.forged"}
+    )
+    _assert_rejected_without_write(
+        store,
+        lambda: bridge.produce_empirical_calibration_evidence(
+            _StoreOverride(
+                store,
+                manifest_overrides={
+                    threshold_artifact_id: forged_threshold_manifest,
+                },
+            ),
+            report_ref,
+            context=context,
+        ),
     )

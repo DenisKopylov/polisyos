@@ -2965,7 +2965,7 @@ def _validate_local_fabric_capture_route(
         raise ValueError("fabric_fetch_capture_connector_instance_mismatch")
     config = resolve_config(plan)
     actual_path = _resolve_local_fabric_capture_path(
-        getattr(config, "url", None), approved_root=approved_root
+        getattr(config, "url", None), approved_root=approved_root, allow_relative=False
     )
     if actual_path != catalog_path:
         raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
@@ -2984,7 +2984,12 @@ def _validate_local_fabric_capture_route(
             raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
 
 
-def _resolve_local_fabric_capture_path(locator: object, *, approved_root: Path) -> Path:
+def _resolve_local_fabric_capture_path(
+    locator: object,
+    *,
+    approved_root: Path,
+    allow_relative: bool = True,
+) -> Path:
     if locator is None:
         raise ValueError("fabric_fetch_capture_local_locator_missing")
     raw = str(locator).strip()
@@ -3000,6 +3005,8 @@ def _resolve_local_fabric_capture_path(locator: object, *, approved_root: Path) 
     candidate = Path(path_text).expanduser()
     root = approved_root.resolve(strict=True)
     if not candidate.is_absolute():
+        if not allow_relative:
+            raise ValueError("fabric_fetch_capture_effective_config_relative")
         candidate = root / candidate
     try:
         resolved = candidate.resolve(strict=True)

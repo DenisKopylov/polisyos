@@ -1660,36 +1660,41 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
 
 
-def _canonicalize_recorded_primary_locator(owner: object) -> None:
+def _canonicalize_recorded_primary_locator(
+    owner: object, *, locator: Path | None = None
+) -> None:
     graph = getattr(owner, "graph")
     store = getattr(graph, "_store")
     csv_path = getattr(owner, "csv_path")
+    canonical_locator = csv_path if locator is None else locator
     store._con.execute(
         "UPDATE ds_distributions SET source_locator = ? WHERE id = ?",
-        [str(csv_path), "distribution-primary"],
+        [str(canonical_locator), "distribution-primary"],
     )
     store._con.execute(
         "UPDATE ds_metric_bindings SET request_dataset_id = ? WHERE distribution_id = ?",
-        [str(csv_path), "distribution-primary"],
+        [str(canonical_locator), "distribution-primary"],
     )
     store._session_source_identities = store._fetch_source_identities()
 
 
 @pytest.mark.parametrize(
-    ("case", "accepted"),
+    ("case", "accepted", "allow_relative"),
     [
-        ("file_uri_inside", True),
-        ("relative_inside", True),
-        ("absolute_outside", False),
-        ("symlink_escape", False),
-        ("remote_scheme", False),
-        ("non_file_scheme", False),
+        ("file_uri_inside", True, False),
+        ("relative_catalog_inside", True, True),
+        ("relative_effective_inside", False, False),
+        ("absolute_outside", False, False),
+        ("symlink_escape", False, False),
+        ("remote_scheme", False, False),
+        ("non_file_scheme", False, False),
     ],
 )
 def test_local_fabric_capture_path_boundary_matrix(
     tmp_path: Path,
     case: str,
     accepted: bool,
+    allow_relative: bool,
 ) -> None:
     approved_root = tmp_path / "approved"
     approved_root.mkdir()
@@ -1706,7 +1711,8 @@ def test_local_fabric_capture_path_boundary_matrix(
 
     locator = {
         "file_uri_inside": inside.as_uri(),
-        "relative_inside": "inside.csv",
+        "relative_catalog_inside": "inside.csv",
+        "relative_effective_inside": "inside.csv",
         "absolute_outside": str(outside),
         "symlink_escape": str(symlink),
         "remote_scheme": "https://remote.invalid/inside.csv",
@@ -1714,12 +1720,12 @@ def test_local_fabric_capture_path_boundary_matrix(
     }[case]
     if accepted:
         assert acquisition_owner._resolve_local_fabric_capture_path(
-            locator, approved_root=approved_root
+            locator, approved_root=approved_root, allow_relative=allow_relative
         ) == inside.resolve()
     else:
         with pytest.raises(ValueError, match="fabric_fetch_capture_"):
             acquisition_owner._resolve_local_fabric_capture_path(
-                locator, approved_root=approved_root
+                locator, approved_root=approved_root, allow_relative=allow_relative
             )
 
 
@@ -2076,6 +2082,81 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
             )
             is None
         )
+        assert execute_calls == []
+
+
+def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd_fetch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        approved_root = tmp_path / "approved"
+        approved_root.mkdir()
+        approved_locator = approved_root / "inside.csv"
+        approved_locator.write_text(
+            owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        cwd_locator = tmp_path / "inside.csv"
+        cwd_locator.write_text(
+            owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        monkeypatch.chdir(tmp_path)
+        _canonicalize_recorded_primary_locator(owner, locator=approved_locator)
+        store = owner.graph._store
+        store._con.execute(
+            "UPDATE ds_distributions SET connector_params = ? WHERE id = ?",
+            ["{}", "distribution-primary"],
+        )
+        store._session_source_identities = store._fetch_source_identities()
+        owner.providers.registry.set_default_config(
+            "files.tabular", ConnectionConfig(url="inside.csv")
+        )
+        service = RetrievalService(
+            curated_dir=tmp_path,
+            cas_root=approved_root / ".n7-live-cas",
+            dataset_catalog=owner.graph,
+            providers=owner.providers,
+        )
+        execute_calls: list[object] = []
+
+        def _cwd_execute_trap(*args: object, **kwargs: object) -> object:
+            execute_calls.append((args, kwargs))
+            raise AssertionError("relative effective config must fail before cwd fetch")
+
+        service.execute_fetch_plans = _cwd_execute_trap  # type: ignore[method-assign]
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec.update(
+            {
+                "requirement_id": "data-requirement:fetch-capture-relative-effective",
+                "claim_id": "claim-fetch-capture-relative-effective",
+                "required_data_families": ("metric.test",),
+                "metadata": {"fabric_capture_mode": "persisted_payload"},
+            }
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id="run-n7-fetch-capture-relative-effective",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=approved_root,
+            dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+            retrieval_service_factory=lambda _curated_dir, _cas_root, _graph: service,
+        )
+
+        assert (
+            gateway.acquire(
+                record=report.acquisition_records[0],
+                compiled_requirement_spec=base_spec,
+            )
+            is None
+        )
+        assert cwd_locator.is_file()
         assert execute_calls == []
 
 

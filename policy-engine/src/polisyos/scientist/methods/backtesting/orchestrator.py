@@ -111,21 +111,20 @@ def _resolve_report_id(
     metadata: Mapping[str, Any] | None = None,
 ) -> str:
     """Resolve one report identity and reject a second conflicting declaration."""
-    resolved = (
-        _validate_report_id(report_id)
-        if report_id is not None
-        else f"{generated_prefix}{uuid.uuid4().hex[:12]}"
-    )
-    if report_id is not None and metadata is not None and "report_id" in metadata:
+    metadata_report_id: str | None = None
+    if metadata is not None and "report_id" in metadata:
         metadata_report_id = _validate_report_id(
             metadata["report_id"],
             field="metadata.report_id",
         )
-        if metadata_report_id != resolved:
-            raise ValueError(
-                "conflicting report_id declarations between the explicit report_id "
-                "and metadata.report_id"
-            )
+    if report_id is None:
+        return metadata_report_id or f"{generated_prefix}{uuid.uuid4().hex[:12]}"
+    resolved = _validate_report_id(report_id)
+    if metadata_report_id is not None and metadata_report_id != resolved:
+        raise ValueError(
+            "conflicting report_id declarations between the explicit report_id "
+            "and metadata.report_id"
+        )
     return resolved
 
 
@@ -162,6 +161,29 @@ def _normalize_manifest_inputs(inputs: Sequence[Any] | None) -> list[InputRef] |
                 "duplicate manifest input role/artifact pair is not allowed"
             )
         seen_pairs.add(pair)
+    return normalized
+
+
+def _resolve_manifest_inputs(
+    store: BacktestStore,
+    inputs: Sequence[Any] | None,
+) -> list[InputRef] | None:
+    """Resolve explicit lineage edges in the configured CAS before execution."""
+    normalized = _normalize_manifest_inputs(inputs)
+    if normalized is None:
+        return None
+    for item in normalized:
+        try:
+            manifest = store.get_manifest(item.artifact_id)
+            manifest_artifact_id = getattr(manifest, "artifact_id", None)
+            if str(manifest_artifact_id) != str(item.artifact_id):
+                raise ValueError("manifest identity does not match the requested artifact")
+            store.get_bytes(item.artifact_id)
+        except Exception as exc:
+            raise ValueError(
+                "manifest input artifact cannot be resolved in the configured CAS: "
+                f"{item.artifact_id}"
+            ) from exc
     return normalized
 
 
@@ -203,14 +225,16 @@ class BacktestOrchestrator:
 
         ``report_id`` and ``inputs`` are caller-owned handoff values.  When they
         are absent, the historical generated-ID and empty-lineage behavior is
-        retained; plan fields are never promoted into manifest inputs.
+        retained; plan fields are never promoted into manifest inputs.  Input
+        roles and content/schema semantics remain the caller's explicit
+        contract; this owner resolves only the exact refs in its configured CAS.
         """
         resolved_report_id = _resolve_report_id(
             report_id,
             generated_prefix="BT_",
             metadata=metadata,
         )
-        manifest_inputs = _normalize_manifest_inputs(inputs)
+        manifest_inputs = _resolve_manifest_inputs(self._store, inputs)
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []
         requested_modes: list[str] = []

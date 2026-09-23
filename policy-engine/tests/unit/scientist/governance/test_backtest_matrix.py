@@ -107,6 +107,15 @@ def test_backtest_matrix_rejects_conflicting_report_ids(tmp_path, cas_store) -> 
         )
 
 
+def test_backtest_matrix_honors_metadata_only_report_id(tmp_path, cas_store) -> None:
+    result = BacktestMatrixRunner(cas_store).run(
+        {BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)},
+        metadata={"report_id": "frc02.owner.matrix.metadata-only"},
+    )
+
+    assert result.report_id == "frc02.owner.matrix.metadata-only"
+
+
 def test_backtest_matrix_rejects_duplicate_manifest_input_edges(tmp_path, cas_store) -> None:
     source_ref = cas_store.put_json(
         {"source": "frc02"},

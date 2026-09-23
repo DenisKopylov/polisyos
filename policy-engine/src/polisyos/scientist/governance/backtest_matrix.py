@@ -24,7 +24,7 @@ from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.scientist.methods.backtesting.orchestrator import (
     BacktestOrchestrator,
     _collapse_modes,
-    _normalize_manifest_inputs,
+    _resolve_manifest_inputs,
     _resolve_report_id,
 )
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
@@ -139,7 +139,7 @@ class BacktestMatrixRunner:
             generated_prefix="BTM_",
             metadata=metadata,
         )
-        manifest_inputs = _normalize_manifest_inputs(inputs)
+        manifest_inputs = _resolve_manifest_inputs(self._store, inputs)
 
         materialized_plans = {
             kind: [HistoricalValidationPlan.model_validate(payload) for payload in bundle.plans]

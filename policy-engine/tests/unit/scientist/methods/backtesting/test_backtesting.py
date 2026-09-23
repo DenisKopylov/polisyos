@@ -102,6 +102,53 @@ def test_orchestrator_does_not_infer_plan_refs_into_manifest_inputs(tmp_path) ->
     assert manifest.inputs == []
 
 
+def test_orchestrator_rejects_unresolved_manifest_input_before_persistence(tmp_path) -> None:
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+    missing_input = InputRef(
+        artifact_id="sha256:" + "d" * 64,
+        role="calibration_source",
+    )
+    foreign_orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "foreign"))
+    foreign_ref = _put_backtest_artifact(
+        foreign_orchestrator,
+        {"source": "foreign"},
+        "test.frc02.foreign_source",
+    )
+    foreign_input = InputRef(
+        artifact_id=foreign_ref["artifact_id"],
+        role="calibration_source",
+    )
+
+    for input_ref in (missing_input, foreign_input):
+        with pytest.raises(ValueError, match="configured CAS"):
+            orchestrator.run(
+                [],
+                report_id="frc02.owner.unresolved-input",
+                inputs=[input_ref],
+            )
+
+    assert orchestrator._store.iter_artifact_ids() == []
+
+
+def test_orchestrator_honors_metadata_only_report_id(tmp_path) -> None:
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    report = orchestrator.run(
+        [],
+        metadata={"report_id": "frc02.owner.metadata-only"},
+    )
+
+    assert report.report_id == "frc02.owner.metadata-only"
+
+
+def test_orchestrator_rejects_malformed_metadata_report_id(tmp_path) -> None:
+    with pytest.raises(ValueError, match="metadata.report_id"):
+        BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos")).run(
+            [],
+            metadata={"report_id": " "},
+        )
+
+
 @pytest.mark.parametrize(
     "invalid_report_id",
     ("", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"),

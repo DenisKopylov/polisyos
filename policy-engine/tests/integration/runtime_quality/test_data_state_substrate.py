@@ -16,7 +16,6 @@ import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
 import polisyos.runtime.quality.data_state_substrate as data_state_substrate_module
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions

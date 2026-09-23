@@ -27,6 +27,8 @@ environment fingerprints.
 
 - storage: `FileSystemCAS`, `PutOptions`
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
+- integrity errors: `polisyos.core.artifacts.ArtifactIntegrityError` (the canonical
+  facade export for read-time CAS integrity failures)
 - signing: `SigningConfig`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`
 - exact chronology evidence: direct module API
   `polisyos.core.artifacts.signed_evidence.FileSystemSignedArtifactEvidenceRepository`; it is not

@@ -13,13 +13,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1594`.
-- Public/root-or-package facade types: `447`.
+- Public/root-or-package facade types: `448`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 286 |
+| `polisyos.ir` | 287 |
 | `polisyos.ir.analytics` | 278 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
@@ -42,7 +42,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `loading` | 25 | 10 | 6 |
 | `model_layer` | 30 | 8 | 1 |
 | `passes` | 16 | 0 | 0 |
-| `registry` | 146 | 30 | 0 |
+| `registry` | 146 | 31 | 0 |
 | `schemas` | 6 | 0 | 0 |
 
 ## Analytics
@@ -29920,9 +29920,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ArtifactRefModel` { #polisyos-ir-registry-refs-artifactrefmodel }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ArtifactRefModel`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`

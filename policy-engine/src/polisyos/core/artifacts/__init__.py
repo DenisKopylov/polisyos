@@ -6,7 +6,7 @@ detached-signature contracts. Runtime and governance layers should depend on
 this facade instead of importing private artifact internals.
 """
 
-from ._integrity_ops import VerificationReport
+from ._integrity_ops import ArtifactIntegrityError, VerificationReport
 from ._transfer_ops import ExportReport, ImportReport
 from .async_store import (
     AsyncArtifactStoreAdapter,
@@ -61,6 +61,7 @@ from .write_contract import ArtifactWriteOptions
 __all__ = [
     "ArtifactGovernanceInfo",
     "ArtifactID",
+    "ArtifactIntegrityError",
     "ArtifactManifest",
     "ArtifactOwnershipError",
     "ArtifactOwnershipIndex",

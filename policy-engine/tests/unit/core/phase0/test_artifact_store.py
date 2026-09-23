@@ -4,10 +4,16 @@ import hashlib
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+from polisyos.core.artifacts import ArtifactIntegrityError as FacadeArtifactIntegrityError
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.ir.artifacts import ArtifactID as IrArtifactID
 from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+
+
+def test_artifact_integrity_error_facade_preserves_owner_identity() -> None:
+    assert FacadeArtifactIntegrityError is ArtifactIntegrityError
+    assert FacadeArtifactIntegrityError.__module__ == "polisyos.core.artifacts._integrity_ops"
 
 
 def test_put_get_roundtrip_and_verify(store: FileSystemCAS):

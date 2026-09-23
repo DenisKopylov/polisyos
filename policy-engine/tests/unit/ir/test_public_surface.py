@@ -62,6 +62,42 @@ def test_package_facades_import_without_eager_submodules() -> None:
     )
 
 
+def test_root_artifact_ref_model_facade_preserves_identity_and_laziness() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            """
+import json
+import sys
+import polisyos.ir as ir
+
+before = "polisyos.ir.registry.refs" in sys.modules
+facade = ir.ArtifactRefModel
+after = "polisyos.ir.registry.refs" in sys.modules
+from polisyos.ir.registry.refs import ArtifactRefModel as owned
+
+print(json.dumps({
+    "before": before,
+    "after": after,
+    "same": facade is owned,
+    "exported": "ArtifactRefModel" in ir.__all__,
+}))
+""",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert json.loads(result.stdout) == {
+        "before": False,
+        "after": True,
+        "same": True,
+        "exported": True,
+    }
+
+
 def test_lazy_export_access_imports_only_requested_module_group() -> None:
     loaded = _subprocess_json(
         "import json, sys; import polisyos.ir.analytics as analytics; "

@@ -41,14 +41,14 @@ from pydantic import (
 from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
-    ArtifactRef as CASArtifactRef,
-)
-from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
 )
-from polisyos.core.artifacts.store import ArtifactIntegrityError
+from polisyos.core.artifacts import (
+    ArtifactRef as CASArtifactRef,
+)
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -4490,7 +4490,7 @@ class GenerationCycleController:
         """
 
         from polisyos.core import artifacts
-        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric import FabricFetchReceipt
         from polisyos.runtime.quality.data_forge_binding import (
             FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
             FabricMeasurementRootPayload,
@@ -4701,7 +4701,7 @@ class GenerationCycleController:
                 expected_inputs=(),
             )
 
-            from polisyos.core.contracts.fabric import DataSnapshot
+            from polisyos.core.contracts import DataSnapshot
 
             snapshot_raw = store.get_bytes(data_snapshot_ref.artifact_id)
             snapshot = DataSnapshot.model_validate(from_canonical_bytes(snapshot_raw))
@@ -5188,7 +5188,7 @@ class GenerationCycleController:
             target_world_slots=target_world_slots,
         )
 
-        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.ir import ModelSpec
         from polisyos.runtime.quality.cycle_substrate import (
             build_cycle_substrate_context,
         )

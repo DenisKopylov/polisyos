@@ -854,6 +854,7 @@ def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tm
 
 
 def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_path):
+    """Witness one pool health check and two complete paginated data fetches."""
     with build_worldbank_fetch_owner(tmp_path) as owner:
         start = len(owner.http_requests)
         _exercise_worldbank_pool_protocol(owner)
@@ -863,13 +864,12 @@ def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_pat
             "health",
             "data",
             "data",
-            "health",
             "data",
             "data",
         ]
         health = [exchange for exchange in exchanges if exchange.kind == "health"]
         data = [exchange for exchange in exchanges if exchange.kind == "data"]
-        assert len(health) == 2
+        assert len(health) == 1
         assert all(
             exchange.params == {"format": "json", "per_page": "1"}
             for exchange in health

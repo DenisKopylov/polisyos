@@ -1423,7 +1423,7 @@ class RealAcquisitionOwnerGateway:
                         cas_root=self._repo_root / ".n7-live-cas",
                         catalog=graph,
                     )
-                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
                     _LOGGER.warning("Fabric fetch capture refused: %s", exc)
                     return None
             else:

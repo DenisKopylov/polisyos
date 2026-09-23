@@ -904,7 +904,7 @@ def _recompute_and_reconcile(
         denominator_present = denominator_key in report.metadata
         if numerator_present != denominator_present:
             issues.append("persisted_metadata_counter_incomplete")
-        if numerator_present:
+        if numerator_present and denominator_present:
             raw_numerator = _coerce_int(report.metadata[numerator_key])
             raw_denominator = _coerce_int(report.metadata[denominator_key])
             if raw_numerator is None or raw_denominator is None:

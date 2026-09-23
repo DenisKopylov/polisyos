@@ -979,6 +979,67 @@ def test_provenance_refs_require_manifest_content_and_identity_binding(
     assert "provenance_ref_unresolved" in missing_evidence.failure_codes
 
 
+def test_forbidden_marker_payload_is_rejected_even_when_identity_binds(
+    tmp_path: Path,
+) -> None:
+    """A marker-free identity check cannot admit a synthetic lineage payload."""
+
+    store, original_report_ref, model_ref, policy_ref, refs = _persist_empirical_report(
+        tmp_path,
+        within_ci=(True,),
+        label="forbidden-marker",
+    )
+    report = load_backtest_report(store, original_report_ref)
+    kind, schema_name, schema_version = REFERENCE_PROFILES["source_lineage"]
+    marker_payload = put_json_artifact(
+        store,
+        {
+            "identity": "source://panel/v1",
+            "role": "source_lineage",
+            "report_id": report.report_id,
+            "source": "synthetic_fixture",
+        },
+        kind=kind,
+        schema_name=schema_name,
+        schema_version=schema_version,
+    )
+    marker_payload.update(
+        {
+            "role": "source_lineage",
+            "schema_name": schema_name,
+            "schema_version": schema_version,
+            "identity_path": "identity",
+            "identity_value": "source://panel/v1",
+        }
+    )
+    marker_ref = EvidenceArtifactRef.model_validate(marker_payload)
+    bound_refs = {**refs, "source_lineage": marker_ref}
+    report_inputs = [
+        {
+            "artifact_id": str(
+                (marker_ref if role == "source_lineage" else ref).artifact_id
+            ),
+            "role": role,
+        }
+        for role, ref in refs.items()
+    ]
+    report_ref = persist_backtest_report(store, report, inputs=report_inputs)
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=_calibration_context(
+            model_spec_ref=str(model_ref),
+            policy_spec_ref=str(policy_ref),
+            store=store,
+            refs=bound_refs,
+            source_lineage_refs=(marker_ref,),
+        ),
+    )
+
+    assert evidence.usable_for_calibration is False
+    assert "forbidden_provenance_marker" in evidence.failure_codes
+
+
 def test_within_ci_flags_cannot_override_recomputed_bounds(tmp_path: Path) -> None:
     """A contradictory persisted flag blocks evidence derived from actual bounds."""
 

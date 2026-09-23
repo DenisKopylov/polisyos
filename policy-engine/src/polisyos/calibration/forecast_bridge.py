@@ -59,7 +59,11 @@ REPORT_SCHEMA_NAME = "ir.backtest_report"
 REPORT_SCHEMA_VERSION = "1.0"
 EVIDENCE_KIND = "ir.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_NAME = "polisyos.calibration.empirical_calibration_evidence"
-EVIDENCE_SCHEMA_VERSION = "1.0"
+LEGACY_EVIDENCE_SCHEMA_VERSION = "1.0"
+EVIDENCE_SCHEMA_VERSION = "1.1"
+_SUPPORTED_EVIDENCE_SCHEMA_VERSIONS = frozenset(
+    {LEGACY_EVIDENCE_SCHEMA_VERSION, EVIDENCE_SCHEMA_VERSION}
+)
 
 ReferenceRole = Literal[
     "scope_binding",
@@ -320,7 +324,7 @@ class EmpiricalCalibrationEvidence(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = EVIDENCE_SCHEMA_VERSION
     report_id: str = Field(min_length=1)
     report_ref: BacktestReportRef
 
@@ -334,6 +338,10 @@ class EmpiricalCalibrationEvidence(BaseModel):
     may_not_use_for: tuple[AuthorityDenial, ...] = PREDICTIVE_AUTHORITY_DENIALS
     evidence_origin: str | None = None
     calibration_threshold: float | None = Field(default=None, gt=0.0, le=1.0)
+    # Preserve the report's declared interval level as descriptive metadata.
+    # It is never used as the empirical numerator/denominator or as a
+    # calibration admission decision.
+    nominal_confidence_level: float | None = Field(default=None, ge=0.0, le=1.0)
     scope_binding_ref: EvidenceArtifactRef | None = None
     calibration_threshold_ref: EvidenceArtifactRef | None = None
     observed_outcome_ref: EvidenceArtifactRef | None = None
@@ -394,6 +402,8 @@ def produce_empirical_calibration_evidence(
     ) = _recompute_and_reconcile(report)
 
     issues = list(observation_issues)
+    nominal_confidence_level, nominal_confidence_issues = _nominal_confidence_level(report)
+    issues.extend(nominal_confidence_issues)
     binding_issues: tuple[str, ...] = ()
     provenance_issues: tuple[str, ...] = ()
     provenance_payloads: dict[str, tuple[object, ...]] = {}
@@ -460,6 +470,7 @@ def produce_empirical_calibration_evidence(
         ),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
+        nominal_confidence_level=nominal_confidence_level,
         scope_binding_ref=context.scope_binding_ref if context else None,
         calibration_threshold_ref=context.calibration_threshold_ref if context else None,
         observed_outcome_ref=context.observed_outcome_ref if context else None,
@@ -502,7 +513,13 @@ def persist_empirical_calibration_evidence(
 ) -> EmpiricalCalibrationEvidenceRef:
     """Persist neutral evidence and return its typed CAS reference."""
 
+    if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+        raise ValueError(
+            "legacy empirical calibration evidence must not be repersisted"
+        )
     expected = _reproduce_evidence(store, evidence)
+    if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+        raise ValueError("new empirical calibration evidence must use schema 1.1")
     if not expected.context_bound or any(
         code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
     ):
@@ -532,17 +549,37 @@ def load_empirical_calibration_evidence(
     """Validate a typed evidence artifact's manifest and read its payload."""
 
     validated_ref = EmpiricalCalibrationEvidenceRef.model_validate(evidence_ref)
+    manifest_payload = _as_mapping(store.get_manifest(validated_ref.artifact_id))
+    schema_payload = _field(manifest_payload, "schema")
+    if schema_payload is None:
+        schema_payload = _field(manifest_payload, "artifact_schema")
+    artifact_schema = _as_mapping(schema_payload)
+    if _field(artifact_schema, "name") != EVIDENCE_SCHEMA_NAME:
+        raise ValueError("empirical evidence manifest schema binding mismatch")
+    evidence_schema_version = _field(artifact_schema, "version")
+    if (
+        not isinstance(evidence_schema_version, str)
+        or evidence_schema_version not in _SUPPORTED_EVIDENCE_SCHEMA_VERSIONS
+    ):
+        raise ValueError("unsupported empirical evidence schema version")
     _validate_json_artifact(
         store,
         validated_ref,
         expected_kind=EVIDENCE_KIND,
         expected_media_type="application/json",
         expected_schema_name=EVIDENCE_SCHEMA_NAME,
-        expected_schema_version=EVIDENCE_SCHEMA_VERSION,
+        expected_schema_version=evidence_schema_version,
     )
     evidence = EmpiricalCalibrationEvidence.model_validate(
         get_json_artifact(store, validated_ref.artifact_id)
     )
+    if evidence.schema_version != evidence_schema_version:
+        raise ValueError("empirical evidence payload schema version mismatch")
+    if (
+        evidence_schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION
+        and evidence.nominal_confidence_level is not None
+    ):
+        raise ValueError("legacy empirical evidence cannot carry nominal confidence")
     _validate_evidence_input_edges(store, validated_ref, evidence)
     _validate_json_artifact(
         store,
@@ -617,7 +654,11 @@ def _reproduce_evidence(
         evidence.report_ref,
         context=context,
     )
-    if expected.model_dump(mode="json") != evidence.model_dump(mode="json"):
+    expected_payload = expected.model_dump(mode="json")
+    if evidence.schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION:
+        expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
+        expected_payload["nominal_confidence_level"] = None
+    if expected_payload != evidence.model_dump(mode="json"):
         raise ValueError(
             "empirical evidence payload is not reproducible from its report"
         )
@@ -971,6 +1012,29 @@ def _validate_and_load_reference(
     ):
         raise ValueError("evidence reference profile mismatch")
     return get_json_artifact(store, ref.artifact_id)
+
+
+def _nominal_confidence_level(
+    report: BacktestReport,
+) -> tuple[float | None, tuple[str, ...]]:
+    """Return one report-level nominal interval level without inventing one.
+
+    A report may contain several scenarios.  A single neutral evidence value is
+    only meaningful when every declared scenario level agrees; mixed levels are
+    retained as a bounded provenance failure instead of silently selecting the
+    first scenario.
+    """
+
+    levels = tuple(
+        float(scenario.nominal_confidence_level)
+        for scenario in report.scenarios
+        if scenario.nominal_confidence_level is not None
+    )
+    if not levels:
+        return None, ()
+    if any(level != levels[0] for level in levels[1:]):
+        return None, ("nominal_confidence_level_mismatch",)
+    return levels[0], ()
 
 
 def _recompute_and_reconcile(

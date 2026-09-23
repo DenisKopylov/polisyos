@@ -236,6 +236,34 @@ def test_forecast_support_requires_s5_s6_s8_authority_inputs() -> None:
             )
 
 
+def test_ets_forecast_support_is_predictive_family_with_source_denials() -> None:
+    """ETS support uses its own family and cannot launder producer denials."""
+
+    source_denials = [
+        "causal_effect_authority",
+        "treatment_assignment_authority",
+        "s10_authority",
+    ]
+    payload = _forecast_support_payload(
+        method_family="foundry_forecast",
+        authority_boundary=_authority_boundary(
+            authoritative_for=["forecast_support_tiering"]
+        ),
+        may_not_use_for=[
+            *source_denials,
+            *_authority_boundary()["may_not_use_for"],
+        ],
+    )
+
+    support = _s10("ForecastSupport").model_validate(payload)
+
+    assert support.method_family == "foundry_forecast"
+    assert set(source_denials) <= set(support.may_not_use_for)
+    assert set(support.authority_boundary.authoritative_for) == {
+        "forecast_support_tiering"
+    }
+
+
 def test_forecast_support_requires_design_graph_and_prediction_context_refs() -> None:
     build_forecast_support = _s10("build_forecast_support")
 

@@ -7,6 +7,7 @@ from typing import Any, Literal
 
 from pydantic import AwareDatetime, Field, model_validator
 
+from polisyos.ir.registry.refs import ArtifactRefModel  # noqa: TC001
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
     ForecastClaimScope,
@@ -30,6 +31,7 @@ ForecastAuthorityDisposition = Literal[
 ]
 ForecastMethodFamily = Literal[
     "foundry_causal",
+    "foundry_forecast",
     "foundry_optimization",
     "foundry_bayesian",
     "historical_prior",
@@ -194,6 +196,7 @@ class ForecastCalibrationRecord(Layer2ReadinessModel):
     calibration_threshold_ref: str = Field(..., min_length=1, max_length=300)
     floor_passed: bool
     calibration_status: ObservableSubsetCalibrationStatus
+    empirical_evidence_ref: ArtifactRefModel | None = None
     interval_coverage_metric: float | None = Field(default=None, ge=0.0, le=1.0)
     calibration_error_metric: float | None = Field(default=None, ge=0.0)
     source_lineage_refs: list[str] = Field(default_factory=list, max_length=80)
@@ -206,6 +209,11 @@ class ForecastCalibrationRecord(Layer2ReadinessModel):
     @model_validator(mode="after")
     def _validate_calibration(self) -> ForecastCalibrationRecord:
         _assert_prediction_authority_boundary(self.authority_boundary, self.may_not_use_for)
+        if self.empirical_evidence_ref is not None and (
+            self.empirical_evidence_ref.kind != "ir.empirical_calibration_evidence"
+            or self.empirical_evidence_ref.media_type != "application/json"
+        ):
+            raise ValueError("empirical calibration evidence reference profile mismatch")
         if self.numerator > self.denominator:
             raise ValueError("calibration numerator cannot exceed denominator")
         if self.denominator == 0 and self.calibration_status == "pass":

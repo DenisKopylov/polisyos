@@ -993,8 +993,8 @@ def _build_acq01_real_route_controller(
             case.data_spec.requirement_id: route.owner_artifact,
         }
     )
-    setattr(gateway, "catalog", route.catalog)
-    setattr(gateway, "providers", route.providers)
+    gateway.catalog = route.catalog
+    gateway.providers = route.providers
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
         grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
@@ -1151,8 +1151,8 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 case.data_spec.requirement_id: route.owner_artifact,
             }
         )
-        setattr(gateway, "catalog", route.catalog)
-        setattr(gateway, "providers", route.providers)
+        gateway.catalog = route.catalog
+        gateway.providers = route.providers
         controller = GenerationCycleController(
             generation_port=_RouteGenerationPort(),
             grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
@@ -1393,7 +1393,7 @@ async def test_n7_acq01_reentry_rejects_same_id_altered_source_requirement(
             _validate_resolved_measurement_root_evidence(altered)
             return altered
 
-        setattr(gateway, "resolve_measurement_root_evidence", altered_resolver)
+        gateway.resolve_measurement_root_evidence = altered_resolver
         with pytest.raises(
             generation_cycle_module.GenerationCycleError,
             match="n7_acq01_measurement_root_custody_invalid",

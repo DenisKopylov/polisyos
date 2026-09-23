@@ -835,14 +835,19 @@ def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tm
         pd.testing.assert_frame_equal(resolved.result.data, owner.frame)
         pd.testing.assert_frame_equal(resolved.replayed_result.data, owner.frame)
         replayed_requests = owner.http_requests[len(before) :]
-        assert [request.kind for request in replayed_requests] == ["data", "data"]
-        assert [request.params["page"] for request in replayed_requests] == ["1", "2"]
+        assert [request.kind for request in replayed_requests] == ["health", "data", "data"]
+        health = replayed_requests[0]
+        data = replayed_requests[1:]
+        assert health.params == {"format": "json", "per_page": "1"}
+        assert "page" not in health.params
+        assert [request.params["page"] for request in data] == ["1", "2"]
         assert all(
             request.response in owner.http_responses.values()
-            for request in replayed_requests
+            for request in data
         )
         assert all(
-            request.headers["ETag"] == '"wdi-etag-1"' for request in replayed_requests
+            request.headers["ETag"] == '"wdi-etag-1"'
+            for request in replayed_requests
         )
         assert resolved.used_plan.connector_id == "worldbank.wdi"
         assert resolved.used_plan.dataset_id == "NY.GDP.MKTP.CD"
@@ -855,6 +860,7 @@ def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_pat
         exchanges = owner.http_requests[start:]
 
         assert [exchange.kind for exchange in exchanges] == [
+            "health",
             "data",
             "data",
             "health",
@@ -863,7 +869,11 @@ def test_worldbank_fixture_distinguishes_pool_health_from_paginated_data(tmp_pat
         ]
         health = [exchange for exchange in exchanges if exchange.kind == "health"]
         data = [exchange for exchange in exchanges if exchange.kind == "data"]
-        assert len(health) == 1
+        assert len(health) == 2
+        assert all(
+            exchange.params == {"format": "json", "per_page": "1"}
+            for exchange in health
+        )
         assert all("page" not in exchange.params for exchange in health)
         assert [exchange.params["page"] for exchange in data] == ["1", "2", "1", "2"]
         assert all("page" in exchange.params for exchange in data)

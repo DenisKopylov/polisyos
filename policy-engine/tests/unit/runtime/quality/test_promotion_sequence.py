@@ -2434,7 +2434,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
     assert evidence.envelope.ref.artifact_type == "BaseDataset"
     assert len(evidence.envelope.producer_roots) == 1
     assert evidence.envelope.producer_roots[0].artifact_type == "MeasurementRoot"
-    assert evidence.measurement_root_ref.artifact_id == envelope.payload_ref
+    assert str(evidence.measurement_root_ref.artifact_id) == envelope.payload_ref
     assert evidence.fetch_receipt_ref == evidence.payload.fetch_receipt_ref
     assert evidence.catalog_binding_ref == evidence.payload.catalog_binding_ref
 

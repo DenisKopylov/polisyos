@@ -23,7 +23,7 @@ import math
 import re
 import time
 from collections.abc import Awaitable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -156,6 +156,7 @@ GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
 GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
 )
+_N7_ACQ01_ROUTE_SCHEMA_VERSION = "policyos.runtime.acq01_route.v1"
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
 )
@@ -4452,6 +4453,300 @@ class GenerationCycleController:
             return self._acquisition_owner_gateway
         return RealAcquisitionOwnerGateway(repo_root=self._repo_root or Path.cwd())
 
+    def _rebuild_n7_acq01_route_context(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_receipt: AcquisitionReceipt,
+    ) -> CycleSubstrateContext | None:
+        """Rebuild a route-owned WMR/context from the accepted CAS snapshot.
+
+        The registry-only N7 projection intentionally has no route payload and
+        returns ``None`` so the existing unresolved-world negative guard remains
+        active.  A versioned ``acq01_route`` is different: its owner artifact
+        must point at one CAS, one admitted snapshot, and one persisted registry
+        before the existing N3 and cycle-context builders are allowed to mint a
+        fresh WMR.
+        """
+
+        route_artifacts = tuple(
+            artifact
+            for artifact in acquisition_receipt.owner_artifacts
+            if isinstance(artifact.payload, Mapping)
+            and isinstance(artifact.payload.get("acq01_route"), Mapping)
+        )
+        if not route_artifacts:
+            return None
+        if len(route_artifacts) != 1:
+            raise GenerationCycleError(
+                "n7_acq01_route_ambiguous",
+                "exactly one owner artifact may carry the ACQ-01 route",
+            )
+        owner_artifact = route_artifacts[0]
+        from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
+
+        try:
+            recomputed_owner = AcquisitionOwnerArtifact.from_payload(
+                owner_component=owner_artifact.owner_component,
+                requirement_ref=owner_artifact.requirement_ref,
+                artifact_ref=owner_artifact.artifact_ref,
+                payload=owner_artifact.payload,
+                cost_usd=owner_artifact.cost_usd,
+                quality=owner_artifact.quality,
+                rights=owner_artifact.rights,
+                binding_refs=owner_artifact.binding_refs,
+                journal_ref=owner_artifact.journal_ref,
+                ingested=owner_artifact.ingested,
+                capture_provenance=owner_artifact.capture_provenance,
+            )
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_owner_artifact_invalid",
+                str(exc),
+            ) from exc
+        if recomputed_owner.content_hash != owner_artifact.content_hash:
+            raise GenerationCycleError("n7_acq01_owner_artifact_hash_mismatch")
+
+        route = owner_artifact.payload["acq01_route"]
+        if route.get("route_schema_version") != _N7_ACQ01_ROUTE_SCHEMA_VERSION:
+            raise GenerationCycleError("n7_acq01_route_schema_mismatch")
+        build_inputs = route.get("build_inputs")
+        if not isinstance(build_inputs, Mapping):
+            raise GenerationCycleError("n7_acq01_route_build_inputs_missing")
+
+        capture_store_root = route.get("capture_store_root")
+        if not isinstance(capture_store_root, str) or not capture_store_root.strip():
+            raise GenerationCycleError("n7_acq01_route_store_missing")
+        store_root = Path(capture_store_root)
+        if not store_root.is_absolute() or not store_root.is_dir():
+            raise GenerationCycleError("n7_acq01_route_store_unresolved")
+        store = FileSystemCAS(store_root)
+
+        def cas_ref(
+            raw: object,
+            *,
+            expected_kind: str,
+        ) -> CASArtifactRef:
+            try:
+                ref = CASArtifactRef.model_validate(raw)
+                if ref.kind != expected_kind or ref.media_type != "application/json":
+                    raise ValueError("unexpected artifact kind or media type")
+                manifest = store.get_manifest(ref.artifact_id)
+                if (
+                    manifest.artifact_id != ref.artifact_id
+                    or manifest.kind != ref.kind
+                    or manifest.media_type != ref.media_type
+                ):
+                    raise ValueError("CAS manifest does not match artifact ref")
+                return ref
+            except (OSError, TypeError, ValueError) as exc:
+                raise GenerationCycleError(
+                    "n7_acq01_route_cas_ref_invalid",
+                    f"{expected_kind}: {exc}",
+                ) from exc
+
+        data_snapshot_ref = cas_ref(
+            route.get("data_snapshot_ref"),
+            expected_kind="fabric.data_snapshot",
+        )
+        from polisyos.pdc import ArtifactEnvelope
+
+        try:
+            measurement_root = ArtifactEnvelope.model_validate(route.get("measurement_root"))
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_measurement_root_invalid",
+                str(exc),
+            ) from exc
+        measurement_payload_ref = cas_ref(
+            {
+                "artifact_id": measurement_root.payload_ref,
+                "kind": "policyos.gy.measurement_root_payload",
+                "media_type": "application/json",
+            },
+            expected_kind="policyos.gy.measurement_root_payload",
+        )
+        try:
+            snapshot_manifest = store.get_manifest(data_snapshot_ref.artifact_id)
+            if not any(
+                str(item.artifact_id) == str(measurement_payload_ref.artifact_id)
+                for item in snapshot_manifest.inputs
+            ):
+                raise ValueError("DataSnapshot is not bound to the accepted measurement root")
+        except (OSError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_snapshot_lineage_invalid",
+                str(exc),
+            ) from exc
+
+        from polisyos.runtime.quality.substrate_registry import (
+            SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            load_substrate_registry,
+        )
+
+        registry_ref = cas_ref(
+            route.get("registry_ref"),
+            expected_kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+        )
+        try:
+            registry = load_substrate_registry(store, registry_ref)
+            inline_registry = SubstrateRegistry.model_validate(route.get("registry"))
+            if registry.model_dump(mode="json") != inline_registry.model_dump(mode="json"):
+                raise ValueError("owner registry projection differs from CAS registry")
+        except (OSError, TypeError, ValueError, SubstrateRegistryError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_registry_binding_invalid",
+                str(exc),
+            ) from exc
+
+        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.runtime.quality.cycle_substrate import (
+            build_cycle_substrate_context,
+            revalidate_cycle_substrate_context,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            BranchMode,
+            FabricWorldRef,
+            SkgCausalPriorRef,
+            build_world_model_record,
+        )
+
+        build_snapshot_ref = cas_ref(
+            build_inputs.get("data_snapshot_ref"),
+            expected_kind="fabric.data_snapshot",
+        )
+        if build_snapshot_ref != data_snapshot_ref:
+            raise GenerationCycleError("n7_acq01_route_snapshot_ref_mismatch")
+        binding_path = build_inputs.get("data_forge_snapshot_binding_path")
+        if not isinstance(binding_path, str) or not Path(binding_path).is_absolute():
+            raise GenerationCycleError("n7_acq01_route_binding_path_invalid")
+        if not Path(binding_path).is_file():
+            raise GenerationCycleError("n7_acq01_route_binding_path_unresolved")
+        try:
+            fabric_world_ref = FabricWorldRef.model_validate(
+                build_inputs.get("fabric_world_ref")
+            )
+            model_spec = ModelSpec.model_validate(build_inputs.get("model_spec"))
+            skg_causal_prior_ref = SkgCausalPriorRef.model_validate(
+                build_inputs.get("skg_causal_prior_ref")
+            )
+            branch_mode = BranchMode(build_inputs.get("branch_mode"))
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_route_build_inputs_invalid",
+                str(exc),
+            ) from exc
+        if model_spec.data_snapshot_ref != str(data_snapshot_ref.artifact_id):
+            raise GenerationCycleError("n7_acq01_route_model_snapshot_mismatch")
+
+        def required_text(key: str) -> str:
+            value = build_inputs.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise GenerationCycleError(f"n7_acq01_route_{key}_missing")
+            return value
+
+        def text_tuple(key: str, *, required: bool = False) -> tuple[str, ...]:
+            raw = build_inputs.get(key, ())
+            if isinstance(raw, str) or not isinstance(raw, Sequence):
+                raise GenerationCycleError(f"n7_acq01_route_{key}_invalid")
+            values = tuple(str(item).strip() for item in raw)
+            if any(not value for value in values) or (required and not values):
+                raise GenerationCycleError(f"n7_acq01_route_{key}_invalid")
+            return values
+
+        try:
+            world_build = build_world_model_record(
+                store,
+                fabric_world_ref=fabric_world_ref,
+                data_forge_snapshot_binding_path=binding_path,
+                data_snapshot_ref=data_snapshot_ref,
+                model_spec=model_spec,
+                skg_causal_prior_ref=skg_causal_prior_ref,
+                substrate_registry=registry,
+                region_or_jurisdiction=required_text("region_or_jurisdiction"),
+                population_scope=required_text("population_scope"),
+                policy_domain=required_text("policy_domain"),
+                valid_time_scope=required_text("valid_time_scope"),
+                tx_time_scope=required_text("tx_time_scope"),
+                resolution=required_text("resolution"),
+                branch_mode=branch_mode,
+                policy_slot_ids=text_tuple("policy_slot_ids", required=True),
+                producer_ref=required_text("producer_ref"),
+                data_forge_role=required_text("data_forge_role"),
+                required_substrate_sources=text_tuple("required_substrate_sources"),
+                required_substrate_families=text_tuple("required_substrate_families"),
+                substrate_registry_artifact_ref=registry_ref,
+                _loaded_substrate_registry=registry,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_route_world_build_invalid",
+                str(exc),
+            ) from exc
+
+        prior_context = self._cycle_substrate_context
+        if prior_context is not None:
+            try:
+                prior_context = revalidate_cycle_substrate_context(prior_context)
+            except (TypeError, ValueError) as exc:
+                raise GenerationCycleError(
+                    "n7_acq01_prior_context_invalid",
+                    str(exc),
+                ) from exc
+            if (
+                prior_context.design_problem_ref != _problem_ref(problem)
+                or prior_context.domain != problem.domain
+            ):
+                raise GenerationCycleError("n7_acq01_prior_context_mismatch")
+            if prior_context.candidate_levers or prior_context.transport_context:
+                raise GenerationCycleError(
+                    "n7_acq01_prior_context_rebind_unsupported",
+                    "candidate/transport evidence needs an owner rebind",
+                )
+
+        selected_entry_hashes = tuple(
+            entry.entry_content_hash
+            for entry in world_build.record.substrate_registry_ref.resolved_entries
+        )
+        try:
+            return build_cycle_substrate_context(
+                design_problem_ref=_problem_ref(problem),
+                domain=problem.domain,
+                substrate_registry=registry,
+                selected_registry_entry_hashes=selected_entry_hashes,
+                world_model_record=world_build.record,
+                intervention_substrate=(
+                    prior_context.intervention_substrate if prior_context is not None else None
+                ),
+                candidate_levers=(),
+                transport_context=None,
+                source_pack_content_hash=(
+                    prior_context.source_pack_content_hash if prior_context is not None else None
+                ),
+                substrate_input_content_hash=(
+                    prior_context.substrate_input_content_hash
+                    if prior_context is not None
+                    else None
+                ),
+            )
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_context_rebuild_invalid",
+                str(exc),
+            ) from exc
+
+    def _bind_n7_cycle_substrate_context(self, context: CycleSubstrateContext) -> None:
+        """Rebind controller-owned N5/N8 defaults to one fresh context."""
+
+        self._cycle_substrate_context = context
+        if isinstance(self._simulation_port, JointSimulationPort):
+            self._simulation_port._cycle_substrate_context = context
+        if isinstance(self._value_port, _DefaultSimulationBoundFoundryValuePort):
+            self._value_port = replace(
+                self._value_port,
+                cycle_substrate_context=context,
+            )
+
     def _reenter_cycle_after_n7_acquisition(
         self,
         problem: DesignProblem,
@@ -4514,8 +4809,16 @@ class GenerationCycleController:
         prior_atom = _object_get(prior_candidate, "atom")
         if not isinstance(prior_atom, InterventionAtomBinding):
             raise GenerationCycleError("n7_reentry_candidate_atom_not_canonical")
+        rebuilt_context = self._rebuild_n7_acq01_route_context(
+            problem,
+            acquisition_receipt=acquisition_receipt,
+        )
+        rebound_world_ref = acquisition_receipt.grown_world_after_ref
+        if rebuilt_context is not None:
+            self._bind_n7_cycle_substrate_context(rebuilt_context)
+            rebound_world_ref = rebuilt_context.world_model_record.world_model_record_id
         rebound_atom = prior_atom.model_copy(
-            update={"world_model_record_ref": acquisition_receipt.grown_world_after_ref}
+            update={"world_model_record_ref": rebound_world_ref}
         )
         rebound_atom = rebound_atom.model_copy(
             update={

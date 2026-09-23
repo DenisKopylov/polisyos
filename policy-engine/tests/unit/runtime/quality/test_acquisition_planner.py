@@ -1660,6 +1660,205 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
 
 
+def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The explicit capture lane records real CAS refs and remains resolve-only for N7."""
+
+    from polisyos.core import artifacts
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.retrieval import custody
+    from polisyos.fabric.retrieval import service as retrieval_service
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        monkeypatch.setattr(
+            retrieval_service,
+            "resolve_retrieval_providers",
+            lambda **_: owner.providers,
+        )
+
+        def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
+            return owner.graph
+
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec.update(
+            {
+                "requirement_id": "data-requirement:fetch-capture",
+                "claim_id": "claim-fetch-capture",
+                "required_data_families": ("metric.test",),
+                "metadata": {"fabric_capture_mode": "persisted_payload"},
+            }
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id="run-n7-fetch-capture",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            dataset_catalog_factory=_catalog_factory,
+            captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+
+        artifact = gateway.acquire(
+            record=report.acquisition_records[0],
+            compiled_requirement_spec=base_spec,
+        )
+
+        assert artifact is not None
+        raw_response = artifact.payload["owner_response"]
+        assert raw_response["owner_response_kind"] == "fabric_fetch_capture"
+        assert raw_response["captured_fetch_count"] == 1
+        captured = raw_response["captured_fetches"][0]
+        assert captured["plan"]["connector_id"] == "files.tabular"
+        assert captured["plan"]["dataset_id"] == "primary"
+        payload_ref = artifacts.ArtifactRef.model_validate(captured["payload_ref"])
+        receipt_ref = artifacts.ArtifactRef.model_validate(captured["fetch_receipt_ref"])
+        capture_store = FileSystemCAS(tmp_path / ".n7-live-cas")
+        assert capture_store.has(payload_ref.artifact_id)
+        assert capture_store.has(receipt_ref.artifact_id)
+        assert artifact.payload["acquired_substrate_registrations"] == []
+        assert artifact.payload["candidate_bindings"] == []
+        assert gateway.network_counter.network_calls == 0
+
+        reopened_graph = catalog_api.DatasetCatalogGraph(
+            owner.graph_path,
+            owner.graph_path.parent,
+            overlay_path=owner.overlay_path,
+        )
+        try:
+            resolved = custody.resolve_persisted_fetch(
+                store=capture_store,
+                fetch_receipt_ref=receipt_ref,
+                catalog=reopened_graph,
+                providers=owner.providers,
+            )
+        finally:
+            reopened_graph.close()
+        assert resolved.payload_ref == payload_ref
+        assert resolved.result.row_count == len(owner.rows)
+
+        receipt = run_acquisition_closed_loop(
+            run_id="run-n7-fetch-capture-no-world-growth",
+            acquisition_request={
+                "request_kind": "owner_grounding_evidence",
+                "driver": "missing_supporting_data",
+                "cycle_index": 1,
+            },
+            data_requirement_specs=(base_spec,),
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://before/fetch-capture"),
+            owner_gateway=RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={base_spec["requirement_id"]: artifact}
+            ),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        assert receipt.status == "completed_no_results"
+        assert receipt.grown_world_added_slots == ()
+        assert receipt.grown_world_after_ref == "world://before/fetch-capture"
+
+
+@pytest.mark.parametrize("mutation", ["missing", "foreign", "tampered"])
+def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    """Capture mode never emits an owner artifact for an incomplete CAS chain."""
+
+    from dataclasses import replace
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.fabric.retrieval import service as retrieval_service
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        monkeypatch.setattr(
+            retrieval_service,
+            "resolve_retrieval_providers",
+            lambda **_: owner.providers,
+        )
+        original_execute = RetrievalService.execute_fetch_plans
+        original_get_bytes = FileSystemCAS.get_bytes
+
+        def _execute_and_mutate(
+            service: RetrievalService,
+            plans: list[object],
+            *,
+            persist_payload: bool = False,
+            allow_fallback: bool = True,
+        ) -> object:
+            outcome = original_execute(
+                service,
+                plans,
+                persist_payload=persist_payload,
+                allow_fallback=allow_fallback,
+            )
+            metric = outcome.data_context.metrics[0]
+            if mutation == "missing":
+                mutated_metric = metric.model_copy(update={"fetch_receipt_ref": None})
+            elif mutation == "foreign":
+                mutated_metric = metric.model_copy(
+                    update={
+                        "payload_ref": ArtifactRef.model_validate(
+                            {
+                                "artifact_id": "sha256:" + "f" * 64,
+                                "kind": "fabric.fetch_payload",
+                                "media_type": "application/json",
+                            }
+                        )
+                    }
+                )
+            else:
+                receipt_ref = metric.fetch_receipt_ref
+                assert receipt_ref is not None
+
+                def _tampered_get_bytes(store: FileSystemCAS, artifact_id: object) -> bytes:
+                    data = original_get_bytes(store, artifact_id)
+                    if str(artifact_id) == str(receipt_ref.artifact_id):
+                        return data + b"tampered"
+                    return data
+
+                monkeypatch.setattr(FileSystemCAS, "get_bytes", _tampered_get_bytes)
+                mutated_metric = metric
+            mutated_context = outcome.data_context.model_copy(update={"metrics": [mutated_metric]})
+            return replace(outcome, data_context=mutated_context)
+
+        monkeypatch.setattr(RetrievalService, "execute_fetch_plans", _execute_and_mutate)
+
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec.update(
+            {
+                "requirement_id": f"data-requirement:fetch-capture-{mutation}",
+                "claim_id": f"claim-fetch-capture-{mutation}",
+                "required_data_families": ("metric.test",),
+                "metadata": {"fabric_capture_mode": "persisted_payload"},
+            }
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id=f"run-n7-fetch-capture-{mutation}",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+            captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+
+        assert (
+            gateway.acquire(
+                record=report.acquisition_records[0],
+                compiled_requirement_spec=base_spec,
+            )
+            is None
+        )
+
+
 def test_n7_lossy_required_data_adapter_is_strangled() -> None:
     multi_gap = RequiredDataGap(
         missing_distributions=("local_tourism_site_traffic", "administrative_tax_receipts"),

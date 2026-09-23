@@ -113,6 +113,8 @@ _REAL_OWNER_COMPONENT_PREFIXES = (
     "polisyos.fabric",
     "polisyos.data_forge",
 )
+_FABRIC_CAPTURE_MODE_METADATA_KEY = "fabric_capture_mode"
+_FABRIC_CAPTURE_MODE_PERSISTED_PAYLOAD = "persisted_payload"
 _ACQUISITION_RATE_BASIS = {
     "enumerator_day_usd": 180.0,
     "expert_hour_usd": 125.0,
@@ -1360,6 +1362,7 @@ class RealAcquisitionOwnerGateway:
         families = _required_families_for_spec(spec)
         if not families:
             return None
+        capture_fetches = _fabric_fetch_capture_enabled(spec)
         paths = default_substrate_catalog_paths(self._repo_root)
         if self._dataset_catalog_factory is not None:
             graph = self._dataset_catalog_factory(
@@ -1393,30 +1396,65 @@ class RealAcquisitionOwnerGateway:
                 allow_explore_fallback=False,
             )
             response = service.resolve(request)
+            captured_fetches: list[dict[str, Any]] = []
+            if capture_fetches:
+                if not response.fetch_plans:
+                    return None
+                try:
+                    execution = service.execute_fetch_plans(
+                        response.fetch_plans,
+                        persist_payload=True,
+                        allow_fallback=False,
+                    )
+                    captured_fetches = _captured_fabric_fetches(
+                        plans=response.fetch_plans,
+                        metrics=execution.data_context.metrics,
+                        cas_root=self._repo_root / ".n7-live-cas",
+                        catalog=graph,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    _LOGGER.warning("Fabric fetch capture refused: %s", exc)
+                    return None
         finally:
             close = getattr(graph, "close", None)
             if callable(close):
                 close()
+        owner_response_kind = (
+            "fabric_fetch_capture" if capture_fetches else "fabric_catalog_resolution"
+        )
+        owner_response = {
+            "owner_response_kind": owner_response_kind,
+            "mode": response.mode,
+            "fetch_plan_count": len(response.fetch_plans),
+            "candidate_count": len(response.candidates),
+            "warnings": response.warnings,
+            "families": list(families),
+            "fetch_plans": [
+                plan.model_dump(mode="json") for plan in response.fetch_plans
+            ],
+            "candidates": [
+                candidate.model_dump(mode="json") for candidate in response.candidates
+            ],
+        }
+        if capture_fetches:
+            owner_response.update(
+                {
+                    "capture_mode": _FABRIC_CAPTURE_MODE_PERSISTED_PAYLOAD,
+                    "captured_fetch_count": len(captured_fetches),
+                    "captured_fetches": captured_fetches,
+                }
+            )
         payload = _fabric_response_payload(
             spec=spec,
-            response={
-                "owner_response_kind": "fabric_catalog_resolution",
-                "mode": response.mode,
-                "fetch_plan_count": len(response.fetch_plans),
-                "candidate_count": len(response.candidates),
-                "warnings": response.warnings,
-                "families": list(families),
-                "fetch_plans": [
-                    plan.model_dump(mode="json") for plan in response.fetch_plans
-                ],
-                "candidates": [
-                    candidate.model_dump(mode="json") for candidate in response.candidates
-                ],
-            },
+            response=owner_response,
         )
         return _artifact_from_owner_response(
             owner_component="fabric.retrieval",
-            owner_endpoint="RetrievalService.resolve",
+            owner_endpoint=(
+                "RetrievalService.resolve/execute_fetch_plans"
+                if capture_fetches
+                else "RetrievalService.resolve"
+            ),
             record=record,
             spec=spec,
             payload=payload,
@@ -2819,6 +2857,122 @@ def _owner_component_for_record(
     return "fabric.retrieval"
 
 
+def _fabric_fetch_capture_enabled(spec: Mapping[str, Any]) -> bool:
+    metadata = spec.get("metadata")
+    return (
+        isinstance(metadata, Mapping)
+        and metadata.get(_FABRIC_CAPTURE_MODE_METADATA_KEY)
+        == _FABRIC_CAPTURE_MODE_PERSISTED_PAYLOAD
+    )
+
+
+def _captured_fabric_fetches(
+    *,
+    plans: Sequence[Any],
+    metrics: Sequence[Any],
+    cas_root: Path,
+    catalog: object,
+) -> list[dict[str, Any]]:
+    """Validate and project executor-owned payload/receipt references.
+
+    The capture lane records only the actual ``FetchExecutor`` output. It does
+    not manufacture substrate registrations or candidate bindings, and it
+    refuses an incomplete or foreign CAS chain before producing an owner
+    artifact.
+    """
+
+    plans_by_id = {str(plan.plan_id): plan for plan in plans}
+    if len(plans_by_id) != len(plans) or len(metrics) != len(plans):
+        raise ValueError("fabric_fetch_capture_plan_metric_cardinality_mismatch")
+    if {str(metric.plan_id) for metric in metrics} != set(plans_by_id):
+        raise ValueError("fabric_fetch_capture_plan_metric_identity_mismatch")
+
+    from polisyos.core import canon
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+
+    if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
+        raise ValueError("fabric_fetch_capture_catalog_owner_missing")
+    store = artifacts.FileSystemCAS(cas_root)
+    captured: list[dict[str, Any]] = []
+    for metric in metrics:
+        plan = plans_by_id[str(metric.plan_id)]
+        payload_ref = metric.payload_ref
+        receipt_ref = metric.fetch_receipt_ref
+        if payload_ref is None or receipt_ref is None:
+            raise ValueError("fabric_fetch_capture_refs_missing")
+
+        _validate_fabric_capture_ref(
+            store,
+            payload_ref,
+            expected_kind="fabric.fetch_payload",
+            expected_media_types={"application/json", "application/vnd.apache.arrow.stream"},
+        )
+        receipt_manifest, receipt_bytes = _validate_fabric_capture_ref(
+            store,
+            receipt_ref,
+            expected_kind="fabric.fetch_receipt",
+            expected_media_types={"application/json"},
+        )
+        receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_bytes))
+        if receipt.used_plan != plan:
+            raise ValueError("fabric_fetch_capture_plan_mismatch")
+        if receipt.result.data != payload_ref:
+            raise ValueError("fabric_fetch_capture_payload_ref_mismatch")
+        binding_ref = receipt.catalog_binding_ref
+        _, binding_bytes = _validate_fabric_capture_ref(
+            store,
+            binding_ref,
+            expected_kind="fabric.catalog_fetch_binding",
+            expected_media_types={"application/json"},
+        )
+        binding = catalog_read_api.CatalogFetchBinding.model_validate(
+            canon.from_canonical_bytes(binding_bytes)
+        )
+        if catalog.verify_fetch_binding(binding) != catalog.bind_fetch_target(
+            metric_id=plan.metric_id,
+            connector_id=plan.connector_id,
+            request_dataset_id=plan.dataset_id,
+            profile_id=plan.profile_id,
+            filters=plan.filters,
+        ):
+            raise ValueError("fabric_fetch_capture_catalog_binding_mismatch")
+        expected_inputs = [
+            artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
+            artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
+        ]
+        if receipt_manifest.inputs != expected_inputs:
+            raise ValueError("fabric_fetch_capture_receipt_lineage_mismatch")
+        captured.append(
+            {
+                "plan": plan.model_dump(mode="json"),
+                "metric_id": metric.metric_id,
+                "row_count": metric.row_count,
+                "completeness": metric.completeness,
+                "source_lane": metric.source_lane,
+                "payload_ref": payload_ref.model_dump(mode="json"),
+                "fetch_receipt_ref": receipt_ref.model_dump(mode="json"),
+                "catalog_binding_ref": binding_ref.model_dump(mode="json"),
+            }
+        )
+    return captured
+
+
+def _validate_fabric_capture_ref(
+    store: artifacts.FileSystemCAS,
+    ref: Any,
+    *,
+    expected_kind: str,
+    expected_media_types: set[str],
+) -> tuple[Any, bytes]:
+    if ref.kind != expected_kind or ref.media_type not in expected_media_types:
+        raise ValueError("fabric_fetch_capture_ref_metadata_mismatch")
+    manifest = store.get_manifest(ref.artifact_id)
+    if manifest.kind != expected_kind or manifest.media_type != ref.media_type:
+        raise ValueError("fabric_fetch_capture_ref_manifest_mismatch")
+    return manifest, store.get_bytes(ref.artifact_id)
+
+
 def _fabric_response_payload(
     *,
     spec: Mapping[str, Any],
@@ -2878,7 +3032,10 @@ def _fabric_response_payload(
 
 
 def _owner_response_has_acquired_content(response: Mapping[str, Any]) -> bool:
-    if response.get("owner_response_kind") == "fabric_catalog_resolution":
+    if response.get("owner_response_kind") in {
+        "fabric_catalog_resolution",
+        "fabric_fetch_capture",
+    }:
         return False
     if "candidate_count" in response or "fetch_plan_count" in response:
         return int(response.get("candidate_count") or 0) > 0 or int(

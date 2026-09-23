@@ -143,6 +143,7 @@ class BacktestMatrixRunner:
         requested_modes: list[str] = []
         effective_modes: list[str] = []
         degraded_reasons: list[str] = []
+        report_plans: list[HistoricalValidationPlan] = []
 
         for kind in BacktestKind:
             bundle = bundles.get(kind)
@@ -166,6 +167,7 @@ class BacktestMatrixRunner:
             notes: list[str] = []
             for plan in plans:
                 scenario_plan = self._decorate_plan(kind, bundle, plan)
+                report_plans.append(scenario_plan)
                 (
                     scenario,
                     scenario_warnings,
@@ -212,6 +214,7 @@ class BacktestMatrixRunner:
         report = self._orchestrator._aggregate(
             report_id=report_id,
             scenarios=report_scenarios,
+            plans=report_plans,
             metadata={
                 "backtest_kinds": {
                     result.kind.value: {

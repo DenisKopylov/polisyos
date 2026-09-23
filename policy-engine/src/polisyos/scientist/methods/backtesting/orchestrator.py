@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 import uuid
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
@@ -68,6 +68,25 @@ def _default_backtest_store_factory(root: Path) -> BacktestStore:
     return build_ir_artifact_store(root)
 
 
+def _resolve_aggregate_refs(
+    plans: Sequence[HistoricalValidationPlan],
+) -> tuple[str | None, str | None, str | None]:
+    """Resolve one model/policy pair without mixing aggregate inputs."""
+    pairs = {(plan.model_spec_ref, plan.policy_spec_ref) for plan in plans}
+    if not pairs or pairs == {(None, None)}:
+        return None, None, None
+
+    if len(pairs) == 1:
+        model_spec_ref, policy_spec_ref = next(iter(pairs))
+        return model_spec_ref, policy_spec_ref, None
+
+    return (
+        None,
+        None,
+        "model_spec_ref/policy_spec_ref is inconsistent across aggregated plans",
+    )
+
+
 class BacktestOrchestrator:
     """Run scenario replay, score prediction quality, and persist a `BacktestReport`.
 
@@ -127,6 +146,7 @@ class BacktestOrchestrator:
         report = self._aggregate(
             report_id=report_id,
             scenarios=scenarios,
+            plans=plans,
             metadata={"warnings": warnings, **(metadata or {})},
             prediction_mode_requested=_collapse_modes(requested_modes),
             prediction_mode_effective=_collapse_modes(effective_modes),
@@ -633,6 +653,7 @@ class BacktestOrchestrator:
         *,
         report_id: str,
         scenarios: list[BacktestScenario],
+        plans: Sequence[HistoricalValidationPlan] = (),
         metadata: dict[str, Any],
         prediction_mode_requested: str | None,
         prediction_mode_effective: str | None,
@@ -734,6 +755,10 @@ class BacktestOrchestrator:
 
         biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+
+        model_spec_ref, policy_spec_ref, reference_issue = _resolve_aggregate_refs(plans)
+        reference_issues = [reference_issue] if reference_issue is not None else []
+        all_degraded_reasons = [*all_degraded_reasons, *reference_issues]
         degraded = bool(all_degraded_reasons)
 
         def has_complete_point_comparisons(scenario: BacktestScenario) -> bool:
@@ -759,6 +784,8 @@ class BacktestOrchestrator:
             schema_version="1.0",
             report_id=report_id,
             scenarios=scenarios,
+            model_spec_ref=model_spec_ref,
+            policy_spec_ref=policy_spec_ref,
             overall_rmse=overall_rmse,
             overall_macro_rmse=overall_macro_rmse,
             overall_mae=overall_mae,

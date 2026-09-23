@@ -37,6 +37,7 @@ from polisyos.runtime.quality.adapter_contracts import (
 from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
+    from polisyos.core.contracts.fabric import DataSnapshotRef
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
     from polisyos.runtime.quality.substrate_registry import (
         L5CatalogAuthority,
@@ -1073,6 +1074,70 @@ def _validate_resolved_measurement_root_evidence(
     )
     if evidence.evidence_fingerprint != expected_fingerprint:
         raise FabricMeasurementRootBindingError("measurement_root_evidence_fingerprint_mismatch")
+
+
+def persist_measurement_root_data_snapshot(
+    *,
+    store: artifacts.FileSystemCAS,
+    evidence: ResolvedMeasurementRootEvidence,
+) -> "DataSnapshotRef":
+    """Persist a Fabric DataSnapshot from replay-verified measurement evidence.
+
+    The resolver has already replayed and content-bound the measurement root.
+    This owner only rechecks that typed projection before materializing the
+    existing Fabric snapshot contract; it never replays the source again.
+    """
+
+    _validate_resolved_measurement_root_evidence(evidence)
+
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+
+    payload_id = artifacts.ArtifactID(evidence.payload.payload_ref)
+    payload_manifest = store.get_manifest(payload_id)
+    data_ref = artifacts.ArtifactRef(
+        artifact_id=payload_id,
+        kind=payload_manifest.kind,
+        media_type=payload_manifest.media_type,
+    )
+    snapshot = DataSnapshot(
+        data_ref=data_ref,
+        stats={
+            "snapshot_id": str(data_ref.artifact_id),
+            "observed_row_count": evidence.payload.observed_row_count,
+        },
+        notes=[evidence.payload.limitation],
+    )
+    snapshot_ref = store.put_json(
+        snapshot,
+        artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=[
+                artifacts.InputRef(
+                    artifact_id=payload_id,
+                    role="fetched_payload",
+                ),
+                artifacts.InputRef(
+                    artifact_id=evidence.measurement_root_ref.artifact_id,
+                    role="measurement_root",
+                ),
+                artifacts.InputRef(
+                    artifact_id=evidence.fetch_receipt_ref.artifact_id,
+                    role="fabric_fetch",
+                ),
+                artifacts.InputRef(
+                    artifact_id=evidence.catalog_binding_ref.artifact_id,
+                    role="catalog_binding",
+                ),
+            ],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
 
 
 def resolve_measurement_root_evidence(

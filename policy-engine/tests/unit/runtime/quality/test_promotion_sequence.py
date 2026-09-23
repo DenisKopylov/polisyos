@@ -114,6 +114,7 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateLayer,
     SubstrateRegistration,
     SubstrateRegistryError,
+    build_substrate_registry,
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
     load_l5_catalog_authority,
@@ -2468,7 +2469,14 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
 
 @pytest.mark.parametrize(
     "mutation",
-    ["ref_shaped", "nonexistent_root", "wrong_content", "mismatched_fetch", "mismatched_catalog"],
+    [
+        "ref_shaped",
+        "nonexistent_root",
+        "wrong_content",
+        "mismatched_fetch",
+        "mismatched_catalog",
+        "stale_baseline",
+    ],
 )
 def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     fabric_measurement_owner,
@@ -2488,8 +2496,17 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     baseline_ref = persist_substrate_registry(owner.store, baseline)
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
     registration = _future_substrate_registration(l5)
-    if mutation == "ref_shaped":
-        forged: object = {
+    forged: object
+    baseline_for_admission = baseline
+    if mutation == "stale_baseline":
+        forged = evidence
+        baseline_for_admission = build_substrate_registry(
+            baseline.entries,
+            producer_ref="test.mismatched.baseline",
+            source_catalog_refs=("test://different-baseline",),
+        )
+    elif mutation == "ref_shaped":
+        forged = {
             "measurement_root_ref": evidence.measurement_root_ref,
             "fetch_receipt_ref": evidence.fetch_receipt_ref,
             "catalog_binding_ref": evidence.catalog_binding_ref,
@@ -2536,7 +2553,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     with pytest.raises(SubstrateRegistryError):
         persist_measurement_root_substrate_registry(
             owner.store,
-            baseline_registry=baseline,
+            baseline_registry=baseline_for_admission,
             registration=registration,
             l5_authority=l5,
             evidence=forged,

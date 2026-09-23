@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from fractions import Fraction
 from functools import lru_cache
@@ -987,10 +987,35 @@ class ResolvedMeasurementRootEvidence:
     measurement_root_ref: artifacts.ArtifactRef
     fetch_receipt_ref: artifacts.ArtifactRef
     catalog_binding_ref: artifacts.ArtifactRef
-    _verification_token: object = field(repr=False, compare=False)
+    evidence_fingerprint: str
 
 
-_MEASUREMENT_ROOT_EVIDENCE_TOKEN = object()
+def _measurement_root_evidence_fingerprint(
+    *,
+    envelope: ArtifactEnvelope,
+    payload: FabricMeasurementRootPayload,
+    measurement_root_ref: artifacts.ArtifactRef,
+    fetch_receipt_ref: artifacts.ArtifactRef,
+    catalog_binding_ref: artifacts.ArtifactRef,
+) -> str:
+    """Derive one deterministic fingerprint for the complete evidence seam."""
+
+    payload_projection = payload.model_dump(mode="json")
+    return gy_content_hash(
+        {
+            "canonical_envelope": envelope.model_dump(mode="json"),
+            "resolved_payload": payload_projection,
+            "resolved_payload_content_hash": gy_content_hash(payload_projection),
+            "measurement_root_ref": measurement_root_ref.model_dump(mode="json"),
+            "fetch_receipt_ref": fetch_receipt_ref.model_dump(mode="json"),
+            "catalog_binding_ref": catalog_binding_ref.model_dump(mode="json"),
+            "store_bound": {
+                "root_payload_ref": envelope.payload_ref,
+                "root_content_hash": envelope.ref.content_hash,
+                "payload_schema_ref": envelope.payload_schema_ref,
+            },
+        }
+    )
 
 
 def _validate_resolved_measurement_root_evidence(
@@ -998,15 +1023,13 @@ def _validate_resolved_measurement_root_evidence(
 ) -> None:
     """Recheck the immutable projection before registry persistence.
 
-    The resolver is the only producer of the verification token.  This second
-    check prevents a caller from retaining that typed object while replacing
-    one of its lineage refs with a merely well-shaped or foreign ref.
+    The resolver supplies the fingerprint.  This second check prevents a
+    caller from retaining that typed object while replacing any projection or
+    lineage ref with a merely well-shaped or foreign ref.
     """
 
     if not isinstance(evidence, ResolvedMeasurementRootEvidence):
         raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid")
-    if evidence._verification_token is not _MEASUREMENT_ROOT_EVIDENCE_TOKEN:
-        raise FabricMeasurementRootBindingError("measurement_root_evidence_unverified")
     if not isinstance(evidence.envelope, ArtifactEnvelope) or not isinstance(
         evidence.payload, FabricMeasurementRootPayload
     ):
@@ -1041,6 +1064,15 @@ def _validate_resolved_measurement_root_evidence(
         raise FabricMeasurementRootBindingError("measurement_root_fetch_ref_mismatch")
     if evidence.catalog_binding_ref != evidence.payload.catalog_binding_ref:
         raise FabricMeasurementRootBindingError("measurement_root_catalog_ref_mismatch")
+    expected_fingerprint = _measurement_root_evidence_fingerprint(
+        envelope=evidence.envelope,
+        payload=evidence.payload,
+        measurement_root_ref=evidence.measurement_root_ref,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog_binding_ref=evidence.catalog_binding_ref,
+    )
+    if evidence.evidence_fingerprint != expected_fingerprint:
+        raise FabricMeasurementRootBindingError("measurement_root_evidence_fingerprint_mismatch")
 
 
 def resolve_measurement_root_evidence(
@@ -1125,7 +1157,13 @@ def resolve_measurement_root_evidence(
         measurement_root_ref=measurement_root_payload_ref,
         fetch_receipt_ref=payload.fetch_receipt_ref,
         catalog_binding_ref=payload.catalog_binding_ref,
-        _verification_token=_MEASUREMENT_ROOT_EVIDENCE_TOKEN,
+        evidence_fingerprint=_measurement_root_evidence_fingerprint(
+            envelope=resolved,
+            payload=payload,
+            measurement_root_ref=measurement_root_payload_ref,
+            fetch_receipt_ref=payload.fetch_receipt_ref,
+            catalog_binding_ref=payload.catalog_binding_ref,
+        ),
     )
 
 

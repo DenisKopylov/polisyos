@@ -1035,8 +1035,8 @@ def persist_measurement_root_substrate_registry(
     The public seam accepts only the typed evidence object emitted by the
     measurement-root resolver.  Raw refs are deliberately not an admission
     API: accepting them would turn a shape-only lineage claim into a custody
-    claim.  The resolver's content-bound projection is rechecked before the
-    private persistence helper is reached.
+    claim.  The resolver's content-bound projection and deterministic evidence
+    fingerprint are rechecked before the private persistence helper is reached.
     """
 
     from polisyos.runtime.quality.data_forge_binding import (

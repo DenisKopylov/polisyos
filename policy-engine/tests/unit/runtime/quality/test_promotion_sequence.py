@@ -2476,6 +2476,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
         "mismatched_fetch",
         "mismatched_catalog",
         "stale_baseline",
+        "rebound_evidence",
     ],
 )
 def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
@@ -2494,6 +2495,10 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     )
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     baseline_ref = persist_substrate_registry(owner.store, baseline)
+    cas_before = {
+        path: path.read_bytes()
+        for path in owner.store.root.rglob("*.manifest.json")
+    }
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
     registration = _future_substrate_registration(l5)
     forged: object
@@ -2504,6 +2509,23 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
             baseline.entries,
             producer_ref="test.mismatched.baseline",
             source_catalog_refs=("test://different-baseline",),
+        )
+    elif mutation == "rebound_evidence":
+        from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+        rebound_payload_ref = "sha256:" + "4" * 64
+        rebound_envelope = binding_owner._fabric_measurement_envelope(
+            evidence.payload,
+            rebound_payload_ref,
+        )
+        forged = replace(
+            evidence,
+            envelope=rebound_envelope,
+            measurement_root_ref=core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID(rebound_payload_ref),
+                kind="policyos.gy.measurement_root_payload",
+                media_type="application/json",
+            ),
         )
     elif mutation == "ref_shaped":
         forged = {
@@ -2559,6 +2581,11 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
             evidence=forged,
             baseline_registry_ref=baseline_ref,
         )
+    cas_after = {
+        path: path.read_bytes()
+        for path in owner.store.root.rglob("*.manifest.json")
+    }
+    assert cas_after == cas_before
     assert load_substrate_registry(owner.store, baseline_ref) == baseline
 
 

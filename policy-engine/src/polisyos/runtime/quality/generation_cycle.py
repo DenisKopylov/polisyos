@@ -23,7 +23,7 @@ import math
 import re
 import time
 from collections.abc import Awaitable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -38,14 +38,16 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core import components as core_components
+from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
+)
+from polisyos.core.artifacts import (
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
 )
-from polisyos.core import components as core_components
-from polisyos.core import contracts as core_contracts
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -134,7 +136,10 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 
 if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
+    from polisyos.pdc import ArtifactEnvelope
+    from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import (
@@ -156,6 +161,7 @@ GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
 GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
 )
+_N7_ACQ01_ROUTE_SCHEMA_VERSION = "policyos.runtime.acq01_route.v1"
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
 )
@@ -4452,6 +4458,859 @@ class GenerationCycleController:
             return self._acquisition_owner_gateway
         return RealAcquisitionOwnerGateway(repo_root=self._repo_root or Path.cwd())
 
+    def _validate_n7_acq01_measurement_root_custody(
+        self,
+        problem: DesignProblem,
+        *,
+        measurement_root: ArtifactEnvelope,
+        measurement_payload_ref: CASArtifactRef,
+        data_snapshot_ref: CASArtifactRef,
+        store: FileSystemCAS,
+        acquisition_receipt: AcquisitionReceipt,
+        active_requirement_ref: str,
+    ) -> FabricMeasurementRootPayload:
+        """Recheck the complete same-store custody chain before rebuilding a WMR.
+
+        The route envelope is only a projection supplied by an acquisition
+        owner.  The payload, manifests, authority envelope, fetch receipt,
+        and DataSnapshot must all be re-read from the same CAS before a cycle
+        context can be rebuilt.  If a runtime caller has a catalog, use the
+        canonical measurement-root resolver as an additional replay check;
+        the strict CAS checks remain the bounded offline contract.
+        """
+
+        from polisyos.core import artifacts
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.runtime.quality.data_forge_binding import (
+            FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            FabricMeasurementRootPayload,
+            _fabric_measurement_envelope,
+            _measurement_root_authority_configuration,
+            _read_validated_measurement_snapshot_artifact,
+            _validate_resolved_measurement_root_evidence,
+            resolve_measurement_root_evidence,
+        )
+
+        try:
+            if (
+                measurement_root.ref.artifact_type != "BaseDataset"
+                or measurement_root.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+                or not isinstance(measurement_root.payload_ref, str)
+                or measurement_root.payload_ref != str(measurement_payload_ref.artifact_id)
+            ):
+                raise ValueError("measurement root envelope identity mismatch")
+
+            payload_raw = store.get_bytes(measurement_payload_ref.artifact_id)
+            payload = FabricMeasurementRootPayload.model_validate(
+                from_canonical_bytes(payload_raw)
+            )
+            if payload.design_problem.model_dump(mode="json") != problem.model_dump(mode="json"):
+                raise ValueError("measurement root design problem is not the active problem")
+            from polisyos.data_requirement import DataRequirementSpec
+
+            active_specs = tuple(
+                DataRequirementSpec.model_validate(spec)
+                for spec in acquisition_receipt.compiled_requirement_specs
+                if isinstance(spec, Mapping)
+                and spec.get("requirement_id") == active_requirement_ref
+            )
+            if len(active_specs) != 1:
+                raise ValueError("active N7 requirement is missing or ambiguous")
+            active_requirement = active_specs[0]
+            if (
+                payload.source_requirement.requirement_id
+                not in active_requirement.source_requirement_refs
+                or active_requirement.requirement_id in active_requirement.source_requirement_refs
+            ):
+                raise ValueError(
+                    "measurement root source requirement is not bound to distinct active N7"
+                )
+            expected_envelope = _fabric_measurement_envelope(
+                payload,
+                str(measurement_payload_ref.artifact_id),
+            )
+            if expected_envelope.model_dump(mode="json") != measurement_root.model_dump(
+                mode="json"
+            ):
+                raise ValueError("measurement root envelope projection mismatch")
+
+            measurement_producer = artifacts.ProducerInfo(
+                component=(
+                    "polisyos.runtime.quality.data_forge_binding."
+                    "MeasurementRootProducer"
+                ),
+                version="2.0.0",
+            )
+            measurement_schema = artifacts.SchemaInfo(
+                name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                version="v2",
+            )
+            measurement_input = artifacts.InputRef(
+                artifact_id=payload.fetch_receipt_ref.artifact_id,
+                role="fabric_fetch",
+            )
+            validated_payload_raw = _read_validated_measurement_snapshot_artifact(
+                store=store,
+                artifact_ref=artifacts.ArtifactRef(
+                    artifact_id=measurement_payload_ref.artifact_id,
+                    kind="policyos.gy.measurement_root_payload",
+                    media_type="application/json",
+                ),
+                expected_kind="policyos.gy.measurement_root_payload",
+                expected_media_type="application/json",
+                expected_schema=measurement_schema,
+                expected_producer=measurement_producer,
+                expected_inputs=(measurement_input,),
+            )
+            if validated_payload_raw != payload_raw:
+                raise ValueError("measurement root payload readback changed")
+            measurement_manifest = store.get_manifest(measurement_payload_ref.artifact_id)
+            authority = measurement_manifest.authority
+            closure = measurement_manifest.same_input_closure
+            if (
+                measurement_manifest.byte_size != len(payload_raw)
+                or measurement_manifest.canon != artifacts.CanonInfo(forbid_floats=False)
+                or measurement_manifest.env is not None
+                or measurement_manifest.governance is not None
+                or measurement_manifest.tenant_context is None
+                or measurement_manifest.tenant_context.tenant_id != "policyos-system"
+                or measurement_manifest.tenant_context.cell_id is not None
+                or closure is None
+                or closure.status != "closed"
+                or closure.tenant_id != "policyos-system"
+                or closure.cell_id is not None
+                or closure.evidence_input_refs != (str(payload.fetch_receipt_ref.artifact_id),)
+                or authority is None
+                or authority.payload_sha256 != measurement_payload_ref.artifact_id.hex
+                or authority.manifest_ref
+                != f"cas-manifest://{measurement_payload_ref.artifact_id}"
+                or measurement_manifest.integrity.sha256
+                != measurement_payload_ref.artifact_id.hex
+                or measurement_manifest.integrity.optional is not None
+                or measurement_manifest.warnings != []
+            ):
+                raise ValueError("measurement root source manifest invalid")
+
+            from polisyos.runtime.http.services.control.artifacts import (
+                AuthorityArtifactIdentityContext,
+                verify_runtime_authority_artifact_identity,
+            )
+            from polisyos.runtime.quality.authority import (
+                EvidenceAuthorityEnvelope,
+                GovernanceMetadata,
+                SameInputClosure,
+            )
+
+            emitted_authority = EvidenceAuthorityEnvelope.model_validate(
+                from_canonical_bytes(
+                    store.get_bytes(artifacts.ArtifactID(authority.authority_envelope_ref))
+                )
+            )
+            opts, identity = _measurement_root_authority_configuration(
+                payload.model_dump(mode="json"),
+                fabric_fetch_ref=payload.fetch_receipt_ref,
+                source_checked_at=payload.source_agreement_checked_at,
+            )
+            identity["same_input_closure"] = SameInputClosure.model_validate(
+                identity["same_input_closure"]
+            )
+            identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
+            identity["input_refs"] = tuple(identity["input_refs"])
+            verify_runtime_authority_artifact_identity(
+                store,
+                artifact_id=measurement_payload_ref.artifact_id,
+                opts=opts,
+                expected_context=AuthorityArtifactIdentityContext(
+                    **identity,
+                    manifest_inputs=tuple(opts.inputs or ()),
+                    manifest_governance=opts.governance,
+                    attestation_ref=emitted_authority.attestation_ref,
+                ),
+            )
+
+            fetch_producer = artifacts.ProducerInfo(
+                component="polisyos.fabric.retrieval.executor.FetchExecutor",
+                version="1.0.0",
+            )
+            receipt_raw = _read_validated_measurement_snapshot_artifact(
+                store=store,
+                artifact_ref=payload.fetch_receipt_ref,
+                expected_kind="fabric.fetch_receipt",
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(
+                    name="polisyos.fabric.fetch_receipt.v1",
+                    version="1.0.0",
+                ),
+                expected_producer=fetch_producer,
+                expected_inputs=(
+                    artifacts.InputRef(
+                        artifact_id=payload.payload_ref.artifact_id,
+                        role="fetched_payload",
+                    ),
+                    artifacts.InputRef(
+                        artifact_id=payload.catalog_binding_ref.artifact_id,
+                        role="catalog_binding",
+                    ),
+                ),
+            )
+            receipt = FabricFetchReceipt.model_validate(from_canonical_bytes(receipt_raw))
+            if (
+                receipt.result.data != payload.payload_ref
+                or receipt.catalog_binding_ref != payload.catalog_binding_ref
+            ):
+                raise ValueError("measurement root fetch lineage mismatch")
+            payload_media_type = {
+                "canonical_json": "application/json",
+                "pandas_arrow_ipc": "application/vnd.apache.arrow.stream",
+                "arrow_ipc": "application/vnd.apache.arrow.stream",
+            }.get(receipt.payload_encoding)
+            if payload_media_type is None:
+                raise ValueError("measurement root payload encoding invalid")
+            _read_validated_measurement_snapshot_artifact(
+                store=store,
+                artifact_ref=payload.payload_ref,
+                expected_kind="fabric.fetch_payload",
+                expected_media_type=payload_media_type,
+                expected_schema=artifacts.SchemaInfo(
+                    name="polisyos.fabric.fetch_payload.v1",
+                    version="1.0.0",
+                ),
+                expected_producer=fetch_producer,
+                expected_inputs=(),
+            )
+            _read_validated_measurement_snapshot_artifact(
+                store=store,
+                artifact_ref=payload.catalog_binding_ref,
+                expected_kind="fabric.catalog_fetch_binding",
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(
+                    name="polisyos.data_forge.catalog_fetch_binding.v1",
+                    version="1.0.0",
+                ),
+                expected_producer=fetch_producer,
+                expected_inputs=(),
+            )
+
+            from polisyos.core.contracts.fabric import DataSnapshot
+
+            snapshot_raw = store.get_bytes(data_snapshot_ref.artifact_id)
+            snapshot = DataSnapshot.model_validate(from_canonical_bytes(snapshot_raw))
+            if (
+                snapshot.data_ref != payload.payload_ref
+                or snapshot.stats.get("snapshot_id") != str(payload.payload_ref.artifact_id)
+            ):
+                raise ValueError("DataSnapshot bytes are not bound to fetched payload")
+            snapshot_manifest = store.get_manifest(data_snapshot_ref.artifact_id)
+            expected_snapshot_inputs = [
+                artifacts.InputRef(
+                    artifact_id=payload.payload_ref.artifact_id,
+                    role="fetched_payload",
+                ),
+                artifacts.InputRef(
+                    artifact_id=measurement_payload_ref.artifact_id,
+                    role="measurement_root",
+                ),
+                artifacts.InputRef(
+                    artifact_id=payload.fetch_receipt_ref.artifact_id,
+                    role="fabric_fetch",
+                ),
+                artifacts.InputRef(
+                    artifact_id=payload.catalog_binding_ref.artifact_id,
+                    role="catalog_binding",
+                ),
+            ]
+            if (
+                not store.verify(data_snapshot_ref.artifact_id).ok
+                or snapshot_manifest.kind != "fabric.data_snapshot"
+                or snapshot_manifest.media_type != "application/json"
+                or snapshot_manifest.artifact_schema
+                != artifacts.SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0")
+                or snapshot_manifest.inputs != expected_snapshot_inputs
+            ):
+                raise ValueError("DataSnapshot lineage is incomplete")
+
+            runtime_hints = problem.runtime_hints
+            catalog = runtime_hints.get("n7_measurement_root_catalog")
+            if catalog is None:
+                catalog = runtime_hints.get("measurement_root_catalog")
+            if catalog is None:
+                gateway = self._acquisition_owner_gateway
+                catalog = getattr(gateway, "catalog", None) or getattr(gateway, "_catalog", None)
+            providers = runtime_hints.get("n7_measurement_root_providers")
+            if providers is None:
+                providers = runtime_hints.get("measurement_root_providers")
+            if providers is None:
+                gateway = self._acquisition_owner_gateway
+                providers = getattr(gateway, "providers", None) or getattr(
+                    gateway, "_providers", None
+                )
+            if catalog is None or providers is None:
+                raise ValueError("canonical measurement root resolver context missing")
+            resolved_evidence = resolve_measurement_root_evidence(
+                store=store,
+                measurement_root=measurement_root,
+                catalog=catalog,
+                providers=providers,
+            )
+            if resolved_evidence is None:
+                raise ValueError("canonical measurement root resolver returned no evidence")
+            _validate_resolved_measurement_root_evidence(resolved_evidence)
+            if (
+                resolved_evidence.envelope.model_dump(mode="json")
+                != measurement_root.model_dump(mode="json")
+                or resolved_evidence.payload != payload
+                or resolved_evidence.measurement_root_ref.artifact_id
+                != measurement_payload_ref.artifact_id
+            ):
+                raise ValueError("canonical measurement root resolver projection mismatch")
+            return payload
+        except GenerationCycleError:
+            raise
+        except (OSError, TypeError, ValueError, RuntimeError, KeyError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_measurement_root_custody_invalid",
+                str(exc),
+            ) from exc
+
+    def _validate_n7_acq01_registry_binding(
+        self,
+        *,
+        route: Mapping[str, Any],
+        owner_artifact: AcquisitionOwnerArtifact,
+        payload: Mapping[str, Any],
+        acquisition_receipt: AcquisitionReceipt,
+        registry_ref: CASArtifactRef,
+        registry: SubstrateRegistry,
+        baseline_registry_ref: CASArtifactRef,
+        baseline_registry: SubstrateRegistry,
+        prior_world_model_record_content_hash: str,
+        store: FileSystemCAS,
+        candidate_id: str,
+        candidate_content_hash: str,
+        target_world_slots: tuple[str, ...],
+    ) -> None:
+        """Bind the loaded registry to this receipt's actual owner write."""
+
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.substrate_registry import (
+            SubstrateRegistration,
+            build_substrate_registry_entry,
+        )
+
+        try:
+            registrations_raw = payload.get("acquired_substrate_registrations")
+            if isinstance(registrations_raw, (str, bytes)) or not isinstance(
+                registrations_raw, Sequence
+            ):
+                raise ValueError("owner registration projection missing")
+            registrations = tuple(
+                SubstrateRegistration.model_validate(item) for item in registrations_raw
+            )
+            if len(registrations) != 1:
+                raise ValueError("ACQ-01 route must contain exactly one registration")
+            registration = registrations[0]
+
+            bindings_raw = payload.get("candidate_bindings")
+            if isinstance(bindings_raw, (str, bytes)) or not isinstance(bindings_raw, Sequence):
+                raise ValueError("candidate binding projection missing")
+            bindings = tuple(
+                item
+                for item in bindings_raw
+                if isinstance(item, Mapping) and item.get("candidate_id") == candidate_id
+            )
+            if len(bindings) != 1:
+                raise ValueError("candidate binding projection ambiguous")
+            binding = bindings[0]
+            if (
+                binding.get("candidate_content_hash") != candidate_content_hash
+                or tuple(str(item) for item in binding.get("target_world_slots", ()))
+                != target_world_slots
+            ):
+                raise ValueError("candidate binding does not match the re-entry atom")
+
+            matching_specs = tuple(
+                spec
+                for spec in acquisition_receipt.compiled_requirement_specs
+                if isinstance(spec, Mapping)
+                and spec.get("requirement_id") == owner_artifact.requirement_ref
+            )
+            expected_families: set[str] = set()
+            for spec in matching_specs:
+                raw_families = spec.get("required_data_families", ())
+                if isinstance(raw_families, str) or not isinstance(raw_families, Sequence):
+                    raise ValueError("compiled acquisition family projection invalid")
+                expected_families.update(str(item) for item in raw_families)
+            if not expected_families or registration.family_id not in expected_families:
+                raise ValueError("acquired family is not in the accepted requirement")
+
+            outcomes = tuple(
+                outcome
+                for outcome in acquisition_receipt.world_write_outcomes
+                if outcome.artifact_ref == owner_artifact.artifact_ref
+            )
+            if len(outcomes) != 1:
+                raise ValueError("accepted owner write outcome is ambiguous")
+            outcome = outcomes[0]
+            if (
+                outcome.status != "written"
+                or outcome.requirement_ref != owner_artifact.requirement_ref
+                or outcome.owner_component != owner_artifact.owner_component
+                or outcome.source_id != registration.source_id
+                or outcome.family_id != registration.family_id
+                or outcome.substrate_version_before != baseline_registry.substrate_version_id
+                or outcome.registry_content_hash_before != baseline_registry.content_hash
+                or outcome.registry_content_hash_after != registry.content_hash
+                or outcome.substrate_version_after != registry.substrate_version_id
+                or outcome.world_ref_after
+                != f"s0://substrate-registry/{registry.substrate_version_id}"
+                or acquisition_receipt.grown_world_before_ref
+                != prior_world_model_record_content_hash
+                or acquisition_receipt.grown_world_after_ref
+                != f"s0://substrate-registry/{registry.substrate_version_id}"
+                or acquisition_receipt.grown_world_delta_hash != registry.content_hash
+            ):
+                raise ValueError("registry does not match accepted owner write outcome")
+
+            expected_baseline_version = (
+                f"substrate_version_{baseline_registry.content_hash.removeprefix('sha256:')[:16]}"
+            )
+            expected_after_version = (
+                f"substrate_version_{registry.content_hash.removeprefix('sha256:')[:16]}"
+            )
+            if (
+                baseline_registry.substrate_version_id != expected_baseline_version
+                or registry.substrate_version_id != expected_after_version
+            ):
+                raise ValueError("substrate registry version/content binding invalid")
+
+            before_entries = {
+                entry.registry_key: entry for entry in baseline_registry.entries
+            }
+            after_entries = {entry.registry_key: entry for entry in registry.entries}
+            expected_entry = build_substrate_registry_entry(registration)
+            added_keys = set(after_entries) - set(before_entries)
+            changed_keys = {
+                key
+                for key in set(before_entries) & set(after_entries)
+                if before_entries[key] != after_entries[key]
+            }
+            if (
+                added_keys != {expected_entry.registry_key}
+                or changed_keys
+                or set(before_entries) - set(after_entries)
+                or after_entries.get(expected_entry.registry_key) != expected_entry
+                or tuple(acquisition_receipt.grown_world_added_slots)
+                != (registration.family_id,)
+                or tuple(acquisition_receipt.affected_region.source_slots)
+                != (registration.family_id,)
+                or tuple(acquisition_receipt.affected_region.neighborhood_slots)
+                != (registration.family_id,)
+                or outcome.family_id != registration.family_id
+                or not any(
+                    candidate_id
+                    in acquisition_receipt.affected_region.dependency_index.get(
+                        source_slot, ()
+                    )
+                    for source_slot in acquisition_receipt.affected_region.source_slots
+                )
+            ):
+                raise ValueError("receipt registry delta is not exact")
+
+            entries = registry.resolve(
+                source_id=registration.source_id,
+                family_id=registration.family_id,
+                layer=registration.layer,
+            )
+            if len(entries) != 1 or entries[0] != expected_entry:
+                raise ValueError("registry entry does not match accepted registration")
+            entry = entries[0]
+            measurement_root = route.get("measurement_root")
+            if not isinstance(measurement_root, Mapping):
+                raise ValueError("measurement root route projection missing")
+            root_payload_ref = measurement_root.get("payload_ref")
+            if not isinstance(root_payload_ref, str) or not root_payload_ref:
+                raise ValueError("measurement root payload ref missing")
+            # The registration snapshot is the fetched payload, while its
+            # provenance names the content-addressed measurement-root payload.
+            if (
+                entry.snapshot_id != registration.snapshot_id
+                or entry.source_snapshot_id != registration.source_snapshot_id
+                or not any(ref == f"cas://{root_payload_ref}" for ref in entry.provenance_refs)
+                or not all(
+                    ref in registry.source_catalog_refs
+                    for ref in registration.authority_refs
+                )
+            ):
+                raise ValueError("registry MeasurementRoot lineage is not bound")
+
+            registry_manifest = store.get_manifest(registry_ref.artifact_id)
+            expected_registry_inputs = [
+                artifacts.InputRef(
+                    artifact_id=artifacts.ArtifactID(root_payload_ref),
+                    role="measurement_root",
+                )
+            ]
+            # Fetch/catalog refs are taken from the canonical route payload;
+            # they are compared to the registry manifest below after reading
+            # the MeasurementRoot payload from CAS.
+            from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
+
+            root_payload_obj = FabricMeasurementRootPayload.model_validate(
+                from_canonical_bytes(
+                    store.get_bytes(artifacts.ArtifactID(root_payload_ref))
+                )
+            )
+            expected_registry_inputs.extend(
+                [
+                    artifacts.InputRef(
+                        artifact_id=root_payload_obj.fetch_receipt_ref.artifact_id,
+                        role="fabric_fetch",
+                    ),
+                    artifacts.InputRef(
+                        artifact_id=root_payload_obj.catalog_binding_ref.artifact_id,
+                        role="catalog_binding",
+                    ),
+                    artifacts.InputRef(
+                        artifact_id=baseline_registry_ref.artifact_id,
+                        role="baseline_substrate_registry",
+                    ),
+                ]
+            )
+            actual_inputs = tuple(registry_manifest.inputs)
+            if (
+                actual_inputs != tuple(expected_registry_inputs)
+                or len({str(item.artifact_id) for item in actual_inputs}) != len(actual_inputs)
+                or registry_ref.artifact_id == baseline_registry_ref.artifact_id
+            ):
+                raise ValueError("registry manifest lineage is not bound")
+        except (OSError, TypeError, ValueError, RuntimeError, KeyError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_registry_binding_invalid",
+                str(exc),
+            ) from exc
+
+    def _rebuild_n7_acq01_route_context(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_receipt: AcquisitionReceipt,
+        candidate_id: str,
+        candidate_content_hash: str,
+        target_world_slots: tuple[str, ...],
+    ) -> CycleSubstrateContext | None:
+        """Rebuild a route-owned WMR/context from the accepted CAS snapshot.
+
+        The registry-only N7 projection intentionally has no route payload and
+        returns ``None`` so the existing unresolved-world negative guard remains
+        active.  A versioned ``acq01_route`` is different: its owner artifact
+        must point at one CAS, one admitted snapshot, and one persisted registry
+        before the existing N3 and cycle-context builders are allowed to mint a
+        fresh WMR.
+        """
+
+        route_artifacts = tuple(
+            artifact
+            for artifact in acquisition_receipt.owner_artifacts
+            if isinstance(artifact.payload, Mapping)
+            and isinstance(artifact.payload.get("acq01_route"), Mapping)
+        )
+        if not route_artifacts:
+            return None
+        if len(route_artifacts) != 1:
+            raise GenerationCycleError(
+                "n7_acq01_route_ambiguous",
+                "exactly one owner artifact may carry the ACQ-01 route",
+            )
+        owner_artifact = route_artifacts[0]
+        from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
+
+        try:
+            recomputed_owner = AcquisitionOwnerArtifact.from_payload(
+                owner_component=owner_artifact.owner_component,
+                requirement_ref=owner_artifact.requirement_ref,
+                artifact_ref=owner_artifact.artifact_ref,
+                payload=owner_artifact.payload,
+                cost_usd=owner_artifact.cost_usd,
+                quality=owner_artifact.quality,
+                rights=owner_artifact.rights,
+                binding_refs=owner_artifact.binding_refs,
+                journal_ref=owner_artifact.journal_ref,
+                ingested=owner_artifact.ingested,
+                capture_provenance=owner_artifact.capture_provenance,
+            )
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_owner_artifact_invalid",
+                str(exc),
+            ) from exc
+        if recomputed_owner.content_hash != owner_artifact.content_hash:
+            raise GenerationCycleError("n7_acq01_owner_artifact_hash_mismatch")
+
+        route = owner_artifact.payload["acq01_route"]
+        if route.get("route_schema_version") != _N7_ACQ01_ROUTE_SCHEMA_VERSION:
+            raise GenerationCycleError("n7_acq01_route_schema_mismatch")
+        build_inputs = route.get("build_inputs")
+        if not isinstance(build_inputs, Mapping):
+            raise GenerationCycleError("n7_acq01_route_build_inputs_missing")
+
+        capture_store_root = route.get("capture_store_root")
+        if not isinstance(capture_store_root, str) or not capture_store_root.strip():
+            raise GenerationCycleError("n7_acq01_route_store_missing")
+        store_root = Path(capture_store_root)
+        if not store_root.is_absolute() or not store_root.is_dir():
+            raise GenerationCycleError("n7_acq01_route_store_unresolved")
+        store = FileSystemCAS(store_root)
+
+        def cas_ref(
+            raw: object,
+            *,
+            expected_kind: str,
+        ) -> CASArtifactRef:
+            try:
+                ref = CASArtifactRef.model_validate(raw)
+                if ref.kind != expected_kind or ref.media_type != "application/json":
+                    raise ValueError("unexpected artifact kind or media type")
+                manifest = store.get_manifest(ref.artifact_id)
+                if (
+                    manifest.artifact_id != ref.artifact_id
+                    or manifest.kind != ref.kind
+                    or manifest.media_type != ref.media_type
+                ):
+                    raise ValueError("CAS manifest does not match artifact ref")
+                return ref
+            except (OSError, TypeError, ValueError) as exc:
+                raise GenerationCycleError(
+                    "n7_acq01_route_cas_ref_invalid",
+                    f"{expected_kind}: {exc}",
+                ) from exc
+
+        data_snapshot_ref = cas_ref(
+            route.get("data_snapshot_ref"),
+            expected_kind="fabric.data_snapshot",
+        )
+        from polisyos.pdc import ArtifactEnvelope
+
+        try:
+            measurement_root = ArtifactEnvelope.model_validate(route.get("measurement_root"))
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_measurement_root_invalid",
+                str(exc),
+            ) from exc
+        measurement_payload_ref = cas_ref(
+            {
+                "artifact_id": measurement_root.payload_ref,
+                "kind": "policyos.gy.measurement_root_payload",
+                "media_type": "application/json",
+            },
+            expected_kind="policyos.gy.measurement_root_payload",
+        )
+        self._validate_n7_acq01_measurement_root_custody(
+            problem,
+            measurement_root=measurement_root,
+            measurement_payload_ref=measurement_payload_ref,
+            data_snapshot_ref=data_snapshot_ref,
+            store=store,
+            acquisition_receipt=acquisition_receipt,
+            active_requirement_ref=owner_artifact.requirement_ref,
+        )
+
+        from polisyos.runtime.quality.substrate_registry import (
+            SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            load_substrate_registry,
+        )
+
+        registry_ref = cas_ref(
+            route.get("registry_ref"),
+            expected_kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+        )
+        baseline_registry_ref = cas_ref(
+            route.get("baseline_registry_ref"),
+            expected_kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+        )
+        try:
+            registry = load_substrate_registry(store, registry_ref)
+            baseline_registry = load_substrate_registry(store, baseline_registry_ref)
+            inline_registry = SubstrateRegistry.model_validate(route.get("registry"))
+            if registry.model_dump(mode="json") != inline_registry.model_dump(mode="json"):
+                raise ValueError("owner registry projection differs from CAS registry")
+        except (OSError, TypeError, ValueError, SubstrateRegistryError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_registry_binding_invalid",
+                str(exc),
+            ) from exc
+
+        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+
+        prior_context = self._cycle_substrate_context
+        if prior_context is None:
+            raise GenerationCycleError("n7_acq01_prior_context_missing")
+        try:
+            prior_context = revalidate_cycle_substrate_context(prior_context)
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_prior_context_invalid",
+                str(exc),
+            ) from exc
+        if (
+            prior_context.design_problem_ref != _problem_ref(problem)
+            or prior_context.domain != problem.domain
+        ):
+            raise GenerationCycleError("n7_acq01_prior_context_mismatch")
+        if prior_context.candidate_levers or prior_context.transport_context:
+            raise GenerationCycleError(
+                "n7_acq01_prior_context_rebind_unsupported",
+                "candidate/transport evidence needs an owner rebind",
+            )
+        self._validate_n7_acq01_registry_binding(
+            route=route,
+            owner_artifact=owner_artifact,
+            payload=owner_artifact.payload,
+            acquisition_receipt=acquisition_receipt,
+            registry_ref=registry_ref,
+            registry=registry,
+            baseline_registry_ref=baseline_registry_ref,
+            baseline_registry=baseline_registry,
+            prior_world_model_record_content_hash=prior_context.world_model_record_content_hash,
+            store=store,
+            candidate_id=candidate_id,
+            candidate_content_hash=candidate_content_hash,
+            target_world_slots=target_world_slots,
+        )
+
+        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.runtime.quality.cycle_substrate import (
+            build_cycle_substrate_context,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            BranchMode,
+            FabricWorldRef,
+            SkgCausalPriorRef,
+            build_world_model_record,
+        )
+
+        build_snapshot_ref = cas_ref(
+            build_inputs.get("data_snapshot_ref"),
+            expected_kind="fabric.data_snapshot",
+        )
+        if build_snapshot_ref != data_snapshot_ref:
+            raise GenerationCycleError("n7_acq01_route_snapshot_ref_mismatch")
+        binding_path = build_inputs.get("data_forge_snapshot_binding_path")
+        if not isinstance(binding_path, str) or not Path(binding_path).is_absolute():
+            raise GenerationCycleError("n7_acq01_route_binding_path_invalid")
+        if not Path(binding_path).is_file():
+            raise GenerationCycleError("n7_acq01_route_binding_path_unresolved")
+        try:
+            fabric_world_ref = FabricWorldRef.model_validate(
+                build_inputs.get("fabric_world_ref")
+            )
+            model_spec = ModelSpec.model_validate(build_inputs.get("model_spec"))
+            skg_causal_prior_ref = SkgCausalPriorRef.model_validate(
+                build_inputs.get("skg_causal_prior_ref")
+            )
+            branch_mode = BranchMode(build_inputs.get("branch_mode"))
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_route_build_inputs_invalid",
+                str(exc),
+            ) from exc
+        if model_spec.data_snapshot_ref != str(data_snapshot_ref.artifact_id):
+            raise GenerationCycleError("n7_acq01_route_model_snapshot_mismatch")
+
+        def required_text(key: str) -> str:
+            value = build_inputs.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise GenerationCycleError(f"n7_acq01_route_{key}_missing")
+            return value
+
+        def text_tuple(key: str, *, required: bool = False) -> tuple[str, ...]:
+            raw = build_inputs.get(key, ())
+            if isinstance(raw, str) or not isinstance(raw, Sequence):
+                raise GenerationCycleError(f"n7_acq01_route_{key}_invalid")
+            values = tuple(str(item).strip() for item in raw)
+            if any(not value for value in values) or (required and not values):
+                raise GenerationCycleError(f"n7_acq01_route_{key}_invalid")
+            return values
+
+        try:
+            world_build = build_world_model_record(
+                store,
+                fabric_world_ref=fabric_world_ref,
+                data_forge_snapshot_binding_path=binding_path,
+                data_snapshot_ref=data_snapshot_ref,
+                model_spec=model_spec,
+                skg_causal_prior_ref=skg_causal_prior_ref,
+                substrate_registry=registry,
+                region_or_jurisdiction=required_text("region_or_jurisdiction"),
+                population_scope=required_text("population_scope"),
+                policy_domain=required_text("policy_domain"),
+                valid_time_scope=required_text("valid_time_scope"),
+                tx_time_scope=required_text("tx_time_scope"),
+                resolution=required_text("resolution"),
+                branch_mode=branch_mode,
+                policy_slot_ids=text_tuple("policy_slot_ids", required=True),
+                producer_ref=required_text("producer_ref"),
+                data_forge_role=required_text("data_forge_role"),
+                required_substrate_sources=text_tuple("required_substrate_sources"),
+                required_substrate_families=text_tuple("required_substrate_families"),
+                substrate_registry_artifact_ref=registry_ref,
+                _loaded_substrate_registry=registry,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_route_world_build_invalid",
+                str(exc),
+            ) from exc
+
+        if (
+            baseline_registry.model_dump(mode="json")
+            != prior_context.substrate_registry.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("n7_acq01_baseline_registry_mismatch")
+
+        selected_entry_hashes = tuple(
+            entry.entry_content_hash
+            for entry in world_build.record.substrate_registry_ref.resolved_entries
+        )
+        try:
+            return build_cycle_substrate_context(
+                design_problem_ref=_problem_ref(problem),
+                domain=problem.domain,
+                substrate_registry=registry,
+                selected_registry_entry_hashes=selected_entry_hashes,
+                world_model_record=world_build.record,
+                intervention_substrate=(
+                    prior_context.intervention_substrate if prior_context is not None else None
+                ),
+                candidate_levers=(),
+                transport_context=None,
+                source_pack_content_hash=(
+                    prior_context.source_pack_content_hash if prior_context is not None else None
+                ),
+                substrate_input_content_hash=(
+                    prior_context.substrate_input_content_hash
+                    if prior_context is not None
+                    else None
+                ),
+            )
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_context_rebuild_invalid",
+                str(exc),
+            ) from exc
+
+    def _bind_n7_cycle_substrate_context(self, context: CycleSubstrateContext) -> None:
+        """Rebind controller-owned N5/N8 defaults to one fresh context."""
+
+        self._cycle_substrate_context = context
+        if isinstance(self._simulation_port, JointSimulationPort):
+            self._simulation_port._cycle_substrate_context = context
+        if isinstance(self._value_port, _DefaultSimulationBoundFoundryValuePort):
+            self._value_port = replace(
+                self._value_port,
+                cycle_substrate_context=context,
+            )
+
     def _reenter_cycle_after_n7_acquisition(
         self,
         problem: DesignProblem,
@@ -4466,6 +5325,14 @@ class GenerationCycleController:
             raise GenerationCycleError(
                 "n7_receipt_current_context_replay_unavailable",
                 "Raw or changed N7 receipt requires replay before cycle re-entry.",
+            )
+        from polisyos.runtime.quality.acquisition_planner import validate_acquisition_receipt
+
+        receipt_issues = validate_acquisition_receipt(acquisition_receipt)
+        if receipt_issues:
+            raise GenerationCycleError(
+                "n7_receipt_invalid",
+                json.dumps(receipt_issues, sort_keys=True),
             )
         receipt_payload = acquisition_receipt.model_dump(mode="json")
         prior_candidate = self._n7_candidate_bindings.get(
@@ -4514,8 +5381,19 @@ class GenerationCycleController:
         prior_atom = _object_get(prior_candidate, "atom")
         if not isinstance(prior_atom, InterventionAtomBinding):
             raise GenerationCycleError("n7_reentry_candidate_atom_not_canonical")
+        rebuilt_context = self._rebuild_n7_acq01_route_context(
+            problem,
+            acquisition_receipt=acquisition_receipt,
+            candidate_id=cycle.selected_candidate_ref,
+            candidate_content_hash=cycle.selected_candidate_content_hash,
+            target_world_slots=tuple(prior_atom.target_world_slots),
+        )
+        rebound_world_ref = acquisition_receipt.grown_world_after_ref
+        if rebuilt_context is not None:
+            self._bind_n7_cycle_substrate_context(rebuilt_context)
+            rebound_world_ref = rebuilt_context.world_model_record.world_model_record_id
         rebound_atom = prior_atom.model_copy(
-            update={"world_model_record_ref": acquisition_receipt.grown_world_after_ref}
+            update={"world_model_record_ref": rebound_world_ref}
         )
         rebound_atom = rebound_atom.model_copy(
             update={
@@ -5515,10 +6393,16 @@ def _n7_rederived_grounding_for_candidate(
     rederived_source_slots = tuple(
         str(item) for item in row.source_slots if _optional_text(item)
     )
-    if rederived_source_slots and not set(prior_target_world_slots).intersection(
-        rederived_source_slots
-    ):
-        raise GenerationCycleError("n7_reentry_candidate_target_world_slots_mismatch")
+    affected_source_slots = tuple(receipt.affected_region.source_slots)
+    if rederived_source_slots != affected_source_slots:
+        raise GenerationCycleError("n7_reentry_candidate_source_slots_mismatch")
+    dependency_slots = tuple(
+        source_slot
+        for source_slot in rederived_source_slots
+        if candidate_id in receipt.affected_region.dependency_index.get(source_slot, ())
+    )
+    if not dependency_slots:
+        raise GenerationCycleError("n7_reentry_candidate_dependency_mismatch")
     binding_hashes: list[str] = []
     binding_slot_sets: list[tuple[str, ...]] = []
     for artifact in receipt.owner_artifacts:

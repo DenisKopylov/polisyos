@@ -7,8 +7,9 @@ neutral evidence.  It deliberately does not know about runtime status
 lattices or S10/G2/W12D consumers; a later runtime adapter owns that boundary.
 
 All evidence references are resolved through the same CAS and checked against
-their manifest, bytes, schema, and declared identity.  A nominal confidence
-level or a self-described lineage cannot substitute for those observations.
+their role-specific manifest profile, bytes, report input edge, payload
+identity, and declared identity.  A nominal confidence level or a
+self-described lineage cannot substitute for those observations.
 """
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ from polisyos.ir.artifacts import (
     get_json_artifact,
     put_json_artifact,
 )
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 
 EmpiricalEvidenceKind = Literal["observed_interval_comparisons", "unavailable"]
@@ -43,6 +45,64 @@ REPORT_SCHEMA_VERSION = "1.0"
 EVIDENCE_KIND = "ir.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_NAME = "polisyos.calibration.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_VERSION = "1.0"
+
+ReferenceRole = Literal[
+    "scope_binding",
+    "calibration_threshold",
+    "observed_outcome",
+    "prediction",
+    "evaluation_design",
+    "credible_evaluation",
+    "source_lineage",
+    "method_lineage",
+]
+
+# These profiles are the neutral producer contract.  A caller cannot select a
+# kind/schema pair and make it authoritative; the role fixes the expected
+# profile, and the report manifest must independently carry the same artifact
+# under the same input role.
+REFERENCE_PROFILES: dict[str, tuple[str, str, str]] = {
+    "scope_binding": (
+        "ir.calibration.scope_binding",
+        "polisyos.calibration.scope_binding",
+        "1.0",
+    ),
+    "calibration_threshold": (
+        "ir.calibration.threshold",
+        "polisyos.calibration.threshold",
+        "1.0",
+    ),
+    "observed_outcome": (
+        "ir.calibration.observed_outcome",
+        "polisyos.calibration.observed_outcome",
+        "1.0",
+    ),
+    "prediction": (
+        "ir.calibration.prediction",
+        "polisyos.calibration.prediction",
+        "1.0",
+    ),
+    "evaluation_design": (
+        "ir.calibration.evaluation_design",
+        "polisyos.calibration.evaluation_design",
+        "1.0",
+    ),
+    "credible_evaluation": (
+        "ir.calibration.credible_evaluation",
+        "polisyos.calibration.credible_evaluation",
+        "1.0",
+    ),
+    "source_lineage": (
+        "ir.calibration.source_lineage",
+        "polisyos.calibration.source_lineage",
+        "1.0",
+    ),
+    "method_lineage": (
+        "ir.calibration.method_lineage",
+        "polisyos.calibration.method_lineage",
+        "1.0",
+    ),
+}
 
 _OBSERVATION_BLOCKERS = frozenset(
     {
@@ -73,6 +133,7 @@ class EvidenceArtifactRef(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     artifact_id: ArtifactID
+    role: ReferenceRole
     kind: str = Field(min_length=1, max_length=300)
     media_type: Literal["application/json"] = "application/json"
     schema_name: str = Field(min_length=1, max_length=300)
@@ -108,7 +169,8 @@ class EmpiricalCalibrationContext(BaseModel):
     A generic backtest report cannot establish the estimand, method version, or
     temporal meaning of its rows.  Those fields are required from the typed
     caller.  Every provenance field is also a typed CAS reference whose
-    manifest and payload identity are checked against the same store.
+    manifest and payload identity are checked against the same store, and the
+    report manifest must carry each ref under its expected role.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -120,6 +182,7 @@ class EmpiricalCalibrationContext(BaseModel):
     method_version: str = Field(min_length=1, max_length=120)
     rule_version_ref: str = Field(min_length=1, max_length=300)
     calibration_threshold: float = Field(gt=0.0, le=1.0)
+    scope_binding_ref: EvidenceArtifactRef
     calibration_threshold_ref: EvidenceArtifactRef
 
     observed_outcome_ref: EvidenceArtifactRef
@@ -195,7 +258,9 @@ class EmpiricalCalibrationEvidence(BaseModel):
     method_ref: str | None = None
     method_version: str | None = None
     rule_version_ref: str | None = None
+    evidence_origin: str | None = None
     calibration_threshold: float | None = Field(default=None, gt=0.0, le=1.0)
+    scope_binding_ref: EvidenceArtifactRef | None = None
     calibration_threshold_ref: EvidenceArtifactRef | None = None
     observed_outcome_ref: EvidenceArtifactRef | None = None
     prediction_ref: EvidenceArtifactRef | None = None
@@ -249,11 +314,27 @@ def produce_empirical_calibration_evidence(
     issues = list(observation_issues)
     binding_issues: tuple[str, ...] = ()
     provenance_issues: tuple[str, ...] = ()
+    provenance_payloads: dict[str, tuple[object, ...]] = {}
     if context is None:
         issues.append("explicit_context_missing")
     else:
         binding_issues = _binding_issues(report, context)
-        provenance_issues = _context_reference_issues(store, context)
+        provenance_issues, provenance_payloads = _context_reference_issues(
+            store,
+            validated_report_ref,
+            report,
+            context,
+        )
+        binding_issues = _dedupe(
+            (
+                *binding_issues,
+                *_scope_binding_issues(
+                    provenance_payloads.get("scope_binding", ()),
+                    report,
+                    context,
+                ),
+            )
+        )
         issues.extend(binding_issues)
         issues.extend(provenance_issues)
 
@@ -289,7 +370,9 @@ def produce_empirical_calibration_evidence(
         method_ref=context.method_ref if context else None,
         method_version=context.method_version if context else None,
         rule_version_ref=context.rule_version_ref if context else None,
+        evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
+        scope_binding_ref=context.scope_binding_ref if context else None,
         calibration_threshold_ref=context.calibration_threshold_ref if context else None,
         observed_outcome_ref=context.observed_outcome_ref if context else None,
         prediction_ref=context.prediction_ref if context else None,
@@ -331,35 +414,21 @@ def persist_empirical_calibration_evidence(
 ) -> EmpiricalCalibrationEvidenceRef:
     """Persist neutral evidence and return its typed CAS reference."""
 
-    _validate_json_artifact(
-        store,
-        evidence.report_ref,
-        expected_kind=REPORT_KIND,
-        expected_media_type="application/json",
-        expected_schema_name=REPORT_SCHEMA_NAME,
-        expected_schema_version=REPORT_SCHEMA_VERSION,
-    )
+    expected = _reproduce_evidence(store, evidence)
     inputs: list[dict[str, object]] = [
-        {"artifact_id": str(evidence.report_ref.artifact_id), "role": "backtest_report"}
+        {"artifact_id": str(expected.report_ref.artifact_id), "role": "backtest_report"}
     ]
-    for role, ref in _context_refs(evidence):
-        _validate_json_artifact(
-            store,
-            ref,
-            expected_kind=ref.kind,
-            expected_media_type=ref.media_type,
-            expected_schema_name=ref.schema_name,
-            expected_schema_version=ref.schema_version,
-        )
+    for role, ref in _context_refs(expected):
         inputs.append({"artifact_id": str(ref.artifact_id), "role": role})
 
     payload = put_json_artifact(
         store,
-        evidence.model_dump(mode="json"),
+        expected.model_dump(mode="json"),
         kind=EVIDENCE_KIND,
         schema_name=EVIDENCE_SCHEMA_NAME,
         schema_version=EVIDENCE_SCHEMA_VERSION,
         inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     return EmpiricalCalibrationEvidenceRef.model_validate(payload)
 
@@ -390,7 +459,121 @@ def load_empirical_calibration_evidence(
         expected_schema_name=REPORT_SCHEMA_NAME,
         expected_schema_version=REPORT_SCHEMA_VERSION,
     )
+    _reproduce_evidence(store, evidence)
     return evidence
+
+
+def _reproduce_evidence(
+    store: ArtifactStore,
+    evidence: EmpiricalCalibrationEvidence,
+) -> EmpiricalCalibrationEvidence:
+    """Recompute evidence from its report and preserved typed context.
+
+    Persistence never treats the DTO's counters, status booleans, or failure
+    codes as authority.  They must be exactly the deterministic projection of
+    the current report plus the context that the DTO carries.
+    """
+
+    context = _context_from_evidence(store, evidence)
+    expected = produce_empirical_calibration_evidence(
+        store,
+        evidence.report_ref,
+        context=context,
+    )
+    if expected.model_dump(mode="json") != evidence.model_dump(mode="json"):
+        raise ValueError(
+            "empirical evidence payload is not reproducible from its report"
+        )
+    return expected
+
+
+def _context_from_evidence(
+    store: ArtifactStore,
+    evidence: EmpiricalCalibrationEvidence,
+) -> EmpiricalCalibrationContext | None:
+    """Recover a complete caller context, rejecting partial persisted context."""
+
+    context_values = (
+        evidence.evidence_origin,
+        evidence.estimand,
+        evidence.method_ref,
+        evidence.method_version,
+        evidence.rule_version_ref,
+        evidence.calibration_threshold,
+        evidence.scope_binding_ref,
+        evidence.calibration_threshold_ref,
+        evidence.observed_outcome_ref,
+        evidence.prediction_ref,
+        evidence.evaluation_design_ref,
+        evidence.credible_evaluation_evidence_ref,
+        *evidence.source_lineage_refs,
+        *evidence.method_lineage_refs,
+        evidence.prediction_time,
+        evidence.observation_time,
+        evidence.policy_effective_time,
+        evidence.data_valid_time,
+        evidence.calibration_window_start,
+        evidence.calibration_window_end,
+    )
+    if not any(value is not None for value in context_values):
+        return None
+
+    required = {
+        "evidence_origin": evidence.evidence_origin,
+        "estimand": evidence.estimand,
+        "method_ref": evidence.method_ref,
+        "method_version": evidence.method_version,
+        "rule_version_ref": evidence.rule_version_ref,
+        "calibration_threshold": evidence.calibration_threshold,
+        "scope_binding_ref": evidence.scope_binding_ref,
+        "calibration_threshold_ref": evidence.calibration_threshold_ref,
+        "observed_outcome_ref": evidence.observed_outcome_ref,
+        "prediction_ref": evidence.prediction_ref,
+        "evaluation_design_ref": evidence.evaluation_design_ref,
+        "credible_evaluation_evidence_ref": evidence.credible_evaluation_evidence_ref,
+        "source_lineage_refs": evidence.source_lineage_refs,
+        "method_lineage_refs": evidence.method_lineage_refs,
+        "prediction_time": evidence.prediction_time,
+        "observation_time": evidence.observation_time,
+        "policy_effective_time": evidence.policy_effective_time,
+        "data_valid_time": evidence.data_valid_time,
+        "calibration_window_start": evidence.calibration_window_start,
+        "calibration_window_end": evidence.calibration_window_end,
+    }
+    if any(value is None or value == () for value in required.values()):
+        raise ValueError("persisted empirical evidence context is incomplete")
+
+    _report_ref, report = _load_verified_report(store, evidence.report_ref)
+    if not report.model_spec_ref or not report.policy_spec_ref:
+        raise ValueError(
+            "persisted evidence context lacks a complete report model/policy pair"
+        )
+    return EmpiricalCalibrationContext.model_validate(
+        {
+            "model_spec_ref": report.model_spec_ref,
+            "policy_spec_ref": report.policy_spec_ref,
+            "estimand": evidence.estimand,
+            "method_ref": evidence.method_ref,
+            "method_version": evidence.method_version,
+            "rule_version_ref": evidence.rule_version_ref,
+            "evidence_origin": evidence.evidence_origin,
+            "calibration_threshold": evidence.calibration_threshold,
+            "scope_binding_ref": evidence.scope_binding_ref,
+            "calibration_threshold_ref": evidence.calibration_threshold_ref,
+            "observed_outcome_ref": evidence.observed_outcome_ref,
+            "prediction_ref": evidence.prediction_ref,
+            "evaluation_design_ref": evidence.evaluation_design_ref,
+            "credible_evaluation_evidence_ref": evidence.credible_evaluation_evidence_ref,
+            "source_lineage_refs": evidence.source_lineage_refs,
+            "method_lineage_refs": evidence.method_lineage_refs,
+            "prediction_time": evidence.prediction_time,
+            "observation_time": evidence.observation_time,
+            "policy_effective_time": evidence.policy_effective_time,
+            "data_valid_time": evidence.data_valid_time,
+            "calibration_window_start": evidence.calibration_window_start,
+            "calibration_window_end": evidence.calibration_window_end,
+        }
+    )
 
 
 def _load_verified_report(
@@ -408,7 +591,10 @@ def _load_verified_report(
         expected_schema_name=REPORT_SCHEMA_NAME,
         expected_schema_version=REPORT_SCHEMA_VERSION,
     )
-    return validated_ref, load_backtest_report(store, validated_ref)
+    report = load_backtest_report(store, validated_ref)
+    if report.schema_version != REPORT_SCHEMA_VERSION:
+        raise ValueError("backtest report payload schema version mismatch")
+    return validated_ref, report
 
 
 def _validate_json_artifact(
@@ -457,46 +643,155 @@ def _validate_json_artifact(
 
 def _context_reference_issues(
     store: ArtifactStore,
+    report_ref: BacktestReportRef,
+    report: BacktestReport,
     context: EmpiricalCalibrationContext,
-) -> tuple[str, ...]:
-    """Resolve every required context reference through the CAS."""
+) -> tuple[tuple[str, ...], dict[str, tuple[object, ...]]]:
+    """Resolve context refs against a role-bound report manifest.
+
+    The report input edge and the payload's report identity are deliberately
+    separate checks.  A caller-provided reference that is internally
+    self-consistent, but is not an input to this report under the expected
+    role, is therefore not admitted as evidence.
+    """
 
     issues: list[str] = []
-    for field_name, ref in _context_refs(context):
+    payloads: dict[str, list[object]] = {}
+    relations = _report_input_relations(store, report_ref)
+    relation_roles: dict[str, set[str]] = {}
+    for artifact_id, role in relations:
+        relation_roles.setdefault(artifact_id, set()).add(role)
+
+    for role, ref in _context_refs(context):
+        artifact_id = str(ref.artifact_id)
+        if (artifact_id, role) not in relations:
+            if artifact_id in relation_roles:
+                issues.append("reference_report_role_mismatch")
+            else:
+                issues.append("reference_report_relation_not_established")
         try:
-            payload = _validate_and_load_reference(store, ref)
+            payload = _validate_and_load_reference(store, ref, role=role)
         except (FileNotFoundError, OSError, TypeError, ValueError):
             issues.extend(
-                ("provenance_ref_unresolved", f"provenance_ref_invalid:{field_name}")
+                ("provenance_ref_unresolved", f"provenance_ref_invalid:{role}")
             )
             continue
+        payloads.setdefault(role, []).append(payload)
+
+        if ref.role != role:
+            issues.append(f"provenance_ref_role_mismatch:{role}")
+        payload_role = _lookup_identity(payload, "role")
+        if payload_role is _MISSING or str(payload_role) != role:
+            issues.append("reference_payload_role_mismatch")
+        payload_report_id = _lookup_identity(payload, "report_id")
+        if payload_report_id is _MISSING or str(payload_report_id) != report.report_id:
+            issues.append("reference_report_relation_not_established")
         actual = _lookup_identity(payload, ref.identity_path)
         if actual is _MISSING or str(actual) != ref.identity_value:
             issues.extend(
                 (
                     "provenance_ref_identity_mismatch",
-                    f"provenance_ref_invalid:{field_name}",
+                    f"provenance_ref_invalid:{role}",
                 )
             )
         if _payload_contains_forbidden_marker(payload):
             issues.append("forbidden_provenance_marker")
+    return _dedupe(issues), {
+        role: tuple(values) for role, values in payloads.items()
+    }
+
+
+def _report_input_relations(
+    store: ArtifactStore,
+    report_ref: BacktestReportRef,
+) -> set[tuple[str, str]]:
+    """Return the report's declared artifact input edges.
+
+    Missing or malformed input edges intentionally produce an empty set.  The
+    caller then receives ``reference_report_relation_not_established`` rather
+    than trusting an untyped or self-declared relationship.
+    """
+
+    try:
+        manifest = _as_mapping(store.get_manifest(report_ref.artifact_id))
+    except (FileNotFoundError, OSError, TypeError, ValueError):
+        return set()
+    raw_inputs = _field(manifest, "inputs")
+    if not isinstance(raw_inputs, Sequence) or isinstance(
+        raw_inputs, (str, bytes, bytearray)
+    ):
+        return set()
+    relations: set[tuple[str, str]] = set()
+    for raw_input in raw_inputs:
+        input_payload = _as_mapping(raw_input)
+        artifact_id = _field(input_payload, "artifact_id")
+        role = _field(input_payload, "role")
+        if artifact_id is not None and isinstance(role, str) and role.strip():
+            relations.add((str(artifact_id), role.strip()))
+    return relations
+
+
+def _scope_binding_issues(
+    payloads: Sequence[object],
+    report: BacktestReport,
+    context: EmpiricalCalibrationContext,
+) -> tuple[str, ...]:
+    """Check the independently persisted scope binding against both parties."""
+
+    if len(payloads) != 1:
+        return ("scope_binding_relation_not_established",)
+    binding = _as_mapping(_lookup_identity(payloads[0], "binding"))
+    expected = {
+        "report_id": report.report_id,
+        "model_spec_ref": report.model_spec_ref,
+        "policy_spec_ref": report.policy_spec_ref,
+        "estimand": context.estimand,
+        "method_ref": context.method_ref,
+        "method_version": context.method_version,
+        "rule_version_ref": context.rule_version_ref,
+    }
+    if any(value is None for value in expected.values()):
+        return ("scope_binding_relation_not_established",)
+    issues: list[str] = []
+    for field_name, expected_value in expected.items():
+        actual = _field(binding, field_name)
+        if actual is None or str(actual) != str(expected_value):
+            issues.append("scope_binding_relation_not_established")
     return _dedupe(issues)
 
 
 def _validate_and_load_reference(
     store: ArtifactStore,
     ref: EvidenceArtifactRef,
+    *,
+    role: str,
 ) -> object:
     """Verify one typed context reference and decode its canonical JSON."""
 
+    if ref.role != role:
+        raise ValueError("evidence reference role mismatch")
+    try:
+        expected_kind, expected_schema_name, expected_schema_version = (
+            REFERENCE_PROFILES[role]
+        )
+    except KeyError as exc:
+        raise ValueError("unsupported evidence reference role") from exc
+    if ref.media_type != "application/json":
+        raise ValueError("evidence reference media type mismatch")
     _validate_json_artifact(
         store,
         ref,
-        expected_kind=ref.kind,
-        expected_media_type=ref.media_type,
-        expected_schema_name=ref.schema_name,
-        expected_schema_version=ref.schema_version,
+        expected_kind=expected_kind,
+        expected_media_type="application/json",
+        expected_schema_name=expected_schema_name,
+        expected_schema_version=expected_schema_version,
     )
+    if (
+        ref.kind != expected_kind
+        or ref.schema_name != expected_schema_name
+        or ref.schema_version != expected_schema_version
+    ):
+        raise ValueError("evidence reference profile mismatch")
     return get_json_artifact(store, ref.artifact_id)
 
 
@@ -716,16 +1011,17 @@ def _context_refs(
     """Return every required context reference with its stable input role."""
 
     refs: list[tuple[str, EvidenceArtifactRef]] = []
-    for field_name in (
-        "calibration_threshold_ref",
-        "observed_outcome_ref",
-        "prediction_ref",
-        "evaluation_design_ref",
-        "credible_evaluation_evidence_ref",
+    for role, field_name in (
+        ("scope_binding", "scope_binding_ref"),
+        ("calibration_threshold", "calibration_threshold_ref"),
+        ("observed_outcome", "observed_outcome_ref"),
+        ("prediction", "prediction_ref"),
+        ("evaluation_design", "evaluation_design_ref"),
+        ("credible_evaluation", "credible_evaluation_evidence_ref"),
     ):
         ref = getattr(value, field_name, None)
         if ref is not None:
-            refs.append((field_name, ref))
+            refs.append((role, ref))
     refs.extend(("source_lineage", ref) for ref in value.source_lineage_refs)
     refs.extend(("method_lineage", ref) for ref in value.method_lineage_refs)
     return tuple(refs)
@@ -852,6 +1148,8 @@ __all__ = [
     "EmpiricalCalibrationEvidenceRef",
     "EmpiricalEvidenceKind",
     "EvidenceArtifactRef",
+    "REFERENCE_PROFILES",
+    "ReferenceRole",
     "load_empirical_calibration_evidence",
     "persist_empirical_calibration_evidence",
     "produce_empirical_calibration_evidence",

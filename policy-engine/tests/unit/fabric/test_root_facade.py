@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import importlib
+import json
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
 
@@ -22,6 +25,42 @@ def test_fabric_api_preserves_public_facade_imports() -> None:
     assert FabricDecisionData.__name__ == "FabricDecisionData"
     assert callable(fabric_get_data)
     assert callable(run_connectors_ingestion)
+
+
+def test_fabric_fetch_receipt_facade_preserves_identity_and_laziness() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            """
+import json
+import sys
+import polisyos.fabric as fabric
+
+before = "polisyos.fabric.retrieval.custody" in sys.modules
+facade = fabric.FabricFetchReceipt
+after = "polisyos.fabric.retrieval.custody" in sys.modules
+from polisyos.fabric.retrieval.custody import FabricFetchReceipt as owned
+
+print(json.dumps({
+    "before": before,
+    "after": after,
+    "same": facade is owned,
+    "exported": "FabricFetchReceipt" in fabric.__all__,
+}))
+""",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert json.loads(result.stdout) == {
+        "before": False,
+        "after": True,
+        "same": True,
+        "exported": True,
+    }
 
 
 def test_fabric_medium_shims_are_removed_from_last_mile_import_map() -> None:

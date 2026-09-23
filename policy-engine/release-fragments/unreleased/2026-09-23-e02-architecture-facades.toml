@@ -7,19 +7,65 @@ summary = "E02 runtime consumers now use the supported IR, Core artifact, Core c
 evidence = [
   "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
   "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/core/artifacts/__init__.py",
   "src/polisyos/ir/__init__.py",
   "src/polisyos/fabric/__init__.py",
   "architecture/public_surface/inventory.json",
+  "docs/reference/ir/schema-catalog.md",
 ]
-compatibility = "The change is import-path-only for existing runtime behavior. ArtifactRefModel and FabricFetchReceipt are additive lazy-facade exports; existing deep import paths remain available to their owning packages."
+compatibility = "The change is import-path-only for existing runtime behavior. ArtifactIntegrityError, ArtifactRefModel, and FabricFetchReceipt are additive facade exports; existing implementation import paths remain available to their owning packages."
 change_class = "python-public-api"
-surface_classification = "public_stable: polisyos.ir and polisyos.fabric facades; internal: E02 runtime consumer import wiring"
-migration = "Use polisyos.ir.ArtifactRefModel and polisyos.fabric.FabricFetchReceipt for new cross-package consumers. Existing persisted artifacts, custody checks, authority guards, and predictive-only limitations retain their current schemas and semantics."
+surface_classification = "public_stable: polisyos.core.artifacts, polisyos.ir, and polisyos.fabric facades; internal: E02 runtime consumer import wiring"
+migration = "Use polisyos.core.artifacts.ArtifactIntegrityError, polisyos.ir.ArtifactRefModel, and polisyos.fabric.FabricFetchReceipt for cross-package consumers. Existing persisted artifacts, custody checks, authority guards, and predictive-only limitations retain their current schemas and semantics."
+api = "Adds three supported facade exports that preserve exact owner-object identity: ArtifactIntegrityError from polisyos.core.artifacts, ArtifactRefModel from polisyos.ir, and FabricFetchReceipt from polisyos.fabric."
 limitations = "This repair does not remove inherited architecture baseline drift or promote the FRC predictive evidence into causal/value authority."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [
+  "src/polisyos/core/artifacts/README.md",
   "src/polisyos/ir/README.md",
   "src/polisyos/fabric/README.md",
 ]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-artifact-integrity-error-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts.ArtifactIntegrityError"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose the canonical CAS integrity exception from the polisyos.core.artifacts facade without changing read-time validation behavior."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-artifact-ref-model-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.ArtifactRefModel"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing typed IR artifact-reference model through the lazy polisyos.ir facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/ir/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-fabric-fetch-receipt-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.FabricFetchReceipt"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing typed Fabric fetch-custody receipt through the lazy polisyos.fabric facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/README.md"]
 runbook_docs = []

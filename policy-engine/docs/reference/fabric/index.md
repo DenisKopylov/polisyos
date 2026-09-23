@@ -93,6 +93,7 @@ sync with code, tests, and generated artifacts.
 | `execute_world_query`                                 | Run a governed read-only world query against Fabric materializations |
 | `query_claims` / `query_events` / `query_world_table` | Query convenience helpers for world storage                          |
 | `WorldQueryRequest` / `WorldQueryError`               | Request and error surface for world querying                         |
+| `FabricFetchReceipt`                                  | Typed custody receipt for a catalog-bound fetch and persisted payload |
 | `world`                                               | Lazy-loaded `polisyos.fabric.world` module                           |
 
 Fabric also lazy-loads catalog types such as `DataContract`,

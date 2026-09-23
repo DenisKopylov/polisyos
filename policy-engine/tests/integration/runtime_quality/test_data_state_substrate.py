@@ -15,6 +15,7 @@ import numpy as np
 import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
+import polisyos.runtime.quality.data_state_substrate as data_state_substrate_module
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -482,6 +483,53 @@ def test_real_l4_same_slice_is_content_address_stable_and_different_slice_change
     assert first.data_snapshot_stats["sample_strategy"] == "deterministic_region_stratified_hash"
     assert first.data_snapshot_stats["agent_registry_resolution_strategy"] == (
         "canonical_latest_record_then_ambiguous_region_sector_for_conflicts"
+    )
+
+
+def test_real_l4_builder_reuses_exact_registry_ref_without_catalog_rebuild_or_payload_growth(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    baseline = build_production_data_state_world_model_record(
+        store,
+        repo_root=REPO_ROOT,
+        workspace_dir=tmp_path / "world-baseline",
+        agent_limit=16,
+    )
+
+    monkeypatch.setattr(
+        data_state_substrate_module,
+        "build_substrate_registry_from_existing_catalogs",
+        lambda *_args, **_kwargs: pytest.fail("persisted registry path rebuilt the catalog"),
+    )
+    monkeypatch.setattr(
+        data_state_substrate_module,
+        "persist_substrate_registry",
+        lambda *_args, **_kwargs: pytest.fail("persisted registry path wrote a replacement"),
+    )
+
+    reused = build_production_data_state_world_model_record(
+        store,
+        repo_root=REPO_ROOT,
+        workspace_dir=tmp_path / "world-reused",
+        agent_limit=16,
+        substrate_registry_artifact_ref=baseline.substrate_registry_ref,
+    )
+
+    assert reused.substrate_registry_ref == baseline.substrate_registry_ref
+    assert reused.world_model.record.world_model_record_id == (
+        baseline.world_model.record.world_model_record_id
+    )
+    assert reused.world_model.record.content_hash == baseline.world_model.record.content_hash
+    assert reused.world_model.record.substrate_registry_ref.registry_artifact_ref == str(
+        baseline.substrate_registry_ref.artifact_id
+    )
+    assert reused.materialization.payload_content_hash == (
+        baseline.materialization.payload_content_hash
+    )
+    assert reused.materialization.data_snapshot_ref.artifact_id == (
+        baseline.materialization.data_snapshot_ref.artifact_id
     )
 
 

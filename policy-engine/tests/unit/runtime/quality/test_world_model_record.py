@@ -61,6 +61,8 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    load_substrate_registry,
+    persist_substrate_registry,
     register_substrate_entry,
 )
 from polisyos.runtime.quality.world_model_record import (
@@ -71,6 +73,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecordError,
     build_world_model_record,
     consume_world_model_record_for_simulation,
+    load_world_model_record,
     resolve_intervention_atom_world_binding,
 )
 
@@ -424,6 +427,45 @@ def _build_record(tmp_path: Path):
     return store, result, model_spec, registry_bundle.bundle_ref
 
 
+def _build_record_with_substrate_registry_ref(
+    tmp_path: Path,
+    *,
+    bound_registry: SubstrateRegistry | None = None,
+    persisted_registry: SubstrateRegistry | None = None,
+    supplied_ref: object | None = None,
+):
+    store = FileSystemCAS(tmp_path / "cas")
+    _write_fabric_world_snapshot(tmp_path)
+    data_snapshot_ref = _data_snapshot_ref(store)
+    registry_bundle = build_default_registry_bundle(store)
+    model_spec = _model_spec(data_snapshot_ref, registry_bundle.bundle_ref)
+    bound = bound_registry or _substrate_registry()
+    persisted = persisted_registry or bound
+    persisted_ref = persist_substrate_registry(store, persisted)
+    registry_ref = persisted_ref if supplied_ref is None else supplied_ref
+    result = build_world_model_record(
+        store,
+        fabric_world_ref=_fabric_ref(tmp_path),
+        data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
+        data_snapshot_ref=data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=_skg_ref(tmp_path),
+        substrate_registry=bound,
+        region_or_jurisdiction="UA-30",
+        population_scope="wartime_msme",
+        policy_domain="fiscal_credit",
+        valid_time_scope="2026-05-24/2026-12-31",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="firm_month",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.world_model_record_builder",
+        required_substrate_families=("firm_fundamentals",),
+        substrate_registry_artifact_ref=registry_ref,
+    )
+    return store, result, persisted_ref
+
+
 def _build_record_with_fabric_node(
     tmp_path: Path,
     *,
@@ -673,6 +715,56 @@ def test_world_model_record_content_binds_same_snapshot_and_rejects_mismatch(
             policy_slot_ids=("agents.income",),
             producer_ref="test.world_model_record_builder",
             required_substrate_families=("firm_fundamentals",),
+        )
+
+
+def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
+    tmp_path: Path,
+) -> None:
+    store, built, persisted_registry_ref = _build_record_with_substrate_registry_ref(tmp_path)
+
+    read_back = load_world_model_record(store, built.record_ref)
+    persisted_registry = load_substrate_registry(store, persisted_registry_ref)
+    manifest = store.get_manifest(built.record_ref.artifact_id)
+    registry_edges = [
+        input_ref
+        for input_ref in manifest.inputs
+        if input_ref.role == "input.substrate_registry_ref"
+    ]
+    projection = read_back.substrate_registry_ref
+
+    assert read_back == built.record
+    assert projection.registry_artifact_ref == str(persisted_registry_ref.artifact_id)
+    assert projection.substrate_version_id == persisted_registry.substrate_version_id
+    assert projection.content_hash == persisted_registry.content_hash
+    assert {
+        (entry.source_id, entry.family_id, entry.entry_content_hash)
+        for entry in projection.resolved_entries
+    } == {
+        (entry.source_id, entry.family_id, entry.entry_content_hash)
+        for entry in persisted_registry.entries
+    }
+    assert len(registry_edges) == 1
+    assert str(registry_edges[0].artifact_id) == str(persisted_registry_ref.artifact_id)
+
+
+def test_world_model_record_rejects_non_cas_registry_ref(tmp_path: Path) -> None:
+    with pytest.raises(WorldModelRecordError, match="substrate_registry_artifact_ref_invalid"):
+        _build_record_with_substrate_registry_ref(
+            tmp_path,
+            supplied_ref="repo://substrate-registry/not-a-cas-artifact",
+        )
+
+
+def test_world_model_record_rejects_mismatched_registry_content_ref(tmp_path: Path) -> None:
+    with pytest.raises(
+        WorldModelRecordError,
+        match="substrate_registry_artifact_ref_content_mismatch",
+    ):
+        _build_record_with_substrate_registry_ref(
+            tmp_path,
+            bound_registry=_substrate_registry(),
+            persisted_registry=_substrate_registry(coverage_score=0.7),
         )
 
 

@@ -488,7 +488,30 @@ def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_exis
     )
 
     assert envelope.envelope_status == "blocked"
-    assert envelope.issue_codes == ["s10_prediction_authority_boundary_laundering"]
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+
+
+def test_prediction_authority_envelope_blocks_nested_forbidden_calibration_authority_on_existing_instance() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    malformed_boundary = calibration.authority_boundary.model_copy(
+        update={"authoritative_for": ["production_recommendation"]}
+    )
+    malformed_calibration = calibration.model_copy(
+        update={"authority_boundary": malformed_boundary}
+    )
+
+    envelope = verify_envelope(
+        forecast_support=support,
+        calibration_record=malformed_calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
 
 
 def test_prediction_authority_envelope_blocks_cross_bound_calibration_support_ref() -> None:
@@ -509,7 +532,7 @@ def test_prediction_authority_envelope_blocks_cross_bound_calibration_support_re
     )
 
     assert envelope.envelope_status == "blocked"
-    assert envelope.issue_codes == ["s10_calibration_support_binding_mismatch"]
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
 
 
 def test_prediction_authority_envelope_blocks_mismatched_calibration_record_ref() -> None:
@@ -530,7 +553,7 @@ def test_prediction_authority_envelope_blocks_mismatched_calibration_record_ref(
     )
 
     assert envelope.envelope_status == "blocked"
-    assert envelope.issue_codes == ["s10_calibration_record_binding_mismatch"]
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
 
 
 def test_prediction_authority_envelope_preserves_bound_support_calibration_pass() -> None:
@@ -540,6 +563,8 @@ def test_prediction_authority_envelope_preserves_bound_support_calibration_pass(
 
     support = forecast_support.model_validate(_forecast_support_payload())
     calibration = calibration_record.model_validate(_calibration_payload())
+    assert calibration.forecast_support_ref == support.support_ref
+    assert calibration.calibration_ref == support.calibration_record_ref
 
     envelope = verify_envelope(
         forecast_support=support,

@@ -38,6 +38,12 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
+    from polisyos.runtime.quality.substrate_registry import (
+        L5CatalogAuthority,
+        MeasurementRootRegistryAdmission,
+        SubstrateRegistration,
+        SubstrateRegistry,
+    )
 
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = (
@@ -970,6 +976,134 @@ def resolve_fabric_measurement_root(
     if payload != expected:
         raise FabricMeasurementRootBindingError("measurement_root_fabric_projection_mismatch")
     return _fabric_measurement_envelope(payload, source_artifact_id)
+
+
+@dataclass(frozen=True)
+class ResolvedMeasurementRootEvidence:
+    """Replay-verified custody refs accepted by the substrate handoff."""
+
+    envelope: ArtifactEnvelope
+    payload: FabricMeasurementRootPayload
+    measurement_root_ref: artifacts.ArtifactRef
+    fetch_receipt_ref: artifacts.ArtifactRef
+    catalog_binding_ref: artifacts.ArtifactRef
+
+
+def resolve_measurement_root_evidence(
+    *,
+    store: artifacts.ArtifactStore,
+    measurement_root: ArtifactEnvelope,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    providers: RetrievalProviders | None = None,
+) -> ResolvedMeasurementRootEvidence:
+    """Replay a supplied root and expose only its content-bound custody refs.
+
+    ``MeasurementRoot`` is deliberately not a source/family/trust authority.
+    The returned refs are suitable for lineage inputs after the existing
+    Fabric fetch, payload, and catalog owners have revalidated the chain.
+    """
+
+    if not isinstance(measurement_root, ArtifactEnvelope):
+        raise FabricMeasurementRootBindingError("measurement_root_envelope_invalid")
+    if (
+        measurement_root.ref.artifact_type != "MeasurementRoot"
+        or measurement_root.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+        or not isinstance(measurement_root.payload_ref, str)
+        or not measurement_root.payload_ref.startswith("sha256:")
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_envelope_invalid")
+    try:
+        payload_artifact_id = artifacts.ArtifactID(measurement_root.payload_ref)
+        payload_bytes = store.get_bytes(payload_artifact_id)
+        payload_manifest = store.get_manifest(payload_artifact_id)
+        payload = FabricMeasurementRootPayload.model_validate(
+            canon.from_canonical_bytes(payload_bytes)
+        )
+        measurement_root_payload_ref = artifacts.ArtifactRef(
+            artifact_id=payload_artifact_id,
+            kind=payload_manifest.kind,
+            media_type=payload_manifest.media_type,
+        )
+        if (
+            payload_manifest.kind != "policyos.gy.measurement_root_payload"
+            or payload_manifest.media_type != "application/json"
+            or measurement_root_payload_ref.artifact_id != payload_artifact_id
+        ):
+            raise FabricMeasurementRootBindingError("measurement_root_payload_manifest_invalid")
+        resolved = resolve_fabric_measurement_root(
+            store=store,
+            source_artifact_id=measurement_root.payload_ref,
+            catalog=catalog,
+            providers=providers,
+        )
+    except FabricMeasurementRootBindingError:
+        raise
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise FabricMeasurementRootBindingError("measurement_root_custody_unresolved") from exc
+
+    # Compare the complete envelope, not just a type marker or root ID.  This
+    # catches a foreign root envelope carrying a valid payload reference.
+    if resolved.model_dump(mode="json") != measurement_root.model_dump(mode="json"):
+        raise FabricMeasurementRootBindingError("measurement_root_envelope_projection_mismatch")
+    expected_root_content_hash = gy_content_hash(payload.model_dump(mode="json"))
+    if measurement_root.ref.content_hash != expected_root_content_hash:
+        raise FabricMeasurementRootBindingError("measurement_root_content_hash_mismatch")
+    expected_input_artifact = ArtifactRef(
+        artifact_id=f"fabric-fetch-{payload.fetch_receipt_ref.artifact_id.hex}",
+        artifact_type="FabricFetchReceipt",
+        content_hash=str(payload.fetch_receipt_ref.artifact_id),
+        schema_ref="polisyos.fabric.fetch_receipt.v1",
+        uri=f"cas://{payload.fetch_receipt_ref.artifact_id}",
+        version="v1",
+    )
+    if resolved.input_artifacts != [expected_input_artifact]:
+        raise FabricMeasurementRootBindingError("measurement_root_fetch_ref_mismatch")
+    return ResolvedMeasurementRootEvidence(
+        envelope=resolved,
+        payload=payload,
+        measurement_root_ref=measurement_root_payload_ref,
+        fetch_receipt_ref=payload.fetch_receipt_ref,
+        catalog_binding_ref=payload.catalog_binding_ref,
+    )
+
+
+def admit_measurement_root_to_substrate_registry(
+    *,
+    store: artifacts.ArtifactStore,
+    measurement_root: ArtifactEnvelope,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    baseline_registry: "SubstrateRegistry",
+    registration: "SubstrateRegistration",
+    l5_authority: "L5CatalogAuthority",
+    baseline_registry_ref: artifacts.ArtifactRef | None = None,
+    providers: RetrievalProviders | None = None,
+) -> "MeasurementRootRegistryAdmission":
+    """Replay a root, then admit one independent owner registration.
+
+    This function stops at registry persistence.  It does not construct a
+    world-model record, cycle context, growth receipt, H1, or N5 input.
+    """
+
+    evidence = resolve_measurement_root_evidence(
+        store=store,
+        measurement_root=measurement_root,
+        catalog=catalog,
+        providers=providers,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        persist_measurement_root_substrate_registry,
+    )
+
+    return persist_measurement_root_substrate_registry(
+        store,
+        baseline_registry=baseline_registry,
+        registration=registration,
+        l5_authority=l5_authority,
+        measurement_root_ref=evidence.measurement_root_ref,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog_binding_ref=evidence.catalog_binding_ref,
+        baseline_registry_ref=baseline_registry_ref,
+    )
 
 
 def produce_phase2_recorded_panel_measurement_root(
@@ -3038,16 +3172,19 @@ __all__ = [
     "CatalogGraphProtocol",
     "MeasurementRootBindingError",
     "MeasurementRootProducer",
+    "ResolvedMeasurementRootEvidence",
     "RecordedPanelBindingReceipt",
     "RecordedPanelMethodInput",
     "RecordedPanelRecipe",
     "RecordedPanelSource",
     "build_default_workspace_catalog_graph",
+    "admit_measurement_root_to_substrate_registry",
     "data_forge_snapshot_binding_scorecard_gates",
     "normalize_data_forge_snapshot_binding_report",
     "official_data_forge_snapshot_for_claim",
     "produce_phase2_recorded_panel_measurement_root",
     "produce_recorded_panel_method_input",
+    "resolve_measurement_root_evidence",
     "source_requirement_for_catalog_binding",
     "verify_recorded_panel_method_input",
 ]

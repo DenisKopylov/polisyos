@@ -11,15 +11,18 @@ from polisyos.core.contracts.runtime import (
     RunEquilibriaResponse,
     RunErrorsResponse,
     RunFeedbackResponse,
+    SimulationResultCandidateResponse,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
     enforce_run_tenant_access,
     get_runtime_api_context,
+    record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import forbidden
+from polisyos.runtime.http.errors import conflict, forbidden, not_found
+from polisyos.runtime.http.services.debug import SimulationResultProjectionError
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Request
@@ -63,6 +66,63 @@ if router is not None:
         )
         debug_view = ctx.debug.get_node_debug(run, alias=alias)
         return NodeDebugResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            debug=debug_view,
+        )
+
+    @router.get(
+        "/{run_id}/nodes/{alias}/simulation-result",
+        response_model=SimulationResultCandidateResponse,
+        operation_id="get_node_simulation_result_candidate",
+    )
+    def get_node_simulation_result_candidate(
+        run_id: str,
+        alias: str,
+        request: Request,
+        artifact_id: str | None = None,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> SimulationResultCandidateResponse:
+        """Read a verified candidate result without opening generic authority surfaces."""
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.simulation_result_candidate",
+        )
+        try:
+            debug_view = ctx.debug.get_simulation_result_candidate(
+                run,
+                alias=alias,
+                artifact_id=artifact_id,
+            )
+        except KeyError as exc:
+            raise not_found(
+                "The named workflow node was not found in the persisted run",
+                code="simulation_result_node_not_found",
+            ) from exc
+        except SimulationResultProjectionError as exc:
+            raise conflict(exc.detail, code=exc.code) from exc
+        artifact_id_text = str(debug_view.artifact_ref.artifact_id)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.simulation_result_candidate",
+            artifact_id=artifact_id_text,
+        )
+        record_data_access_audit(
+            request,
+            resource_id=f"{run_id}:{alias}:{artifact_id_text}",
+            resource_kind="runtime.simulation_result_candidate",
+            tenant_id=run.details.tenant_id,
+            metadata={
+                "run_id": run_id,
+                "node_alias": alias,
+                "artifact_id": artifact_id_text,
+                "projection_class": debug_view.projection_class,
+            },
+        )
+        return SimulationResultCandidateResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             debug=debug_view,
         )

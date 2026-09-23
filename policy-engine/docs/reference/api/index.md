@@ -255,6 +255,7 @@ Detailed reference: [Artifacts](artifacts.md)
 | Method | Path                                                      | Description                                   | Source  |
 | ------ | --------------------------------------------------------- | --------------------------------------------- | ------- |
 | `GET`  | `/api/v1/debug/runs/{run_id}/nodes/{alias}`               | Node-level debug payload for a specific alias | OpenAPI |
+| `GET`  | `/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result` | Candidate/reference-only persisted SimulationResult for a producing node | OpenAPI |
 | `GET`  | `/api/v1/debug/runs/{run_id}/governance`                  | Governance debug view for a run               | OpenAPI |
 | `GET`  | `/api/v1/debug/runs/{run_id}/errors`                      | Aggregated run errors                         | OpenAPI |
 | `GET`  | `/api/v1/debug/runs/{run_id}/feedback`                    | Recorded feedback and post-deployment signals | OpenAPI |

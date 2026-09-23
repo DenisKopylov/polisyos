@@ -17,6 +17,7 @@ from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
@@ -411,9 +412,21 @@ def _reuse_legacy_snapshot_blob(
         return None
 
     artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
+    _blob_path, manifest_path = store.get_paths(artifact_id)
+    if not manifest_path.exists():
+        # ``get_manifest`` enforces tenant ownership before checking the
+        # sidecar path.  A new content-addressed blob is therefore reported as
+        # unowned by a tenant-scoped view rather than missing.  Inspecting only
+        # the deterministic sidecar path lets the normal put path create and
+        # claim a genuinely absent artifact.
+        return None
     try:
         manifest = store.get_manifest(artifact_id)
-    except FileNotFoundError:
+    except (FileNotFoundError, ArtifactOwnershipError):
+        # The probe is advisory: an explicit immutable re-put may claim the
+        # same content ID for another tenant.  Let ``put_bytes`` validate the
+        # complete persisted profile and record that owner; it still fails
+        # closed for a legacy profile that is not compatible with this write.
         return None
 
     if not _matches_legacy_snapshot_profile(

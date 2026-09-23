@@ -76,6 +76,9 @@ export type ArtifactContentResponse =
 
 export type ArtifactID = RuntimeApiComponents["schemas"]["ArtifactID"];
 
+export type ArtifactIDInput =
+  RuntimeApiComponents["schemas"]["ArtifactID-Input"];
+
 export type ArtifactLineageEdge =
   RuntimeApiComponents["schemas"]["ArtifactLineageEdge"];
 
@@ -651,6 +654,9 @@ export type DesignStakeholder =
 export type DiscoveryCandidate =
   RuntimeApiComponents["schemas"]["DiscoveryCandidate"];
 
+export type DistributionalReportRef =
+  RuntimeApiComponents["schemas"]["DistributionalReportRef"];
+
 export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
 
@@ -658,6 +664,9 @@ export type EngineeringCapabilityAbsenceView =
   RuntimeApiComponents["schemas"]["EngineeringCapabilityAbsenceView"];
 
 export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
+
+export type EnvironmentManifestRef =
+  RuntimeApiComponents["schemas"]["EnvironmentManifestRef"];
 
 export type EpochBoundaryLineageView =
   RuntimeApiComponents["schemas"]["EpochBoundaryLineageView"];
@@ -789,6 +798,9 @@ export type FabricSourceScorecardsResponse =
 export type FabricTrustBatchResponse =
   RuntimeApiComponents["schemas"]["FabricTrustBatchResponse"];
 
+export type FairnessAuditReportRef =
+  RuntimeApiComponents["schemas"]["FairnessAuditReportRef"];
+
 export type FeedbackActionResponse =
   RuntimeApiComponents["schemas"]["FeedbackActionResponse"];
 
@@ -899,6 +911,9 @@ export type HumanDecisionReviewEffectivenessResponse =
 export type HumanDecisionSubmissionSurface =
   RuntimeApiComponents["schemas"]["HumanDecisionSubmissionSurface"];
 
+export type IdentifiabilityDiagnosticRef =
+  RuntimeApiComponents["schemas"]["IdentifiabilityDiagnosticRef"];
+
 export type IndexStats = RuntimeApiComponents["schemas"]["IndexStats"];
 
 export type IndexStatsResponse =
@@ -1007,6 +1022,14 @@ export type LineageResponse =
 
 export type MetricCandidate =
   RuntimeApiComponents["schemas"]["MetricCandidate"];
+
+export type MetricObservationBundleRef =
+  RuntimeApiComponents["schemas"]["MetricObservationBundleRef"];
+
+export type MetricValidationReportRef =
+  RuntimeApiComponents["schemas"]["MetricValidationReportRef"];
+
+export type MetricsRef = RuntimeApiComponents["schemas"]["MetricsRef"];
 
 export type MobilityBoundsRequest =
   RuntimeApiComponents["schemas"]["MobilityBoundsRequest"];
@@ -1480,6 +1503,15 @@ export type SearchRequest = RuntimeApiComponents["schemas"]["SearchRequest"];
 export type SessionAuthorityProvenance =
   RuntimeApiComponents["schemas"]["SessionAuthorityProvenance"];
 
+export type SimulationResult =
+  RuntimeApiComponents["schemas"]["SimulationResult"];
+
+export type SimulationResultCandidateResponse =
+  RuntimeApiComponents["schemas"]["SimulationResultCandidateResponse"];
+
+export type SimulationResultCandidateView =
+  RuntimeApiComponents["schemas"]["SimulationResultCandidateView"];
+
 export type SimulationResultRefInput =
   RuntimeApiComponents["schemas"]["SimulationResultRef-Input"];
 
@@ -1497,6 +1529,9 @@ export type SourceProfileInfo =
 
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
+
+export type StateSnapshotRef =
+  RuntimeApiComponents["schemas"]["StateSnapshotRef"];
 
 export type StructuralRouteProjection =
   RuntimeApiComponents["schemas"]["StructuralRouteProjection"];
@@ -1536,6 +1571,8 @@ export type TimeFrequency = RuntimeApiComponents["schemas"]["TimeFrequency"];
 
 export type TimeSemantics = RuntimeApiComponents["schemas"]["TimeSemantics"];
 
+export type TraceSliceRef = RuntimeApiComponents["schemas"]["TraceSliceRef"];
+
 export type TypedGap = RuntimeApiComponents["schemas"]["TypedGap"];
 
 export type UnavailableRunPaperCase =
@@ -1543,6 +1580,9 @@ export type UnavailableRunPaperCase =
 
 export type UnavailableRunPaperStageTrace =
   RuntimeApiComponents["schemas"]["UnavailableRunPaperStageTrace"];
+
+export type UncertaintyEnvelopeRef =
+  RuntimeApiComponents["schemas"]["UncertaintyEnvelopeRef"];
 
 export type UnitRefInput = RuntimeApiComponents["schemas"]["UnitRef-Input"];
 
@@ -1561,8 +1601,17 @@ export type ValueRefusalCode =
 export type VerificationMetadata =
   RuntimeApiComponents["schemas"]["VerificationMetadata"];
 
+export type WelfareBoundReportRef =
+  RuntimeApiComponents["schemas"]["WelfareBoundReportRef"];
+
+export type WelfareBundleRef =
+  RuntimeApiComponents["schemas"]["WelfareBundleRef"];
+
 export type WorkflowRunRequest =
   RuntimeApiComponents["schemas"]["WorkflowRunRequest"];
+
+export type polisyos__core__artifacts__ids__ArtifactID =
+  RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID"];
 
 export type PolisyosCoreContractsRuntimeLineageRefOutput =
   RuntimeApiComponents["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
@@ -1581,6 +1630,9 @@ export type polisyos__fabric__evidence__decision_data__TemporalRef =
 
 export type polisyos__fabric__evidence__decision_data__UnitRef =
   RuntimeApiComponents["schemas"]["polisyos__fabric__evidence__decision_data__UnitRef"];
+
+export type polisyos__ir__artifacts__contracts__ArtifactID =
+  RuntimeApiComponents["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
 
 export interface RuntimeApiClientOptions {
   baseUrl: string;
@@ -2176,6 +2228,24 @@ export class RuntimeApiClient {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
     const query = undefined;
     return this.request<NodeDebugResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getNodeSimulationResultCandidate(params: {
+    run_id: string;
+    alias: string;
+    artifact_id?: string | null;
+  }): Promise<SimulationResultCandidateResponse> {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}/simulation-result`;
+    const query = this.buildQuery({
+      artifact_id: params.artifact_id,
+    });
+    return this.request<SimulationResultCandidateResponse>(
       "GET",
       path,
       query,

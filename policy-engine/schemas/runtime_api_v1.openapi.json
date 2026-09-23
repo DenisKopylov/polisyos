@@ -1261,6 +1261,9 @@
         "type": "object"
       },
       "ArtifactID": {
+        "$ref": "#/components/schemas/ArtifactID-Input"
+      },
+      "ArtifactID-Input": {
         "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
         "title": "ArtifactID",
         "type": "string"
@@ -1819,7 +1822,7 @@
         "description": "Reference an artifact across service, registry, and governance boundaries.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "$ref": "#/components/schemas/ArtifactID-Input"
           },
           "kind": {
             "title": "Kind",
@@ -14306,6 +14309,32 @@
         "title": "DiscoveryCandidate",
         "type": "object"
       },
+      "DistributionalReportRef": {
+        "additionalProperties": false,
+        "description": "Stable handle for persisted distributional-impact reports read by equity and policy-governance workflows.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/polisyos__ir__artifacts__contracts__ArtifactID"
+          },
+          "kind": {
+            "const": "ir.distributional_report",
+            "default": "ir.distributional_report",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "DistributionalReportRef",
+        "type": "object"
+      },
       "EngineCensusPayload": {
         "additionalProperties": false,
         "description": "Engine census summary without the row table.",
@@ -14486,6 +14515,30 @@
           "deps_lock_hash"
         ],
         "title": "EnvInfo",
+        "type": "object"
+      },
+      "EnvironmentManifestRef": {
+        "additionalProperties": false,
+        "description": "Typed reference to EnvironmentManifest artifact.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.environment_manifest",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "EnvironmentManifestRef",
         "type": "object"
       },
       "EpochBoundaryLineageView": {
@@ -16309,7 +16362,7 @@
         "description": "Artifact reference for the resolved Foundry execution plan and runtime posture.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "$ref": "#/components/schemas/ArtifactID-Input"
           },
           "kind": {
             "default": "foundry.exec_plan",
@@ -17009,6 +17062,30 @@
         "title": "FabricTrustBatchResponse",
         "type": "object"
       },
+      "FairnessAuditReportRef": {
+        "additionalProperties": false,
+        "description": "Reference to a stored validation-stage fairness audit report artifact.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "scientist.fairness_audit_report",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "FairnessAuditReportRef",
+        "type": "object"
+      },
       "FeedbackActionResponse": {
         "additionalProperties": false,
         "description": "Outcome payload returned after evaluating feedback or reissuing a decision.",
@@ -17097,7 +17174,7 @@
         "description": "Artifact reference for Jacobian diagnostics around the solved fixed point.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "$ref": "#/components/schemas/ArtifactID-Input"
           },
           "kind": {
             "default": "foundry.feedback_jacobian_diagnostics",
@@ -17121,7 +17198,7 @@
         "description": "Artifact reference for the top-level feedback solve result.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "$ref": "#/components/schemas/ArtifactID-Input"
           },
           "kind": {
             "default": "foundry.feedback_result",
@@ -20375,6 +20452,30 @@
         "title": "HumanDecisionSubmissionSurface",
         "type": "object"
       },
+      "IdentifiabilityDiagnosticRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for aggregate-moment identifiability diagnostics.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.identifiability_diagnostic",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "IdentifiabilityDiagnosticRef",
+        "type": "object"
+      },
       "IndexStats": {
         "additionalProperties": false,
         "description": "Report catalog index size, source coverage, and last-update counters.",
@@ -22859,6 +22960,78 @@
           "dataset_id"
         ],
         "title": "MetricCandidate",
+        "type": "object"
+      },
+      "MetricObservationBundleRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for per-example observations required for formal metric validation.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.metric_observation_bundle",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "MetricObservationBundleRef",
+        "type": "object"
+      },
+      "MetricValidationReportRef": {
+        "additionalProperties": false,
+        "description": "Reference to a stored formal metric-validation report artifact.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "scientist.metric_validation_report",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "MetricValidationReportRef",
+        "type": "object"
+      },
+      "MetricsRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the scalar metrics emitted by a Foundry execution.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.metrics",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "MetricsRef",
         "type": "object"
       },
       "MobilityBoundsRequest": {
@@ -33538,12 +33711,284 @@
         ],
         "type": "string"
       },
+      "SimulationResult": {
+        "additionalProperties": false,
+        "description": "Top-level execution artifact tying plans, metrics, traces, and optional reports together.",
+        "properties": {
+          "distributional_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DistributionalReportRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "environment_fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Environment Fingerprint"
+          },
+          "environment_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnvironmentManifestRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "exec_plan_ref": {
+            "$ref": "#/components/schemas/ExecPlanRef-Output"
+          },
+          "fairness_audit_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FairnessAuditReportRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feedback_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FeedbackResultRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "identifiability_diagnostic_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IdentifiabilityDiagnosticRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metric_observation_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricObservationBundleRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metric_validation_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricValidationReportRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metrics_ref": {
+            "$ref": "#/components/schemas/MetricsRef"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "propagation_config_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "propagation_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "default": "1.3",
+            "pattern": "^\\d+\\.\\d+$",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "state_snapshot_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StateSnapshotRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_slice_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceSliceRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uncertainty_envelopes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/UncertaintyEnvelopeRef"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty Envelopes"
+          },
+          "welfare_bound_refs": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/WelfareBoundReportRef"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Welfare Bound Refs"
+          },
+          "welfare_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WelfareBundleRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "exec_plan_ref",
+          "metrics_ref"
+        ],
+        "title": "SimulationResult",
+        "type": "object"
+      },
+      "SimulationResultCandidateResponse": {
+        "additionalProperties": false,
+        "description": "Response envelope for the candidate-only simulation-result debug route.",
+        "properties": {
+          "debug": {
+            "$ref": "#/components/schemas/SimulationResultCandidateView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "debug"
+        ],
+        "title": "SimulationResultCandidateResponse",
+        "type": "object"
+      },
+      "SimulationResultCandidateView": {
+        "additionalProperties": false,
+        "description": "Candidate-only simulation result bound to one persisted run node.\n\nThis projection is intentionally not an authority envelope.  It exposes a\ncontent-addressed ``SimulationResult`` for debugging a later node failure\nonly after the run state, workflow node, expected artifact manifest, and\nCAS bytes have been reconciled.",
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "authority_status": {
+            "const": "non_authority",
+            "default": "non_authority",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "integrity_status": {
+            "const": "verified",
+            "default": "verified",
+            "title": "Integrity Status",
+            "type": "string"
+          },
+          "node_alias": {
+            "title": "Node Alias",
+            "type": "string"
+          },
+          "node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Id"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "projection_class": {
+            "const": "candidate_reference_only",
+            "default": "candidate_reference_only",
+            "title": "Projection Class",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "simulation_result": {
+            "$ref": "#/components/schemas/SimulationResult"
+          }
+        },
+        "required": [
+          "run_id",
+          "node_alias",
+          "artifact_ref",
+          "simulation_result"
+        ],
+        "title": "SimulationResultCandidateView",
+        "type": "object"
+      },
       "SimulationResultRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the top-level simulation result bundle returned by Foundry.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "$ref": "#/components/schemas/ArtifactID-Input"
           },
           "kind": {
             "default": "foundry.simulation_result",
@@ -33891,6 +34336,30 @@
           "meta"
         ],
         "title": "SourceProfilesListResponse",
+        "type": "object"
+      },
+      "StateSnapshotRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for a persisted state snapshot emitted by a simulation.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.state_snapshot",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "StateSnapshotRef",
         "type": "object"
       },
       "StructuralRouteProjection": {
@@ -34641,6 +35110,30 @@
         "title": "TimeSemantics",
         "type": "object"
       },
+      "TraceSliceRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the structured execution trace slice captured during a run.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.trace_slice",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/jsonl",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "TraceSliceRef",
+        "type": "object"
+      },
       "TypedGap": {
         "additionalProperties": false,
         "description": "Typed gap state for explicit waivers and unknowns in the trust envelope.",
@@ -34843,6 +35336,32 @@
           }
         },
         "title": "UnavailableRunPaperStageTrace",
+        "type": "object"
+      },
+      "UncertaintyEnvelopeRef": {
+        "additionalProperties": false,
+        "description": "Stable handle for a persisted uncertainty envelope produced by estimators and read by reporting layers.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/polisyos__ir__artifacts__contracts__ArtifactID"
+          },
+          "kind": {
+            "const": "ir.uncertainty_envelope",
+            "default": "ir.uncertainty_envelope",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "UncertaintyEnvelopeRef",
         "type": "object"
       },
       "UnitRef-Input": {
@@ -35155,6 +35674,56 @@
         "title": "VerificationMetadata",
         "type": "object"
       },
+      "WelfareBoundReportRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for a mechanism-level welfare-loss certificate.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "foundry.welfare_bound_report",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "WelfareBoundReportRef",
+        "type": "object"
+      },
+      "WelfareBundleRef": {
+        "additionalProperties": false,
+        "description": "Stable handle for persisted welfare aggregation summaries.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/polisyos__ir__artifacts__contracts__ArtifactID"
+          },
+          "kind": {
+            "const": "ir.welfare_bundle",
+            "default": "ir.welfare_bundle",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "WelfareBundleRef",
+        "type": "object"
+      },
       "WorkflowRunRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs — launch a workflow run.",
@@ -35289,6 +35858,11 @@
         ],
         "title": "WorkflowRunRequest",
         "type": "object"
+      },
+      "polisyos__core__artifacts__ids__ArtifactID": {
+        "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+        "title": "ArtifactID",
+        "type": "string"
       },
       "polisyos__core__contracts__runtime__LineageRef-Output": {
         "additionalProperties": false,
@@ -35686,6 +36260,11 @@
         ],
         "title": "UnitRef",
         "type": "object"
+      },
+      "polisyos__ir__artifacts__contracts__ArtifactID": {
+        "description": "IR-local artifact ID model compatible with CAS interfaces.",
+        "title": "ArtifactID",
+        "type": "string"
       }
     }
   },
@@ -51932,6 +52511,299 @@
         ]
       }
     },
+    "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result": {
+      "get": {
+        "description": "Read a verified candidate result without opening generic authority surfaces.",
+        "operationId": "get_node_simulation_result_candidate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "alias",
+            "required": true,
+            "schema": {
+              "title": "Alias",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "artifact_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Artifact Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_node_simulation_result_candidate response example",
+                    "value": {
+                      "debug": {
+                        "artifact_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "foundry.simulation_result",
+                          "media_type": "application/json"
+                        },
+                        "authority_status": "non_authority",
+                        "integrity_status": "verified",
+                        "node_alias": "run_simulation",
+                        "node_id": "scientist.node_run_simulation@1.0.0",
+                        "notes": [
+                          "candidate_reference_only",
+                          "not_an_authority_envelope",
+                          "generic_artifact_authority_routes_remain_blocked"
+                        ],
+                        "projection_class": "candidate_reference_only",
+                        "run_id": "R_core_api_001",
+                        "simulation_result": {
+                          "exec_plan_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "foundry.exec_plan",
+                            "media_type": "application/json"
+                          },
+                          "metrics_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "foundry.metrics",
+                            "media_type": "application/json"
+                          },
+                          "notes": [
+                            "candidate reference only"
+                          ],
+                          "schema_version": "1.3"
+                        }
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationResultCandidateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Node Simulation Result Candidate",
+        "tags": [
+          "runtime-debug"
+        ]
+      }
+    },
     "/api/v1/exports/channel-registry": {
       "get": {
         "operationId": "get_runtime_channel_registry",
@@ -56015,18 +56887,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:dc63f0db97b603f1c7977cb5eb5839aef1be0a13c0523707ce3c779a69688d4b",
+                      "projection_hash": "sha256:b4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Adc63f0db97b603f1c7977cb5eb5839aef1be0a13c0523707ce3c779a69688d4b&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Acb3d615fd1e31f30269d5985880c65393a712586b319b4b3661da5efee99a9ab",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ab4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ab72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:dc63f0db97b603f1c7977cb5eb5839aef1be0a13c0523707ce3c779a69688d4b",
+                        "projection_hash": "sha256:b4bb7252ff9900fe04ae9641cc72785c8a1de0f6895cb81ba238903512344599",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:cb3d615fd1e31f30269d5985880c65393a712586b319b4b3661da5efee99a9ab"
+                        "source_dependency_hash": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -56035,8 +56907,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:cb3d615fd1e31f30269d5985880c65393a712586b319b4b3661da5efee99a9ab",
-                          "bound_dependency_count": 6372,
+                          "bound_dependency_aggregate_identity": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
+                          "bound_dependency_count": 6491,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -56051,16 +56923,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:efc3d86cb80e74c644827166907040ced7e03c6250854fe512b67e0a60b1a51f"
+                          "worker_validation_receipt_hash": "sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:cb3d615fd1e31f30269d5985880c65393a712586b319b4b3661da5efee99a9ab",
+                      "source_dependency_hash": "sha256:b72822e02243c4638379a401cfe5f3bcd5944c1089786623cc072b622e445e72",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:efc3d86cb80e74c644827166907040ced7e03c6250854fe512b67e0a60b1a51f",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:efc3d86cb80e74c644827166907040ced7e03c6250854fe512b67e0a60b1a51f"
+                      "worker_validation_receipt_hash": "sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:390debf483186c032f508c5e5b623416bc0304e3ad62fb8f484f4f2ca134c771"
                     }
                   }
                 },

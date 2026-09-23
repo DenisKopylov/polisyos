@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
@@ -98,6 +99,51 @@ def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -
     assert store.get_manifest(snapshot_ref.artifact_id).artifact_schema == SchemaInfo(
         name="polisyos.core.StateSnapshot", version="2.1.0"
     )
+
+
+def test_tenant_scoped_snapshot_creation_accepts_absent_blob(tmp_path) -> None:
+    """A missing deterministic blob falls through before ownership lookup."""
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+
+    snapshot_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=1, n_firms=1),
+        step=0,
+    )
+
+    snapshot = load_model(store, snapshot_ref, StateSnapshot)
+    blob_path, manifest_path = store.get_paths(snapshot.state_ref.artifact_id)
+    assert blob_path.is_file()
+    assert manifest_path.is_file()
+
+
+def test_tenant_scoped_snapshot_deduplicates_foreign_owned_blob_after_denied_probe(
+    tmp_path,
+) -> None:
+    """An explicit re-put claims a compatible shared blob after read denial."""
+    cas_root = tmp_path / "cas"
+    state = GlobalState.empty(n_agents=1, n_firms=1)
+    foreign_store = FileSystemCAS(cas_root, tenant_id="tenant-b", cell_id="cell-b")
+    foreign_snapshot_ref = put_state_snapshot(foreign_store, state=state, step=0)
+    foreign_snapshot = load_model(foreign_store, foreign_snapshot_ref, StateSnapshot)
+    foreign_blob_id = foreign_snapshot.state_ref.artifact_id
+
+    tenant_store = FileSystemCAS(cas_root, tenant_id="tenant-a", cell_id="cell-a")
+    assert tenant_store.has(foreign_blob_id) is False
+    with pytest.raises(ArtifactOwnershipError):
+        tenant_store.get_bytes(foreign_blob_id)
+
+    tenant_snapshot_ref = put_state_snapshot(tenant_store, state=state, step=0)
+    tenant_snapshot = load_model(tenant_store, tenant_snapshot_ref, StateSnapshot)
+
+    assert tenant_snapshot.state_ref.artifact_id == foreign_blob_id
+    assert tenant_store.has(foreign_blob_id)
+    assert foreign_store.has(foreign_blob_id)
+    assert tenant_store.get_bytes(foreign_blob_id) == foreign_store.get_bytes(foreign_blob_id)
 
 
 def test_state_blob_is_content_only_while_wrapper_preserves_lineage(tmp_path) -> None:
@@ -390,23 +436,37 @@ def test_legacy_state_blob_profile_mismatch_other_than_inputs_stays_strict(tmp_p
     source_snapshot = load_model(canonical_source, source_snapshot_ref, StateSnapshot)
     blob_bytes = canonical_source.get_bytes(source_snapshot.state_ref.artifact_id)
 
-    store = FileSystemCAS(tmp_path / "legacy-target")
-    store.put_bytes(
+    cas_root = tmp_path / "legacy-target"
+    foreign_store = FileSystemCAS(cas_root, tenant_id="tenant-b", cell_id="cell-b")
+    foreign_input_ref = foreign_store.put_bytes(
+        b"foreign legacy input",
+        PutOptions(kind="foundry.legacy_input", media_type="application/octet-stream"),
+    )
+    foreign_blob_ref = foreign_store.put_bytes(
         blob_bytes,
         PutOptions(
             kind="foundry.state_blob",
             media_type="application/x-legacy-npz",
             inputs=[
                 InputRef(
-                    artifact_id=ArtifactID.from_sha256_hex("3" * 64),
+                    artifact_id=foreign_input_ref.artifact_id,
                     role="base_state",
                 )
             ],
         ),
     )
+    tenant_store = FileSystemCAS(cas_root, tenant_id="tenant-a", cell_id="cell-a")
+
+    assert tenant_store.has(foreign_blob_ref.artifact_id) is False
+    with pytest.raises(ArtifactOwnershipError):
+        tenant_store.get_bytes(foreign_blob_ref.artifact_id)
 
     with pytest.raises(ValueError, match="manifest profile conflict"):
-        put_state_snapshot(store, state=state, step=3)
+        put_state_snapshot(tenant_store, state=state, step=3)
+
+    assert tenant_store.has(foreign_blob_ref.artifact_id) is False
+    assert foreign_store.has(foreign_blob_ref.artifact_id)
+    assert foreign_store.get_bytes(foreign_blob_ref.artifact_id) == blob_bytes
 
 
 def test_corrupt_legacy_state_blob_fails_closed(tmp_path) -> None:

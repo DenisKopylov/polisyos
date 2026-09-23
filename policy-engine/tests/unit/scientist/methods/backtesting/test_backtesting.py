@@ -14,7 +14,10 @@ from polisyos.ir.artifacts import (
     normalize_artifact_ref,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+from polisyos.scientist.methods.backtesting.orchestrator import (
+    BacktestOrchestrator,
+    TrustScreeningMode,
+)
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 
@@ -205,6 +208,38 @@ def test_backtesting_scientist_fallback_marks_report_degraded(tmp_path) -> None:
     assert report.trust_eligible is False
     assert report.trust_score is None
     assert report.degraded_reasons
+
+
+def test_predictive_trust_screening_only_denies_trust(tmp_path) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps({"metric": [1.0, 2.0, 3.0, 4.0]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="predictive-screening",
+        historical_data_path=str(history_path),
+        intervention_step=2,
+        target_metrics=["metric"],
+        ground_truth_outcomes={"metric": [3.0, 4.0]},
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [3.0, 4.0]},
+    )
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    default_report = orchestrator.run([plan], report_id="predictive-screening-default")
+    screened_report = orchestrator.run(
+        [plan],
+        report_id="predictive-screening-limited",
+        trust_screening=TrustScreeningMode.PREDICTIVE_ONLY_BRIDGE_PENDING,
+    )
+
+    assert default_report.trust_eligible is True
+    assert default_report.trust_score is not None
+    assert screened_report.trust_eligible is False
+    assert screened_report.trust_score is None
+    assert (
+        "trust_screening:predictive_only_bridge_pending"
+        in screened_report.degraded_reasons
+    )
+    assert screened_report.metadata["trust_screening"] == "predictive_only_bridge_pending"
 
 
 def test_backtesting_orchestrator_accepts_injected_store_factory(monkeypatch, tmp_path) -> None:

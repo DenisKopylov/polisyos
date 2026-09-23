@@ -33,6 +33,8 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     ReconciliationMethod,
 )
 
+_ETS_PARAMETER_FLOOR = 1e-6
+
 
 def _series(state: Any, *, key: str = "series") -> np.ndarray:
     values = state.get(key) if isinstance(state, Mapping) else state
@@ -44,6 +46,44 @@ def _series(state: Any, *, key: str = "series") -> np.ndarray:
     if np.any(~np.isfinite(arr)):
         raise ValueError(f"{key} must contain only finite values")
     return arr
+
+
+def _target_id(state: Any) -> str:
+    """Resolve the caller-owned target identity carried by a forecast state."""
+
+    target = state.get("target_id", "series") if isinstance(state, Mapping) else "series"
+    if not isinstance(target, str) or not target or target != target.strip():
+        raise ValueError("target_id must be a non-empty string without surrounding whitespace")
+    return target
+
+
+def _ets_parameter(params: Mapping[str, Any], name: str, default: float) -> float:
+    """Resolve an ETS parameter without silently changing its effective value."""
+
+    try:
+        value = float(params.get(name, default))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{name} must be numeric") from exc
+    if not np.isfinite(value) or value < _ETS_PARAMETER_FLOOR:
+        raise ValueError(f"{name} must be finite and >= {_ETS_PARAMETER_FLOOR:g}")
+    return float(np.clip(value, _ETS_PARAMETER_FLOOR, 1.0))
+
+
+def _calibration_nominal_coverage(state: Any, params: Mapping[str, Any]) -> float:
+    """Resolve the admitted predictive-coverage level for the uncertainty producer."""
+
+    value = (
+        state.get("calibration_nominal_coverage", 0.90)
+        if isinstance(state, Mapping)
+        else params.get("calibration_nominal_coverage", 0.90)
+    )
+    try:
+        nominal = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("calibration_nominal_coverage must be numeric") from exc
+    if not np.isfinite(nominal) or not 0.0 < nominal < 1.0:
+        raise ValueError("calibration_nominal_coverage must be strictly between zero and one")
+    return nominal
 
 
 def _holt_linear(series: np.ndarray, *, alpha: float, beta: float) -> tuple[float, float]:
@@ -249,8 +289,10 @@ class ExponentialSmoothingEstimator:
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
         series = _series(state)
         horizon = max(1, int(params.get("horizon", 6)))
-        alpha = float(np.clip(float(params.get("alpha", 0.3)), 1e-6, 1.0))
-        beta = float(np.clip(float(params.get("beta", 0.1)), 1e-6, 1.0))
+        alpha = _ets_parameter(params, "alpha", 0.3)
+        beta = _ets_parameter(params, "beta", 0.1)
+        target_id = _target_id(state)
+        nominal_coverage = _calibration_nominal_coverage(state, params)
         artifact_store = resolve_artifact_store(
             state if isinstance(state, Mapping) else None, params
         )
@@ -259,7 +301,7 @@ class ExponentialSmoothingEstimator:
             "result": result,
             "forecasting_uncertainty_bundle": build_residual_conformal_bundle(
                 method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
-                target_id="series",
+                target_id=target_id,
                 history=series,
                 point_forecast=np.asarray(result["forecast"], dtype=float),
                 forecast_fn=lambda train, h: np.asarray(
@@ -273,6 +315,7 @@ class ExponentialSmoothingEstimator:
                     "Phase 0 keeps exponential smoothing on residual conformal intervals; "
                     "state-space ETS parametric intervals remain a future upgrade."
                 ),
+                nominal_coverage=nominal_coverage,
                 artifact_store=artifact_store,
             ),
         }

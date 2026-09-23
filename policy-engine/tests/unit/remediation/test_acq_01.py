@@ -785,11 +785,36 @@ def _real_acq01_route(
                 }
             ],
             "acq01_route": {
+                "route_schema_version": "policyos.runtime.acq01_route.v1",
                 "capture_store_root": str(store.root),
                 "measurement_root": measurement_root.model_dump(mode="json"),
                 "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
                 "registry_ref": admission.registry_ref.model_dump(mode="json"),
                 "registry": admission.registry.model_dump(mode="json"),
+                "build_inputs": {
+                    "fabric_world_ref": _fabric_ref(
+                        world_root,
+                        snapshot_id=snapshot_id,
+                    ).model_dump(mode="json"),
+                    "data_forge_snapshot_binding_path": str(data_forge_binding_path),
+                    "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
+                    "model_spec": model_spec.model_dump(mode="json"),
+                    "skg_causal_prior_ref": _skg_ref(
+                        world_root,
+                        snapshot_id=snapshot_id,
+                    ).model_dump(mode="json"),
+                    "region_or_jurisdiction": "UA-30",
+                    "population_scope": "recorded_file_tabular_fixture",
+                    "policy_domain": "fiscal_credit",
+                    "valid_time_scope": "2026-09-22/2026-09-22",
+                    "tx_time_scope": "2026-09-22T00:00:00+00:00",
+                    "resolution": "row",
+                    "branch_mode": BranchMode.OBSERVED.value,
+                    "policy_slot_ids": ["agents.income", "government.balance"],
+                    "producer_ref": "tests.unit.remediation.test_acq_01.real_route",
+                    "data_forge_role": "academic",
+                    "required_substrate_families": ["metric.test"],
+                },
             },
         }
         owner_artifact = AcquisitionOwnerArtifact.from_payload(

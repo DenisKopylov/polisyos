@@ -261,10 +261,21 @@ class DebugService:
                     "simulation_result_ref_missing",
                     "The run state has no persisted simulation result reference",
                 )
-            if not _artifact_ref_matches_any(state_ref, node_bound_refs):
+            node_refs_with_state_id = tuple(
+                ref for ref in node_bound_refs if ref.artifact_id == state_ref.artifact_id
+            )
+            if not node_refs_with_state_id:
                 raise SimulationResultProjectionError(
                     "simulation_result_node_binding_missing",
                     "The named workflow node is not bound to the exact run simulation result ref",
+                )
+            if not any(
+                ref.kind == state_ref.kind and ref.media_type == state_ref.media_type
+                for ref in node_refs_with_state_id
+            ):
+                raise SimulationResultProjectionError(
+                    "simulation_result_node_binding_mismatch",
+                    "The named workflow node carries a conflicting simulation result ref",
                 )
             requested_id = state_ref.artifact_id
         elif not any(ref.artifact_id == requested_id for ref in node_bound_refs):

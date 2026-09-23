@@ -518,6 +518,10 @@ def test_real_l4_builder_reuses_exact_registry_ref_without_catalog_rebuild_or_pa
     )
 
     assert reused.substrate_registry_ref == baseline.substrate_registry_ref
+    assert reused.world_model.record.world_model_record_id == (
+        baseline.world_model.record.world_model_record_id
+    )
+    assert reused.world_model.record.content_hash == baseline.world_model.record.content_hash
     assert reused.world_model.record.substrate_registry_ref.registry_artifact_ref == str(
         baseline.substrate_registry_ref.artifact_id
     )

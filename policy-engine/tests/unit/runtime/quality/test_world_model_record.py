@@ -61,6 +61,7 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    load_substrate_registry,
     persist_substrate_registry,
     register_substrate_entry,
 )
@@ -723,16 +724,28 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
     store, built, persisted_registry_ref = _build_record_with_substrate_registry_ref(tmp_path)
 
     read_back = load_world_model_record(store, built.record_ref)
-    manifest = store.get_manifest(built.record_ref)
+    persisted_registry = load_substrate_registry(store, persisted_registry_ref)
+    manifest = store.get_manifest(built.record_ref.artifact_id)
+    registry_edges = [
+        input_ref
+        for input_ref in manifest.inputs
+        if input_ref.role == "input.substrate_registry_ref"
+    ]
+    projection = read_back.substrate_registry_ref
 
     assert read_back == built.record
-    assert read_back.substrate_registry_ref.registry_artifact_ref == str(
-        persisted_registry_ref.artifact_id
-    )
-    assert (
-        str(persisted_registry_ref.artifact_id),
-        "input.substrate_registry_ref",
-    ) in {(str(input_ref.artifact_id), input_ref.role) for input_ref in manifest.inputs}
+    assert projection.registry_artifact_ref == str(persisted_registry_ref.artifact_id)
+    assert projection.substrate_version_id == persisted_registry.substrate_version_id
+    assert projection.content_hash == persisted_registry.content_hash
+    assert {
+        (entry.source_id, entry.family_id, entry.entry_content_hash)
+        for entry in projection.resolved_entries
+    } == {
+        (entry.source_id, entry.family_id, entry.entry_content_hash)
+        for entry in persisted_registry.entries
+    }
+    assert len(registry_edges) == 1
+    assert str(registry_edges[0].artifact_id) == str(persisted_registry_ref.artifact_id)
 
 
 def test_world_model_record_rejects_non_cas_registry_ref(tmp_path: Path) -> None:

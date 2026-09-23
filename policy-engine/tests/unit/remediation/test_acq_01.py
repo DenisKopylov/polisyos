@@ -716,6 +716,7 @@ def _real_acq01_route(
         )
 
         world_root = tmp_path / "fresh-world"
+        world_root.mkdir(parents=True, exist_ok=True)
         _write_fabric_world_snapshot(world_root, snapshot_id=snapshot_id)
         data_forge_binding_path = _write_data_forge_binding(
             world_root,

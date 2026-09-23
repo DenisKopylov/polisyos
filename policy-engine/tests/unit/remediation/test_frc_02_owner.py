@@ -276,7 +276,7 @@ def test_real_ets_owner_rejects_missing_model_policy_cas_binding_before_derived_
     missing_model_id = "sha256:" + ("f" * 64)
     before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
 
-    with pytest.raises(ValueError, match="missing|manifest|CAS|artifact"):
+    with pytest.raises(ValueError, match=r"missing|manifest|CAS|artifact"):
         ForecastOwner(store).run(
             _request(
                 source_ref,
@@ -304,7 +304,7 @@ def test_real_ets_owner_rejects_wrong_model_manifest_profile_before_derived_writ
     policy_ref = _spec(store, kind="ir.policy_spec", spec_id="frc-owner-policy")
     before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
 
-    with pytest.raises(ValueError, match="kind|media|manifest|content-bound|profile"):
+    with pytest.raises(ValueError, match=r"kind|media|manifest|content-bound|profile"):
         ForecastOwner(store).run(
             _request(
                 source_ref,
@@ -366,19 +366,19 @@ def test_owner_rejects_incomplete_or_same_model_policy_pair_and_duplicate_inputs
         role="observed_source",
     )
 
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-partial").model_dump(
+        mode="python"
+    )
+    payload["model_spec_ref"] = str(source_ref.artifact_id)
     with pytest.raises(ValueError, match="model/policy"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-partial").model_dump(
-            mode="python"
-        )
-        payload["model_spec_ref"] = str(source_ref.artifact_id)
         ForecastOwnerRequest.model_validate(payload)
 
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-complete").model_dump(
+        mode="python"
+    )
+    payload["model_spec_ref"] = str(source_ref.artifact_id)
+    payload["policy_spec_ref"] = str(source_ref.artifact_id)
     with pytest.raises(ValueError, match="distinct"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-complete").model_dump(
-            mode="python"
-        )
-        payload["model_spec_ref"] = str(source_ref.artifact_id)
-        payload["policy_spec_ref"] = str(source_ref.artifact_id)
         ForecastOwnerRequest.model_validate(payload)
 
     with pytest.raises(ValueError, match="duplicate"):
@@ -429,7 +429,7 @@ def test_owner_rejects_unadmitted_calibration_rule(
     source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
     rule_ref = _rule(store, payload_updates=payload_updates, kind=kind)
 
-    with pytest.raises(ValueError, match="calibration rule|artifact kind"):
+    with pytest.raises(ValueError, match=r"calibration rule|artifact kind"):
         ForecastOwner(store).run(
             _request(source_ref, rule_ref, report_id="frc-owner-invalid-rule")
         )
@@ -442,9 +442,9 @@ def test_owner_rejects_naive_or_collapsed_temporal_roles(tmp_path: Path) -> None
     roles = _temporal_roles().model_dump(mode="python")
     roles["observation_time"] = datetime(2026, 1, 1)
 
-    with pytest.raises(ValueError, match="timezone|distinct"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(
-            mode="python"
-        )
-        payload["temporal_roles"] = roles
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(
+        mode="python"
+    )
+    payload["temporal_roles"] = roles
+    with pytest.raises(ValueError, match=r"timezone|distinct"):
         ForecastOwnerRequest.model_validate(payload)

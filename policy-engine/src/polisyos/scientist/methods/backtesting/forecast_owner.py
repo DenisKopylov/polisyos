@@ -18,6 +18,7 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from polisyos.calibration import evaluate_continuous
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
@@ -64,7 +65,6 @@ from polisyos.scientist.methods.backtesting.plan import (
     HistoricalValidationPlan,
     PredictionSource,
 )
-from polisyos.calibration import evaluate_continuous
 
 METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
 PREDICTIVE_INTERVAL_COVERAGE = "predictive_interval_coverage"

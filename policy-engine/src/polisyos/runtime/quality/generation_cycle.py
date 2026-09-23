@@ -136,7 +136,10 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 
 if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
+    from polisyos.pdc import ArtifactEnvelope
+    from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import (
@@ -4459,11 +4462,11 @@ class GenerationCycleController:
         self,
         problem: DesignProblem,
         *,
-        measurement_root: Any,
+        measurement_root: ArtifactEnvelope,
         measurement_payload_ref: CASArtifactRef,
         data_snapshot_ref: CASArtifactRef,
         store: FileSystemCAS,
-    ) -> Any:
+    ) -> FabricMeasurementRootPayload:
         """Recheck the complete same-store custody chain before rebuilding a WMR.
 
         The route envelope is only a projection supplied by an acquisition
@@ -4706,8 +4709,14 @@ class GenerationCycleController:
                 providers = runtime_hints.get("measurement_root_providers")
             if providers is None:
                 gateway = self._acquisition_owner_gateway
-                providers = getattr(gateway, "providers", None) or getattr(gateway, "_providers", None)
-            resolver = getattr(self._acquisition_owner_gateway, "resolve_measurement_root_evidence", None)
+                providers = getattr(gateway, "providers", None) or getattr(
+                    gateway, "_providers", None
+                )
+            resolver = getattr(
+                self._acquisition_owner_gateway,
+                "resolve_measurement_root_evidence",
+                None,
+            )
             resolved_evidence = None
             if callable(resolver) and catalog is not None:
                 resolved_evidence = resolver(
@@ -4746,8 +4755,8 @@ class GenerationCycleController:
         self,
         *,
         route: Mapping[str, Any],
-        owner_artifact: Any,
-        payload: Any,
+        owner_artifact: AcquisitionOwnerArtifact,
+        payload: Mapping[str, Any],
         acquisition_receipt: AcquisitionReceipt,
         registry_ref: CASArtifactRef,
         registry: SubstrateRegistry,
@@ -4851,7 +4860,10 @@ class GenerationCycleController:
                 entry.snapshot_id != registration.snapshot_id
                 or entry.source_snapshot_id != registration.source_snapshot_id
                 or not any(ref == f"cas://{root_payload_ref}" for ref in entry.provenance_refs)
-                or not all(ref in registry.source_catalog_refs for ref in registration.authority_refs)
+                or not all(
+                    ref in registry.source_catalog_refs
+                    for ref in registration.authority_refs
+                )
             ):
                 raise ValueError("registry MeasurementRoot lineage is not bound")
 
@@ -4890,7 +4902,10 @@ class GenerationCycleController:
                 or len(actual_inputs) > 4
                 or len({(str(item.artifact_id), item.role) for item in actual_inputs})
                 != len(actual_inputs)
-                or (len(actual_inputs) == 4 and actual_inputs[3].role != "baseline_substrate_registry")
+                or (
+                    len(actual_inputs) == 4
+                    and actual_inputs[3].role != "baseline_substrate_registry"
+                )
             ):
                 raise ValueError("registry manifest lineage is not bound")
         except (OSError, TypeError, ValueError, RuntimeError, KeyError) as exc:

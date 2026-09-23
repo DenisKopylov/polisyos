@@ -571,6 +571,8 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         report_ref_media_type: str | None = None,
         node_ref_kind: str | None = None,
         node_ref_media_type: str | None = None,
+        node_ref_conflicting_kind: str | None = None,
+        node_ref_conflicting_media_type: str | None = None,
     ) -> Any:
         nonlocal rebound_fixture_counter
         rebound_fixture_counter += 1
@@ -655,6 +657,22 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                     else ref
                     for ref in node_artifacts
                 ]
+            if (
+                node_ref_conflicting_kind is not None
+                or node_ref_conflicting_media_type is not None
+            ):
+                node_artifacts.append(
+                    candidate_ref.model_copy(
+                        update={
+                            key: value
+                            for key, value in {
+                                "kind": node_ref_conflicting_kind,
+                                "media_type": node_ref_conflicting_media_type,
+                            }.items()
+                            if value is not None
+                        }
+                    )
+                )
             rebound_nodes.append(node.model_copy(update={"artifacts": node_artifacts}))
         report_options = PutOptions(
             kind="scientist.workflow_report",
@@ -837,6 +855,14 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             ),
             alias="run_simulation",
         )
+    with pytest.raises(SimulationResultProjectionError) as mixed_node_ref_error:
+        runtime_context.debug.get_simulation_result_candidate(
+            _run_rebound_to(
+                simulation_ref,
+                node_ref_conflicting_kind="wrong.binding_kind",
+            ),
+            alias="run_simulation",
+        )
     with pytest.raises(SimulationResultProjectionError) as state_payload_schema_error:
         runtime_context.debug.get_simulation_result_candidate(
             _run_rebound_to(
@@ -875,6 +901,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     assert report_ref_media_error.value.code == "simulation_result_binding_ref_mismatch"
     assert node_ref_kind_error.value.code == "simulation_result_node_binding_mismatch"
     assert node_ref_media_error.value.code == "simulation_result_node_binding_mismatch"
+    assert mixed_node_ref_error.value.code == "simulation_result_node_binding_mismatch"
     assert state_payload_schema_error.value.code == "simulation_result_binding_schema_mismatch"
     assert report_payload_schema_error.value.code == "simulation_result_binding_schema_mismatch"
 

@@ -269,8 +269,8 @@ class DebugService:
                     "simulation_result_node_binding_missing",
                     "The named workflow node is not bound to the exact run simulation result ref",
                 )
-            if not any(
-                ref.kind == state_ref.kind and ref.media_type == state_ref.media_type
+            if any(
+                ref.kind != state_ref.kind or ref.media_type != state_ref.media_type
                 for ref in node_refs_with_state_id
             ):
                 raise SimulationResultProjectionError(

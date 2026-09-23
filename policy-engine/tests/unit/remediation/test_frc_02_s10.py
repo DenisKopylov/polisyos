@@ -524,11 +524,18 @@ def _assert_gateway_blocked(
     if not isinstance(resolver, _CanonicalEvidenceResolver):
         resolver = _CanonicalEvidenceResolver(kwargs["store"])
         kwargs["resolver"] = resolver
+    result: Mapping[str, Any] | None = None
+    captured_exception: FileNotFoundError | KeyError | ValueError | None = None
     try:
         result = _produce_forecast_inputs(**kwargs)
     except (FileNotFoundError, KeyError, ValueError) as exc:
-        assert expected_code in str(exc).lower(), str(exc)
+        captured_exception = exc
+    if captured_exception is not None:
+        with pytest.raises((FileNotFoundError, KeyError, ValueError)) as exc_info:
+            raise captured_exception
+        assert expected_code in str(exc_info.value).lower(), str(exc_info.value)
     else:
+        assert result is not None
         support = result.get("forecast_support")
         assert support is not None
         assert support.forecast_tier == "blocked"
@@ -781,14 +788,14 @@ def test_predictive_denials_and_non_causal_family_survive_s10_projection(
     )
     support = result["forecast_support"]
     assert support.method_family == "foundry_forecast"
-    assert PREDICTIVE_AUTHORITY_DENIALS <= set(support.may_not_use_for)
+    assert set(support.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
     assert set(support.authority_boundary.authoritative_for) <= {
         "forecast_support_tiering",
         "observable_subset_calibration",
     }
     record = result.get("forecast_calibration_record")
     assert record is not None
-    assert PREDICTIVE_AUTHORITY_DENIALS <= set(record.may_not_use_for)
+    assert set(record.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
     assert resolver.trace[-1]["event"] == "loaded"
 
 

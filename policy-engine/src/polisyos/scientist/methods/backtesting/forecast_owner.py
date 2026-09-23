@@ -16,7 +16,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -56,7 +56,10 @@ from polisyos.ir.registry.refs import (
     BacktestReportRef,
     ForecastingUncertaintyBundleRef,
 )
-from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+from polisyos.scientist.methods.backtesting.orchestrator import (
+    BacktestOrchestrator,
+    TrustScreeningMode,
+)
 from polisyos.scientist.methods.backtesting.plan import (
     HistoricalValidationPlan,
     PredictionSource,
@@ -65,12 +68,10 @@ from polisyos.calibration import evaluate_continuous
 
 METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
 PREDICTIVE_INTERVAL_COVERAGE = "predictive_interval_coverage"
+CALIBRATION_RULE_ID = "rolling-origin-residual-conformal.v1"
+CALIBRATION_RULE_KIND = "ir.forecast_calibration_rule"
+_ETS_PARAMETER_FLOOR = 1e-6
 _MIN_TRAIN_OBSERVATIONS = 8
-_SUPPORTED_CALIBRATION_METHODS = {
-    "conformal",
-    "residual_conformal",
-    "rolling_origin_residual_conformal",
-}
 
 
 class TrainHoldoutSplit(BaseModel):
@@ -103,8 +104,8 @@ class ForecastMethodParams(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     horizon: int = Field(ge=1)
-    alpha: float = Field(gt=0.0, le=1.0, default=0.3)
-    beta: float = Field(gt=0.0, le=1.0, default=0.1)
+    alpha: float = Field(ge=_ETS_PARAMETER_FLOOR, le=1.0, default=0.3)
+    beta: float = Field(ge=_ETS_PARAMETER_FLOOR, le=1.0, default=0.1)
 
     @model_validator(mode="after")
     def _validate_finite(self) -> ForecastMethodParams:
@@ -152,18 +153,41 @@ class ForecastTemporalRoles(BaseModel):
         return self
 
 
+class CalibrationRuleArtifact(BaseModel):
+    """Strict internal v1 rule admitted by the ETS predictive owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"]
+    rule_id: Literal["rolling-origin-residual-conformal.v1"]
+    rule_version: Literal["1.0"]
+    estimand: Literal["predictive_interval_coverage"]
+    algorithm: Literal["rolling_origin_residual_conformal"]
+    nominal_coverage: float = Field(gt=0.0, lt=1.0)
+
+    @model_validator(mode="after")
+    def _validate_nominal_coverage(self) -> CalibrationRuleArtifact:
+        if not math.isfinite(self.nominal_coverage):
+            raise ValueError("nominal_coverage must be finite")
+        return self
+
+
 class CalibrationRuleBinding(BaseModel):
     """Identity plus CAS artifact for the predictive calibration rule."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    rule_id: str = Field(min_length=1)
+    rule_id: Literal["rolling-origin-residual-conformal.v1"]
     artifact_ref: ArtifactRefModel
 
     @model_validator(mode="after")
     def _validate_identity(self) -> CalibrationRuleBinding:
-        if self.rule_id != self.rule_id.strip():
-            raise ValueError("calibration rule identity must not have surrounding whitespace")
+        if self.artifact_ref.kind != CALIBRATION_RULE_KIND:
+            raise ValueError(
+                f"calibration rule artifact kind must be {CALIBRATION_RULE_KIND!r}"
+            )
+        if self.artifact_ref.media_type != "application/json":
+            raise ValueError("calibration rule artifact must use application/json")
         return self
 
 
@@ -192,14 +216,10 @@ class ForecastOwnerRequest(BaseModel):
             raise ValueError("target_metric must not have surrounding whitespace")
         if self.report_id != self.report_id.strip():
             raise ValueError("report_id must not have surrounding whitespace")
-        if (self.model_spec_ref is None) != (self.policy_spec_ref is None):
-            raise ValueError("model/policy specification refs must be supplied as a complete pair")
-        if (
-            self.model_spec_ref is not None
-            and self.policy_spec_ref is not None
-            and self.model_spec_ref == self.policy_spec_ref
-        ):
-            raise ValueError("model/policy specification refs must be distinct artifacts")
+        if self.model_spec_ref is not None or self.policy_spec_ref is not None:
+            raise ValueError(
+                "model/policy specification refs are unavailable until typed S10 binding"
+            )
         if self.method_params.horizon != self.split.horizon:
             raise ValueError("method horizon must match the explicit holdout horizon")
         seen: set[tuple[str, str]] = set()
@@ -286,19 +306,6 @@ def _resolve_json(
     return normalized, get_json_artifact(store, artifact_id)
 
 
-def _resolve_id(store: ArtifactStore, artifact_id: ArtifactID) -> ArtifactRefModel:
-    """Resolve a bare typed ID into a manifest-bound reference."""
-
-    ir_id = ArtifactID.model_validate(str(artifact_id))
-    manifest = store.get_manifest(str(ir_id))
-    store.get_bytes(str(ir_id))
-    return ArtifactRefModel(
-        artifact_id=ir_id,
-        kind=manifest.kind,
-        media_type=manifest.media_type,
-    )
-
-
 def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> None:
     """Resolve one lineage edge without treating its role as artifact metadata."""
 
@@ -347,20 +354,20 @@ def _rule_contract(
     payload: object,
     *,
     estimand: str,
-) -> float:
+) -> CalibrationRuleArtifact:
     if not isinstance(payload, Mapping):
         raise ValueError("calibration rule artifact must decode to an object")
-    if payload.get("rule_id") != binding.rule_id:
+    try:
+        rule = CalibrationRuleArtifact.model_validate(payload)
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise ValueError(
+            "calibration rule artifact violates the supported v1 contract"
+        ) from exc
+    if rule.rule_id != binding.rule_id:
         raise ValueError("calibration rule artifact identity does not match the request")
-    if payload.get("estimand") != estimand:
+    if rule.estimand != estimand:
         raise ValueError("calibration rule estimand does not match the request")
-    method = payload.get("method")
-    if method not in _SUPPORTED_CALIBRATION_METHODS:
-        raise ValueError("calibration rule method is not supported by the ETS owner")
-    nominal = _finite_scalar(payload.get("nominal_coverage"), field="nominal_coverage")
-    if not 0.0 < nominal < 1.0:
-        raise ValueError("nominal_coverage must be strictly between zero and one")
-    return nominal
+    return rule
 
 
 def _method_artifact(
@@ -432,6 +439,11 @@ class ForecastOwner:
     def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:
         """Execute and persist one fail-closed predictive owner result."""
 
+        if request.model_spec_ref is not None or request.policy_spec_ref is not None:
+            raise ValueError(
+                "model/policy specification refs are unavailable until typed S10 binding"
+            )
+
         observed_source_ref, snapshot_payload = _resolve_json(
             self._store,
             request.observed_source_ref,
@@ -453,24 +465,16 @@ class ForecastOwner:
         calibration_rule_ref, rule_payload = _resolve_json(
             self._store,
             request.calibration_rule.artifact_ref,
+            expected_kind=CALIBRATION_RULE_KIND,
         )
-        nominal_coverage = _rule_contract(
+        calibration_rule = _rule_contract(
             request.calibration_rule,
             rule_payload,
             estimand=request.estimand,
         )
-
+        nominal_coverage = calibration_rule.nominal_coverage
         model_spec_ref: ArtifactRefModel | None = None
         policy_spec_ref: ArtifactRefModel | None = None
-        if request.model_spec_ref is not None and request.policy_spec_ref is not None:
-            model_spec_ref = _resolve_id(
-                self._store,
-                request.model_spec_ref,
-            )
-            policy_spec_ref = _resolve_id(
-                self._store,
-                request.policy_spec_ref,
-            )
 
         train = values[request.split.train_start : request.split.train_end]
         holdout = values[request.split.holdout_start : request.split.holdout_end]
@@ -487,7 +491,12 @@ class ForecastOwner:
         dispatcher_result = MethodDispatcher.get_instance().dispatch(
             method_class=method_class,
             signature=method_class.signature,
-            state={"series": train, "artifact_store": self._store},
+            state={
+                "series": train,
+                "artifact_store": self._store,
+                "target_id": request.target_metric,
+                "calibration_nominal_coverage": nominal_coverage,
+            },
             params=params,
             seed=request.seed,
         )
@@ -517,6 +526,8 @@ class ForecastOwner:
             raise ValueError("ETS output did not contain a valid uncertainty bundle") from exc
         if bundle.method_fqn != METHOD_FQN:
             raise ValueError("uncertainty bundle method identity is not content-bound")
+        if bundle.target_id != request.target_metric:
+            raise ValueError("uncertainty bundle target identity disagrees with the request")
         if not math.isclose(bundle.nominal_coverage, nominal_coverage, rel_tol=0.0, abs_tol=1e-12):
             raise ValueError("uncertainty bundle nominal coverage disagrees with the rule artifact")
         if bundle.interval_semantics is not ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL:
@@ -549,7 +560,6 @@ class ForecastOwner:
 
         bundle = bundle.model_copy(
             update={
-                "target_id": request.target_metric,
                 "metadata": {
                     **bundle.metadata,
                     "target_metric": request.target_metric,
@@ -610,6 +620,21 @@ class ForecastOwner:
         persisted_bundle = load_forecasting_uncertainty_bundle(self._store, bundle_ref)
         if persisted_bundle.method_fqn != METHOD_FQN:
             raise ValueError("persisted uncertainty bundle lost its method binding")
+        if persisted_bundle.target_id != request.target_metric:
+            raise ValueError("persisted uncertainty bundle lost its target binding")
+        pit_ref = persisted_bundle.coverage_diagnostic.pit_summary_ref
+        if pit_ref is None:
+            raise ValueError("ETS uncertainty bundle lacks persisted PIT evidence")
+        _, pit_payload = _resolve_json(
+            self._store,
+            pit_ref,
+            expected_kind="ir.forecasting_pit_summary",
+        )
+        if (
+            not isinstance(pit_payload, Mapping)
+            or pit_payload.get("target_id") != request.target_metric
+        ):
+            raise ValueError("persisted PIT evidence lost its target binding")
 
         calibration = evaluate_continuous(
             y_true=holdout.tolist(),
@@ -712,6 +737,7 @@ class ForecastOwner:
             [plan],
             report_id=request.report_id,
             inputs=report_inputs,
+            trust_screening=TrustScreeningMode.PREDICTIVE_ONLY_BRIDGE_PENDING,
             metadata={
                 "estimand": request.estimand,
                 "authority_scope": "predictive_only",
@@ -729,6 +755,15 @@ class ForecastOwner:
         persisted_report: BacktestReport = load_backtest_report(self._store, report_ref)
         if persisted_report.report_id != request.report_id:
             raise ValueError("persisted backtest report lost its allocated report identity")
+        if persisted_report.trust_eligible or persisted_report.trust_score is not None:
+            raise ValueError(
+                "predictive-only bridge-pending backtest report cannot be trust eligible"
+            )
+        if (
+            "trust_screening:predictive_only_bridge_pending"
+            not in persisted_report.degraded_reasons
+        ):
+            raise ValueError("backtest report is missing the predictive trust limitation")
 
         suitability: Literal["supported", "limited", "blocked"]
         if calibration.has_errors() or not persisted_bundle.horizon_policy.gate_eligible:

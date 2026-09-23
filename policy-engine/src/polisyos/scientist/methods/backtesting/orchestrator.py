@@ -7,6 +7,7 @@ import math
 import uuid
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from enum import Enum
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -52,6 +53,13 @@ else:
 
 
 BacktestStoreFactory = Callable[[Path], BacktestStore]
+
+
+class TrustScreeningMode(str, Enum):
+    """Typed, downward-only trust limitation applied to a backtest report."""
+
+    DEFAULT = "default"
+    PREDICTIVE_ONLY_BRIDGE_PENDING = "predictive_only_bridge_pending"
 
 
 @dataclass(frozen=True)
@@ -220,6 +228,7 @@ class BacktestOrchestrator:
         report_id: str | None = None,
         inputs: Sequence[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
+        trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
     ) -> BacktestReport:
         """Execute every historical plan and persist the aggregated report in CAS.
 
@@ -234,6 +243,10 @@ class BacktestOrchestrator:
             generated_prefix="BT_",
             metadata=metadata,
         )
+        try:
+            resolved_trust_screening = TrustScreeningMode(trust_screening)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("trust_screening must be a supported typed mode") from exc
         manifest_inputs = _resolve_manifest_inputs(self._store, inputs)
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []
@@ -265,6 +278,7 @@ class BacktestOrchestrator:
             prediction_mode_requested=_collapse_modes(requested_modes),
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
+            trust_screening=resolved_trust_screening,
         )
         ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
         report.cas_artifact_id = str(ref.artifact_id)
@@ -772,6 +786,7 @@ class BacktestOrchestrator:
         prediction_mode_requested: str | None,
         prediction_mode_effective: str | None,
         degraded_reasons: list[str],
+        trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
     ) -> BacktestReport:
         def sufficient_statistics(
             scenario: BacktestScenario,
@@ -866,9 +881,13 @@ class BacktestOrchestrator:
         metadata_payload = dict(metadata)
         if interval_contracts:
             metadata_payload["interval_contracts"] = interval_contracts
+        if trust_screening is not TrustScreeningMode.DEFAULT:
+            metadata_payload["trust_screening"] = trust_screening.value
 
         biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+        if trust_screening is not TrustScreeningMode.DEFAULT:
+            all_degraded_reasons.append(f"trust_screening:{trust_screening.value}")
 
         model_spec_ref, policy_spec_ref, reference_issue = _consistent_plan_refs(plans)
         reference_issues = [reference_issue] if reference_issue is not None else []

@@ -70,6 +70,8 @@ METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
 PREDICTIVE_INTERVAL_COVERAGE = "predictive_interval_coverage"
 CALIBRATION_RULE_ID = "rolling-origin-residual-conformal.v1"
 CALIBRATION_RULE_KIND = "ir.forecast_calibration_rule"
+MODEL_SPEC_KIND = "ir.model_spec"
+POLICY_SPEC_KIND = "ir.policy_spec"
 _ETS_PARAMETER_FLOOR = 1e-6
 _MIN_TRAIN_OBSERVATIONS = 8
 
@@ -216,10 +218,14 @@ class ForecastOwnerRequest(BaseModel):
             raise ValueError("target_metric must not have surrounding whitespace")
         if self.report_id != self.report_id.strip():
             raise ValueError("report_id must not have surrounding whitespace")
-        if self.model_spec_ref is not None or self.policy_spec_ref is not None:
-            raise ValueError(
-                "model/policy specification refs are unavailable until typed S10 binding"
-            )
+        if (self.model_spec_ref is None) != (self.policy_spec_ref is None):
+            raise ValueError("model/policy specification refs must be supplied as a complete pair")
+        if (
+            self.model_spec_ref is not None
+            and self.policy_spec_ref is not None
+            and self.model_spec_ref == self.policy_spec_ref
+        ):
+            raise ValueError("model/policy specification refs must be distinct artifacts")
         if self.method_params.horizon != self.split.horizon:
             raise ValueError("method horizon must match the explicit holdout horizon")
         seen: set[tuple[str, str]] = set()
@@ -314,6 +320,77 @@ def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> None:
     if str(manifest.artifact_id) != str(artifact_id):
         raise ValueError("manifest input identity does not match the requested artifact")
     store.get_bytes(str(artifact_id))
+
+
+def _resolve_spec_ref(
+    store: ArtifactStore,
+    artifact_id: ArtifactID,
+    *,
+    role: Literal["model", "policy"],
+    expected_kind: str,
+) -> ArtifactRefModel:
+    """Resolve one model/policy ID to its exact canonical CAS manifest profile."""
+
+    resolved_id = ArtifactID.model_validate(str(artifact_id))
+    try:
+        manifest = store.get_manifest(resolved_id)
+    except FileNotFoundError as exc:
+        raise ValueError(f"{role} specification CAS binding is missing") from exc
+    if str(manifest.artifact_id) != str(resolved_id):
+        raise ValueError(
+            f"{role} specification manifest identity does not match the requested ID"
+        )
+    if manifest.kind != expected_kind:
+        raise ValueError(
+            f"{role} specification manifest kind mismatch: "
+            f"expected {expected_kind!r}, got {manifest.kind!r}"
+        )
+    if manifest.media_type != "application/json":
+        raise ValueError(
+            f"{role} specification manifest media type mismatch: "
+            f"expected 'application/json', got {manifest.media_type!r}"
+        )
+    try:
+        store.get_bytes(resolved_id)
+    except FileNotFoundError as exc:
+        raise ValueError(f"{role} specification CAS bytes are missing") from exc
+    return ArtifactRefModel(
+        artifact_id=resolved_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+    )
+
+
+def _resolve_model_policy_pair(
+    store: ArtifactStore,
+    *,
+    model_spec_id: ArtifactID | None,
+    policy_spec_id: ArtifactID | None,
+) -> tuple[ArtifactRefModel | None, ArtifactRefModel | None]:
+    """Resolve a complete, distinct model/policy pair before derived writes."""
+
+    if (model_spec_id is None) != (policy_spec_id is None):
+        raise ValueError("model/policy specification refs must be supplied as a complete pair")
+    if model_spec_id is None and policy_spec_id is None:
+        return None, None
+    if model_spec_id == policy_spec_id:
+        raise ValueError("model/policy specification refs must be distinct artifacts")
+    if model_spec_id is None or policy_spec_id is None:
+        raise ValueError("model/policy specification refs must be supplied as a complete pair")
+    return (
+        _resolve_spec_ref(
+            store,
+            model_spec_id,
+            role="model",
+            expected_kind=MODEL_SPEC_KIND,
+        ),
+        _resolve_spec_ref(
+            store,
+            policy_spec_id,
+            role="policy",
+            expected_kind=POLICY_SPEC_KIND,
+        ),
+    )
 
 
 def _finite_series(values: object, *, field: str) -> np.ndarray:
@@ -439,10 +516,11 @@ class ForecastOwner:
     def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:
         """Execute and persist one fail-closed predictive owner result."""
 
-        if request.model_spec_ref is not None or request.policy_spec_ref is not None:
-            raise ValueError(
-                "model/policy specification refs are unavailable until typed S10 binding"
-            )
+        model_spec_ref, policy_spec_ref = _resolve_model_policy_pair(
+            self._store,
+            model_spec_id=request.model_spec_ref,
+            policy_spec_id=request.policy_spec_ref,
+        )
 
         observed_source_ref, snapshot_payload = _resolve_json(
             self._store,
@@ -473,8 +551,6 @@ class ForecastOwner:
             estimand=request.estimand,
         )
         nominal_coverage = calibration_rule.nominal_coverage
-        model_spec_ref: ArtifactRefModel | None = None
-        policy_spec_ref: ArtifactRefModel | None = None
 
         train = values[request.split.train_start : request.split.train_end]
         holdout = values[request.split.holdout_start : request.split.holdout_end]
@@ -760,6 +836,14 @@ class ForecastOwner:
                 "estimand": request.estimand,
                 "authority_scope": "predictive_only",
                 "bridge_status": "bridge_pending",
+                **(
+                    {}
+                    if model_spec_ref is None or policy_spec_ref is None
+                    else {
+                        "model_spec_ref": str(model_spec_ref.artifact_id),
+                        "policy_spec_ref": str(policy_spec_ref.artifact_id),
+                    }
+                ),
                 "observed_source_ref": observed_source_ref.model_dump(mode="json"),
                 "calibration_rule_ref": calibration_rule_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
@@ -774,6 +858,14 @@ class ForecastOwner:
                 "estimand": request.estimand,
                 "authority_scope": "predictive_only",
                 "bridge_status": "bridge_pending",
+                **(
+                    {}
+                    if model_spec_ref is None or policy_spec_ref is None
+                    else {
+                        "model_spec_ref": str(model_spec_ref.artifact_id),
+                        "policy_spec_ref": str(policy_spec_ref.artifact_id),
+                    }
+                ),
                 "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(
                     mode="json"
                 ),
@@ -787,6 +879,36 @@ class ForecastOwner:
         persisted_report: BacktestReport = load_backtest_report(self._store, report_ref)
         if persisted_report.report_id != request.report_id:
             raise ValueError("persisted backtest report lost its allocated report identity")
+        expected_model_id = None if model_spec_ref is None else str(model_spec_ref.artifact_id)
+        expected_policy_id = None if policy_spec_ref is None else str(policy_spec_ref.artifact_id)
+        if persisted_report.model_spec_ref != expected_model_id:
+            raise ValueError("persisted backtest report lost its model specification binding")
+        if persisted_report.policy_spec_ref != expected_policy_id:
+            raise ValueError("persisted backtest report lost its policy specification binding")
+        for field_name, expected_id in (
+            ("model_spec_ref", expected_model_id),
+            ("policy_spec_ref", expected_policy_id),
+        ):
+            metadata_value = persisted_report.metadata.get(field_name)
+            if metadata_value != expected_id:
+                raise ValueError(
+                    f"persisted backtest report metadata lost its {field_name} binding"
+                )
+        report_manifest = self._store.get_manifest(report_ref.artifact_id)
+        for role, expected_id in (
+            ("model_spec", expected_model_id),
+            ("policy_spec", expected_policy_id),
+        ):
+            actual_edges = [
+                (str(item.artifact_id), item.role)
+                for item in report_manifest.inputs
+                if item.role == role
+            ]
+            expected_edges = [] if expected_id is None else [(expected_id, role)]
+            if actual_edges != expected_edges:
+                raise ValueError(
+                    f"persisted backtest report manifest has incorrect {role} binding"
+                )
         if persisted_report.trust_eligible or persisted_report.trust_score is not None:
             raise ValueError(
                 "predictive-only bridge-pending backtest report cannot be trust eligible"

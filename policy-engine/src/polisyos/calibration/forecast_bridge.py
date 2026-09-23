@@ -334,6 +334,10 @@ class EmpiricalCalibrationEvidence(BaseModel):
     may_not_use_for: tuple[AuthorityDenial, ...] = PREDICTIVE_AUTHORITY_DENIALS
     evidence_origin: str | None = None
     calibration_threshold: float | None = Field(default=None, gt=0.0, le=1.0)
+    # Preserve the report's declared interval level as descriptive metadata.
+    # It is never used as the empirical numerator/denominator or as a
+    # calibration admission decision.
+    nominal_confidence_level: float | None = Field(default=None, ge=0.0, le=1.0)
     scope_binding_ref: EvidenceArtifactRef | None = None
     calibration_threshold_ref: EvidenceArtifactRef | None = None
     observed_outcome_ref: EvidenceArtifactRef | None = None
@@ -394,6 +398,8 @@ def produce_empirical_calibration_evidence(
     ) = _recompute_and_reconcile(report)
 
     issues = list(observation_issues)
+    nominal_confidence_level, nominal_confidence_issues = _nominal_confidence_level(report)
+    issues.extend(nominal_confidence_issues)
     binding_issues: tuple[str, ...] = ()
     provenance_issues: tuple[str, ...] = ()
     provenance_payloads: dict[str, tuple[object, ...]] = {}
@@ -460,6 +466,7 @@ def produce_empirical_calibration_evidence(
         ),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
+        nominal_confidence_level=nominal_confidence_level,
         scope_binding_ref=context.scope_binding_ref if context else None,
         calibration_threshold_ref=context.calibration_threshold_ref if context else None,
         observed_outcome_ref=context.observed_outcome_ref if context else None,
@@ -971,6 +978,29 @@ def _validate_and_load_reference(
     ):
         raise ValueError("evidence reference profile mismatch")
     return get_json_artifact(store, ref.artifact_id)
+
+
+def _nominal_confidence_level(
+    report: BacktestReport,
+) -> tuple[float | None, tuple[str, ...]]:
+    """Return one report-level nominal interval level without inventing one.
+
+    A report may contain several scenarios.  A single neutral evidence value is
+    only meaningful when every declared scenario level agrees; mixed levels are
+    retained as a bounded provenance failure instead of silently selecting the
+    first scenario.
+    """
+
+    levels = tuple(
+        float(scenario.nominal_confidence_level)
+        for scenario in report.scenarios
+        if scenario.nominal_confidence_level is not None
+    )
+    if not levels:
+        return None, ()
+    if any(level != levels[0] for level in levels[1:]):
+        return None, ("nominal_confidence_level_mismatch",)
+    return levels[0], ()
 
 
 def _recompute_and_reconcile(

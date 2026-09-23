@@ -2428,6 +2428,13 @@ class ValueOwnerAccessError(ValueError):
         super().__init__(detail)
 
 
+class _S10EmpiricalEvidenceResolver(Protocol):
+    """Resolve one producer-owned empirical evidence ref at the S10 boundary."""
+
+    def __call__(self, evidence_ref: object) -> object:
+        """Return loader-validated evidence or raise on an invalid ref."""
+
+
 class ValueOwnerGateway(Protocol):
     """Owner access surface for N8 input materialization."""
 
@@ -2468,6 +2475,7 @@ class RealValueOwnerGateway:
     repo_root: Path | None = None
     cycle_substrate_context: CycleSubstrateContext | None = None
     catalog_overlay_path: Path | None = None
+    empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None
 
     def load_value_data_profile(
         self,
@@ -2553,6 +2561,7 @@ class RealValueOwnerGateway:
             world_record=world_record,
             method_result=method_result,
             selected_method_fqn=selected_method_fqn,
+            empirical_evidence_resolver=self.empirical_evidence_resolver,
         )
 
     def build_transport_inputs(
@@ -6180,6 +6189,248 @@ def _candidate_transport_outcome_variable(candidate: object, problem: DesignProb
     return _slug(_value_outcome_variable(candidate, problem) or "value_outcome")
 
 
+_S10_EMPIRICAL_EVIDENCE_KIND = "ir.empirical_calibration_evidence"
+_S10_EMPIRICAL_EVIDENCE_MEDIA_TYPE = "application/json"
+_S10_PREDICTIVE_DENIALS = frozenset(
+    {
+        "causal_effect_authority",
+        "treatment_assignment_authority",
+        "s10_authority",
+    }
+)
+
+
+@dataclass(frozen=True)
+class _S10ResolvedEmpiricalEvidence:
+    """Producer-owned evidence after the injected loader has read it back."""
+
+    ref: object
+    projection: Mapping[str, object]
+
+
+def _method_result_field(method_result: object, field: str) -> object | None:
+    """Read a bridge field from the method output without decoding evidence."""
+
+    output = _object_get(method_result, "output")
+    value = _object_get(output, field)
+    if value is not None:
+        return value
+    return _object_get(method_result, field)
+
+
+def _s10_artifact_ref_id(value: object) -> str | None:
+    """Return an artifact id from a typed ref, mapping, or legacy string."""
+
+    artifact_id = _object_get(value, "artifact_id")
+    if artifact_id is not None:
+        text = _optional_text(artifact_id)
+        if text is not None:
+            return text
+    if isinstance(value, Mapping):
+        text = _optional_text(value.get("artifact_id"))
+        if text is not None:
+            return text
+        return None
+    return _optional_text(value) if isinstance(value, str) else None
+
+
+def _s10_ref_ids(value: object) -> tuple[str, ...] | None:
+    """Extract non-empty artifact ids from a producer-owned ref sequence."""
+
+    if isinstance(value, str | bytes | bytearray):
+        return None
+    raw_values = _sequence(value)
+    if not raw_values:
+        return None
+    refs = tuple(_s10_artifact_ref_id(item) for item in raw_values)
+    if any(ref is None for ref in refs):
+        return None
+    return tuple(str(ref) for ref in refs)
+
+
+def _s10_empirical_projection(
+    *,
+    evidence_ref: object,
+    evidence: object,
+) -> tuple[dict[str, object] | None, str | None]:
+    """Project only loader-validated neutral evidence into the S10 shape."""
+
+    if _object_get(evidence, "authority_scope") != "predictive_only":
+        return None, "empirical_evidence_authority_scope_mismatch"
+    denials = tuple(str(item) for item in _sequence(_object_get(evidence, "may_not_use_for")))
+    if set(denials) != _S10_PREDICTIVE_DENIALS:
+        return None, "empirical_evidence_authority_denials_mismatch"
+
+    scalar_refs = {
+        "observed_outcome_ref": _s10_artifact_ref_id(
+            _object_get(evidence, "observed_outcome_ref")
+        ),
+        "prediction_ref": _s10_artifact_ref_id(_object_get(evidence, "prediction_ref")),
+        "historical_implementation_ref": _s10_artifact_ref_id(
+            _object_get(evidence, "report_ref")
+        ),
+        "evaluation_design_ref": _s10_artifact_ref_id(
+            _object_get(evidence, "evaluation_design_ref")
+        ),
+        "credible_evaluation_evidence_ref": _s10_artifact_ref_id(
+            _object_get(evidence, "credible_evaluation_evidence_ref")
+        ),
+        "calibration_threshold_ref": _s10_artifact_ref_id(
+            _object_get(evidence, "calibration_threshold_ref")
+        ),
+    }
+    if any(value is None for value in scalar_refs.values()):
+        return None, "empirical_evidence_nested_ref_missing"
+    source_lineage_refs = _s10_ref_ids(_object_get(evidence, "source_lineage_refs"))
+    method_lineage_refs = _s10_ref_ids(_object_get(evidence, "method_lineage_refs"))
+    if source_lineage_refs is None or method_lineage_refs is None:
+        return None, "empirical_evidence_nested_ref_missing"
+
+    temporal_values = {
+        key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS
+    }
+    if _bound_s10_temporal_roles(temporal_values) is None:
+        return None, "empirical_evidence_time_mismatch"
+
+    denominator_raw = _object_get(evidence, "recomputed_denominator")
+    numerator_raw = _object_get(evidence, "recomputed_numerator")
+    try:
+        denominator = int(denominator_raw)
+        numerator = int(numerator_raw)
+    except (TypeError, ValueError):
+        return None, "empirical_evidence_metrics_mismatch"
+    if denominator < 0 or numerator < 0 or numerator > denominator:
+        return None, "empirical_evidence_metrics_mismatch"
+    pass_rate_raw = _object_get(evidence, "recomputed_pass_rate")
+    try:
+        pass_rate = 0.0 if pass_rate_raw is None else float(pass_rate_raw)
+    except (TypeError, ValueError):
+        return None, "empirical_evidence_metrics_mismatch"
+    if not math.isfinite(pass_rate) or not 0.0 <= pass_rate <= 1.0:
+        return None, "empirical_evidence_metrics_mismatch"
+    if denominator and abs(pass_rate - numerator / denominator) > 0.000001:
+        return None, "empirical_evidence_metrics_mismatch"
+
+    context_bound = bool(_object_get(evidence, "context_bound", False))
+    usable = bool(_object_get(evidence, "usable_for_calibration", False))
+    floor_passed = bool(_object_get(evidence, "floor_passed", False))
+    calibration_status = (
+        "pass"
+        if usable and floor_passed
+        else "limit"
+        if context_bound and denominator
+        else "blocked"
+    )
+    forecast_tier = "observable_calibrated" if calibration_status == "pass" else "blocked"
+    failure_codes = tuple(str(item) for item in _sequence(_object_get(evidence, "failure_codes")))
+    reason = (
+        "persisted predictive interval observations were recomputed from held-out data"
+        if not failure_codes
+        else "empirical calibration evidence is limited: " + ", ".join(failure_codes)
+    )
+    projection: dict[str, object] = {
+        **scalar_refs,
+        "empirical_evidence_ref": evidence_ref,
+        "authority_scope": "predictive_only",
+        "may_not_use_for": list(denials),
+        "method_ref": _object_get(evidence, "method_ref"),
+        "method_version": _object_get(evidence, "method_version"),
+        "rule_version_ref": _object_get(evidence, "rule_version_ref"),
+        "estimand": _object_get(evidence, "estimand"),
+        "denominator": denominator,
+        "numerator": numerator,
+        "pass_rate": pass_rate,
+        "floor_passed": floor_passed,
+        "calibration_status": calibration_status,
+        "forecast_tier": forecast_tier,
+        "counterfactual_credibility": "credible" if usable else "insufficient_history",
+        "interval_coverage_metric": pass_rate if denominator else None,
+        "calibration_error_metric": None,
+        "source_lineage_refs": list(source_lineage_refs),
+        "method_lineage_refs": list(method_lineage_refs),
+        "forecast_authority_disposition_reason": reason,
+        **temporal_values,
+    }
+    return projection, None
+
+
+def _s10_loader_error_code(raw_ref: object | None, error: BaseException) -> str:
+    """Classify resolver failures without exposing loader implementation details."""
+
+    if raw_ref is None:
+        return "empirical_evidence_ref_missing"
+    kind = _optional_text(_object_get(raw_ref, "kind"))
+    if kind is not None and kind != _S10_EMPIRICAL_EVIDENCE_KIND:
+        return "empirical_evidence_ref_kind_mismatch"
+    message = str(error).lower()
+    if any(
+        token in message
+        for token in ("integrity", "digest", "hash", "schema", "media type", "content binding")
+    ):
+        return "empirical_evidence_ref_integrity_mismatch"
+    return "empirical_evidence_ref_unresolved"
+
+
+def _resolve_s10_empirical_evidence(
+    *,
+    raw_ref: object | None,
+    resolver: _S10EmpiricalEvidenceResolver | None,
+    selected_method_fqn: str,
+    expected_rule_version_ref: object | None,
+    expected_temporal_roles: object | None,
+) -> tuple[_S10ResolvedEmpiricalEvidence | None, str | None]:
+    """Read and bind empirical evidence through the injected canonical loader."""
+
+    if resolver is None:
+        return None, "empirical_evidence_ref_missing"
+    try:
+        evidence = resolver(raw_ref)
+    except Exception as exc:
+        return None, _s10_loader_error_code(raw_ref, exc)
+    if raw_ref is None:
+        return None, "empirical_evidence_ref_missing"
+    if (
+        _object_get(raw_ref, "kind") != _S10_EMPIRICAL_EVIDENCE_KIND
+        or _object_get(raw_ref, "media_type") != _S10_EMPIRICAL_EVIDENCE_MEDIA_TYPE
+    ):
+        return None, "empirical_evidence_ref_kind_mismatch"
+
+    projection, projection_error = _s10_empirical_projection(
+        evidence_ref=raw_ref,
+        evidence=evidence,
+    )
+    if projection_error is not None or projection is None:
+        return None, projection_error or "empirical_evidence_projection_invalid"
+
+    method_ref, separator, method_version = selected_method_fqn.rpartition("@")
+    if (
+        not separator
+        or _optional_text(projection.get("method_ref")) != method_ref
+        or _optional_text(projection.get("method_version")) != method_version
+    ):
+        return None, "empirical_evidence_method_mismatch"
+    expected_rule = _optional_text(expected_rule_version_ref)
+    if expected_rule is None or _optional_text(projection.get("rule_version_ref")) != expected_rule:
+        return None, "empirical_evidence_rule_mismatch"
+
+    loaded_temporal_roles = _bound_s10_temporal_roles(projection)
+    if loaded_temporal_roles is None:
+        return None, "empirical_evidence_time_mismatch"
+    if expected_temporal_roles is not None:
+        expected_payload = {
+            key: _object_get(expected_temporal_roles, key)
+            for key in _S10_TEMPORAL_ROLE_KEYS
+        }
+        expected_bound = _bound_s10_temporal_roles(expected_payload)
+        if expected_bound is None or any(
+            expected_bound[key] != loaded_temporal_roles[key]
+            for key in _S10_TEMPORAL_ROLE_KEYS
+        ):
+            return None, "empirical_evidence_time_mismatch"
+
+    return _S10ResolvedEmpiricalEvidence(raw_ref, projection), None
+
+
 def _build_s10_forecast_inputs(
     *,
     candidate: object,
@@ -6193,6 +6444,8 @@ def _build_s10_forecast_inputs(
     expected_policy_context_ref: str,
     false_clear_counts: Mapping[str, int],
     calibration_evidence: Mapping[str, object] | None = None,
+    empirical_evidence: _S10ResolvedEmpiricalEvidence | None = None,
+    empirical_evidence_error: str | None = None,
 ) -> Mapping[str, Any]:
     from polisyos.runtime.quality.design_axes.outcome_prediction import (
         build_forecast_calibration_record,
@@ -6202,26 +6455,39 @@ def _build_s10_forecast_inputs(
     outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
     report = _method_report(method_result)
     evidence = dict(calibration_evidence or {})
+    if empirical_evidence is not None:
+        evidence = dict(empirical_evidence.projection)
     temporal_roles = _bound_s10_temporal_roles(evidence)
     calibration_refs = _bound_s10_calibration_evidence_refs(evidence)
     calibration_bound = (
-        calibration_status is not None
+        empirical_evidence is not None
+        and empirical_evidence_error is None
         and temporal_roles is not None
         and calibration_refs is not None
     )
-    effective_forecast_tier = forecast_tier
-    if calibration_status is not None and not calibration_bound:
+    effective_calibration_status = (
+        str(evidence.get("calibration_status")) if calibration_bound else None
+    )
+    effective_forecast_tier = (
+        str(evidence.get("forecast_tier"))
+        if calibration_bound
+        else forecast_tier
+    )
+    if empirical_evidence_error is not None or (
+        calibration_status is not None and not calibration_bound
+    ):
         effective_forecast_tier = "blocked"
+    method_family = _s10_method_family(selected_method_fqn)
     report_ref = gy_content_hash(
         {
             "method_fqn": selected_method_fqn,
             "point_estimate": str(_object_get(report, "point_estimate")),
             "confidence_interval": str(_object_get(report, "confidence_interval")),
-            "calibration_evidence": evidence,
+            "calibration_evidence": _json_ready(evidence),
             "world_model_record_content_hash": world_record.content_hash,
         }
     )
-    authority = _s10_value_authority_boundary()
+    authority = _s10_value_authority_boundary(predictive=method_family == "foundry_forecast")
     calibration_ref = (
         f"s10://n8/{report_ref.removeprefix('sha256:')}/calibration" if calibration_bound else None
     )
@@ -6235,7 +6501,7 @@ def _build_s10_forecast_inputs(
             case_id=problem.design_problem_id,
             forecast_support_ref=f"s10://n8/{report_ref}/forecast-support",
             observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
-            prediction_ref=f"forecast://n8/{report_ref}",
+            prediction_ref=str(calibration_refs["prediction_ref"]),
             observed_outcome_ref=str(calibration_refs["observed_outcome_ref"]),
             historical_implementation_ref=str(calibration_refs["historical_implementation_ref"]),
             evaluation_design_ref=str(calibration_refs["evaluation_design_ref"]),
@@ -6255,11 +6521,9 @@ def _build_s10_forecast_inputs(
             denominator=int(evidence.get("denominator") or 0),
             numerator=int(evidence.get("numerator") or 0),
             pass_rate=float(evidence.get("pass_rate") or 0.0),
-            calibration_threshold_ref=(
-                "repo://architecture/policy_design_case/layer2_floor_governance.toml#s10"
-            ),
+            calibration_threshold_ref=str(calibration_refs["calibration_threshold_ref"]),
             floor_passed=bool(evidence.get("floor_passed", False)),
-            calibration_status=calibration_status,
+            calibration_status=str(effective_calibration_status),
             interval_coverage_metric=evidence.get("interval_coverage_metric"),
             calibration_error_metric=evidence.get("calibration_error_metric"),
             source_lineage_refs=list(calibration_refs["source_lineage_refs"]),
@@ -6268,6 +6532,7 @@ def _build_s10_forecast_inputs(
             authority_boundary=authority,
             may_not_use_for=authority["may_not_use_for"],
             rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
+            empirical_evidence_ref=empirical_evidence.ref,
         )
     support_base_origin = (
         "simulation_only"
@@ -6298,10 +6563,10 @@ def _build_s10_forecast_inputs(
         s5_base_origin=support_base_origin,
         s5_claim_scope="system_effect",
         s6_firewall_status_refs=[f"s6://{_candidate_id(candidate)}"],
-        s6_limitation_refs=(
-            []
-            if calibration_status is None or calibration_bound
-            else ["s10://calibration/fail-closed/insufficient-history"]
+        s6_limitation_refs=_s10_limitation_refs(
+            evidence=evidence,
+            calibration_bound=calibration_bound,
+            empirical_evidence_error=empirical_evidence_error,
         ),
         s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
         s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
@@ -6319,11 +6584,12 @@ def _build_s10_forecast_inputs(
             or (
                 "S10 estimator diagnostics retained; empirical calibration evidence is "
                 "not established."
-                if calibration_status is not None and not calibration_bound
+                if empirical_evidence_error is None and not calibration_bound
                 else "S10 owner forecast over Foundry method output"
             )
+            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
         ),
-        method_family="foundry_causal",
+        method_family=method_family,
         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
         calibration_record_ref=calibration_ref,
         uncertainty_interval_refs=[f"interval://{report_ref}/95"],
@@ -6349,9 +6615,28 @@ def _build_real_s10_forecast_inputs(
     world_record: WorldModelRecord,
     method_result: object,
     selected_method_fqn: str,
+    empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None,
 ) -> Mapping[str, Any]:
     report = _method_report(method_result)
     evidence = _s10_calibration_evidence_from_report(report)
+    empirical_evidence_ref = _method_result_field(
+        method_result,
+        "empirical_calibration_evidence_ref",
+    )
+    expected_rule_version_ref = _method_result_field(
+        method_result,
+        "expected_rule_version_ref",
+    )
+    expected_temporal_roles = _method_result_field(method_result, "temporal_roles")
+    resolved_empirical_evidence, empirical_evidence_error = (
+        _resolve_s10_empirical_evidence(
+            raw_ref=empirical_evidence_ref,
+            resolver=empirical_evidence_resolver,
+            selected_method_fqn=selected_method_fqn,
+            expected_rule_version_ref=expected_rule_version_ref,
+            expected_temporal_roles=expected_temporal_roles,
+        )
+    )
     policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
     return _build_s10_forecast_inputs(
         candidate=candidate,
@@ -6365,6 +6650,8 @@ def _build_real_s10_forecast_inputs(
         expected_policy_context_ref=policy_context_ref,
         false_clear_counts=evidence["false_clear_counts"],  # type: ignore[arg-type]
         calibration_evidence=evidence,
+        empirical_evidence=resolved_empirical_evidence,
+        empirical_evidence_error=empirical_evidence_error,
     )
 
 
@@ -6482,9 +6769,11 @@ _S10_TEMPORAL_ROLE_KEYS: tuple[str, ...] = (
 
 _S10_CALIBRATION_EVIDENCE_REF_KEYS: tuple[str, ...] = (
     "observed_outcome_ref",
+    "prediction_ref",
     "historical_implementation_ref",
     "evaluation_design_ref",
     "credible_evaluation_evidence_ref",
+    "calibration_threshold_ref",
     "source_lineage_refs",
     "method_lineage_refs",
 )
@@ -6496,16 +6785,17 @@ def _bound_s10_calibration_evidence_refs(
     """Return explicit S10 evidence refs without manufacturing an evidence bridge."""
 
     refs: dict[str, object] = {}
-    for key in _S10_CALIBRATION_EVIDENCE_REF_KEYS[:4]:
-        value = _optional_text(evidence.get(key))
+    scalar_keys = _S10_CALIBRATION_EVIDENCE_REF_KEYS[:-2]
+    for key in scalar_keys:
+        value = _s10_artifact_ref_id(evidence.get(key))
         if value is None:
             return None
         refs[key] = value
-    for key in _S10_CALIBRATION_EVIDENCE_REF_KEYS[4:]:
+    for key in _S10_CALIBRATION_EVIDENCE_REF_KEYS[-2:]:
         raw = evidence.get(key)
         if isinstance(raw, str | bytes | bytearray) or not isinstance(raw, Sequence):
             return None
-        values = tuple(_optional_text(item) for item in raw)
+        values = tuple(_s10_artifact_ref_id(item) for item in raw)
         if not values or any(value is None for value in values):
             return None
         refs[key] = tuple(str(value) for value in values)
@@ -6532,6 +6822,16 @@ def _bound_s10_temporal_roles(
         if parsed.tzinfo is None or parsed.utcoffset() is None:
             return None
         roles[key] = parsed.astimezone(UTC)
+    if len(set(roles.values())) != len(roles):
+        return None
+    if not (
+        roles["data_valid_time"] < roles["calibration_window_start"]
+        < roles["calibration_window_end"]
+        <= roles["prediction_time"]
+        < roles["observation_time"]
+        and roles["policy_effective_time"] <= roles["prediction_time"]
+    ):
+        return None
     return roles
 
 
@@ -6542,28 +6842,72 @@ def _is_finite_number(value: object) -> bool:
         return False
 
 
-def _s10_value_authority_boundary() -> dict[str, Any]:
+def _s10_method_family(selected_method_fqn: str) -> str:
+    """Classify the selected method without laundering forecast evidence as causal."""
+
+    if selected_method_fqn.startswith("forecasting."):
+        return "foundry_forecast"
+    if selected_method_fqn.startswith("causal."):
+        return "foundry_causal"
+    return "abstain"
+
+
+def _s10_limitation_refs(
+    *,
+    evidence: Mapping[str, object],
+    calibration_bound: bool,
+    empirical_evidence_error: str | None,
+) -> list[str]:
+    """Expose a bounded reason whenever S10 cannot admit observable calibration."""
+
+    if empirical_evidence_error is not None:
+        return [f"s10://calibration/fail-closed/{empirical_evidence_error}"]
+    if not calibration_bound:
+        return (
+            ["s10://calibration/fail-closed/insufficient-history"]
+            if evidence.get("calibration_status") is not None
+            else []
+        )
+    if str(evidence.get("calibration_status")) == "pass":
+        return []
+    failures = tuple(str(item) for item in _sequence(evidence.get("failure_codes")))
+    return [f"s10://calibration/{failures[0] if failures else 'insufficient-history'}"]
+
+
+def _s10_value_authority_boundary(*, predictive: bool = False) -> dict[str, Any]:
+    may_not_use_for = [
+        "production_recommendation",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+    ]
+    if predictive:
+        may_not_use_for.extend(
+            denial
+            for denial in sorted(_S10_PREDICTIVE_DENIALS)
+            if denial not in may_not_use_for
+        )
     return {
         "authoritative_for": [
             "forecast_support_tiering",
             "observable_subset_calibration",
+        ]
+        if predictive
+        else [
+            "forecast_support_tiering",
+            "observable_subset_calibration",
             "value_grounded_welfare_comparison",
         ],
-        "may_not_use_for": [
-            "production_recommendation",
-            "production_claim_authority",
-            "rollout_authority",
-            "publication_authority",
-            "claim_authority",
-            "closeout_authority",
-            "approval_authority",
-            "scorecard_authority",
-            "preference_learning_authority",
-            "s11_calibration",
-            "s12_envelope_growth",
-            "s13_accountability_closure",
-            "s14_universality",
-        ],
+        "may_not_use_for": may_not_use_for,
         "source_authority": "deterministic_producer",
         "posture": "shadow",
         "rule_version_refs": ["policyos.layer2.s10.outcome_prediction.v1"],

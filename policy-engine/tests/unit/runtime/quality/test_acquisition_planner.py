@@ -1660,24 +1660,6 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
     assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
 
 
-def _canonicalize_recorded_primary_locator(
-    owner: object, *, locator: Path | None = None
-) -> None:
-    graph = getattr(owner, "graph")
-    store = getattr(graph, "_store")
-    csv_path = getattr(owner, "csv_path")
-    canonical_locator = csv_path if locator is None else locator
-    store._con.execute(
-        "UPDATE ds_distributions SET source_locator = ? WHERE id = ?",
-        [str(canonical_locator), "distribution-primary"],
-    )
-    store._con.execute(
-        "UPDATE ds_metric_bindings SET request_dataset_id = ? WHERE distribution_id = ?",
-        [str(canonical_locator), "distribution-primary"],
-    )
-    store._session_source_identities = store._fetch_source_identities()
-
-
 @pytest.mark.parametrize(
     ("case", "accepted", "allow_relative"),
     [
@@ -1741,8 +1723,9 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        _canonicalize_recorded_primary_locator(owner)
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True
+    ) as owner:
 
         def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
             return owner.graph
@@ -1896,8 +1879,9 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        _canonicalize_recorded_primary_locator(owner)
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True
+    ) as owner:
 
         def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
             return owner.graph
@@ -1969,8 +1953,9 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        _canonicalize_recorded_primary_locator(owner)
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True
+    ) as owner:
 
         owner.providers.registry.set_default_config(
             "files.tabular",
@@ -2028,14 +2013,11 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        _canonicalize_recorded_primary_locator(owner)
-        store = owner.graph._store
-        store._con.execute(
-            "UPDATE ds_distributions SET connector_params = ? WHERE id = ?",
-            ["{}", "distribution-primary"],
-        )
-        store._session_source_identities = store._fetch_source_identities()
+    with build_recorded_file_fetch_owner(
+        tmp_path,
+        canonicalize_catalog_source=True,
+        catalog_connector_params={},
+    ) as owner:
         other_path = tmp_path / "b.csv"
         other_path.write_text(owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8")
         owner.providers.registry.set_default_config(
@@ -2093,25 +2075,18 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        approved_root = tmp_path / "approved"
-        approved_root.mkdir()
-        approved_locator = approved_root / "inside.csv"
-        approved_locator.write_text(
-            owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8"
-        )
+    approved_root = tmp_path / "approved"
+    approved_locator = approved_root / "inside.csv"
+    with build_recorded_file_fetch_owner(
+        tmp_path,
+        catalog_source_locator=approved_locator,
+        catalog_connector_params={},
+    ) as owner:
         cwd_locator = tmp_path / "inside.csv"
         cwd_locator.write_text(
             owner.csv_path.read_text(encoding="utf-8"), encoding="utf-8"
         )
         monkeypatch.chdir(tmp_path)
-        _canonicalize_recorded_primary_locator(owner, locator=approved_locator)
-        store = owner.graph._store
-        store._con.execute(
-            "UPDATE ds_distributions SET connector_params = ? WHERE id = ?",
-            ["{}", "distribution-primary"],
-        )
-        store._session_source_identities = store._fetch_source_identities()
         owner.providers.registry.set_default_config(
             "files.tabular", ConnectionConfig(url="inside.csv")
         )
@@ -2187,8 +2162,9 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with build_recorded_file_fetch_owner(tmp_path) as owner:
-        _canonicalize_recorded_primary_locator(owner)
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True
+    ) as owner:
 
         original_execute = RetrievalService.execute_fetch_plans
         original_get_bytes = FileSystemCAS.get_bytes

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
@@ -156,8 +157,25 @@ def build_real_fetch_owner(
 
 
 @contextmanager
-def build_recorded_file_fetch_owner(tmp_path):
-    """Run the actual registered FileTabularConnector against a local CSV."""
+def build_recorded_file_fetch_owner(
+    tmp_path,
+    *,
+    canonicalize_catalog_source=False,
+    catalog_source_locator=None,
+    catalog_connector_params=None,
+):
+    """Run the actual registered FileTabularConnector against a local CSV.
+
+    The default keeps the historical fixture's symbolic catalog locator.  The
+    acquisition-capture tests opt into a catalog built with the canonical
+    absolute file locator before ``DatasetCatalogGraph`` opens its read-only
+    session.  This keeps fixture preparation on the writable graph-builder
+    path instead of mutating the read-only graph after construction.
+    """
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetRecord,
+        DistributionRecord,
+    )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
@@ -168,6 +186,50 @@ def build_recorded_file_fetch_owner(tmp_path):
         {"row_id": [f"r-{i}" for i in range(12)], "value": [i + 0.5 for i in range(12)]}
     )
     frame.to_csv(csv_path, index=False)
+    catalog_locator = (
+        Path(catalog_source_locator)
+        if catalog_source_locator is not None
+        else csv_path
+        if canonicalize_catalog_source
+        else None
+    )
+    if catalog_locator is not None:
+        catalog_locator.parent.mkdir(parents=True, exist_ok=True)
+        catalog_locator.write_bytes(csv_path.read_bytes())
+    primary_connector_params = (
+        dict(catalog_connector_params)
+        if catalog_connector_params is not None
+        else {"url": str(csv_path)}
+    )
+    dataset_records = [
+        DatasetRecord(
+            id=f"catalog-{name}",
+            title=f"Recorded {name}",
+            dataset_id=name,
+            source_dataset_id=name,
+            polisyos_metrics=["metric.test"],
+            execution_tier="transport_ready",
+            distributions=[
+                DistributionRecord(
+                    id=f"distribution-{name}",
+                    connector_type="files.tabular",
+                    source_locator=(
+                        str(catalog_locator)
+                        if name == "primary" and catalog_locator
+                        else name
+                    ),
+                    parser_supported=True,
+                    machine_readable=True,
+                    connector_params=(
+                        primary_connector_params
+                        if name == "primary"
+                        else {"url": str(csv_path)}
+                    ),
+                )
+            ],
+        )
+        for name in ("primary", "fallback")
+    ]
     registry = ConnectorRegistry()
     registry.register(FileTabularConnector, config=ConnectionConfig(url=str(csv_path)))
     providers = RetrievalProviders(
@@ -185,6 +247,7 @@ def build_recorded_file_fetch_owner(tmp_path):
         providers_override=providers,
         source_location=str(csv_path),
         patch_fastlane=False,
+        dataset_records=dataset_records,
     ) as owner:
         owner.csv_path = csv_path
         owner.frame = frame

@@ -38,6 +38,7 @@ def _plan(
     *,
     model_spec_ref: str | None,
     policy_spec_ref: str | None,
+    exact_predictions: bool = False,
 ) -> HistoricalValidationPlan:
     history_path = tmp_path / "history.json"
     history_path.write_text(
@@ -52,7 +53,9 @@ def _plan(
         ground_truth_outcomes={"metric": [1.1, 1.15]},
         target_metrics=["metric"],
         prediction_source=PredictionSource.PROVIDED,
-        predicted_outcomes={"metric": [1.08, 1.13]},
+        predicted_outcomes={
+            "metric": [1.1, 1.15] if exact_predictions else [1.08, 1.13]
+        },
         model_spec_ref=model_spec_ref,
         policy_spec_ref=policy_spec_ref,
     )
@@ -76,6 +79,7 @@ def _persisted_report(
         tmp_path,
         model_spec_ref=model_spec_ref,
         policy_spec_ref=policy_spec_ref,
+        exact_predictions=not include_model_ref and not include_policy_ref,
     )
 
     if runner_name == "orchestrator":
@@ -186,3 +190,44 @@ def test_no_plan_refs_preserve_existing_report_compatibility(
     assert persisted.policy_spec_ref is None
     assert persisted.degraded is False
     assert persisted.degraded_reasons == []
+
+
+def test_different_plan_ref_pairs_fail_closed_in_persisted_report(
+    tmp_path: Path,
+) -> None:
+    """Aggregating different complete pairs cannot mix report provenance."""
+
+    store = FileSystemCAS(tmp_path / "orchestrator-cas")
+    first_model_ref = _persist_spec_ref(store, spec_kind="model-a")
+    first_policy_ref = _persist_spec_ref(store, spec_kind="policy-a")
+    second_model_ref = _persist_spec_ref(store, spec_kind="model-b")
+    second_policy_ref = _persist_spec_ref(store, spec_kind="policy-b")
+    first = _plan(
+        tmp_path,
+        model_spec_ref=first_model_ref,
+        policy_spec_ref=first_policy_ref,
+        exact_predictions=True,
+    )
+    second = first.model_copy(
+        update={
+            "plan_id": "frc-02-ref-transport-second",
+            "model_spec_ref": second_model_ref,
+            "policy_spec_ref": second_policy_ref,
+        }
+    )
+
+    report = BacktestOrchestrator(cas=store).run([first, second])
+    assert report.cas_artifact_id is not None
+    report_ref = BacktestReportRef.model_validate(
+        {"artifact_id": report.cas_artifact_id}
+    )
+    persisted = load_backtest_report(store, report_ref)
+
+    assert persisted.model_spec_ref is None
+    assert persisted.policy_spec_ref is None
+    assert persisted.degraded is True
+    assert persisted.trust_eligible is False
+    assert (
+        "model_spec_ref/policy_spec_ref is inconsistent across aggregated plans"
+        in persisted.degraded_reasons
+    )

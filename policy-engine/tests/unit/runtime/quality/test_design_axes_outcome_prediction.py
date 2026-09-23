@@ -410,3 +410,228 @@ def test_transport_without_limitation_is_rejected() -> None:
                 limitation_refs=[],
             )
         )
+
+
+def test_forecast_support_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> None:
+    forecast_support = _s10("ForecastSupport")
+
+    with pytest.raises(ValueError, match=r"production_recommendation"):
+        forecast_support.model_validate(
+            _forecast_support_payload(
+                authority_boundary=_authority_boundary(
+                    authoritative_for=["production_recommendation"]
+                )
+            )
+        )
+
+
+def test_forecast_calibration_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> None:
+    calibration_record = _s10("ForecastCalibrationRecord")
+
+    with pytest.raises(ValueError, match=r"production_recommendation"):
+        calibration_record.model_validate(
+            _calibration_payload(
+                authority_boundary=_authority_boundary(
+                    authoritative_for=["production_recommendation"]
+                )
+            )
+        )
+
+
+def test_forecast_support_rejects_missing_nested_denial_with_complete_top_level_denials() -> None:
+    forecast_support = _s10("ForecastSupport")
+    nested_boundary = _authority_boundary()
+    nested_boundary["may_not_use_for"] = [
+        item
+        for item in nested_boundary["may_not_use_for"]
+        if item != "production_recommendation"
+    ]
+
+    with pytest.raises(ValueError, match=r"production_recommendation"):
+        forecast_support.model_validate(
+            _forecast_support_payload(authority_boundary=nested_boundary)
+        )
+
+
+def test_forecast_calibration_rejects_missing_nested_denial_with_complete_top_level_denials() -> None:
+    calibration_record = _s10("ForecastCalibrationRecord")
+    nested_boundary = _authority_boundary()
+    nested_boundary["may_not_use_for"] = [
+        item
+        for item in nested_boundary["may_not_use_for"]
+        if item != "production_recommendation"
+    ]
+
+    with pytest.raises(ValueError, match=r"production_recommendation"):
+        calibration_record.model_validate(
+            _calibration_payload(authority_boundary=nested_boundary)
+        )
+
+
+def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_existing_instance() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    malformed_boundary = support.authority_boundary.model_copy(
+        update={"authoritative_for": ["production_recommendation"]}
+    )
+    malformed_support = support.model_copy(
+        update={"authority_boundary": malformed_boundary}
+    )
+
+    envelope = verify_envelope(
+        forecast_support=malformed_support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+
+
+def test_prediction_authority_envelope_blocks_nested_forbidden_calibration_authority_on_existing_instance() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    malformed_boundary = calibration.authority_boundary.model_copy(
+        update={"authoritative_for": ["production_recommendation"]}
+    )
+    malformed_calibration = calibration.model_copy(
+        update={"authority_boundary": malformed_boundary}
+    )
+
+    envelope = verify_envelope(
+        forecast_support=support,
+        calibration_record=malformed_calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+
+
+def test_prediction_authority_envelope_blocks_cross_bound_calibration_support_ref() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(
+        _calibration_payload(
+            forecast_support_ref="pdc://layer2/s10/ua-msme/foreign-forecast-support"
+        )
+    )
+
+    envelope = verify_envelope(
+        forecast_support=support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+
+
+def test_prediction_authority_envelope_blocks_mismatched_calibration_record_ref() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(
+        _calibration_payload(
+            calibration_ref="pdc://layer2/s10/ua-msme/calibration/foreign-record"
+        )
+    )
+
+    envelope = verify_envelope(
+        forecast_support=support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+
+
+def test_prediction_authority_envelope_preserves_bound_support_calibration_pass() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    assert calibration.forecast_support_ref == support.support_ref
+    assert calibration.calibration_ref == support.calibration_record_ref
+
+    envelope = verify_envelope(
+        forecast_support=support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "pass"
+    assert envelope.issue_codes == []
+    assert envelope.forecast_support_ref == support.support_ref
+    assert envelope.calibration_record_ref == support.calibration_record_ref
+
+
+def test_prediction_authority_envelope_blocks_missing_record_denials_on_existing_instance() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    malformed_support = support.model_copy(update={"may_not_use_for": None})
+
+    envelope = verify_envelope(
+        forecast_support=malformed_support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+    assert envelope.authority_boundary.authoritative_for == ["none"]
+
+
+def test_prediction_authority_envelope_blocks_missing_nested_boundary_on_existing_instance() -> None:
+    forecast_support = _s10("ForecastSupport")
+    calibration_record = _s10("ForecastCalibrationRecord")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    calibration = calibration_record.model_validate(_calibration_payload())
+    malformed_support = support.model_copy(update={"authority_boundary": None})
+
+    envelope = verify_envelope(
+        forecast_support=malformed_support,
+        calibration_record=calibration,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_prediction_authority_laundering" in envelope.issue_codes
+    assert envelope.authority_boundary.authoritative_for == ["none"]
+
+
+def test_prediction_authority_envelope_blocks_observable_support_without_calibration() -> None:
+    forecast_support = _s10("ForecastSupport")
+    verify_envelope = _s10("verify_prediction_authority_envelope")
+
+    support = forecast_support.model_validate(_forecast_support_payload())
+    malformed_support = support.model_copy(
+        update={
+            "observable_subset_ref": None,
+            "calibration_record_ref": None,
+            "forecast_tier": "observable_calibrated",
+        }
+    )
+
+    envelope = verify_envelope(
+        forecast_support=malformed_support,
+        calibration_record=None,
+    )
+
+    assert envelope.envelope_status == "blocked"
+    assert "s10_uncalibrated_observable_promotion" in envelope.issue_codes

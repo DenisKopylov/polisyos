@@ -144,7 +144,7 @@ class ForecastSupport(Layer2ReadinessModel):
 
     @model_validator(mode="after")
     def _validate_support_boundary(self) -> ForecastSupport:
-        _assert_required_denials(self.may_not_use_for)
+        _assert_prediction_authority_boundary(self.authority_boundary, self.may_not_use_for)
         if self.forecast_tier == "observable_calibrated" and (
             not self.observable_subset_ref or not self.calibration_record_ref
         ):
@@ -205,7 +205,7 @@ class ForecastCalibrationRecord(Layer2ReadinessModel):
 
     @model_validator(mode="after")
     def _validate_calibration(self) -> ForecastCalibrationRecord:
-        _assert_required_denials(self.may_not_use_for)
+        _assert_prediction_authority_boundary(self.authority_boundary, self.may_not_use_for)
         if self.numerator > self.denominator:
             raise ValueError("calibration numerator cannot exceed denominator")
         if self.denominator == 0 and self.calibration_status == "pass":
@@ -493,6 +493,11 @@ def verify_prediction_authority_envelope(
     calibration = _as_calibration_record(calibration_record)
     may_not_use_for = _merge_denials(support.may_not_use_for)
     issues = _prediction_issue_codes(support, calibration)
+    output_authority_boundary = _safe_prediction_authority_boundary(
+        support.authority_boundary,
+        support.may_not_use_for,
+        rule_version_ref=support.rule_version_ref,
+    )
     calibration_status: ObservableSubsetCalibrationStatus = (
         calibration.calibration_status
         if calibration is not None
@@ -542,7 +547,7 @@ def verify_prediction_authority_envelope(
         denies_s11_authority="s11_calibration" in may_not_use_for,
         issue_codes=issues,
         envelope_status="blocked" if issues else "pass",
-        authority_boundary=support.authority_boundary,
+        authority_boundary=output_authority_boundary,
         may_not_use_for=may_not_use_for,
         rule_version_ref=support.rule_version_ref,
     )
@@ -694,16 +699,36 @@ def _prediction_issue_codes(
     calibration: ForecastCalibrationRecord | None,
 ) -> list[str]:
     issues: list[str] = []
-    if support.forecast_tier == "simulation_only_advisory":
-        issues.append("s10_simulation_only_laundered_as_evidence")
-    if support.forecast_tier == "equilibrium_contested_blocked":
-        issues.append("s10_equilibrium_contested_single_forecast")
-    if support.forecast_tier == "observable_calibrated" and (
-        calibration is not None and calibration.calibration_status != "pass"
+    if not _prediction_authority_boundary_is_valid(
+        support.authority_boundary,
+        support.may_not_use_for,
     ):
-        issues.append("s10_uncalibrated_observable_promotion")
-    if not set(support.may_not_use_for) >= _REQUIRED_AUTHORITY_DENIALS:
-        issues.append("s10_prediction_authority_laundering")
+        _append_prediction_issue(issues, "s10_prediction_authority_laundering")
+    if calibration is not None and not _prediction_authority_boundary_is_valid(
+        calibration.authority_boundary,
+        calibration.may_not_use_for,
+    ):
+        _append_prediction_issue(issues, "s10_prediction_authority_laundering")
+    if support.forecast_tier == "simulation_only_advisory":
+        _append_prediction_issue(issues, "s10_simulation_only_laundered_as_evidence")
+    if support.forecast_tier == "equilibrium_contested_blocked":
+        _append_prediction_issue(issues, "s10_equilibrium_contested_single_forecast")
+    if support.forecast_tier == "observable_calibrated" and (
+        not support.observable_subset_ref
+        or not support.calibration_record_ref
+        or calibration is None
+        or calibration.calibration_status != "pass"
+    ):
+        _append_prediction_issue(issues, "s10_uncalibrated_observable_promotion")
+    if not set(_normalise_boundary_values(support.may_not_use_for)) >= (
+        _REQUIRED_AUTHORITY_DENIALS
+    ):
+        _append_prediction_issue(issues, "s10_prediction_authority_laundering")
+    if calibration is not None and (
+        calibration.forecast_support_ref != support.support_ref
+        or calibration.calibration_ref != support.calibration_record_ref
+    ):
+        _append_prediction_issue(issues, "s10_prediction_authority_laundering")
     return issues
 
 
@@ -728,8 +753,86 @@ def _assert_required_denials(may_not_use_for: Sequence[str]) -> None:
         raise ValueError(f"S10 authority boundary missing denials: {sorted(missing)}")
 
 
-def _merge_denials(values: Sequence[object]) -> list[str]:
-    merged = [str(item) for item in values if str(item)]
+def _assert_prediction_authority_boundary(
+    authority_boundary: object,
+    may_not_use_for: object,
+) -> None:
+    """Enforce the S10 authority firewall at both nested and record levels."""
+
+    record_denials = _normalise_boundary_values(may_not_use_for)
+    _assert_required_denials(record_denials)
+    nested_denials = _boundary_values(authority_boundary, "may_not_use_for")
+    _assert_required_denials(nested_denials)
+    authoritative_for = _boundary_values(authority_boundary, "authoritative_for")
+    forbidden = set(authoritative_for) & (set(record_denials) | set(nested_denials))
+    if forbidden:
+        raise ValueError(
+            "S10 authority boundary cannot be authoritative_for denied purposes: "
+            f"{sorted(forbidden)}"
+        )
+
+
+def _prediction_authority_boundary_is_valid(
+    authority_boundary: object,
+    may_not_use_for: object,
+) -> bool:
+    """Return whether an existing S10 record still carries a valid boundary."""
+
+    try:
+        _assert_prediction_authority_boundary(authority_boundary, may_not_use_for)
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
+def _safe_prediction_authority_boundary(
+    authority_boundary: object,
+    may_not_use_for: object,
+    *,
+    rule_version_ref: object,
+) -> AuthorityBoundary:
+    if (
+        isinstance(authority_boundary, AuthorityBoundary)
+        and _prediction_authority_boundary_is_valid(authority_boundary, may_not_use_for)
+    ):
+        return authority_boundary
+    safe_rule_version_ref = (
+        rule_version_ref
+        if isinstance(rule_version_ref, str) and rule_version_ref
+        else LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION
+    )
+    return build_prediction_authority_boundary(
+        authoritative_for=["none"],
+        posture="shadow",
+        rule_version_ref=safe_rule_version_ref,
+    )
+
+
+def _boundary_values(
+    authority_boundary: object,
+    field_name: str,
+) -> list[str]:
+    if isinstance(authority_boundary, Mapping):
+        raw_values = authority_boundary.get(field_name)
+    else:
+        raw_values = getattr(authority_boundary, field_name, None)
+    values = _normalise_boundary_values(raw_values)
+    if not values:
+        raise ValueError(f"S10 authority boundary {field_name} is required")
+    return values
+
+
+def _normalise_boundary_values(value: object) -> list[str]:
+    return [str(item) for item in _sequence(value) if str(item)]
+
+
+def _append_prediction_issue(issues: list[str], issue_code: str) -> None:
+    if issue_code not in issues:
+        issues.append(issue_code)
+
+
+def _merge_denials(values: object) -> list[str]:
+    merged = _normalise_boundary_values(values)
     for item in _S10_MAY_NOT_USE_FOR:
         if item not in merged:
             merged.append(item)

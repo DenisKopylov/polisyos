@@ -21,7 +21,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import ValueOuterSet
@@ -64,6 +64,8 @@ _MISSING = object()
 _FLOAT_QUANT = Decimal("0.000000001")
 _CELL_PREFIX = "cells."
 _HOUSEHOLD_CELL_PREFIX = "household_cells."
+_JSON_MEDIA_TYPE = "application/json"
+_ARROW_MEDIA_TYPE = "application/vnd.apache.arrow.stream"
 
 
 @dataclass(frozen=True)
@@ -838,6 +840,7 @@ def inject_feedback_state(
 
 
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
+    _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
     payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref.artifact_id))
     return DataSnapshot.model_validate(payload)
 
@@ -926,10 +929,47 @@ def _coerce_feedback_target(value: float, target: Any) -> Any:
     return type(target)(value)
 
 
+def _reconcile_artifact_ref(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    label: str,
+) -> ArtifactManifest:
+    """Require a typed artifact reference to agree with its immutable manifest."""
+
+    manifest = store.get_manifest(ref.artifact_id)
+    if ref.kind != manifest.kind:
+        raise ValueError(f"{label} kind mismatch between typed ref and CAS manifest")
+    if ref.media_type != manifest.media_type:
+        raise ValueError(f"{label} media type mismatch between typed ref and CAS manifest")
+    return manifest
+
+
+def _decode_arrow_binding_payload(payload: bytes) -> dict[str, Any]:
+    """Decode one Arrow IPC stream into the mapping shape used by bindings."""
+
+    import pyarrow as pa
+
+    try:
+        table = pa.ipc.open_stream(payload).read_all()
+        return table.to_pydict()
+    except (OSError, ValueError, pa.ArrowException) as exc:
+        raise ValueError("invalid Arrow IPC payload") from exc
+
+
 def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
-    if snapshot.data_ref.kind == "foundry.state_snapshot":
+    data_ref = snapshot.data_ref
+    manifest = _reconcile_artifact_ref(store, data_ref, label="data snapshot payload")
+    if data_ref.kind == "foundry.state_snapshot":
+        if manifest.media_type != _JSON_MEDIA_TYPE:
+            raise ValueError("foundry.state_snapshot media type must be application/json")
         return {}
-    return from_canonical_bytes(store.get_bytes(snapshot.data_ref.artifact_id))
+    payload = store.get_bytes(data_ref.artifact_id)
+    if manifest.media_type == _JSON_MEDIA_TYPE:
+        return from_canonical_bytes(payload)
+    if manifest.media_type == _ARROW_MEDIA_TYPE:
+        return _decode_arrow_binding_payload(payload)
+    raise ValueError(f"unsupported data snapshot payload media type: {manifest.media_type}")
 
 
 def _prepare_rules(

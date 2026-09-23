@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
 import pytest
@@ -412,7 +413,10 @@ def test_registry_gate_blocks_legacy_calibration_without_model_identity() -> Non
     )
 
     assert result.registry_record is not None
-    gate = evaluate_registry_gate(result.registry_record)
+    payload = json.loads(result.registry_record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    gate = evaluate_registry_gate(reloaded, owner_signoff=True)
     assert gate.promotion_allowed is False
     assert gate.reason == "calibration_model_identity_not_established"
 
@@ -476,14 +480,84 @@ def test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3(
 def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None:
     """R2 may still use its documented limited owner-signoff exception."""
 
-    record = _valid_checker_bound_registry_record().model_copy(
-        update={"readiness_state": ReadinessState.R2, "promotion_allowed": False}
+    report, audit, record = _registry_context(observed_triggers=[])
+    projection = record.calibration_validity
+    assert projection is not None
+    payload = json.loads(record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    rebound = rebind_calibration_validity(
+        reloaded,
+        report=report,
+        calibration_audit=audit,
+        now=projection.effective_at,
+        observed_invalidation_triggers=[],
     )
 
-    gate = evaluate_registry_gate(record, owner_signoff=True)
+    gate = evaluate_registry_gate(rebound, owner_signoff=True)
 
     assert gate.promotion_allowed is True
     assert gate.reason == "R2_owner_signoff_allows_limited_expansion"
+
+
+@pytest.mark.parametrize(
+    ("record_field", "binding_updates", "expected_reason"),
+    [
+        (
+            None,
+            {
+                "metric_budget_model_id": "foreign-model",
+                "metric_budget_model_version": "v9",
+            },
+            "metric_budget_model_identity_mismatch",
+        ),
+        (
+            "last_shift_event",
+            {
+                "last_shift_event_model_id": "foreign-model",
+                "last_shift_event_model_version": "v9",
+            },
+            "shift_event_model_identity_mismatch",
+        ),
+        (
+            "last_degradation_event",
+            {
+                "last_degradation_event_model_id": "foreign-model",
+                "last_degradation_event_model_version": "v9",
+            },
+            "degradation_event_model_identity_mismatch",
+        ),
+    ],
+)
+def test_registry_r2_round_trip_rejects_foreign_durable_binding(
+    record_field: str | None,
+    binding_updates: dict[str, str],
+    expected_reason: str,
+) -> None:
+    """Owner signoff cannot override a foreign durable source binding."""
+
+    report, audit, record = _registry_context(observed_triggers=[])
+    projection = record.calibration_validity
+    assert projection is not None
+    payload = json.loads(record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    if record_field is not None:
+        payload[record_field] = "foreign-event"
+    assert payload["identity_binding"] is not None
+    payload["identity_binding"].update(binding_updates)
+
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    rebound = rebind_calibration_validity(
+        reloaded,
+        report=report,
+        calibration_audit=audit,
+        now=projection.effective_at,
+        observed_invalidation_triggers=[],
+    )
+    gate = evaluate_registry_gate(rebound, owner_signoff=True)
+
+    assert gate.promotion_allowed is False
+    assert gate.reason == expected_reason
 
 
 def test_registry_public_round_trip_fails_closed_without_durable_validity() -> None:

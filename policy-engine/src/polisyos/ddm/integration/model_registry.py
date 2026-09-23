@@ -25,6 +25,21 @@ if TYPE_CHECKING:
     from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy
 
 
+class RegistryIdentityBinding(BaseModel):
+    """Durable source identities reconciled into one registry record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    calibration_model_id: str | None = Field(default=None, min_length=1)
+    calibration_model_version: str | None = Field(default=None, min_length=1)
+    metric_budget_model_id: str | None = Field(default=None, min_length=1)
+    metric_budget_model_version: str | None = Field(default=None, min_length=1)
+    last_shift_event_model_id: str | None = Field(default=None, min_length=1)
+    last_shift_event_model_version: str | None = Field(default=None, min_length=1)
+    last_degradation_event_model_id: str | None = Field(default=None, min_length=1)
+    last_degradation_event_model_version: str | None = Field(default=None, min_length=1)
+
+
 class ModelRegistryReadinessRecord(BaseModel):
     """Registry-facing readiness record for one deployed model version."""
 
@@ -45,10 +60,12 @@ class ModelRegistryReadinessRecord(BaseModel):
     active_incident_id: str | None = None
     promotion_allowed: bool
     calibration_validity: CalibrationValidityProjection | None = None
+    # Optional keeps pre-binding registry payloads readable; a record built by
+    # the current producer always carries this source-identity projection.
+    identity_binding: RegistryIdentityBinding | None = None
     _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(
         default=None
     )
-    _identity_binding_reasons: tuple[str, ...] = PrivateAttr(default=())
 
 
 class RegistryGateDecision(BaseModel):
@@ -75,6 +92,12 @@ def build_model_registry_record(
 ) -> ModelRegistryReadinessRecord:
     """Build the durable registry state described by the Phase 5 plan."""
 
+    identity_binding = _build_registry_identity_binding(
+        calibration_audit=calibration_audit,
+        metric_budget=metric_budget,
+        last_shift_event=last_shift_event,
+        last_degradation_event=last_degradation_event,
+    )
     identity_binding_reasons = _registry_identity_binding_reasons(
         model_id=readiness_event.model_id,
         model_version=readiness_event.model_version,
@@ -120,9 +143,9 @@ def build_model_registry_record(
             if _calibration_validity_evidence is None
             else _calibration_validity_evidence.projection
         ),
+        identity_binding=identity_binding,
     )
     record._calibration_validity_evidence = _calibration_validity_evidence
-    record._identity_binding_reasons = identity_binding_reasons
     return record
 
 
@@ -144,6 +167,12 @@ def rebind_calibration_validity(
     """
 
     rebound = record.model_copy(deep=True)
+    rebound.identity_binding = _restore_calibration_identity_binding(
+        record.identity_binding,
+        calibration_audit=calibration_audit,
+    )
+    if _durable_identity_binding_block_reason(rebound) is not None:
+        rebound.promotion_allowed = False
     if record.calibration_validity is None:
         rebound._calibration_validity_evidence = None
         return rebound
@@ -176,12 +205,13 @@ def evaluate_registry_gate(
             reason="calibration_fp_certificate_failed",
             required_actions=["recalibrate_detector"],
         )
-    if record._identity_binding_reasons:
+    identity_binding_reason = _durable_identity_binding_block_reason(record)
+    if identity_binding_reason is not None:
         return RegistryGateDecision(
             model_id=record.model_id,
             model_version=record.model_version,
             promotion_allowed=False,
-            reason=record._identity_binding_reasons[0],
+            reason=identity_binding_reason,
             required_actions=["reconcile_registry_bindings"],
         )
     if record.readiness_state in {ReadinessState.R4, ReadinessState.R3}:
@@ -290,6 +320,104 @@ def _registry_identity_binding_reasons(
         reasons.append("degradation_event_model_identity_mismatch")
 
     return tuple(dict.fromkeys(reasons))
+
+
+def _build_registry_identity_binding(
+    *,
+    calibration_audit: CalibrationAudit,
+    metric_budget: MetricBudgetPolicy,
+    last_shift_event: ShiftRiskEvent | None,
+    last_degradation_event: PerformanceDegradationEvent | None,
+) -> RegistryIdentityBinding:
+    """Project source model identities into the durable registry record."""
+
+    return RegistryIdentityBinding(
+        calibration_model_id=calibration_audit.model_id,
+        calibration_model_version=calibration_audit.model_version,
+        metric_budget_model_id=metric_budget.model_id,
+        metric_budget_model_version=metric_budget.model_version,
+        last_shift_event_model_id=(
+            None if last_shift_event is None else last_shift_event.model_id
+        ),
+        last_shift_event_model_version=(
+            None if last_shift_event is None else last_shift_event.model_version
+        ),
+        last_degradation_event_model_id=(
+            None if last_degradation_event is None else last_degradation_event.model_id
+        ),
+        last_degradation_event_model_version=(
+            None if last_degradation_event is None else last_degradation_event.model_version
+        ),
+    )
+
+
+def _restore_calibration_identity_binding(
+    binding: RegistryIdentityBinding | None,
+    *,
+    calibration_audit: CalibrationAudit,
+) -> RegistryIdentityBinding:
+    """Restore only an absent legacy calibration identity during rebind."""
+
+    if binding is None:
+        return RegistryIdentityBinding(
+            calibration_model_id=calibration_audit.model_id,
+            calibration_model_version=calibration_audit.model_version,
+        )
+    if binding.calibration_model_id is None and binding.calibration_model_version is None:
+        return binding.model_copy(
+            update={
+                "calibration_model_id": calibration_audit.model_id,
+                "calibration_model_version": calibration_audit.model_version,
+            }
+        )
+    return binding
+
+
+def _durable_identity_binding_block_reason(
+    record: ModelRegistryReadinessRecord,
+) -> str | None:
+    """Return a fail-closed reason from the persisted source identities."""
+
+    binding = record.identity_binding
+    if binding is None:
+        return "model_identity_binding_not_established"
+    if binding.calibration_model_id is None or binding.calibration_model_version is None:
+        return "calibration_model_identity_not_established"
+    if (
+        binding.calibration_model_id != record.model_id
+        or binding.calibration_model_version != record.model_version
+    ):
+        return "calibration_model_identity_mismatch"
+    if binding.metric_budget_model_id is None or binding.metric_budget_model_version is None:
+        return "metric_budget_model_identity_not_established"
+    if (
+        binding.metric_budget_model_id != record.model_id
+        or binding.metric_budget_model_version != record.model_version
+    ):
+        return "metric_budget_model_identity_mismatch"
+    if record.last_shift_event is not None:
+        if (
+            binding.last_shift_event_model_id is None
+            or binding.last_shift_event_model_version is None
+        ):
+            return "shift_event_model_identity_not_established"
+        if (
+            binding.last_shift_event_model_id != record.model_id
+            or binding.last_shift_event_model_version != record.model_version
+        ):
+            return "shift_event_model_identity_mismatch"
+    if record.last_degradation_event is not None:
+        if (
+            binding.last_degradation_event_model_id is None
+            or binding.last_degradation_event_model_version is None
+        ):
+            return "degradation_event_model_identity_not_established"
+        if (
+            binding.last_degradation_event_model_id != record.model_id
+            or binding.last_degradation_event_model_version != record.model_version
+        ):
+            return "degradation_event_model_identity_mismatch"
+    return None
 
 
 def _calibration_validity_block_reason(

@@ -1122,6 +1122,10 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
 ) -> None:
     """The accepted route reaches the real JointSimulationPort and default N8."""
 
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+
     case = _real_acq01_inputs(
         tmp_path,
         problem_id="acq_01_real_ports",
@@ -1129,8 +1133,56 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             "joint_simulation_resource": "method_registry_estimator",
             "joint_simulation_budget_ref": "budget://acq-01/real-ports",
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+            "joint_simulation_baseline_state": {"firm_survival": 1.0},
+            "joint_simulation_variable_map": {"firm_survival": "stock:0"},
+            "joint_simulation_engine_plan": {
+                "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+                "system_dynamics_state": {
+                    "initial_stocks": [1.0, 0.0],
+                    "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
+                    "exogenous_inflows": [0.0, 0.0],
+                },
+                "system_dynamics_params": {"dt": 1.0},
+            },
         },
     )
+    atom = case.candidate.atom
+    assignment = atom.causal_do_expr.assignments[0].model_copy(
+        update={"value": 1, "value_expr": None}
+    )
+    expression_payload = {
+        **atom.causal_do_expr.expression_payload,
+        "assignments": [assignment.model_dump(mode="json")],
+    }
+    causal_do_expr = atom.causal_do_expr.model_copy(
+        update={
+            "assignments": (assignment,),
+            "expression_payload": expression_payload,
+        }
+    )
+    direct_effect_bundle = atom.direct_effect_bundle.model_copy(
+        update={
+            "mechanism_config_overrides": {
+                **atom.direct_effect_bundle.mechanism_config_overrides,
+                "joint_simulation_engine_variable": "exogenous_inflows.0",
+            }
+        }
+    )
+    atom = atom.model_copy(
+        update={
+            "causal_do_expr": causal_do_expr,
+            "direct_effect_bundle": direct_effect_bundle,
+        }
+    )
+    atom_content_hash = intervention_atom_content_hash(atom)
+    atom = atom.model_copy(
+        update={
+            "atom_id": f"atom_{atom_content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": atom_content_hash,
+        }
+    )
+    case.candidate.atom = atom
+    case.candidate.intervention_atoms = (atom,)
     with _real_acq01_route(
         tmp_path,
         case.problem,
@@ -1208,9 +1260,21 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             controller._cycle_substrate_context.world_model_record,
             route.world_build.record,
         )
-        assert run.cycles[0].value_port.status == "value_conditional"
+        cycle = run.cycles[0]
+        assert cycle.simulation.status == "joint_simulated"
+        assert cycle.simulation.simulation_result_ref is not None
+        assert cycle.simulation.authority_blockers == (
+            "simulation_only_k_sim_not_world_evidence",
+        )
+        assert cycle.value_port.status == "value_conditional"
+        assert cycle.value_port.value_ref == str(
+            cycle.simulation.simulation_result_ref.artifact_id
+        )
+        assert cycle.value_port.authority_blockers == (
+            "simulation_only_k_sim_not_world_evidence",
+        )
         assert (
-            run.cycles[0].value_port.world_model_record_content_hash
+            cycle.value_port.world_model_record_content_hash
             == route.world_build.record.content_hash
         )
 
@@ -1583,7 +1647,10 @@ async def test_n7_run_recalculates_dependent_simulation_after_verified_owner_wri
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "binding_mode",
-    [("foreign_hash",), ("foreign_target_slots",)],
+    [
+        pytest.param("foreign_hash", id="foreign_hash"),
+        pytest.param("foreign_target_slots", id="foreign_target_slots"),
+    ],
 )
 async def test_n7_reentry_rejects_semantically_foreign_owner_binding(
     binding_mode: str,

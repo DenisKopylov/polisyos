@@ -5,6 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import InputRef, PutOptions
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
@@ -49,6 +50,7 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
     assert 0.0 <= result.composite_score <= 1.0
     assert all(item.status == "ok" for item in result.kind_results)
     assert all(item.score is not None and 0.0 <= item.score <= 1.0 for item in result.kind_results)
+    assert result.report_id.startswith("BTM_")
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 5
@@ -70,6 +72,54 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 1
     assert report.trust_eligible is True
+
+
+def test_backtest_matrix_preserves_preallocated_id_and_manifest_inputs(
+    tmp_path,
+    cas_store,
+) -> None:
+    source_ref = cas_store.put_json(
+        {"source": "frc02"},
+        PutOptions(kind="test.frc02.matrix_source", media_type="application/json"),
+    )
+    inputs = [InputRef(artifact_id=source_ref.artifact_id, role="calibration_source")]
+
+    result = BacktestMatrixRunner(cas_store).run(
+        {BacktestKind.HOUSEHOLD: _bundle(tmp_path, BacktestKind.HOUSEHOLD)},
+        report_id="frc02.owner.matrix/report-1",
+        inputs=inputs,
+    )
+
+    assert result.report_id == "frc02.owner.matrix/report-1"
+    assert result.backtest_report_ref is not None
+    manifest = cas_store.get_manifest(result.backtest_report_ref.artifact_id)
+    assert [(str(item.artifact_id), item.role) for item in manifest.inputs] == [
+        (str(source_ref.artifact_id), "calibration_source")
+    ]
+
+
+def test_backtest_matrix_rejects_conflicting_report_ids(tmp_path, cas_store) -> None:
+    with pytest.raises(ValueError, match="report_id"):
+        BacktestMatrixRunner(cas_store).run(
+            {BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)},
+            report_id="frc02.owner.matrix/explicit",
+            metadata={"report_id": "frc02.owner.matrix/metadata"},
+        )
+
+
+def test_backtest_matrix_rejects_duplicate_manifest_input_edges(tmp_path, cas_store) -> None:
+    source_ref = cas_store.put_json(
+        {"source": "frc02"},
+        PutOptions(kind="test.frc02.matrix_source", media_type="application/json"),
+    )
+    duplicate = InputRef(artifact_id=source_ref.artifact_id, role="calibration_source")
+
+    with pytest.raises(ValueError, match="duplicate"):
+        BacktestMatrixRunner(cas_store).run(
+            {BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)},
+            report_id="frc02.owner.matrix/duplicate",
+            inputs=[duplicate, duplicate],
+        )
 
 
 def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, cas_store) -> None:

@@ -3,9 +3,16 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import pytest
+
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
 from polisyos.ir.analytics.backtest import BacktestScenario
-from polisyos.ir.artifacts import StorePutOptions, get_json_artifact, normalize_artifact_ref
+from polisyos.ir.artifacts import (
+    InputRef,
+    StorePutOptions,
+    get_json_artifact,
+    normalize_artifact_ref,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
@@ -34,6 +41,80 @@ def test_backtesting_orchestrator_naive_mode(tmp_path) -> None:
     assert report.n_scenarios == 1
     assert report.cas_artifact_id is not None
     assert report.scenarios[0].scenario_id == "bt_1"
+    assert report.report_id.startswith("BT_")
+
+
+def test_orchestrator_preserves_preallocated_report_id_and_manifest_inputs(tmp_path) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps({"metric": [1.0, 1.1, 1.2]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="frc02-owner-direct",
+        historical_data_path=str(history_path),
+        intervention_step=1,
+        target_metrics=["metric"],
+        ground_truth_outcomes={"metric": [1.2]},
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [1.2]},
+        model_spec_ref="sha256:" + "a" * 64,
+    )
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+    source_ref = _put_backtest_artifact(
+        orchestrator,
+        {"source": "frc02"},
+        "test.frc02.owner_source",
+    )
+    inputs = [InputRef(artifact_id=source_ref["artifact_id"], role="calibration_source")]
+
+    report = orchestrator.run(
+        [plan],
+        report_id="frc02.owner.direct/report-1",
+        inputs=inputs,
+    )
+
+    assert report.report_id == "frc02.owner.direct/report-1"
+    assert report.cas_artifact_id is not None
+    manifest = orchestrator._store.get_manifest(report.cas_artifact_id)
+    assert [(str(item.artifact_id), item.role) for item in manifest.inputs] == [
+        (source_ref["artifact_id"], "calibration_source")
+    ]
+
+
+def test_orchestrator_does_not_infer_plan_refs_into_manifest_inputs(tmp_path) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps({"metric": [1.0, 1.1, 1.2]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="frc02-owner-no-inferred-inputs",
+        historical_data_path=str(history_path),
+        intervention_step=1,
+        target_metrics=["metric"],
+        ground_truth_outcomes={"metric": [1.2]},
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [1.2]},
+        model_spec_ref="sha256:" + "b" * 64,
+        policy_spec_ref="sha256:" + "c" * 64,
+    )
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    report = orchestrator.run([plan], report_id="frc02.owner.no-inferred-inputs")
+
+    assert report.cas_artifact_id is not None
+    manifest = orchestrator._store.get_manifest(report.cas_artifact_id)
+    assert manifest.inputs == []
+
+
+@pytest.mark.parametrize(
+    "invalid_report_id",
+    ("", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"),
+)
+def test_orchestrator_rejects_malformed_preallocated_report_id(
+    invalid_report_id: str,
+    tmp_path,
+) -> None:
+    with pytest.raises(ValueError, match="report_id"):
+        BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos")).run(
+            [],
+            report_id=invalid_report_id,
+        )
 
 
 def test_trust_scorer_coverage_gate_caps_grade() -> None:

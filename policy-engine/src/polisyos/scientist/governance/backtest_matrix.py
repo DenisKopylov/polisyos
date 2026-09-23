@@ -12,7 +12,6 @@ from __future__ import annotations
 from collections import defaultdict
 from enum import Enum
 from typing import Any
-from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -25,6 +24,8 @@ from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.scientist.methods.backtesting.orchestrator import (
     BacktestOrchestrator,
     _collapse_modes,
+    _normalize_manifest_inputs,
+    _resolve_report_id,
 )
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 
@@ -116,6 +117,7 @@ class BacktestMatrixRunner:
         self,
         bundles: dict[BacktestKind, BacktestPlanBundle],
         *,
+        report_id: str | None = None,
         inputs: list[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> BacktestMatrixResult:
@@ -131,6 +133,13 @@ class BacktestMatrixRunner:
             `BacktestMatrixResult` with one `kind_results` item per required
             backtest kind, plus a persisted report ref and composite summary.
         """
+
+        resolved_report_id = _resolve_report_id(
+            report_id,
+            generated_prefix="BTM_",
+            metadata=metadata,
+        )
+        manifest_inputs = _normalize_manifest_inputs(inputs)
 
         materialized_plans = {
             kind: [HistoricalValidationPlan.model_validate(payload) for payload in bundle.plans]
@@ -210,9 +219,8 @@ class BacktestMatrixRunner:
                 )
             )
 
-        report_id = f"BTM_{uuid4().hex[:12]}"
         report = self._orchestrator._aggregate(
-            report_id=report_id,
+            report_id=resolved_report_id,
             scenarios=report_scenarios,
             plans=report_plans,
             metadata={
@@ -231,7 +239,7 @@ class BacktestMatrixRunner:
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
         )
-        report_ref = persist_backtest_report(self._store, report, inputs=inputs)
+        report_ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
         report.cas_artifact_id = str(report_ref.artifact_id)
         composite_score = _mean_defined(result.score for result in kind_results)
         scored_results = [result for result in kind_results if result.score is not None]

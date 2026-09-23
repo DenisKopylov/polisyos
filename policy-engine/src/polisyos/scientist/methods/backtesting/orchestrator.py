@@ -30,7 +30,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     combine_envelopes,
 )
-from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.artifacts import InputRef, normalize_input_refs, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.scientist import run_experiment
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
@@ -93,6 +93,78 @@ def _consistent_plan_refs(
     )
 
 
+def _validate_report_id(report_id: object, *, field: str = "report_id") -> str:
+    """Validate an externally allocated report identity without rewriting it."""
+    if not isinstance(report_id, str) or not report_id:
+        raise ValueError(f"{field} must be a non-empty string")
+    if report_id != report_id.strip():
+        raise ValueError(f"{field} must not have leading or trailing whitespace")
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in report_id):
+        raise ValueError(f"{field} must not contain control characters")
+    return report_id
+
+
+def _resolve_report_id(
+    report_id: str | None,
+    *,
+    generated_prefix: str,
+    metadata: Mapping[str, Any] | None = None,
+) -> str:
+    """Resolve one report identity and reject a second conflicting declaration."""
+    resolved = (
+        _validate_report_id(report_id)
+        if report_id is not None
+        else f"{generated_prefix}{uuid.uuid4().hex[:12]}"
+    )
+    if report_id is not None and metadata is not None and "report_id" in metadata:
+        metadata_report_id = _validate_report_id(
+            metadata["report_id"],
+            field="metadata.report_id",
+        )
+        if metadata_report_id != resolved:
+            raise ValueError(
+                "conflicting report_id declarations between the explicit report_id "
+                "and metadata.report_id"
+            )
+    return resolved
+
+
+def _normalize_manifest_inputs(inputs: Sequence[Any] | None) -> list[InputRef] | None:
+    """Validate explicit report lineage edges before executing a backtest."""
+    if inputs is None:
+        return None
+    for item in inputs:
+        if isinstance(item, Mapping):
+            has_artifact_id = "artifact_id" in item
+            has_role = "role" in item
+        else:
+            has_artifact_id = getattr(item, "artifact_id", None) is not None
+            has_role = getattr(item, "role", None) is not None
+        if not has_artifact_id or not has_role:
+            raise ValueError(
+                "manifest inputs must provide both artifact_id and role"
+            )
+    try:
+        normalized = normalize_input_refs(inputs)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("manifest inputs must contain typed artifact references") from exc
+
+    seen_pairs: set[tuple[str, str]] = set()
+    for item in normalized:
+        role = item.role
+        if not role or role != role.strip() or any(
+            ord(char) < 0x20 or ord(char) == 0x7F for char in role
+        ):
+            raise ValueError("manifest input role must be a non-empty clean string")
+        pair = (str(item.artifact_id), role)
+        if pair in seen_pairs:
+            raise ValueError(
+                "duplicate manifest input role/artifact pair is not allowed"
+            )
+        seen_pairs.add(pair)
+    return normalized
+
+
 class BacktestOrchestrator:
     """Run scenario replay, score prediction quality, and persist a `BacktestReport`.
 
@@ -123,10 +195,22 @@ class BacktestOrchestrator:
         self,
         plans: list[HistoricalValidationPlan],
         *,
+        report_id: str | None = None,
+        inputs: Sequence[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> BacktestReport:
-        """Execute every historical plan and persist the aggregated report in CAS."""
-        report_id = f"BT_{uuid.uuid4().hex[:12]}"
+        """Execute every historical plan and persist the aggregated report in CAS.
+
+        ``report_id`` and ``inputs`` are caller-owned handoff values.  When they
+        are absent, the historical generated-ID and empty-lineage behavior is
+        retained; plan fields are never promoted into manifest inputs.
+        """
+        resolved_report_id = _resolve_report_id(
+            report_id,
+            generated_prefix="BT_",
+            metadata=metadata,
+        )
+        manifest_inputs = _normalize_manifest_inputs(inputs)
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []
         requested_modes: list[str] = []
@@ -150,7 +234,7 @@ class BacktestOrchestrator:
             )
 
         report = self._aggregate(
-            report_id=report_id,
+            report_id=resolved_report_id,
             scenarios=scenarios,
             plans=plans,
             metadata={"warnings": warnings, **(metadata or {})},
@@ -158,7 +242,7 @@ class BacktestOrchestrator:
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
         )
-        ref = persist_backtest_report(self._store, report)
+        ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
         report.cas_artifact_id = str(ref.artifact_id)
         return report
 

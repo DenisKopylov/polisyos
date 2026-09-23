@@ -2784,14 +2784,19 @@ def _rederive_grounding_for_affected_region(
             )
             continue
         target_slots = _text_tuple(binding.get("target_world_slots"))
-        if not set(target_slots).intersection(set(affected_region.source_slots)):
+        dependency_slots = tuple(
+            source_slot
+            for source_slot in affected_region.source_slots
+            if design_id in affected_region.dependency_index.get(source_slot, ())
+        )
+        if not dependency_slots:
             rows.append(
                 AcquisitionGroundingRederivation(
                     design_id=design_id,
                     source_slots=affected_region.source_slots,
                     status="grounding_unavailable",
                     grounding_score=0.0,
-                    issue_codes=("candidate_target_not_in_written_world_region",),
+                    issue_codes=("candidate_not_in_dependency_index",),
                 )
             )
             continue

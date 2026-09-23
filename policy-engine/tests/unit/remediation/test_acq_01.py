@@ -20,6 +20,7 @@ from polisyos.data_requirement import (
 )
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionAffectedRegion,
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
     AcquisitionWorldSnapshot,
@@ -484,6 +485,12 @@ def _fixture_data_requirement_spec() -> DataRequirementSpec:
     )
 
 
+def _acq01_source_requirement_id(problem_id: str) -> str:
+    from polisyos.runtime.quality.data_forge_binding import _gy_slug
+
+    return f"req-{_gy_slug(problem_id)}"
+
+
 def _fixture_registration(*, source_id: str, snapshot_id: str) -> SubstrateRegistration:
     return SubstrateRegistration(
         source_id=source_id,
@@ -629,9 +636,14 @@ def _real_acq01_route(
 
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
-            "requirement_id": "data-requirement:acq-01-file-tabular",
-            "claim_id": "claim:acq-01-file-tabular",
+            "requirement_id": _acq01_source_requirement_id(problem.design_problem_id),
+            "claim_id": _acq01_source_requirement_id(problem.design_problem_id).replace(
+                "req-", "claim-", 1
+            ),
             "required_data_families": ("metric.test",),
+            "source_requirement_refs": (
+                _acq01_source_requirement_id(problem.design_problem_id),
+            ),
         }
     )
     capture_root = tmp_path / "capture"
@@ -805,6 +817,7 @@ def _real_acq01_route(
                 "measurement_root": measurement_root.model_dump(mode="json"),
                 "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
                 "registry_ref": route_registry_ref.model_dump(mode="json"),
+                "baseline_registry_ref": baseline_registry_ref.model_dump(mode="json"),
                 "registry": route_registry.model_dump(mode="json"),
                 "build_inputs": {
                     "fabric_world_ref": _fabric_ref(
@@ -902,9 +915,12 @@ def _real_acq01_inputs(
 ) -> Any:
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
-            "requirement_id": "data-requirement:acq-01-file-tabular",
-            "claim_id": "claim:acq-01-file-tabular",
+            "requirement_id": _acq01_source_requirement_id(problem_id),
+            "claim_id": _acq01_source_requirement_id(problem_id).replace(
+                "req-", "claim-", 1
+            ),
             "required_data_families": ("metric.test",),
+            "source_requirement_refs": (_acq01_source_requirement_id(problem_id),),
         }
     )
     runtime_hints = {"n7_data_requirement_specs": (data_spec,)}
@@ -1170,6 +1186,40 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             run.cycles[0].value_port.world_model_record_content_hash
             == route.world_build.record.content_hash
         )
+
+
+def test_n7_grounding_fails_closed_without_structural_dependency_membership() -> None:
+    """A policy target slot cannot replace a missing data dependency edge."""
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        _rederive_grounding_for_affected_region,
+    )
+
+    region = AcquisitionAffectedRegion(
+        source_slots=("metric.test",),
+        neighborhood_slots=("metric.test",),
+        dependency_index={"metric.test": ("candidate_other",)},
+        design_ids=("candidate_fixture_panel",),
+        rederived_design_ids=("candidate_fixture_panel",),
+        revalidation_stages={"candidate_fixture_panel": ("grounding",)},
+        over_approximation_basis="test_dependency_membership",
+    )
+    rows = _rederive_grounding_for_affected_region(
+        world=AcquisitionWorldSnapshot(world_ref="world://dependency-negative"),
+        world_after_ref="world://dependency-negative/after",
+        affected_region=region,
+        owner_artifacts=(
+            _fixture_owner_artifact(
+                _fixture_data_requirement_spec().requirement_id,
+                target_world_slots=("agents.income",),
+            ),
+        ),
+        design_problem=_problem(problem_id="acq_01_dependency_negative"),
+    )
+
+    assert len(rows) == 1
+    assert rows[0].status == "grounding_unavailable"
+    assert rows[0].issue_codes == ("candidate_not_in_dependency_index",)
 
 
 @pytest.mark.asyncio

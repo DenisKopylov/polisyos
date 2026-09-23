@@ -4466,6 +4466,8 @@ class GenerationCycleController:
         measurement_payload_ref: CASArtifactRef,
         data_snapshot_ref: CASArtifactRef,
         store: FileSystemCAS,
+        acquisition_receipt: AcquisitionReceipt,
+        active_requirement_ref: str,
     ) -> FabricMeasurementRootPayload:
         """Recheck the complete same-store custody chain before rebuilding a WMR.
 
@@ -4502,6 +4504,24 @@ class GenerationCycleController:
             payload = FabricMeasurementRootPayload.model_validate(
                 from_canonical_bytes(payload_raw)
             )
+            if payload.design_problem.model_dump(mode="json") != problem.model_dump(mode="json"):
+                raise ValueError("measurement root design problem is not the active problem")
+            from polisyos.data_requirement import DataRequirementSpec
+
+            active_specs = tuple(
+                DataRequirementSpec.model_validate(spec)
+                for spec in acquisition_receipt.compiled_requirement_specs
+                if isinstance(spec, Mapping)
+                and spec.get("requirement_id") == active_requirement_ref
+            )
+            if len(active_specs) != 1:
+                raise ValueError("active N7 requirement is missing or ambiguous")
+            active_requirement = active_specs[0]
+            if (
+                payload.source_requirement.requirement_id
+                not in active_requirement.source_requirement_refs
+            ):
+                raise ValueError("measurement root source requirement is not bound to active N7")
             expected_envelope = _fabric_measurement_envelope(
                 payload,
                 str(measurement_payload_ref.artifact_id),
@@ -4668,6 +4688,15 @@ class GenerationCycleController:
                 expected_inputs=(),
             )
 
+            from polisyos.core.contracts.fabric import DataSnapshot
+
+            snapshot_raw = store.get_bytes(data_snapshot_ref.artifact_id)
+            snapshot = DataSnapshot.model_validate(from_canonical_bytes(snapshot_raw))
+            if (
+                snapshot.data_ref != payload.payload_ref
+                or snapshot.stats.get("snapshot_id") != str(payload.payload_ref.artifact_id)
+            ):
+                raise ValueError("DataSnapshot bytes are not bound to fetched payload")
             snapshot_manifest = store.get_manifest(data_snapshot_ref.artifact_id)
             expected_snapshot_inputs = [
                 artifacts.InputRef(
@@ -4760,6 +4789,8 @@ class GenerationCycleController:
         acquisition_receipt: AcquisitionReceipt,
         registry_ref: CASArtifactRef,
         registry: SubstrateRegistry,
+        baseline_registry_ref: CASArtifactRef,
+        baseline_registry: SubstrateRegistry,
         store: FileSystemCAS,
         candidate_id: str,
         candidate_content_hash: str,
@@ -4833,19 +4864,56 @@ class GenerationCycleController:
                 or outcome.owner_component != owner_artifact.owner_component
                 or outcome.source_id != registration.source_id
                 or outcome.family_id != registration.family_id
+                or outcome.substrate_version_before != baseline_registry.substrate_version_id
+                or outcome.registry_content_hash_before != baseline_registry.content_hash
                 or outcome.registry_content_hash_after != registry.content_hash
                 or outcome.substrate_version_after != registry.substrate_version_id
-                or outcome.world_ref_after != acquisition_receipt.grown_world_after_ref
-                or registration.family_id not in acquisition_receipt.grown_world_added_slots
+                or outcome.world_ref_after
+                != f"s0://substrate-registry/{registry.substrate_version_id}"
+                or acquisition_receipt.grown_world_after_ref
+                != f"s0://substrate-registry/{registry.substrate_version_id}"
             ):
                 raise ValueError("registry does not match accepted owner write outcome")
+
+            before_entries = {
+                entry.registry_key: entry for entry in baseline_registry.entries
+            }
+            after_entries = {entry.registry_key: entry for entry in registry.entries}
+            expected_entry = build_substrate_registry_entry(registration)
+            added_keys = set(after_entries) - set(before_entries)
+            changed_keys = {
+                key
+                for key in set(before_entries) & set(after_entries)
+                if before_entries[key] != after_entries[key]
+            }
+            if (
+                added_keys != {expected_entry.registry_key}
+                or changed_keys
+                or set(before_entries) - set(after_entries)
+                or after_entries.get(expected_entry.registry_key) != expected_entry
+                or tuple(acquisition_receipt.grown_world_added_slots)
+                != (registration.family_id,)
+                or tuple(acquisition_receipt.affected_region.source_slots)
+                != (registration.family_id,)
+                or tuple(acquisition_receipt.affected_region.neighborhood_slots)
+                != (registration.family_id,)
+                or outcome.family_id != registration.family_id
+                or not any(
+                    candidate_id
+                    in acquisition_receipt.affected_region.dependency_index.get(
+                        source_slot, ()
+                    )
+                    for source_slot in acquisition_receipt.affected_region.source_slots
+                )
+            ):
+                raise ValueError("receipt registry delta is not exact")
 
             entries = registry.resolve(
                 source_id=registration.source_id,
                 family_id=registration.family_id,
                 layer=registration.layer,
             )
-            if len(entries) != 1 or entries[0] != build_substrate_registry_entry(registration):
+            if len(entries) != 1 or entries[0] != expected_entry:
                 raise ValueError("registry entry does not match accepted registration")
             entry = entries[0]
             measurement_root = route.get("measurement_root")
@@ -4894,18 +4962,17 @@ class GenerationCycleController:
                         artifact_id=root_payload_obj.catalog_binding_ref.artifact_id,
                         role="catalog_binding",
                     ),
+                    artifacts.InputRef(
+                        artifact_id=baseline_registry_ref.artifact_id,
+                        role="baseline_substrate_registry",
+                    ),
                 ]
             )
             actual_inputs = tuple(registry_manifest.inputs)
             if (
-                actual_inputs[:3] != tuple(expected_registry_inputs)
-                or len(actual_inputs) > 4
-                or len({(str(item.artifact_id), item.role) for item in actual_inputs})
-                != len(actual_inputs)
-                or (
-                    len(actual_inputs) == 4
-                    and actual_inputs[3].role != "baseline_substrate_registry"
-                )
+                actual_inputs != tuple(expected_registry_inputs)
+                or len({str(item.artifact_id) for item in actual_inputs}) != len(actual_inputs)
+                or registry_ref.artifact_id == baseline_registry_ref.artifact_id
             ):
                 raise ValueError("registry manifest lineage is not bound")
         except (OSError, TypeError, ValueError, RuntimeError, KeyError) as exc:
@@ -5036,6 +5103,8 @@ class GenerationCycleController:
             measurement_payload_ref=measurement_payload_ref,
             data_snapshot_ref=data_snapshot_ref,
             store=store,
+            acquisition_receipt=acquisition_receipt,
+            active_requirement_ref=owner_artifact.requirement_ref,
         )
 
         from polisyos.runtime.quality.substrate_registry import (
@@ -5047,8 +5116,13 @@ class GenerationCycleController:
             route.get("registry_ref"),
             expected_kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
         )
+        baseline_registry_ref = cas_ref(
+            route.get("baseline_registry_ref"),
+            expected_kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+        )
         try:
             registry = load_substrate_registry(store, registry_ref)
+            baseline_registry = load_substrate_registry(store, baseline_registry_ref)
             inline_registry = SubstrateRegistry.model_validate(route.get("registry"))
             if registry.model_dump(mode="json") != inline_registry.model_dump(mode="json"):
                 raise ValueError("owner registry projection differs from CAS registry")
@@ -5064,6 +5138,8 @@ class GenerationCycleController:
             acquisition_receipt=acquisition_receipt,
             registry_ref=registry_ref,
             registry=registry,
+            baseline_registry_ref=baseline_registry_ref,
+            baseline_registry=baseline_registry,
             store=store,
             candidate_id=candidate_id,
             candidate_content_hash=candidate_content_hash,
@@ -5174,6 +5250,13 @@ class GenerationCycleController:
                     "n7_acq01_prior_context_rebind_unsupported",
                     "candidate/transport evidence needs an owner rebind",
                 )
+        if prior_context is None:
+            raise GenerationCycleError("n7_acq01_prior_context_missing")
+        if (
+            baseline_registry.model_dump(mode="json")
+            != prior_context.substrate_registry.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("n7_acq01_baseline_registry_mismatch")
 
         selected_entry_hashes = tuple(
             entry.entry_content_hash
@@ -6300,10 +6383,16 @@ def _n7_rederived_grounding_for_candidate(
     rederived_source_slots = tuple(
         str(item) for item in row.source_slots if _optional_text(item)
     )
-    if rederived_source_slots and not set(prior_target_world_slots).intersection(
-        rederived_source_slots
-    ):
-        raise GenerationCycleError("n7_reentry_candidate_target_world_slots_mismatch")
+    affected_source_slots = tuple(receipt.affected_region.source_slots)
+    if rederived_source_slots != affected_source_slots:
+        raise GenerationCycleError("n7_reentry_candidate_source_slots_mismatch")
+    dependency_slots = tuple(
+        source_slot
+        for source_slot in rederived_source_slots
+        if candidate_id in receipt.affected_region.dependency_index.get(source_slot, ())
+    )
+    if not dependency_slots:
+        raise GenerationCycleError("n7_reentry_candidate_dependency_mismatch")
     binding_hashes: list[str] = []
     binding_slot_sets: list[tuple[str, ...]] = []
     for artifact in receipt.owner_artifacts:

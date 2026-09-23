@@ -550,6 +550,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
 
     runtime_context = app.state.runtime_container.runtime_api_context
     indexed_run = runtime_context.run_index.get_run(run_id)
+    rebound_fixture_counter = 0
 
     def _run_rebound_to(
         candidate_ref: ArtifactRef,
@@ -571,7 +572,12 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         node_ref_kind: str | None = None,
         node_ref_media_type: str | None = None,
     ) -> Any:
+        nonlocal rebound_fixture_counter
+        rebound_fixture_counter += 1
+        # Keep each rebound payload unique: deliberate tenant/schema profile changes
+        # must not collide with the CAS's immutable manifest profile.
         rebound_state = result.state.model_copy(update={"run_id": state_run_id}, deep=True)
+        rebound_state.params["res03_fixture_variant"] = rebound_fixture_counter
         rebound_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = candidate_ref
         state_payload = (
             rebound_state.model_copy(
@@ -640,13 +646,10 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                     else ref
                     for ref in node_artifacts
                 ]
-            rebound_nodes.append(
-                node.model_copy(
-                    update={
-                        "artifacts": node_artifacts
-                    }
-                )
-            )
+            node_update: dict[str, Any] = {"artifacts": node_artifacts}
+            if node.alias == "independent_sibling":
+                node_update["duration_ms"] = node.duration_ms + rebound_fixture_counter
+            rebound_nodes.append(node.model_copy(update=node_update))
         report_options = PutOptions(
             kind="scientist.workflow_report",
             media_type="application/json",

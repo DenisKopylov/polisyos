@@ -22,7 +22,7 @@ def _plan(tmp_path, kind: BacktestKind) -> HistoricalValidationPlan:
         ground_truth_outcomes={"metric": [1.1, 1.15]},
         target_metrics=["metric"],
         prediction_source=PredictionSource.PROVIDED,
-        predicted_outcomes={"metric": [1.08, 1.13]},
+        predicted_outcomes={"metric": [1.1, 1.15]},
     )
 
 

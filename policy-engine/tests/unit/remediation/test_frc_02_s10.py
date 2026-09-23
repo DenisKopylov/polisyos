@@ -13,6 +13,8 @@ the FRC-01 no-fake-pass boundary and is not claimed as the new RED.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -409,6 +411,7 @@ def _method_result(
     evidence_ref: Any | None = None,
     temporal_roles: SimpleNamespace | None = None,
     report: Any | None = None,
+    expected_rule_version_ref: str = RULE_VERSION_REF,
 ) -> Any:
     output: dict[str, object] = {
         "report": report
@@ -425,8 +428,11 @@ def _method_result(
             post_periods=0,
         )
     }
-    if evidence_ref is not None:
-        output["empirical_calibration_evidence_ref"] = evidence_ref
+    # The reference is present even for the missing-ref negative witness.  The
+    # consumer must route that typed input through its resolver and fail with a
+    # named reason rather than silently falling back to estimator shape.
+    output["empirical_calibration_evidence_ref"] = evidence_ref
+    output["expected_rule_version_ref"] = expected_rule_version_ref
     return SimpleNamespace(
         output=output,
         temporal_roles=temporal_roles or _temporal_roles(),
@@ -438,9 +444,35 @@ class _CanonicalEvidenceResolver:
 
     def __init__(self, store: FileSystemCAS) -> None:
         self.store = store
+        self.trace: list[dict[str, object]] = []
 
     def __call__(self, evidence_ref: Any) -> Any:
-        return _bridge().load_empirical_calibration_evidence(self.store, evidence_ref)
+        self.trace.append({"event": "attempt", "evidence_ref": evidence_ref})
+        try:
+            evidence = _bridge().load_empirical_calibration_evidence(
+                self.store,
+                evidence_ref,
+            )
+        except Exception as exc:
+            self.trace.append(
+                {
+                    "event": "error",
+                    "exception_type": type(exc).__name__,
+                    "reason": str(exc),
+                }
+            )
+            raise
+        self.trace.append(
+            {
+                "event": "loaded",
+                "evidence_ref": evidence_ref,
+                "evidence": evidence,
+                "nominal_confidence_level": getattr(
+                    evidence, "nominal_confidence_level", None
+                ),
+            }
+        )
+        return evidence
 
     def resolve(self, evidence_ref: Any) -> Any:
         return self(evidence_ref)
@@ -452,14 +484,16 @@ def _produce_forecast_inputs(
     evidence_ref: Any | None,
     method_result: Any | None = None,
     selected_method_fqn: str = METHOD_FQN,
+    resolver: _CanonicalEvidenceResolver | None = None,
 ) -> Mapping[str, Any]:
     """Call the production-named gateway with resolver injection only."""
 
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
+    evidence_resolver = resolver or _CanonicalEvidenceResolver(store)
     gateway = RealValueOwnerGateway(
         repo_root=store.root,
-        empirical_evidence_resolver=_CanonicalEvidenceResolver(store),
+        empirical_evidence_resolver=evidence_resolver,
     )
     return gateway.produce_forecast_inputs(
         candidate=SimpleNamespace(candidate_id="frc02-s10-candidate"),
@@ -478,17 +512,112 @@ def _produce_forecast_inputs(
     )
 
 
-def _assert_gateway_blocked(**kwargs: Any) -> None:
-    """Accept either a typed rejection or an explicit blocked S10 projection."""
+def _assert_gateway_blocked(
+    *,
+    expected_code: str,
+    expected_trace_event: str,
+    **kwargs: Any,
+) -> None:
+    """Require resolver invocation and a targeted fail-closed reason."""
 
+    resolver = kwargs.get("resolver")
+    if not isinstance(resolver, _CanonicalEvidenceResolver):
+        resolver = _CanonicalEvidenceResolver(kwargs["store"])
+        kwargs["resolver"] = resolver
     try:
         result = _produce_forecast_inputs(**kwargs)
-    except (FileNotFoundError, KeyError, ValueError):
-        return
-    support = result.get("forecast_support")
-    assert support is not None
-    assert support.forecast_tier == "blocked"
-    assert result.get("forecast_calibration_record") is None
+    except (FileNotFoundError, KeyError, ValueError) as exc:
+        assert expected_code in str(exc).lower(), str(exc)
+    else:
+        support = result.get("forecast_support")
+        assert support is not None
+        assert support.forecast_tier == "blocked"
+        assert result.get("forecast_calibration_record") is None
+        assert expected_code in repr(result).lower(), repr(result)
+    assert resolver.trace
+    assert resolver.trace[0]["event"] == "attempt"
+    assert sum(item["event"] == "attempt" for item in resolver.trace) == 1
+    assert any(item["event"] == expected_trace_event for item in resolver.trace)
+
+
+def _assert_evidence_binding(
+    store: FileSystemCAS,
+    record: Any,
+    evidence_ref: Any,
+) -> None:
+    """Require typed identity, manifest schema, bytes, and non-synthetic refs."""
+
+    source_ref = record.empirical_evidence_ref
+    assert source_ref.artifact_id == evidence_ref.artifact_id
+    assert source_ref.kind == "ir.empirical_calibration_evidence"
+    assert source_ref.media_type == "application/json"
+    manifest = store.get_manifest(evidence_ref.artifact_id)
+    assert manifest.kind == source_ref.kind
+    assert manifest.media_type == source_ref.media_type
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == (
+        "polisyos.calibration.empirical_calibration_evidence"
+    )
+    assert manifest.artifact_schema.version == "1.0"
+    assert manifest.integrity.sha256 == evidence_ref.artifact_id.hex
+    evidence_bytes = store.get_bytes(evidence_ref.artifact_id)
+    assert hashlib.sha256(evidence_bytes).hexdigest() == evidence_ref.artifact_id.hex
+    evidence = _bridge().load_empirical_calibration_evidence(store, evidence_ref)
+    assert (
+        _ref_artifact_id(record.observed_outcome_ref)
+        == str(evidence.observed_outcome_ref.artifact_id)
+    )
+    assert (
+        _ref_artifact_id(record.prediction_ref)
+        == str(evidence.prediction_ref.artifact_id)
+    )
+    assert (
+        _ref_artifact_id(record.historical_implementation_ref)
+        == str(evidence.report_ref.artifact_id)
+    )
+    assert (
+        _ref_artifact_id(record.evaluation_design_ref)
+        == str(evidence.evaluation_design_ref.artifact_id)
+    )
+    assert (
+        _ref_artifact_id(record.credible_evaluation_evidence_ref)
+        == str(evidence.credible_evaluation_evidence_ref.artifact_id)
+    )
+    assert (
+        _ref_artifact_id(record.calibration_threshold_ref)
+        == str(evidence.calibration_threshold_ref.artifact_id)
+    )
+    assert tuple(_ref_artifact_id(ref) for ref in record.source_lineage_refs) == tuple(
+        str(ref.artifact_id) for ref in evidence.source_lineage_refs
+    )
+    assert tuple(_ref_artifact_id(ref) for ref in record.method_lineage_refs) == tuple(
+        str(ref.artifact_id) for ref in evidence.method_lineage_refs
+    )
+    source_values = (
+        source_ref,
+        record.observed_outcome_ref,
+        record.prediction_ref,
+        record.historical_implementation_ref,
+        record.evaluation_design_ref,
+        record.credible_evaluation_evidence_ref,
+        record.calibration_threshold_ref,
+        *record.source_lineage_refs,
+        *record.method_lineage_refs,
+    )
+    assert all(
+        not (
+            str(value).startswith("s10://")
+            or str(getattr(value, "uri", "")).startswith("s10://")
+        )
+        for value in source_values
+    )
+
+
+def _ref_artifact_id(value: Any) -> str:
+    """Normalize a typed artifact ref or legacy string field to its CAS id."""
+
+    artifact_id = getattr(value, "artifact_id", None)
+    return str(artifact_id) if artifact_id is not None else str(value)
 
 
 def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability(
@@ -496,27 +625,60 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
 ) -> None:
     """Real observations, not estimator shape, determine S10 suitability."""
 
-    passing_store, _passing_report, passing_ref, passing_evidence, _ = _persist_loaded_evidence(
+    (
+        passing_store,
+        _passing_report,
+        passing_ref,
+        passing_evidence,
+        _,
+    ) = _persist_loaded_evidence(
         tmp_path,
         label="all-hit",
         observations=(True, True),
         nominal_confidence=0.95,
         threshold=1.0,
     )
-    limited_store, _limited_report, limited_ref, _limited, _ = _persist_loaded_evidence(
+    (
+        limited_store,
+        _limited_report,
+        limited_ref,
+        _limited,
+        _,
+    ) = _persist_loaded_evidence(
         tmp_path,
         label="one-miss",
         observations=(True, False),
         nominal_confidence=0.95,
         threshold=1.0,
     )
-    passing = _produce_forecast_inputs(store=passing_store, evidence_ref=passing_ref)
-    limited = _produce_forecast_inputs(store=limited_store, evidence_ref=limited_ref)
+    passing_resolver = _CanonicalEvidenceResolver(passing_store)
+    limited_resolver = _CanonicalEvidenceResolver(limited_store)
+    passing = _produce_forecast_inputs(
+        store=passing_store,
+        evidence_ref=passing_ref,
+        resolver=passing_resolver,
+    )
+    limited = _produce_forecast_inputs(
+        store=limited_store,
+        evidence_ref=limited_ref,
+        resolver=limited_resolver,
+    )
     assert passing["forecast_support"].forecast_tier == "observable_calibrated"
     assert limited["forecast_support"].forecast_tier != (
         passing["forecast_support"].forecast_tier
     )
     record = passing["forecast_calibration_record"]
+    limited_record = limited["forecast_calibration_record"]
+    assert record is not None
+    assert limited_record is not None
+    assert record.numerator == 2
+    assert record.denominator == 2
+    assert limited_record.numerator == 1
+    assert limited_record.denominator == 2
+    assert limited_record.calibration_status != "pass"
+    assert passing_resolver.trace[-1]["event"] == "loaded"
+    assert limited_resolver.trace[-1]["event"] == "loaded"
+    _assert_evidence_binding(passing_store, record, passing_ref)
     assert str(record.empirical_evidence_ref.artifact_id) == str(
         passing_ref.artifact_id
     )
@@ -543,29 +705,61 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
 ) -> None:
     """Changing nominal confidence without new observations cannot change the result."""
 
-    low_store, _low_report, low_ref, _low, _ = _persist_loaded_evidence(
+    low_store, low_report_ref, low_ref, low_evidence, _ = _persist_loaded_evidence(
         tmp_path,
         label="nominal-80",
         observations=(True, False),
         nominal_confidence=0.80,
         threshold=0.5,
     )
-    high_store, _high_report, high_ref, _high, _ = _persist_loaded_evidence(
+    high_store, high_report_ref, high_ref, high_evidence, _ = _persist_loaded_evidence(
         tmp_path,
         label="nominal-95",
         observations=(True, False),
         nominal_confidence=0.95,
         threshold=0.5,
     )
-    low = _produce_forecast_inputs(store=low_store, evidence_ref=low_ref)
-    high = _produce_forecast_inputs(store=high_store, evidence_ref=high_ref)
-    assert low["forecast_support"].forecast_tier == high["forecast_support"].forecast_tier
+    low_report = load_backtest_report(low_store, low_report_ref)
+    high_report = load_backtest_report(high_store, high_report_ref)
+    assert low_report.scenarios[0].nominal_confidence_level == pytest.approx(0.80)
+    assert high_report.scenarios[0].nominal_confidence_level == pytest.approx(0.95)
+    assert low_ref.artifact_id != high_ref.artifact_id
+    low_payload = json.loads(low_store.get_bytes(low_ref.artifact_id))
+    high_payload = json.loads(high_store.get_bytes(high_ref.artifact_id))
+    assert low_payload["nominal_confidence_level"] == pytest.approx(0.80)
+    assert high_payload["nominal_confidence_level"] == pytest.approx(0.95)
+    assert low_evidence.nominal_confidence_level == pytest.approx(0.80)
+    assert high_evidence.nominal_confidence_level == pytest.approx(0.95)
+    low_resolver = _CanonicalEvidenceResolver(low_store)
+    high_resolver = _CanonicalEvidenceResolver(high_store)
+    low = _produce_forecast_inputs(
+        store=low_store,
+        evidence_ref=low_ref,
+        resolver=low_resolver,
+    )
+    high = _produce_forecast_inputs(
+        store=high_store,
+        evidence_ref=high_ref,
+        resolver=high_resolver,
+    )
+    assert (
+        low["forecast_support"].forecast_tier
+        == high["forecast_support"].forecast_tier
+    )
     low_record = low.get("forecast_calibration_record")
     high_record = high.get("forecast_calibration_record")
-    if low_record is not None and high_record is not None:
-        assert low_record.numerator == high_record.numerator == 1
-        assert low_record.denominator == high_record.denominator == 2
-        assert low_record.pass_rate == high_record.pass_rate == pytest.approx(0.5)
+    assert low_record is not None
+    assert high_record is not None
+    assert low_record.numerator == high_record.numerator == 1
+    assert low_record.denominator == high_record.denominator == 2
+    assert low_record.pass_rate == high_record.pass_rate == pytest.approx(0.5)
+    assert low_record.calibration_status == high_record.calibration_status
+    assert low_resolver.trace[-1]["event"] == "loaded"
+    assert high_resolver.trace[-1]["event"] == "loaded"
+    assert low_resolver.trace[-1]["nominal_confidence_level"] == pytest.approx(0.80)
+    assert high_resolver.trace[-1]["nominal_confidence_level"] == pytest.approx(0.95)
+    _assert_evidence_binding(low_store, low_record, low_ref)
+    _assert_evidence_binding(high_store, high_record, high_ref)
 
 
 def test_predictive_denials_and_non_causal_family_survive_s10_projection(
@@ -579,7 +773,12 @@ def test_predictive_denials_and_non_causal_family_survive_s10_projection(
         observations=(True, True),
         threshold=1.0,
     )
-    result = _produce_forecast_inputs(store=store, evidence_ref=evidence_ref)
+    resolver = _CanonicalEvidenceResolver(store)
+    result = _produce_forecast_inputs(
+        store=store,
+        evidence_ref=evidence_ref,
+        resolver=resolver,
+    )
     support = result["forecast_support"]
     assert support.method_family == "foundry_forecast"
     assert PREDICTIVE_AUTHORITY_DENIALS <= set(support.may_not_use_for)
@@ -588,14 +787,23 @@ def test_predictive_denials_and_non_causal_family_survive_s10_projection(
         "observable_subset_calibration",
     }
     record = result.get("forecast_calibration_record")
-    if record is not None:
-        assert PREDICTIVE_AUTHORITY_DENIALS <= set(record.may_not_use_for)
+    assert record is not None
+    assert PREDICTIVE_AUTHORITY_DENIALS <= set(record.may_not_use_for)
+    assert resolver.trace[-1]["event"] == "loaded"
 
 
-@pytest.mark.parametrize("bad_ref", ["missing", "wrong_kind", "foreign"])
+@pytest.mark.parametrize(
+    ("bad_ref", "expected_code"),
+    [
+        ("missing", "empirical_evidence_ref_missing"),
+        ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+        ("foreign", "empirical_evidence_ref_unresolved"),
+    ],
+)
 def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
     tmp_path: Path,
     bad_ref: str,
+    expected_code: str,
 ) -> None:
     """The gateway must resolve the typed evidence ref in its injected CAS."""
 
@@ -618,7 +826,13 @@ def test_missing_wrong_kind_or_foreign_evidence_ref_fails_closed(
                 threshold=1.0,
             )
         )
-    _assert_gateway_blocked(store=store, evidence_ref=invalid_ref)
+    _assert_gateway_blocked(
+        expected_code=expected_code,
+        expected_trace_event="error",
+        store=store,
+        evidence_ref=invalid_ref,
+        resolver=_CanonicalEvidenceResolver(store),
+    )
     assert evidence_ref is not invalid_ref
 
 
@@ -635,23 +849,37 @@ def test_corrupt_existing_evidence_bytes_fail_closed_at_gateway(
     )
     blob_path, _manifest_path = store.get_paths(evidence_ref.artifact_id)
     blob_path.write_bytes(b'{"schema_version":"1.0","corrupt":true}')
-    _assert_gateway_blocked(store=store, evidence_ref=evidence_ref)
+    _assert_gateway_blocked(
+        expected_code="empirical_evidence_ref_integrity_mismatch",
+        expected_trace_event="error",
+        store=store,
+        evidence_ref=evidence_ref,
+        resolver=_CanonicalEvidenceResolver(store),
+    )
 
 
 @pytest.mark.parametrize(
-    ("label", "method_ref", "method_version", "rule_version_ref"),
+    (
+        "label",
+        "method_ref",
+        "method_version",
+        "rule_version_ref",
+        "expected_code",
+    ),
     [
         (
             "method-mismatch",
             "forecasting.univariate.other",
             "9.9.9",
             RULE_VERSION_REF,
+            "empirical_evidence_method_mismatch",
         ),
         (
             "rule-mismatch",
             METHOD_REF,
             METHOD_VERSION,
             "rolling-origin-residual-conformal.v9",
+            "empirical_evidence_rule_mismatch",
         ),
     ],
 )
@@ -661,6 +889,7 @@ def test_method_or_rule_mismatch_in_persisted_evidence_fails_closed(
     method_ref: str,
     method_version: str,
     rule_version_ref: str,
+    expected_code: str,
 ) -> None:
     """The gateway compares loaded method/rule identity with its request."""
 
@@ -674,16 +903,23 @@ def test_method_or_rule_mismatch_in_persisted_evidence_fails_closed(
         rule_version_ref=rule_version_ref,
     )
     _assert_gateway_blocked(
+        expected_code=expected_code,
+        expected_trace_event="loaded",
         store=store,
         evidence_ref=evidence_ref,
         selected_method_fqn=METHOD_FQN,
+        resolver=_CanonicalEvidenceResolver(store),
+        method_result=_method_result(
+            evidence_ref=evidence_ref,
+            expected_rule_version_ref=RULE_VERSION_REF,
+        ),
     )
 
 
 def test_temporal_role_mismatch_in_persisted_evidence_fails_closed(
     tmp_path: Path,
 ) -> None:
-    """A valid but differently bound persisted time context cannot be rebound silently."""
+    """A differently bound persisted time context cannot be rebound silently."""
 
     shifted_start = datetime(2026, 1, 3, tzinfo=UTC)
     temporal_updates = {
@@ -702,9 +938,16 @@ def test_temporal_role_mismatch_in_persisted_evidence_fails_closed(
         temporal_updates=temporal_updates,
     )
     _assert_gateway_blocked(
+        expected_code="empirical_evidence_time_mismatch",
+        expected_trace_event="loaded",
         store=store,
         evidence_ref=evidence_ref,
-        method_result=_method_result(temporal_roles=_temporal_roles()),
+        resolver=_CanonicalEvidenceResolver(store),
+        method_result=_method_result(
+            evidence_ref=evidence_ref,
+            temporal_roles=_temporal_roles(),
+            expected_rule_version_ref=RULE_VERSION_REF,
+        ),
     )
 
 

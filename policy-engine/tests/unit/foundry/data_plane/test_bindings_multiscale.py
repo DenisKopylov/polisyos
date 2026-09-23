@@ -469,12 +469,12 @@ def _assert_no_binding_outputs_written(
     """Reject any state/binding/report CAS write while input admission fails."""
     import polisyos.foundry.data_plane.bindings as bindings_module
 
-    class UnexpectedBindingOutputWrite(RuntimeError):
+    class UnexpectedBindingOutputWriteError(RuntimeError):
         """Identify a forbidden output write in a negative input test."""
 
     def _fail_state_write(*args, **kwargs):
         del args, kwargs
-        raise UnexpectedBindingOutputWrite("state snapshot written before input rejection")
+        raise UnexpectedBindingOutputWriteError("state snapshot written before input rejection")
 
     monkeypatch.setattr(bindings_module, "put_state_snapshot", _fail_state_write)
     original_put_json = store.put_json
@@ -485,7 +485,7 @@ def _assert_no_binding_outputs_written(
             "foundry.input_bindings",
             "foundry.input_binding_report",
         }:
-            raise UnexpectedBindingOutputWrite(
+            raise UnexpectedBindingOutputWriteError(
                 f"binding output '{opts.kind}' written before input rejection"
             )
         return original_put_json(obj, opts, *args, **kwargs)
@@ -497,7 +497,7 @@ def _assert_no_binding_outputs_written(
             "foundry.input_bindings",
             "foundry.input_binding_report",
         }:
-            raise UnexpectedBindingOutputWrite(
+            raise UnexpectedBindingOutputWriteError(
                 f"direct output '{opts.kind}' written before input rejection"
             )
         return original_put_bytes(data, opts, *args, **kwargs)

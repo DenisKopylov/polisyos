@@ -84,6 +84,29 @@
           "items": { "type": "string" }
         }
       }
+    },
+    "identity_binding": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "calibration_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "calibration_model_version": { "type": ["string", "null"], "minLength": 1 },
+        "metric_budget_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "metric_budget_model_version": { "type": ["string", "null"], "minLength": 1 },
+        "last_shift_event_model_id": { "type": ["string", "null"], "minLength": 1 },
+        "last_shift_event_model_version": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "last_degradation_event_model_id": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "last_degradation_event_model_version": {
+          "type": ["string", "null"],
+          "minLength": 1
+        }
+      }
     }
   }
 }

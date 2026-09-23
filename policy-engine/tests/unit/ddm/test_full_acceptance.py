@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
 import pytest
@@ -11,6 +12,7 @@ from polisyos.ddm.integration import (
     AffectedFeature,
     AffectedSlice,
     CalibrationAudit,
+    DataQualitySignal,
     DriftAndDegradationMonitor,
     MetricDirection,
     MonitoringWindow,
@@ -41,6 +43,8 @@ def _valid_calibration_report(
 ) -> CalibrationReport:
     return CalibrationReport.model_validate(
         {
+            "model_id": "model",
+            "model_version": "v1",
             "detector_id": detector_id,
             "stationarity_regime_id": stationarity_regime_id,
             "fp_target": {"horizon": "30d", "alpha": 0.05, "ert": 10000},
@@ -117,6 +121,8 @@ def _valid_checker_bound_registry_record() -> ModelRegistryReadinessRecord:
 def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None:
     calibration_report = CalibrationReport.model_validate(
         {
+            "model_id": "model",
+            "model_version": "v1",
             "detector_id": "input_mmd_global_v3",
             "stationarity_regime_id": "SR-1-model-v1",
             "fp_target": {"horizon": "30d", "alpha": 0.05, "ert": 10000},
@@ -288,6 +294,133 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
     assert result.readiness_event.readiness_state == ReadinessState.R3
 
 
+def test_monitor_rejects_foreign_metric_budget_identity() -> None:
+    foreign_budget = MetricBudgetPolicy(
+        model_id="foreign-model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+
+    with pytest.raises(ValueError, match="metric_budget"):
+        DriftAndDegradationMonitor().evaluate_window(
+            model_id="model",
+            model_version="v1",
+            metric_budget=foreign_budget,
+            timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        )
+
+
+def test_monitor_rejects_foreign_shift_event_identity() -> None:
+    foreign_shift = ShiftDetectedEvent(
+        event_id="shift-foreign",
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        model_id="foreign-model",
+        model_version="v1",
+        detector_id="input_mmd_global_v3",
+        detector_family="online_mmd",
+        signal="input_shift",
+        representation="feature_embedding_v2",
+        reference_window=_window(),
+        current_window=_window(),
+        stationarity_regime_id="SR-1-model-v1",
+        calibration_id="calib-1",
+        test_statistic=0.3,
+        ert=10000,
+        empirical_fp_rate=0.001,
+        shift_severity=0.72,
+    )
+
+    with pytest.raises(ValueError, match="shift_events"):
+        DriftAndDegradationMonitor().evaluate_window(
+            model_id="model",
+            model_version="v1",
+            shift_events=[foreign_shift],
+            timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        )
+
+
+def test_monitor_rejects_foreign_degradation_event_identity() -> None:
+    foreign_degradation = PerformanceDegradationEvent(
+        event_id="degrade-foreign",
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        model_id="foreign-model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        source="estimated_performance",
+        estimator="cbpe",
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+        current_estimate=0.84,
+        confidence_interval_95=(0.82, 0.86),
+        budget_used=0.80,
+        calibration_id="calib-1",
+    )
+
+    with pytest.raises(ValueError, match="degradation_event"):
+        DriftAndDegradationMonitor().evaluate_window(
+            model_id="model",
+            model_version="v1",
+            degradation_event=foreign_degradation,
+            timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        )
+
+
+def test_monitor_rejects_foreign_data_quality_identity() -> None:
+    foreign_signal = DataQualitySignal(
+        signal_id="dq-foreign",
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        model_id="foreign-model",
+        model_version="v1",
+        risk_score=0.0,
+    )
+
+    with pytest.raises(ValueError, match="data_quality_signals"):
+        DriftAndDegradationMonitor().evaluate_window(
+            model_id="model",
+            model_version="v1",
+            data_quality_signals=[foreign_signal],
+            timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        )
+
+
+def test_registry_gate_blocks_legacy_calibration_without_model_identity() -> None:
+    legacy_payload = _valid_calibration_report().model_dump(mode="python")
+    legacy_payload.pop("model_id")
+    legacy_payload.pop("model_version")
+    legacy_report = CalibrationReport.model_validate(legacy_payload)
+    audit = build_calibration_audit(calibration_id="calib-legacy", report=legacy_report)
+    metric_budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+
+    result = DriftAndDegradationMonitor().evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=metric_budget,
+        calibration_audit=audit,
+        _calibration_report=legacy_report,
+        _observed_invalidation_triggers=[],
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+    )
+
+    assert result.registry_record is not None
+    payload = json.loads(result.registry_record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    gate = evaluate_registry_gate(reloaded, owner_signoff=True)
+    assert gate.promotion_allowed is False
+    assert gate.reason == "calibration_model_identity_not_established"
+
+
 def test_registry_gate_blocks_historical_audit_without_validity_owner() -> None:
     """A shaped historical FP pass is not current calibration authority."""
 
@@ -347,14 +480,84 @@ def test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3(
 def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None:
     """R2 may still use its documented limited owner-signoff exception."""
 
-    record = _valid_checker_bound_registry_record().model_copy(
-        update={"readiness_state": ReadinessState.R2, "promotion_allowed": False}
+    report, audit, record = _registry_context(observed_triggers=[])
+    projection = record.calibration_validity
+    assert projection is not None
+    payload = json.loads(record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    rebound = rebind_calibration_validity(
+        reloaded,
+        report=report,
+        calibration_audit=audit,
+        now=projection.effective_at,
+        observed_invalidation_triggers=[],
     )
 
-    gate = evaluate_registry_gate(record, owner_signoff=True)
+    gate = evaluate_registry_gate(rebound, owner_signoff=True)
 
     assert gate.promotion_allowed is True
     assert gate.reason == "R2_owner_signoff_allows_limited_expansion"
+
+
+@pytest.mark.parametrize(
+    ("record_field", "binding_updates", "expected_reason"),
+    [
+        (
+            None,
+            {
+                "metric_budget_model_id": "foreign-model",
+                "metric_budget_model_version": "v9",
+            },
+            "metric_budget_model_identity_mismatch",
+        ),
+        (
+            "last_shift_event",
+            {
+                "last_shift_event_model_id": "foreign-model",
+                "last_shift_event_model_version": "v9",
+            },
+            "shift_event_model_identity_mismatch",
+        ),
+        (
+            "last_degradation_event",
+            {
+                "last_degradation_event_model_id": "foreign-model",
+                "last_degradation_event_model_version": "v9",
+            },
+            "degradation_event_model_identity_mismatch",
+        ),
+    ],
+)
+def test_registry_r2_round_trip_rejects_foreign_durable_binding(
+    record_field: str | None,
+    binding_updates: dict[str, str],
+    expected_reason: str,
+) -> None:
+    """Owner signoff cannot override a foreign durable source binding."""
+
+    report, audit, record = _registry_context(observed_triggers=[])
+    projection = record.calibration_validity
+    assert projection is not None
+    payload = json.loads(record.model_dump_json())
+    payload.update({"readiness_state": ReadinessState.R2, "promotion_allowed": False})
+    if record_field is not None:
+        payload[record_field] = "foreign-event"
+    assert payload["identity_binding"] is not None
+    payload["identity_binding"].update(binding_updates)
+
+    reloaded = ModelRegistryReadinessRecord.model_validate_json(json.dumps(payload))
+    rebound = rebind_calibration_validity(
+        reloaded,
+        report=report,
+        calibration_audit=audit,
+        now=projection.effective_at,
+        observed_invalidation_triggers=[],
+    )
+    gate = evaluate_registry_gate(rebound, owner_signoff=True)
+
+    assert gate.promotion_allowed is False
+    assert gate.reason == expected_reason
 
 
 def test_registry_public_round_trip_fails_closed_without_durable_validity() -> None:

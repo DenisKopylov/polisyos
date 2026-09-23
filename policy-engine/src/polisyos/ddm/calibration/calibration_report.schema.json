@@ -18,6 +18,8 @@
     "block_length"
   ],
   "properties": {
+    "model_id": { "type": ["string", "null"], "minLength": 1 },
+    "model_version": { "type": ["string", "null"], "minLength": 1 },
     "detector_id": { "type": "string", "minLength": 1 },
     "stationarity_regime_id": { "type": "string", "minLength": 1 },
     "fp_target": {

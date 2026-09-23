@@ -1889,11 +1889,69 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
         )
 
 
+def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_execute(
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        owner.providers.registry.set_default_config(
+            "files.tabular",
+            ConnectionConfig(url="https://remote.invalid/recorded.csv"),
+        )
+        service = RetrievalService(
+            curated_dir=tmp_path,
+            cas_root=tmp_path / ".n7-live-cas",
+            dataset_catalog=owner.graph,
+            providers=owner.providers,
+        )
+        execute_calls: list[object] = []
+
+        def _network_execute_trap(*args: object, **kwargs: object) -> object:
+            execute_calls.append((args, kwargs))
+            raise AssertionError("remote capture must be refused before execution")
+
+        service.execute_fetch_plans = _network_execute_trap  # type: ignore[method-assign]
+
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec.update(
+            {
+                "requirement_id": "data-requirement:fetch-capture-remote-effective",
+                "claim_id": "claim-fetch-capture-remote-effective",
+                "required_data_families": ("metric.test",),
+                "metadata": {"fabric_capture_mode": "persisted_payload"},
+            }
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id="run-n7-fetch-capture-remote-effective",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+            retrieval_service_factory=lambda _curated_dir, _cas_root, _graph: service,
+        )
+
+        assert (
+            gateway.acquire(
+                record=report.acquisition_records[0],
+                compiled_requirement_spec=base_spec,
+            )
+            is None
+        )
+        assert execute_calls == []
+
+
 @pytest.mark.parametrize(
     "mutation",
     [
         "missing_receipt",
         "foreign_payload",
+        "foreign_binding",
         "tampered_receipt",
         "missing_binding",
         "tampered_binding",
@@ -1908,8 +1966,9 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
 
     from dataclasses import replace
 
-    from polisyos.core import canon
+    from polisyos.core import artifacts, canon
     from polisyos.core.artifacts import ArtifactRef
+    from polisyos.fabric.retrieval import custody
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
@@ -1946,6 +2005,54 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
                             }
                         )
                     }
+                )
+            elif mutation == "foreign_binding":
+                plan = plans[0]
+                receipt_ref = metric.fetch_receipt_ref
+                assert receipt_ref is not None
+                receipt_store = FileSystemCAS(tmp_path / ".n7-live-cas")
+                receipt = FabricFetchReceipt.model_validate(
+                    canon.from_canonical_bytes(
+                        original_get_bytes(receipt_store, receipt_ref.artifact_id)
+                    )
+                )
+                payload_ref = metric.payload_ref
+                assert payload_ref is not None
+                foreign_binding = owner.graph.bind_fetch_target(
+                    metric_id=plan.metric_id,
+                    connector_id=plan.connector_id,
+                    request_dataset_id="fallback",
+                    profile_id=plan.profile_id,
+                    filters=plan.filters,
+                )
+                foreign_binding_ref = custody._put_json(
+                    receipt_store,
+                    foreign_binding,
+                    kind="fabric.catalog_fetch_binding",
+                    schema="polisyos.data_forge.catalog_fetch_binding.v1",
+                    inputs=[],
+                )
+                foreign_receipt = receipt.model_copy(
+                    update={"catalog_binding_ref": foreign_binding_ref}
+                )
+                foreign_receipt_ref = custody._put_json(
+                    receipt_store,
+                    foreign_receipt,
+                    kind="fabric.fetch_receipt",
+                    schema="polisyos.fabric.fetch_receipt.v1",
+                    inputs=[
+                        artifacts.InputRef(
+                            artifact_id=payload_ref.artifact_id,
+                            role="fetched_payload",
+                        ),
+                        artifacts.InputRef(
+                            artifact_id=foreign_binding_ref.artifact_id,
+                            role="catalog_binding",
+                        ),
+                    ],
+                )
+                mutated_metric = metric.model_copy(
+                    update={"fetch_receipt_ref": foreign_receipt_ref}
                 )
             elif mutation == "tampered_receipt":
                 receipt_ref = metric.fetch_receipt_ref

@@ -19,6 +19,7 @@ from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
+from urllib.parse import unquote, urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -1412,6 +1413,21 @@ class RealAcquisitionOwnerGateway:
                     response = service.resolve(request)
                     if len(response.fetch_plans) != 1:
                         raise ValueError("fabric_fetch_capture_requires_one_plan")
+                    plan = response.fetch_plans[0]
+                    binding = graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id=plan.dataset_id,
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    _validate_local_fabric_capture_route(
+                        service=service,
+                        plan=plan,
+                        binding=binding,
+                        catalog=graph,
+                        approved_root=self._repo_root,
+                    )
                     execution = service.execute_fetch_plans(
                         response.fetch_plans,
                         persist_payload=True,
@@ -2882,6 +2898,122 @@ def _fabric_fetch_capture_enabled(spec: Mapping[str, Any]) -> bool:
         and metadata.get(_FABRIC_CAPTURE_MODE_METADATA_KEY)
         == _FABRIC_CAPTURE_MODE_PERSISTED_PAYLOAD
     )
+
+
+def _validate_local_fabric_capture_route(
+    *,
+    service: object,
+    plan: Any,
+    binding: Any,
+    catalog: object,
+    approved_root: Path,
+) -> None:
+    """Prove that the bounded capture plan is an actual local file route."""
+
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.fabric.retrieval.service import RetrievalService
+
+    if not isinstance(service, RetrievalService):
+        raise ValueError("fabric_fetch_capture_service_not_retrieval_service")
+    if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
+        raise ValueError("fabric_fetch_capture_catalog_owner_missing")
+    connector_id = FileTabularConnector.connector_id
+    if plan.connector_id != connector_id or binding.connector_id != connector_id:
+        raise ValueError("fabric_fetch_capture_connector_not_local_tabular")
+    if (
+        binding.metric_id != plan.metric_id
+        or binding.request_dataset_id != plan.dataset_id
+        or binding.profile_id != plan.profile_id
+    ):
+        raise ValueError("fabric_fetch_capture_binding_plan_mismatch")
+    target = binding.target
+    if target.connector_id != connector_id or not target.distribution_id:
+        raise ValueError("fabric_fetch_capture_target_not_local_tabular")
+
+    distributions = catalog.get_distributions(target.catalog_dataset_id)
+    distribution = next(
+        (item for item in distributions if item.id == target.distribution_id),
+        None,
+    )
+    if distribution is None or distribution.connector_type != connector_id:
+        raise ValueError("fabric_fetch_capture_distribution_not_admitted")
+    for locator in (distribution.url, distribution.source_locator):
+        if _fabric_capture_locator_is_explicit(locator):
+            _resolve_local_fabric_capture_path(locator, approved_root=approved_root)
+
+    executor = getattr(service, "_executor", None)
+    registry = getattr(executor, "_registry", None)
+    get_entry = getattr(registry, "get_entry", None)
+    resolve_config = getattr(executor, "_resolve_config", None)
+    if not callable(get_entry) or not callable(resolve_config):
+        raise ValueError("fabric_fetch_capture_service_dependencies_missing")
+    entry = get_entry(plan.connector_id)
+    if getattr(entry, "connector_class", None) is not FileTabularConnector:
+        raise ValueError("fabric_fetch_capture_connector_registration_mismatch")
+    config = resolve_config(plan)
+    actual_path = _resolve_local_fabric_capture_path(
+        getattr(config, "url", None), approved_root=approved_root
+    )
+
+    connector_params = target.connector_params
+    if not isinstance(connector_params, Mapping):
+        raise ValueError("fabric_fetch_capture_connector_params_missing")
+    configured_locator = connector_params.get("url")
+    if configured_locator is None:
+        configured_locator = connector_params.get("path")
+    if configured_locator is not None:
+        catalog_path = _resolve_local_fabric_capture_path(
+            configured_locator, approved_root=approved_root
+        )
+        if catalog_path != actual_path:
+            raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
+
+
+def _fabric_capture_locator_is_explicit(locator: object) -> bool:
+    if locator is None:
+        return False
+    raw = str(locator).strip()
+    if not raw:
+        return False
+    parsed = urlparse(raw)
+    return bool(
+        parsed.scheme
+        or parsed.netloc
+        or raw.startswith(("/", "./", "../", "~"))
+        or "/" in raw
+        or "\\" in raw
+    )
+
+
+def _resolve_local_fabric_capture_path(locator: object, *, approved_root: Path) -> Path:
+    if locator is None:
+        raise ValueError("fabric_fetch_capture_local_locator_missing")
+    raw = str(locator).strip()
+    if not raw:
+        raise ValueError("fabric_fetch_capture_local_locator_missing")
+    parsed = urlparse(raw)
+    scheme = parsed.scheme.lower()
+    if scheme in {"http", "https"}:
+        raise ValueError("fabric_fetch_capture_remote_locator")
+    if scheme not in {"", "file"} or parsed.netloc:
+        raise ValueError("fabric_fetch_capture_nonlocal_locator")
+    path_text = unquote(parsed.path) if scheme == "file" else raw
+    candidate = Path(path_text).expanduser()
+    root = approved_root.resolve(strict=True)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        resolved = candidate.resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError("fabric_fetch_capture_local_path_unreadable") from exc
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("fabric_fetch_capture_local_path_outside_root") from exc
+    if not resolved.is_file():
+        raise ValueError("fabric_fetch_capture_local_path_not_file")
+    return resolved
 
 
 def _captured_fabric_fetches(

@@ -622,8 +622,8 @@ def test_predictive_producer_denials_are_preserved_by_the_s10_boundary(
     )
     support = inputs["forecast_support"]
     record = inputs["forecast_calibration_record"]
-    assert PREDICTIVE_AUTHORITY_DENIALS <= set(support.may_not_use_for)
-    assert PREDICTIVE_AUTHORITY_DENIALS <= set(record.may_not_use_for)
+    assert set(support.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
+    assert set(record.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
     assert set(support.authority_boundary.authoritative_for) <= {
         "forecast_support_tiering",
         "observable_subset_calibration",

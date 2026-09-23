@@ -259,6 +259,7 @@ def _persist_binding_ref(
     report_id: str | None = None,
     identity_path: str = "identity",
     binding: dict[str, object] | None = None,
+    source_value: str = "measured-panel",
 ) -> EvidenceArtifactRef:
     """Create a typed reference whose manifest and payload can be reconciled."""
 
@@ -266,7 +267,7 @@ def _persist_binding_ref(
     payload_body: dict[str, object] = {
         "identity": identity,
         "role": role,
-        "source": "measured-panel",
+        "source": source_value,
     }
     if report_id is not None:
         payload_body["report_id"] = report_id
@@ -365,6 +366,7 @@ def _persist_context_refs(
     model_spec_ref: str | None,
     policy_spec_ref: str | None,
     metadata: dict[str, object],
+    source_value: str = "measured-panel",
 ) -> dict[str, EvidenceArtifactRef]:
     """Persist role-profiled context refs and an independent scope binding."""
 
@@ -400,6 +402,7 @@ def _persist_context_refs(
             report_id=report_id,
             identity_path=identity_path,
             binding=role_binding,
+            source_value=source_value if role == "source_lineage" else "measured-panel",
         )
     return refs
 
@@ -419,6 +422,7 @@ def _persist_empirical_report(
     force_first_observation_outside: bool = False,
     omit_interval_projections: bool = False,
     report_schema_version: str = "1.0",
+    source_value: str = "measured-panel",
 ) -> tuple[
     FileSystemCAS,
     BacktestReportRef,
@@ -493,6 +497,7 @@ def _persist_empirical_report(
         model_spec_ref=model_spec_ref,
         policy_spec_ref=policy_spec_ref,
         metadata=report_metadata,
+        source_value=source_value,
     )
     report = BacktestReport(
         schema_version=report_schema_version,
@@ -982,48 +987,14 @@ def test_provenance_refs_require_manifest_content_and_identity_binding(
 def test_forbidden_marker_payload_is_rejected_even_when_identity_binds(
     tmp_path: Path,
 ) -> None:
-    """A marker-free identity check cannot admit a synthetic lineage payload."""
+    """A valid identity binding does not admit a synthetic lineage payload."""
 
-    store, original_report_ref, model_ref, policy_ref, refs = _persist_empirical_report(
+    store, report_ref, model_ref, policy_ref, refs = _persist_empirical_report(
         tmp_path,
         within_ci=(True,),
         label="forbidden-marker",
+        source_value="synthetic_fixture",
     )
-    report = load_backtest_report(store, original_report_ref)
-    kind, schema_name, schema_version = REFERENCE_PROFILES["source_lineage"]
-    marker_payload = put_json_artifact(
-        store,
-        {
-            "identity": "source://panel/v1",
-            "role": "source_lineage",
-            "report_id": report.report_id,
-            "source": "synthetic_fixture",
-        },
-        kind=kind,
-        schema_name=schema_name,
-        schema_version=schema_version,
-    )
-    marker_payload.update(
-        {
-            "role": "source_lineage",
-            "schema_name": schema_name,
-            "schema_version": schema_version,
-            "identity_path": "identity",
-            "identity_value": "source://panel/v1",
-        }
-    )
-    marker_ref = EvidenceArtifactRef.model_validate(marker_payload)
-    bound_refs = {**refs, "source_lineage": marker_ref}
-    report_inputs = [
-        {
-            "artifact_id": str(
-                (marker_ref if role == "source_lineage" else ref).artifact_id
-            ),
-            "role": role,
-        }
-        for role, ref in refs.items()
-    ]
-    report_ref = persist_backtest_report(store, report, inputs=report_inputs)
     evidence = produce_empirical_calibration_evidence(
         store,
         report_ref,
@@ -1031,8 +1002,7 @@ def test_forbidden_marker_payload_is_rejected_even_when_identity_binds(
             model_spec_ref=str(model_ref),
             policy_spec_ref=str(policy_ref),
             store=store,
-            refs=bound_refs,
-            source_lineage_refs=(marker_ref,),
+            refs=refs,
         ),
     )
 

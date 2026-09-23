@@ -622,7 +622,16 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         rebound_nodes = []
         for node in result.report.nodes:
             if node.alias != "run_simulation":
-                rebound_nodes.append(node)
+                if node.alias == "independent_sibling":
+                    rebound_nodes.append(
+                        node.model_copy(
+                            update={
+                                "duration_ms": node.duration_ms + rebound_fixture_counter
+                            }
+                        )
+                    )
+                else:
+                    rebound_nodes.append(node)
                 continue
             node_artifacts = [
                 candidate_ref
@@ -646,10 +655,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                     else ref
                     for ref in node_artifacts
                 ]
-            node_update: dict[str, Any] = {"artifacts": node_artifacts}
-            if node.alias == "independent_sibling":
-                node_update["duration_ms"] = node.duration_ms + rebound_fixture_counter
-            rebound_nodes.append(node.model_copy(update=node_update))
+            rebound_nodes.append(node.model_copy(update={"artifacts": node_artifacts}))
         report_options = PutOptions(
             kind="scientist.workflow_report",
             media_type="application/json",

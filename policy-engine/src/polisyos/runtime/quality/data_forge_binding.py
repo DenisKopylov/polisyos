@@ -1076,6 +1076,46 @@ def _validate_resolved_measurement_root_evidence(
         raise FabricMeasurementRootBindingError("measurement_root_evidence_fingerprint_mismatch")
 
 
+def _read_validated_measurement_snapshot_artifact(
+    *,
+    store: artifacts.FileSystemCAS,
+    artifact_ref: artifacts.ArtifactRef,
+    expected_kind: str,
+    expected_media_type: str,
+    expected_schema: artifacts.SchemaInfo,
+    expected_producer: artifacts.ProducerInfo,
+    expected_inputs: Sequence[artifacts.InputRef],
+) -> bytes:
+    """Read one custody artifact with its immutable manifest contract enforced."""
+
+    if (
+        not isinstance(artifact_ref, artifacts.ArtifactRef)
+        or artifact_ref.kind != expected_kind
+        or artifact_ref.media_type != expected_media_type
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    try:
+        verification = store.verify(artifact_ref.artifact_id)
+        if not verification.ok:
+            raise ValueError(verification.error or "artifact verification failed")
+        raw = store.get_bytes(artifact_ref.artifact_id)
+        manifest = store.get_manifest(artifact_ref.artifact_id)
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_snapshot_custody_invalid"
+        ) from exc
+    if (
+        manifest.artifact_id != artifact_ref.artifact_id
+        or manifest.kind != expected_kind
+        or manifest.media_type != expected_media_type
+        or manifest.artifact_schema != expected_schema
+        or manifest.producer != expected_producer
+        or manifest.inputs != list(expected_inputs)
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    return raw
+
+
 def persist_measurement_root_data_snapshot(
     *,
     store: artifacts.FileSystemCAS,
@@ -1084,25 +1124,111 @@ def persist_measurement_root_data_snapshot(
     """Persist a Fabric DataSnapshot from replay-verified measurement evidence.
 
     The resolver has already replayed and content-bound the measurement root.
-    This owner only rechecks that typed projection before materializing the
-    existing Fabric snapshot contract; it never replays the source again.
+    This owner only rechecks that typed projection and current CAS custody
+    before materializing the existing Fabric snapshot contract; it never
+    replays the source again.
     """
 
     _validate_resolved_measurement_root_evidence(evidence)
 
     from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.fabric.retrieval.custody import FabricFetchReceipt
 
-    payload_id = artifacts.ArtifactID(evidence.payload.payload_ref)
-    payload_manifest = store.get_manifest(payload_id)
-    data_ref = artifacts.ArtifactRef(
-        artifact_id=payload_id,
-        kind=payload_manifest.kind,
-        media_type=payload_manifest.media_type,
+    payload_ref = evidence.payload.payload_ref
+    fetch_receipt_ref = evidence.fetch_receipt_ref
+    catalog_binding_ref = evidence.catalog_binding_ref
+    fetch_producer = artifacts.ProducerInfo(
+        component="polisyos.fabric.retrieval.executor.FetchExecutor",
+        version="1.0.0",
     )
+    measurement_root_producer = artifacts.ProducerInfo(
+        component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+        version="2.0.0",
+    )
+
+    receipt_raw = _read_validated_measurement_snapshot_artifact(
+        store=store,
+        artifact_ref=fetch_receipt_ref,
+        expected_kind="fabric.fetch_receipt",
+        expected_media_type="application/json",
+        expected_schema=artifacts.SchemaInfo(
+            name="polisyos.fabric.fetch_receipt.v1",
+            version="1.0.0",
+        ),
+        expected_producer=fetch_producer,
+        expected_inputs=(
+            artifacts.InputRef(
+                artifact_id=payload_ref.artifact_id,
+                role="fetched_payload",
+            ),
+            artifacts.InputRef(
+                artifact_id=catalog_binding_ref.artifact_id,
+                role="catalog_binding",
+            ),
+        ),
+    )
+    try:
+        receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_raw))
+    except (TypeError, ValueError, RuntimeError) as exc:
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_snapshot_custody_invalid"
+        ) from exc
+    if receipt.result.data != payload_ref or receipt.catalog_binding_ref != catalog_binding_ref:
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+
+    payload_media_type = {
+        "canonical_json": "application/json",
+        "pandas_arrow_ipc": "application/vnd.apache.arrow.stream",
+        "arrow_ipc": "application/vnd.apache.arrow.stream",
+    }.get(receipt.payload_encoding)
+    if payload_media_type is None:
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    _read_validated_measurement_snapshot_artifact(
+        store=store,
+        artifact_ref=payload_ref,
+        expected_kind="fabric.fetch_payload",
+        expected_media_type=payload_media_type,
+        expected_schema=artifacts.SchemaInfo(
+            name="polisyos.fabric.fetch_payload.v1",
+            version="1.0.0",
+        ),
+        expected_producer=fetch_producer,
+        expected_inputs=(),
+    )
+    _read_validated_measurement_snapshot_artifact(
+        store=store,
+        artifact_ref=evidence.measurement_root_ref,
+        expected_kind="policyos.gy.measurement_root_payload",
+        expected_media_type="application/json",
+        expected_schema=artifacts.SchemaInfo(
+            name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            version="v2",
+        ),
+        expected_producer=measurement_root_producer,
+        expected_inputs=(
+            artifacts.InputRef(
+                artifact_id=fetch_receipt_ref.artifact_id,
+                role="fabric_fetch",
+            ),
+        ),
+    )
+    _read_validated_measurement_snapshot_artifact(
+        store=store,
+        artifact_ref=catalog_binding_ref,
+        expected_kind="fabric.catalog_fetch_binding",
+        expected_media_type="application/json",
+        expected_schema=artifacts.SchemaInfo(
+            name="polisyos.data_forge.catalog_fetch_binding.v1",
+            version="1.0.0",
+        ),
+        expected_producer=fetch_producer,
+        expected_inputs=(),
+    )
+
     snapshot = DataSnapshot(
-        data_ref=data_ref,
+        data_ref=payload_ref,
         stats={
-            "snapshot_id": str(data_ref.artifact_id),
+            "snapshot_id": str(payload_ref.artifact_id),
             "observed_row_count": evidence.payload.observed_row_count,
         },
         notes=[evidence.payload.limitation],
@@ -1118,7 +1244,7 @@ def persist_measurement_root_data_snapshot(
             ),
             inputs=[
                 artifacts.InputRef(
-                    artifact_id=payload_id,
+                    artifact_id=payload_ref.artifact_id,
                     role="fetched_payload",
                 ),
                 artifacts.InputRef(
@@ -1126,11 +1252,11 @@ def persist_measurement_root_data_snapshot(
                     role="measurement_root",
                 ),
                 artifacts.InputRef(
-                    artifact_id=evidence.fetch_receipt_ref.artifact_id,
+                    artifact_id=fetch_receipt_ref.artifact_id,
                     role="fabric_fetch",
                 ),
                 artifacts.InputRef(
-                    artifact_id=evidence.catalog_binding_ref.artifact_id,
+                    artifact_id=catalog_binding_ref.artifact_id,
                     role="catalog_binding",
                 ),
             ],

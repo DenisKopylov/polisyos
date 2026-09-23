@@ -1120,7 +1120,7 @@ def persist_measurement_root_data_snapshot(
     *,
     store: artifacts.FileSystemCAS,
     evidence: ResolvedMeasurementRootEvidence,
-) -> "DataSnapshotRef":
+) -> DataSnapshotRef:
     """Persist a Fabric DataSnapshot from replay-verified measurement evidence.
 
     The resolver has already replayed and content-bound the measurement root.
@@ -1363,12 +1363,12 @@ def admit_measurement_root_to_substrate_registry(
     store: artifacts.ArtifactStore,
     measurement_root: ArtifactEnvelope,
     catalog: read_api.catalog.DatasetCatalogGraph,
-    baseline_registry: "SubstrateRegistry",
-    registration: "SubstrateRegistration",
-    l5_authority: "L5CatalogAuthority",
+    baseline_registry: SubstrateRegistry,
+    registration: SubstrateRegistration,
+    l5_authority: L5CatalogAuthority,
     baseline_registry_ref: artifacts.ArtifactRef | None = None,
     providers: RetrievalProviders | None = None,
-) -> "MeasurementRootRegistryAdmission":
+) -> MeasurementRootRegistryAdmission:
     """Replay a root, then admit one independent owner registration.
 
     This function stops at registry persistence.  It does not construct a
@@ -3461,13 +3461,13 @@ __all__ = [
     "CatalogGraphProtocol",
     "MeasurementRootBindingError",
     "MeasurementRootProducer",
-    "ResolvedMeasurementRootEvidence",
     "RecordedPanelBindingReceipt",
     "RecordedPanelMethodInput",
     "RecordedPanelRecipe",
     "RecordedPanelSource",
-    "build_default_workspace_catalog_graph",
+    "ResolvedMeasurementRootEvidence",
     "admit_measurement_root_to_substrate_registry",
+    "build_default_workspace_catalog_graph",
     "data_forge_snapshot_binding_scorecard_gates",
     "normalize_data_forge_snapshot_binding_report",
     "official_data_forge_snapshot_for_claim",

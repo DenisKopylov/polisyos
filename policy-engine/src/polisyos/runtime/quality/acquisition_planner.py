@@ -1311,6 +1311,7 @@ class RealAcquisitionOwnerGateway:
         network_counter: AcquisitionNetworkCallCounter | None = None,
         allow_openalex_network: bool = False,
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
+        retrieval_service_factory: Callable[[Path, Path, object], object] | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
@@ -1318,6 +1319,7 @@ class RealAcquisitionOwnerGateway:
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
+        self._retrieval_service_factory = retrieval_service_factory
         self._captured_at = _utc(captured_at)
         self._skg_source_snapshot = skg_source_snapshot
         self._skg_calibration_source: ProductionCG2CalibrationSource | None = None
@@ -1363,6 +1365,11 @@ class RealAcquisitionOwnerGateway:
         if not families:
             return None
         capture_fetches = _fabric_fetch_capture_enabled(spec)
+        if capture_fetches and self._retrieval_service_factory is None:
+            _LOGGER.warning(
+                "Fabric fetch capture refused: an explicit local retrieval service is required"
+            )
+            return None
         paths = default_substrate_catalog_paths(self._repo_root)
         if self._dataset_catalog_factory is not None:
             graph = self._dataset_catalog_factory(
@@ -1378,11 +1385,6 @@ class RealAcquisitionOwnerGateway:
                 ),
             )
         try:
-            service = RetrievalService(
-                curated_dir=curated_dir,
-                cas_root=self._repo_root / ".n7-live-cas",
-                dataset_catalog=graph,
-            )
             request = DataResolveRequest(
                 data_needs=[
                     DataNeed(
@@ -1395,12 +1397,21 @@ class RealAcquisitionOwnerGateway:
                 mode="hybrid",
                 allow_explore_fallback=False,
             )
-            response = service.resolve(request)
             captured_fetches: list[dict[str, Any]] = []
             if capture_fetches:
-                if not response.fetch_plans:
-                    return None
                 try:
+                    service = self._retrieval_service_factory(
+                        curated_dir,
+                        self._repo_root / ".n7-live-cas",
+                        graph,
+                    )
+                    if not callable(getattr(service, "resolve", None)) or not callable(
+                        getattr(service, "execute_fetch_plans", None)
+                    ):
+                        raise ValueError("fabric_fetch_capture_service_invalid")
+                    response = service.resolve(request)
+                    if len(response.fetch_plans) != 1:
+                        raise ValueError("fabric_fetch_capture_requires_one_plan")
                     execution = service.execute_fetch_plans(
                         response.fetch_plans,
                         persist_payload=True,
@@ -1415,6 +1426,13 @@ class RealAcquisitionOwnerGateway:
                 except (OSError, RuntimeError, TypeError, ValueError) as exc:
                     _LOGGER.warning("Fabric fetch capture refused: %s", exc)
                     return None
+            else:
+                service = RetrievalService(
+                    curated_dir=curated_dir,
+                    cas_root=self._repo_root / ".n7-live-cas",
+                    dataset_catalog=graph,
+                )
+                response = service.resolve(request)
         finally:
             close = getattr(graph, "close", None)
             if callable(close):

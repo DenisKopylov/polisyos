@@ -347,8 +347,21 @@ def build_worldbank_fetch_owner(tmp_path):
             json.dumps(body).encode(),
         )
 
-    async def get_session(self, _handle):
-        return object()
+    class _RecordedSession:
+        """Provide the lifecycle surface used by the real HTTP connector cleanup."""
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        async def close(self) -> None:
+            self.closed = True
+
+    async def get_session(self, handle):
+        session = handle.get_state(self._STATE_SESSION_KEY)
+        if session is None or session.closed:
+            session = _RecordedSession()
+            handle.set_state(self._STATE_SESSION_KEY, session)
+        return session
 
     registry = ConnectorRegistry()
     registry.register(

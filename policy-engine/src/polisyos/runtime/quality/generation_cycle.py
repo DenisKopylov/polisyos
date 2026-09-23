@@ -4520,8 +4520,11 @@ class GenerationCycleController:
             if (
                 payload.source_requirement.requirement_id
                 not in active_requirement.source_requirement_refs
+                or active_requirement.requirement_id in active_requirement.source_requirement_refs
             ):
-                raise ValueError("measurement root source requirement is not bound to active N7")
+                raise ValueError(
+                    "measurement root source requirement is not bound to distinct active N7"
+                )
             expected_envelope = _fabric_measurement_envelope(
                 payload,
                 str(measurement_payload_ref.artifact_id),
@@ -4746,31 +4749,33 @@ class GenerationCycleController:
                 "resolve_measurement_root_evidence",
                 None,
             )
-            resolved_evidence = None
-            if callable(resolver) and catalog is not None:
+            if catalog is None:
+                raise ValueError("canonical measurement root resolver context missing")
+            if callable(resolver):
                 resolved_evidence = resolver(
                     store=store,
                     measurement_root=measurement_root,
                     catalog=catalog,
                     providers=providers,
                 )
-            elif catalog is not None:
+            else:
                 resolved_evidence = resolve_measurement_root_evidence(
                     store=store,
                     measurement_root=measurement_root,
                     catalog=catalog,
                     providers=providers,
                 )
-            if resolved_evidence is not None:
-                _validate_resolved_measurement_root_evidence(resolved_evidence)
-                if (
-                    resolved_evidence.envelope.model_dump(mode="json")
-                    != measurement_root.model_dump(mode="json")
-                    or resolved_evidence.payload != payload
-                    or resolved_evidence.measurement_root_ref.artifact_id
-                    != measurement_payload_ref.artifact_id
-                ):
-                    raise ValueError("canonical measurement root resolver projection mismatch")
+            if resolved_evidence is None:
+                raise ValueError("canonical measurement root resolver returned no evidence")
+            _validate_resolved_measurement_root_evidence(resolved_evidence)
+            if (
+                resolved_evidence.envelope.model_dump(mode="json")
+                != measurement_root.model_dump(mode="json")
+                or resolved_evidence.payload != payload
+                or resolved_evidence.measurement_root_ref.artifact_id
+                != measurement_payload_ref.artifact_id
+            ):
+                raise ValueError("canonical measurement root resolver projection mismatch")
             return payload
         except GenerationCycleError:
             raise
@@ -4791,6 +4796,7 @@ class GenerationCycleController:
         registry: SubstrateRegistry,
         baseline_registry_ref: CASArtifactRef,
         baseline_registry: SubstrateRegistry,
+        prior_world_model_record_content_hash: str,
         store: FileSystemCAS,
         candidate_id: str,
         candidate_content_hash: str,
@@ -4870,10 +4876,25 @@ class GenerationCycleController:
                 or outcome.substrate_version_after != registry.substrate_version_id
                 or outcome.world_ref_after
                 != f"s0://substrate-registry/{registry.substrate_version_id}"
+                or acquisition_receipt.grown_world_before_ref
+                != prior_world_model_record_content_hash
                 or acquisition_receipt.grown_world_after_ref
                 != f"s0://substrate-registry/{registry.substrate_version_id}"
+                or acquisition_receipt.grown_world_delta_hash != registry.content_hash
             ):
                 raise ValueError("registry does not match accepted owner write outcome")
+
+            expected_baseline_version = (
+                f"substrate_version_{baseline_registry.content_hash.removeprefix('sha256:')[:16]}"
+            )
+            expected_after_version = (
+                f"substrate_version_{registry.content_hash.removeprefix('sha256:')[:16]}"
+            )
+            if (
+                baseline_registry.substrate_version_id != expected_baseline_version
+                or registry.substrate_version_id != expected_after_version
+            ):
+                raise ValueError("substrate registry version/content binding invalid")
 
             before_entries = {
                 entry.registry_key: entry for entry in baseline_registry.entries
@@ -5131,6 +5152,29 @@ class GenerationCycleController:
                 "n7_acq01_registry_binding_invalid",
                 str(exc),
             ) from exc
+
+        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+
+        prior_context = self._cycle_substrate_context
+        if prior_context is None:
+            raise GenerationCycleError("n7_acq01_prior_context_missing")
+        try:
+            prior_context = revalidate_cycle_substrate_context(prior_context)
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_acq01_prior_context_invalid",
+                str(exc),
+            ) from exc
+        if (
+            prior_context.design_problem_ref != _problem_ref(problem)
+            or prior_context.domain != problem.domain
+        ):
+            raise GenerationCycleError("n7_acq01_prior_context_mismatch")
+        if prior_context.candidate_levers or prior_context.transport_context:
+            raise GenerationCycleError(
+                "n7_acq01_prior_context_rebind_unsupported",
+                "candidate/transport evidence needs an owner rebind",
+            )
         self._validate_n7_acq01_registry_binding(
             route=route,
             owner_artifact=owner_artifact,
@@ -5140,6 +5184,7 @@ class GenerationCycleController:
             registry=registry,
             baseline_registry_ref=baseline_registry_ref,
             baseline_registry=baseline_registry,
+            prior_world_model_record_content_hash=prior_context.world_model_record_content_hash,
             store=store,
             candidate_id=candidate_id,
             candidate_content_hash=candidate_content_hash,
@@ -5149,7 +5194,6 @@ class GenerationCycleController:
         from polisyos.ir.model_layer.model_spec import ModelSpec
         from polisyos.runtime.quality.cycle_substrate import (
             build_cycle_substrate_context,
-            revalidate_cycle_substrate_context,
         )
         from polisyos.runtime.quality.world_model_record import (
             BranchMode,
@@ -5231,27 +5275,6 @@ class GenerationCycleController:
                 str(exc),
             ) from exc
 
-        prior_context = self._cycle_substrate_context
-        if prior_context is not None:
-            try:
-                prior_context = revalidate_cycle_substrate_context(prior_context)
-            except (TypeError, ValueError) as exc:
-                raise GenerationCycleError(
-                    "n7_acq01_prior_context_invalid",
-                    str(exc),
-                ) from exc
-            if (
-                prior_context.design_problem_ref != _problem_ref(problem)
-                or prior_context.domain != problem.domain
-            ):
-                raise GenerationCycleError("n7_acq01_prior_context_mismatch")
-            if prior_context.candidate_levers or prior_context.transport_context:
-                raise GenerationCycleError(
-                    "n7_acq01_prior_context_rebind_unsupported",
-                    "candidate/transport evidence needs an owner rebind",
-                )
-        if prior_context is None:
-            raise GenerationCycleError("n7_acq01_prior_context_missing")
         if (
             baseline_registry.model_dump(mode="json")
             != prior_context.substrate_registry.model_dump(mode="json")

@@ -23,6 +23,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionAffectedRegion,
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
+    AcquisitionReceipt,
     AcquisitionWorldSnapshot,
     RecordedAcquisitionOwnerGateway,
     value_input_world_knowledge_requirement_gap,
@@ -636,14 +637,9 @@ def _real_acq01_route(
 
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
-            "requirement_id": _acq01_source_requirement_id(problem.design_problem_id),
-            "claim_id": _acq01_source_requirement_id(problem.design_problem_id).replace(
-                "req-", "claim-", 1
-            ),
+            "requirement_id": "data-requirement:acq-01-file-tabular",
+            "claim_id": "claim:acq-01-file-tabular",
             "required_data_families": ("metric.test",),
-            "source_requirement_refs": (
-                _acq01_source_requirement_id(problem.design_problem_id),
-            ),
         }
     )
     capture_root = tmp_path / "capture"
@@ -674,6 +670,9 @@ def _real_acq01_route(
             catalog=owner.graph,
             catalog_binding=catalog_binding,
             design_problem=problem,
+        )
+        data_spec = data_spec.model_copy(
+            update={"source_requirement_refs": (source_requirement.requirement_id,)}
         )
         store = owner.store
         measurement_root = MeasurementRootProducer(artifact_store=store).produce_from_fabric_fetch(
@@ -874,6 +873,8 @@ def _real_acq01_route(
             admission=admission,
             world_build=world_build,
             context=context,
+            catalog=owner.graph,
+            providers=owner.providers,
         )
 
 
@@ -915,10 +916,8 @@ def _real_acq01_inputs(
 ) -> Any:
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
-            "requirement_id": _acq01_source_requirement_id(problem_id),
-            "claim_id": _acq01_source_requirement_id(problem_id).replace(
-                "req-", "claim-", 1
-            ),
+            "requirement_id": "data-requirement:acq-01-file-tabular",
+            "claim_id": "claim:acq-01-file-tabular",
             "required_data_families": ("metric.test",),
             "source_requirement_refs": (_acq01_source_requirement_id(problem_id),),
         }
@@ -989,16 +988,19 @@ def _build_acq01_real_route_controller(
                 grounding_dispositions=(),
             )
 
+    gateway = RecordedAcquisitionOwnerGateway(
+        artifacts_by_requirement={
+            case.data_spec.requirement_id: route.owner_artifact,
+        }
+    )
+    setattr(gateway, "catalog", route.catalog)
+    setattr(gateway, "providers", route.providers)
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
         grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
         simulation_port=simulation,
         value_port=_PendingFixtureValue(),
-        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
-            artifacts_by_requirement={
-                case.data_spec.requirement_id: route.owner_artifact,
-            }
-        ),
+        acquisition_owner_gateway=gateway,
         repo_root=repo_root,
         cycle_substrate_context=case.before_context,
     )
@@ -1144,6 +1146,13 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 return self._delegate.run(request)
 
         n5 = _RecordingN5Controller()
+        gateway = RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                case.data_spec.requirement_id: route.owner_artifact,
+            }
+        )
+        setattr(gateway, "catalog", route.catalog)
+        setattr(gateway, "providers", route.providers)
         controller = GenerationCycleController(
             generation_port=_RouteGenerationPort(),
             grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
@@ -1152,11 +1161,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 repo_root=tmp_path,
                 cycle_substrate_context=case.before_context,
             ),
-            acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
-                artifacts_by_requirement={
-                    case.data_spec.requirement_id: route.owner_artifact,
-                }
-            ),
+            acquisition_owner_gateway=gateway,
             repo_root=tmp_path,
             cycle_substrate_context=case.before_context,
         )
@@ -1186,6 +1191,220 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             run.cycles[0].value_port.world_model_record_content_hash
             == route.world_build.record.content_hash
         )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mutation", ["before_ref", "delta_hash"])
+async def test_n7_acq01_reentry_rejects_tampered_receipt_world_binding(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    """Receipt world refs and delta hashes remain bound to the revalidated CAS route."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id=f"acq_01_tampered_{mutation}")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+        )
+        run = await controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+        receipt = AcquisitionReceipt.model_validate(run.acquisition_receipts[0])
+        tampered = receipt.model_copy(
+            update={
+                "grown_world_before_ref": (
+                    "sha256:" + "f" * 64
+                    if mutation == "before_ref"
+                    else receipt.grown_world_before_ref
+                ),
+                "grown_world_delta_hash": (
+                    "sha256:" + "e" * 64
+                    if mutation == "delta_hash"
+                    else receipt.grown_world_delta_hash
+                ),
+            }
+        )
+        controller._cycle_substrate_context = case.before_context
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match="n7_acq01_registry_binding_invalid",
+        ):
+            controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=tampered,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+
+
+@pytest.mark.asyncio
+async def test_n7_acq01_reentry_rejects_registry_version_content_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A version string forged over unchanged registry bytes cannot pass N7."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_tampered_version")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+        )
+        run = await controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+        receipt = AcquisitionReceipt.model_validate(run.acquisition_receipts[0])
+        route_payload = dict(route.owner_artifact.payload)
+        route_projection = dict(route_payload["acq01_route"])
+        inline_registry = dict(route_projection["registry"])
+        forged_version = "substrate_version_" + "f" * 16
+        inline_registry["substrate_version_id"] = forged_version
+        route_projection["registry"] = inline_registry
+        route_payload["acq01_route"] = route_projection
+        forged_owner = route.owner_artifact.model_copy(
+            update={
+                "payload": route_payload,
+                "content_hash": gy_content_hash(route_payload),
+            }
+        )
+        outcomes = list(receipt.world_write_outcomes)
+        outcomes[0] = outcomes[0].model_copy(
+            update={
+                "substrate_version_after": forged_version,
+                "world_ref_after": f"s0://substrate-registry/{forged_version}",
+            }
+        )
+        tampered = receipt.model_copy(
+            update={
+                "owner_artifacts": (forged_owner,),
+                "world_write_outcomes": tuple(outcomes),
+                "grown_world_after_ref": f"s0://substrate-registry/{forged_version}",
+            }
+        )
+        controller._cycle_substrate_context = case.before_context
+        import polisyos.runtime.quality.substrate_registry as substrate_registry_module
+
+        original_loader = substrate_registry_module.load_substrate_registry
+
+        def forged_loader(store: Any, ref: Any) -> Any:
+            loaded = original_loader(store, ref)
+            registry_ref = route_projection["registry_ref"]["artifact_id"]
+            if str(ref.artifact_id) == registry_ref:
+                return loaded.model_copy(update={"substrate_version_id": forged_version})
+            return loaded
+
+        monkeypatch.setattr(
+            substrate_registry_module,
+            "load_substrate_registry",
+            forged_loader,
+        )
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match="n7_acq01_registry_binding_invalid",
+        ):
+            controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=tampered,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+
+
+@pytest.mark.asyncio
+async def test_n7_acq01_reentry_rejects_same_id_altered_source_requirement(
+    tmp_path: Path,
+) -> None:
+    """Canonical replay rejects a source requirement changed behind the same ID."""
+
+    from polisyos.runtime.quality.data_forge_binding import (
+        _fabric_measurement_envelope,
+        _measurement_root_evidence_fingerprint,
+        _validate_resolved_measurement_root_evidence,
+        resolve_measurement_root_evidence,
+    )
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_tampered_source")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+        )
+        gateway = controller._acquisition_owner_gateway
+        canonical_resolver = resolve_measurement_root_evidence
+
+        def altered_resolver(**kwargs: Any) -> Any:
+            evidence = canonical_resolver(**kwargs)
+            source = evidence.payload.source_requirement
+            altered_source = source.model_copy(
+                update={
+                    "scope": source.scope.model_copy(update={"geography": "ZZ"}),
+                }
+            )
+            altered_payload = evidence.payload.model_copy(
+                update={"source_requirement": altered_source}
+            )
+            altered_envelope = _fabric_measurement_envelope(
+                altered_payload,
+                evidence.envelope.payload_ref,
+            )
+            altered_fingerprint = _measurement_root_evidence_fingerprint(
+                envelope=altered_envelope,
+                payload=altered_payload,
+                measurement_root_ref=evidence.measurement_root_ref,
+                fetch_receipt_ref=evidence.fetch_receipt_ref,
+                catalog_binding_ref=evidence.catalog_binding_ref,
+            )
+            altered = evidence.model_copy(
+                update={
+                    "envelope": altered_envelope,
+                    "payload": altered_payload,
+                    "evidence_fingerprint": altered_fingerprint,
+                }
+            )
+            _validate_resolved_measurement_root_evidence(altered)
+            return altered
+
+        setattr(gateway, "resolve_measurement_root_evidence", altered_resolver)
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match="n7_acq01_measurement_root_custody_invalid",
+        ):
+            await controller.run(
+                case.problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                ),
+                max_cycles=1,
+            )
 
 
 def test_n7_grounding_fails_closed_without_structural_dependency_membership() -> None:

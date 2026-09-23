@@ -61,7 +61,7 @@ def _source(
         snapshot.model_dump(mode="json"),
         kind="fabric.data_snapshot",
     )
-    return DataSnapshotRef.model_validate(snapshot_ref)
+    return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
 
 
 def _rule(

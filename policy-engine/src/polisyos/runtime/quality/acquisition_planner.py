@@ -2932,15 +2932,24 @@ def _validate_local_fabric_capture_route(
         raise ValueError("fabric_fetch_capture_target_not_local_tabular")
 
     distributions = catalog.get_distributions(target.catalog_dataset_id)
-    distribution = next(
-        (item for item in distributions if item.id == target.distribution_id),
-        None,
-    )
-    if distribution is None or distribution.connector_type != connector_id:
+    matches = [item for item in distributions if item.id == target.distribution_id]
+    if len(matches) != 1:
         raise ValueError("fabric_fetch_capture_distribution_not_admitted")
-    for locator in (distribution.url, distribution.source_locator):
-        if _fabric_capture_locator_is_explicit(locator):
-            _resolve_local_fabric_capture_path(locator, approved_root=approved_root)
+    distribution = matches[0]
+    if distribution.connector_type != connector_id:
+        raise ValueError("fabric_fetch_capture_distribution_not_admitted")
+    locator_values = tuple(
+        dict.fromkeys(
+            str(locator).strip()
+            for locator in (distribution.url, distribution.source_locator)
+            if locator is not None and str(locator).strip()
+        )
+    )
+    if len(locator_values) != 1:
+        raise ValueError("fabric_fetch_capture_distribution_locator_ambiguous")
+    catalog_path = _resolve_local_fabric_capture_path(
+        locator_values[0], approved_root=approved_root
+    )
 
     executor = getattr(service, "_executor", None)
     registry = getattr(executor, "_registry", None)
@@ -2951,10 +2960,15 @@ def _validate_local_fabric_capture_route(
     entry = get_entry(plan.connector_id)
     if getattr(entry, "connector_class", None) is not FileTabularConnector:
         raise ValueError("fabric_fetch_capture_connector_registration_mismatch")
+    instance = getattr(entry, "instance", None)
+    if instance is not None and type(instance) is not FileTabularConnector:
+        raise ValueError("fabric_fetch_capture_connector_instance_mismatch")
     config = resolve_config(plan)
     actual_path = _resolve_local_fabric_capture_path(
         getattr(config, "url", None), approved_root=approved_root
     )
+    if actual_path != catalog_path:
+        raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
 
     connector_params = target.connector_params
     if not isinstance(connector_params, Mapping):
@@ -2963,27 +2977,11 @@ def _validate_local_fabric_capture_route(
     if configured_locator is None:
         configured_locator = connector_params.get("path")
     if configured_locator is not None:
-        catalog_path = _resolve_local_fabric_capture_path(
+        configured_path = _resolve_local_fabric_capture_path(
             configured_locator, approved_root=approved_root
         )
-        if catalog_path != actual_path:
+        if configured_path != catalog_path:
             raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
-
-
-def _fabric_capture_locator_is_explicit(locator: object) -> bool:
-    if locator is None:
-        return False
-    raw = str(locator).strip()
-    if not raw:
-        return False
-    parsed = urlparse(raw)
-    return bool(
-        parsed.scheme
-        or parsed.netloc
-        or raw.startswith(("/", "./", "../", "~"))
-        or "/" in raw
-        or "\\" in raw
-    )
 
 
 def _resolve_local_fabric_capture_path(locator: object, *, approved_root: Path) -> Path:

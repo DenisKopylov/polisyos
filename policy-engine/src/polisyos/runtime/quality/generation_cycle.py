@@ -4744,27 +4744,14 @@ class GenerationCycleController:
                 providers = getattr(gateway, "providers", None) or getattr(
                     gateway, "_providers", None
                 )
-            resolver = getattr(
-                self._acquisition_owner_gateway,
-                "resolve_measurement_root_evidence",
-                None,
-            )
-            if catalog is None:
+            if catalog is None or providers is None:
                 raise ValueError("canonical measurement root resolver context missing")
-            if callable(resolver):
-                resolved_evidence = resolver(
-                    store=store,
-                    measurement_root=measurement_root,
-                    catalog=catalog,
-                    providers=providers,
-                )
-            else:
-                resolved_evidence = resolve_measurement_root_evidence(
-                    store=store,
-                    measurement_root=measurement_root,
-                    catalog=catalog,
-                    providers=providers,
-                )
+            resolved_evidence = resolve_measurement_root_evidence(
+                store=store,
+                measurement_root=measurement_root,
+                catalog=catalog,
+                providers=providers,
+            )
             if resolved_evidence is None:
                 raise ValueError("canonical measurement root resolver returned no evidence")
             _validate_resolved_measurement_root_evidence(resolved_evidence)

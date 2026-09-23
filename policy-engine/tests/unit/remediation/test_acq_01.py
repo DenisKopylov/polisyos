@@ -1334,10 +1334,15 @@ async def test_n7_acq01_reentry_rejects_registry_version_content_mismatch(
 
 
 @pytest.mark.asyncio
-async def test_n7_acq01_reentry_rejects_same_id_altered_source_requirement(
+async def test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo(
     tmp_path: Path,
 ) -> None:
-    """Canonical replay rejects a source requirement changed behind the same ID."""
+    """Canonical replay ignores an untrusted same-ID source echo from the gateway.
+
+    The canonical producer/replay mismatch witness remains covered by
+    ``test_n9_measurement_rechecks_source_requirement_and_problem``; this ACQ
+    route falsifier proves that a gateway echo cannot carry this gate.
+    """
 
     from polisyos.runtime.quality.data_forge_binding import (
         _fabric_measurement_envelope,
@@ -1360,8 +1365,11 @@ async def test_n7_acq01_reentry_rejects_same_id_altered_source_requirement(
         )
         gateway = controller._acquisition_owner_gateway
         canonical_resolver = resolve_measurement_root_evidence
+        invoked = False
 
         def altered_resolver(**kwargs: Any) -> Any:
+            nonlocal invoked
+            invoked = True
             evidence = canonical_resolver(**kwargs)
             source = evidence.payload.source_requirement
             altered_source = source.model_copy(
@@ -1394,17 +1402,16 @@ async def test_n7_acq01_reentry_rejects_same_id_altered_source_requirement(
             return altered
 
         gateway.resolve_measurement_root_evidence = altered_resolver
-        with pytest.raises(
-            generation_cycle_module.GenerationCycleError,
-            match="n7_acq01_measurement_root_custody_invalid",
-        ):
-            await controller.run(
-                case.problem,
-                budget_state=BudgetState(
-                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-                ),
-                max_cycles=1,
-            )
+        run = await controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+
+        assert invoked is False
+        assert run.acquisition_receipts[0]["status"] == "completed"
 
 
 def test_n7_grounding_fails_closed_without_structural_dependency_membership() -> None:

@@ -609,6 +609,7 @@ def _real_acq01_route(
         load_l5_catalog_authority,
         persist_measurement_root_substrate_registry,
         persist_substrate_registry,
+        register_substrate_entry,
     )
     from polisyos.runtime.quality.world_model_record import (
         BranchMode,
@@ -714,6 +715,20 @@ def _real_acq01_route(
             evidence=evidence,
             baseline_registry_ref=baseline_registry_ref,
         )
+        # N7's accepted world write creates the runtime registry projection
+        # that the receipt hashes.  Persist that exact projection while
+        # retaining the canonical measurement-root admission as its evidence
+        # and lineage source.
+        route_registry = register_substrate_entry(
+            baseline_registry,
+            registration,
+            producer_ref="polisyos.runtime.quality.acquisition_planner.N7",
+        )
+        route_registry_ref = persist_substrate_registry(
+            store,
+            route_registry,
+            inputs=admission.input_refs,
+        )
 
         world_root = tmp_path / "fresh-world"
         world_root.mkdir(parents=True, exist_ok=True)
@@ -731,7 +746,7 @@ def _real_acq01_route(
             data_snapshot_ref=data_snapshot_ref,
             model_spec=model_spec,
             skg_causal_prior_ref=_skg_ref(world_root, snapshot_id=snapshot_id),
-            substrate_registry=admission.registry,
+            substrate_registry=route_registry,
             region_or_jurisdiction="UA-30",
             population_scope="recorded_file_tabular_fixture",
             policy_domain="fiscal_credit",
@@ -742,18 +757,18 @@ def _real_acq01_route(
             policy_slot_ids=("agents.income", "government.balance"),
             producer_ref="tests.unit.remediation.test_acq_01.real_route",
             required_substrate_families=("metric.test",),
-            substrate_registry_artifact_ref=admission.registry_ref,
-            _loaded_substrate_registry=admission.registry,
+            substrate_registry_artifact_ref=route_registry_ref,
+            _loaded_substrate_registry=route_registry,
         )
         selected_entry_hashes = tuple(
             entry.entry_content_hash
-            for entry in admission.registry.entries
+            for entry in route_registry.entries
             if entry.family_id == "metric.test"
         )
         context = build_cycle_substrate_context(
             design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
             domain=problem.domain,
-            substrate_registry=admission.registry,
+            substrate_registry=route_registry,
             selected_registry_entry_hashes=selected_entry_hashes,
             world_model_record=world_build.record,
             intervention_substrate=None,
@@ -789,8 +804,8 @@ def _real_acq01_route(
                 "capture_store_root": str(store.root),
                 "measurement_root": measurement_root.model_dump(mode="json"),
                 "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
-                "registry_ref": admission.registry_ref.model_dump(mode="json"),
-                "registry": admission.registry.model_dump(mode="json"),
+                "registry_ref": route_registry_ref.model_dump(mode="json"),
+                "registry": route_registry.model_dump(mode="json"),
                 "build_inputs": {
                     "fabric_world_ref": _fabric_ref(
                         world_root,
@@ -879,7 +894,12 @@ def _real_acq01_before_context(
     )
 
 
-def _real_acq01_inputs(tmp_path: Path, *, problem_id: str) -> Any:
+def _real_acq01_inputs(
+    tmp_path: Path,
+    *,
+    problem_id: str,
+    extra_runtime_hints: dict[str, Any] | None = None,
+) -> Any:
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
             "requirement_id": "data-requirement:acq-01-file-tabular",
@@ -887,10 +907,9 @@ def _real_acq01_inputs(tmp_path: Path, *, problem_id: str) -> Any:
             "required_data_families": ("metric.test",),
         }
     )
-    problem = _problem(
-        problem_id=problem_id,
-        runtime_hints={"n7_data_requirement_specs": (data_spec,)},
-    )
+    runtime_hints = {"n7_data_requirement_specs": (data_spec,)}
+    runtime_hints.update(extra_runtime_hints or {})
+    problem = _problem(problem_id=problem_id, runtime_hints=runtime_hints)
     before_context = _real_acq01_before_context(tmp_path, problem)
     candidate = _fixture_candidate(
         problem,
@@ -1061,6 +1080,96 @@ async def test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7(
             route.world_build.record.content_hash,
         }
         assert run.cycles[0].simulation.k_world_ref_before == after[1]
+
+
+@pytest.mark.asyncio
+async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
+    tmp_path: Path,
+) -> None:
+    """The accepted route reaches the real JointSimulationPort and default N8."""
+
+    case = _real_acq01_inputs(
+        tmp_path,
+        problem_id="acq_01_real_ports",
+        extra_runtime_hints={
+            "joint_simulation_resource": "method_registry_estimator",
+            "joint_simulation_budget_ref": "budget://acq-01/real-ports",
+            "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+        },
+    )
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        class _RouteGenerationPort:
+            async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
+                del current, cycle_index
+                return SimpleNamespace(
+                    status="generated",
+                    candidates=(case.candidate,),
+                    surrogate_rankings=(
+                        SimpleNamespace(
+                            candidate_id=case.candidate.candidate_id,
+                            score=0.2,
+                            voi_estimate=0.2,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+
+        class _RecordingN5Controller:
+            def __init__(self) -> None:
+                self.requests: list[Any] = []
+                self._delegate = generation_cycle_module.JointSimulationHorizonController()
+
+            def run(self, request: Any) -> Any:
+                self.requests.append(request)
+                return self._delegate.run(request)
+
+        n5 = _RecordingN5Controller()
+        controller = GenerationCycleController(
+            generation_port=_RouteGenerationPort(),
+            grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
+            simulation_port=JointSimulationPort(
+                controller=n5,
+                repo_root=tmp_path,
+                cycle_substrate_context=case.before_context,
+            ),
+            acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={
+                    case.data_spec.requirement_id: route.owner_artifact,
+                }
+            ),
+            repo_root=tmp_path,
+            cycle_substrate_context=case.before_context,
+        )
+
+        run = await controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+
+        assert len(n5.requests) == 2
+        before_request, after_request = n5.requests
+        assert before_request.world_model_record == case.before_context.world_model_record
+        assert after_request.world_model_record == route.world_build.record
+        assert after_request.world_model_record_ref == route.world_build.record.world_model_record_id
+        assert isinstance(
+            controller._value_port,
+            generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+        )
+        assert controller._value_port.cycle_substrate_context is controller._cycle_substrate_context
+        assert controller._cycle_substrate_context is not case.before_context
+        assert controller._cycle_substrate_context.world_model_record == route.world_build.record
+        assert run.cycles[0].value_port.status == "value_conditional"
+        assert (
+            run.cycles[0].value_port.world_model_record_content_hash
+            == route.world_build.record.content_hash
+        )
 
 
 @pytest.mark.asyncio

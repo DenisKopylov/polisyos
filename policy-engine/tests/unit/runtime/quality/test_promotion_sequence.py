@@ -2051,8 +2051,8 @@ def _assert_fetch_payload_custody_contract(owner, evidence):
     assert isinstance(result_ref, core_artifacts.ArtifactRef)
     assert result_ref == evidence.payload.payload_ref
     assert result_ref.kind == "fabric.fetch_payload"
-    assert result_ref.media_type == "application/json"
-    assert receipt.payload_encoding == "canonical_json"
+    assert result_ref.media_type == "application/vnd.apache.arrow.stream"
+    assert receipt.payload_encoding == "pandas_arrow_ipc"
 
     payload_manifest = owner.store.get_manifest(result_ref.artifact_id)
     assert payload_manifest.kind == result_ref.kind

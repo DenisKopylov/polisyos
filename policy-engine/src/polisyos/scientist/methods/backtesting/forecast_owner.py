@@ -38,8 +38,8 @@ from polisyos.ir.analytics.backtest import (
 )
 from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 from polisyos.ir.analytics.forecasting_uncertainty import (
-    ForecastIntervalSemantics,
     ForecastingUncertaintyBundle,
+    ForecastIntervalSemantics,
     load_forecasting_uncertainty_bundle,
     persist_forecasting_uncertainty_bundle,
 )

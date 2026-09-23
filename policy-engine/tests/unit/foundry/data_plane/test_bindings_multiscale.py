@@ -10,6 +10,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.foundry import FoundryInputBindingRule
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
@@ -419,3 +420,163 @@ def test_build_input_bindings_materializes_multiscale_state(tmp_path) -> None:
         "auto.household_cells_value_outer_set",
         "auto.household_cells_poverty_rate",
     }.issubset(set(result.applied_binding_ids))
+
+
+def _put_arrow_payload(store: FileSystemCAS):
+    """Persist a real Arrow IPC stream with nested Foundry source paths."""
+    pa = pytest.importorskip("pyarrow")
+    agents = pa.array(
+        [{"income": 1200.0}, {"income": 1800.0}],
+        type=pa.struct([("income", pa.float64())]),
+    )
+    cells = pa.array(
+        [{"population": 1000.0}, {"population": 850.0}],
+        type=pa.struct([("population", pa.float64())]),
+    )
+    table = pa.Table.from_arrays([agents, cells], names=["agents", "cells"])
+    sink = pa.BufferOutputStream()
+    with pa.ipc.new_stream(sink, table.schema) as writer:
+        writer.write_table(table)
+    return store.put_bytes(
+        sink.getvalue().to_pybytes(),
+        PutOptions(
+            kind="fabric.data_payload",
+            media_type="application/vnd.apache.arrow.stream",
+        ),
+    )
+
+
+def _arrow_binding_rules() -> list[FoundryInputBindingRule]:
+    return [
+        FoundryInputBindingRule(
+            binding_id="arrow.agents_income",
+            source_path="agents.income",
+            target_slot_id="agents.income",
+        ),
+        FoundryInputBindingRule(
+            binding_id="arrow.cells_population",
+            source_path="cells.population",
+            target_slot_id="cells.population",
+        ),
+    ]
+
+
+def _assert_no_binding_outputs_written(
+    store: FileSystemCAS,
+    monkeypatch: pytest.MonkeyPatch,
+    invoke,
+) -> None:
+    """Reject any state/binding/report CAS write while input admission fails."""
+    import polisyos.foundry.data_plane.bindings as bindings_module
+
+    class UnexpectedBindingOutputWrite(RuntimeError):
+        """Identify a forbidden output write in a negative input test."""
+
+    def _fail_state_write(*args, **kwargs):
+        del args, kwargs
+        raise UnexpectedBindingOutputWrite("state snapshot written before input rejection")
+
+    monkeypatch.setattr(bindings_module, "put_state_snapshot", _fail_state_write)
+    original_put_json = store.put_json
+
+    def _fail_report_write(obj, opts, *args, **kwargs):
+        if opts.kind in {
+            "foundry.input_bindings",
+            "foundry.input_binding_report",
+        }:
+            raise UnexpectedBindingOutputWrite(
+                f"binding output '{opts.kind}' written before input rejection"
+            )
+        return original_put_json(obj, opts, *args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", _fail_report_write)
+    invoke()
+
+
+def test_build_input_bindings_consumes_arrow_snapshot_and_materializes_state(tmp_path) -> None:
+    """Arrow IPC input must bind real values through the existing Foundry rule path."""
+    store = FileSystemCAS(tmp_path / "cas")
+    arrow_ref = _put_arrow_payload(store)
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=arrow_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    result = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        rules=_arrow_binding_rules(),
+    )
+    state = load_state_snapshot(store, snapshot_ref=result.bound_state_snapshot_ref)
+
+    assert np.allclose(np.asarray(state.agents.income), np.asarray([1200.0, 1800.0]))
+    assert np.allclose(np.asarray(state.cells.population), np.asarray([1000.0, 850.0]))
+    assert result.applied_binding_ids == (
+        "arrow.agents_income",
+        "arrow.cells_population",
+    )
+
+
+def test_build_input_bindings_rejects_corrupt_arrow_before_output_cas_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Corrupt Arrow bytes are rejected before state or binding reports are persisted."""
+    pytest.importorskip("pyarrow")
+    store = FileSystemCAS(tmp_path / "cas")
+    corrupt_ref = store.put_bytes(
+        b"not-an-arrow-ipc-stream",
+        PutOptions(
+            kind="fabric.data_payload",
+            media_type="application/vnd.apache.arrow.stream",
+        ),
+    )
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=corrupt_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    with pytest.raises(ValueError, match="Arrow IPC"):
+        _assert_no_binding_outputs_written(
+            store,
+            monkeypatch,
+            lambda: build_input_bindings(
+                store,
+                data_snapshot_ref=data_snapshot_ref,
+                registry_bundle_ref=registry_bundle_ref,
+                rules=_arrow_binding_rules(),
+            ),
+        )
+
+
+def test_build_input_bindings_rejects_snapshot_media_mismatch_before_output_cas_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A snapshot ref must agree with its CAS manifest before binding can write outputs."""
+    store = FileSystemCAS(tmp_path / "cas")
+    arrow_ref = _put_arrow_payload(store)
+    mismatched_ref = arrow_ref.model_copy(update={"media_type": "application/json"})
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=mismatched_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    with pytest.raises(ValueError, match="media type"):
+        _assert_no_binding_outputs_written(
+            store,
+            monkeypatch,
+            lambda: build_input_bindings(
+                store,
+                data_snapshot_ref=data_snapshot_ref,
+                registry_bundle_ref=registry_bundle_ref,
+                rules=_arrow_binding_rules(),
+            ),
+        )

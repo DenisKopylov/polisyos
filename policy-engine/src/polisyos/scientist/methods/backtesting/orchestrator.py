@@ -68,7 +68,7 @@ def _default_backtest_store_factory(root: Path) -> BacktestStore:
     return build_ir_artifact_store(root)
 
 
-def _resolve_aggregate_refs(
+def _consistent_plan_refs(
     plans: Sequence[HistoricalValidationPlan],
 ) -> tuple[str | None, str | None, str | None]:
     """Resolve one model/policy pair without mixing aggregate inputs."""
@@ -78,6 +78,12 @@ def _resolve_aggregate_refs(
 
     if len(pairs) == 1:
         model_spec_ref, policy_spec_ref = next(iter(pairs))
+        if model_spec_ref is None or policy_spec_ref is None:
+            return (
+                None,
+                None,
+                "model_spec_ref/policy_spec_ref is incomplete across aggregated plans",
+            )
         return model_spec_ref, policy_spec_ref, None
 
     return (
@@ -756,7 +762,7 @@ class BacktestOrchestrator:
         biases, statistical_degraded_reasons = self._detect_systematic_biases(scenarios)
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
 
-        model_spec_ref, policy_spec_ref, reference_issue = _resolve_aggregate_refs(plans)
+        model_spec_ref, policy_spec_ref, reference_issue = _consistent_plan_refs(plans)
         reference_issues = [reference_issue] if reference_issue is not None else []
         all_degraded_reasons = [*all_degraded_reasons, *reference_issues]
         degraded = bool(all_degraded_reasons)

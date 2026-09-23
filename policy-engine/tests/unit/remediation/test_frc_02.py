@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
-from polisyos.ir.analytics.backtest import load_backtest_report
+from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.registry.refs import BacktestReportRef
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
@@ -36,8 +36,8 @@ def _persist_spec_ref(store: FileSystemCAS, *, spec_kind: str) -> str:
 def _plan(
     tmp_path: Path,
     *,
-    model_spec_ref: str,
-    policy_spec_ref: str,
+    model_spec_ref: str | None,
+    policy_spec_ref: str | None,
 ) -> HistoricalValidationPlan:
     history_path = tmp_path / "history.json"
     history_path.write_text(
@@ -58,20 +58,20 @@ def _plan(
     )
 
 
-@pytest.mark.parametrize(
-    "runner_name",
-    ("orchestrator", "matrix"),
-    ids=("orchestrator", "matrix"),
-)
-def test_plan_model_policy_refs_survive_orchestrator_and_matrix_persisted_report_roundtrip(
-    runner_name: str,
+def _persisted_report(
     tmp_path: Path,
-) -> None:
-    """Persisted reports retain both refs supplied by their validation plan."""
-
+    *,
+    runner_name: str,
+    include_model_ref: bool,
+    include_policy_ref: bool,
+) -> tuple[BacktestReport, str | None, str | None]:
     store = FileSystemCAS(tmp_path / f"{runner_name}-cas")
-    model_spec_ref = _persist_spec_ref(store, spec_kind="model")
-    policy_spec_ref = _persist_spec_ref(store, spec_kind="policy")
+    model_spec_ref = (
+        _persist_spec_ref(store, spec_kind="model") if include_model_ref else None
+    )
+    policy_spec_ref = (
+        _persist_spec_ref(store, spec_kind="policy") if include_policy_ref else None
+    )
     plan = _plan(
         tmp_path,
         model_spec_ref=model_spec_ref,
@@ -98,7 +98,91 @@ def test_plan_model_policy_refs_survive_orchestrator_and_matrix_persisted_report
         assert result.backtest_report_ref is not None
         report_ref = result.backtest_report_ref
 
-    persisted = load_backtest_report(store, report_ref)
+    return load_backtest_report(store, report_ref), model_spec_ref, policy_spec_ref
+
+
+@pytest.mark.parametrize(
+    "runner_name",
+    ("orchestrator", "matrix"),
+    ids=("orchestrator", "matrix"),
+)
+def test_plan_model_policy_refs_survive_orchestrator_and_matrix_persisted_report_roundtrip(
+    runner_name: str,
+    tmp_path: Path,
+) -> None:
+    """Persisted reports retain both refs supplied by their validation plan."""
+
+    persisted, model_spec_ref, policy_spec_ref = _persisted_report(
+        tmp_path,
+        runner_name=runner_name,
+        include_model_ref=True,
+        include_policy_ref=True,
+    )
 
     assert persisted.model_spec_ref == model_spec_ref
     assert persisted.policy_spec_ref == policy_spec_ref
+
+
+@pytest.mark.parametrize(
+    ("runner_name", "partial_ref"),
+    (
+        ("orchestrator", "model"),
+        ("orchestrator", "policy"),
+        ("matrix", "model"),
+        ("matrix", "policy"),
+    ),
+    ids=(
+        "orchestrator-model-only",
+        "orchestrator-policy-only",
+        "matrix-model-only",
+        "matrix-policy-only",
+    ),
+)
+def test_partial_plan_refs_fail_closed_after_persisted_report_roundtrip(
+    runner_name: str,
+    partial_ref: str,
+    tmp_path: Path,
+) -> None:
+    """A partial model/policy pair cannot become report provenance."""
+
+    persisted, _model_spec_ref, _policy_spec_ref = _persisted_report(
+        tmp_path,
+        runner_name=runner_name,
+        include_model_ref=partial_ref == "model",
+        include_policy_ref=partial_ref == "policy",
+    )
+
+    assert persisted.model_spec_ref is None
+    assert persisted.policy_spec_ref is None
+    assert persisted.degraded is True
+    assert persisted.trust_eligible is False
+    assert (
+        "model_spec_ref/policy_spec_ref is incomplete across aggregated plans"
+        in persisted.degraded_reasons
+    )
+
+
+@pytest.mark.parametrize(
+    "runner_name",
+    ("orchestrator", "matrix"),
+    ids=("orchestrator", "matrix"),
+)
+def test_no_plan_refs_preserve_existing_report_compatibility(
+    runner_name: str,
+    tmp_path: Path,
+) -> None:
+    """Existing plans without specification refs remain valid no-ref reports."""
+
+    persisted, model_spec_ref, policy_spec_ref = _persisted_report(
+        tmp_path,
+        runner_name=runner_name,
+        include_model_ref=False,
+        include_policy_ref=False,
+    )
+
+    assert model_spec_ref is None
+    assert policy_spec_ref is None
+    assert persisted.model_spec_ref is None
+    assert persisted.policy_spec_ref is None
+    assert persisted.degraded is False
+    assert persisted.degraded_reasons == []

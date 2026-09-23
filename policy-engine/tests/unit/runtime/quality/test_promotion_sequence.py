@@ -2039,6 +2039,53 @@ def _fabric_measurement_envelope(owner, *, include_requirement=True):
     )
 
 
+def _assert_fetch_payload_custody_contract(owner, evidence):
+    """Assert the exact receipt-to-payload CAS contract used by ACQ-01."""
+
+    from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+
+    receipt = FabricFetchReceipt.model_validate(
+        canon.from_canonical_bytes(owner.store.get_bytes(evidence.fetch_receipt_ref.artifact_id))
+    )
+    result_ref = receipt.result.data
+    assert isinstance(result_ref, core_artifacts.ArtifactRef)
+    assert result_ref == evidence.payload.payload_ref
+    assert result_ref.kind == "fabric.fetch_payload"
+    assert result_ref.media_type == "application/vnd.apache.arrow.stream"
+    assert receipt.payload_encoding == "pandas_arrow_ipc"
+
+    payload_manifest = owner.store.get_manifest(result_ref.artifact_id)
+    assert payload_manifest.kind == result_ref.kind
+    assert payload_manifest.media_type == result_ref.media_type
+    assert payload_manifest.artifact_schema == core_artifacts.SchemaInfo(
+        name="polisyos.fabric.fetch_payload.v1",
+        version="1.0.0",
+    )
+    assert payload_manifest.producer == core_artifacts.ProducerInfo(
+        component="polisyos.fabric.retrieval.executor.FetchExecutor",
+        version="1.0.0",
+    )
+    assert payload_manifest.inputs == []
+
+    receipt_manifest = owner.store.get_manifest(evidence.fetch_receipt_ref.artifact_id)
+    assert receipt_manifest.kind == "fabric.fetch_receipt"
+    assert receipt_manifest.media_type == "application/json"
+    assert receipt_manifest.artifact_schema == core_artifacts.SchemaInfo(
+        name="polisyos.fabric.fetch_receipt.v1",
+        version="1.0.0",
+    )
+    assert receipt_manifest.producer == payload_manifest.producer
+    assert receipt_manifest.inputs == [
+        core_artifacts.InputRef(artifact_id=result_ref.artifact_id, role="fetched_payload"),
+        core_artifacts.InputRef(
+            artifact_id=evidence.catalog_binding_ref.artifact_id,
+            role="catalog_binding",
+        ),
+    ]
+    assert receipt.result.data.artifact_id == evidence.payload.payload_ref.artifact_id
+    return result_ref
+
+
 def _future_substrate_registration(l5):
     return SubstrateRegistration(
         source_id="acquisition:test_future_source",
@@ -2474,6 +2521,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     """Project resolved measurement custody into a DataSnapshot without replay."""
 
     from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.fabric.retrieval import custody as retrieval_custody
     from polisyos.runtime.quality import data_forge_binding as binding_owner
 
     owner = fabric_measurement_owner
@@ -2490,6 +2538,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
 
     monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
     monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
 
@@ -2499,8 +2548,9 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     snapshot = DataSnapshot.model_validate(
         canon.from_canonical_bytes(owner.store.get_bytes(snapshot_ref.artifact_id))
     )
-    assert str(snapshot.data_ref.artifact_id) == evidence.payload.payload_ref
-    assert snapshot.stats["snapshot_id"] == evidence.payload.payload_ref
+    expected_payload_artifact_id = str(evidence.payload.payload_ref.artifact_id)
+    assert str(snapshot.data_ref.artifact_id) == expected_payload_artifact_id
+    assert snapshot.stats["snapshot_id"] == expected_payload_artifact_id
     assert snapshot.stats["observed_row_count"] == evidence.payload.observed_row_count
 
     manifest = owner.store.get_manifest(snapshot_ref.artifact_id)
@@ -2513,7 +2563,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert [
         (input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs
     ] == [
-        ("fetched_payload", evidence.payload.payload_ref),
+        ("fetched_payload", expected_payload_artifact_id),
         ("measurement_root", str(evidence.measurement_root_ref.artifact_id)),
         ("fabric_fetch", str(evidence.fetch_receipt_ref.artifact_id)),
         ("catalog_binding", str(evidence.catalog_binding_ref.artifact_id)),
@@ -2526,6 +2576,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
 ) -> None:
     """A rebound evidence object is refused before DataSnapshot CAS persistence."""
 
+    from polisyos.fabric.retrieval import custody as retrieval_custody
     from polisyos.runtime.quality import data_forge_binding as binding_owner
 
     owner = fabric_measurement_owner
@@ -2555,6 +2606,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
 
     monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
     monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
     cas_before = {
@@ -2562,10 +2614,171 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
         for path in owner.store.root.rglob("*")
         if path.is_file()
     }
+    cas_writes: list[object] = []
+    real_put_json = owner.store.put_json
+
+    def _put_json_spy(*args: object, **kwargs: object):
+        cas_writes.append((args, kwargs))
+        return real_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
 
     with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
         persist(store=owner.store, evidence=forged)
 
+    assert cas_writes == []
+
+    cas_after = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    assert cas_after == cas_before
+
+
+def test_measurement_root_data_snapshot_rejects_payload_ref_rebind_before_cas_write(
+    fabric_measurement_owner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A self-consistent nested payload-ref rebound cannot select a foreign CAS object."""
+
+    from polisyos.fabric.retrieval import custody as retrieval_custody
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    result_ref = _assert_fetch_payload_custody_contract(owner, evidence)
+    rebound_payload = evidence.payload.model_copy(
+        update={"payload_ref": evidence.fetch_receipt_ref}
+    )
+    rebound_payload_ref = rebound_payload.payload_ref
+    assert rebound_payload_ref != result_ref
+    assert rebound_payload_ref.kind == "fabric.fetch_receipt"
+    assert rebound_payload_ref.media_type == "application/json"
+    rebound_payload_id = str(rebound_payload_ref.artifact_id)
+    rebound_envelope = binding_owner._fabric_measurement_envelope(
+        rebound_payload,
+        rebound_payload_id,
+    )
+    rebound_measurement_root_ref = core_artifacts.ArtifactRef(
+        artifact_id=rebound_payload_ref.artifact_id,
+        kind="policyos.gy.measurement_root_payload",
+        media_type="application/json",
+    )
+    rebound_fingerprint = binding_owner._measurement_root_evidence_fingerprint(
+        envelope=rebound_envelope,
+        payload=rebound_payload,
+        measurement_root_ref=rebound_measurement_root_ref,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog_binding_ref=evidence.catalog_binding_ref,
+    )
+    forged = replace(
+        evidence,
+        envelope=rebound_envelope,
+        payload=rebound_payload,
+        measurement_root_ref=rebound_measurement_root_ref,
+        evidence_fingerprint=rebound_fingerprint,
+    )
+    assert forged.envelope == rebound_envelope
+    assert forged.envelope.payload_ref == rebound_payload_id
+    assert forged.measurement_root_ref.artifact_id == rebound_payload_ref.artifact_id
+    assert forged.evidence_fingerprint == rebound_fingerprint
+    assert forged.fetch_receipt_ref == evidence.fetch_receipt_ref
+    assert forged.catalog_binding_ref == evidence.catalog_binding_ref
+
+    def _replay_forbidden(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("forged evidence must be rejected before any replay")
+
+    monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
+    monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
+    monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
+    persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
+    assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
+    cas_before = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    cas_writes: list[object] = []
+    real_put_json = owner.store.put_json
+
+    def _put_json_spy(*args: object, **kwargs: object):
+        cas_writes.append((args, kwargs))
+        return real_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
+
+    with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
+        persist(store=owner.store, evidence=forged)
+
+    assert cas_writes == []
+    cas_after = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    assert cas_after == cas_before
+
+
+@pytest.mark.parametrize("corruption", ["missing_payload_blob", "corrupt_payload_manifest"])
+def test_measurement_root_data_snapshot_rejects_missing_or_corrupt_payload_custody(
+    fabric_measurement_owner,
+    monkeypatch: pytest.MonkeyPatch,
+    corruption: str,
+) -> None:
+    """Missing or mismatched payload CAS custody is rejected before snapshot write."""
+
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+    )
+    result_ref = _assert_fetch_payload_custody_contract(owner, evidence)
+    payload_blob, payload_manifest = owner.store.get_paths(result_ref.artifact_id)
+    if corruption == "missing_payload_blob":
+        payload_blob.unlink()
+    else:
+        manifest = owner.store.get_manifest(result_ref.artifact_id)
+        corrupted = manifest.model_copy(update={"kind": "fabric.fetch_receipt"})
+        payload_manifest.write_bytes(
+            json.dumps(
+                corrupted.model_dump(mode="json", by_alias=True, exclude_none=True),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        )
+
+    persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
+    assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
+    cas_before = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    cas_writes: list[object] = []
+    real_put_json = owner.store.put_json
+
+    def _put_json_spy(*args: object, **kwargs: object):
+        cas_writes.append((args, kwargs))
+        return real_put_json(*args, **kwargs)
+
+    monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
+
+    with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
+        persist(store=owner.store, evidence=evidence)
+
+    assert cas_writes == []
     cas_after = {
         path.relative_to(owner.store.root): path.read_bytes()
         for path in owner.store.root.rglob("*")

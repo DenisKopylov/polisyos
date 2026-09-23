@@ -42,6 +42,14 @@ def _put_json(store: FileSystemCAS, payload: object, *, kind: str) -> ArtifactRe
     )
 
 
+def _spec(store: FileSystemCAS, *, kind: str, spec_id: str) -> ArtifactRef:
+    return _put_json(
+        store,
+        {"schema_version": "1.0", "spec_id": spec_id},
+        kind=kind,
+    )
+
+
 def _source(
     store: FileSystemCAS,
     *,
@@ -109,6 +117,8 @@ def _request(
     *,
     report_id: str,
     manifest_inputs: tuple[InputRef, ...] = (),
+    model_spec_ref: str | None = None,
+    policy_spec_ref: str | None = None,
     train_end: int = 30,
     horizon: int = 4,
 ) -> ForecastOwnerRequest:
@@ -135,6 +145,8 @@ def _request(
             },
         ),
         temporal_roles=_temporal_roles(),
+        model_spec_ref=model_spec_ref,
+        policy_spec_ref=policy_spec_ref,
         manifest_inputs=manifest_inputs,
     )
 
@@ -197,6 +209,115 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert "trust_screening:predictive_only_bridge_pending" in report.degraded_reasons
 
 
+def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    model_ref = _spec(store, kind="ir.model_spec", spec_id="frc-owner-model")
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="frc-owner-policy")
+    model_id = str(model_ref.artifact_id)
+    policy_id = str(policy_ref.artifact_id)
+
+    result = ForecastOwner(store).run(
+        _request(
+            source_ref,
+            rule_ref,
+            report_id="frc-owner-complete-pair",
+            model_spec_ref=model_id,
+            policy_spec_ref=policy_id,
+        )
+    )
+
+    assert result.model_spec_ref is not None
+    assert str(result.model_spec_ref.artifact_id) == model_id
+    assert result.model_spec_ref.kind == "ir.model_spec"
+    assert result.model_spec_ref.media_type == "application/json"
+    assert result.policy_spec_ref is not None
+    assert str(result.policy_spec_ref.artifact_id) == policy_id
+    assert result.policy_spec_ref.kind == "ir.policy_spec"
+    assert result.policy_spec_ref.media_type == "application/json"
+    assert result.authority_scope == "predictive_only"
+    assert result.bridge_status == "bridge_pending"
+
+    report = load_backtest_report(store, result.backtest_report_ref)
+    assert report.model_spec_ref == model_id
+    assert report.policy_spec_ref == policy_id
+    assert report.metadata["model_spec_ref"] == model_id
+    assert report.metadata["policy_spec_ref"] == policy_id
+    assert report.metadata["authority_scope"] == "predictive_only"
+    assert report.metadata["bridge_status"] == "bridge_pending"
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+
+    manifest = store.get_manifest(result.backtest_report_ref.artifact_id)
+    model_edges = [
+        (str(item.artifact_id), item.role)
+        for item in manifest.inputs
+        if item.role == "model_spec"
+    ]
+    policy_edges = [
+        (str(item.artifact_id), item.role)
+        for item in manifest.inputs
+        if item.role == "policy_spec"
+    ]
+    assert model_edges == [(model_id, "model_spec")]
+    assert policy_edges == [(policy_id, "policy_spec")]
+
+
+def test_real_ets_owner_rejects_missing_model_policy_cas_binding_before_derived_writes(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="frc-owner-policy")
+    missing_model_id = "sha256:" + ("f" * 64)
+    before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+    with pytest.raises(ValueError, match=r"missing|manifest|CAS|artifact"):
+        ForecastOwner(store).run(
+            _request(
+                source_ref,
+                rule_ref,
+                report_id="frc-owner-missing-model",
+                model_spec_ref=missing_model_id,
+                policy_spec_ref=str(policy_ref.artifact_id),
+            )
+        )
+
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_ids
+
+
+def test_real_ets_owner_rejects_wrong_model_manifest_profile_before_derived_writes(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    wrong_model_ref = _spec(
+        store,
+        kind="test.frc02.model_spec",
+        spec_id="frc-owner-wrong-model-kind",
+    )
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="frc-owner-policy")
+    before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+    with pytest.raises(ValueError, match=r"kind|media|manifest|content-bound|profile"):
+        ForecastOwner(store).run(
+            _request(
+                source_ref,
+                rule_ref,
+                report_id="frc-owner-wrong-model-profile",
+                model_spec_ref=str(wrong_model_ref.artifact_id),
+                policy_spec_ref=str(policy_ref.artifact_id),
+            )
+        )
+
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_ids
+
+
 def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     rule_ref = _rule(store)
@@ -234,7 +355,7 @@ def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Pat
     assert out_of_profile.empirical_suitability == "limited"
 
 
-def test_owner_rejects_incomplete_model_policy_pair_and_duplicate_inputs(
+def test_owner_rejects_incomplete_or_same_model_policy_pair_and_duplicate_inputs(
     tmp_path: Path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
@@ -245,19 +366,19 @@ def test_owner_rejects_incomplete_model_policy_pair_and_duplicate_inputs(
         role="observed_source",
     )
 
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-partial").model_dump(
+        mode="python"
+    )
+    payload["model_spec_ref"] = str(source_ref.artifact_id)
     with pytest.raises(ValueError, match="model/policy"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-partial").model_dump(
-            mode="python"
-        )
-        payload["model_spec_ref"] = str(source_ref.artifact_id)
         ForecastOwnerRequest.model_validate(payload)
 
-    with pytest.raises(ValueError, match="S10|model/policy"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-complete").model_dump(
-            mode="python"
-        )
-        payload["model_spec_ref"] = str(source_ref.artifact_id)
-        payload["policy_spec_ref"] = str(rule_ref.artifact_id)
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-complete").model_dump(
+        mode="python"
+    )
+    payload["model_spec_ref"] = str(source_ref.artifact_id)
+    payload["policy_spec_ref"] = str(source_ref.artifact_id)
+    with pytest.raises(ValueError, match="distinct"):
         ForecastOwnerRequest.model_validate(payload)
 
     with pytest.raises(ValueError, match="duplicate"):
@@ -308,7 +429,7 @@ def test_owner_rejects_unadmitted_calibration_rule(
     source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
     rule_ref = _rule(store, payload_updates=payload_updates, kind=kind)
 
-    with pytest.raises(ValueError, match="calibration rule|artifact kind"):
+    with pytest.raises(ValueError, match=r"calibration rule|artifact kind"):
         ForecastOwner(store).run(
             _request(source_ref, rule_ref, report_id="frc-owner-invalid-rule")
         )
@@ -321,9 +442,9 @@ def test_owner_rejects_naive_or_collapsed_temporal_roles(tmp_path: Path) -> None
     roles = _temporal_roles().model_dump(mode="python")
     roles["observation_time"] = datetime(2026, 1, 1)
 
-    with pytest.raises(ValueError, match="timezone|distinct"):
-        payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(
-            mode="python"
-        )
-        payload["temporal_roles"] = roles
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(
+        mode="python"
+    )
+    payload["temporal_roles"] = roles
+    with pytest.raises(ValueError, match=r"timezone|distinct"):
         ForecastOwnerRequest.model_validate(payload)

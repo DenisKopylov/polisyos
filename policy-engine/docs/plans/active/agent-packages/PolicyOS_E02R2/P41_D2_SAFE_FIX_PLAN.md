@@ -3,8 +3,9 @@
 > For agentic workers: implement this plan task by task; this plan is design
 > guidance only and contains no test or product-code changes.
 
-**Goal:** Keep the household proxy-to-point behavioral witness while preventing
-any copy or write of appointed `production_data` bytes.
+**Goal:** Keep the household proxy-to-point behavioral witness while replacing
+the test's production-data copy/edit setup with a test-local typed override. The
+test's no-copy/no-write evidence is bounded to the audited call path below.
 
 **Architecture:** Reuse the canonical `load_l5_catalog_authority` owner and the
 real `build_production_data_state_world_model_record` production call. In the
@@ -27,18 +28,26 @@ CAS and materialization outputs stay under `tmp_path`.
   override.
 - Do not add a production API solely to make this one test injectable.
 
+These remain operating constraints. The test-local `copytree` guard below is a
+regression guard for the former helper; it is not a generic filesystem
+no-copy/no-write gate.
+
 ## Review focus
 
-- If either module-level loader binding is unpatched, the second build stays proxy;
-  the test must detect that.
+- If either module-level loader binding is unpatched, the test must detect it in
+  both S1's household state and the persisted S0 registry's household row and
+  fixture provenance.
 - The override must change only `household_distribution`, leaving other loaded L5
   rows unchanged.
 - The world output must identify the test fixture override as its mode source;
   it must not claim that production bytes select point identification.
-- The source registry SHA-256 must be identical before and after both builds.
-- The original whole-file test at the four pinned bases remains `UNRUN`: those
-  historical blobs still call `copytree`. The rewrite enables safe execution of
-  the rewritten test; it does not retroactively make the old blobs safe.
+- The SHA-256 of the canonical identification-mode registry file must be
+  identical before and after both builds. This is a single-file mutation check,
+  not a digest of all production data or proof that no write was attempted.
+- The original whole-file test at the four pinned bases remains `UNRUN` because
+  those historical blobs call `copytree` on production data. A safe run of the
+  rewritten test at the integration head is a new witness; it never backfills
+  or relabels any of those four historical cells.
 
 ---
 
@@ -46,7 +55,7 @@ CAS and materialization outputs stay under `tmp_path`.
 
 The audited unsafe helper is
 `policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py`
-@`ec7191b1713b09f2a312ea229cc1d538ebfe8306b1de2fe365e480b9211c7adf`.
+@`bae992dfe8986d82559a1898cf4f1076632a977d`.
 `_repo_with_household_identification_mode` copies the D2 directory, edits one
 registry file, and the sole caller is
 `test_l5_proxy_identification_materializes_bounded_state_and_toggle_changes_it`.
@@ -54,14 +63,17 @@ The four-cell risk and source path are recorded in `P41_SAFETY_AUDIT.md`.
 
 The canonical loader is
 `policy-engine/src/polisyos/runtime/quality/substrate_registry.py`
-@`6321750ec9641369e683c9a38795405c93dc5e4dc8d245e25c61f2cc199bbd5a`.
+@`586be103d3a78aff425a3fba72aa5928fa7246e5`.
 `SubstrateCatalogPaths` can choose file paths for `load_l5_catalog_authority`,
 but no existing overlay type or in-memory override is exposed by the high-level
 build. `build_l5_family_binding_profile` and
 `build_substrate_registry_from_existing_catalogs` resolve default paths
 internally. The materializer is
 `policy-engine/src/polisyos/runtime/quality/data_state_substrate.py`
-@`b29a8cab49c2a01312b27246cebc88829dbf1f0fa3e80f38bb13b76c0de80de4`.
+@`c141184edc49e7b9c868dd7d40a91ec0dc32a483`.
+The persisted S0 projection is
+`policy-engine/src/polisyos/runtime/quality/world_model_record.py`
+@`3dc15d1e20307c573826d553a4df66f8cfe3314b`.
 
 There is therefore **no current owner-supported overlay seam** for this
 end-to-end call. A test-local typed override is the smallest safe route for the
@@ -77,17 +89,24 @@ catalog/overlay input with a separate fixture provenance contract.
 - **P31 (instance patch):** patch both module bindings used by the production
   call chain: `data_state_substrate_module.load_l5_catalog_authority` and the
   canonical `substrate_registry_module.load_l5_catalog_authority`. The latter is
-  called inside `build_substrate_registry_from_existing_catalogs`.
+  called inside `build_substrate_registry_from_existing_catalogs`. Assert the
+  point-mode household row and fixture authority reference in the persisted
+  registry read through `load_substrate_registry`, as well as in the S0 resolved
+  entries; S1 state alone cannot prove the second binding was patched.
 - **P32 (trust by form):** the override is a test fixture, never evidence that
   the production registry selects point identification. Put a distinct
   `fixture://policyos-test/l5-identification-mode-overlay/sha256/` ref followed
   by 64 lowercase hex digits in
   `L5CatalogAuthority.identification_mode_registry_ref`.
-- **P37/P38:** the test recomputes the production source digest and checks the
-  materialized status/width. The mode override itself is test-supplied. The
-  implementation tests downstream behavior of a loaded typed authority; it
-  does not test a file edit flowing through source resolution. Keep that
-  divergence explicit in the test docstring and this record.
+- **P37/P38:** recompute the digest for the one declared identification-mode
+  registry file and assert that every loader wrapper receives that same resolved
+  path. The mode override itself is test-supplied. The implementation tests
+  downstream behavior of a loaded typed authority; it does not test a file edit
+  flowing through source resolution. The `copytree` guard catches only copies
+  through that function from this production tree; the bounded no-write
+  conclusion also relies on the inspected call graph's `tmp_path`, in-memory,
+  and read-only database paths. Keep those limits explicit in the test docstring
+  and this record.
 
 ## Exact implementation write set
 
@@ -104,10 +123,11 @@ catalog/overlay input with a separate fixture provenance contract.
     `urllib.parse.quote`; change the `dataclasses` import to include
     `replace`; retain `shutil` for the production-data copy guard.
   - Retain the unmodified production build as the proxy control.
-  - Capture SHA-256 of
+  - Resolve and retain the canonical
     `default_substrate_catalog_paths(REPO_ROOT).identification_mode_registry_path`
-    using `hashlib.file_digest(stream, "sha256").hexdigest()` on a read-only
-    binary stream.
+    as `canonical_identification_registry_path`; capture its SHA-256 using
+    `hashlib.file_digest(stream, "sha256").hexdigest()` on a read-only binary
+    stream. This digest covers that registry file only.
   - Wrap the canonical loader: call the original loader for each supplied path,
     copy only its in-memory `identification_modes` mapping, set
     `household_distribution` to `point_identified`, and return
@@ -120,6 +140,8 @@ catalog/overlay input with a separate fixture provenance contract.
     fixture_refs = []
 
     def load_point_overlay(paths):
+        supplied_registry_path = paths.identification_mode_registry_path.resolve()
+        assert supplied_registry_path == canonical_identification_registry_path
         authority = original_loader(paths)
         modes = dict(authority.identification_modes)
         modes["household_distribution"] = "point_identified"
@@ -151,7 +173,10 @@ catalog/overlay input with a separate fixture provenance contract.
     ```
 
     This labels the derived input and links its source without claiming an
-    owner-issued production artifact.
+    owner-issued production artifact. The path assertion binds each module's
+    loader call to the same file whose digest appears in the fixture-ref
+    preimage; if a caller selects a different catalog path, the test fails
+    before deriving the override.
   - Patch the two loader bindings listed above for the second build. Use the
     same `REPO_ROOT`; keep both workspace directories and CAS under `tmp_path`.
     The exact patch calls are:
@@ -166,7 +191,11 @@ catalog/overlay input with a separate fixture provenance contract.
     ```
   - Install a `shutil.copytree` guard that rejects sources resolving beneath
     `REPO_ROOT / "production_data"`, while allowing unrelated temporary copies.
-    Use this guard before either build:
+    Use it before either build to catch restoration of the audited helper. This
+    guard does not cover `copy2`, `copyfile`, direct writes, or imported helpers;
+    the bounded no-write claim relies on the inspected call graph showing S1
+    outputs and CAS under `tmp_path`, L4 on DuckDB `:memory:`, and source DuckDB
+    handles read-only. Do not describe this guard as a general no-copy gate.
 
     ```python
     real_copytree = shutil.copytree
@@ -186,6 +215,19 @@ catalog/overlay input with a separate fixture provenance contract.
     second profile's family ref equals
     `f"{fixture_refs[-1]}#/household_distribution"`; and the production
     identification-registry digest is unchanged after both builds.
+  - Verify the second build's persisted S0 registry, not only its S1 materialized
+    state. Load it through the existing
+    `substrate_registry_module.load_substrate_registry(store,
+    point.substrate_registry_ref)` reader. Select the nonempty L5
+    `household_distribution` entry set and assert every selected entry has
+    `identification_mode == "point_identified"` and includes `fixture_refs[-1]`
+    in `authority_refs`. Also select the matching entries from
+    `point.world_model.record.substrate_registry_ref.resolved_entries` and
+    assert the set is nonempty and point-identified. These S0 assertions detect
+    omission of the `substrate_registry_module` binding even when the S1
+    materialization still reaches point identification through the other
+    binding. Keep the fixture reference described as a test label, not as
+    owner-verified evidence.
 
 No production source, generated family, governed artifact, plan, or register is
 in this write set. No tests are run as part of this planning task.
@@ -197,11 +239,16 @@ in this write set. No tests are run as part of this planning task.
 2. Keep the original production call and verify the two outcomes in the test:
    proxy remains non-refusing with a positive-width bound; the fixture override
    produces point identification with zero width.
-3. Keep the removal probe effective: omit or misroute the override while leaving
-   assertions in place; the point-status / zero-width assertions must fail.
-4. Keep the source-preservation control: the registry hash computed before the
-   proxy build equals the hash after the point build. The production-copy guard
-   fails if the former `copytree` call is restored.
+3. Keep both loader-binding removal probes effective: omit or misroute the
+   `data_state_substrate_module` binding and confirm the S1 point/zero-width
+   assertions fail; separately omit or misroute the
+   `substrate_registry_module` binding and confirm the persisted S0 household
+   mode/provenance assertions fail while S1 may still be point-identified.
+4. Keep the source-preservation control: the canonical identification-mode
+   registry hash computed before the proxy build equals the hash after the point
+   build. The production-copy guard fails if the former `copytree` call is
+   restored. This guard covers that callsite/function only; use the audited
+   read-only/in-memory/tmp-path call graph for the bounded no-write assessment.
 5. After review, run the rewritten test with the linked production-data tree:
 
    ```bash
@@ -211,15 +258,21 @@ in this write set. No tests are run as part of this planning task.
      tests/integration/runtime_quality/test_data_state_substrate.py::test_l5_proxy_identification_materializes_bounded_state_and_toggle_changes_it -q
    ```
 
-   Then run that whole test file at the integration head. Do not replay the four
-   old `test_data_state_substrate.py` blobs; retain their four `UNRUN` cells in
-   the P41 baseline record. The test can be added to a later safe baseline only
-   once each pinned test tree contains the rewritten source.
+   Then run that whole test file at the integration head. Do not run, overlay,
+   or rewrite the four historical pinned test blobs: retain their four
+   `UNRUN` cells in the original P41 baseline record because their exact
+   same-command execution enters the production-data `copytree` helper. A safe
+   post-repair integration-head run is a separate witness and cannot be recorded
+   as one of those historical outcomes.
 
-**Acceptance:** the real world-build consumer still distinguishes proxy from
-point through a typed L5 input; the fixture ref makes the test-only premise
-visible; the production identification-registry file digest is unchanged; and
-no copy operation may start from the production D2 tree through
-`shutil.copytree`. The audit found no other direct file-copy call in this
-fixture; that bounded scan does not rule out dynamically assembled copies from
-imported helpers.
+**Acceptance:** the real world-build consumer distinguishes proxy from point
+through the typed L5 input; both S1 state and the persisted S0 household row
+carry the point mode; the S0 row carries the test fixture authority reference;
+and the second profile identifies the same fixture premise. The canonical
+identification-mode registry file digest is unchanged. The test guard rejects
+the former `shutil.copytree` source under D2. This is a bounded witness, not a
+generic filesystem no-copy/no-write proof: its no-write conclusion depends on
+the reviewed call graph routing outputs to `tmp_path` or memory and opening
+source DuckDB/SKG data read-only. It does not establish file-resolution
+behavior, verify the fixture URI as external evidence, hash all production
+bytes, or prove that no write was attempted.

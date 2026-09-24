@@ -227,23 +227,51 @@ do not inflate the frontier crosswalk from file-name or vocabulary overlap.
 At each second same-class finding, use P40: expand the shared mechanism or declare the bounded
 residual and run its falsifier. Do not continue filing instance patches under one row.
 
-## New-class candidate and bounded falsifier
+## Acquisition event-window behavior and bounded falsifier
 
-The root acquisition-flow audit reports one **unconfirmed** DS15 movement-window candidate:
-`AcquisitionMovementService.project_row` asks for a 1,000-event append prefix and can return
-`invalid_source` at exactly 1,000 before searching a later matching movement receipt. This is not
-an R13 storage class and is not an E02 merge regression by current evidence. It stays a candidate,
-not a finding or closure claim.
+The root acquisition-flow audit raised a **CycleBoard** candidate: a 1,000-event prefix may put a
+later matching movement receipt outside the inspected range. Direct source review supersedes the
+silent-loss interpretation. `AcquisitionMovementService.project_row` marks any returned set of at
+least 1,000 rows `invalid_source` with `movement_event_window_incomplete` and skips receipt
+projection. The served CycleBoard composition carries that status and reason into its source
+manifest, whose native-movement source is explicitly not authoritative for row enumeration,
+exhaustiveness, or register closure. Even a genuinely complete 1,000-row set receives the same
+conservative refusal: that is an exact-1,000 over-refusal if the returned set is known complete, but
+the refusal is explicitly typed rather than a silent successful projection. The source review does
+not establish a product requirement to admit that boundary case, a separate CycleBoard defect, or
+an E02 regression. [Original
+candidate note:
+`/Users/deniskopylov/.codex/scratch/e02-r2-acquisition-flow-seam-audit-20260924.md@sha256:fa24d840cd4c6fb485230f435a3787b195c79ee979b0536e1e9eb03819b3ee9a`; code:
+`acquisition_movement.py@git-blob:d82db7baa318ad8003c2fe03b26e41afd7997eca`,
+`cycle_board_projection.py@git-blob:440d9a1e0cd5acf1c52757ed13a8908371185e8c`]
 
-**Falsifier before opening a new class:** on a read-only source census, establish whether
-`ControlPlaneStore.list_diagnostic_events` can contain the target receipt after the first 1,000
-events for one production run, then exercise the real board consumer with an exact 1,000-row prefix
-and a matching 1,001st event. If the full-source query proves the receipt is included despite the
-bounded prefix or the behavior is unreachable under the caller's retention contract, the candidate
-is falsified. If reachable and the board still refuses an otherwise valid per-row movement, record
-it as a distinct DS15 movement-denominator class with a behavioral test; do not patch it in this P
-map or claim E02 caused it without P41 attribution. [Root audit:
-`/Users/deniskopylov/.codex/scratch/e02-r2-acquisition-flow-seam-audit-20260924.md@sha256:fa24d840cd4c6fb485230f435a3787b195c79ee979b0536e1e9eb03819b3ee9a`]
+A separate **bounded-window candidate** remains at
+`AcquisitionRouteLoop._resolve_terminal_event`: it calls the diagnostic event reader with the
+default 500-row limit; the reader fetches in ascending `row_id` order, and this resolver does not
+receive or check a truncation signal. A matching completed terminal event beyond that prefix can
+therefore be absent from `matches`, resulting in `source_terminal_event_missing`. This is a
+different consumer and failure shape from CycleBoard's explicit refusal, under the same possible
+event-window completeness class. A finite limit alone does not establish a defect: real supported
+volume, reachability, and caller contract remain **UNRUN**. The source audit found the same
+default-window shape at E02's execution base, E02 head, and main; that source comparison does not
+substitute for the required four-base behavioral attribution. The follow-up audit classifies this
+as the **candidate R15 finite-window completeness class**; CycleBoard's explicit refusal is not a
+separate class or a silent-loss defect. [Follow-up source audit:
+`/Users/deniskopylov/.codex/scratch/e02-r2-cycleboard-denominator-audit-20260924.md@sha256:95584f99da20551965c71a5682db2a0b61f43f823cb05e7a39b1096d2b1b1dee`]
+
+**Falsifier for the proposed R15 class:** establish from the terminal-event producer and reader
+contract whether more than 500 eligible events can precede the terminal event for a supported run.
+Then exercise the actual route-loop consumer with 501 events and a valid matching terminal event
+after the first 500, while retaining a control whose terminal event is inside the prefix. Compare
+the bounded lookup with the complete run/job event set. If the supported contract guarantees the
+terminal event is within the prefix, or complete pagination already reaches it, the candidate is
+falsified. If the event can be beyond the prefix and the served consumer returns
+`source_terminal_event_missing`, record a behavioral RouteLoop instance of candidate R15; attribute
+it through four-base replay before calling it an E02 regression. Do not patch it in this P map.
+[RouteLoop code:
+`acquisition_route_loop.py@git-blob:8d2aecd29b71bfc43af45d4d8ff89f2683916d1a`,
+`event_log.py@git-blob:8eb1c070a157b82c7d98e38d0f803ae4096f73d0`,
+`control_plane_store.py@git-blob:4a49eef3c1d7da25e40436c0346778e28df13034`]
 
 ## Pattern pass and unresolved evidence
 
@@ -263,7 +291,8 @@ map or claim E02 caused it without P41 attribution. [Root audit:
 **Not measured by this map:** any behavioral test or removal probe; source-history replays; a
 production caller for the EMP, served B13, LA-051 calibration, or UQS downstream decision edges;
 positive ACQ-01 production growth; real-catalog WDI admission; tenant isolation of the no-bridge
-fallback; DS15 movement-prefix reachability. Keep these as `UNRUN`/`not_established` until their
+fallback; whether supported RouteLoop workloads can place the terminal event beyond the default
+500-row prefix, and its served consequence. Keep these as `UNRUN`/`not_established` until their
 owners supply the named witness.
 
 ## Source anchors
@@ -294,4 +323,5 @@ Tracked sources read for this design, identified by Git blob so the exact basis 
 
 The row-level criteria and current residual labels are from the triage snapshot above. The source
 maps add caller/lease detail; the GY and Atlas references above establish plan relations only. The
-audit hypothesis cited in the new-class section is separate, scratch-held, and explicitly UNRUN.
+CycleBoard source review withdraws the silent-loss interpretation; the separate RouteLoop event-
+window candidate remains a source-level hypothesis with occurrence and behavior explicitly UNRUN.

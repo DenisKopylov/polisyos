@@ -767,6 +767,114 @@ comment probe remains unmeasured for import-closure effect. The P41 four-base JU
 receipt for this regression class is pending the broker; this draft does not claim
 the base-passing test set has been replayed or restored.
 
+### R2 issuer policy — N9 current authority (principal decision draft)
+
+**Status.** Drafted by the E02-R2 lane on 2026-09-25 for Denis and the authorized
+security owner; no issuer is appointed by this draft. This supplement records the
+issuer question separately from the engineering capability needed to verify a
+release handoff. It does not revise the R2 historical/currentness proposal above.
+
+**Question.** Which institutionally authorized issuer, if any, may establish the
+current N6 source/deployment receipt for N9 authority in an installed package?
+
+**Options and costs.**
+
+1. **A — authorize the existing release-attestation workflow.** The principal and
+   security owner admit the exact OIDC issuer, repository, workflow path/ref,
+   predicate type, and trust-root/rotation source. A receiver verifies the detached
+   statement against the exact built wheel and its N6 receipt. This keeps the
+   existing release chain as the issuer, but makes N9 current authority depend on
+   preserving that workflow identity and delivering its evidence bundle; a workflow
+   or trust-root change requires an authorized transition. The release owner and
+   security owner carry workflow and trust-root upkeep; deployment operators retain
+   the exact wheel and evidence bundle. The identities are not supplied by this
+   draft and must not be guessed.
+2. **B — appoint a deployment/admission institution.** That institution issues a
+   receipt binding the exact wheel digest and N6 receipt digest/verdict, which the
+   runtime verifies offline. This separates release construction from deployment
+   authorization, but costs an appointment, a receipt and custody lifecycle, and
+   an owner-backed verifier/provider. The appointed institution issues and retains
+   the receipt; the runtime owner carries its provider and consumer lifecycle. No
+   such institution or runtime path is established in the reviewed repository.
+3. **C — leave the production issuer unappointed.** Keep the issuer predicate
+   `not_established`; N9 current authority is withheld in installed mode while
+   ordinary candidate computation and historically valid replay remain usable.
+   This preserves the authority boundary, but leaves no production N9 currentness
+   path until an issuer is appointed; consumers requiring current N9 authority
+   carry that bounded loss. This is the interim behavior proposed while A or B
+   remains undecided; it is not a principal ruling to stop building the verifier or
+   evidence handoff.
+
+**Buildable capability, independent of issuer appointment.** Proceed with the
+receiver-side release-envelope verifier under the existing SLSA/security owner, the
+immutable exact-wheel plus detached-evidence handoff, and the typed runtime
+consumer. Exercise the verifier with isolated test-only trust policy. This proves
+the protocol and tamper behavior only; test trust cannot admit a production issuer.
+Keep Confidence Ledger as the sole deployment-identity calculator and consume the
+verified handoff through the existing runtime deployment-security composition.
+The source-free package bootstrap, candidate path, and historical serializers can
+be built and tested without an issuer. The production issuer policy is a separate
+institutional admission. An appointment authorizes the act it names; verification
+does not itself appoint or sign for that issuer.
+
+**Premises.** The independent v3 review found no source-free runtime verifier,
+issuer allowlist, or evidence provider for the release handoff, and found the
+nearest SLSA and audit verifiers do not establish this release issuer. It concludes
+the receiver capability is engineerable now with test-only trust while production
+issuer admission remains a principal/security decision. The exact final wheel and
+N6 receipt must be covered by the signed handoff; matching package hashes alone
+are not issuer evidence. Unknown issuer scope binds N9 authority, not permission to
+build candidate or historical capability. Evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-package-handoff-design-v3-20260925.md@sha256:7fc188cebe92e2a5e94ab14b367296d4b54c014b73d7ed8d150e14f55c305a8f`;
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-package-handoff-design-review-v3-20260925.md@sha256:b176ec6948ca26f90bdc33a026dc4221e3cbfefaacd33f5e9aee0f4b0ad4a180`;
+`docs/system-design-decisions/policyos-identity-and-custody-boundary.md` §§8–9.7;
+`docs/system-design-decisions/stage0-custody-kernel-ratification.md` §4.3.
+
+**Proposed choice; principal status.** Build and verify the receiver and exact
+evidence handoff under test-only trust now. Until Denis and the authorized security
+owner decide A or B and admit the corresponding issuer policy, use C for the
+production issuer predicate: `not_established`, with N9 authority withheld.
+Candidate computation and historical replay continue as distinct typed outcomes.
+No signer, repository/workflow identity, trust root, currentness epoch, trust
+posture pin, or promotion receipt is selected or reissued here. **No principal
+choice has been made.**
+
+**Remainder and standing.** The exact production issuer identity, trust-root
+source/rotation authority, release-evidence delivery location, and authorized epoch
+transition remain for the principal/security owner and existing trust/deployment
+owners. The verifier protocol and evidence handoff are a buildable missing runtime
+capability; the unappointed production issuer is an owner-decision blocker only for
+N9 current authority. Neither blocks candidate work or historical replay. A valid
+release handoff does not by itself establish unrelated N9 predicates such as
+tenant custody, EvalSafety, or world-model currentness.
+
+**Falsifier / revisit trigger.** For A or B, retain the gate and package markers,
+then change the installed N6 route and regenerate its local manifest and census
+receipt without an issuer-authenticated handoff for that exact resulting wheel;
+N9 must remain withheld. An attestation from a different repository/workflow/ref,
+or a trust-root/workflow rotation without the authorized transition, must also fail
+admission. The preserving control supplies the exact authorized signed handoff for
+the exact wheel and receipt, and the offline verifier admits only the issuer named
+by the authorized policy. For interim C, test both sides of the band boundary: if
+issuer absence blocks ordinary candidate work or historical replay, the refusal is
+too broad; if N9 current authority follows from self-hashed/co-packaged receipt
+bytes alone, it is too weak. Reopen this record when the authorized owner supplies
+an issuer identity, trust-root/rotation source, and evidence custody route that can
+be falsified by these probes.
+
+**Where it binds.** This draft binds only the production issuer predicate for N9
+current authority and the trust-policy input consumed by the release-handoff
+verifier. It informs the receiver-side extension in `src/polisyos/core/security/slsa/`,
+the existing runtime handoff composition in
+`src/polisyos/runtime/http/deployment_security.py` and
+`deployment_security_attestation.py`, the sole identity projection in
+`src/polisyos/runtime/quality/confidence_ledger.py`, and the admission immediately
+before N9 in `src/polisyos/runtime/quality/generation_cycle.py`. It does not block
+or bind the source-free bootstrap, candidate N6 work, or historical replay; it does
+not appoint the issuer; and it authorizes no trust-posture, confidence-ledger,
+loaded-runtime, or GY promotion-epoch reissue. Later change requires an appended,
+dated principal decision naming this record and the evidence that moved it.
+
 ### Wave5 historical `repo://` reference sibling (P41)
 
 **Question.** How should the immutable Wave5 manifest's historical `repo://`

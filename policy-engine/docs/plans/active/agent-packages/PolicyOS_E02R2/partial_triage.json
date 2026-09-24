@@ -3,9 +3,9 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 72,
+    "engineering_a": 76,
     "principal_b": 16,
-    "typed_blocker_c": 30
+    "typed_blocker_c": 26
   },
   "triage_rule": {
     "a": "Engineering can close now in the plans direction.",
@@ -133,7 +133,7 @@
       "disposition": "engineering",
       "owner": "DataRequirementCompiler owner and GenerationCycleController._n7_data_requirement_specs caller",
       "blocker_kind": null,
-      "e02_residual": "E02 carried an ACQ-01 local FileTabular/REQ-01 residual under this ID; that is a mapping discrepancy, not LA-046's discriminator or evidence of closure.",
+      "e02_residual": "E02 carried an ACQ-01 local FileTabular/REQ-01 residual under this ID; that is a mapping discrepancy, not this finding's discriminator or evidence of closure.",
       "next_step": "Keep graph-derived construct refs, explicit pilot profiles, and mandatory resolver guards. Pair case-alpha / parent-support with otherwise identical inputs and verify the opaque ID does not add a mandatory construct; a negative housing/rent statement must not add one either. Verify a named explicit pilot profile retains UA / 2022-02-01, while generic national / annual leaves them unresolved. Then use the fallback scenario-adapter branch with an actual DataRequirementCompiler on a real DesignProblem through _n7_data_requirement_specs and _run_n7_acquisition_if_requested; assert text / domain and explicit scope reach compilation and resulting requirements reach the existing closed-loop consumer. Keep explicit-spec and typed-gap early-return branches as controls. This does not establish authority or world-growth admission.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3034",
       "source_occurrence_note": "This is one finding: the original discriminator is at line 3034; the heading at line 3816 and nested N7 handoff section at line 3818 are its r08 addendum, not a separate card.",
@@ -180,10 +180,10 @@
       "finding_id": "B15",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Generation-cycle deployment identity owner",
+      "owner": "NL HTTP composition and recursive generation-cycle controller owner",
       "blocker_kind": null,
       "e02_residual": "CYC-05: bounded limits; arbitrary recursion/dynamic-call completeness not claimed",
-      "next_step": "Move source census to a source/deployment-time gate bound to canonical loaded-code identity; persist historical-valid separately from currentness and prove replay without a live checkout.",
+      "next_step": "Expose requested and effective recursion/resource limits from the admitted profile. Through the ordinary HTTP-to-recursion caller, pass two meaningfully distinct child nodes and prove both traverse the existing recursion with their parent edges intact. Force the budget stop and verify obtained output is retained, search completeness is not claimed, and the whole result is not invalidated; keep a one-child control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B15",
       "e02_residual_source_refs": [
         {
@@ -201,10 +201,10 @@
       "finding_id": "B18",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Simulation orchestration owner",
+      "owner": "Simulation outcome parser and result consumer owner",
       "blocker_kind": null,
       "e02_residual": "SIM-02: full closure not claimed",
-      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "next_step": "At the consuming simulation path, distinguish an empty package, one omitted required outcome, an explicit numeric zero, NaN/infinity, and malformed structure. An omitted required outcome stays unknown and cannot improve the result; valid independent outcomes remain available with a partial marker. Keep explicit zero as a valid measured value.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B18",
       "e02_residual_source_refs": [
         {
@@ -222,10 +222,10 @@
       "finding_id": "B20",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Simulation orchestration owner",
+      "owner": "Intervention compatibility validator and joint-simulation composer",
       "blocker_kind": null,
       "e02_residual": "SIM-02: full closure not claimed",
-      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "next_step": "Use two compatible interventions and prove input permutation leaves the composed result unchanged. Use an incompatible pair targeting the same slot and require a typed conflict before computation, with neither input-order winner accepted. Preserve a separately declared ordered sequence and verify its order remains semantically significant.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B20",
       "e02_residual_source_refs": [
         {
@@ -243,10 +243,10 @@
       "finding_id": "B22",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Simulation orchestration owner",
+      "owner": "Trajectory time-grid evaluator and joint-simulation consumer",
       "blocker_kind": null,
       "e02_residual": "SIM-02: full closure not claimed",
-      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "next_step": "Exercise empty, short, and fully covered trajectories against the requested time grid. Report requested versus available coverage; missing time points yield an explicit partial/unknown outcome and never imply stability. Preserve hold-last or interpolation only when that behavior is explicitly declared, and keep a fully covered trajectory control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B22",
       "e02_residual_source_refs": [
         {
@@ -306,10 +306,10 @@
       "finding_id": "B125",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Control and RL-wrapper owner",
+      "owner": "StrategyState serializer and Python RNG owner",
       "blocker_kind": null,
-      "e02_residual": "CTL-02: RL wrapper RNG outside lease; B125–B127 routes open",
-      "next_step": "Bring wrapper RNG state under the same lease as B125–B127 routes and prove replay under shared leased state.",
+      "e02_residual": "CTL-02 RL-wrapper RNG remains outside its lease; B125 also needs direct StrategyState/RNG round-trip at the existing artifact boundary.",
+      "next_step": "Round-trip the actually used Python RNG state through the existing StrategyState artifact owner, then prove the next candidate equals an uninterrupted run. Malformed state must produce a typed failure, never silently reseed. Keep wrapper RNG under the same lease through its production route.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B125",
       "e02_residual_source_refs": [
         {
@@ -327,10 +327,10 @@
       "finding_id": "B126",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Control and RL-wrapper owner",
+      "owner": "Sobol sampler stream and checkpoint owner",
       "blocker_kind": null,
       "e02_residual": "CTL-02: RL wrapper RNG outside lease; B125–B127 routes open",
-      "next_step": "Bring wrapper RNG state under the same lease as B125–B127 routes and prove replay under shared leased state.",
+      "next_step": "Compare one batch of Sobol points with the same logical indices requested in chunks, both before and after checkpoint/restore; each index must yield the same point. Persist sampler identity, seed, search space, backend/version, and cursor. Preserve the declared sequence rather than restarting at each chunk.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B126",
       "e02_residual_source_refs": [
         {
@@ -391,10 +391,10 @@
       "finding_id": "B127",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Optimization route owner",
+      "owner": "Optimization effective-action canonicalization and dedup owner",
       "blocker_kind": null,
       "e02_residual": "OPT-02: direct B125–B127 replay open",
-      "next_step": "Add direct B125–B127 replay through the production route and prove deterministic state and output.",
+      "next_step": "Choose normalized coordinates such as 0.1 and 0.2 that execute as the same integer or categorical action and prove they deduplicate by effective action before pending/selection. Distinct continuous actions remain distinct; explicitly requested replicate IDs remain independent.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B127",
       "e02_residual_source_refs": [
         {
@@ -520,10 +520,10 @@
       "finding_id": "B128",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer runtime owner",
+      "owner": "Transfer score snapshot restore and consumer owner",
       "blocker_kind": null,
       "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
-      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "next_step": "Round-trip a compatible saved score snapshot and prove every selected row and ArtifactRef survives restoration. An incompatible schema or unknown candidate must yield a typed refusal/diagnostic, never a silently empty mapping. Verify the served transfer consumer sees the same rows and references.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B128",
       "e02_residual_source_refs": [
         {
@@ -541,10 +541,10 @@
       "finding_id": "B130",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer runtime owner",
+      "owner": "Transfer candidate ranking and objective-direction owner",
       "blocker_kind": null,
       "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
-      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "next_step": "Use two candidates whose ranking reverses between minimize and maximize after the declared score normalization. Prove the bounded transfer selects the correct candidate for each objective direction and carries the exact selection basis into the consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B130",
       "e02_residual_source_refs": [
         {
@@ -562,10 +562,10 @@
       "finding_id": "B131",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer runtime owner",
+      "owner": "Transfer score compatibility and task-binding owner",
       "blocker_kind": null,
       "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
-      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "next_step": "A matching task, metric, parameters, and context basis may transfer its score; change each binding field in turn and require refusal even when a similarity label matches. Verify the warm-start consumer cannot use a score from the mismatched basis.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B131",
       "e02_residual_source_refs": [
         {
@@ -583,10 +583,10 @@
       "finding_id": "B132",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer runtime owner",
+      "owner": "Backward warm-start benchmark lineage owner",
       "blocker_kind": null,
       "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
-      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "next_step": "Transfer the original benchmark and source-run references with their purpose; do not fabricate a benchmark or label a copied score as independent evidence. Missing source lineage must surface as a typed gap. Read the lineage back through the consuming warm-start path.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B132",
       "e02_residual_source_refs": [
         {
@@ -689,10 +689,10 @@
       "finding_id": "B135",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer replay and custody owner",
+      "owner": "Transfer task-family/domain resolver and execution-owner boundary",
       "blocker_kind": null,
       "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
-      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "next_step": "Pass nested task_family and domain through both object and serialized-mapping transfer inputs and verify the real consumer receives them. An authorized explicit override may replace them; fallback applies only when fields are absent. The transfer must not change the execution owner's tenant authority.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B135",
       "e02_residual_source_refs": [
         {
@@ -710,10 +710,10 @@
       "finding_id": "B136",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer replay and custody owner",
+      "owner": "LessonQuery local/transferred hint consumer owner",
       "blocker_kind": null,
       "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
-      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "next_step": "Send local and transferred hints through the same query consumer with source_run_id, source, and min_confidence filters intact. A confidence 0.2 hint cannot satisfy a request for 0.8 or LOCAL; a genuinely permitted transferred hint can still be returned. Verify filtering does not require unnecessary materialization.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B136",
       "e02_residual_source_refs": [
         {
@@ -731,10 +731,10 @@
       "finding_id": "B137",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Transfer replay and custody owner",
+      "owner": "Lesson access accounting and trust-evidence owner",
       "blocker_kind": null,
       "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
-      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "next_step": "Repeat lookup across cold, warm, and restarted reads and prove access/last_accessed updates never restore confidence or local trust. Only a new verification event may create a new evidence version that changes trust; the consumer must continue to reject the old low-confidence card.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B137",
       "e02_residual_source_refs": [
         {
@@ -988,10 +988,10 @@
       "finding_id": "B167",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Backtesting comparison owner",
+      "owner": "Backtesting forecast completeness and comparison owner",
       "blocker_kind": null,
       "e02_residual": "BKT-02: remain bounded",
-      "next_step": "Close the BKT-02 bounded comparison residuals with behavioral coverage for completeness, nominal coverage and micro/macro aggregation.",
+      "next_step": "For requested outcome y, test no predictions, a wrong-key-only prediction, a partial forecast, and a complete forecast. Missing or misaligned predictions must expose the missing denominator and cannot receive Grade A/eligible true; partial coverage is explicit and never scores better by silence than complete coverage. Keep a complete exact forecast as the positive control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B167",
       "e02_residual_source_refs": [
         {
@@ -1009,10 +1009,10 @@
       "finding_id": "B168",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Backtesting comparison owner",
+      "owner": "Backtesting interval availability and coverage owner",
       "blocker_kind": null,
       "e02_residual": "BKT-02: remain bounded",
-      "next_step": "Close the BKT-02 bounded comparison residuals with behavioral coverage for completeness, nominal coverage and micro/macro aggregation.",
+      "next_step": "Separate missing, invalid, and observed intervals from actual misses, and preserve nominal confidence level and interval type. Verify a missing interval is unknown, a valid interval that misses is a miss, and a hit is a hit; retain requested 0.8 versus 0.99 levels through aggregation. A fully valid interval set remains the positive control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B168",
       "e02_residual_source_refs": [
         {
@@ -1073,10 +1073,10 @@
       "finding_id": "B172",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Backtesting trust projection owner",
+      "owner": "Backtesting systematic-bias diagnostic producer and report owner",
       "blocker_kind": null,
-      "e02_residual": "BKT-03: only descriptive/degraded trust",
-      "next_step": "Wire producer-backed typed trust evidence into the consumer so it can distinguish descriptive/degraded from admissible statistical evidence.",
+      "e02_residual": "BKT-03 descriptive/degraded trust remains a separate evidence limitation; a diagnostic alone does not establish statistical authority.",
+      "next_step": "Add a systematic-bias diagnostic that detects a constant nonzero prediction error and appears in the actual report/consumer. A no-bias control remains neutral. Do not promote the diagnostic to admissibility evidence without an independently grounded basis.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B172",
       "e02_residual_source_refs": [
         {
@@ -1094,10 +1094,10 @@
       "finding_id": "B173",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Backtesting trust projection owner",
+      "owner": "Backtesting statistical-method selection and report owner",
       "blocker_kind": null,
-      "e02_residual": "BKT-03: only descriptive/degraded trust",
-      "next_step": "Wire producer-backed typed trust evidence into the consumer so it can distinguish descriptive/degraded from admissible statistical evidence.",
+      "e02_residual": "BKT-03 descriptive/degraded trust remains a separate evidence limitation; a fallback-method label does not establish statistical authority.",
+      "next_step": "Run the same declared sample with SciPy available and unavailable. The available path must report the actual t-test; the fallback path must name its actual method and limits and must never call itself a t-test. Compare both results against the declared known sample and preserve the chosen method in the report.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B173",
       "e02_residual_source_refs": [
         {
@@ -1115,10 +1115,10 @@
       "finding_id": "B174",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Bootstrap and split-selection owner",
+      "owner": "Cross-validation preparation and split-selection owner",
       "blocker_kind": null,
-      "e02_residual": "BKT-04: bounded stop; partial observations",
-      "next_step": "Complete partial-observation semantics and bounded stopping with negative and positive consumer witnesses.",
+      "e02_residual": "BKT-04 partial-observation and bounded-stop residual remains; this row is CV preparation and step validity.",
+      "next_step": "Apply the CV cap before pairwise or quadratic preparation and prove a bounded fixture never allocates the uncapped work. Reject step <= 0 or any non-progressing step with typed validation; a positive step advances to the exact expected folds. Keep ordinary positive-step behavior as a control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B174",
       "e02_residual_source_refs": [
         {
@@ -1136,10 +1136,10 @@
       "finding_id": "B175",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Bootstrap and split-selection owner",
+      "owner": "Bootstrap statistic selection and result owner",
       "blocker_kind": null,
-      "e02_residual": "BKT-04: bounded stop; partial observations",
-      "next_step": "Complete partial-observation semantics and bounded stopping with negative and positive consumer witnesses.",
+      "e02_residual": "BKT-04 partial-observation and bounded-stop residual remains; this row is unsupported statistic handling.",
+      "next_step": "An unknown bootstrap statistic name must produce a typed unsupported-statistic result, never silently fall back to mean. A supported statistic must produce the expected bootstrap output and interval, and its exact statistic label must survive the receipt and consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B175",
       "e02_residual_source_refs": [
         {
@@ -1328,10 +1328,10 @@
       "finding_id": "B47",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Name-resolution owner",
+      "owner": "SlotLinker greedy autolink and assignment owner",
       "blocker_kind": null,
-      "e02_residual": "CMP-03: global exact-name preference residual",
-      "next_step": "Bind exact-name resolution to typed context rather than a global preference and add an adversarial cross-context collision test.",
+      "e02_residual": "CMP-03 exact-name preference is related name-resolution debt, but it does not establish greedy assignment completeness.",
+      "next_step": "Reproduce the greedy counterexample: a flexible candidate fits slots A and B, a fixed candidate fits only B, and the requested order is B then A. The linker must find the complete assignment; an impossible graph must retain exact unmatched reasons. Renaming neutral slot labels must not change feasibility, and semantic ambiguity still requires an explicit choice.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B47",
       "e02_residual_source_refs": [
         {
@@ -1352,7 +1352,7 @@
       "owner": "Checkpoint and recovery owner",
       "blocker_kind": null,
       "e02_residual": "RES-04: not generic/distributed checkpoint closure",
-      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "next_step": "For the same effective request, prove warm replay equals cold execution. Change each scientific parameter, seed, input snapshot, binding, or version and require invalidation/recompute; an operational timeout alone may reuse a valid checkpoint. Reject an invalid completed prefix and expose the resulting state to the actual consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B74",
       "e02_residual_source_refs": [
         {
@@ -1373,7 +1373,7 @@
       "owner": "Checkpoint and recovery owner",
       "blocker_kind": null,
       "e02_residual": "RES-04: not generic/distributed checkpoint closure",
-      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "next_step": "Resume from a checkpoint with distinct per-node outputs and prove the original outputs, seed, runtime, and version are retained; do not synthesize each prior node output from the final state. When legacy history is absent, return an explicit missing-history limitation. Keep the resumed final state usable by the served consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B75",
       "e02_residual_source_refs": [
         {
@@ -1391,10 +1391,10 @@
       "finding_id": "B76",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Checkpoint and recovery owner",
+      "owner": "Checkpoint sidecar identity and recovery owner",
       "blocker_kind": null,
       "e02_residual": "RES-04: not generic/distributed checkpoint closure",
-      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "next_step": "Key sidecars by structural path plus generation so ['a_b'] and ['a','b'] cannot collide. Verify each loaded sidecar's hash, shape, dtype, and path binding. Inject a failed new save and prove the previous manifest and artifact remain readable.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B76",
       "e02_residual_source_refs": [
         {
@@ -1414,8 +1414,8 @@
       "disposition": "engineering",
       "owner": "Calibration schedule owner",
       "blocker_kind": null,
-      "e02_residual": "CAL-05: mixed per-row schedules unsupported",
-      "next_step": "Support heterogeneous per-row schedules and prove mixed schedules through the consuming calibration path.",
+      "e02_residual": "E02 r4/J0635 3/3 test_run_pure_scan_preserves_inactive_gradient_path accepts inactive execution with uniform vmap plus the scan/calibrator seam. The remaining CAL-05 residual is mixed per-row schedule support.",
+      "next_step": "Retain the existing 3/3 inactive-path witness. Add a batch with active and inactive rows using different schedules through the consuming calibration path: the active row matches its single-row gradient control, while the inactive row contributes no execution or gradient. Keep the homogeneous schedule control and state the heterogeneous-schedule remainder precisely.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B185",
       "e02_residual_source_refs": [
         {
@@ -1602,10 +1602,10 @@
       "finding_id": "B211",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "RDD causal-analysis owner",
+      "owner": "RDD local weighted-estimation owner",
       "blocker_kind": null,
       "e02_residual": "CAU-03: not full RDD closure",
-      "next_step": "Implement the remaining bounded RDD behavior and add a distinguishing test for the declared assumptions and refusal boundary.",
+      "next_step": "Replace dense diagonal weighting with the existing sparse/weighted least-squares route or an equivalent O(n)-memory calculation. On a small fixture, match the dense reference coefficients within declared tolerance; on a larger bounded fixture, demonstrate memory growth is linear rather than quadratic. Invalid bandwidth remains a typed refusal.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B211",
       "e02_residual_source_refs": [
         {
@@ -1623,10 +1623,10 @@
       "finding_id": "B212",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "DoWhy adapter and causal-analysis owner",
+      "owner": "DoWhy uncertainty adapter and served causal-result owner",
       "blocker_kind": null,
       "e02_residual": "CAU-04: native DoWhy behavior not established",
-      "next_step": "Exercise native DoWhy behavior through the production owner adapter with a served end-to-end witness and a negative unsupported-case control.",
+      "next_step": "When native DoWhy returns a point estimate without interval support, emit uncertainty none/not_established rather than a near-zero interval. Keep an interval-supported method as a positive control and verify the served adapter consumer reports the unsupported uncertainty limitation.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B212",
       "e02_residual_source_refs": [
         {
@@ -1644,10 +1644,10 @@
       "finding_id": "B213",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "DoWhy adapter and causal-analysis owner",
+      "owner": "DoWhy requested-estimand adapter owner",
       "blocker_kind": null,
       "e02_residual": "CAU-04: native DoWhy behavior not established",
-      "next_step": "Exercise native DoWhy behavior through the production owner adapter with a served end-to-end witness and a negative unsupported-case control.",
+      "next_step": "For a requested estimand, call the corresponding method or return a typed unsupported-estimand refusal. Use two estimands with distinguishable outputs, or one supported and one unsupported estimand, and prove the executed method and reported estimand agree through the served adapter.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B213",
       "e02_residual_source_refs": [
         {
@@ -1686,10 +1686,10 @@
       "finding_id": "B52",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Execution profile owner",
+      "owner": "AsyncWorkflowExecutor and synchronous NodeResultCache caller owner",
       "blocker_kind": null,
       "e02_residual": "EXE-01: bounded B52 only",
-      "next_step": "Enumerate the remaining declared execution profile and close it through a real producer/consumer witness; keep the bounded B52 claim precise.",
+      "next_step": "Exercise a slow synchronous cache get/put through AsyncWorkflowExecutor while an independent coroutine is ready to run. The independent work must progress without exceeding the declared deadline; cancellation must not publish a partial cache write. A cache hit and miss must preserve the same payload integrity and tenant/access checks. Measure responsiveness only; do not claim disk I/O became faster.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B52",
       "e02_residual_source_refs": [
         {
@@ -1770,10 +1770,10 @@
       "finding_id": "B13",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "AsyncChainExecutor partial-result and downstream result-consumer owner",
+      "owner": "AsyncChainExecutor and served partial-result reader owner",
       "blocker_kind": null,
-      "e02_residual": "RES-03: candidate-only route / artifact-authority HOLD (does not describe B13's cited property; reconcile separately)",
-      "next_step": "Prove partial-result persistence through the existing chain and consumer path: after a simulation succeeds and a later stage fails, the served consumer can read the successful result with its scope and the later failure. Removing the retained result reference while status markers remain must turn the witness red. Do not classify B13 as promotion authority or a candidate-only route.",
+      "e02_residual": "E02 r53 accepts the partial-result contract; a real user-readable artifact/scope path after later-stage failure remains unverified. Related-but-distinct from the RES-03 candidate-only route and artifact-authority residual.",
+      "next_step": "Through the served chain, run a simulation that succeeds and then force a later stage failure. Use the ordinary user-facing result reader to retrieve the successful artifact, its scope, the failure stage, and its basis/retraction semantics. The negative probe removes the retained result reference while leaving status markers; the served read must fail. This tests B13 partial-result preservation, not promotion authority.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B13",
       "direct_relations": [],
       "production_residual": {
@@ -1797,10 +1797,10 @@
       "finding_id": "B14",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Run-profile producer and replay owner",
+      "owner": "Async execution wrapper and worker-lifecycle owner",
       "blocker_kind": null,
       "e02_residual": "RUN-01: broader closure not claimed; characterization only",
-      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "next_step": "Drive a non-cooperative worker past its wait deadline and prove its late completion cannot mutate persisted state after the caller receives a typed timeout/refusal. Keep a short worker control that completes before the deadline and is retained; separately show that cancelling the wait does not claim to cancel the already-running thread.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B14",
       "e02_residual_source_refs": [
         {
@@ -1818,10 +1818,10 @@
       "finding_id": "B40",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Run-profile producer and replay owner",
+      "owner": "run_blocking_async timeout and remaining-deadline propagation owner",
       "blocker_kind": null,
       "e02_residual": "RUN-01: broader closure not claimed; characterization only",
-      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "next_step": "Resolve the effective deadline once at the top-level caller and pass the remaining monotonic budget through nested calls. With an explicit short timeout, prove the async delegate stops at that deadline and reports it in the trace; verify the blocking wrapper does not launch duplicate work after a timed-out wait. Keep a quick delegate control that completes normally.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B40",
       "e02_residual_source_refs": [
         {
@@ -1839,10 +1839,10 @@
       "finding_id": "LA-057",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Run-profile producer and replay owner",
+      "owner": "common.async_tools generic-helper module owner",
       "blocker_kind": null,
-      "e02_residual": "RUN-01: broader closure not claimed; characterization only",
-      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "e02_residual": "RUN-01 broader run-profile characterization is separate; LA-057 concerns the module-level TypeVar binding.",
+      "next_step": "Remove the module-level T binding and run an AST/scope census proving T is not resolved outside function-local generic parameters. Preserve the declared signatures and type behavior of all four generic helpers; a same-named local type parameter remains a positive control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-057",
       "e02_residual_source_refs": [
         {
@@ -1862,7 +1862,7 @@
       "disposition": "engineering",
       "owner": "Existing FileBudgetLedger and BudgetMiddleware owner",
       "blocker_kind": null,
-      "e02_residual": "DUR-01: policy-justification ledger lifecycle obligations open (separate E02 residual; not evidence of B37 atomicity)",
+      "e02_residual": "DUR-01 policy-justification ledger lifecycle obligations remain a separate residual; they are not evidence about B37 FileBudgetLedger atomicity.",
       "next_step": "On the existing FileBudgetLedger path, publish complete snapshots atomically and synchronize readers. Prove concurrent readers never see an empty or partial snapshot, an interrupted write leaves a valid old or new snapshot, and a corrupt existing ledger cannot be treated as a new zero ledger. This is budget-accounting integrity, not policy-justification custody.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B37",
       "e02_residual_source_refs": [
@@ -2072,12 +2072,12 @@
     },
     {
       "finding_id": "B138",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Federation counterpart institutions and protocol owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "FED-01: findings remain open",
-      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Existing DataComposer union source-metadata owner",
+      "blocker_kind": null,
+      "e02_residual": "FED-01 external counterpart-protocol evidence remains open separately; it does not block this local DataComposer correctness defect.",
+      "next_step": "Preserve per-cell source metadata through the existing union and duplicate-column resolver. Use complementary rows with distinct trust and lineage, then prove the composed values follow the declared per-cell resolution policy and each chosen cell retains its actual source reference through readback. Permuting independent input frames must not misattribute provenance; an explicit ordered first-available policy keeps its declared order.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B138",
       "e02_residual_source_refs": [
         {
@@ -2093,12 +2093,12 @@
     },
     {
       "finding_id": "B140",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Federation counterpart institutions and protocol owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "FED-01: findings remain open",
-      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Existing DataComposer join cardinality and null-key owner",
+      "blocker_kind": null,
+      "e02_residual": "FED-01 external counterpart-protocol evidence remains open separately; it does not block this local DataComposer correctness defect.",
+      "next_step": "Before expanding a join, enforce the declared cardinality: a many-to-one join with duplicate right keys must refuse rather than multiply rows. Null/null unknown keys must not match unless a shared category was explicitly declared. Preserve unmatched rows and allow declared many-to-many joins only under the resource guard; prove the resulting rows and aggregates through readback.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B140",
       "e02_residual_source_refs": [
         {
@@ -2114,12 +2114,12 @@
     },
     {
       "finding_id": "B141",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Federation counterpart institutions and protocol owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "FED-01: findings remain open",
-      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Existing DataComposer column namespace and collision owner",
+      "blocker_kind": null,
+      "e02_residual": "FED-01 external counterpart-protocol evidence remains open separately; it does not block this local DataComposer correctness defect.",
+      "next_step": "Compose a legitimate input column named __source_id and a join with real x_left/x_right columns; preserve their original values and meanings through union/join and readback. Use an explicit collision-safe namespace and return a typed gap only for a real unresolved ambiguity.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B141",
       "e02_residual_source_refs": [
         {
@@ -2135,12 +2135,12 @@
     },
     {
       "finding_id": "B145",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Federation counterpart institutions and protocol owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "FED-01: findings remain open",
-      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Existing DataComposer consensus coercion and finite-validation owner",
+      "blocker_kind": null,
+      "e02_residual": "FED-01 external counterpart-protocol evidence remains open separately; it does not block this local DataComposer correctness defect.",
+      "next_step": "Under strict finite policy, reject [10, infinity] and do not coerce [10, bad] into a one-source result while reporting two contributors. Keep [10,14] -> 12 as a valid control; report actual accepted/excluded contributors. Infinity is valid only where its own explicit boundary contract permits it.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B145",
       "e02_residual_source_refs": [
         {
@@ -2352,10 +2352,10 @@
       "finding_id": "B86",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Ingestion modes owner",
+      "owner": "Streaming sanitizer and declared-source-schema owner",
       "blocker_kind": null,
       "e02_residual": "ING-03: modes schema characterization only",
-      "next_step": "Turn schema characterization into mode-specific runtime behavior tests at the actual ingestion consumer.",
+      "next_step": "Run the same source rows through multiple technical batch sizes and require identical accepted/rejected membership under the declared schema. Reject an actually malformed required field, wrong type, or non-finite metric; allow a missing optional field without erasing the source schema. Verify through the real ingestion consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B86",
       "e02_residual_source_refs": [
         {
@@ -2436,10 +2436,10 @@
       "finding_id": "B93",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Network predicate owner",
+      "owner": "Bounded protection registry owner for active rate-limit and circuit state",
       "blocker_kind": null,
-      "e02_residual": "NET-02: typed duck-predicate residual",
-      "next_step": "Replace the duck predicate with a typed contract and test malformed, present-but-fake and valid predicate cases.",
+      "e02_residual": "NET-02 typed duck-predicate residual is separate; B93 concerns retention and expiry of active protection entries.",
+      "next_step": "Fill the bounded registry beyond capacity while entries are actively protecting a key and prove LRU/TTL pressure cannot evict that protection before its declared expiry. After expiry, prove the entry is reclaimable and a fresh access re-establishes protection. Keep ordinary unprotected LRU eviction as a control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B93",
       "e02_residual_source_refs": [
         {
@@ -2457,10 +2457,10 @@
       "finding_id": "B17",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Scope and network admission owner",
+      "owner": "Scholar ProviderFailoverPolicy and search-provider owner",
       "blocker_kind": null,
-      "e02_residual": "SCL-01: no SSRF/DNS closure",
-      "next_step": "Close SSRF/DNS behavior for resolution, rebinding and scope changes through the actual request path, with a control that must remain allowed.",
+      "e02_residual": "SCL-01 SSRF/DNS closure is separately open; it is not B17's empty-answer search-exhaustion property.",
+      "next_step": "With the real search caller, make the first permitted provider return an empty response and prove the next permitted provider is called and its useful result reaches the consumer; report exhaustion only after allowed sources are exhausted. A useful non-empty first response must short-circuit. Preserve distinct typed reasons for error, empty, unsuitable, inaccessible text, and budget limit.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B17",
       "e02_residual_source_refs": [
         {
@@ -2499,10 +2499,10 @@
       "finding_id": "LA-025",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "SCL producer handshake owner",
+      "owner": "Cached catalog-snapshot resolver and acquisition reader owner",
       "blocker_kind": null,
-      "e02_residual": "SCL-03: producer_handshake_gap",
-      "next_step": "Wire the producer handshake to its consumer and prove typed identity, authority and lifecycle on the admitted path.",
+      "e02_residual": "SCL-03 producer_handshake_gap is a separate residual; LA-025 concerns reuse of retained snapshot bytes instead of silently re-fetching a URL.",
+      "next_step": "Resolve a retained v1 snapshot reference from the existing CAS and prove the cache hit reads those exact bytes without network access. A same-URL v2 snapshot is a distinct reference and must not replace v1; if the blob is gone or access is denied, return a typed gap or an explicit refresh with new lineage. Preserve source identity and prove the behavior through the existing consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-025",
       "e02_residual_source_refs": [
         {
@@ -2541,10 +2541,10 @@
       "finding_id": "B195",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Calibration pass owner",
+      "owner": "Optimizer _select_best_loss Hessian and conditioning selection owner",
       "blocker_kind": null,
-      "e02_residual": "CAL-03: single-pass portion only",
-      "next_step": "Carry the single-pass capability through the complete required consumer path and prove both reuse and invalidation semantics.",
+      "e02_residual": "CAL-03 single-pass calibration residual is separate; B195 concerns known ill-conditioned Hessians and candidate selection.",
+      "next_step": "Keep an existing infinite or NaN Hessian condition marked ill-conditioned, never treat it as an absent Hessian. With a finite well-conditioned candidate and a candidate with NaN loss or bad condition, the invalid candidate must not win by input order. An actually absent Hessian may use the documented loss-only path with its reason in the selection result.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B195",
       "e02_residual_source_refs": [
         {
@@ -2562,10 +2562,10 @@
       "finding_id": "B199",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Uncertainty evidence owner",
+      "owner": "Uncertainty interval evidence identity and aggregation owner",
       "blocker_kind": null,
       "e02_residual": "UQS-01: not full uncertainty capability",
-      "next_step": "Complete the uncertainty evidence capability and its consumer composition beyond the bounded E02 slice, with adversarial missing/contested inputs.",
+      "next_step": "Feed the same interval evidence reference twice and prove it is reused rather than changing type or nominal level. Distinct independent references remain separate evidence. A mixed credible/confidence interval input must be typed incompatible unless the existing owner has a valid conversion; verify the consumer preserves type and level.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B199",
       "e02_residual_source_refs": [
         {
@@ -2583,10 +2583,10 @@
       "finding_id": "B200",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Uncertainty evidence owner",
+      "owner": "Uncertainty evidence independence and aggregation owner",
       "blocker_kind": null,
       "e02_residual": "UQS-01: not full uncertainty capability",
-      "next_step": "Complete the uncertainty evidence capability and its consumer composition beyond the bounded E02 slice, with adversarial missing/contested inputs.",
+      "next_step": "Duplicate one effect under the same evidence reference and prove its effective sample size/rank does not increase. Add genuinely independent evidence references and prove the supported contribution changes. Carry the unique-evidence denominator and independence basis to the consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B200",
       "e02_residual_source_refs": [
         {
@@ -2647,10 +2647,10 @@
       "finding_id": "LA-056",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "DDM schema and applicability owner",
+      "owner": "DDM contract types and eager parent-import facade owner",
       "blocker_kind": null,
-      "e02_residual": "DDM-01: schema/reversed-window compat, applicability out of scope",
-      "next_step": "Make schema and reversed-window compatibility executable and state applicability boundaries in consumer behavior.",
+      "e02_residual": "DDM-01 schema/reversed-window compatibility remains separate; LA-056 concerns the contract import boundary.",
+      "next_step": "Move/keep contract models at ddm/contracts and prove importing ddm.integration.events does not eagerly load the monitor. The legacy facade must still export the same classes, enum values, validation behavior, and wire schema; retain pickling/FQN compatibility for persisted references.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-056",
       "e02_residual_source_refs": [
         {

@@ -3,9 +3,9 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 69,
+    "engineering_a": 72,
     "principal_b": 16,
-    "typed_blocker_c": 33
+    "typed_blocker_c": 30
   },
   "triage_rule": {
     "a": "Engineering can close now in the plans direction.",
@@ -358,7 +358,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B122"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b122",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Which metric-owned tolerance and non-finite policy determines a meaningful plateau near zero?",
+        "premise": "The controller uses minimization. A zero historical minimum followed by a positive recent value is regression, while a negative value can be genuine improvement; one global machine epsilon cannot define semantic improvement across differently scaled objectives.",
+        "options": [
+          {
+            "name": "Metric-owned signed tolerance",
+            "choice": "Normalize objective direction, compute signed gain, then apply configured absolute tolerance near zero and relative tolerance away from zero. A non-finite/unknown score is not scientific convergence; the separate resource ceiling may still stop execution.",
+            "cost": "Medium: metric profiles and serialized rule versions must carry direction and tolerances; avoids scale confusion."
+          },
+          {
+            "name": "Single optimizer-wide absolute threshold",
+            "choice": "Keep one configured absolute threshold for all objectives and treat non-finite values under a common explicit stop/unknown rule.",
+            "cost": "Low initial migration; high semantic risk and repeated tuning because income, rates, and normalized losses have different scales."
+          }
+        ],
+        "residual": "Neither option normalizes every maximize/minimize objective or establishes that a resource stop is scientific convergence; the selected policy must state both separately.",
+        "revisit_falsifier": "Reopen if a unit conversion or sign reversal for the same objective changes plateau disposition without changing the underlying improvement, or if a non-finite run is recorded as scientific convergence.",
+        "binding_seam": "ImprovementPlateau.check plus the objective/metric contract and its persisted rule version.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B127",
@@ -400,7 +422,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B116"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b116",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "How should a champion remain comparable when suite, split, loop, or data basis changes?",
+        "premise": "Candidate and evaluation must bind to each other and to an applicable benchmark basis; equal metric names/numbers do not establish comparable evidence.",
+        "options": [
+          {
+            "name": "Re-evaluate the current champion on each new basis",
+            "choice": "Reject mismatched candidate/evaluation bindings. When suite, split, metric method, or data basis changes, evaluate the current champion on the new basis before comparing candidates.",
+            "cost": "High compute and latency for expensive benchmarks; preserves one continuously comparable champion."
+          },
+          {
+            "name": "Maintain a champion per immutable comparison cohort",
+            "choice": "Key champion records by suite/version, split, metric method, and data basis; never compare or promote across cohorts without a new bridge evaluation.",
+            "cost": "Medium storage and API complexity; avoids mandatory reruns but fragments the notion of one global champion."
+          }
+        ],
+        "residual": "This establishes technical comparability only; it does not prove evaluator quality or grant any institutional promotion authority.",
+        "revisit_falsifier": "Reopen if a candidate from another candidate_ref/loop/split or an incompatible suite can alter the pointer, or if an admitted conversion between two suites is shown equivalent but cannot be represented.",
+        "binding_seam": "ChampionRegistry.consider_promotion, BenchmarkEvaluation binding, SearchLoopRunner caller, and the persisted comparison-cohort identity.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B117",
@@ -421,16 +465,38 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B117"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b117",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Which concurrency envelope must the champion read–compare–publish operation support?",
+        "premise": "Atomic replacement of one pointer does not serialize the predecessor comparison. A stale writer can overwrite a stronger result; the repository card does not establish production multi-process demand.",
+        "options": [
+          {
+            "name": "Conditional publish through the store owner",
+            "choice": "Publish only if the predecessor version/digest still matches, then re-read and re-compare on conflict. Keep expensive evaluation outside the transaction.",
+            "cost": "Medium to high: requires a conditional-write primitive from the actual store and explicit conflict handling; supports concurrent writers."
+          },
+          {
+            "name": "One serialized publication owner",
+            "choice": "Route all compare-and-publish operations through one existing writer/lock owner; reject or queue other publishers.",
+            "cost": "Medium: simpler storage contract, but adds throughput and availability limits and must prove every writer uses the owner."
+          }
+        ],
+        "residual": "Crash durability and multi-host behavior remain unclaimed unless the selected store primitive and deployment mode establish them.",
+        "revisit_falsifier": "Reopen if a controlled B(score 2)/C(score 3) schedule leaves score 2 current, or if a second process can bypass the chosen serialization owner.",
+        "binding_seam": "ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B164",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Generic owner-callback capability owner",
-      "blocker_kind": "smallest_missing_capability",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Level6 promotion-stage and effect-capable runner owner",
+      "blocker_kind": null,
       "e02_residual": "FUN-03: generic owner callback residual",
-      "next_step": "Confirm whether the repository has a generic typed owner-callback bridge; if absent, specify and appoint that smallest capability before adding another instance-specific callback.",
+      "next_step": "Check no_promotion, reduced_judge, and auto_cap before invoking any effect-capable runner; the commit owner must independently recheck current ticket generation, authority, and operation constraints immediately before commit. Preserve the prepared-payload read path and prove the normal callback still runs once.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B164",
       "e02_residual_source_refs": [
         {
@@ -442,7 +508,8 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B164"
         }
-      ]
+      ],
+      "classification_rationale": "Engineering can move the existing policy check before the callback and retain the owner-side commit check; no external institution, data record, or owner appointment is required."
     },
     {
       "finding_id": "B128",
@@ -568,7 +635,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B133"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b133",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Does run_id name an immutable completed run or a mutable alias to the latest versioned artifact?",
+        "premise": "Warm and cold managers must replay the same referenced history. The current cache is keyed only by run_id, while registration can replace the history under that id.",
+        "options": [
+          {
+            "name": "Immutable run identity",
+            "choice": "Treat a completed run_id as immutable and reject a conflicting re-registration; address the cached history by its immutable ArtifactRef/digest.",
+            "cost": "Low to medium: simple replay semantics, but callers must allocate a new run id for revised history and retain old records."
+          },
+          {
+            "name": "Versioned mutable alias",
+            "choice": "Allow a run_id alias to move only by publishing a new versioned ArtifactRef; key cache entries by the referenced digest/version and keep old refs replayable.",
+            "cost": "Medium: supports updates but needs alias history, cache invalidation, and version-aware readers."
+          }
+        ],
+        "residual": "Memory eviction policy and the separate TRN-02 live-metadata/distributed-atomicity residuals are not decided here.",
+        "revisit_falsifier": "Reopen if a warm reader sees stale/new bytes differently from a cold reader for the same immutable ref, or if a legitimate caller must repoint run_id without a versioned ref.",
+        "binding_seam": "register_run, _eval_cache keying, history loader, and the immutable artifact reference persisted with each run.",
+        "scope_note": "The source card B133 concerns mutable run_id/cache identity. The Appendix C TRN-02 residual also groups live metadata and distributed atomicity; those are separate residuals, not this decision."
+      }
     },
     {
       "finding_id": "B134",
@@ -736,16 +825,38 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-053"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-053",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the old Scientist import address remain a supported compatibility facade, or retire after consumers move to the public calibration owner?",
+        "premise": "The original card finds the old address re-exports the shared calibration owner; ordinary tests still use the old path. A full external compatibility contract/caller census is not established.",
+        "options": [
+          {
+            "name": "Retain a time-bounded compatibility facade",
+            "choice": "Keep the old re-export while internal and documented external consumers migrate; publish a compatibility window and preserve equivalent types/exceptions.",
+            "cost": "Low immediate breakage; ongoing alias, docs, import-surface, and maintenance cost until retirement."
+          },
+          {
+            "name": "Retire after caller and contract census",
+            "choice": "Move ordinary tests/imports to polisyos.calibration, keep only a necessary compatibility test during the declared window, then remove the alias if no supported external consumer remains.",
+            "cost": "Medium migration and release coordination; possible breaking change if the external contract census is incomplete."
+          }
+        ],
+        "residual": "The E02 PCL-01 note also names mixed valid/empty and skipped-level identity; that package residual is not settled by choosing this import-address lifetime.",
+        "revisit_falsifier": "Reopen retirement if a supported external import/config reference is observed after the census, or reopen retention if the declared window ends and no supported caller remains.",
+        "binding_seam": "Scientist backtesting calibration_curve import/FQN, root exports, package docs, and the release compatibility contract.",
+        "scope_note": "The source card is a calibration_curve address migration. The Appendix C PCL-01 residual uses different mixed/identity wording; retain that as a separate residual."
+      }
     },
     {
       "finding_id": "LA-051",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Forecast calibration orchestration owner",
-      "blocker_kind": "smallest_missing_capability",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Generation-cycle S10 and existing calibration producer owners",
+      "blocker_kind": null,
       "e02_residual": "FRC-02: predictive_only; implemented_but_not_orchestrated/bridge_pending",
-      "next_step": "Name the compatible calibration producer and S10 production caller; if the bridge is absent, appoint its owner and bind report/version, observations, rule and times end to end.",
+      "next_step": "Wire a compatible real calibration producer and named S10 consumer through the existing calibration/S10 owners; bind observed numerator/denominator, report/rule version, scope and times. If no compatible producer is found, keep the result explicitly predictive-only/bridge-pending under FRC-01 instead of manufacturing coverage.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-051",
       "e02_residual_source_refs": [
         {
@@ -757,16 +868,17 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-051"
         }
-      ]
+      ],
+      "classification_rationale": "The source names existing S10/calibration owners and a production-named gateway; census and owner-routed integration are engineering work, not an established external blocker."
     },
     {
       "finding_id": "B166",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Scientist historical-input owner",
-      "blocker_kind": "smallest_missing_capability",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "OutcomeMasker and Scientist historical-input owner",
+      "blocker_kind": null,
       "e02_residual": "BKT-01: BKT-01 accepted but findings remain open",
-      "next_step": "Establish the missing consumer binding that sends the actual masked immutable historical view and its identity to the Scientist backend; prove post-cutoff sources cannot reach the request.",
+      "next_step": "Use the declared time axis to materialize or address the immutable allowed historical slice, pass that exact slice identity to the Scientist request, and verify its references. Probe cutoff [1,2,900,901] at 2 and a plan with no intervention_step; retain an explicit typed limitation when the slice basis is unknown, plus a control for already-cut data with verified basis.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B166",
       "e02_residual_source_refs": [
         {
@@ -778,7 +890,8 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B166"
         }
-      ]
+      ],
+      "classification_rationale": "The existing masker and Scientist request path are present; binding their input is an actionable owner-routed engineering change, not a missing external record or appointment."
     },
     {
       "finding_id": "B169",
@@ -799,7 +912,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B169"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b169",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "May an aggregate scalar/single interval be projected across a time horizon, and under what producer declaration?",
+        "premise": "The adapter currently repeats scalar metrics and one interval across the horizon, but the measurement could be a mean effect, period aggregate, constant forecast, or diagnostic. Those meanings are not interchangeable.",
+        "options": [
+          {
+            "name": "Require horizon-aligned values by default",
+            "choice": "Require each time point to bind estimand, units, baseline, origin/cutoff, temporal coordinate, and interval semantics. Permit repetition only from a producer explicitly declaring a stationary constant forecast.",
+            "cost": "Medium: richer producer DTOs and some existing scalar outputs become limited/refused until their meaning is supplied."
+          },
+          {
+            "name": "Retain scalar as an explicitly aggregate profile",
+            "choice": "Allow scalar output only as a typed horizon aggregate or explicitly constant profile; prevent it from being scored as an unqualified temporal trajectory.",
+            "cost": "Medium: preserves simple producers but adds profile/consumer branches and limits cross-profile comparisons."
+          }
+        ],
+        "residual": "Production metric and uncertainty-envelope semantics remain unestablished; draws or time-varying variance must not be invented.",
+        "revisit_falsifier": "Reopen if an admitted production producer declares a scalar as a horizon aggregate yet the chosen profile either rejects it or scores it as pointwise forecasts, or if one-point intervals are treated as predictive intervals without matching outcomes.",
+        "binding_seam": "Forecast input DTO and the Scientist adapter in HistoricalValidationPlan/_predict_with_scientist, before scoring or publication.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B170",
@@ -820,7 +955,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B170"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b170",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Does n_simulation_runs mean independent executions, internal draws, bootstrap replicas, or something else?",
+        "premise": "The plan validates the count, but the current scenario dispatch makes one Scientist call for n=1 and n=7 alike. A cache hit is not an independent replica.",
+        "options": [
+          {
+            "name": "Implement independent outer executions",
+            "choice": "Define n as independently seeded runs, pass an explicit seed plan to the existing execution owner, and persist requested/started/completed/failed counts plus sufficient distribution statistics.",
+            "cost": "High and roughly proportional to n in compute, storage, and failure handling; honest support for repeated validation."
+          },
+          {
+            "name": "Support n=1 until the owner implements repetitions",
+            "choice": "Accept one run; return typed unsupported/limited for n>1 rather than silently dispatching once. Preserve an explicit PROVIDED-replicates path only when real completed replicates are supplied.",
+            "cost": "Low initial compute/implementation; users lose multi-run support until the owner path exists."
+          }
+        ],
+        "residual": "The existing workflow’s internal Monte Carlo draws are not established, and the selected policy does not claim them.",
+        "revisit_falsifier": "Reopen if plans with different n still produce indistinguishable execution manifests, or if a purported replica is only a cache hit or repeated scalar.",
+        "binding_seam": "HistoricalValidationPlan validation, _run_single_scenario/_predict_with_scientist dispatch, seed ownership, and pre-execution budget admission.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B167",
@@ -883,7 +1040,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B171"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b171",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should overall error weight every observation equally or every named scenario equally?",
+        "premise": "A technical repartition of the same residuals changes equal-scenario macro RMSE/MAE and can reverse candidate order; micro-RMSE can be reconstructed from pooled sufficient statistics.",
+        "options": [
+          {
+            "name": "Publish micro and macro as distinct metrics",
+            "choice": "Make pooled sufficient-statistic micro error the default overall metric; retain equal-scenario macro under an explicit name and stable scenario identity.",
+            "cost": "Medium: schema, serialization, and consumers must carry counts/weighted sums and both metric names."
+          },
+          {
+            "name": "Keep equal-scenario macro as the only overall metric",
+            "choice": "Require stable substantive scenario IDs and explicitly name the result macro error; do not call it partition-invariant overall error.",
+            "cost": "Low numerical implementation cost, but requires scenario identity discipline and leaves observation-weighted performance unavailable."
+          }
+        ],
+        "residual": "Comparability of units and weights across different metrics or jurisdictions remains a separate contract.",
+        "revisit_falsifier": "Reopen if merely sharding one named scenario changes the published micro result, or if a supposedly equal-scenario aggregate changes after technical split/merge without a declared scenario change.",
+        "binding_seam": "Scenario aggregator _aggregate, serialized summary sufficient statistics, and the metric name/weighting contract.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B172",
@@ -1009,7 +1188,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-004"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-004",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the overlapping plugin and base economics implementations share algorithms or remain distinct versioned profiles?",
+        "premise": "The source card confirms overlap but code disproves equivalence across state, units, timestep, tax base, RNG, and budget accounting.",
+        "options": [
+          {
+            "name": "Share only the proven common kernel",
+            "choice": "Extract common mechanics only where contract tables match; keep non-equivalent tax/state/time/RNG/budget behavior under distinct versioned model profiles.",
+            "cost": "Medium: mapping/contracts and profile selection are required; reduces duplicate code only at verified overlap."
+          },
+          {
+            "name": "Keep implementations separate with explicit identities",
+            "choice": "Preserve separate owners and identifiers; prohibit implicit cross-profile comparison until a compatibility mapping exists.",
+            "cost": "Medium continuing maintenance and duplicate fixes; lower risk of silently changing model semantics."
+          }
+        ],
+        "residual": "No evidence establishes either implementation as universally calibrated or suitable for every base ABI; full caller migration remains open.",
+        "revisit_falsifier": "Reopen consolidation if real paired regimes with equal declared inputs produce different outputs solely because of implementation duplication, or if a profile mapping fails to preserve accounting/RNG behavior.",
+        "binding_seam": "Economic model/profile identity, state/config schema, and the scenario caller selecting the implementation.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-035",
@@ -1030,7 +1231,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-035"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-035",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?",
+        "premise": "The source verifies a normalization that can flatten or alter positive-income ranking, but does not establish a production optimizer using it or a universal user intent to maximize raw income.",
+        "options": [
+          {
+            "name": "Retain as an explicitly named baseline objective",
+            "choice": "Preserve the numerical rule under a profile name that states its balance/constraint semantics; do not advertise it as a generic income-maximizing objective.",
+            "cost": "Low behavior/revalidation cost; requires API/FQN/config cleanup and retains limitations of the baseline."
+          },
+          {
+            "name": "Add a separate versioned income objective",
+            "choice": "Implement a distinct calibrated objective for users whose declared target is income maximization; keep the current baseline available for existing profiles.",
+            "cost": "High: calibration, migration, optimizer validation, and revalidation for each caller; avoids silent ranking change."
+          }
+        ],
+        "residual": "Native optimizer callers, JIT/gradient behavior, and realized policy outcomes are not established; do not remove or retune the baseline on fixture evidence alone.",
+        "revisit_falsifier": "Reopen if an appointed production optimizer claims income maximization and two positive-income policies are ranked contrary to that declared objective by the baseline.",
+        "binding_seam": "Objective FQN/version and config chosen by the optimizer caller, with native loss/guardrail evaluation.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-022",
@@ -1072,7 +1295,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-023"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-023",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the current rollout loop be named/evaluated as rollout analysis, or connected to a real trainer for a bounded domain?",
+        "premise": "The inspected train body collects rollout rewards but leaves actor parameters unchanged and makes zero trainer calls; a separate training owner exists.",
+        "options": [
+          {
+            "name": "Relabel current behavior as rollout evaluation",
+            "choice": "Return a typed evaluation result and make no learning claim until parameters change; retain rollout/reward collection as a useful capability.",
+            "cost": "Low implementation cost; CLI and callers lose the current train-shaped success surface and still need a trainer for learning."
+          },
+          {
+            "name": "Integrate the existing trainer for one compatible domain",
+            "choice": "Route through the appointed trainer, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics.",
+            "cost": "High implementation and compute cost; requires a compatible state contract and artifact lifecycle."
+          }
+        ],
+        "residual": "A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.",
+        "revisit_falsifier": "Reopen the evaluation-only choice if a caller requires learned state and a compatible trainer can demonstrate parameter and subsequent-action change; reopen trainer integration if it only collects rewards.",
+        "binding_seam": "PolisySimulator.train contract, CLI result semantics, trainer orchestration, and persisted learned-state artifact.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B47",
@@ -1324,7 +1569,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B210"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b210",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the product remain limited to an explicitly uncorrected RDD estimate until a real correction is computed, or fund the corrected estimator path now?",
+        "premise": "The source card reports bias correction as included without computing it; a result label must not imply an estimator step absent from the producer.",
+        "options": [
+          {
+            "name": "Publish only the uncorrected limited result",
+            "choice": "Remove/withhold the corrected claim and expose the conventional estimate with its typed limitation until a valid correction artifact exists.",
+            "cost": "Low to medium: narrower output and possible refusal of a corrected claim; avoids unsupported inferential authority."
+          },
+          {
+            "name": "Implement the declared bias-corrected estimator",
+            "choice": "Add the appropriate local-polynomial correction and compatible variance/inference path, bound to design and bandwidth inputs, before setting corrected status.",
+            "cost": "High statistical implementation, data, and validation cost; requires specialist owner and broader distinguishing cases."
+          }
+        ],
+        "residual": "Bias-correction method, variance behavior, and RDD scope across real designs remain unestablished until a producer and data-backed validation exist.",
+        "revisit_falsifier": "Reopen if any served RDD record says corrected while the producer does not execute/persist the correction, or if a supported design has a validated correction that the bounded profile cannot represent.",
+        "binding_seam": "RDD estimator producer, result DTO correction-status field, inference consumer, and any promotion/publication gate.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "B211",
@@ -2339,7 +2606,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B106"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#b106",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "May robustness be claimed over the full declared scenario set, or only over a named sampled/early-stopped subset?",
+        "premise": "Presentation dedupe/top-k truncation must not alter counts of tested scenarios, observed violations, or non-results; adaptive stopping does not automatically estimate the entire space.",
+        "options": [
+          {
+            "name": "Require complete declared-set accounting",
+            "choice": "Stream occurrence, tested-scenario, missing/non-numeric, and completeness counts before display cap; mark early-stopped or incomplete runs unknown/limited.",
+            "cost": "Medium compute and schema work; may delay a result until the declared set finishes."
+          },
+          {
+            "name": "Allow a named sampled estimate",
+            "choice": "Keep bounded/adaptive execution but report the sampling design, inspected denominator, uncertainty, and sampled-score label; never call it full-population robustness.",
+            "cost": "Lower compute and faster feedback; weaker claim and added sampling/uncertainty reporting."
+          }
+        ],
+        "residual": "The explored population is not automatically exhaustive; unique issue examples and presentation cap remain separate from occurrence counts.",
+        "revisit_falsifier": "Reopen if changing collect_top_k changes robustness score for the same completed scenario set, or if an early-stopped sample is presented as complete population coverage.",
+        "binding_seam": "Robustness aggregator before dedupe/cap, run completeness record, and the surfaced metric name.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-056",
@@ -2402,7 +2691,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-055"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-055",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Is an explicit stored deny a veto, or is promotion_allowed only an advisory baseline overridden by the final evaluator?",
+        "premise": "A constrained R4 event can persist promotion_allowed=False while the evaluator later returns True from state-only interpretation; ordinary mapper-produced R4 usually emits True. The counterexample does not establish an external release action.",
+        "options": [
+          {
+            "name": "Treat explicit restriction as a veto",
+            "choice": "Preserve false/restriction as a binding veto; permit only a separately typed, authorized override with reason and scope.",
+            "cost": "Medium: new override evidence/schema and caller migration; conservative when an explicit restriction was intended to bind."
+          },
+          {
+            "name": "Make the event flag an advisory baseline",
+            "choice": "Rename it as a baseline/readiness hint and let one evaluator compute final permission; carry any institutional restriction in a separate typed veto field.",
+            "cost": "Medium to high: schema and all readers must migrate; avoids treating an advisory flag as final authority but risks old consumers assuming the old meaning."
+          }
+        ],
+        "residual": "Deployment/live-feed applicability in DDM-02 remains unclaimed; this decision resolves field meaning/precedence only, not feed authority or release service behavior.",
+        "revisit_falsifier": "Reopen if a mapper-produced explicit false is consumed as a veto by a supported caller but the chosen evaluator allows it, or if every supported caller proves the field is advisory and the veto option blocks an authorized path.",
+        "binding_seam": "ReadinessStateEvent/ModelRegistryReadinessRecord schema, readiness mapper, registry builder/evaluator, and final action consumer.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-008",
@@ -2465,7 +2776,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-018"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-018",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Is the old Lex factlog reader a supported external facade or an internal alias to retire after callers migrate?",
+        "premise": "The owner has moved to Fabric; the current source does not establish the complete caller census or external API status.",
+        "options": [
+          {
+            "name": "Retain a documented compatibility facade",
+            "choice": "Keep a thin re-export for a declared compatibility window; preserve authorization and provenance behavior and publish the support boundary.",
+            "cost": "Low immediate breakage; continued API/docs/test maintenance and import-surface complexity."
+          },
+          {
+            "name": "Retire after complete consumer census",
+            "choice": "Move all supported internal callers to the Fabric public owner, verify root exports/config/imports, then delete the alias with a release note.",
+            "cost": "Medium caller/release coordination and possible external break if census is incomplete; lowers ongoing duplication."
+          }
+        ],
+        "residual": "External support status and full caller census remain unestablished; no arbitrary sunset date is justified.",
+        "revisit_falsifier": "Reopen alias removal if a supported external consumer still resolves it, or reopen retention after the agreed window if no supported caller remains.",
+        "binding_seam": "Lex factlog alias import path, root exports, package docs/config strings, and compatibility policy.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-011",
@@ -2528,7 +2861,29 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-043"
         }
-      ]
+      ],
+      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-043",
+      "principal_decision_draft": {
+        "status": "awaiting_principal",
+        "question": "Should the raw generated client pair remain a supported compatibility artifact, or move to canonical public outputs and scratch-only intermediates?",
+        "premise": "Package exports already point to the canonical twin, while repository tests and the standalone checker still consume raw files; broader generated-family freshness exists and should be reused.",
+        "options": [
+          {
+            "name": "Keep raw pair during a declared compatibility window",
+            "choice": "Treat raw TS/JS as managed generated intermediates while migrating tests/checker/direct consumers; retain one canonical generator and full-family freshness verification.",
+            "cost": "Medium ongoing generated-output, registry, test, and duplicate-surface maintenance."
+          },
+          {
+            "name": "Retire committed raw pair after full consumer migration",
+            "choice": "Move tests and verifier to canonical public exports; redirect generation to isolated scratch/managed outputs; remove raw committed files only after the full caller and output-family census passes.",
+            "cost": "Medium to high migration/typecheck/release cost; may break an undiscovered filesystem consumer."
+          }
+        ],
+        "residual": "External filesystem imports and full endpoint correctness remain unestablished; byte agreement alone is not endpoint execution evidence.",
+        "revisit_falsifier": "Reopen removal if a supported raw-file consumer appears or the full required-generated-family gate does not cover a canonical output; reopen retention if the declared window ends with no supported raw consumer.",
+        "binding_seam": "runtime-api-client package exports, generator/output ownership, public imports, tests, standalone contract checker, and generated-artifact registry.",
+        "scope_note": null
+      }
     },
     {
       "finding_id": "LA-044",
@@ -2570,5 +2925,6 @@
       "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
       "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
     ]
-  }
+  },
+  "decision_draft_count": 16
 }

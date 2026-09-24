@@ -684,15 +684,15 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B10 closed_bounded. The cited E02 CYC-04 receipt (CYC-04 J0656 (16/16) and post-integration J0658 (5 exact selectors)) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Предварительно выбранный кандидат заслоняет пригодные альтернативы' (source card line 313: 'первый кандидат не имеет нужного входа, второй имеет — второй действительно вычисляется, первый сохраняется с причиной остановки. Неисследованные альтернативы не получают выдуманных нулей. Общий бюджет и контроль разнообразия остаются явными.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure."
+        "detail": "Appendix C marks B10 closed_bounded. The cited E02 CYC-04 receipt (CYC-04 J0656 (16/16) and post-integration J0658 (5 exact selectors)) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Предварительно выбранный кандидат заслоняет пригодные альтернативы' (source card line 313: 'первый кандидат не имеет нужного входа, второй имеет — второй действительно вычисляется, первый сохраняется с причиной остановки. Неисследованные альтернативы не получают выдуманных нулей. Общий бюджет и контроль разнообразия остаются явными.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure. Appendix C also groups B10 with B11 under R11, but this card's discriminator is pre-grounding alternate-candidate selection, while R11 is blocked-disposition coherence over LoopVOIDecision; no direct class link is established here, so the R-class is unassigned."
       },
-      "residual": "The source-card discriminator is 'Предварительно выбранный кандидат заслоняет пригодные альтернативы' (criterion: 'первый кандидат не имеет нужного входа, второй имеет — второй действительно вычисляется, первый сохраняется с причиной остановки. Неисследованные альтернативы не получают выдуманных нулей. Общий бюджет и контроль разнообразия остаются явными.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L313). The E02 receipt identifies the finding in the CYC-04 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "The source-card discriminator is 'Предварительно выбранный кандидат заслоняет пригодные альтернативы' (criterion: 'первый кандидат не имеет нужного входа, второй имеет — второй действительно вычисляется, первый сохраняется с причиной остановки. Неисследованные альтернативы не получают выдуманных нулей. Общий бюджет и контроль разнообразия остаются явными.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L313). The E02 receipt identifies the finding in the CYC-04 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN. The R11 blocked-disposition class has no established direct link to this pre-grounding selector property; keep the finding unbucketed under R11 unless a source/caller mapping demonstrates the same defect class.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CYC-04 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
         "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
       },
-      "r_class": "R11",
+      "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -704,14 +704,9 @@
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
-        "reported_test_catalog": "R11",
+        "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "decision_record_draft": {
-          "kind": "principal_decision_draft",
-          "identity": "DECISION_RECORDS.md#R11",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#R11",
-          "scope": "draft only; principal ruling pending; no finding closure inferred"
-        },
+        "decision_record_draft": null,
         "source_bundle_evidence": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-04.md@git-blob:75194f0254c5a87f52fc73cbc8ee24511a64e7be",
           "scope": "CYC-04 declares B10 and its distinguishing behavior/scope."
@@ -749,9 +744,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "specific_receipt_exception",
-        "detail": "Appendix C says closed_bounded. This item remains partial for a row-specific evidence reason: CYC-04 J0656/J0658 accepted receipt has no selector reconciled to B11; retain partial pending B11’s own distinguishing check. This is not a claim that its behavior failed."
+        "detail": "Appendix C says closed_bounded. This item remains partial for a row-specific evidence reason: CYC-04 J0656/J0658 accepted receipt has no selector reconciled to B11; retain partial pending B11’s own distinguishing check. This is not a claim that its behavior failed. Appendix C also groups B10/B11 under R11; this card's information-priority-versus-budget discriminator is distinct from R11's blocked-disposition coherence over LoopVOIDecision. The source maps the scheduler branch but no direct finding-to-class link is established; keep this row's R-class unassigned."
       },
-      "residual": "An informative check may proceed below the value-proxy threshold when it is inside declared budget; actual exhaustion stops. Report the result as an information signal, not monetary VOI or a probability. Candidate selector from CYC-04 is not item-bound; test this threshold/control distinction and a true budget-exhaustion refusal. Four-base replay UNRUN.",
+      "residual": "An informative check may proceed below the value-proxy threshold when it is inside declared budget; actual exhaustion stops. Report the result as an information signal, not monetary VOI or a probability. Candidate selector from CYC-04 is not item-bound; test this threshold/control distinction and a true budget-exhaustion refusal. Four-base replay UNRUN. The R11 map also inspects the scheduler's information-gain branch, but the source-card predicate is execution priority within budget, not blocked-disposition coherence; this is a related control path, not enough to assign R11.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CYC-04 finding-level verification owner; E02-R2 baseline broker for attribution",
@@ -769,14 +764,9 @@
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
-        "reported_test_catalog": "R11",
+        "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "decision_record_draft": {
-          "kind": "principal_decision_draft",
-          "identity": "DECISION_RECORDS.md#R11",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#R11",
-          "scope": "draft only; principal ruling pending; no finding closure inferred"
-        },
+        "decision_record_draft": null,
         "e02_bounded_receipt_exception": {
           "identity": "B11 final-record exception: CYC-04 J0656/J0658 accepted receipt has no selector reconciled to B11; retain partial pending B11’s own distinguishing check.",
           "path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c#r10",
@@ -1652,15 +1642,15 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B29 closed_bounded. The cited E02 CYC-05 receipt (CYC-05 J1088 (8/8) merged bounded receipt; B29 rebind also J1026/J1029) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Нормальная остановка превращается в abstained в другом представлении' (source card line 565: 'Успешный ограниченный результат, стабильный фронт, исчерпание бюджета и реальное abstention сохраняют разные смыслы во всех представлениях. Readback и Atlas не переименовывают успешное завершение в отказ.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure."
+        "detail": "Appendix C marks B29 closed_bounded. The cited E02 CYC-05 receipt (CYC-05 J1088 (8/8) merged bounded receipt; B29 rebind also J1026/J1029) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Нормальная остановка превращается в abstained в другом представлении' (source card line 565: 'Успешный ограниченный результат, стабильный фронт, исчерпание бюджета и реальное abstention сохраняют разные смыслы во всех представлениях. Readback и Atlas не переименовывают успешное завершение в отказ.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure. Appendix C also lists B29 under R2, but this card concerns stop-to-abstained projection/readback; R2 is source-byte-bound historical run currentness (B30). No direct link is established, so leave B29 unbucketed under R2."
       },
-      "residual": "The source-card discriminator is 'Нормальная остановка превращается в abstained в другом представлении' (criterion: 'Успешный ограниченный результат, стабильный фронт, исчерпание бюджета и реальное abstention сохраняют разные смыслы во всех представлениях. Readback и Atlas не переименовывают успешное завершение в отказ.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L565). The E02 receipt identifies the finding in the CYC-05 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "The source-card discriminator is 'Нормальная остановка превращается в abstained в другом представлении' (criterion: 'Успешный ограниченный результат, стабильный фронт, исчерпание бюджета и реальное abstention сохраняют разные смыслы во всех представлениях. Readback и Atlas не переименовывают успешное завершение в отказ.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L565). The E02 receipt identifies the finding in the CYC-05 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN. This stop/abstained projection property is distinct from R2's historical run currentness and source-byte identity; clear the inherited R2 class tag unless a direct owner/caller link is demonstrated.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CYC-05 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
         "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
       },
-      "r_class": "R2",
+      "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4614,13 +4604,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B84 closed_bounded. The cited E02 ING-03 receipt (ING-03 J1107 exact merged integration receipt) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Backpressure делает паузу, но не освобождает оконную память и не ограничивает входной блок' (source card line 2223: 'Длинная сессия или большой chunk не превышают принятый ресурс молча; состав и идентичность итогового окна не зависят от spill.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure."
+        "detail": "Appendix C marks B84 closed_bounded. Independent source/receipt review found the exact accepted J1107 selector, but it is a counterexample to the default-PAUSE capacity property: it passes while asserting that the first accumulator admission exceeds both caps. The accepted spill selector only establishes explicit unsupported-spill refusal or bounded spill behavior and does not close default PAUSE, long-session capacity, or logical-window identity. Keep partial; this is a historically observed subproperty failure, not a current four-base replay."
       },
-      "residual": "The source-card discriminator is 'Backpressure делает паузу, но не освобождает оконную память и не ограничивает входной блок' (criterion: 'Длинная сессия или большой chunk не превышают принятый ресурс молча; состав и идентичность итогового окна не зависят от spill.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L2223). The E02 receipt identifies the finding in the ING-03 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "B84's source criterion is that a long session or oversized input chunk must not silently exceed accepted capacity and that the logical window stays identical across spill. The exact historical selector `test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits` passes by asserting that a single 3-row chunk, with `batch_size=1` and row/byte caps of 1 under default `PAUSE`, is admitted into the accumulator above both caps before backpressure is counted. This is a behavioral counterexample to that subproperty, not a passing B84 closure witness (test source policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py@git-blob:d7913c3de3ba60d96f5ad7f66e70311641e95633#L2235-L2321; accepted J1107 JUnit and receipt are cited under `historical_counterexample`). Its paired explicit `SPILL_TO_DISK` selector only establishes an explicit unsupported/refusal path or bounded spill behavior; it does not prove default-PAUSE admission bounds, long-session memory release, actual spill consumption, or logical-window identity. Retain partial. Current four-base replay, removal probe, and under-cap preserving control are UNRUN.",
       "residual_owner": {
         "kind": "verification_owner",
-        "name": "ING-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "name": "ING-03 finding-level verification owner; E02-R2 baseline broker for current four-base replay",
+        "appointment_status": "owner roles identified; full criterion controls and current replay are not established"
       },
       "r_class": null,
       "p_triage": null,
@@ -4630,7 +4620,7 @@
           "identity": "source_record_inspection:B84",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B84",
           "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Backpressure делает паузу, но не освобождает оконную память и не ограничивает входной блок' (criterion excerpt: 'Длинная сессия или большой chunk не превышают принятый ресурс молча; состав и идентичность итогового окна не зависят от spill.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
+          "scope": "The original source-record inspection itself did not run behavior and is not a current verdict. Its earlier 'no inspectable selector' conclusion is superseded by the cited independent B84 review, which linked exact J1107 selector/result to the source discriminator. See historical_counterexample; current four-base replay remains UNRUN.",
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
@@ -4650,11 +4640,21 @@
           "identity": "ING-03 J1107 exact merged integration receipt",
           "path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c#r69",
           "behavioral_verdict": "PASS_PACKAGE",
-          "scope": "Reported ING-03 package receipt only. It does not expose an accepted selector/result mapped to B84's source-card discriminator; it is supporting package context, not item-level closure evidence."
+          "scope": "ING-03 J1107 includes an accepted exact selector/result relevant to B84. The explicit SPILL_TO_DISK selector has bounded unsupported/refusal scope; the default-PAUSE characterization selector is a historical over-cap counterexample, not package evidence that the full B84 property is satisfied."
         },
         "source_card": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L2223",
           "scope": "Original source-card discriminator: Backpressure делает паузу, но не освобождает оконную память и не ограничивает входной блок. Criterion excerpt: Длинная сессия или большой chunk не превышают принятый ресурс молча; состав и идентичность итогового окна не зависят от spill."
+        },
+        "historical_counterexample": {
+          "kind": "historical_behavioral_counterexample",
+          "identity": "test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits",
+          "path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260923-ING-03-B86-POSTMERGE-R1/outputs/E02-J1107-L-ING03-post-integration-r1/junit.xml@sha256:b215d93413344f4ae2930381c7192b8e3bc31323b693b9d6e5b0441ea454354b",
+          "test_source_path_at_sha": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py@git-blob:d7913c3de3ba60d96f5ad7f66e70311641e95633#L2235-L2321",
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260923-ING-03-B86-POSTMERGE-R1/outputs/E02-J1107-L-ING03-post-integration-r1/receipt.json@sha256:039a3137634cb1cd1f244032871be75a0a0b9926b61a60297925a79d52c5d756",
+          "review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b84-evidence-review-20260924.md@sha256:0917d9917c7ae8a1f9eec6ec1ef12b45a1a866524a2f4253c03b900882be7621",
+          "behavioral_verdict": "FAIL",
+          "scope": "Historical accepted selector passes while asserting that the first accumulator admission exceeds both configured limits under default PAUSE; this is a counterexample to B84 capacity property, not a passing property witness. J1107 also contains a narrower explicit SPILL_TO_DISK selector, but that does not cover default PAUSE or the complete logical-window criterion. Current four-base replay remains UNRUN."
         }
       }
     },

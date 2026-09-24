@@ -32,7 +32,7 @@
     "The held audit reviews all 14 blockers and records no behavioral closure; its semantic-capability verdict is UNRUN where lexical census is the only absence instrument.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
-    "R13 static root-store census: 2,693/2,693 src Python files parsed with zero parse errors; 26 direct FileSystemCAS constructors plus 33 root-config build_artifact_store calls = 59 static calls. Five E02 direct constructors are a subset, not a complete denominator; path-forwarded wrappers and dynamic runtime calls remain unresolved. Receipt is /tmp/policyos-r13-root-store-census.json@sha256:38c3ddd50feceb7fef253bac54569315007a5cc9289d536721c9dd2ff3beb7bf.",
+    "R13 static root-store census: 2,693/2,693 src Python files parsed with zero parse errors; 26 direct FileSystemCAS constructors plus 33 root-config build_artifact_store calls = 59 static calls. Five E02 direct constructors are a subset, not a complete denominator; path-forwarded wrappers and dynamic runtime calls remain unresolved. Receipt is policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/policyos-r13-root-store-census.json@sha256:38c3ddd50feceb7fef253bac54569315007a5cc9289d536721c9dd2ff3beb7bf.",
     "R14 same-source review identifies four stale-reference cases (one W5 historical repo reference and three WS-2D release-ledger raw-client references). W5 manifest bytes are immutable, but no owner-issued admitted Git snapshot binds them to the introducing commit/tree; the repo-ref predicate is UNRUN/not_established because the manifest date precedes the commit. Closure needs an append-only team-runtime-quality sidecar binding manifest SHA to exact commit and tree; never restamp W5. The three WS-2D live ledger refs are repairable by their release-ledger owner. P41 attribution and B/LA binding remain pending.",
     "B111 N18 owner trace is source-only: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. No runtime witness has run; status is partial with registry-boundary negative and finite positive control pending."
   ],
@@ -1854,32 +1854,32 @@
       "appendix_c_status": "partial",
       "status": "partial",
       "appendix_c_comparison": {
-        "relation": "not_measured",
-        "detail": "Residual transcribed; current behavior not independently measured."
+        "relation": "disagrees",
+        "detail": "Appendix C copies DUR-01 ledger-lifecycle wording, but B37 source lines 700-716 concern FileBudgetLedger atomic snapshots and corrupt/empty reads. The row remains partial: current code has an atomic temp-file publication path, but its named behavioral tests and four-base replay were not run in this docs-only pass. This is budget-accounting integrity, not policy-justification custody or expiry/revalidation."
       },
-      "residual": "Appendix C residual: ledger lifecycle obligations open; finding-level replay not established.",
+      "residual": "B37's source-card property is atomic persistence and safe concurrent reads of FileBudgetLedger snapshots: concurrent readers never observe empty or partial data, an interrupted publication leaves a valid old or new snapshot, and corruption cannot become an unlimited budget or erase spend/limits. The historical card reports `_persist_snapshot` truncation/write competing with `_load_snapshot`; an empty file could be treated as missing and malformed JSON raised. Current source inspection shows temp-file write, fsync, atomic replace, shared-lock reads, and explicit empty/corrupt refusal. This is not a behavioral verdict: named tests and four-base replay are UNRUN, and process-crash/power-loss boundaries remain unmeasured.",
       "residual_owner": {
         "kind": "implementation_owner",
-        "name": "Custody ledger lifecycle owner",
+        "name": "Existing FileBudgetLedger and BudgetMiddleware owner",
         "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
       },
       "r_class": null,
       "p_triage": {
         "class": "a",
         "disposition": "engineering",
-        "owner": "Custody ledger lifecycle owner",
+        "owner": "Existing FileBudgetLedger and BudgetMiddleware owner",
         "blocker_kind": null,
-        "next_step": "Implement the remaining ledger lifecycle obligations through the owning lifecycle path and prove expiry, revalidation and replay transitions.",
+        "next_step": "On the existing FileBudgetLedger path, publish complete snapshots atomically and synchronize readers. Prove concurrent readers never see an empty or partial snapshot, an interrupted write leaves a valid old or new snapshot, and a corrupt existing ledger cannot be treated as a new zero ledger.",
         "scope": "Reviewed next-step triage only; it does not supply a behavioral verdict or close this finding.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b07ccbc1e3b587efd1cae483c6eb18fecb25c81f#B37"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:56d0b916124ddbd4300961a970a4498bd7eb17eb#B37"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "record_inspection_probe",
-          "identity": "source_record_inspection:B37",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B37",
+          "kind": "behavioral_test_candidates",
+          "identity": "TestFileBudgetLedger.test_ledger_reader_never_observes_blank_snapshot_during_writer_pause; TestFileBudgetLedger.test_ledger_failed_atomic_replace_preserves_last_valid_snapshot; TestFileBudgetLedger.test_ledger_corrupt_existing_snapshot_never_becomes_unlimited",
+          "path_at_sha": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py@git-blob:89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
           "behavioral_verdict": "UNRUN",
-          "scope": "per-ID source-card and mapping inspection; package selectors, when listed, are not finding-level proof",
+          "scope": "These exact selectors exist but were not run here. Source basis: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L700-L716; policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@git-blob:4a223413b8f81a07db4e11fd2aa310a615123b62#FileBudgetLedger._load_snapshot,_persist_snapshot; policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py@git-blob:9ec1ef8622779386ff7740df58781caa9643c9d4#BudgetMiddleware. Source inspection is not a behavioral pass; multi-process crash/power-loss behavior remains unmeasured.",
           "package_test_selector_groups": [
             "bundle_test_selectors/DUR-01"
           ]

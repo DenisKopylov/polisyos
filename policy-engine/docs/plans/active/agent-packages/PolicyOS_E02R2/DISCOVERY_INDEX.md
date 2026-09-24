@@ -4,11 +4,13 @@ As of 2026-09-24. This is a pointer index for the candidate lanes. **None of the
 
 ## P41 replay state
 
-The `codex/e02-r2` harness at `c08977e4ffc96adde4d4dfaddb0ad0f214065fd1` is **NO-GO**: a mixed-case resource-summary issue remains under repair. The four-base replay is not `BASELINES_DONE`; integration source and test edits remain frozen.
+The earlier `codex/e02-r2` harness at `c08977e4ffc96adde4d4dfaddb0ad0f214065fd1` was **NO-GO** for a mixed-case resource-summary issue. Its follow-up at `8cf3028c05438dda01ebe30225ef5119ed5637d5` is independently **GO**. The resumed five-group broker session started 2026-09-24 at approximately 17:16 UTC. Its results are pending/`UNRUN`; there are no current outcome claims. The four-base replay is not yet `BASELINES_DONE`, so integration source and test edits remain frozen.
 
-Stopped 400-cell receipt: `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/results.json@sha256:51dba304cf2384e26f1be269c31bf62ed106eb6638f446a696e5da94861b27e6`; sibling checkpoint progress: `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/checkpoint/progress.jsonl@sha256:0765e069c28f90432f8527cf300fcbf4dd536c323f5ae8efc77f57f7dbbb5646`.
+In-flight scratch run: `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T171600Z-23461/`. It has not yet been moved/published to package `raw/`; no final result SHA is available.
 
-The denominator is 400 cells: 69 completed with pass/fail outcomes (not summarized here), 273 interrupted as SIGINT/`UNRUN`, and 58 absent/`UNRUN`. Four proposed safety-skip cells are a subset of the 273 interrupted cells, leaving 269 present jobs eligible for resumption. These are stopped-run counts, not a completed baseline or a regression classification.
+Historical stopped 400-cell receipt: `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/results.json@sha256:51dba304cf2384e26f1be269c31bf62ed106eb6638f446a696e5da94861b27e6`; sibling checkpoint progress: `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/checkpoint/progress.jsonl@sha256:0765e069c28f90432f8527cf300fcbf4dd536c323f5ae8efc77f57f7dbbb5646`.
+
+The historical denominator is 400 cells: 69 completed with pass/fail outcomes (not summarized here), 273 interrupted as SIGINT/`UNRUN`, and 58 absent/`UNRUN`. Four proposed safety-skip cells are a subset of the 273 interrupted cells, leaving 269 present jobs eligible for resumption. These are stopped-run counts, not a completed baseline or a regression classification; resumed-run results remain pending/`UNRUN`.
 
 ## Candidate documents and review state
 

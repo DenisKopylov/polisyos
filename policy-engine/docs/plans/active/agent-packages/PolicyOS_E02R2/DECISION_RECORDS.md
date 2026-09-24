@@ -15,107 +15,209 @@ remainder, falsifier, and binding seam. Predicate labels and implementation/prop
 divergences follow P37 and P38 in
 `docs/reference/policy-design-case-failure-patterns.md`.
 
-## R1 — CYC-01 ordinary N4 entry without owner-bound context
+## R1 — CYC-01 ordinary N4 entry without an established owner context
 
-**Question.** When an ordinary plain-language request has no established
-`CycleSubstrateContext`, may the HTTP composition run N4 candidate computation, and
-where must it stop?
+**Question.** When an ordinary plain-language request has no tenant-store-bound
+`CycleSubstrateContext`, may the HTTP composition return candidate work, and what
+evidence must exist before S8 may emit a ranked recommendation?
 
 **Options and costs.**
 
-1. Require an owner-bound context before any N4 computation. This keeps the N4 input
-   contract simple, but the user and candidate-generation path pay for missing owner
-   data with a total refusal. New jurisdictions and cases begin with unknowns, so this
-   also makes ordinary entry depend on pre-enumerated owner state.
-2. Remove the context and binding checks. This restores reachability quickly, but
-   runtime and policy consumers would bear the risk of caller-owned or mismatched
-   world state being treated as grounded.
-3. **Proposed lean:** keep content binding and revalidation when the canonical owner
-   context exists; when it does not, permit candidate computation and carry a typed
-   `not_established` substrate limitation. Only an existing owner bridge may fill
-   that context. The candidate remains ineligible for actions whose authority needs
-   that grounding. The runtime owner pays for carrying the limitation through the
-   run and its projections; the user keeps access to candidate work.
+1. Require an owner context before any N4 candidate work. This keeps the producer
+   input simple, but users pay for missing owner data with total refusal; new cases
+   depend on pre-enumerated owner state.
+2. Remove context, source, and binding checks. This restores reachability quickly,
+   but runtime and policy consumers bear the risk that caller-owned or mismatched
+   world state is treated as grounded.
+3. **Proposed lean:** let ordinary requests produce candidate work while carrying
+   typed `not_established` context as a limitation. Keep N5, promotion, publication,
+   protected modes, and S8 authority gated on their own owner evidence. S8 requires
+   both tenant-bound root-context evidence and a complete, real N4 source handoff
+   that binds that context to the exact problem and candidate bytes. This preserves
+   candidate access, while S8 ranking from the current HTTP path remains blocked
+   until the store-custody gap is repaired.
+4. Add a new root-context owner inside R1. This could supply positive evidence sooner,
+   but would overlap R13's runtime-store repair and risk a second WMR/context owner.
+   The existing WMR producer already accepts a supplied store; wiring that owner is
+   the narrower route.
 
-**Premises.** B01–B03 describe ordinary request entry and the need to carry data/model
-context through the actual HTTP → N4 → N5 path; their criterion is a real ordinary
-request, not a manually assembled Python context (`PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md`, B01–B03; bundle `CYC-01.md`). S0-K06’s binding application says fail-closed binds protected actions, published claims, and custody facts, while candidate work may carry a declared unknown (`stage0-custody-kernel-ratification.md` §4.3). The identity ruling makes typed absence behavior PolicyOS’s contract, while the external owner remains owner of its function (`policyos-identity-and-custody-boundary.md` §5). The product’s ordinary front door must remain usable as the causal model grows (`policy-design-causal-operating-system-north-star.md` §§5–6).
+**Premises.** B01–B03 describe ordinary request entry and the need to carry
+data/model context through the actual HTTP → N4 → N5 path; their criterion is a
+real ordinary request, not a manually assembled Python context
+(`PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md`, B01–B03; bundle
+`CYC-01.md`). S0-K06’s binding application says fail-closed binds protected actions,
+published claims, and custody facts, while candidate work may carry a declared
+unknown (`docs/system-design-decisions/stage0-custody-kernel-ratification.md` §4.3).
+The identity ruling makes typed absence behavior PolicyOS’s contract, while the
+external owner remains owner of its function
+(`docs/system-design-decisions/policyos-identity-and-custody-boundary.md` §5). The
+product’s ordinary front door must remain usable as the causal model grows
+(`docs/system-design-decisions/policy-design-causal-operating-system-north-star.md`
+§§5–6).
 
-At the inspected base, `compile_plain_language_recursive_generation_cycle` already
-tries `_build_cycle_substrate_context_from_owner` and revalidates a supplied context,
-but then raises `cycle_substrate_context_not_established` whenever an explicit N4
-port is present without that context. The owner builder only composes registered
-substrate entries and an existing WMR; it does not establish arbitrary missing
-substrate facts (`runtime/http/services/control/generation_cycle.py`).
+The HTTP function calls `_build_cycle_substrate_context_from_owner` whenever its
+ordinary caller supplies no context; this is a production path, including the
+`RunLifecycleService` worker, not only a test fallback. However, the helper calls
+`production_composed_world_model_record(repo_root)`, whose implementation creates
+`build_artifact_store(ArtifactStoreConfig(... root=.tmp/gy-s-composed-wmr-cas))`,
+and separately builds a registry from repo-root catalogs. That path does not use
+the runtime-supplied tenant-bound store and therefore does not establish root
+context custody, even when the resulting context hashes validate
+(`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`;
+`src/polisyos/runtime/quality/intervention_substrate.py@e4c7c30f81438908688a169cb3d51fbd3f66be20`).
+The underlying `build_production_data_state_world_model_record(store, ...)` accepts
+a supplied store; correcting the wrapper to use it belongs to R13's root-rebuilt-
+store write set and requires its shared lease. R1 must not build a competing owner.
 
-**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject to
-principal ruling. Keep the existing content-hash and revalidation checks. Do not
-manufacture a WMR, catalog entry, or concrete scope to satisfy N4. An ordinary
-request can proceed through candidate computation with an explicit unknown. If that
-unknown prevents a valid N5 world simulation, preserve a typed pending/limited N5
-result rather than claim a simulation. Promotion, publication, protected modes, and
-the S8 authority grade remain gated on the owner evidence they require. The lane has
-not made this decision for the principal.
+`CycleSubstrateContext` is a candidate-only in-memory envelope: its typed
+`authority_purpose` is `cycle_input_candidate_only`, and `may_not_use_for` excludes
+authority. It has no existing persisted-context or resolution owner. The compiled
+wrapper records `cycle_substrate_context_ref` as a content-hash string, not an
+`ArtifactRef` or tenant-bound manifest. The current `GenerationSourceRepository`
+persists actual `DesignGenerationOrganRun` and context through the runtime store,
+then validates the profile, content, problem, candidate, and context on replay; its
+`ArtifactWriteOptions` nevertheless omit explicit `tenant_context`. This proves N4
+source continuity, not tenant custody or the separate signed-value permission S8
+consumes. A non-null context, matching context hash, hash-verified run, or mere use
+of `runtime.store` is not P32 proof
+(`src/polisyos/runtime/quality/cycle_substrate.py@f24fcc8ded61aa07c0c4145ea27f929995533f11`;
+`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`;
+`src/polisyos/runtime/quality/generation_source.py@9bd65c03be46082edb9d0af4749776085ef5569a`).
+
+The existing `[authorized]` test is not a positive context-consumption witness: its
+`_CanonicalFixtureN4Port` delegates to `_CgfGenerationPort`, returning a test
+`_GenerationResult` rather than a `DesignGenerationOrganRun`; it writes no N4 source
+handoff. Its signed-frontier checks therefore do not establish the new S8
+context-consumption predicate
+(`tests/unit/runtime/http/test_control_service_di.py@4c100bb6d2c17cac8e3e61bee34519c338c075ec::test_process_nl_job_enters_persisted_tenant_scope[authorized]`;
+`tests/unit/runtime/quality/test_generation_cycle.py@4f851cb207267a13877647ef82a2b73f3a24360a::_CgfGenerationPort`).
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
+to principal ruling. Preserve context content validation, but do not treat the
+current repo-root fallback as proof of tenant-store custody. An ordinary request
+with no established context may return candidate work and carry an explicit typed
+unknown; it must not invent a WMR, catalog entry, or concrete scope. If that unknown
+prevents a valid N5 world simulation, retain a typed pending/limited result. S8 may
+emit a ranked recommendation only after an existing owner resolves a persisted
+root-context artifact/receipt from the runtime store, and both context and N4
+handoff manifests carry explicit `tenant_context` in `ArtifactWriteOptions`. The
+consumer must replay every required per-cycle handoff and bind its context and exact
+candidate identities. A matching hash or a caller-injected context is insufficient.
+An N7 re-entry's prior handoff does not prove its post-growth context; until a
+complete post-growth witness exists, S8 remains blocked for that source. R13 owns
+the root-store/context-persistence correction. The `[authorized]` fixture must be
+upgraded to exercise a genuine organ/handoff and owner-resolved tenant-bound context;
+if that path cannot be produced, retain its prior pass as an explicit
+principal-level comparability decision rather than accepting a hash-only proxy. The
+lane has not made this decision for the principal.
 
 **P37 — gate predicates at admission.**
 
 - The raw request is caller supplied and supports candidate generation only; it is
   not a predicate establishing policy authority.
-- A present `CycleSubstrateContext` is admitted only after its problem binding,
-  registered-entry projection, WMR identity, and content hashes are recomputed by
-  the typed context validator (`recomputed`).
-- If the owner context is absent, its scope is `not_established`; the declaration of
-  absence stays a limitation and cannot satisfy an authority gate.
-- Any later authority decision must use the relevant existing owner verifier and
-  current epoch evidence (`independently_reconciled`). A missing or stale verifier
-  result is `not_established` and blocks that authority action.
+- `CycleSubstrateContext` validation recomputes problem binding, WMR identity,
+  registry projection, and content hashes (`recomputed`). Its candidate-only purpose
+  and `may_not_use_for` limit are part of the typed content; neither establishes
+  tenant custody.
+- Root-context persistence/resolution is `artifact_missing` / `bridge_missing` in
+  the current repository: the compiled wrapper stores only a hash, and no owner
+  reopens a context artifact with tenant metadata. The repo-root WMR fallback is
+  not store-custodied. Directly supplied contexts are `consumer_asserted` until an
+  owner resolves tenant-bound manifests; neither predicate may grant S8 authority.
+- N4 context consumption and exact candidate identity can be `recomputed` from
+  complete handoffs. But the current handoff write profile omits explicit
+  `tenant_context`, so tenant custody is `not_established` even when the
+  source-preservation receipt is `strangled`. Missing refs, mismatched context,
+  duplicate identities, or absent post-growth handoff block S8 authority.
+- Later authority decisions still require the applicable owner verifier and current
+  epoch evidence (`independently_reconciled`). Missing or stale evidence blocks that
+  action.
 
-**P38 — property and divergence.** Property: an ordinary request can yield candidate
-work without owner context, while unknown substrate facts cannot support an
-authority-grade output. Current implementation: the HTTP compiler raises whenever
-an explicit `root_n4_generation_port` meets a missing context
-(`runtime/http/services/control/generation_cycle.py::compile_plain_language_recursive_generation_cycle`).
-Divergent case: a plain request has no catalog-owned context but has the configured
-N4 producer; the candidate computation is refused even though its output could be
-marked limited. The converse probe must also hold: a candidate carrying this
-limitation cannot pass promotion or publication with the limitation removed only
-from a display projection.
+**P38 — property and divergence.** Property: ordinary requests retain candidate
+reachability under unknown context, while S8 ranking requires tenant-bound root
+context proof and complete producer evidence that N4 consumed that context for the
+exact candidates. Current HTTP implementation: it raises when an explicit
+`root_n4_generation_port` meets a missing context, so it keys the refusal on
+injection style; the default fallback hashes a repo-root-built WMR. The compiled
+wrapper retains only `cycle_substrate_context_ref` as a hash, not an `ArtifactRef`
+or tenant manifest. Current S8 implementation reloads the leaf `GenerationCycleRun`
+and checks its compiled/frontier binding, but does not replay `source_handoff_refs`
+or resolve a tenant-bound context artifact before authorizing signed frontier
+evidence. The context is candidate-only, and its owner persistence path is absent;
+current handoff write options also lack explicit `tenant_context`. Divergent case: a
+non-null content-valid context from the repo-root CAS plus `_CgfGenerationPort`
+output may reach signed-frontier recommendation without tenant custody evidence or a
+real N4 handoff, while ordinary candidate work is refused when the explicit port
+has no context. A removal probe keeps signed-frontier and candidate markers intact
+but removes the required tenant-bound artifact/handoff; S8 must block with zero
+recommendations. A property-preserving control is an ordinary request without
+context that still returns candidate work while N5/S8 remain limited or blocked.
 
-**Remainder.** No decision here grants authority to guess a jurisdiction, create a
-second world store, or convert an LLM candidate into evidence. Where valid owner
-data is absent, the next step is an owner/data record or the smallest missing owner
-capability, not a synthetic context. The system continues to own the absence
-contract and the authority gate.
+**Remainder.** This decision does not appoint a WMR/catalog owner, create a second
+world store, or convert an LLM candidate into evidence. The HTTP root builder is a
+production caller but is not a compliant tenant-store owner path; its storage fix
+and the missing persisted-context resolver belong to R13's shared owner work. No S8
+positive claim is supported by the current `[authorized]` fixture alone. Its
+signed-frontier semantics must remain covered, but the fixture's base-pass
+comparability remains a principal decision if it cannot be upgraded to a real N4
+organ/handoff and an owner-resolved context artifact with explicit `tenant_context`.
+N7 currently rebinds a post-growth context without emitting a post-growth source
+handoff, so that context remains `not_established` and S8 stays blocked until the
+canonical owner path supplies a complete witness.
 
 **Remainder standing and signatory.** An absent or unmatched substrate fact has
 standing `not_established`; that does not put the ordinary request or candidate
 capability on hold. The registered source owner signs any source fact it supplies.
-If a particular source owner is not registered, that fact remains
-`unallocated/not_established` until the source boundary names its signer; this draft
-does not make that appointment. The HTTP/runtime composition owns carrying the
-typed unknown and gating authority, not signing source facts. Denis, as principal,
-remains the pending signatory for this proposed candidate/authority boundary; this
-draft is not ratification.
+If the tenant-bound root-context owner is not established, that fact remains
+`unallocated/not_established` until the owner boundary names its signer; R13 may
+wire the existing WMR owner and context artifact boundary but does not appoint an
+institution. The HTTP/runtime composition owns carrying the typed unknown and
+gating authority, not signing source facts. Denis, as principal, remains the pending
+signatory for this proposed candidate/authority boundary; this draft is not
+ratification.
 
-**Falsifier / revisit trigger.** Reopen if a served ordinary request cannot produce
-candidate work when the context is absent, or if a candidate with `not_established`
-substrate evidence can reach N5 as a grounded simulation, promotion, publication, or
-S8 authority output. The acceptance witness is the plain-language front door and
-NL-job tenant-scope path; the authority control is a negative promotion/publication
-case with the same absent context. Neither witness is claimed as run here.
+**Falsifier / revisit trigger.** Reopen if a served ordinary request cannot return
+candidate work when context is absent, or if a candidate with `not_established`
+substrate evidence reaches N5 as a grounded simulation, promotion, publication, or
+S8 authority output. The S8 negative probe retains valid signed-frontier bytes and
+candidate markers while removing or mismatching the tenant-bound context artifact
+or N4 handoff; it must return blocked with no ranked recommendations. The positive
+control uses a real N4 organ, complete source-preservation receipt, and a persisted
+root-context artifact reopened by its owner from the runtime-supplied store; both
+artifact profiles explicitly bind `tenant_context`, and the owner verifies the
+tenant manifest. Mere store location or content hash does not satisfy this control.
+The N7 control changes the post-growth context while preserving only prior handoff
+refs; it must remain blocked. The ordinary candidate control uses a served request
+without context and observes candidate work with N5/S8 appropriately limited. These
+are acceptance criteria; none is claimed as run here.
 
-**Where it binds.** The HTTP composition at
-`runtime/http/services/control/generation_cycle.py::compile_plain_language_recursive_generation_cycle`
-and `_build_cycle_substrate_context_from_owner`; `CycleSubstrateContext` validation
-at `runtime/quality/cycle_substrate.py`; the recursive N4/N5 orchestration and
-downstream promotion/S8 authority gates. This proposal does not alter the external
-catalog or WMR owners.
+**Where it binds.** HTTP entry at
+`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`
+and the served `RunLifecycleService` caller; current fallback
+`_build_cycle_substrate_context_from_owner`; WMR construction at
+`src/polisyos/runtime/quality/intervention_substrate.py@e4c7c30f81438908688a169cb3d51fbd3f66be20::_production_composed_world_model_record`
+(store repair assigned to R13); candidate-only context contract at
+`src/polisyos/runtime/quality/cycle_substrate.py@f24fcc8ded61aa07c0c4145ea27f929995533f11`;
+N4 at
+`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`
+and `GenerationSourceRepository` at
+`src/polisyos/runtime/quality/generation_source.py@9bd65c03be46082edb9d0af4749776085ef5569a`;
+N7 post-growth re-entry at
+`src/polisyos/runtime/quality/recursive_generation_cycle.py@ddff9abd228378166bce8437862ebe487ae00149`;
+and S8 replay at
+`src/polisyos/runtime/quality/design_axes/value_choice_provenance.py@83ec53fefe0cc036480bb3d164ebcb44225a6ed9::_generation_disposition`.
+The proposal does not alter external catalog vocabulary or appoint a WMR owner.
 
-**Pattern pass.** P04/P05/P10/P15. The observed defect is an authority prerequisite
-leaking into candidate reachability; the target is one explicit typed limitation
-that survives all projections. The owner builder exists, but the ordinary missing
-context route remains `implemented_but_not_orchestrated`; acceptance requires the
-candidate producer to run and an authority consumer to reject the unresolved case.
+**Pattern pass.** P04/P05/P10/P15/P27/P31/P32/P37/P38. The observed defect is both
+an authority prerequisite leaking into candidate reachability and authority being
+granted without source-consumption/custody evidence. The target is typed unknown
+for ordinary candidate work and complete owner-backed evidence at authority gates.
+The HTTP caller and a best-effort repo-root context builder exist; a persisted
+tenant-bound context artifact/resolver is `artifact_missing` / `bridge_missing`, and
+the current `[authorized]` fixture has `verification_missing` for real N4 source
+consumption and tenant-bound context admission. Acceptance requires the candidate
+producer to run and S8 to reject absent, foreign, or post-growth-mismatched owner
+proof.
 
 ## R2 — CYC-05 strangle proof, deployment identity, and historical replay
 
@@ -416,65 +518,81 @@ different, truthful typed profiles for those bytes?
    place. This avoids immediate caller failures, but the returned ref lies about
    the persisted profile and pushes integrity failures onto every later reader.
 3. **Proposed lean:** preserve immutable bytes and physical content deduplication,
-   while adding independently persisted, typed view records/manifests that bind a
-   view identity to the content hash and full profile. A returned view ref resolves
-   only when its own persisted profile exists and verifies. Implement the contract
-   through the common `ArtifactStore` owner for filesystem, S3, GCS, and caching
-   backends. CAS and API owners pay for additional metadata, versioned references,
-   import/export and signature handling; callers do not need envelope hacks or
-   duplicate payloads.
+   while adding independently persisted typed view records/manifests bound to the
+   content hash, full profile, and tenant ownership. Signatures and ownership resolve
+   by the typed view identity, never by content `ArtifactID` alone. A returned view
+   ref resolves only when its own profile, tenant, and signature binding exist and
+   verify. Permit cross-tenant views only if the view records and signatures remain
+   isolated per tenant; until the shared owner can prove that isolation, keep the
+   existing typed refusal for cross-tenant view requests. CAS/API owners pay for
+   tenant-scoped metadata, versioned refs, import/export and signature handling;
+   callers do not need envelope hacks or duplicate payloads.
 
 **Premises.** B150’s distinguishing case is identical bytes under profile A and
 profile B: the first manifest is preserved, but the second `ArtifactRef` advertises
 profile B. Its source recommendation requires that a ref match actual persisted
 semantics and preserve byte deduplication (`source/B_r19_original.md`, B150; bundle
-`CAS-01.md`). The class lean preserves the honesty E02 bought: never return a ref
-whose profile the store does not hold. At the inspected base, `ArtifactRef` holds
-content ID, kind, and media type, while `ArtifactManifest` is a single sidecar per
-content-addressed blob; `FileSystemCAS._put_blob_and_manifest_once` validates the
-one existing profile and refuses a mismatch (`core/artifacts/manifest.py`,
-`core/artifacts/store.py`). The store factory exposes filesystem, S3, GCS, and cached
-variants (`core/artifacts/backends/config.py`).
+`CAS-01.md`). At the inspected base, `ArtifactRef` carries content `ArtifactID`,
+kind, and media type; `ArtifactOwnershipIndex` and signature lookup are keyed by
+`ArtifactID`, while `has_signature(aid)` and `sign_artifact(aid)` do not identify a
+separate typed view or tenant. With identical bytes, two tenants therefore share
+the content ID: a signature or ownership entry for one tenant's view could be
+mistaken for the other tenant's. Physical blob equality cannot establish tenant
+ownership or authorize signature reuse
+(`src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`,
+`src/polisyos/core/artifacts/store.py@775d9811ae8fc3fd075845400b7a0b452600e387`,
+`src/polisyos/core/artifacts/ownership.py@95dc77f264b38dc40d658cfb2c9b153265e7a99b`,
+and `src/polisyos/core/artifacts/_signature_ops.py@793c4faea145ca25522860836ecab93747a732f5`).
+The source recommendation preserves honest refs and byte deduplication; it does not
+license tenant identity to collapse into the byte hash.
 
 **Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
-to principal ruling. Keep blob identity as the hash of exact bytes. Give each typed
-view its own stable identity and immutable profile binding; do not make kind or
-inputs mutable on the blob’s first manifest. Resolve and verify the view through
-the runtime-supplied store. A profile that is absent, malformed, or mismatched
-returns a typed refusal. Preserve historical single-profile refs by versioned
-readers; any added hash-bound view fields require a schema/version bump and
-historical projection rules.
+to principal ruling. Keep blob identity as the hash of exact bytes, but define typed
+view identity to include its full immutable profile and tenant ownership. Ownership
+and signatures must bind to that view identity and tenant, not only the shared
+content `ArtifactID`; a signature for one view cannot admit another view. Resolve
+and verify each view through the runtime-supplied store. A missing tenant binding,
+view, or signature returns a typed refusal. If the common owner cannot provide
+per-view tenant and signature isolation, cross-tenant views remain refused rather
+than sharing ownership by content hash. Preserve historical single-profile refs by
+versioned readers; any added hash-bound view fields require a schema/version bump
+and historical projection rules.
 
 **P37 — gate predicates at admission.**
 
 - Blob identity is SHA-256 over the exact persisted bytes (`recomputed`).
 - A typed view exists only if the store resolves its immutable view record and
-  recomputes its binding to that blob (`recomputed`). The requested kind/schema/
-  inputs are consumer assertions (`consumer_asserted`); persisted producer and
-  authority semantics are `not_established` by the CAS alone and require the
-  relevant owner contract before carrying authority.
-- Where a view carries authority, signature, tenant, event, and input closure must
-  be resolved and checked through the existing owner/verifier (`independently_reconciled`).
-  A missing view or verifier is `not_established` and cannot receive a positive
-  authority result.
+  recomputes its binding to the blob and complete profile (`recomputed`). The
+  requested kind/schema/inputs are consumer assertions (`consumer_asserted`) until
+  persisted under that view identity.
+- Tenant ownership must resolve from explicit tenant-bound view metadata and the
+  owning tenant store/context (`independently_reconciled`). A missing tenant binding
+  is `not_established`; a matching content `ArtifactID` is not tenant evidence.
+- A signature must bind to the exact view identity and tenant, not just the blob
+  `ArtifactID` (`independently_reconciled`). The current ID-only signature index is
+  insufficient to distinguish cross-tenant views; cross-tenant access is
+  `not_established` unless separately stored view-bound signature evidence exists.
 - Equal bytes never imply equal lineage or provenance. Any absent lineage relation
   remains `not_established` rather than inferred from the shared blob hash.
 
-**P38 — property and divergence.** Property: content can be reused across multiple
-typed meanings only when each meaning is explicitly stored and verifiable. Current
-implementation: a single content-addressed manifest is the semantic profile, and a
-conflicting profile raises. That refusal preserves honesty but rejects a valid
-second view; a workaround that returns the new ref without a second persisted view
-would diverge in the opposite direction by claiming a profile the store lacks. The
-distinguishing case is one byte-identical payload requested once as profile A and
-once as profile B: both views must resolve to their own manifests while both still
-resolve to the same blob bytes.
+**P38 — property and divergence.** Property: content may have multiple typed
+views only when each view's profile, tenant owner, and signature are independently
+resolvable. Current implementation: `ArtifactOwnershipIndex` and signature
+operations key only on content `ArtifactID`. Divergent case: two tenant views over
+identical bytes share that ID, so `has_signature(aid)` may treat tenant A's signature
+as tenant B's evidence. A profile-only per-view record would still diverge if its
+signature and owner index remained keyed by the shared ID. The distinguishing probe
+must create same-byte views under two tenants, sign only view A, and prove that view
+B remains unverified and inaccessible until it has its own tenant-bound view and
+signature; both allowed views may still resolve to one physical blob.
 
-**Remainder.** This does not claim equal bytes have equal empirical origin, authorize
-changing an existing profile, weaken signature/tenant verification, or decide that
-all kind and lineage fields can be verified by the CAS itself. Consumers that need
-source independence still require their own evidence. Per-view concurrency and
-cross-backend compatibility remain implementation obligations.
+**Remainder.** This does not claim equal bytes have equal empirical origin,
+authorize changing an existing profile, or decide that all kind and lineage fields
+can be verified by the CAS itself. Consumers that need source independence still
+require their own evidence. Per-view concurrency and cross-backend compatibility
+remain implementation obligations. Cross-tenant view creation stays refused until
+per-view ownership and signature binding are proven; the shared content hash never
+substitutes for tenant custody.
 
 **Remainder standing and signatory.** The CAS has no standing to prove empirical
 origin or consumer-specific lineage; those predicates remain `not_established` by
@@ -488,17 +606,29 @@ pending principal signatory for the semantic choice to support honest typed view
 
 **Falsifier / revisit trigger.** Reopen if any backend returns a view ref whose
 resolved manifest differs from it, if same-profile retries create a second view,
-or if a tampered view can point at a different blob/profile while retaining a green
-verification result. The acceptance signal is the A/B same-bytes witness through
-filesystem, S3, GCS, and caching-store contracts, plus the existing first-writer
-and corrupted-blob negatives. No such run is claimed here.
+if a tampered view can point at a different blob/profile while retaining a green
+verification result, or if a signature for tenant A's view verifies tenant B's
+same-byte view. The acceptance signal is the A/B same-bytes witness through
+filesystem, S3, GCS, and caching-store contracts, with each view independently
+bound to tenant ownership and signatures. Remove tenant metadata while preserving
+view markers and bytes; access and signature verification must fail. If cross-tenant
+views cannot satisfy this, the typed refusal is the required result. No such run is
+claimed here.
 
-**Where it binds.** Shared contract `core/artifacts/protocol.py::ArtifactStore`;
-typed references and historical projections in `core/artifacts/manifest.py`;
-manifest lifecycle and `FileSystemCAS` in `core/artifacts/_manifest_lifecycle.py`
-and `core/artifacts/store.py`; configured remote/cache implementations under
-`core/artifacts/backends/`; artifact import/export and signature paths. No caller may
-construct an envelope to compensate for a missing CAS view API.
+**Where it binds.** Shared contract `src/polisyos/core/artifacts/protocol.py::ArtifactStore`;
+typed references and historical projections in
+`src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`;
+manifest lifecycle and `FileSystemCAS` in
+`src/polisyos/core/artifacts/_manifest_lifecycle.py` and
+`src/polisyos/core/artifacts/store.py@775d9811ae8fc3fd075845400b7a0b452600e387`;
+configured remote/cache implementations under `src/polisyos/core/artifacts/backends/`;
+ownership index at
+`src/polisyos/core/artifacts/ownership.py@95dc77f264b38dc40d658cfb2c9b153265e7a99b`;
+signature operations at
+`src/polisyos/core/artifacts/_signature_ops.py@793c4faea145ca25522860836ecab93747a732f5`;
+artifact import/export and signature paths. No caller may
+construct an envelope to compensate for a missing CAS view API or tenant-bound
+signature owner.
 
 **Pattern pass.** P05/P27/P31/P32/P37/P38. The instance symptom is a CAS conflict;
 the class is the mismatch between a content key and a single semantic view. Target:
@@ -507,122 +637,144 @@ consumer-specific exceptions. Multi-view refs/artifacts are `artifact_missing` a
 consumer resolution is `consumer_missing` until the shared contract, every backend,
 and a mismatch-negative witness are wired.
 
-## R11 — CYC-04 VOI semantics after a repeated candidate cycle
+## R11 — CYC-04 blocked repeated candidate must not reach N9
 
-**Question.** When the loop’s final candidate repeats the immediately preceding
-candidate, should `blocked` remain a distinct safety cap, or should the VOI outcome
-be expressed as `stop` or `escalate`?
+**Question.** When the loop marks a repeated candidate `blocked`, what must happen
+at the final-run and promotion boundaries, and which consumers actually read the
+`LoopVOIDecision` type?
 
 **Options and costs.**
 
-1. **Proposed lean:** preserve `blocked` as a typed safety cap for a repeated
-   candidate cycle. Keep `terminal_kind=search_ceiling_repair_required` and the
-   `fake_cycle_same_candidate_repeated` reason. The scheduler’s `advance` result is
-   advisory and must not override the blocked outcome or authorize another cycle.
-   This accurately separates non-progress from an ordinary stop or a request for
-   human judgment. Its cost is that the board, promotion, public projection, and
-   recursive-routing consumers must all preserve this cap; their complete behavior
-   has not been demonstrated here.
-2. Map the outcome to `stop` or `escalate`, retaining the repeated-candidate reason
-   only as diagnostic metadata. This matches the current test expectation and keeps
-   the older action vocabulary, but risks describing a non-progressing repeated
-   candidate as an ordinary stop or as a human decision rather than a repair-required
-   cap.
-3. Allow the scheduler’s `advance` to continue the loop. This avoids a new action
-   state, but permits a repeated candidate to count as another search cycle and
-   violates the loop’s non-repeat discipline.
+1. **Proposed lean:** preserve `blocked` as a distinct non-advancing safety cap for
+   repeated candidates. Recompute that a blocked decision is final and consistent
+   with the run terminal, then prevent the blocked run from entering N9 promotion or
+   any current-authority projection. The scheduler's `advance` remains advisory.
+   This preserves the specific integrity meaning, but requires a run-validator
+   invariant, an N9 guard, and served consumer witnesses.
+2. Map `blocked` to `stop` or `escalate` before finalization. This reuses the older
+   vocabulary, but loses the distinction between an invalid/non-progressing repeated
+   candidate and an ordinary stop or a request for human judgment. It still needs
+   the same N9 and terminal-consistency guards.
+3. Treat `scheduler_action=advance` as authoritative and continue. This avoids a new
+   action state, but permits a repeated candidate to count as new progress and can
+   send it to N9 despite the block.
 
 **Premises.** The phase-0 JUnit receipts are
 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-20260924T084614Z-77175/cells/e02_execution_base/test_generation_cycle.junit.xml@5cc9da821ca9b6940f7bc6e1123f6fb663283b5367002cf12c93d5ad6a1a6588`
 and
 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-20260924T084614Z-77175/cells/e02_head/test_generation_cycle.junit.xml@4fc8f811e7a08e4227c6236bd52e3bd1122f984c75d5a904dacf0d962cafc71e`.
-The E02-head failure payload reports final `next_action=blocked`,
+The E02-head failure shows final `next_action=blocked`,
 `terminal_kind=search_ceiling_repair_required`, `scheduler_action=advance`, and
-`reason=fake_cycle_same_candidate_repeated`. The E02-head test source asserts that
-cycle 0 advances and that the final action is `stop` or `escalate`
-(`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@beb20c6bb8e1ed8aa46910fea0d3a4cf7cfabe15`,
-`test_controller_runs_counterexample_driven_revision_over_two_real_cycles`). At E02's
-execution base, the test file is a different blob
-(`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@28682ef61d0cec22f2420794f7e3aa3e396418b4`);
-E02 also added `repo_root` wiring in this test. The two receipts therefore do not
-establish a pass-to-fail change for an unchanged test, and this draft makes no such
-P41 claim. The E02-head implementation compares adjacent
-`selected_candidate_content_hash` fields in `_fake_cycle_reason`
-(`policy-engine/src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`).
-The JUnit receipts do not contain the candidate hash values, so no numeric hash
-sequence or independent runtime observation of that equality is claimed. The receipt
-shows the outcome for this fixture; it does not establish which action vocabulary is
-correct or prove how every production consumer handles `blocked`.
+`reason=fake_cycle_same_candidate_repeated`. The E02-head test expects `stop` or
+`escalate`; the base test file has a different blob and the same `repo_root` wiring
+was added on E02, so these receipts do not prove a pass-to-fail change for an
+unchanged test
+(`tests/unit/runtime/quality/test_generation_cycle.py@beb20c6bb8e1ed8aa46910fea0d3a4cf7cfabe15`;
+`tests/unit/runtime/quality/test_generation_cycle.py@28682ef61d0cec22f2420794f7e3aa3e396418b4`).
+The E02-head `_fake_cycle_reason` compares adjacent
+`selected_candidate_content_hash` fields
+(`src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`);
+the JUnit receipt omits their actual values, so no independent numeric hash sequence
+is claimed.
 
-**Proposed choice; principal status.** Recommend option 1, subject to Denis’s
-principal ruling. Define `blocked` as a non-advancing cap for this repeated-candidate
-condition, with `search_ceiling_repair_required` preserved as the terminal kind.
-The `scheduler_action=advance` field must not override that cap. Do not change the
-base test expectation on this draft alone: a changed expectation needs a behavioral
-witness for the chosen semantics and consumer composition. The cited JUnit trace is
-not evidence that the board, promotion, projection, or recursive routing paths
-consume `blocked` safely; none of that consumer proof is claimed here.
+A complete AST census walked 2,693 tracked `src/**/*.py` files with zero parse
+errors and recorded 8 direct `LoopVOIDecision` name references, 20 typed direct
+field reads, and zero `ImportFrom` sites
+(`/Users/deniskopylov/.codex/scratch/e02-r2-baselines/r11-loopvoi-ast-census.json@sha256:2452aabf5a991a3caf66dad7f2d5393a101a96992bb53e13b9c58adbe3091db3`).
+It found no direct `LoopVOIDecision` consumer outside
+`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`.
+Within
+that owner, the N6 loop stops further cycles when `next_action != advance`, and the
+refinement/search projections map `blocked` to `block_candidate` / `blocked_no_retry`.
+But after the loop, `GenerationCycleController.run` unconditionally calls
+`_promote_completed_generation`; that call does not receive or check blocked-run
+status. `validate_generation_cycle_run` rejects extra cycles after `stop`/`escalate`,
+but does not enforce that `blocked` is final or consistent with `terminal_status`.
+The recursive route consumes the terminal projection rather than the action type;
+public normative projection validates the run and reads N9 without a demonstrated
+blocked-run guard. A direct board consumer is absent from this tracked-source
+census. Therefore the census disproves a broad direct-consumer claim, but does not
+prove those indirect consumers safely enforce `blocked`.
+
+**Proposed choice; principal status.** Recommend option 1, subject to Denis's
+principal ruling. Keep `blocked` for repeated candidate identity; do not map every
+blocked state to `stop` or `escalate`. Require the run validator to recompute that a
+blocked decision occurs only on the final cycle and that the enclosing terminal
+status/kind agree. Require the production N6→N9 path to refuse a blocked run before
+pre-N9 subjects, admissions, or receipts are produced. Any public projection must
+retain a blocked result with no ranked/current recommendation. The current test
+expectation should change only with this behavioral witness; this draft does not
+claim the witness has run.
 
 **P37 — gate predicates at admission.**
 
-- E02's `_fake_cycle_reason` compares adjacent
-  `selected_candidate_content_hash` fields (`policy-engine/src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`).
-  Equality of stored fields is `recomputed`; whether each field is bound to the
-  candidate bytes is `not_established` without resolving those bytes. The reason
-  marker alone is `not_established` as evidence of candidate equality.
-- A `blocked` decision must dominate an `advance` scheduler recommendation before
-  any additional cycle or authority-bearing action. The JUnit output shows both
-  fields but does not prove consumer precedence; downstream composition remains
-  `not_established` and cannot carry an authority-grade positive.
+- The source census denominator is the complete tracked `src/**/*.py` set: 2,693
+  files, zero parse errors. Its no-direct-consumer result is `recomputed` for that
+  syntax/tree denominator; external, dynamic, and generated consumers remain
+  `not_established`.
+- The repeated-candidate predicate compares adjacent selected-candidate content
+  hashes (`recomputed` as stored identity fields). Whether each hash is bound to the
+  actual candidate bytes is `not_established` until those bytes/source handoffs are
+  resolved; the reason marker alone is not evidence of equality.
+- Blocked-final consistency must be recomputed from every cycle and its typed
+  decision; a run-level `terminal_status` string alone is `consumer_asserted`.
+- N9 eligibility must be independently reconciled against the validated run and
+  refuse any blocked terminal before authority-bearing work. A missing or stale
+  guard is `not_established` and cannot produce an N9-positive result.
 
-**P38 — property and divergence.** Property: once adjacent cycle candidates repeat,
-that repeated occurrence cannot be treated as new progress or reach current authority
-through an `advance` recommendation. The observed decision contains
-`next_action=blocked` and `scheduler_action=advance` at once. A consumer that gates on
-`scheduler_action` while ignoring `next_action` would diverge from the property by
-advancing after the typed block. Whether a production consumer takes that path is
-not established here; the coexisting values make precedence a required behavioral
-witness, not an assumed implementation fact.
+**P38 — property and divergence.** Property: a repeated candidate cannot be
+reinterpreted as progress or reach N9/current authority, even when the advisory
+scheduler says `advance`. Current implementation: the N6 loop breaks on `blocked`,
+but then unconditionally calls `_promote_completed_generation`; the validator also
+lacks a blocked-final/terminal-consistency rule. Divergent case: a final cycle has
+`next_action=blocked`, `terminal_kind=search_ceiling_repair_required`, while its
+scheduler field says `advance`; N6 stops another cycle, but N9 promotion still runs.
+The public projection and recursive terminal path also need behavioral witnesses
+before they can be credited with preserving the block.
 
-**Remainder.** This proposal defines only the CYC-04 repeated-candidate case; it does
-not define every use of `blocked` or establish general VOI-consumer behavior. The
-run validator must reject a non-final blocked cycle. Board, promotion, public
-projection, and recursive-routing composition remain unproven and must not treat this
-draft as proof that a blocked candidate cannot affect current authority. The test
-assertion records an expected result, not proof of the correct contract.
+**Remainder.** This decision covers the repeated-candidate cap and its boundary to
+N9, not a universal mapping for all `blocked` outcomes. The board has no direct
+`LoopVOIDecision` consumer in the measured source set; its indirect authority path is
+`not_established` until named and witnessed. The recursive router and public
+projection consume derived run/terminal outputs, not this decision type directly;
+their safe behavior is not established by the N6 break. No general claim that every
+consumer handles `blocked` is made here.
 
 **Remainder standing and signatory.** Denis is the pending principal signatory for
-the action vocabulary. `runtime/quality` is the code boundary for the loop decision,
-but an assigned engineering signatory for the broader consumer composition is not
-established by this record. Owners for the board, promotion, public projection, and
-recursive-routing consumers are also not identified here; their standing is
-`unallocated/not_established` until appointed. Until those owners provide behavioral
-witnesses, this draft grants no consumer authority to interpret `blocked` as a safe
-terminal.
+the action vocabulary. `runtime/quality` owns the typed loop decision and final N9
+boundary. The direct board consumer is absent from the census, and no owner is
+appointed for any external or dynamic consumer; those paths remain
+`unallocated/not_established`. This proposal does not appoint an external actor or
+create authority through the action label.
 
-**Falsifier / revisit trigger.** The proposed cap fails if a run with equal adjacent
-candidate content hashes receives a different reason while retaining the repeated
-candidate condition, if a candidate-hash difference still produces
-`fake_cycle_same_candidate_repeated`, if another cycle executes after `blocked`, or
-if any consumer admits the blocked candidate to current authority. For the
-removal probe, preserve the reason marker but change the actual adjacent hashes; the
-behavioral assertion must turn red if the marker alone still produces the block.
-These are acceptance probes, not results claimed by this draft.
+**Falsifier / revisit trigger.** Reopen if a served run with repeated adjacent
+candidate bytes is not blocked, if the marker alone blocks after the bytes differ,
+if a blocked decision is followed by another cycle, if blocked is not the final
+cycle with a matching blocked terminal, or if a blocked run reaches N9 or emits a
+ranked/current recommendation. The decisive negative probe supplies an otherwise
+N9-eligible blocked run with valid positive N9 evidence; it must produce no N9
+subject, admitted batch, promotion receipt, or public recommendation. A removal
+probe keeps `fake_cycle_same_candidate_repeated` but changes the actual source-bound
+candidate bytes; it must no longer produce that block. The preserved control uses
+an ordinary `stop` or `escalate` run and keeps its existing terminal projection.
+These are acceptance criteria; none is claimed as run here.
 
-**Where it binds.** Typed result and scheduler precedence at
-`runtime/quality/generation_cycle.py::LoopVOIDecision` and
-`GenerationCycleController.decide_next_action`; repeated-candidate classification
-and run validation in `generation_cycle.py`; and the board, promotion, public
-projection, and recursive-routing consumers named by CYC-04. The loop result is not
-complete until those consumers consume the typed block and prevent later-cycle or
-current-authority use.
+**Where it binds.** Loop and post-loop N9 owner at
+`src/polisyos/runtime/quality/generation_cycle.py::GenerationCycleController.run`
+and `::_promote_completed_generation`; run checks at
+`src/polisyos/runtime/quality/generation_cycle.py::validate_generation_cycle_run`;
+refinement/search projections in that module; recursive terminal projection in
+`src/polisyos/runtime/quality/recursive_generation_cycle.py`; and normative public
+projection in
+`src/polisyos/runtime/quality/design_axes/value_choice_provenance.py::_generation_disposition`.
+No direct board consumer is named by this proposal.
 
-**Pattern pass.** P04/P05/P29/P37/P38/P41. The observed gap is the coexistence of a
-blocking `next_action` and an `advance` recommendation, with consumer precedence not
-established. Target: one typed blocked cap that is derived from candidate identity
-and enforced across every consumer. The test trace exists; consumer-composition
-verification remains `verification_missing`. No test expectation change or
-implementation is claimed by this decision draft.
+**Pattern pass.** P04/P05/P29/P37/P38/P41. The observed divergence is an N6 break
+followed by an unconditional N9 call and a validator that does not enforce blocked
+terminal consistency. Target: recomputed final-block consistency and one N9 guard
+before authority work. The existing fixture records the block but not the N9
+non-promotion witness; the closure state is `verification_missing` until the blocked
+run, marker-removal, and preserved terminal controls pass.
 
 ## R13 — one world-growth path and runtime store custody
 
@@ -870,7 +1022,8 @@ bytes; that SHA does not identify the repository tree against which its links
 were admitted. The archived closeout
 `docs/archive/reports/2026-05-23-policy-design-case-wave5-closeout.md@a9b5684ad7dca3863881fd2a1de54fc3bb77d3e7`
 states the same date and owner and names the manifest, but records no commit or
-tree. The W4 sibling uses the same date/owner form without a snapshot identity.
+tree. The W4 sibling uses the same date/owner form without a snapshot identity
+(`architecture/policy_design_case/wave4_i4_runtime_closeout_manifest.json@fbae5281f065ebbd9ad988a6261a48cf9a660e06`).
 
 Git records the W5 manifest's first addition in commit
 `da54f58206f396d8620425a6d45464640e650dd9`, tree
@@ -884,12 +1037,17 @@ The current validator in
 `tools/quality/validation/check_policy_design_case_capability_ratchet.py@1cd361b73a01e7ed7668d18b92a4491e335d8628`
 passes the present `repo_root` into `validate_repo_reference`, which checks the
 current filesystem path and, when present, anchor text. The baseline W5 case
-`test_wave5_exit_records_i5_manifest_and_influence_boundaries` is unchanged at
-blob `7c4b73fb339f36b21bcc430c1260f35d76a745d6`; the recorded failure is the
-current resolver rejecting the retired raw-client path. Initial P41 records this
-case as pass at E02's base and main, and fail at E02's head and the Phase 0 merge,
-with that test blob unchanged across the four revisions. This is evidence of
-present path retirement, not evidence that the historical W5 claim was false.
+`tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py::test_wave5_exit_records_i5_manifest_and_influence_boundaries` has source blob
+`7c4b73fb339f36b21bcc430c1260f35d76a745d6`. The R14 reviewer's provisional relative-run comparison reports pass at E02's base
+and main and fail at E02's head and the Phase 0 merge, with that source blob
+unchanged; this report is not yet admitted as P41 evidence. The full four-base
+P41/JUnit row receipt is pending the baseline broker:
+`docs/plans/active/agent-packages/PolicyOS_E02R2/raw/r14-p41-wave5-test.xml@PENDING_SHA256`
+(no receipt exists at draft time). The broker must record outcomes, flags, and test
+blob identity before that pending citation is replaced with a computed SHA. Until
+then, the reported relative outcomes are a hypothesis to re-verify, not admitted
+P41 evidence; when confirmed they establish present path retirement, not that the
+historical W5 claim was false.
 
 For WS-2D, the current closeout ledger
 `release/core-runtime-closeout.ledger.toml@fa45439af5135f04f2de06199645ac0a8b6f7073`

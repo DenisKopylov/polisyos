@@ -77,8 +77,8 @@ Append to a shared artifact-owner row only after the full replay confirms which 
 
 This is a proposal for an inherited/latent event-window completeness residual, not a confirmed E02
 regression or production incident. No `DEBT-REGISTER.md` or `LEDGER.md` edit is made. The source audit
-is `/Users/deniskopylov/.codex/scratch/e02-r2-cycleboard-denominator-audit-20260924.md@sha256:95584f99da20551965c71a5682db2a0b61f43f823cb05e7a39b1096d2b1b1dee`. The candidate task
-The initial `FWC-01_TASK.md@sha256:aedeffea5b4704ccc76feaf6bf8313b4fbcee0b683ad49c00dcb02501c35a0c0` was committed on
+is `/Users/deniskopylov/.codex/scratch/e02-r2-cycleboard-denominator-audit-20260924.md@sha256:95584f99da20551965c71a5682db2a0b61f43f823cb05e7a39b1096d2b1b1dee`. The initial
+`FWC-01_TASK.md@sha256:aedeffea5b4704ccc76feaf6bf8313b4fbcee0b683ad49c00dcb02501c35a0c0` was committed on
 `codex/e02-r2-partial-triage` at `b61b7104b2040f04330129ac712bf92e25c4425f`; its independent document review
 `/Users/deniskopylov/.codex/scratch/e02-r2-fwc01-review-20260924.md@sha256:7152839b664242976e7563f18c025326943300af253a67b0cb3831b72db5d34a` is `GO` for that candidate-task
 version only, not implementation authorization. After the semantics review below, the task was corrected on

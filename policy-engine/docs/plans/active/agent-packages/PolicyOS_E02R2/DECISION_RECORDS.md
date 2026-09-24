@@ -607,11 +607,11 @@ under an earlier basis?
 **Options and costs.**
 
 1. **Proposed choice:** keep exact full-risk-scope equality and lazily create one
-   checker-local verification session at the first N9 call, using that call's final
-   `DesignProblem` binding. Share the same session across the N9 summary batch and
-   receipt revalidation. This aligns the checker fixture with N9's actual input, but
-   the temporary verification ledger does not establish how a repeated production
-   invocation behaves with an older durable root.
+   checker-local verification session at the first N9 call, using that call's exact
+   final `DesignProblem` and binding. Retain that same N9 problem/binding and session
+   for both the summary batch and embedded receipt revalidation. This aligns checker
+   inputs with N9, but the temporary verification ledger does not establish how a
+   repeated production invocation behaves with an older durable root.
 2. Keep the eager pre-controller verification session and report its later scope
    mismatch as semantic `fail`. This preserves equality but reports the checker
    fixture's lifecycle mismatch as if it were a production ledger refusal, leaving
@@ -629,11 +629,15 @@ problem binding. N6 can revise the problem before N9. In contrast,
 `CanonicalN9PromotionPort.__call__` derives the binding from its N9 `problem` and
 opens the production session there; `_run_n9_promotion_port_batch` then checks exact
 equality with the complete `confidence_risk_scope_for_problem(problem_binding)`.
-Thus the checker’s observed mismatch is explained by its eager fixture session and
-does not establish a production refusal. Receipt revalidation must use the same
-checker-local session as the N9 batch, rather than opening a second session. The
-execution-base validator returns a typed fail with three issues; current-head
-`--check` lets `confidence_ledger_scope_binding_mismatch` escape as `ValueError`.
+After the controller returns, the checker currently also passes the original
+pre-N6 `problem` to `_embedded_promotion_comparison_admissions`; that value reaches
+`admit_canonical_promotion_receipt_for_comparison(design_problem=problem)`. The
+receipt is bound to the final N9 problem, so both the checker session and the
+revalidation problem argument must be derived from and retain that exact N9 input.
+Thus the observed error reflects checker fixture bindings that can straddle the N6
+revision and does not by itself establish a production refusal. The execution-base
+validator returns a typed fail with three issues; current-head `--check` lets
+`confidence_ledger_scope_binding_mismatch` escape as `ValueError`.
 The production owner returns typed `not_promoted` for a `ConfidenceLedgerError`
 while opening its durable session, but behavior for a repeated invocation whose
 existing root is bound to an earlier basis remains `UNRUN` pending a behavioral
@@ -654,10 +658,13 @@ red. The P41 four-base receipts and exact command output remain pending broker
 citation; this draft makes no test-pass claim.
 
 **Proposed choice; principal status.** Recommend option 1 for the validator and
-retain the runtime owner's exact guard. The checker must create a single temporary
-verification session lazily from the final problem binding at its first N9 call,
-then reuse it for the complete summary batch and receipt revalidation. A known
-semantic mismatch after that coherent setup returns typed `fail` with
+retain the runtime owner's exact guard. Capture and retain the exact final N9
+`DesignProblem` and `N9DesignProblemBinding`. Create the checker’s single temporary
+verification session lazily from that binding at the first N9 call, and use that
+same final problem/binding and session for the complete summary batch and every
+embedded receipt revalidation. Do not pass the original pre-N6 problem to receipt
+admission. A known full-scope mismatch between a session and the N9 binding returns
+typed `fail` with
 `confidence_ledger_scope_binding_mismatch`; successful validation returns `PASS`;
 an inspection or recomputation failure that prevents a verdict returns typed
 `UNRUN` (exit 2 with measured/not-measured disclosure). No production ledger is
@@ -669,27 +676,28 @@ spend. Denis remains principal for any authority decision on such a transition;
 no transition or receipt reissue is authorized by this draft.
 
 **P37 — gate predicates at admission.** The checker’s final N9 binding and full
-`ConfidenceRiskBudgetScope` are recomputed from the N9 `DesignProblem`; exact
-equality between that scope and the one in the single checker-local session is
-recomputed. Receipt, event and spend lineage for a production durable root must be
-independently resolved from the ledger owner; the old-root repeated-invocation
-behavior is `not_established` until that witness exists. Matching `scope_id` is
-only an identifier, not proof of basis equality or continuity. Any transition
-authority is institutionally supplied by the ledger owner and principal and remains
-`not_established` until recorded.
+`ConfidenceRiskBudgetScope` are recomputed from the exact final N9 `DesignProblem`.
+The checker must retain that same problem/binding and pass it to receipt
+revalidation; exact equality between its scope and the one in the single
+checker-local session is recomputed. Receipt, event and spend lineage for a
+production durable root must be independently resolved from the ledger owner; the
+old-root repeated-invocation behavior is `not_established` until that witness
+exists. Matching `scope_id` is only an identifier, not proof of basis equality or
+continuity. Any transition authority is institutionally supplied by the ledger
+owner and principal and remains `not_established` until recorded.
 
 **P38 — property and divergence.** Property: the contract validator exercises one
 coherent N6→N9 flow and returns PASS, semantic FAIL, or UNRUN according to its
 evidence; production N9 never accepts a changed durable basis without an authorized,
-spend-preserving transition. The checker currently binds its verification session
-before N6 and later compares that scope with the N9 problem, so it can test a
-fixture-lifecycle mismatch instead of the contract. Divergent case: N6 changes the
-problem basis before N9; the checker session still represents the earlier problem,
-although production N9 opens its session from the final problem. Separately, a
-temporary fresh checker ledger cannot decide how production handles an existing
-durable root from an earlier basis. The implementation therefore needs the lazy
-checker session and a separate production witness; full-scope equality must not be
-weakened to make either path green.
+spend-preserving transition. The checker currently opens its verification session
+before N6 and passes the original problem to receipt revalidation after N9; either
+can differ from the final N9 problem. Divergent case: N6 revises the problem basis,
+production N9 binds receipts to that final problem, but checker receipt
+revalidation receives the old one. The implementation must retain the exact N9
+problem/binding for both the lazy session and revalidation. Separately, a temporary
+fresh checker ledger cannot decide how production handles an existing durable root
+from an earlier basis; that requires a separate witness. Full-scope equality must
+not be weakened to make either path green.
 
 **Remainder and signatory.** This draft authorizes only checker-local session
 construction and verdict composition. It does not authorize a production basis
@@ -702,19 +710,24 @@ exist, that behavior remains `UNRUN` and revised-basis admission cannot claim
 closure.
 
 **Falsifier / revisit trigger.** Reopen if the checker does not derive its sole
-verification session from the final N9 binding, if the summary batch and receipt
-revalidation use different sessions, if full-scope inequality can pass, or if any
-of the 12 existing contract mutations turns green. The negative probe changes the
-N6-produced basis while retaining scope and record markers; after session alignment,
-a genuine full-scope mismatch must return semantic FAIL with
-`confidence_ledger_scope_binding_mismatch`, not crash or become UNRUN. The
-preserving control keeps the complete binding unchanged and shares its checker
-session through summary and receipt validation. Inspection/recomputation failure
-before a semantic result returns UNRUN/exit 2. A separate unrun production probe
-seeds an old durable root and invokes N9 with a revised same-ID basis, asserting a
-typed non-promotion and unchanged prior events/spend; only an owner-authorized
-transition with exact replay and spend continuity can change that result. These
-are acceptance criteria, not claims that the tests or probes have run.
+verification session from the final N9 binding and pass that same final problem to
+both N9 summary and receipt revalidation, if full-scope inequality can pass, or if
+any of the 12 existing contract mutations turns green. The removal probe
+deliberately opens the checker session under basis A, then exercises N9 and receipt
+revalidation with basis B that retains the same scope ID and record markers; the
+full-scope mismatch must return semantic FAIL with
+`confidence_ledger_scope_binding_mismatch`, not crash or become UNRUN. This
+independent A→B probe ensures the session and receipt sides cannot both drift
+together and still pass; removing full-scope equality while keeping the IDs and
+markers makes the refusal assertion fail. The preserving control uses the exact
+same final N9 problem/binding for session creation, summary admission and receipt
+revalidation.
+Inspection/recomputation failure before a semantic result returns UNRUN/exit 2. A
+separate unrun production probe seeds an old durable root and invokes N9 with a
+revised same-ID basis, asserting a typed non-promotion and unchanged prior
+events/spend; only an owner-authorized transition with exact replay and spend
+continuity can change that result. These are acceptance criteria, not claims that
+the tests or probes have run.
 
 **Where it binds.** Checker-local lazy session creation, reuse, and verdict
 composition in `tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`;

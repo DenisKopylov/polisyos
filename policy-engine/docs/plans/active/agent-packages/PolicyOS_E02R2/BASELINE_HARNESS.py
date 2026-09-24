@@ -265,6 +265,21 @@ if (len(INITIAL_TEST_PATHS), len(ADDON_TEST_PATHS), len(PRE_REPAIR_TEST_PATHS)) 
 if len(PRE_REPAIR_TEST_PATHS) != len(set(PRE_REPAIR_TEST_PATHS)):
     raise RuntimeError("P41 pre-repair test path union contains duplicates")
 
+# This integration test copies a fixture directory that is part of the
+# read-only production_data tree before mutating a JSON file. The copy itself
+# is forbidden by the P41 data-custody instructions, so preserve the selected
+# matrix cell as a declared UNRUN rather than executing it.
+DECLARED_SAFETY_SKIPS: dict[str, dict[str, str]] = {
+    "policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py": {
+        "code": "forbidden_production_data_copy",
+        "policy": "production_data_must_not_be_copied",
+        "reason": (
+            "test helper calls shutil.copytree on the production_data fixture tree; "
+            "the harness must not copy production_data, even to a temporary test checkout"
+        ),
+    },
+}
+
 REQUESTED_TEST_PATHS: tuple[str, ...] = INITIAL_TEST_PATHS
 
 COMPARISON_PAIRS: tuple[tuple[str, str, str], ...] = (
@@ -1022,6 +1037,106 @@ def _resource_summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
             max(row["system_swap_used_bytes"] for row in samples)
             - samples[0]["system_swap_used_bytes"],
         ),
+    }
+
+
+def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return a three-valued aggregate resource verdict without hiding gaps."""
+    relevant_rows = [
+        row for row in runs
+        if row.get("cell_presence") == "PRESENT"
+        and not isinstance(row.get("safety_skip"), dict)
+    ]
+    required = {
+        "peak_process_group_rss_kib_sum",
+        "peak_process_group_cpu_percent_sum",
+        "minimum_system_memory_free_percent",
+        "swap_growth_bytes",
+        "minimum_scratch_volume_free_bytes",
+    }
+    sampled_rows = [row for row in relevant_rows if isinstance(row.get("resource_metrics"), dict)]
+    incomplete_rows = [
+        row for row in relevant_rows
+        if not isinstance(row.get("resource_metrics"), dict)
+        or not required.issubset(row["resource_metrics"])
+    ]
+    complete_rows = [
+        row for row in sampled_rows if required.issubset(row["resource_metrics"])
+    ]
+    guarded_rows = [row for row in relevant_rows if row.get("resource_guard")]
+    status = "UNRUN" if incomplete_rows or not complete_rows else "fail" if guarded_rows else "pass"
+    reason = None
+    if status == "UNRUN":
+        reason = (
+            f"resource coverage incomplete for {len(incomplete_rows)}/{len(relevant_rows)} "
+            f"present non-skipped cells; {len(complete_rows)} cells have complete measurements"
+        )
+    elif guarded_rows:
+        reason = f"resource guard recorded for {len(guarded_rows)} present cells"
+    metrics: dict[str, Any] = {}
+    if complete_rows:
+        observed = [row["resource_metrics"] for row in complete_rows]
+        metrics = {
+            "peak_process_group_rss_kib": max(item["peak_process_group_rss_kib_sum"] for item in observed),
+            "peak_process_group_cpu_percent": max(item["peak_process_group_cpu_percent_sum"] for item in observed),
+            "minimum_system_memory_free_percent": min(item["minimum_system_memory_free_percent"] for item in observed),
+            "maximum_swap_growth_bytes": max(item["swap_growth_bytes"] for item in observed),
+            "minimum_scratch_volume_free_bytes": min(item["minimum_scratch_volume_free_bytes"] for item in observed),
+            "peak_active_process_group_count": max(
+                (item.get("peak_active_process_group_count", 0) for item in observed),
+                default=0,
+            ),
+            "peak_aggregate_process_group_rss_kib": max(
+                (item.get("peak_aggregate_process_group_rss_kib_sum", 0) for item in observed),
+                default=0,
+            ),
+            "peak_aggregate_process_group_cpu_percent": max(
+                (item.get("peak_aggregate_process_group_cpu_percent_sum", 0) for item in observed),
+                default=0,
+            ),
+        }
+    return {
+        "status": status,
+        "sampled_cell_count": len(complete_rows),
+        "incomplete_cell_count": len(incomplete_rows),
+        "guarded_cell_count": len(guarded_rows),
+        "reason": reason,
+        "metrics": metrics,
+    }
+
+
+def _safety_skip_row(revision: dict[str, Any], test_path: str) -> dict[str, Any]:
+    """Represent a prohibited test invocation as a typed, denominator-preserving UNRUN."""
+    declaration = DECLARED_SAFETY_SKIPS[test_path]
+    source = revision["files"][test_path]
+    return {
+        "revision_key": revision["key"],
+        "revision_label": revision["label"],
+        "commit": revision["commit"],
+        "test_path": test_path,
+        "cell_presence": "PRESENT",
+        "test_blob_oid": source["git_blob_oid"],
+        "timeout_seconds": None,
+        "timeout_basis": "not applicable; test is not admitted for execution",
+        "exclusive_native": bool(source.get("exclusive_native")),
+        "command": [],
+        "environment_keys": [],
+        "cwd": str(Path(revision["checkout"]) / "policy-engine"),
+        "returncode": None,
+        "timed_out": False,
+        "elapsed_seconds": 0.0,
+        "suite_status": "UNRUN",
+        "unrun_reason": declaration["reason"],
+        "safety_skip": {
+            "status": "UNRUN",
+            "code": declaration["code"],
+            "policy": declaration["policy"],
+            "reason": declaration["reason"],
+        },
+        "case_counts": {},
+        "cases": [],
+        "artifacts": {},
+        "resource_metrics": None,
     }
 
 
@@ -2651,24 +2766,34 @@ def _write_report(
         for result_path in prior_timeout_paths
         if result_path.is_file()
     ) or "no retained timeout rerun receipt"
-    resource_rows = [
-        row for row in report["runs"]
-        if isinstance(row.get("resource_metrics"), dict)
-    ]
-    if resource_rows:
+    resource_result = report.get("resource_summary")
+    if not isinstance(resource_result, dict):
+        resource_result = _resource_summary_for_report(report["runs"])
+    resource_metrics = resource_result.get("metrics", {})
+    if resource_result.get("status") == "UNRUN":
         resource_summary = (
-            f"Resource measurements: {len(resource_rows)} present process groups; peak group RSS "
-            f"{max(row['resource_metrics']['peak_process_group_rss_kib'] for row in resource_rows)} KiB; "
-            f"peak group CPU {max(row['resource_metrics']['peak_process_group_cpu_percent_sum'] for row in resource_rows)}%; "
-            f"peak concurrent pytest groups {max(row['resource_metrics'].get('peak_active_process_group_count', 0) for row in resource_rows)}; "
-            f"peak aggregate pytest RSS {max(row['resource_metrics'].get('peak_aggregate_process_group_rss_kib_sum', 0) for row in resource_rows)} KiB; "
-            f"peak aggregate pytest CPU {max(row['resource_metrics'].get('peak_aggregate_process_group_cpu_percent_sum', 0) for row in resource_rows)}%; "
-            f"minimum system free memory {min(row['resource_metrics']['minimum_system_memory_free_percent'] for row in resource_rows)}%; "
-            f"maximum swap growth {max(row['resource_metrics']['swap_growth_bytes'] for row in resource_rows)} bytes; "
-            f"minimum scratch free space {min(row['resource_metrics']['minimum_scratch_volume_free_bytes'] for row in resource_rows)} bytes."
+            "Resource measurements: UNRUN; "
+            f"{resource_result.get('reason') or 'resource summary inputs are incomplete'}. "
+            f"{resource_result.get('sampled_cell_count', 0)} cells have complete resource samples."
+        )
+    elif resource_result.get("status") == "fail":
+        resource_summary = (
+            "Resource measurements: FAIL; "
+            f"{resource_result.get('reason') or 'a resource guard fired'}. "
+            f"{resource_result.get('sampled_cell_count', 0)} cells have complete resource samples."
         )
     else:
-        resource_summary = "Resource measurements: UNRUN; no test process groups produced a complete resource sample."
+        resource_summary = (
+            f"Resource measurements: PASS; {resource_result['sampled_cell_count']} present process groups; "
+            f"peak group RSS {resource_metrics['peak_process_group_rss_kib']} KiB; "
+            f"peak group CPU {resource_metrics['peak_process_group_cpu_percent']}%; "
+            f"peak concurrent pytest groups {resource_metrics['peak_active_process_group_count']}; "
+            f"peak aggregate pytest RSS {resource_metrics['peak_aggregate_process_group_rss_kib']} KiB; "
+            f"peak aggregate pytest CPU {resource_metrics['peak_aggregate_process_group_cpu_percent']}%; "
+            f"minimum system free memory {resource_metrics['minimum_system_memory_free_percent']}%; "
+            f"maximum swap growth {resource_metrics['maximum_swap_growth_bytes']} bytes; "
+            f"minimum scratch free space {resource_metrics['minimum_scratch_volume_free_bytes']} bytes."
+        )
     resource_policy = (
         f"Resource dispatch caps at {MAX_PROCESS_GROUPS} process groups (CLI default {DEFAULT_PROCESS_GROUPS}). "
         f"A light profile must finish within 60 seconds, use {ADAPTIVE_MIN_GROUP_RSS_KIB}–"
@@ -2694,7 +2819,7 @@ def _write_report(
         "",
         "## Discrepancies and scope",
         "",
-        f"The earlier initial and five controlled-timeout receipts did not record effective source import origins. The shared venv's editable `.pth` pointed at the execution-base checkout outside pytest; repository `conftest.py` may then prepend each checkout's source during pytest startup. Those receipts do not prove that the wrong code was imported, but their source identity was not established. This matrix requires checkout-local `PYTHONPATH` and verifies `polisyos` and `tools` origins before execution. It reuses {report.get('reused_cell_count', 0)} completed checkpoint rows only under exact legacy-harness digest, checkout/origin, per-row `PYTHONPATH`, env/command, source-blob, and JUnit SHA checks; it does not reuse the initial or timeout-rerun receipts. The three retained timeout-rerun receipts are: {prior_timeout_citations}.",
+        f"The earlier initial and five controlled-timeout receipts did not record effective source import origins. The shared venv's editable `.pth` pointed at the execution-base checkout outside pytest; repository `conftest.py` may then prepend each checkout's source during pytest startup. Those receipts do not prove that the wrong code was imported, but their source identity was not established. This matrix requires checkout-local `PYTHONPATH` and verifies `polisyos` and `tools` origins before execution. It reuses {report.get('reused_cell_count', 0)} completed checkpoint rows only after pinned checkout/origin, per-row `PYTHONPATH`, env/command, source-blob, and JUnit SHA checks; the earlier manifest without explicit source-import policy additionally requires its exact legacy-harness digest and matching row evidence. It does not reuse initial or timeout-rerun result files. The three retained timeout-rerun receipts are: {prior_timeout_citations}.",
         "",
         f"The original 7-group initial wave had no resource samples and remains provisional (`raw/p41-20260924T084614Z-77175/results.json` SHA-256 `{initial_results_sha}`). Its 300 moved JUnit/log artifacts are byte-mapped in `raw/p41-initial-artifact-path-remap.json` SHA-256 `{remap_sha}`; the six no-byte timeout artifacts are represented explicitly. The source-import discrepancy is resolved only for this controlled replay.",
         "",
@@ -2734,6 +2859,21 @@ def _write_report(
     lines.extend([
         "",
     ])
+    safety_skips = report.get("safety_skipped_cells", [])
+    if safety_skips:
+        lines.extend([
+            "## Declared safety skips (UNRUN)",
+            "",
+            "These cells remain in the requested denominator. The test was not launched because its helper copies from the read-only production_data tree, which is prohibited.",
+            "",
+            "| Revision | Test file | Status | Code | Reason |",
+            "|---|---|---|---|---|",
+        ])
+        for cell in safety_skips:
+            lines.append(
+                f"| {cell['revision_key']} | `{cell['test_path']}` | UNRUN | `{cell['code']}` | {cell['reason']} |"
+            )
+        lines.append("")
     lines.extend([
         "## Whole-file four-base matrix",
         "",
@@ -3112,10 +3252,30 @@ def run_matrix(args: argparse.Namespace) -> int:
     def checkpoint_row(row: dict[str, Any]) -> None:
         _append_checkpoint_row(progress_path, row)
 
+    # A declared safety skip is a measured matrix outcome (typed UNRUN), not a
+    # missing cell and not a reason to shrink the requested denominator.
+    excluded_safety_reuse_cells = sorted(
+        (revision_key, test_path)
+        for revision_key, test_path in reuse_cells
+        if test_path in DECLARED_SAFETY_SKIPS
+    )
+    for key in excluded_safety_reuse_cells:
+        reuse_cells.pop(key)
     for row in sorted(
         reuse_cells.values(),
         key=lambda item: (item["revision_key"], item["test_path"]),
     ):
+        checkpoint_row(row)
+
+    safety_skip_rows = [
+        _safety_skip_row(revision, test_path)
+        for revision in revision_records
+        for test_path in DECLARED_SAFETY_SKIPS
+        if test_path in REQUESTED_TEST_PATHS
+        and test_path in revision["files"]
+        and revision["files"][test_path]["status"] == "PRESENT"
+    ]
+    for row in safety_skip_rows:
         checkpoint_row(row)
 
     # The main checkout is the timing pilot and also supplies its matrix cells.
@@ -3137,12 +3297,14 @@ def run_matrix(args: argparse.Namespace) -> int:
             exclusive_native=bool(main_revision["files"][test_path]["exclusive_native"]),
         )
         for test_path in REQUESTED_TEST_PATHS
-        if main_revision["files"][test_path]["status"] == "PRESENT"
+        if test_path not in DECLARED_SAFETY_SKIPS
+        and main_revision["files"][test_path]["status"] == "PRESENT"
         and ("main", test_path) not in reuse_cells
     ]
     workers = min(args.workers, MAX_PROCESS_GROUPS)
     revision_map = {r["key"]: r for r in revision_records}
     runs = [row for (revision_key, _), row in reuse_cells.items() if revision_key == "main"]
+    runs.extend(safety_skip_rows)
     main_results = {row["test_path"]: row for row in runs if row["revision_key"] == "main"}
     light_profiles = _measured_light_profiles(list(reuse_cells.values()))
     main_jobs_by_path = {job.test_path: job for job in main_jobs}
@@ -3183,6 +3345,8 @@ def run_matrix(args: argparse.Namespace) -> int:
     # exclusive until another exact-blob profile is available.
     remaining_jobs: list[Job] = []
     for test_path in REQUESTED_TEST_PATHS:
+        if test_path in DECLARED_SAFETY_SKIPS:
+            continue
         if test_path in main_jobs_by_path:
             pilot_rows = _schedule(
                 [main_jobs_by_path[test_path]],
@@ -3356,6 +3520,18 @@ def run_matrix(args: argparse.Namespace) -> int:
         },
         "measured_light_profile_count": len(light_profiles),
         "reused_cell_count": len(reuse_cells),
+        "excluded_safety_reuse_cells": [
+            {"revision_key": revision_key, "test_path": test_path}
+            for revision_key, test_path in excluded_safety_reuse_cells
+        ],
+        "safety_skipped_cells": [
+            {
+                "revision_key": row["revision_key"],
+                "test_path": row["test_path"],
+                **row["safety_skip"],
+            }
+            for row in safety_skip_rows
+        ],
         "reused_cells": [
             {
                 "revision_key": revision_key,
@@ -3405,6 +3581,7 @@ def run_matrix(args: argparse.Namespace) -> int:
         "revisions": revision_records,
         "post_run_status_paths": post_status,
         "runs": sorted(runs, key=lambda row: (row["revision_key"], row["test_path"])),
+        "resource_summary": _resource_summary_for_report(runs),
         "case_diffs": case_diffs,
         "appendix_required_case_count": APPENDIX_REQUIRED_CASE_COUNT,
         "appendix_case_identity_source": {

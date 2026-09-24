@@ -2,7 +2,7 @@
 
 **Status:** proposals for the principal; none is ratified by this file. Repeating a
 lane lean does not make it a principal decision. The principal’s ruling, signer, and
-date remain pending for R1, R2, R5, R9, R11, and R13.
+date remain pending for R1, R2, R5, R9, R11, R13, and R14.
 
 **Prepared:** 2026-09-24. **Code inspected:** candidate base
 `73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
@@ -834,9 +834,150 @@ bridge/admission handshake, tenant-bound re-entry, and served semantic test. The
 separate store-custody obligation closes only when every runtime call site uses the
 supplied tenant-bound store and the guarded tenant negative passes.
 
+## R14 — historical W5 references and current WS-2D client evidence
+
+**Question.** Should W5's `repo://` references be judged against today's
+checkout, and what evidence may establish the exact repository snapshot against
+which that historical closeout was admitted?
+
+**Options and costs.**
+
+1. Rewrite the W5 manifest references to current paths and reissue its timestamp
+   or status. This would make the current-path checker green cheaply, but would
+   change an immutable historical record under a later source epoch and imply a
+   new W5 admission that did not happen.
+2. Treat the commit that first added the W5 manifest, or another reachable
+   ancestor, as its admitted snapshot. This avoids changing the record, but Git
+   history does not say that this was the source state used for the recorded
+   admission; choosing it would turn chronology or convenience into authority.
+3. **Proposed bounded choice:** preserve W5 bytes and report its historical
+   reference verdict as `UNRUN` / `not_established` until the registered owner
+   supplies an authorized, content-bound receipt identifying the exact admitted
+   commit and tree. Separately repair WS-2D's current code-evidence paths to the
+   existing generated-client outputs. This leaves one historical predicate
+   unresolved and requires an owner receipt, while restoring truthful live
+   closeout evidence without restamping W5.
+
+**Premises.** The W5 manifest blob is
+`architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json@fa16e56d90fcfb6b90d8de56cb261ae00f69a95d`
+with content SHA-256
+`a1ecd3ccbce72bb4b19d4c07d9f59878025fa0e456dbcf5df4f058c3b86cd095`. It records
+`generated_at=2026-05-23T00:00:00Z`, an owner, and `repo://` paths, but no source
+commit or tree. The registry
+`architecture/generated_artifacts.toml@9c0f1dfdac86dd02f16d3b17c5bd28da4e0f9165`
+classifies it as an immutable `source_committed` historical record and pins its
+bytes; that SHA does not identify the repository tree against which its links
+were admitted. The archived closeout
+`docs/archive/reports/2026-05-23-policy-design-case-wave5-closeout.md@a9b5684ad7dca3863881fd2a1de54fc3bb77d3e7`
+states the same date and owner and names the manifest, but records no commit or
+tree. The W4 sibling uses the same date/owner form without a snapshot identity.
+
+Git records the W5 manifest's first addition in commit
+`da54f58206f396d8620425a6d45464640e650dd9`, tree
+`2c66e430a71b2dcfe5702da0892f328ee2a7404e`, authored on 2026-05-30. That tree
+contains `packages/runtime-api-client/runtimeApiClient.ts`; the manifest's
+generated date is seven days earlier. This proves the first committed tree held
+the referenced path. It does not prove that tree was used for the May 23 W5
+admission. No existing source/owner receipt resolves that discrepancy.
+
+The current validator in
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py@1cd361b73a01e7ed7668d18b92a4491e335d8628`
+passes the present `repo_root` into `validate_repo_reference`, which checks the
+current filesystem path and, when present, anchor text. The baseline W5 case
+`test_wave5_exit_records_i5_manifest_and_influence_boundaries` is unchanged at
+blob `7c4b73fb339f36b21bcc430c1260f35d76a745d6`; the recorded failure is the
+current resolver rejecting the retired raw-client path. Initial P41 records this
+case as pass at E02's base and main, and fail at E02's head and the Phase 0 merge,
+with that test blob unchanged across the four revisions. This is evidence of
+present path retirement, not evidence that the historical W5 claim was false.
+
+For WS-2D, the current closeout ledger
+`release/core-runtime-closeout.ledger.toml@fa45439af5135f04f2de06199645ac0a8b6f7073`
+still cites `runtimeApiClient.ts` and `.js`. The unchanged loader
+`tools/devx/workspace/core_runtime_closeout.py@4c9b00f7ba498763de40ed9211631c33d0bfce70`
+checks these as current evidence paths and correctly refuses the now-missing
+files. The generated-artifact owner list in
+`docs/reference/generated-artifacts.md@18c0d71a208bd22cfd1aef6c3b6dd3446f2d89c3`
+names `types.ts`, `canonicalRuntimeApiClient.ts`, and
+`canonicalRuntimeApiClient.js` as the current outputs. The three unchanged
+closeout tests at blob
+`69a05038d3c2bd5123c4fd81e473426c355f85b1` exercise those current ledger paths.
+
+**Proposed choice; principal status.** Adopt option 3, pending Denis's ruling.
+Do not edit, regenerate, or restamp the W5 manifest. The smallest evidence that
+would close its historic reference check is an append-only owner-issued
+provenance receipt from `team-runtime-quality`, binding the manifest's exact
+SHA-256 to the exact repository commit and tree used for W5 admission and stating
+the basis for that binding. No such receipt is established in the inspected
+owner records. Until it exists, historical W5 reference validation is
+`UNRUN` / `not_established`; it is neither a historical pass nor a proved
+historical failure. Engineering may resolve and verify repository objects only
+after that identity is supplied. Independently, update the WS-2D ledger to cite
+the current generated-client outputs listed above; preserve its `implemented`
+claim only if all replacement paths resolve.
+
+**P37 — gate predicates at admission.**
+
+- W5 manifest bytes must match the generated-artifact registry's exact content
+  SHA (`recomputed`). That binds the record bytes, not its source tree.
+- The claim that a particular commit/tree was the W5 admitted source is
+  `not_established` until the artifact owner supplies a receipt for that
+  snapshot. `generated_at`, current branch ancestry, and a path-introducing
+  commit cannot substitute for that owner fact.
+- Once supplied, the receipt-to-manifest binding and Git tree/blob membership
+  must be independently checked (`independently_reconciled`). Failed Git object
+  or tree inspection returns `UNRUN`; it is not a green result.
+- WS-2D's listed generated artifacts are current evidence. Their existence is
+  recomputed from the present repository and does not confer API authority.
+
+**P38 — property and divergence.** Property: every repository reference in the
+historical W5 record resolved to the expected file/anchor in the exact snapshot
+used for its admission. Current implementation: it checks `Path.exists()` and
+anchor text in today's checkout. Divergent case: E02 deletes the raw client
+path, so the unchanged historical manifest fails today's path check, while the
+checker has no recorded snapshot identity with which to decide historical
+validity. For WS-2D the required property is different: current closeout paths
+must exist now, and the current-path check is appropriate once the ledger names
+the current generated outputs.
+
+**Remainder and signatories.** `team-runtime-quality` owns the historical W5
+record and must sign the source-snapshot fact; Denis, as principal, decides
+whether that fact is required to make historical links admissible and accepts
+the bounded `UNRUN` state meanwhile. The runtime/API client artifact owner
+maintains the generated outputs, and the core-runtime closeout owner maintains
+the current WS-2D evidence row. This proposal does not appoint a new owner,
+assert that W5 was invalid, or authorize a W5 reissue. The historic reference
+predicate remains incomplete until the source snapshot is owner-bound.
+
+**Falsifier / revisit trigger.** Reopen when `team-runtime-quality` supplies an
+owner-authorized snapshot receipt binding the exact W5 manifest digest to an
+exact commit and tree. At that point, a behavioral removal probe must keep the
+W5 manifest bytes, status, and phase markers fixed while checking a tree where
+the cited target is absent; inspection proving absence must fail, and an
+inspection failure must return `UNRUN`. The positive control must resolve the
+unchanged W5 refs in the owner-bound historical tree even when the current tree
+retires the old client path. A current-tree unrelated edit must not change that
+historical verdict. Separately, remove a canonical WS-2D output while leaving
+ledger status text untouched; the current closeout check must reject it. These
+probes are required and are not claimed as run here.
+
+**Where it binds and register proposal.** The historical resolver belongs at
+the W5 call path in
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py`; keep
+ordinary active capability-reference checks bound to the current tree. The
+semantic acceptance identities are
+`tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py::test_wave5_exit_records_i5_manifest_and_influence_boundaries`
+and all three cases in
+`tests/repo_quality/tools/test_core_runtime_closeout.py`; repair the latter by
+updating only the WS-2D evidence refs in the release ledger. Add the R14
+historical snapshot limitation and these exact closure signals to the proposed
+register/crosswalk records; P37 and P38 already describe the gate failure class,
+so this draft proposes no duplicate pattern row. Do not claim closure for W5
+from the current-path test alone.
+
 ## Closeout note
 
-These five drafts are proposals only. The lane has not recorded a principal’s
+These seven drafts are proposals only. The lane has not recorded a principal’s
 acceptance, implemented the proposed repairs, run their falsifiers, or authorized
 any governed reissue. A principal ruling should be appended with its date, named
 decision, evidence that moved it, and any changed remainder; it should not be

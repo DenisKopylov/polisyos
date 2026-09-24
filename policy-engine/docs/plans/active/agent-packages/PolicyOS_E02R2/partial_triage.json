@@ -131,20 +131,30 @@
       "finding_id": "LA-046",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
+      "owner": "DataRequirementCompiler owner and GenerationCycleController._n7_data_requirement_specs caller",
       "blocker_kind": null,
-      "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
-      "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
-      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3818",
-      "source_occurrence_note": "This row maps to the N7 handoff card at line 3818; the separate DataRequirementCompiler construct/profile card at line 3034 has the same ID and is not the card mapped to this row.",
+      "e02_residual": "E02 carried an ACQ-01 local FileTabular/REQ-01 residual under this ID; that is a mapping discrepancy, not LA-046's discriminator or evidence of closure.",
+      "next_step": "Keep graph-derived construct refs, explicit pilot profiles, and mandatory resolver guards. Pair case-alpha / parent-support with otherwise identical inputs and verify the opaque ID does not add a mandatory construct; a negative housing/rent statement must not add one either. Verify a named explicit pilot profile retains UA / 2022-02-01, while generic national / annual leaves them unresolved. Then use the fallback scenario-adapter branch with an actual DataRequirementCompiler on a real DesignProblem through _n7_data_requirement_specs and _run_n7_acquisition_if_requested; assert text / domain and explicit scope reach compilation and resulting requirements reach the existing closed-loop consumer. Keep explicit-spec and typed-gap early-return branches as controls. This does not establish authority or world-growth admission.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3034",
+      "source_occurrence_note": "This is one finding: the original discriminator is at line 3034; the heading at line 3816 and nested N7 handoff section at line 3818 are its r08 addendum, not a separate card.",
+      "current_source_refs": [
+        "policy-engine/src/polisyos/data_requirement/compiler.py@sha256:61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71#L836",
+        "policy-engine/src/polisyos/data_requirement/compiler.py@sha256:61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71#L976",
+        "policy-engine/src/polisyos/data_requirement/compiler.py@sha256:61dc374072c15e127db6bf91daa3199e96fbf5e583c9f0415dd7b73ee60a9d71#L1382",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L4317",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L4400",
+        "policy-engine/tests/unit/data_requirement/test_compiler.py@sha256:de9356facdae3a408a5fb37518f334d3d489be98b42a5bb1beff906f8069fa37#L295",
+        "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L179",
+        "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py@sha256:89ee3d1c8a51470ed82c1985ef36a92bcd361139036cab21c6fba6de23a91467#L980"
+      ],
       "direct_relations": [
         {
-          "relation": "conflicts",
+          "relation": "touches code named by",
           "target": "GY-N13b",
           "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b"
         },
         {
-          "relation": "conflicts",
+          "relation": "touches code named by",
           "target": "Atlas DS15",
           "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
         }
@@ -161,16 +171,10 @@
         }
       ],
       "production_residual": {
-        "status": "producer_missing",
-        "detail": "The complete tracked-path census found no production ACQ-01 route producer; only the test fixture emits the structured acq01_route payload. The local route is not production world growth."
+        "status": "semantic_test_missing",
+        "detail": "Existing compiler tests separately cover opaque scenario IDs, negated topic text, and generic scope; the N7 fallback handoff test uses a recording compiler, while the real closed-loop test starts from a typed requirement gap. The cited tests do not compose the original discriminator and explicit-profile positive through the actual N7 fallback into its consumer. Native grammar branch selection and downstream admission remain unestablished; this is not a claim of incorrect authority resolution."
       },
-      "classification_rationale": "Bucket a covers engineering available now: fence the local route as typed non-authoritative demonstration and restore/verify served WDI custody. The production producer remains an explicit producer_missing residual.",
-      "acquisition_route_census_ref": [
-        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
-        "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
-        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
-        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
-      ]
+      "classification_rationale": "Bucket a is appropriate because the existing compiler and actual GenerationCycleController caller are named; closing the semantic and Runtime-handoff witnesses is an engineering task, not an owner appointment or principal decision. Preserve explicit pilot profile behavior and current typed gaps while removing dependence on opaque IDs, negated text, and unannounced defaults."
     },
     {
       "finding_id": "B15",

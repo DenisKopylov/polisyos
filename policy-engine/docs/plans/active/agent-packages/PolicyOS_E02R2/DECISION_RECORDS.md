@@ -639,6 +639,117 @@ comment probe remains unmeasured for import-closure effect. The P41 four-base JU
 receipt for this regression class is pending the broker; this draft does not claim
 the base-passing test set has been replayed or restored.
 
+### Wave5 historical `repo://` reference sibling (P41)
+
+**Question.** How should the immutable Wave5 manifest's historical `repo://`
+references be evaluated after E02 retires a referenced path, when the manifest
+records no admitted source snapshot or content digest?
+
+**Options and costs.**
+
+1. An authorized artifact owner issues an append-only as-of/content sidecar that
+   binds the exact Wave5 manifest digest to the exact admission commit and tree,
+   and lets the historical resolver verify each referenced blob and anchor from
+   that tree. This can restore a positive historical verdict without depending on
+   today's checkout, but requires owner evidence for the actual admission, a
+   retained/retrievable Git object set, a sidecar producer, and a separate
+   historical consumer path. Git's first commit containing the manifest or its
+   current branch ancestry cannot be chosen as a substitute for the missing owner
+   fact.
+2. Keep the manifest immutable and return typed historical
+   `not_established`/`UNRUN` until that owner evidence exists. This preserves the
+   distinction between a missing snapshot and a proved invalid reference, but
+   leaves the old historical check unresolved and cannot claim a pass from the
+   current tree.
+
+**Premises.** The same test blob
+`tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py@7c4b73fb339f36b21bcc430c1260f35d76a745d6`
+has the same-key P41 result `pass` on E02's execution base and main, and `fail` on
+E02 and Phase 0. The full four-base receipt is
+`PolicyOS_E02R2/R14_RATCHET_MAP.md@c13460e67ebf13ba36faf077fb38a7c38fce5631`
+(commit `9d54442a`); it enumerates 36 manifest references across 30 target paths
+and identifies the sole absent target as
+`repo://packages/runtime-api-client/runtimeApiClient.ts`. The four JUnit bytes
+were rehashed and match the recorded values:
+
+| Base | Result | JUnit artifact `path@sha256` |
+|---|---|---|
+| E02 execution base | pass | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_execution_base/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@24ac90ee7118270b65ce28bad68a9dc884c9e9a13e763732d6af5a522f8ad86b` |
+| E02 head | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_head/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@13d44f90d391fe6cfa7f1d13471767c41e743848d6383085a5662431384e4542` |
+| main | pass | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T144020Z-80143/cells/main/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@4aebe1a1e5ed2b8672686870c97fca4b56d7899b95c781b4f2c0d66f58eab140` |
+| Phase 0 merge | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/phase0_merge/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@ef86ba29e19625866b81baf79d1d82be4c25fa57323788d3b3fefeb55141b2d4` |
+
+The manifest blob is `architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json@fa16e56d90fcfb6b90d8de56cb261ae00f69a95d`; the checker is
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py@1cd361b73a01e7ed7668d18b92a4491e335d8628`. Both are unchanged across the four
+bases. The E02 deletion alone explains the key transition: the current validator
+resolves each reference against today's `repo_root` and checks `Path.exists()` and
+an optional anchor. It has no manifest-bound source revision, tree, or content
+digest with which to establish the old target's historical state. The P41 raw
+artifact custody inspection
+`PolicyOS_E02R2/P41_ARTIFACT_RELOCATION.md@f60fe1b2c44dbc5c6164a06d2f3c326ac174406a`
+confirmed SHA-exact custody for all 109 recorded JUnit references in its 113-row
+checkpoint; that is artifact custody, not test semantics or historical source
+identity.
+
+**Proposed choice; principal status.** Use option 2 now, pending Denis's ruling:
+the historical Wave5 reference verdict is `not_established` until
+`team-runtime-quality` provides an
+authorized as-of/content sidecar. Option 1 is the only proposed route to a positive
+historical verdict, subject to the principal's ruling and the owner proving the
+actual admission snapshot. Do not restore the retired raw `runtimeApiClient.ts`,
+edit or regenerate the Wave5 manifest, restamp its timestamp/status, or infer its
+source tree from current ancestry. The current generated-client outputs remain the
+runtime/API owner's live artifacts; their existence does not recover the retired
+file's historical bytes. This sibling narrows the Wave5 evidence consequence of
+R2's historical/current distinction; the related owner appointment and broader
+snapshot question are also recorded in R14, without authorizing a second receipt
+or a manifest reissue.
+
+**P37 — gate predicates.** Manifest byte identity is `recomputed` from the
+registered immutable digest, but does not identify the source tree. The asserted
+Wave5 admission commit/tree and target bytes are `not_established` without an
+owner-issued sidecar. If supplied, its binding to the exact manifest digest and
+Git blobs/anchors must be `independently_reconciled`; the current checkout's path
+presence and the commit that first added the manifest are not authority for the
+as-of fact.
+
+**P38 — property and divergence.** Property: every Wave5 `repo://` reference
+resolved to the expected file and anchor in the exact source snapshot used for
+Wave5 admission. Current implementation: it tests target existence and optional
+anchor text in today's checkout. Divergent cases: it fails the E02/Phase 0 test
+when the raw client path is absent, even though that alone says nothing about its
+historical bytes; and a present path on another current tree can pass without
+proving it was present in the admitted snapshot.
+
+**Remainder.** The historical snapshot/content producer is `producer_missing`
+until the artifact owner supplies the sidecar; a historical resolver consuming it
+is `bridge_missing`. This scope does not alter N6's `GenerationCycleRun` serializer
+or its packaged `current | stale | not_established` check, does not change active
+references that intentionally mean current-tree files, and does not decide the
+separate WS-2D current closeout ledger paths. The raw-client deletion remains an
+E02 regression for the current checker, not evidence that the immutable Wave5
+record may be rewritten.
+
+**Falsifier / revisit trigger.** Keep the Wave5 manifest bytes, status, and phase
+markers fixed. A sidecar pointing to a tree where the referenced path or required
+anchor is absent must fail; inability to inspect that tree must return `UNRUN`,
+not pass. The preserving control resolves the old reference from the owner-bound
+historical tree while the current checkout lacks `runtimeApiClient.ts`; an
+unrelated edit to today's checkout must not change that historical verdict. A
+separate current-client control keeps the canonical generated TypeScript client
+`packages/runtime-api-client/canonicalRuntimeApiClient.ts@96d655649cfd765b326a3ef3aa207153b4c1a8f6`
+resolvable with the retired raw twin absent. These are proposed acceptance
+witnesses, not run results.
+
+**Where it binds.** This decision binds only the immutable Wave5 manifest's
+historical resolver in
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py::validate_repo_reference`
+and the behavioral identity
+`test_policy_design_case_capability_ratchet::test_wave5_exit_records_i5_manifest_and_influence_boundaries`.
+It does not authorize changes to the manifest, the runtime API client's generated
+artifact owner, N6 historical serializers/currentness, or WS-2D's live closeout
+references. The same boundary and its evidence are cross-referenced by R14.
+
 ## R4 — GY-N6 contract validator must return a verdict
 
 **Question.** How should the validator construct its isolated N9 verification state
@@ -1657,16 +1768,16 @@ The current validator in
 passes the present `repo_root` into `validate_repo_reference`, which checks the
 current filesystem path and, when present, anchor text. The baseline W5 case
 `tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py::test_wave5_exit_records_i5_manifest_and_influence_boundaries` has source blob
-`7c4b73fb339f36b21bcc430c1260f35d76a745d6`. The R14 reviewer's provisional relative-run comparison reports pass at E02's base
-and main and fail at E02's head and the Phase 0 merge, with that source blob
-unchanged; this report is not yet admitted as P41 evidence. The full four-base
-P41/JUnit row receipt is pending the baseline broker:
-`docs/plans/active/agent-packages/PolicyOS_E02R2/raw/r14-p41-wave5-test.xml@PENDING_SHA256`
-(no receipt exists at draft time). The broker must record outcomes, flags, and test
-blob identity before that pending citation is replaced with a computed SHA. Until
-then, the reported relative outcomes are a hypothesis to re-verify, not admitted
-P41 evidence; when confirmed they establish present path retirement, not that the
-historical W5 claim was false.
+`7c4b73fb339f36b21bcc430c1260f35d76a745d6`. The complete P41 same-key four-base
+receipt is now recorded in
+`PolicyOS_E02R2/R14_RATCHET_MAP.md@c13460e67ebf13ba36faf077fb38a7c38fce5631`
+(commit `9d54442a`): E02 execution base and main pass; E02 head and Phase 0 fail.
+The map cites each JUnit path and SHA-256 and records the complete denominator of
+36 refs / 30 target paths, with only the retired raw client path missing on E02 and
+Phase 0. The E02 and Phase 0 failures establish the present-path regression; they
+do not establish that the historical Wave5 claim was false. The R2 Wave5 sibling
+above records the same four JUnit identities and the separate historical/current
+predicate boundary.
 
 For WS-2D, the current closeout ledger
 `release/core-runtime-closeout.ledger.toml@fa45439af5135f04f2de06199645ac0a8b6f7073`

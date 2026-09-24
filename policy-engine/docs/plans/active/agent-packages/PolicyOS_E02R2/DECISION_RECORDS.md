@@ -1601,150 +1601,317 @@ N9/S8 non-promotion, and preserved-terminal controls pass.
 
 ## R13 — one world-growth path and runtime store custody
 
-**Question.** Does the tracked ACQ-01 local route have a production producer that
-can be connected to world-growth admission, or must that route remain explicitly
-non-authoritative until a producer and its admission handshake exist?
+**Question.** How must production N7 and acquisition re-entry be bounded so every
+world-growth write uses the canonical admitted path and each artifact crosses the
+same runtime-owned store at its producer and consumer? Is any production ACQ-01
+producer established, or must the local route remain explicitly non-authoritative?
 
 **Options and costs.**
 
-1. Keep the local route as production authority. This is the least wiring, but
-   policy users and Data Forge owners bear two definitions of world growth, while
-   the local path lacks overlay admission, passport, native epoch, and the runtime’s
-   tenant-bound store.
-2. **Proposed choice:** confine the local route to an explicitly marked,
-   non-authoritative contract-test or demonstration lane. The existing fixture
-   remains useful; production ACQ-01 stays `producer_missing` and cannot mint a WMR
-   or re-enter N7 until a real production producer and its admission handshake are
-   established. The served WDI route continues through the existing canonical
-   bridge. Users keep that admitted acquisition path, while ACQ-01’s future
-   production capability remains incomplete.
-3. Build or identify an actual production ACQ-01 producer now, then route it through
-   the canonical bridge. This could restore a served ACQ-01 path, but the measured
-   source tree does not establish such a producer or caller handshake. It requires
-   an owner, typed production inputs, authority/journal binding, and a served
-   end-to-end witness before it can be promoted; building those without an identified
-   production caller would create an unsupported capability with no established
-   purpose or authority boundary.
+1. Keep the local route as production authority. This is the least immediate
+   rewiring, but a route-bearing receipt can be supplied through runtime hints or
+   constructor injection even though the tracked `acq01_route` producer is a test
+   fixture. The production N7 consumer currently has no scope fence; the route can
+   mint a local WMR, select `grown_world_after_ref`, rebind an atom, and reach N5
+   without overlay admission, passport, or native epoch. It also rebuilds stores
+   from paths, so it bypasses tenant custody. This option preserves an unsafe
+   second world-growth arm and is not recommended.
+2. **Bounded-strangle proposal:** put a structural production-scope refusal at the
+   N7 gateway boundary for every default, runtime-hinted, and constructor-injected
+   local owner, and a second refusal at re-entry for every route-bearing legacy
+   receipt. The latter must run before reading `grown_world_after_ref`, rebuilding
+   context, rebinding an atom, invoking N5, or emitting positive movement. Keep the
+   local fixture only under explicit `contract_testing` scope, with a typed
+   synthetic/non-authoritative result and no N9 or public authority. Preserve route
+   planning and ordinary candidate computation when no acquisition gap is present.
+   Keep served world growth on the existing WDI → Data Forge overlay → passport →
+   native epoch → bridge path. If WDI has no exact bridge selection, either use the
+   identity-checked runtime store for candidate evidence while returning a typed
+   no-growth/deferred result, or refuse before live transport when that store cannot
+   be supplied; never call the executor with a missing store and a root fallback.
+   Costs are a controller/gateway/re-entry admission seam, explicit store plumbing
+   through each producer/reader pair, historical receipt compatibility, and served
+   negative/positive witnesses across the actual container composition.
+3. Build or identify an actual production ACQ-01 producer and route it through the
+   canonical bridge. This could restore a served ACQ-01 path, but no tracked producer
+   and complete request/authority/journal handshake are established. External or
+   dynamic producer existence remains `not_established`; a caller or producer name
+   alone is insufficient. It requires an appointed owner, typed request, covered
+   authority/journal, overlay/passport/native-epoch admission, runtime-store custody,
+   and a served end-to-end witness. Do not create a second writer while that caller
+   and chain are absent.
+
 
 **Premises.** B12 requires the real chain from typed requirement through authorized
-job, owner acceptance, re-entry, and recomputation; a plan or unaccepted response is
-not world growth (`source/B_r19_original.md`, B12; bundle `ACQ-01.md`). LA-046 remains
+job, owner acceptance, re-entry, and recomputation; a plan or unaccepted response
+is not world growth (`source/B_r19_original.md`, B12; bundle `ACQ-01.md`). LA-046 is
 an explicit handoff into ACQ-01, not permission for another compiler or data owner
-(`source/LA_r09_original.md`, LA-046; bundle `ACQ-01.md`). The North Star says
-acquisition is VOI-driven demand paging into the growing causal world model
-(`policy-design-causal-operating-system-north-star.md` §5). GY Rev 16 / N13b and
-the acquisition frontier require Data Forge overlay admission, passport, and native
-epoch qualification. Storage custody requires the store supplied by the runtime;
-rebuilding `FileSystemCAS` from a path loses the guarded tenant context.
+(`source/LA_r09_original.md`, LA-046; bundle `ACQ-01.md`). The North Star describes
+VOI-driven demand paging into the growing causal world model. GY Rev 16 / N13b
+requires the single Data Forge overlay, passport, and native-epoch admission path.
+Storage custody requires the store supplied by the runtime; root reconstruction
+loses the tenant guard.
 
-The independent source census at candidate base `73c656744` walked the complete
-denominators of 2,693 `src/polisyos` Python files, 2,722 test Python files, and 445
-tool Python files. It found 21 tracked source hits and 14 test hits for
-`acq01_route`; source inspection shows one production call to
-`_rebuild_n7_acq01_route_context` and a producer only in the test fixture. This
-establishes `producer_missing` for the tracked production route in that denominator;
-it does not prove that no external or dynamic producer exists. Such a producer is
-`not_established` until identified and its handshake is independently reconciled.
+The source census at candidate base `73c656744` enumerated 2,693 `src/polisyos`
+Python files, 2,722 test Python files, and 445 tool Python files; it found 21
+tracked source hits and 14 test hits for `acq01_route`, with the only tracked route
+producer in a test fixture. This establishes `producer_missing` only for tracked
+literal producers in that denominator. It does not establish absence of an external
+or dynamically injected producer. More importantly, the production consumer is
+reachable regardless of that producer census: `RecursiveGenerationCycleController`
+constructs the production controller with the container `PromotionRuntime`,
+`GenerationCycleController.run` invokes the N7 route, and `_n7_owner_gateway`
+accepts `problem.runtime_hints["n7_owner_gateway"]`, then a constructor-injected
+gateway, then the default gateway. A well-formed route receipt can therefore reach
+the production consumer through a dynamic seam. The default `authority_scope` is
+`production`; the current branch has no structural guard before local gateway use.
+The receiver, not producer absence or `synthetic`/route/hash markers, must enforce
+the boundary.
 
-The served WDI path already composes `AcquisitionWorldGrowthBridge` with
-`control_service._artifact_store`, the event log, and epoch deployment
-(`runtime/http/services/acquisition_surface_execution.py`). The bridge selects an
-exact tenant/cell/run/route, uses the existing native admission owner, persists
-authority receipts through the supplied store with tenant/cell/run/job binding, and
-reconciles reads against the expected tenant
-(`runtime/quality/acquisition_world_growth.py`). In contrast,
-`GenerationCycleController._rebuild_n7_acq01_route_context` reads a route-provided
-`capture_store_root`, reconstructs `FileSystemCAS`, and can build a fresh WMR/context
-from a local route snapshot without the canonical bridge’s overlay/passport/epoch
-chain (`runtime/quality/generation_cycle.py`). The canonical served bridge’s
-existence does not fence this second arm: the production N7 caller invokes the local
-helper without an execution-scope or contract-testing guard, and the helper itself
-does not require one. A route payload can therefore reach the local reconstruction
-from the production N7 path. The missing tracked production producer is not the
-safety boundary; the reachable helper must be structurally refused in production or
-its input must be admitted through the canonical bridge
-(`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
-`src/polisyos/runtime/http/services/acquisition_surface_execution.py@74bfe81aa16b00561c7650032593bd2be722d67e`;
-`src/polisyos/runtime/quality/acquisition_world_growth.py@e5caf4ccb42af91418472269bb052b8cf4db71fc`).
+The served WDI path already composes the existing canonical owner. With an exact
+configured tenant/cell/run/route selection, the container supplies
+`control_service._artifact_store` to `AcquisitionWorldGrowthBridge` and the live
+executor; the bridge uses the same store for native admission history and
+world-growth/re-entry receipts, and `PromotionRuntime.store` is identity-checked
+against the control runtime store. The overlay, passport, and native epoch are
+resolved before a positive delta or re-entry is accepted. This is the production
+world-growth path to preserve.
 
-Root-rebuilt store repairs are a separate mandatory custody obligation and are not
-discharged by choosing option 2. The five constructor sites to route through the
-runtime-supplied store are: (1) `generation_cycle.py::_joint_simulation_result_store`
-(`.polisyos/cas`); (2) the composed-WMR NCM read (`.tmp/gy-s-composed-wmr-cas`);
-(3) `generation_cycle.py::_rebuild_n7_acq01_route_context` (route-provided
-`capture_store_root`); (4) `acquisition_planner.py`'s `FileSystemCAS(cas_root)`
-used with `.n7-live-cas`; and (5) `foundry/plugins/training_adapter.py`'s
-`FileSystemCAS(output_dir / "artifacts")`. Contract fixtures may use isolated test
-stores only while explicitly non-authoritative. The count is the five tracked
-`FileSystemCAS` constructor sites in these R13 write-set modules; it is not a claim
-that every use of file-backed storage repository-wide is a root-rebuild defect
-(`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
-`src/polisyos/runtime/quality/acquisition_planner.py@7e2e5a189da71145dbcbc347c04ee92e6be0aaa1`;
-`src/polisyos/foundry/plugins/training_adapter.py@c97231729436ec2a44ae1c3b6d7b79dafb9a1de9`).
+There is a reachable WDI custody gap in the no-bridge/no-exact-selection branch.
+The port still invokes governed live acquisition but omits `artifact_store`; the
+executor then calls `build_artifact_store(ArtifactStoreConfig(...root=cas_root))`
+using the local path. Empty world-growth routes are an ordinary configuration
+state. A no-growth verdict does not repair custody of the response or snapshot.
+That branch must receive the exact identity-checked runtime store and remain typed
+no-growth/deferred, or refuse before live transport if the store is unavailable;
+it must never enter a root-based fallback.
 
-**Proposed choice; principal status.** Choose the confinement arm of the assignment
-lean, pending Denis’s principal ruling. The served WDI bridge exists, but tracked
-source does not establish a separate production ACQ-01 producer and its caller
-handshake that can be wired to that bridge. Confine the local route to explicitly
-non-authoritative contract-testing/demonstration and prevent it from minting a
-production WMR or re-entering production N7. Keep the served WDI path on the
-existing `AcquisitionWorldGrowthBridge`; do not add a second production producer
-or change that working bridge. ACQ-01 may be reconsidered for production only after
-an actual producer and its typed request, authority/journal, overlay, passport,
-native-epoch, tenant-store persistence/readback, and served consumer handshake are
-demonstrated end to end. This is the proposed choice within the assignment lean,
-pending the principal decision; it is not an implementation claim.
+The full source AST census found 26 direct `FileSystemCAS(...)` sites among the
+2,693 production Python files, five of which are the E02 root-rebuild additions in
+the R13 write set. This is not a count of every relevant store handoff: the WDI
+`build_artifact_store(root=...)` fallback is another reachable root-based instance,
+and the R13 brief groups several conceptual paths under five constructors. Re-derive
+and enumerate each producer/reader pair before code rather than carrying a
+site-count proxy. The five E02 additions to resolve are N5 simulation-result
+persist/load, composed-WMR/NCM write/read, local N7 route capture, captured Fabric
+fetch persistence/read, and the Foundry training adapter. The N7 default gateway's
+`.n7-live-cas` retrieval producer must also be traced through its store handoff.
+The pre-existing `fabric/retrieval/executor.py` constructor is reached from the NL
+mixin's persistence branch in source, but no direct caller of the NL mixin entrypoint
+is found; its served operational reachability is `not_established`, not proven local
+or retired.
+
+Store identity is a producer/consumer property, not root equality. The production
+recursive owner already has the identity-checked `PromotionRuntime.store`, but does
+not pass it into `GenerationCycleController`; N5 `persist_joint_simulation_result`
+and `load_joint_simulation_result` independently rebuild from `repo_root`. The
+composed-WMR producer (`intervention_substrate._production_composed_world_model_record`
+and the data-state builder) and NCM reader independently reopen
+`.tmp/gy-s-composed-wmr-cas`; replacing only the reader would orphan the writer's
+refs. Inject one appropriate owner store into both sides and bind any cache to that
+store/tenant identity. Do not inject the WDI bridge store into this separate WMR
+chain unless those refs are in that store. The local N7 gateway, retrieval/capture
+writer, captured-fetch reader, and route-context builder also need the same exact
+supplied store for any allowed contract-testing path. A second store object at the
+same root is not equivalent custody. The training adapter is a plugin/CLI local
+output path with no served tenant-bound caller established; use its configured
+store factory and explicitly local scope, or identify and inject its actual owner.
+
+The canonical WDI re-entry also conflates stable subject and active basis. The root
+`compiled.design_problem_ref` remains the stable subject, while a nonzero source
+cycle may have a revised `design_problem_basis_ref`. The bridge supplies the root
+problem, and current re-entry compares that ref with the source cycle's active
+basis and the next cycle basis. For cycle zero the active problem is the root; for a
+later cycle it is the immediately preceding cycle's `revision_request.revised_problem`,
+not the source cycle's own next revision. Resolve that active problem from the same
+run history, verify it equals the source-cycle basis, preserve the root subject, and
+carry both identities through re-entry and movement. The movement consumer checks
+subject/cycle but not both basis identities, so a moved atom alone is not a witness.
+
+A further same-class ACQ-01 receipt-binding gap is present on the canonical WDI
+path. `AcquisitionOverlayReentryReceipt` binds its own bytes, but the issuer omits
+the source cycle's `selected_candidate_content_hash`; bridge and movement consumers
+compare the candidate ref but not its content hash against their re-resolved route
+closure. `_candidate_content_hash` can fall back to a digest of candidate ID, and a
+missing candidate binding returns early from record validation. A SHA-shaped string
+or self-hash is not independent content evidence. Recompute the candidate digest
+from canonical candidate bytes or resolve/hash its artifact; bind the source-cycle
+candidate ref and content hash into new v3 receipts; preserve v1/v2 projections and
+history exactly; and make both bridge and movement consumers compare ref plus hash
+to their own resolved closure. If candidate bytes cannot be resolved, preserve
+candidate computation with typed unknown but do not admit authority-grade re-entry.
+
+The Appendix R12 `n7_reentry_candidate_atom_not_canonical` symptom belongs to
+the same local legacy N7 arm: its prior-atom type/identity assumption is not a reason
+to patch the canonical WDI re-entry. The served active-overlay WDI owner creates a
+new cycle and does not consume/rebind that prior atom. The local route's atom issue
+is removed by the production strangle; its explicit contract-testing fixture keeps
+its own typed limitation and exact fixture store. No atom-rebinding behavior is
+claimed fixed by this decision draft.
+
+The current acquisition contract validator also has a proxy-gate divergence. It
+counts `SubstrateRegistration`/registry-builder symbol calls across the whole
+`generation_cycle.py` and probes a temporary root; the persisted expected-entry
+reconstruction in `_validate_n7_acq01_registry_binding` is counted as a bootstrap
+producer even though it verifies an owner entry. Narrow that validator to the
+bootstrap-registration subproperty with role-aware analysis, and prove the actual
+production N7 strangle through a real controller witness. Removing the local N7
+route must not delete the deterministic persisted-entry verification.
+
+The read-only acquisition-flow audit also found a separate possible DS15 movement
+projection defect: the Cycle Board requests at most 1,000 append-ordered run events
+and treats a full page as `invalid_source` before finding a row's receipt. A valid
+receipt beyond that prefix is a concrete P38 divergence, but production reachability
+and the four-base attribution are `UNRUN`. Keep this outside R13; after the source
+census, measure complete production run-event denominators and the owner paging API.
+If reachable, plan it as a separately named DS15 movement-source-completeness item;
+do not increase the cap or call it an E02 regression without P41 evidence.
+
+
+**Proposed choice; principal status.** The bounded-strangle option is the
+assignment's lean and has independent-review `GO` as the principal proposal, but
+implementation readiness remains `NO-GO` until the corrections and closure gates
+below are addressed. Denis's principal ruling is pending; this text is not that
+ruling and claims no code or witness has landed.
+
+At the production N7 admission boundary, refuse local acquisition through every
+default, runtime-hinted, and constructor-injected gateway. Independently, any
+production route-bearing legacy receipt must be quarantined before the controller
+selects `grown_world_after_ref`, rebuilds local context, rebinds an atom, calls N5,
+or emits positive growth/movement. Do not trust producer absence, a `synthetic`
+marker, route schema/version, owner artifact hash, or other payload declaration as
+the refusal predicate. Keep fixture N7 only under an explicit `contract_testing`
+scope; its result must be typed synthetic and non-authoritative, and cannot establish
+N9/public authority. Ordinary candidate computation without an acquisition gap stays
+available. A production no-gap control must still pass.
+
+Preserve the existing selected WDI bridge as the one production world-growth owner.
+When its exact route is selected, prove that the same identity-checked runtime store
+object and tenant-bound write options flow through container → live executor →
+bridge/WMR evidence → admission and receipt persistence → re-entry read → N5
+persist/load. For the no-bridge or no-exact-selection branch, do not execute live
+transport with `artifact_store=None` and a raw `cas_root` fallback: pass the exact
+runtime-owned store and return a typed no-growth/deferred state, or refuse before
+transport if that owner store cannot be supplied. Only the canonical bridge can
+turn its admitted passport/native-epoch evidence into world growth.
+
+Route all production N7 capture writes and reads through the exact store supplied
+by the recursive owner (`PromotionRuntime.store`, with its existing identity check)
+threaded through controller, gateway—including injected seams—and retrieval/capture
+helpers. N5 result persistence and loading must share that same production owner
+store. For composed-WMR/NCM, pass one appropriate runtime-supplied store to the WMR
+writer, data-state builder, and NCM reader, preserving tenant options and binding
+root-only caches to exact store/tenant identity; do not switch only the reader or
+assume the WDI bridge's store owns those refs. Keep any contract-testing local route
+on one injected fixture-store object. Use the configured store factory for the
+training adapter's explicit local output lane unless a served owner is identified.
+Resolve the legacy NL retrieval executor's caller census before classifying it as
+local-only or retired; if served, thread the guarded runtime store, and if closed,
+record the owner/caller evidence.
+
+For valid WDI re-entry, use root problem bytes as active basis at cycle zero; for a
+later source cycle, resolve the preceding cycle's `revision_request.revised_problem`
+from the same persisted run and require its ref to equal that source cycle's basis.
+Keep `original_run.design_problem_ref` as the stable subject and issue the next
+cycle with that subject plus the verified active basis. Movement must verify both
+subject and source/new basis. For acquisition re-entry lineage, independently
+recompute the source candidate content digest; issue a new v3 receipt carrying its
+candidate ref/hash and make both bridge and movement consumers reconcile those
+values to their independently loaded route closure. Preserve v1/v2 validation,
+serialization, and content hashes byte-exactly; never synthesize hashes or restamp
+historical receipts. Treat the bootstrap contract validator as a separate,
+role-aware registration check; the production controller witness proves the
+strangle. These are proposed owner-level mechanisms; their complete caller census,
+implementation, and witnesses are pending.
+
 
 **P37 — gate predicates at admission.**
 
-- Route selection is an exact comparison of a verified closure’s
-  `(tenant, cell, run, route, design_problem)` with configured typed selection
-  (`recomputed` against `institutionally_supplied` deployment configuration).
-  Configuration selects a route; it does not establish acquisition authority.
-- Production ACQ-01 producer presence is `producer_missing` in the enumerated
-  tracked-source denominator above. The census result is `recomputed` for that
-  denominator only; absence of an external or dynamic producer is
-  `not_established` and may not be claimed from this census.
-- Live evidence is admitted only after the existing catalog/authority, budget,
-  owner receipt, native epoch, and passport chain is resolved and reconciled
-  (`independently_reconciled`). A URL, plan, caller-owned CAS snapshot, or route
-  declaration alone is `consumer_asserted` and cannot admit data.
-- Before/after overlay membership and the positive admitted delta are read from the
-  owner’s catalog projection (`recomputed`). If the canonical owner or expected
-  tenant cannot be verified, growth is `not_established` and the route stays
-  pending/deferred.
-- Receipt tenant custody must be verified through the runtime store and durable
-  event reconciliation (`independently_reconciled`); a manifest tenant field by
-  itself is not proof.
+- At this head the production N7 scope guard is `not_established`. A future gate
+  must derive production-vs-contract-testing scope from the structural controller
+  owner context (`independently_reconciled`); a producer census, runtime hint,
+  constructor choice, `synthetic` field, route marker, or owner hash alone is
+  `consumer_asserted` and cannot open production re-entry.
+- A production route-bearing ACQ-01 receipt is refused before the
+  `grown_world_after_ref` fallback, context rebuild, atom binding, and N5. A `None`
+  rebuild result is not a refusal signal.
+- Canonical WDI admission is `independently_reconciled` only after exact route and
+  authority resolution, journal-covered request, Data Forge overlay admission,
+  passport, native epoch, activation, positive membership delta, and same-case
+  receipt. Current no-bridge/no-selection live-executor behavior is `not_established`
+  for custody: the proposal requires typed no-growth/deferred with the exact runtime
+  store, or refusal before live transport; a root-rebuilt fallback cannot satisfy it.
+- Store custody is `not_established` at the proposed N7/N5/WMR handoffs until a
+  served witness verifies object identity and tenant-bound options across each
+  producer/reader chain. Equal root paths, `cas_root`, or a manifest tenant string
+  alone are `consumer_asserted`.
+- `design_problem_ref` is the stable subject; active basis is recomputed from the
+  root problem for cycle zero or the preceding cycle's revised problem thereafter,
+  then matched against `design_problem_basis_ref`. Movement must verify both.
+- Candidate content identity must be `recomputed` from canonical candidate bytes
+  or a resolved content-addressed artifact; current ID-derived/self-declared fallback
+  is insufficient (`not_established` for authority-grade re-entry). Both bridge and
+  movement must independently compare the receipt's v3 ref/hash with their own
+  route closure.
+- The bootstrap validator's counted producer calls are `recomputed` only when
+  classified by enclosing role. Its current global symbol count does not establish
+  the served N7 boundary. Training output is local-only unless a served owner is
+  identified; legacy NL retrieval reachability is `not_established`.
+
 
 **P38 — property and divergence.** Property: every production world-growth write
-enters through Data Forge overlay admission, passport, and native epoch qualification
-using the runtime’s tenant-bound store. Current implementation: the tracked
-production source has one call to `_rebuild_n7_acq01_route_context`, while the only
-tracked `acq01_route` producer is a test fixture; the helper accepts
-`capture_store_root`, constructs a new `FileSystemCAS`, and rebuilds local route
-context, with no execution-scope/contract-testing guard at the production call or in
-the helper. Divergent case: a fixture-produced route payload supplied to a production
-N7 run can create a WMR and re-enter the cycle without overlay admission, passport,
-epoch receipt, or the runtime store’s tenant guard. The route’s production producer
-being absent from tracked source does not remove this reachable bypass. A production
-tenant-transfer probe must also fail through the guarded store, not only through a
-raw filesystem store. Separately, E02’s split between stable
-`design_problem_ref` and revised `design_problem_basis_ref` is not closure evidence:
-its effect on main’s same-case world-growth and movement semantics has not been
-measured. A stable subject label can coexist with a changed basis, and this draft
-does not establish that every movement/re-entry consumer preserves the intended
-subject while validating the revised basis.
+uses the canonical authorized Data Forge bridge and the runtime's tenant-bound
+store, while production N7 cannot consume a route-bearing legacy receipt outside
+that bridge. Current implementation: the tracked route producer is a fixture, but
+the production controller is reachable through runtime-hinted/injected gateways
+and has no scope fence. If local context reconstruction returns `None`, re-entry
+still selects `grown_world_after_ref`, rebinds the atom, and invokes N5. In served
+WDI execution, no bridge or no exact selection omits `artifact_store` while the
+executor rebuilds a store from `cas_root`. These are divergent cases even when no
+tracked production producer exists.
+
+The store property also diverges at each producer/reader pair: production
+`GenerationCycleController` drops the identity-checked PromotionRuntime store,
+N5 persist/load rebuild from paths, WMR writer and NCM reader independently reopen a
+root, and local capture writer/reader can use distinct store instances. The exact
+same object and tenant options—not equality of root strings—are required. The
+bootstrap validator measures global builder-symbol presence plus a temporary-root
+probe; it falsely counts the persisted registry-entry verifier as a producer and
+can miss a production gateway path that bypasses the counted calls. Keep it for the
+narrow registration property, with role-aware census, and use a real production
+controller witness for the strangle.
+
+For identity, the implementation treats stable subject and active basis as equal
+at re-entry although a revised cycle can retain the subject and change its basis;
+the movement consumer currently checks the subject/cycle but not both bases. For
+receipt lineage, the v1/v2 re-entry receipt omits source-candidate content hash and
+both the bridge and movement readers compare only candidate ref; an ID-derived
+fallback hash and self-hash do not prove the candidate bytes selected by the route
+closure. A valid same-ID/different-bytes receipt can therefore diverge from the
+source candidate unless source bytes are recomputed and both consumers bind the
+qualified evidence. Those are the same R13 custody/route-binding class one level
+deeper under P40, not reasons for per-call patches. All distinguishing cases and
+removal probes remain `UNRUN`.
+
 
 **Remainder.** This does not make PolicyOS the owner of external licenses, data
-collection, or institutional authority. Those remain integrated typed inputs owned
-by their source institutions/Data Forge; PolicyOS owns admission, receipt, re-entry,
-and the truth of its resulting world-growth claim. An unavailable external owner
-means a typed limitation or blocker, never a local authority substitute. This draft
-does not close the merge-related authorized-epoch reissue register row. Production
-ACQ-01 remains `producer_missing` for tracked source, and no absence of external or
-dynamic producers is claimed. Root-rebuilt store repairs listed above remain
-mandatory independently of this route-confinement choice.
+collection, or institutional authority. Those remain typed inputs owned by their
+source institutions/Data Forge; PolicyOS owns its admission, receipt, re-entry, and
+the truth of its world-growth claim. An absent external or dynamic producer is
+`not_established`, not a warrant to accept the local route. The canonical WDI bridge
+is the only proposed production growth path; its no-selection fetch/store behavior,
+N7 local gateway and receipt fences, N5 and composed-WMR store identity, candidate
+content binding, stable-subject/active-basis semantics, and bootstrap-gate correction
+have not been behaviorally verified. All R13 probes remain `UNRUN`; no closure is
+claimed. Root-based stores and authority fallback listed above remain residuals
+until every affected producer and reader uses its exact owner store or is refused.
+
+The source audit additionally identified a separate DS15 candidate: a 1,000-event
+append-window cap may refuse a valid row movement receipt beyond the prefix. Its
+production reachability and P41 attribution remain `UNRUN`; it is not folded into
+R13. After this census, measure the complete run-event denominator and owner paging
+contract, then draft a separate bounded DS15 item if the boundary is reachable. Do
+not raise the cap as an instance fix or report it as an E02 regression yet.
 
 **B27 remainder / smallest missing capability.** Separating
 `GenerationCycleRecord.design_problem_ref` from
@@ -1793,55 +1960,152 @@ premise, perform the authorized reissue, and verify matching readback
 by this draft. Denis remains the pending principal signatory for this proposed
 single-world-growth boundary.
 
-**Falsifier / revisit trigger.** Reopen if a production caller can mutate the
-authoritative world through a path other than the canonical bridge, if the bridge
-reconstructs a store from a root instead of receiving the runtime store, or if a
-guarded-store re-entry lets a stale/foreign tenant read or attach another tenant’s
-receipt. The served witness is authorized WDI evidence → overlay delta → passport
-and epoch receipt → same-case re-entry under the same tenant; the negative is a
-foreign or unresolved tenant/case. A candidate computation with no admitted data is
-the property-preserving control. A removal probe that deletes the production-route
-confinement while retaining its non-authoritative markers must turn red if a fixture
-route can still mint a production WMR. Reconsider ACQ-01 production routing only
-when a real production producer is identified and its complete admission handshake
-has a served semantic witness; a name hit or route declaration alone does not
-falsify `producer_missing`. For B27, the falsifier is a revised P1 basis with the
-P0 `CycleSubstrateContext` retained: if N5/N7 treat that old owner evidence as
-matching P1, the equality gate is unsound. The next positive witness is a served
-P0→P1 revision whose owner-issued transition names changed premises, produces a
-revalidated P1 context, and admits it through N5/N7 while retaining replayable P0
-history; a changed population/model must not reuse P0 evidence. Until that witness
-exists, the later cycle may remain limited/blocked. These runs are required for
-implementation; none is claimed here.
+**Falsifier / revisit trigger.** Reopen if production can call any local N7 gateway
+through the default, runtime-hinted, or constructor-injected seam; if a route-bearing
+production receipt can affect `grown_world_after_ref`, local context, atom binding,
+N5, or positive movement before typed refusal; if no-bridge WDI reaches live
+transport without the exact runtime store; or if a raw-root fallback is reachable.
 
-**Where it binds.** Production composition in
-`runtime/http/services/acquisition_surface_execution.py`; the bridge and durable
-admission/readback in `runtime/quality/acquisition_world_growth.py`; ACQ-01
-orchestration, its single production call, and local route confinement in
-`runtime/quality/generation_cycle.py::_rebuild_n7_acq01_route_context`; the test-only
-producer in `tests/unit/remediation/test_acq_01.py`; and the separate runtime-store
-custody repairs in `runtime/quality/acquisition_planner.py`,
-`runtime/quality/generation_cycle.py`, and `foundry/plugins/training_adapter.py`.
-N5 result persistence and composed-WMR reads must consume the supplied store where
-their artifacts cross the runtime custody boundary. B27 binds to
-`CycleSubstrateContext.design_problem_ref` and context-binding validation in
-`runtime/quality/cycle_substrate.py`, plus
-`GenerationCycleRecord.design_problem_ref` / `design_problem_basis_ref` and the
-recursive N5/N7 consumers in `runtime/quality/generation_cycle.py`.
+Required negative/removal probes (all `UNRUN`):
 
-**Pattern pass.** P01/P02/P05/P07/P08/P12/P27/P31/P32/P35/P37/P38. The observed
-classes are a local route without a tracked production producer, a missing
-owner-issued P0→P1 context transition, and root-rebuilt stores that bypass tenant
-custody. Target: confine the local route to a non-authoritative test/demo lane,
-preserve the existing served WDI bridge as the proven production world-growth chain,
-and keep context equality strict until an owner-issued transition exists. Production
-ACQ-01 is `producer_missing`; possible external or dynamic producers are
-`not_established`. B27's smallest missing capability is the P0→P1 transition
-producer/receipt; its falsifier and next served witness are above. Closure for
-production ACQ-01 requires an actual producer, persisted typed evidence,
-bridge/admission handshake, tenant-bound re-entry, and served semantic test. The
-separate store-custody obligation closes only when every runtime call site uses the
-supplied tenant-bound store and the guarded tenant negative passes.
+- Inject a valid fixture `n7_owner_gateway` through runtime hints and separately
+  through the constructor seam, retain valid route/owner/hash markers, and remove
+  the production guard. A real production controller must reveal forbidden gateway
+  invocation/local write, so the test turns red. Ordinary no-gap candidate generation
+  remains the preserving control.
+- Present a valid production route-bearing receipt for which context rebuild returns
+  `None`, with `grown_world_after_ref` different from the current WMR. Refusal must
+  precede reading that ref, context rebuild, atom rebind, N5, and positive movement.
+  Remove only that refusal while keeping receipt/hash markers valid; an observed WMR
+  or N5 change makes the probe fail.
+- Retain a supplied-store marker but substitute a distinct store object at the same
+  root. Guarded N7 capture, N5 persistence/load, and composed-WMR writer/NCM reader
+  must fail custody. The positive control verifies the exact same runtime-owned
+  object and tenant options across each complete producer/reader chain.
+- Force exact WDI bridge selection to `None` or omit the bridge. The port must either
+  stop before live transport or use the identity-checked runtime store while returning
+  typed no-growth/deferred; any `artifact_store=None` root rebuild turns the test red.
+  The selected-route WDI positive remains the preserving served control, with foreign
+  tenant/cell reads refused.
+- Keep run/route/passport/epoch markers valid while changing only the basis under
+  the same stable subject at a nonzero cycle. Resolve the active problem from the
+  preceding cycle's revised problem; assert the old subject remains stable, the
+  source/new cycle bases bind their problem bytes, re-entry/N5 uses the active basis,
+  and movement binds both. Cross-bound subject or basis must refuse. Unchanged basis
+  remains a one-cycle control.
+- Recompute a source-cycle candidate digest from its actual canonical bytes (or
+  content-addressed artifact), then alter the receipt hash to another valid digest
+  and reissue the receipt self-hash while preserving markers. The bridge's
+  `_validate_reentry` and `AcquisitionMovementService.consume_terminal` must each
+  refuse against their independently resolved closure; if either consumer's
+  ref/hash comparison is removed while markers remain, the corresponding negative
+  test must fail. A positive served WDI path verifies
+  the exact source ref/hash in a new v3 receipt through both consumers.
+- Preserve the contract-testing local route only with explicit `authority_scope`,
+  a typed synthetic/non-authoritative result, one exact fixture store, and no N9 or
+  public authority. Keep the bootstrap-registration validator role-aware and pair it
+  with the production-controller witness; deleting the deterministic persisted
+  registry-entry verification must still make its own test fail.
+
+Historical v1/v2 re-entry receipts must deserialize, validate under their own
+historical rules, and reproduce exact old bytes/hashes; no synthetic source hash,
+restamp, or promotion to v3 is allowed. A new v3 receipt is current admission, not a
+historical replay. Preserve ordinary candidate computation and the exact selected
+WDI growth path after Data Forge admission, passport, and native epoch. Complete the
+specified tests only after P41 freeze and the shared-file lease; none of these
+receipts, removal probes, controls, or related regression outcomes is claimed here.
+
+For B27, retain the distinct falsifier: with a P0 `CycleSubstrateContext` still
+present, a changed P1 basis must not pass N5/N7 through equality with old P0 owner
+evidence. The positive witness is a served owner-issued P0→P1 transition that names
+changed premises, revalidates and persists P1 context, admits it through N5/N7, and
+keeps P0 history replayable. Until that transition producer exists, a later cycle
+may remain limited/blocked; no synthetic rebind is authorized. This B27 obligation
+is not discharged by the stable-subject/current-basis behavior above.
+
+
+**Where it binds.** The structural production owner flow is
+`runtime/http/container.py` → `runtime/quality/recursive_generation_cycle.py` →
+`runtime/quality/generation_cycle.py::GenerationCycleController`; the source seams
+are `recursive_generation_cycle.py@ddff9abd228378166bce8437862ebe487ae00149` and
+`generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`. The N7 owner-gateway
+injection, route-context builder, `grown_world_after_ref` fallback, atom binding,
+and N5 entry all bind in `generation_cycle.py`; default/injected gateway plus local
+capture production/read binds in
+`runtime/quality/acquisition_planner.py@7e2e5a189da71145dbcbc347c04ee92e6be0aaa1`.
+The production WDI owner and exact store/admission handoff bind in
+`runtime/http/services/acquisition_surface_execution.py@74bfe81aa16b00561c7650032593bd2be722d67e`,
+`runtime/quality/acquisition_executor.py@58b528e659121696e97da333f1b44a0c60e83d7f`,
+and
+`runtime/quality/acquisition_world_growth.py@e5caf4ccb42af91418472269bb052b8cf4db71fc`.
+The no-bridge/no-selection live-executor fallback is part of this custody boundary.
+
+N5 result-store injection binds at the recursive owner, `GenerationCycleController`,
+`JointSimulationPort`, and both joint-result persist/load helpers in
+`generation_cycle.py`. The composed-WMR writer and data-state builder bind at
+`runtime/quality/intervention_substrate.py@e4c7c30f81438908688a169cb3d51fbd3f66be20`
+and
+`runtime/quality/data_state_substrate.py@c141184edc49e7b9c868dd7d40a91ec0dc32a483`; the
+HTTP owner and NCM reader must pass/read one same store object, with the cache bound
+to store/tenant identity. Do not switch the NCM reader to a store that does not
+contain the writer's refs.
+
+Stable subject/current-basis validation and N5 re-entry bind in
+`generation_cycle.py`; movement's consumer must verify both identities in
+`runtime/quality/acquisition_movement.py@d82db7baa318ad8003c2fe03b26e41afd7997eca`.
+Source-candidate content hash recomputation and receipt v3/history projection bind
+in the same `generation_cycle.py` owner; the two independent re-entry consumers are
+`runtime/quality/acquisition_world_growth.py` and `acquisition_movement.py`. The
+local route fixture binds in `tests/unit/remediation/test_acq_01.py`; B27 binds to
+`CycleSubstrateContext.design_problem_ref` and context validation in
+`runtime/quality/cycle_substrate.py@f24fcc8ded61aa07c0c4145ea27f929995533f11`, as well
+as the two problem refs and recursive consumers in `generation_cycle.py`; the
+currently mis-scoped N7 fixture tests and bootstrap validator bind in
+`tests/unit/runtime/quality/test_generation_cycle.py`,
+`tests/unit/runtime/quality/test_acquisition_planner.py`, and
+`tools/quality/validation/check_layer3_gy_acquisition_contract.py`.
+
+The complete root-store AST census and its R13 callers are in
+`R13_ROUTE_MAP.md@sha256:2af8f00dcfa701d2715e7b4b33f264b161523b3fcd3fdc28955e5a6aa3c96ab5`.
+The served acquisition seam and no-selection fallback are documented in
+`/Users/deniskopylov/.codex/scratch/e02-r2-acquisition-flow-seam-audit-20260924.md@sha256:fa24d840cd4c6fb485230f435a3787b195c79ee979b0536e1e9eb03819b3ee9a`;
+the independent readiness corrections are at
+`/Users/deniskopylov/.codex/scratch/e02-r2-r13-independent-review-20260924.md@sha256:48f3ce612c25c9328b7b06164936470f9af8e268cecb4dabbee8a84ad95593a0`.
+The expected P41 test denominator includes
+`tests/unit/runtime/quality/test_generation_cycle.py`,
+`tests/unit/runtime/quality/test_joint_simulation_horizon.py`,
+`tests/unit/runtime/quality/test_intervention_substrate.py`,
+`tests/integration/runtime_quality/test_data_state_substrate.py`,
+`tests/unit/runtime/quality/test_acquisition_planner.py`,
+`tests/integration/core_runtime/test_acquisition_authority_served.py`,
+`tests/integration/core_runtime/test_acquisition_world_growth_chain.py`,
+`tests/unit/runtime/quality/test_acquisition_movement_positive.py`,
+`tests/integration/core_runtime/test_acquisition_tenant_custody.py`, and
+`tests/unit/remediation/test_plg_03.py` if training behavior changes. If the NL
+retrieval path is retained or proven production-reachable, also reserve
+`tests/unit/fabric/test_retrieval_fetch_custody.py` and
+`tests/unit/runtime/http/test_nl_pipeline_materialization.py`. Every test remains
+pending the frozen P41 denominator; these are planned witnesses, not results.
+
+
+**Pattern pass.** P01/P02/P05/P07/P08/P12/P27/P28/P31/P32/P35/P37/P38/P40/P41.
+Existing defects are the dynamically reachable local N7 second writer, route-bearing
+receipt fall-through, owner-store loss at producer/reader boundaries, subject/basis
+conflation, candidate-ref-only receipt binding, and a bootstrap gate that counts a
+verification helper as a producer. Target: one structurally guarded N7 production
+chokepoint, the canonical WDI overlay/passport/native-epoch owner, exact runtime
+store identity across each read/write chain, and independently verified subject,
+basis, and candidate bytes. The explicit local contract fixture remains synthetic
+and non-authoritative; ordinary candidate work remains available. Tracked ACQ-01
+producer status is `producer_missing` only for the enumerated literal-source set;
+external/dynamic producer existence is `not_established`. The same-class receipt
+hash and store handoff escape is widened under P40, not repaired site by site.
+Missing capability labels include `bridge_missing`/`verification_missing` for the
+production admission, store, and receipt witnesses; the DS15 1,000-event candidate
+is separate and remains unmeasured. Closure requires all R13 negative probes and
+preserving controls above, exact production-store identity through actual container
+composition, byte-exact v1/v2 replay plus current v3 admission, and all touched-file
+four-base results. This draft claims none of those tests has run.
 
 ## R14 — historical W5 references and current WS-2D client evidence
 

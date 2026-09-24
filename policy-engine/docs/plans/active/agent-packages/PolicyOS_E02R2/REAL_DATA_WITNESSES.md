@@ -6,13 +6,13 @@ Canonical data root: `/Users/deniskopylov/polisyos/policy-engine/production_data
 Root manifest: `policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
 The inspected top-level entries include `datasets_full_phase3full_20260327_183054`, `canonical/local_data_20260501/ukraine_server_support_20260410`, `ukraine_agent_simulation_baseline_20260410`, `lex`, and `policyos_academic_runtime_slim_20260411T112032Z`.
 
-Finding cards: `PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5` (including B61) and `PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727` (including LA-021, LA-031, and LA-032).
+Finding cards: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5` (including B61) and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727` (including LA-021, LA-031, and LA-032).
 
 ## Required R13 witness: served WDI acquisition and tenant-safe re-entry
 
 The existing served witnesses are:
 
-- `tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_actual_wdi_admits_delta_and_reenters_same_case[False/True]` — `@sha256:656b39a16877682deac0547cfada8c22579a16e85da7136e3a1fc8cf659ebbe9`.
+- `tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_actual_wdi_admits_delta_and_reenters_same_case[False]` and `[True]` — file `@sha256:656b39a16877682deac0547cfada8c22579a16e85da7136e3a1fc8cf659ebbe9`.
 - `tests/integration/core_runtime/test_acquisition_tenant_custody.py::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry` — `@sha256:3b7e3c89f42ec1ebdaadb2f99224f46901ebc15e94872816a79ac61645ce4fa0`.
 
 These exercise the served chain, but do not directly name the production-data root. R13 needs one real-catalog witness through the existing `AcquisitionWorldGrowthBridge` / served acquisition caller. Resolve the selected WDI source and indicator from the real catalog, use an intercepted deterministic response for the one authorized connector request, and prove overlay admission, passport and native-epoch qualification, then same-case re-entry with tenant custody. Retain the negative proving the local legacy route cannot mint an authoritative WMR. A source-only selector test or the existing fixture-based integration test is not the production-data witness.

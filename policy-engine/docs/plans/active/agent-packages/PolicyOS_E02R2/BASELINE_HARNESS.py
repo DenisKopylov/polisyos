@@ -36,32 +36,42 @@ import shutil
 import signal
 import stat
 import subprocess
+import threading
 import time
 import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
-
+from typing import Any, Callable
 
 PRODUCT_ROOT = Path("/Users/deniskopylov/polisyos")
 DATA_ROOT = PRODUCT_ROOT / "policy-engine/production_data"
 RUNNER_PYTHON = PRODUCT_ROOT / "policy-engine/.venv/bin/python"
 SCRATCH_ROOT = Path("/Users/deniskopylov/.codex/scratch/e02-r2-baselines")
 INTEGRATION_CHECKOUT = Path(__file__).resolve().parent.parents[5]
-MAX_PROCESS_GROUPS = 3
-DEFAULT_PROCESS_GROUPS = 1
+MAX_PROCESS_GROUPS = 5
+DEFAULT_PROCESS_GROUPS = 5
 RESOURCE_SAMPLE_SECONDS = 5.0
 MIN_DISK_FREE_BYTES = 10 * 1024**3
-MIN_MEMORY_FREE_PERCENT = 35
+MIN_MEMORY_FREE_PERCENT = 30
 MAX_PROCESS_GROUP_RSS_KIB = 8 * 1024**2
 MAX_SWAP_GROWTH_BYTES = 256 * 1024**2
-ADAPTIVE_MAX_GROUP_RSS_KIB = 1024 * 1024
-ADAPTIVE_MIN_MEMORY_FREE_PERCENT = 45
+ADAPTIVE_MAX_GROUP_RSS_KIB = 1280 * 1024
+ADAPTIVE_MIN_GROUP_RSS_KIB = 64 * 1024
+ADAPTIVE_MIN_MEMORY_FREE_PERCENT = 35
 ADAPTIVE_MAX_GROUP_CPU_PERCENT = 100.0
-ADAPTIVE_MAX_BATCH_RSS_KIB = 6 * 1024**2
-ADAPTIVE_MAX_BATCH_CPU_PERCENT = 300.0
+ADAPTIVE_MAX_BATCH_RSS_KIB = 8 * 1024**2
+ADAPTIVE_MAX_BATCH_CPU_PERCENT = 500.0
+MAX_RUNNING_BATCH_CPU_PERCENT = 600.0
+ADAPTIVE_RSS_PROJECTION_MULTIPLIER = 1.25
+PROCESS_GROUP_LAUNCH_STAGGER_SECONDS = 0.5
+PROCESS_GROUP_STARTUP_SECONDS = 60.0
+HARD_MEMORY_RESERVE_PERCENT = 30
+LEGACY_CHECKPOINT_HARNESS_SHA256 = (
+    "dc9fc32c6e4f20a1c2976c9eac8fb3f285869f02531e5ecca943ecd76dc08c9e"
+)
+LEGACY_CHECKPOINT_RUN_ID = "p41-pre-repair-20260924T144020Z-80143"
 BOOTSTRAP_ALARM_SECONDS = 1800
 TIMEOUT_MULTIPLIER = 3.0
 MIN_MEASURED_ALARM_SECONDS = 120
@@ -71,6 +81,46 @@ EXPECTED_DATA_MANIFEST_SHA256 = (
 INTEGRATION_PACKAGE_RELATIVE = (
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2"
 )
+
+_PROCESS_GROUPS_LOCK = threading.Lock()
+_LIVE_PROCESS_GROUPS: dict[int, dict[str, Any]] = {}
+_SCHEDULER_HALT_REASON: str | None = None
+_STOP_REQUESTED = threading.Event()
+_STOP_SIGNAL_NUMBER: int | None = None
+
+
+def _stop_requested_reason() -> str | None:
+    if not _STOP_REQUESTED.is_set():
+        return None
+    try:
+        signal_name = signal.Signals(_STOP_SIGNAL_NUMBER).name if _STOP_SIGNAL_NUMBER else "STOP"
+    except ValueError:
+        signal_name = "STOP"
+    return f"parent received {signal_name}; active cells were stopped and remaining cells are UNRUN"
+
+
+def _record_stop_signal(signum: int, _frame: object) -> None:
+    """Record a stop request; worker and scheduler threads perform cleanup safely."""
+    global _STOP_SIGNAL_NUMBER
+    _STOP_SIGNAL_NUMBER = signum
+    _STOP_REQUESTED.set()
+
+
+def _run_with_stop_handlers(action: Callable[[], int]) -> int:
+    """Install cooperative SIGINT/SIGTERM handling for one harness invocation."""
+    global _STOP_SIGNAL_NUMBER, _SCHEDULER_HALT_REASON
+    _STOP_REQUESTED.clear()
+    _STOP_SIGNAL_NUMBER = None
+    _SCHEDULER_HALT_REASON = None
+    prior_handlers = {
+        signum: signal.signal(signum, _record_stop_signal)
+        for signum in (signal.SIGINT, signal.SIGTERM)
+    }
+    try:
+        return action()
+    finally:
+        for signum, handler in prior_handlers.items():
+            signal.signal(signum, handler)
 
 REVISIONS: tuple[dict[str, str], ...] = (
     {
@@ -803,6 +853,57 @@ def _parse_size(value: str) -> int:
     return int(float(match.group(1)) * units[match.group(2).upper()])
 
 
+def _tracked_process_group_ids() -> set[int]:
+    with _PROCESS_GROUPS_LOCK:
+        return set(_LIVE_PROCESS_GROUPS)
+
+
+def _aggregate_process_group_metrics(process_group_ids: set[int]) -> dict[str, Any]:
+    """Measure CPU/RSS across the active pytest groups as one admission unit."""
+    if not process_group_ids:
+        return {
+            "active_process_group_count": 0,
+            "aggregate_process_group_live_process_count": 0,
+            "aggregate_process_group_cpu_percent_sum": 0,
+            "aggregate_process_group_rss_kib_sum": 0,
+            "aggregate_process_group_rss_by_group_kib": {},
+        }
+    ps = _run(["/bin/ps", "-axo", "pgid=,%cpu=,rss=,stat="])
+    _require(ps.returncode == 0, f"aggregate ps resource sample failed: {ps.stderr.strip()}")
+    cpu_percent = 0.0
+    rss_kib = 0
+    live_process_count = 0
+    live_group_ids: set[int] = set()
+    rss_by_group: dict[int, int] = {}
+    for line in ps.stdout.splitlines():
+        fields = line.split()
+        if len(fields) != 4:
+            continue
+        try:
+            group_id = int(fields[0])
+            process_cpu = float(fields[1])
+            process_rss = int(fields[2])
+        except ValueError:
+            continue
+        if group_id not in process_group_ids:
+            continue
+        cpu_percent += process_cpu
+        rss_kib += process_rss
+        rss_by_group[group_id] = rss_by_group.get(group_id, 0) + process_rss
+        if "Z" not in fields[3]:
+            live_process_count += 1
+            live_group_ids.add(group_id)
+    return {
+        "active_process_group_count": len(live_group_ids),
+        "aggregate_process_group_live_process_count": live_process_count,
+        "aggregate_process_group_cpu_percent_sum": round(cpu_percent),
+        "aggregate_process_group_rss_kib_sum": rss_kib,
+        "aggregate_process_group_rss_by_group_kib": {
+            str(group_id): value for group_id, value in sorted(rss_by_group.items())
+        },
+    }
+
+
 def _resource_snapshot(
     process_group_id: int,
     scratch_root: Path,
@@ -850,6 +951,8 @@ def _resource_snapshot(
         memory_total_bytes = int(memory_total.stdout.strip())
     except ValueError as exc:
         raise RuntimeError("sysctl hw.memsize did not return an integer") from exc
+    active_group_ids = _tracked_process_group_ids()
+    aggregate_metrics = _aggregate_process_group_metrics(active_group_ids)
     return {
         "sampled_at_utc": datetime.now(UTC).isoformat(),
         "process_group_id": process_group_id,
@@ -857,6 +960,7 @@ def _resource_snapshot(
         "process_group_live_process_count": live_process_count,
         "process_group_cpu_percent_sum": round(cpu_percent, 2),
         "process_group_rss_kib_sum": rss_kib,
+        **aggregate_metrics,
         "system_memory_free_percent": int(pressure_match.group(1)),
         "system_memory_total_bytes": memory_total_bytes,
         "system_swap_used_bytes": _parse_size(swap_match.group(1)),
@@ -895,6 +999,15 @@ def _resource_summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "peak_process_group_rss_kib_sum": max(
             row["process_group_rss_kib_sum"] for row in samples
         ),
+        "peak_active_process_group_count": max(
+            row.get("active_process_group_count", 0) for row in samples
+        ),
+        "peak_aggregate_process_group_cpu_percent_sum": max(
+            row.get("aggregate_process_group_cpu_percent_sum", 0) for row in samples
+        ),
+        "peak_aggregate_process_group_rss_kib_sum": max(
+            row.get("aggregate_process_group_rss_kib_sum", 0) for row in samples
+        ),
         "minimum_system_memory_free_percent": min(
             row["system_memory_free_percent"] for row in samples
         ),
@@ -923,6 +1036,13 @@ def _resource_guard_reason(snapshot: dict[str, Any], swap_start_bytes: int) -> s
             "system memory free percentage fell below "
             f"{MIN_MEMORY_FREE_PERCENT}%"
         )
+    if snapshot.get("aggregate_process_group_cpu_percent_sum", 0) > MAX_RUNNING_BATCH_CPU_PERCENT:
+        return (
+            "aggregate pytest process-group CPU exceeded running hard limit "
+            f"{MAX_RUNNING_BATCH_CPU_PERCENT}%"
+        )
+    if snapshot.get("active_process_group_count", 0) > MAX_PROCESS_GROUPS:
+        return f"active pytest process groups exceeded {MAX_PROCESS_GROUPS}"
     swap_growth = max(0, snapshot["system_swap_used_bytes"] - swap_start_bytes)
     if swap_growth > MAX_SWAP_GROWTH_BYTES:
         return f"swap grew by more than {MAX_SWAP_GROWTH_BYTES} bytes"
@@ -931,16 +1051,24 @@ def _resource_guard_reason(snapshot: dict[str, Any], swap_start_bytes: int) -> s
     return None
 
 
-def _machine_admission_block_reason(scratch_root: Path, baseline_swap_used_bytes: int) -> str | None:
-    """Return a fail-closed reason when machine resources cannot admit a process."""
+def _machine_admission_state(
+    scratch_root: Path,
+    baseline_swap_used_bytes: int,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Return a fresh machine sample and a fail-closed hard-guard reason."""
     try:
-        snapshot = _resource_snapshot(os.getpid(), scratch_root)
+        snapshot = _resource_snapshot(os.getpgrp(), scratch_root)
         reason = _resource_guard_reason(snapshot, baseline_swap_used_bytes)
     except Exception as exc:
-        return f"resource inspection unavailable before process admission: {type(exc).__name__}: {exc}"
+        return None, f"resource inspection unavailable before process admission: {type(exc).__name__}: {exc}"
     if reason is not None:
-        return f"machine resource guard before process admission: {reason}"
-    return None
+        return snapshot, f"machine resource guard before process admission: {reason}"
+    return snapshot, None
+
+
+def _machine_admission_block_reason(scratch_root: Path, baseline_swap_used_bytes: int) -> str | None:
+    """Return a fail-closed reason when machine resources cannot admit a process."""
+    return _machine_admission_state(scratch_root, baseline_swap_used_bytes)[1]
 
 
 def _terminate_process_group(process: subprocess.Popen[bytes]) -> None:
@@ -982,6 +1110,39 @@ def _terminate_orphaned_group(
     return latest
 
 
+def _unrun_before_process_admission(
+    job: Job,
+    revision: dict[str, Any],
+    reason: str,
+) -> dict[str, Any]:
+    return {
+        "revision_key": job.revision_key,
+        "revision_label": revision["label"],
+        "commit": revision["commit"],
+        "test_path": job.test_path,
+        "cell_presence": "PRESENT",
+        "test_blob_oid": job.test_blob_oid,
+        "timeout_seconds": job.timeout_seconds,
+        "timeout_basis": "not started; resource admission did not pass",
+        "exclusive_native": job.exclusive_native,
+        "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
+        "resource_group_live_after_exit": False,
+        "command": [],
+        "environment_keys": [],
+        "pythonpath_roots": [],
+        "cwd": str(Path(revision["checkout"]) / "policy-engine"),
+        "returncode": None,
+        "timed_out": False,
+        "resource_guard": reason,
+        "elapsed_seconds": 0.0,
+        "suite_status": "UNRUN",
+        "inspection_error": reason,
+        "case_counts": {},
+        "cases": [],
+        "artifacts": {},
+    }
+
+
 def _run_job(
     job: Job,
     revision: dict[str, Any],
@@ -989,7 +1150,25 @@ def _run_job(
     home: Path,
     scratch_root: Path,
     baseline_swap_used_bytes: int,
+    launch_ready: threading.Event | None = None,
+    expected_profile: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    stop_reason = _stop_requested_reason()
+    if stop_reason is not None:
+        if launch_ready is not None:
+            launch_ready.set()
+        return _unrun_before_process_admission(job, revision, stop_reason)
+    try:
+        admission_block = _machine_admission_block_reason(
+            scratch_root,
+            baseline_swap_used_bytes,
+        )
+    except Exception as exc:
+        admission_block = f"resource inspection failed before Popen: {type(exc).__name__}: {exc}"
+    if admission_block is not None:
+        if launch_ready is not None:
+            launch_ready.set()
+        return _unrun_before_process_admission(job, revision, admission_block)
     checkout = Path(revision["checkout"])
     project_root = checkout / "policy-engine"
     test_arg = job.test_path.removeprefix("policy-engine/")
@@ -1035,6 +1214,11 @@ def _run_job(
         "-o",
         f"addopts={addopts}",
     ]
+    stop_reason = _stop_requested_reason()
+    if stop_reason is not None:
+        if launch_ready is not None:
+            launch_ready.set()
+        return _unrun_before_process_admission(job, revision, stop_reason)
     start = time.monotonic()
     launch_error: str | None = None
     resource_guard: str | None = None
@@ -1054,21 +1238,40 @@ def _run_job(
                 stderr=stderr,
                 start_new_session=True,
             )
-            try:
-                initial_sample = _child_resource_snapshot(process, scratch_root)
-                resource_samples.append(initial_sample)
-                resource_guard = _resource_guard_reason(
-                    initial_sample,
-                    baseline_swap_used_bytes,
-                )
-                if resource_guard is not None:
-                    _terminate_process_group(process)
-            except Exception as exc:
-                resource_guard = (
-                    f"initial resource inspection unavailable: {type(exc).__name__}: {exc}"
-                )
+            with _PROCESS_GROUPS_LOCK:
+                _LIVE_PROCESS_GROUPS[process.pid] = {
+                    "process": process,
+                    "expected_profile": expected_profile,
+                    "revision_key": job.revision_key,
+                    "test_path": job.test_path,
+                }
+            stop_reason = _stop_requested_reason()
+            if stop_reason is not None:
+                resource_guard = stop_reason
                 _terminate_process_group(process)
+            else:
+                try:
+                    initial_sample = _child_resource_snapshot(process, scratch_root)
+                    resource_samples.append(initial_sample)
+                    resource_guard = _resource_guard_reason(
+                        initial_sample,
+                        baseline_swap_used_bytes,
+                    )
+                    if resource_guard is not None:
+                        _terminate_process_group(process)
+                except Exception as exc:
+                    resource_guard = (
+                        f"initial resource inspection unavailable: {type(exc).__name__}: {exc}"
+                    )
+                    _terminate_process_group(process)
+            if launch_ready is not None:
+                launch_ready.set()
             while process.poll() is None:
+                stop_reason = _stop_requested_reason()
+                if stop_reason is not None:
+                    resource_guard = stop_reason
+                    _terminate_process_group(process)
+                    break
                 elapsed_now = time.monotonic() - start
                 if elapsed_now >= job.timeout_seconds:
                     timed_out = True
@@ -1093,6 +1296,9 @@ def _run_job(
                 if resource_guard is not None:
                     _terminate_process_group(process)
                     break
+            stop_reason = _stop_requested_reason()
+            if stop_reason is not None and resource_guard is None:
+                resource_guard = stop_reason
             if process.poll() is not None:
                 returncode = process.returncode
                 if returncode == -signal.SIGALRM:
@@ -1127,6 +1333,16 @@ def _run_job(
         if process is not None and process.poll() is None:
             _terminate_process_group(process)
         launch_error = f"{type(exc).__name__}: {exc}"
+    except Exception as exc:
+        if process is not None and process.poll() is None:
+            _terminate_process_group(process)
+        launch_error = f"execution or resource inspection failed: {type(exc).__name__}: {exc}"
+    finally:
+        if process is not None:
+            with _PROCESS_GROUPS_LOCK:
+                _LIVE_PROCESS_GROUPS.pop(process.pid, None)
+        if launch_ready is not None:
+            launch_ready.set()
     elapsed = time.monotonic() - start
     if launch_error is not None or resource_guard is not None:
         suite_status, cases, inspection_error = "UNRUN", [], launch_error
@@ -1309,49 +1525,83 @@ def _profile_light(job: Job, profiles: dict[tuple[str, str], dict[str, Any]]) ->
         return False
     return (
         profile["elapsed_seconds"] <= 60
+        and profile["peak_process_group_rss_kib"] >= ADAPTIVE_MIN_GROUP_RSS_KIB
         and profile["peak_process_group_rss_kib"] <= ADAPTIVE_MAX_GROUP_RSS_KIB
         and profile["peak_process_group_cpu_percent_sum"] <= ADAPTIVE_MAX_GROUP_CPU_PERCENT
         and profile["swap_growth_bytes"] == 0
     )
 
 
-def _can_admit_profiled_batch(
-    jobs: list[Job],
+def _can_admit_profiled_job(
+    job: Job,
     profiles: dict[tuple[str, str], dict[str, Any]],
     scratch_root: Path,
     baseline_swap_used_bytes: int,
-) -> bool:
-    if not jobs or len(jobs) > MAX_PROCESS_GROUPS:
-        return False
-    batch_profiles = [profiles[(job.test_path, job.test_blob_oid)] for job in jobs]
-    if any(not _profile_light(job, profiles) for job in jobs):
-        return False
-    if sum(profile["peak_process_group_rss_kib"] for profile in batch_profiles) > ADAPTIVE_MAX_BATCH_RSS_KIB:
-        return False
-    if sum(profile["peak_process_group_cpu_percent_sum"] for profile in batch_profiles) > ADAPTIVE_MAX_BATCH_CPU_PERCENT:
-        return False
-    try:
-        snapshot = _resource_snapshot(os.getpid(), scratch_root)
-        guard = _resource_guard_reason(snapshot, baseline_swap_used_bytes)
-    except Exception:
-        # A batch is optional throughput. The scheduler rechecks admission
-        # before any Popen and records UNRUN if inspection remains unavailable.
-        return False
-    if guard is not None:
-        # Never admit concurrent groups while the machine guard is red.
-        return False
+) -> tuple[bool, str | None, bool]:
+    """Check one staggered launch against current aggregate load and reserve."""
+    profile = profiles.get((job.test_path, job.test_blob_oid))
+    if profile is None or not _profile_light(job, profiles):
+        return False, "job has no exact-blob measured-light profile", False
+    snapshot, hard_reason = _machine_admission_state(scratch_root, baseline_swap_used_bytes)
+    if hard_reason is not None or snapshot is None:
+        return False, hard_reason or "resource inspection did not return a sample", True
+    if snapshot["active_process_group_count"] >= MAX_PROCESS_GROUPS:
+        return False, f"already at {MAX_PROCESS_GROUPS} active pytest process groups", False
     if snapshot["system_memory_free_percent"] < ADAPTIVE_MIN_MEMORY_FREE_PERCENT:
-        return False
+        return False, f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory", False
     if snapshot["system_swap_used_bytes"] != baseline_swap_used_bytes:
-        return False
+        return False, "swap changed since the run baseline; concurrent admission paused", False
+
+    projected_rss_kib = math.ceil(
+        profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
+    )
+    projected_batch_rss_kib = (
+        snapshot["aggregate_process_group_rss_kib_sum"] + projected_rss_kib
+    )
+    if projected_batch_rss_kib > ADAPTIVE_MAX_BATCH_RSS_KIB:
+        return False, "projected active pytest RSS exceeds batch cap", False
+    projected_cpu = (
+        snapshot["aggregate_process_group_cpu_percent_sum"]
+        + profile["peak_process_group_cpu_percent_sum"]
+    )
+    if projected_cpu > ADAPTIVE_MAX_BATCH_CPU_PERCENT:
+        return False, "projected active pytest CPU exceeds batch cap", False
+
+    active_rss_by_group = snapshot.get("aggregate_process_group_rss_by_group_kib", {})
+    with _PROCESS_GROUPS_LOCK:
+        active_groups = dict(_LIVE_PROCESS_GROUPS)
+    measured_group_ids = {int(group_id) for group_id in active_rss_by_group}
+    missing_group_ids = set(active_groups) - measured_group_ids
+    unaccounted_group_ids = measured_group_ids - set(active_groups)
+    if unaccounted_group_ids:
+        return False, "active process-group RSS census does not match tracked PGIDs", True
+    for process_group_id in missing_group_ids:
+        process = active_groups[process_group_id].get("process")
+        if not isinstance(process, subprocess.Popen) or process.poll() is None:
+            return False, "a live tracked process group is absent from the RSS census", True
+        active_groups.pop(process_group_id)
+    future_active_growth_kib = 0
+    for process_group_id, active_group in active_groups.items():
+        active_profile = active_group.get("expected_profile")
+        if not isinstance(active_profile, dict):
+            return False, "an active pytest group has no measured profile", False
+        actual_rss_kib = active_rss_by_group.get(str(process_group_id))
+        if not isinstance(actual_rss_kib, int):
+            return False, f"active process-group RSS is unavailable for PGID {process_group_id}", True
+        expected_peak_kib = math.ceil(
+            active_profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
+        )
+        future_active_growth_kib += max(0, expected_peak_kib - actual_rss_kib)
     free_headroom_bytes = max(
         0,
         snapshot["system_memory_total_bytes"]
-        * (snapshot["system_memory_free_percent"] - ADAPTIVE_MIN_MEMORY_FREE_PERCENT)
+        * (snapshot["system_memory_free_percent"] - HARD_MEMORY_RESERVE_PERCENT)
         // 100,
     )
-    projected_rss_bytes = sum(profile["peak_process_group_rss_kib"] for profile in batch_profiles) * 3 * 1024 // 2
-    return projected_rss_bytes <= free_headroom_bytes
+    projected_future_growth_bytes = (future_active_growth_kib + projected_rss_kib) * 1024
+    if projected_future_growth_bytes > free_headroom_bytes:
+        return False, "projected active growth plus new job would cross the 30% hard memory reserve", False
+    return True, None, False
 
 
 def _schedule(
@@ -1363,85 +1613,169 @@ def _schedule(
     baseline_swap_used_bytes: int,
     workers: int,
     light_profiles: dict[tuple[str, str], dict[str, Any]] | None = None,
-    on_complete: Any | None = None,
+    on_complete: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
+    global _SCHEDULER_HALT_REASON
     by_revision = {record["key"]: record for record in records.values()}
     completed: list[dict[str, Any]] = []
-    profiles = light_profiles or {}
-    halt_reason: str | None = None
+    profiles = light_profiles if light_profiles is not None else {}
+    halt_reason = _SCHEDULER_HALT_REASON or _stop_requested_reason()
 
     def not_admitted(job: Job, reason: str) -> dict[str, Any]:
         record = by_revision[job.revision_key]
-        row = {
-            "revision_key": job.revision_key,
-            "revision_label": record["label"],
-            "commit": record["commit"],
-            "test_path": job.test_path,
-            "cell_presence": "PRESENT",
-            "test_blob_oid": job.test_blob_oid,
-            "timeout_seconds": job.timeout_seconds,
-            "timeout_basis": "not started; scheduler stopped before process admission",
-            "exclusive_native": job.exclusive_native,
-            "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
-            "resource_group_live_after_exit": False,
-            "command": [],
-            "environment_keys": [],
-            "cwd": str(Path(record["checkout"]) / "policy-engine"),
-            "returncode": None,
-            "timed_out": False,
-            "resource_guard": reason,
-            "elapsed_seconds": 0.0,
-            "suite_status": "UNRUN",
-            "inspection_error": reason,
-            "case_counts": {},
-            "cases": [],
-            "artifacts": {},
-        }
+        row = _unrun_before_process_admission(job, record, reason)
         completed.append(row)
         if on_complete is not None:
             on_complete(row)
         return row
 
     def execute_batch(batch: list[Job]) -> None:
+        global _SCHEDULER_HALT_REASON
         nonlocal halt_reason
         if not batch:
             return
-        admission_block = _machine_admission_block_reason(scratch_root, baseline_swap_used_bytes)
-        if admission_block is not None:
-            halt_reason = admission_block
-            for job in batch:
-                not_admitted(job, admission_block)
-            return
-        with concurrent.futures.ThreadPoolExecutor(max_workers=min(workers, len(batch))) as pool:
-            futures = [
-                pool.submit(
-                    _run_job,
+        pending: dict[concurrent.futures.Future[dict[str, Any]], Job] = {}
+        next_index = 0
+
+        def record_future(
+            future: concurrent.futures.Future[dict[str, Any]],
+            job: Job,
+        ) -> None:
+            nonlocal halt_reason
+            try:
+                row = future.result()
+            except Exception as exc:
+                row = _unrun_before_process_admission(
                     job,
                     by_revision[job.revision_key],
-                    run_dir,
-                    home,
-                    scratch_root,
-                    baseline_swap_used_bytes,
+                    f"scheduler worker failed before a valid verdict: {type(exc).__name__}: {exc}",
                 )
-                for job in batch
-            ]
-            for future in concurrent.futures.as_completed(futures):
-                row = future.result()
-                completed.append(row)
-                if on_complete is not None:
-                    on_complete(row)
-                if row.get("resource_group_live_after_exit"):
-                    halt_reason = (
-                        f"scheduler stopped after {row['revision_key']}:{row['test_path']} left live descendants "
-                        "after targeted SIGTERM/SIGKILL"
-                    )
+            profiles.update(_measured_light_profiles([row]))
+            completed.append(row)
+            if on_complete is not None:
+                on_complete(row)
+            if row.get("resource_group_live_after_exit"):
+                halt_reason = (
+                    f"scheduler stopped after {row['revision_key']}:{row['test_path']} left live descendants "
+                    "after targeted SIGTERM/SIGKILL"
+                )
+            elif row.get("resource_guard"):
+                halt_reason = (
+                    f"scheduler paused after resource guard at {row['revision_key']}:{row['test_path']}: "
+                    f"{row['resource_guard']}"
+                )
 
-    # Up to three processes are admitted only for same-blob profiles under 1GiB
-    # RSS and 100% CPU each, with a 1.5x projected aggregate below the 45% free
-    # memory reserve, flat swap, and an aggregate 6GiB/300% CPU cap. Unknown,
-    # native, and measured-heavy jobs run alone.
+        pool_size = max(1, min(workers, MAX_PROCESS_GROUPS, len(batch)))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=pool_size) as pool:
+            while next_index < len(batch) or pending:
+                requested_stop = _stop_requested_reason()
+                if requested_stop is not None:
+                    halt_reason = requested_stop
+                    _SCHEDULER_HALT_REASON = requested_stop
+                if halt_reason is not None:
+                    for job in batch[next_index:]:
+                        not_admitted(job, halt_reason)
+                    next_index = len(batch)
+                    if not pending:
+                        break
+
+                if next_index < len(batch):
+                    job = batch[next_index]
+                    is_profiled = _profile_light(job, profiles)
+                    can_launch = False
+                    admission_reason: str | None = None
+                    hard_block = False
+                    if is_profiled:
+                        can_launch, admission_reason, hard_block = _can_admit_profiled_job(
+                            job,
+                            profiles,
+                            scratch_root,
+                            baseline_swap_used_bytes,
+                        )
+                    elif not pending:
+                        _, admission_reason = _machine_admission_state(
+                            scratch_root,
+                            baseline_swap_used_bytes,
+                        )
+                        hard_block = admission_reason is not None
+                        can_launch = not hard_block
+
+                    if can_launch and len(pending) < pool_size:
+                        ready = threading.Event()
+                        future = pool.submit(
+                            _run_job,
+                            job,
+                            by_revision[job.revision_key],
+                            run_dir,
+                            home,
+                            scratch_root,
+                            baseline_swap_used_bytes,
+                            ready,
+                            profiles.get((job.test_path, job.test_blob_oid)) if is_profiled else None,
+                        )
+                        if not ready.wait(PROCESS_GROUP_STARTUP_SECONDS) and not future.done():
+                            halt_reason = (
+                                f"process admission handshake exceeded {PROCESS_GROUP_STARTUP_SECONDS}s; "
+                                "no further jobs will be launched"
+                            )
+                            pending[future] = job
+                            next_index += 1
+                            continue
+                        if future.done():
+                            record_future(future, job)
+                            next_index += 1
+                            continue
+                        pending[future] = job
+                        next_index += 1
+                        time.sleep(PROCESS_GROUP_LAUNCH_STAGGER_SECONDS)
+                        continue
+
+                    if hard_block:
+                        halt_reason = admission_reason or "resource inspection failed before Popen"
+                        for unrun_job in batch[next_index:]:
+                            not_admitted(unrun_job, halt_reason)
+                        next_index = len(batch)
+                        continue
+                    if pending:
+                        done, _ = concurrent.futures.wait(
+                            pending,
+                            timeout=0.5,
+                            return_when=concurrent.futures.FIRST_COMPLETED,
+                        )
+                        for future in done:
+                            completed_job = pending.pop(future)
+                            record_future(future, completed_job)
+                        continue
+                    halt_reason = (
+                        f"process admission paused before Popen for {job.revision_key}:{job.test_path}: "
+                        f"{admission_reason or 'projected resource reserve was insufficient'}"
+                    )
+                    for unrun_job in batch[next_index:]:
+                        not_admitted(unrun_job, halt_reason)
+                    next_index = len(batch)
+                    continue
+
+                if pending:
+                    done, _ = concurrent.futures.wait(
+                        pending,
+                        timeout=0.5,
+                        return_when=concurrent.futures.FIRST_COMPLETED,
+                    )
+                    for future in done:
+                        completed_job = pending.pop(future)
+                        record_future(future, completed_job)
+
+    # Up to five exact-blob measured-light groups may overlap. Every launch is
+    # staggered and re-sampled against live aggregate CPU/RSS, with 35% free
+    # memory at admission and a projected 30% hard reserve. Unknown, native,
+    # and measured-heavy jobs run alone; red or unavailable guards yield
+    # checkpointed UNRUN cells without starting a process.
     pending_light: list[Job] = []
     for job in jobs:
+        requested_stop = _stop_requested_reason()
+        if requested_stop is not None:
+            halt_reason = requested_stop
+            _SCHEDULER_HALT_REASON = requested_stop
         if halt_reason is not None:
             not_admitted(job, halt_reason)
             continue
@@ -1455,11 +1789,21 @@ def _schedule(
             execute_batch([job])
             continue
         candidate_batch = pending_light + [job]
-        if len(candidate_batch) <= workers and _can_admit_profiled_batch(
-            candidate_batch, profiles, scratch_root, baseline_swap_used_bytes
-        ):
+        candidate_profiles = [profiles[(item.test_path, item.test_blob_oid)] for item in candidate_batch]
+        batch_fits = (
+            len(candidate_batch) <= min(workers, MAX_PROCESS_GROUPS)
+            and sum(
+                profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
+                for profile in candidate_profiles
+            ) <= ADAPTIVE_MAX_BATCH_RSS_KIB
+            and sum(
+                profile["peak_process_group_cpu_percent_sum"]
+                for profile in candidate_profiles
+            ) <= ADAPTIVE_MAX_BATCH_CPU_PERCENT
+        )
+        if batch_fits:
             pending_light = candidate_batch
-            if len(pending_light) == workers:
+            if len(pending_light) == min(workers, MAX_PROCESS_GROUPS):
                 execute_batch(pending_light)
                 pending_light = []
         else:
@@ -1476,6 +1820,8 @@ def _schedule(
         else:
             for job in pending_light:
                 not_admitted(job, halt_reason)
+    if halt_reason is not None:
+        _SCHEDULER_HALT_REASON = halt_reason
     return completed
 
 
@@ -1495,7 +1841,10 @@ def _measured_light_profiles(
             continue
         profile = {
             "elapsed_seconds": row.get("elapsed_seconds"),
-            "peak_process_group_rss_kib": metrics.get("peak_process_group_rss_kib"),
+            "peak_process_group_rss_kib": metrics.get(
+                "peak_process_group_rss_kib_sum",
+                metrics.get("peak_process_group_rss_kib"),
+            ),
             "peak_process_group_cpu_percent_sum": metrics.get("peak_process_group_cpu_percent_sum"),
             "swap_growth_bytes": metrics.get("swap_growth_bytes"),
         }
@@ -1506,6 +1855,7 @@ def _measured_light_profiles(
             and isinstance(profile["swap_growth_bytes"], int)
             and metrics.get("initial_process_group_sample_measured") is True
             and profile["elapsed_seconds"] <= 60
+            and profile["peak_process_group_rss_kib"] >= ADAPTIVE_MIN_GROUP_RSS_KIB
             and profile["peak_process_group_rss_kib"] <= ADAPTIVE_MAX_GROUP_RSS_KIB
             and profile["peak_process_group_cpu_percent_sum"] <= ADAPTIVE_MAX_GROUP_CPU_PERCENT
             and profile["swap_growth_bytes"] == 0
@@ -1536,6 +1886,7 @@ def _write_checkpoint_manifest(
         "runtime": runtime,
         "environment_policy": {
             "allowlisted_keys": env_keys,
+            "source_import_policy": "checkout-local-PYTHONPATH",
             "secret_values_logged": False,
             "dotenv_disabled": True,
             "jax_platforms": "cpu",
@@ -1604,6 +1955,15 @@ def _expected_normalized_command(test_path: str) -> list[str]:
     ]
 
 
+def _reject_invalid_checkpoint_cell(
+    result_path: Path,
+    strict_checkpoint: bool,
+    message: str,
+) -> None:
+    if strict_checkpoint:
+        raise RuntimeError(f"invalid checkpoint receipt {result_path}: {message}")
+
+
 def _verified_reuse_rows(
     result_paths: list[Path],
     revision_records: list[dict[str, Any]],
@@ -1614,6 +1974,8 @@ def _verified_reuse_rows(
     revisions = {record["key"]: record for record in revision_records}
     reused: dict[tuple[str, str], dict[str, Any]] = {}
     for result_path in result_paths:
+        strict_checkpoint = result_path.is_dir()
+
         if result_path.is_dir():
             manifest_path = result_path / "manifest.json"
             progress_path = result_path / "progress.jsonl"
@@ -1643,20 +2005,38 @@ def _verified_reuse_rows(
         _require(prior.get("runtime") == runtime, f"reuse runtime differs: {result_path}")
         _require(prior.get("data_manifest_sha256") == EXPECTED_DATA_MANIFEST_SHA256, f"reuse data manifest differs: {result_path}")
         environment_policy = prior.get("environment_policy", {})
+        if environment_policy.get("allowlisted_keys") != env_keys:
+            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "allowlisted environment keys differ")
+            continue
+        legacy_policy_candidate = (
+            result_path.is_dir()
+            and prior.get("schema") == "policyos.e02r2.p41-checkpoint.v1"
+            and prior.get("run_id") == LEGACY_CHECKPOINT_RUN_ID
+            and result_path.parent.name == LEGACY_CHECKPOINT_RUN_ID
+            and prior.get("harness_sha256") == LEGACY_CHECKPOINT_HARNESS_SHA256
+            and environment_policy.get("source_import_policy") is None
+        )
         if (
             environment_policy.get("source_import_policy") != "checkout-local-PYTHONPATH"
-            or environment_policy.get("allowlisted_keys") != env_keys
+            and not legacy_policy_candidate
         ):
+            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "source import policy is absent or differs")
             continue
         prior_revisions = {row["key"]: row for row in prior.get("revisions", [])}
         _require(set(prior_revisions) == set(revisions), f"reuse revision set differs: {result_path}")
+        legacy_revision_identity = True
         for key, record in revisions.items():
-            _require(
+            revision_match = (
                 prior_revisions[key].get("commit") == record["commit"]
+                and prior_revisions[key].get("checkout") == record["checkout"]
                 and prior_revisions[key].get("pytest_ini_blob") == record["pytest_ini_blob"]
-                and prior_revisions[key].get("module_import_origins") == record.get("module_import_origins"),
-                f"reuse checkout/config identity differs for {key}: {result_path}",
+                and prior_revisions[key].get("module_import_origins") == record.get("module_import_origins")
             )
+            legacy_revision_identity = legacy_revision_identity and revision_match
+            if not legacy_policy_candidate:
+                _require(revision_match, f"reuse checkout/config identity differs for {key}: {result_path}")
+        if legacy_policy_candidate and not legacy_revision_identity:
+            raise RuntimeError(f"legacy checkpoint revision identity differs: {result_path}")
         prior_path_list = prior.get("requested_test_paths")
         if not isinstance(prior_path_list, list):
             prior_path_list = sorted({row["test_path"] for row in prior.get("runs", [])})
@@ -1673,22 +2053,39 @@ def _verified_reuse_rows(
             if not current_file or current_file.get("status") != "PRESENT" or current_file.get("git_blob_oid") != row.get("test_blob_oid"):
                 continue
             if row.get("cwd") != str(Path(current_revision["checkout"]) / "policy-engine"):
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell working directory differs for {key}")
+                continue
+            expected_pythonpath_roots = [
+                str(Path(current_revision["checkout"]) / "policy-engine/src"),
+                str(Path(current_revision["checkout"]) / "policy-engine"),
+            ]
+            if row.get("pythonpath_roots") != expected_pythonpath_roots:
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell Python path roots differ for {key}")
+                continue
+            if row.get("environment_keys") != env_keys:
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell environment keys differ for {key}")
                 continue
             if not row.get("command") or not row.get("resource_metrics"):
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell command or resource measurements are absent for {key}")
                 continue
             if _normalized_command(row["command"]) != _expected_normalized_command(key[1]):
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell command differs for {key}")
                 continue
             policy = prior.get("environment_policy", {})
             if policy.get("dotenv_disabled") is not True or policy.get("jax_platforms") != "cpu":
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell runtime environment policy differs for {key}")
                 continue
             if policy.get("allowlisted_keys") != env_keys:
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell allowlist differs for {key}")
                 continue
             if key in reused:
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"duplicate completed cell {key}")
                 continue
             artifacts = row.get("artifacts", {})
             junit = artifacts.get("junit", {})
             junit_ref = junit.get("path")
             if not junit_ref:
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"JUnit path is absent for {key}")
                 continue
             junit_path = Path(junit_ref)
             if not junit_path.is_absolute():
@@ -1699,10 +2096,52 @@ def _verified_reuse_rows(
                 if published_cell.is_file():
                     junit_path = published_cell
             if not junit_path.is_file() or _sha256(junit_path) != junit.get("sha256"):
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"JUnit artifact is absent or its SHA-256 differs for {key}",
+                )
+                continue
+            parsed_status, parsed_cases, parse_error = _parse_junit(junit_path)
+            stored_cases = row.get("cases")
+            parsed_case_identity = [(case.key, case.status) for case in parsed_cases]
+            stored_case_identity = (
+                [(case.get("key"), case.get("status")) for case in stored_cases]
+                if isinstance(stored_cases, list) and all(isinstance(case, dict) for case in stored_cases)
+                else None
+            )
+            status_is_reconciled = (
+                row.get("suite_status") == "pass"
+                and parsed_status == "pass"
+                and row.get("returncode") == 0
+            ) or (
+                row.get("suite_status") == "fail"
+                and (
+                    parsed_status == "fail"
+                    or (parsed_status == "pass" and row.get("returncode") not in {None, 0})
+                )
+            )
+            if (
+                parsed_status == "UNRUN"
+                or parse_error is not None
+                or not status_is_reconciled
+                or stored_case_identity != parsed_case_identity
+            ):
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"JUnit outcome does not reconcile with completed row {key}: "
+                    f"parsed={parsed_status}, row={row.get('suite_status')}, error={parse_error}"
+                )
                 continue
             reused_row = dict(row)
             reused_row["reused_from_results_json"] = str(result_path)
             reused_row["reused_from_results_sha256"] = prior_result_sha
+            reused_row["source_import_policy_reuse"] = (
+                "legacy-derivation: exact old harness digest, pinned import origins, and row PYTHONPATH roots"
+                if legacy_policy_candidate
+                else "explicit checkpoint manifest"
+            )
             reused[key] = reused_row
     return reused
 
@@ -2221,12 +2660,33 @@ def _write_report(
             f"Resource measurements: {len(resource_rows)} present process groups; peak group RSS "
             f"{max(row['resource_metrics']['peak_process_group_rss_kib'] for row in resource_rows)} KiB; "
             f"peak group CPU {max(row['resource_metrics']['peak_process_group_cpu_percent_sum'] for row in resource_rows)}%; "
+            f"peak concurrent pytest groups {max(row['resource_metrics'].get('peak_active_process_group_count', 0) for row in resource_rows)}; "
+            f"peak aggregate pytest RSS {max(row['resource_metrics'].get('peak_aggregate_process_group_rss_kib_sum', 0) for row in resource_rows)} KiB; "
+            f"peak aggregate pytest CPU {max(row['resource_metrics'].get('peak_aggregate_process_group_cpu_percent_sum', 0) for row in resource_rows)}%; "
             f"minimum system free memory {min(row['resource_metrics']['minimum_system_memory_free_percent'] for row in resource_rows)}%; "
             f"maximum swap growth {max(row['resource_metrics']['swap_growth_bytes'] for row in resource_rows)} bytes; "
             f"minimum scratch free space {min(row['resource_metrics']['minimum_scratch_volume_free_bytes'] for row in resource_rows)} bytes."
         )
     else:
         resource_summary = "Resource measurements: UNRUN; no test process groups produced a complete resource sample."
+    resource_policy = (
+        f"Resource dispatch caps at {MAX_PROCESS_GROUPS} process groups (CLI default {DEFAULT_PROCESS_GROUPS}). "
+        f"A light profile must finish within 60 seconds, use {ADAPTIVE_MIN_GROUP_RSS_KIB}–"
+        f"{ADAPTIVE_MAX_GROUP_RSS_KIB} KiB RSS and at most {ADAPTIVE_MAX_GROUP_CPU_PERCENT}% CPU, "
+        "with zero swap growth. Each launch is staggered by 0.5 seconds and rechecked against "
+        "current process-group RSS/CPU, memory free percent, swap and disk. Reserve admission "
+        "projects 1.25x RSS and the remaining peak-growth budget of every active profiled group, "
+        "plus the candidate against free memory above the "
+        f"{HARD_MEMORY_RESERVE_PERCENT}% hard reserve. "
+        f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
+        f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
+        "remaining below seven CPU cores. Unprofiled, native, measured-heavy and resource-exclusive "
+        "groups run alone. Each child is sampled every five seconds. A red or unavailable guard "
+        "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
+        "stop event; active workers terminate only their own PGID, and the scheduler drains and "
+        "checkpoints active and unstarted cells as UNRUN. Live descendants left after the leader "
+        "exits are targeted for termination; survivors of SIGKILL stop further admission."
+    )
     lines = [
         "# Four-base P41 test baselines",
         "",
@@ -2234,11 +2694,11 @@ def _write_report(
         "",
         "## Discrepancies and scope",
         "",
-        f"The earlier initial and five controlled-timeout receipts did not record the effective source import origin. The shared venv's editable `.pth` pointed at the execution-base checkout outside pytest; repository `conftest.py` may then prepend each checkout's source during pytest startup. The old receipts therefore do not prove that the wrong code was imported, but source identity was not established by their receipts. This matrix requires checkout-local `PYTHONPATH`, verifies `polisyos` and `tools` origins for each revision before execution, and does not reuse any earlier cell (`reused_cell_count`=`{report.get('reused_cell_count', 0)}`). The three retained timeout-rerun receipts are: {prior_timeout_citations}.",
+        f"The earlier initial and five controlled-timeout receipts did not record effective source import origins. The shared venv's editable `.pth` pointed at the execution-base checkout outside pytest; repository `conftest.py` may then prepend each checkout's source during pytest startup. Those receipts do not prove that the wrong code was imported, but their source identity was not established. This matrix requires checkout-local `PYTHONPATH` and verifies `polisyos` and `tools` origins before execution. It reuses {report.get('reused_cell_count', 0)} completed checkpoint rows only under exact legacy-harness digest, checkout/origin, per-row `PYTHONPATH`, env/command, source-blob, and JUnit SHA checks; it does not reuse the initial or timeout-rerun receipts. The three retained timeout-rerun receipts are: {prior_timeout_citations}.",
         "",
         f"The original 7-group initial wave had no resource samples and remains provisional (`raw/p41-20260924T084614Z-77175/results.json` SHA-256 `{initial_results_sha}`). Its 300 moved JUnit/log artifacts are byte-mapped in `raw/p41-initial-artifact-path-remap.json` SHA-256 `{remap_sha}`; the six no-byte timeout artifacts are represented explicitly. The source-import discrepancy is resolved only for this controlled replay.",
         "",
-        "Resource dispatch defaults to one process group. Up to three groups are admitted only for same-blob profiles under 60 seconds, 1 GiB RSS, 100% CPU each, zero swap growth, aggregate measured RSS at most 6 GiB, aggregate CPU at most 300%, current free memory at least 45%, and 1.5x projected RSS fitting above that floor. Native, unprofiled, and heavy groups run alone. Every child is sampled every five seconds with a 35% free-memory floor, 8 GiB per-group RSS ceiling, swap-growth limit, and 10 GiB disk floor; live process descendants left after the leader exits are killed and mark the cell UNRUN, stopping dispatch if they survive SIGKILL.",
+        resource_policy,
         "",
         resource_summary,
         "",
@@ -2246,7 +2706,7 @@ def _write_report(
         "",
         f"The four-base matrix has {report['matrix_cell_count']} cells: {report['present_cell_count']} present and executed or explicitly UNRUN, {report['missing_cell_count']} verified missing. Missing means the exact path is absent from that revision's tracked Git tree; it is not a pass. The whole-file SHA is retained as context; per-case attribution uses the exact test AST and statically resolved test-input closure.",
         "",
-        f"Shared runner: Python {report['runtime']['python']}, pytest {report['runtime']['pytest']}; CPU JAX. Main-revision timing pilots use three times a previously controlled duration for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); other bases use three times measured main duration with a {MIN_MEASURED_ALARM_SECONDS}s floor. Missing or timed-out pilot cells remain explicit UNRUN.",
+        f"Shared runner: Python {report['runtime']['python']}, pytest {report['runtime']['pytest']}; CPU JAX. Main-revision timing pilots use three times a previously controlled duration for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); other bases use three times measured main duration with a {MIN_MEASURED_ALARM_SECONDS}s floor. Once a main pilot is checkpointed, same-blob older-base cells enter a global ready queue; the first measured member of any other exact-blob group also profiles later siblings. Missing or timed-out pilot cells remain explicit UNRUN.",
         "",
         f"Production data input: `{report['data_root']}/manifest.json` SHA-256 `{report['data_manifest_sha256']}`. The path resolved identically from all four checkouts; preflight also verifies that the production_data root and manifest have no write bits (the per-checkout mode and read-only verdict are in `results.json`). Environment values were allowlisted; `.env` loading was disabled and no environment values are recorded.",
         "",
@@ -2385,6 +2845,7 @@ def _publish_typed_unrun_receipt(
     reason: str,
     environment_keys: list[str],
     resource_snapshot: dict[str, Any] | None = None,
+    inspection_inputs: list[dict[str, Any]] | None = None,
 ) -> int:
     """Retain a typed UNRUN matrix when admission fails before test execution."""
     destination = package_dir / "raw" / run_id
@@ -2468,6 +2929,13 @@ def _publish_typed_unrun_receipt(
         "data_root_status": "UNRUN",
         "data_manifest_expected_sha256": EXPECTED_DATA_MANIFEST_SHA256,
         "resource_start_snapshot": resource_snapshot,
+        "inspection_inputs": inspection_inputs or [],
+        "inspection_disclosure": {
+            "verdict": "UNRUN",
+            "failed_stage": failure_stage,
+            "failed_gate": reason,
+            "completed_test_outcomes_reused": False,
+        },
         "runs": cells,
         "appendix_required_case_count": APPENDIX_REQUIRED_CASE_COUNT,
         "appendix_case_identity_source": {
@@ -2503,6 +2971,34 @@ def _publish_typed_unrun_receipt(
     print(f"Raw receipt: {destination.relative_to(INTEGRATION_CHECKOUT)}")
     print(f"results.json sha256: {_sha256(results_path)}")
     return 2
+
+
+def _reuse_input_disclosures(result_paths: list[Path]) -> list[dict[str, Any]]:
+    """Return safe path and digest metadata for every inspected reuse input."""
+    disclosed: list[dict[str, Any]] = []
+    for result_path in result_paths:
+        item: dict[str, Any] = {
+            "path": str(result_path),
+            "kind": "checkpoint_directory" if result_path.is_dir() else "results_file",
+            "exists": result_path.exists(),
+        }
+        candidates = (
+            [result_path / "manifest.json", result_path / "progress.jsonl"]
+            if result_path.is_dir()
+            else [result_path]
+        )
+        file_inputs: list[dict[str, Any]] = []
+        for path in candidates:
+            entry: dict[str, Any] = {"path": str(path), "exists": path.is_file(), "sha256": None}
+            if path.is_file():
+                try:
+                    entry["sha256"] = _sha256(path)
+                except Exception as exc:
+                    entry["inspection_error"] = f"{type(exc).__name__}: {exc}"
+            file_inputs.append(entry)
+        item["files"] = file_inputs
+        disclosed.append(item)
+    return disclosed
 
 
 def run_matrix(args: argparse.Namespace) -> int:
@@ -2551,7 +3047,7 @@ def run_matrix(args: argparse.Namespace) -> int:
         )
 
     try:
-        start_snapshot = _resource_snapshot(os.getpid(), args.scratch_root)
+        start_snapshot = _resource_snapshot(os.getpgrp(), args.scratch_root)
         start_guard = _resource_guard_reason(
             start_snapshot,
             start_snapshot["system_swap_used_bytes"],
@@ -2577,6 +3073,29 @@ def run_matrix(args: argparse.Namespace) -> int:
             environment_keys=sorted(probe_env),
             resource_snapshot=start_snapshot,
         )
+    reuse_paths = args.reuse_results + ([args.resume_run] if args.resume_run is not None else [])
+    try:
+        reuse_cells = _verified_reuse_rows(
+            reuse_paths,
+            revision_records,
+            runtime,
+            sorted(probe_env),
+            package_dir,
+        )
+    except Exception as exc:
+        reason = f"{type(exc).__name__}: {exc}"
+        return _publish_typed_unrun_receipt(
+            package_dir=package_dir,
+            external_run_dir=external_run_dir,
+            run_id=run_id,
+            scope=args.scope,
+            failure_stage="resume_receipt_inspection",
+            reason=reason,
+            environment_keys=sorted(probe_env),
+            resource_snapshot=start_snapshot,
+            inspection_inputs=_reuse_input_disclosures(reuse_paths),
+        )
+
     checkpoint_dir = external_run_dir / "checkpoint"
     checkpoint_manifest_path = _write_checkpoint_manifest(
         checkpoint_dir,
@@ -2593,13 +3112,11 @@ def run_matrix(args: argparse.Namespace) -> int:
     def checkpoint_row(row: dict[str, Any]) -> None:
         _append_checkpoint_row(progress_path, row)
 
-    reuse_cells = _verified_reuse_rows(
-        args.reuse_results + ([args.resume_run] if args.resume_run is not None else []),
-        revision_records,
-        runtime,
-        sorted(probe_env),
-        package_dir,
-    )
+    for row in sorted(
+        reuse_cells.values(),
+        key=lambda item: (item["revision_key"], item["test_path"]),
+    ):
+        checkpoint_row(row)
 
     # The main checkout is the timing pilot and also supplies its matrix cells.
     main_revision = next(record for record in revision_records if record["key"] == "main")
@@ -2626,35 +3143,72 @@ def run_matrix(args: argparse.Namespace) -> int:
     workers = min(args.workers, MAX_PROCESS_GROUPS)
     revision_map = {r["key"]: r for r in revision_records}
     runs = [row for (revision_key, _), row in reuse_cells.items() if revision_key == "main"]
-    runs.extend(_schedule(
-        main_jobs,
-        revision_map,
-        external_run_dir,
-        home,
-        args.scratch_root,
-        start_snapshot["system_swap_used_bytes"],
-        1,
-        on_complete=checkpoint_row,
-    ))
     main_results = {row["test_path"]: row for row in runs if row["revision_key"] == "main"}
-    light_profiles = _measured_light_profiles(
-        [row for row in runs if row["revision_key"] == "main"]
-    )
+    light_profiles = _measured_light_profiles(list(reuse_cells.values()))
+    main_jobs_by_path = {job.test_path: job for job in main_jobs}
+    ready_sibling_jobs: list[Job] = []
 
-    # Remaining code bases use alarms derived from each file's observed main
-    # wall time. If the pilot itself could not produce a measurable JUnit run,
-    # retain an explicit conservative ceiling and label that basis.
+    def dispatch_ready_siblings(*, flush: bool = False) -> None:
+        while (
+            len(ready_sibling_jobs) >= workers
+            or (flush and ready_sibling_jobs)
+            or (_SCHEDULER_HALT_REASON is not None and ready_sibling_jobs)
+        ):
+            batch_size = (
+                len(ready_sibling_jobs)
+                if _SCHEDULER_HALT_REASON is not None
+                else min(workers, MAX_PROCESS_GROUPS, len(ready_sibling_jobs))
+            )
+            batch = ready_sibling_jobs[:batch_size]
+            del ready_sibling_jobs[:batch_size]
+            sibling_rows = _schedule(
+                batch,
+                revision_map,
+                external_run_dir,
+                home,
+                args.scratch_root,
+                start_snapshot["system_swap_used_bytes"],
+                workers,
+                light_profiles,
+                checkpoint_row,
+            )
+            runs.extend(sibling_rows)
+            light_profiles.update(_measured_light_profiles(sibling_rows))
+            if _SCHEDULER_HALT_REASON is not None:
+                break
+
+    # Run each unmeasured main pilot alone. As soon as its exact-file result is
+    # checkpointed, use its measured profile to fill available groups with
+    # older-base cells that have the same test blob. Changed test blobs remain
+    # exclusive until another exact-blob profile is available.
     remaining_jobs: list[Job] = []
-    for revision in revision_records:
-        if revision["key"] == "main":
-            continue
-        for test_path in REQUESTED_TEST_PATHS:
+    for test_path in REQUESTED_TEST_PATHS:
+        if test_path in main_jobs_by_path:
+            pilot_rows = _schedule(
+                [main_jobs_by_path[test_path]],
+                revision_map,
+                external_run_dir,
+                home,
+                args.scratch_root,
+                start_snapshot["system_swap_used_bytes"],
+                workers,
+                light_profiles,
+                checkpoint_row,
+            )
+            runs.extend(pilot_rows)
+            if pilot_rows:
+                main_results[test_path] = pilot_rows[0]
+                light_profiles.update(_measured_light_profiles(pilot_rows))
+        pilot = main_results.get(test_path)
+        same_blob_jobs: list[Job] = []
+        for revision in revision_records:
+            if revision["key"] == "main":
+                continue
             file_record = revision["files"][test_path]
             if file_record["status"] != "PRESENT":
                 continue
             if (revision["key"], test_path) in reuse_cells:
                 continue
-            pilot = main_results.get(test_path)
             if pilot and pilot.get("elapsed_seconds") is not None and pilot.get("cases"):
                 timeout_seconds = max(
                     MIN_MEASURED_ALARM_SECONDS,
@@ -2675,16 +3229,22 @@ def run_matrix(args: argparse.Namespace) -> int:
                 else:
                     timeout_seconds = BOOTSTRAP_ALARM_SECONDS
                     timeout_basis = "1800s explicit fallback; main pilot did not yield measurable cases"
-            remaining_jobs.append(
-                Job(
-                    revision_key=revision["key"],
-                    test_path=test_path,
-                    test_blob_oid=file_record["git_blob_oid"],
-                    timeout_seconds=timeout_seconds,
-                    timeout_basis=timeout_basis,
-                    exclusive_native=bool(file_record["exclusive_native"]),
-                )
+            candidate = Job(
+                revision_key=revision["key"],
+                test_path=test_path,
+                test_blob_oid=file_record["git_blob_oid"],
+                timeout_seconds=timeout_seconds,
+                timeout_basis=timeout_basis,
+                exclusive_native=bool(file_record["exclusive_native"]),
             )
+            if _profile_light(candidate, light_profiles):
+                same_blob_jobs.append(candidate)
+            else:
+                remaining_jobs.append(candidate)
+        if same_blob_jobs:
+            ready_sibling_jobs.extend(same_blob_jobs)
+            dispatch_ready_siblings()
+    dispatch_ready_siblings(flush=True)
     runs.extend(
         row for (revision_key, _), row in reuse_cells.items()
         if revision_key != "main"
@@ -2802,6 +3362,7 @@ def run_matrix(args: argparse.Namespace) -> int:
                 "test_path": test_path,
                 "results_json": row.get("reused_from_results_json"),
                 "results_sha256": row.get("reused_from_results_sha256"),
+                "source_import_policy_reuse": row.get("source_import_policy_reuse"),
             }
             for (revision_key, test_path), row in sorted(reuse_cells.items())
         ],
@@ -2823,11 +3384,21 @@ def run_matrix(args: argparse.Namespace) -> int:
                 "minimum_scratch_volume_free_bytes": MIN_DISK_FREE_BYTES,
                 "sample_interval_seconds": RESOURCE_SAMPLE_SECONDS,
                 "adaptive_minimum_memory_free_percent": ADAPTIVE_MIN_MEMORY_FREE_PERCENT,
+                "adaptive_minimum_group_rss_kib": ADAPTIVE_MIN_GROUP_RSS_KIB,
                 "adaptive_max_group_rss_kib": ADAPTIVE_MAX_GROUP_RSS_KIB,
                 "adaptive_max_group_cpu_percent": ADAPTIVE_MAX_GROUP_CPU_PERCENT,
                 "adaptive_max_batch_rss_kib": ADAPTIVE_MAX_BATCH_RSS_KIB,
                 "adaptive_max_batch_cpu_percent": ADAPTIVE_MAX_BATCH_CPU_PERCENT,
-                "projected_rss_multiplier": 1.5,
+                "max_running_batch_cpu_percent": MAX_RUNNING_BATCH_CPU_PERCENT,
+                "projected_rss_multiplier": ADAPTIVE_RSS_PROJECTION_MULTIPLIER,
+                "hard_reserve_projection": (
+                    "sum(max(1.25*expected_peak_rss-current_group_rss,0)) for active PGIDs; "
+                    "active growth plus candidate peak must fit free headroom"
+                ),
+                "hard_memory_reserve_percent": HARD_MEMORY_RESERVE_PERCENT,
+                "launch_stagger_seconds": PROCESS_GROUP_LAUNCH_STAGGER_SECONDS,
+                "cooperative_stop_signals": ["SIGINT", "SIGTERM"],
+                "max_active_process_groups": MAX_PROCESS_GROUPS,
                 "resource_exclusive_paths": sorted(RESOURCE_EXCLUSIVE_TEST_PATHS),
             },
         },
@@ -2997,7 +3568,7 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         )
 
     workers = min(args.workers, MAX_PROCESS_GROUPS)
-    start_snapshot = _resource_snapshot(os.getpid(), args.scratch_root)
+    start_snapshot = _resource_snapshot(os.getpgrp(), args.scratch_root)
     start_guard = _resource_guard_reason(
         start_snapshot,
         start_snapshot["system_swap_used_bytes"],
@@ -3194,7 +3765,7 @@ def main() -> int:
             parser.error("timeout reruns require an explicit alarm of at least 1800 seconds")
         global REQUESTED_TEST_PATHS
         REQUESTED_TEST_PATHS = INITIAL_TEST_PATHS
-        return run_timeout_rerun(args)
+        return _run_with_stop_handlers(lambda: run_timeout_rerun(args))
     if args.test_file:
         if args.scope is not None:
             parser.error("custom --test-file paths cannot be combined with --scope")
@@ -3208,7 +3779,7 @@ def main() -> int:
             "pre-repair": PRE_REPAIR_TEST_PATHS,
         }
         REQUESTED_TEST_PATHS = scope_paths[args.scope]
-    return run_matrix(args)
+    return _run_with_stop_handlers(lambda: run_matrix(args))
 
 
 if __name__ == "__main__":

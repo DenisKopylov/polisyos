@@ -9,9 +9,9 @@
   },
   "status_counts": {
     "closed": 1,
-    "partial": 263,
-    "held": 14,
-    "open": 4
+    "partial": 264,
+    "held": 10,
+    "open": 7
   },
   "appendix_c_counts": {
     "closed_bounded": 132,
@@ -29,7 +29,7 @@
     "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial but is distinct: its exact accepted J1107 selector/result is a historical FAIL counterexample to default-PAUSE capacity because the first admitted chunk exceeds both configured caps; current four-base replay and the full controls remain UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial; LA-021 remains separately closed only within its measured CAN-01 profile. No behavior failure is inferred from the 70 evidence-only downgrades.",
     "The 18 Appendix-C no-record items are reconciled individually: LA-021 is closed within its measured CAN-01 profile; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
     "The reviewed P triage remains 118/118 for the original P rows: 76 engineering, 16 principal decision drafts, and 26 typed blockers. The 71 evidence-gap downgrades are not reclassified into P118 buckets by this audit; triage is not closure evidence.",
-    "The held audit reviews all 14 blockers and records no behavioral closure; its semantic-capability verdict is UNRUN where lexical census is the only absence instrument.",
+    "The 2026-09-24 held review is a historical source/blocker snapshot, not a behavioral closeout. The later H14 owner/capability map is /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844; it classifies 4 owner decisions, 6 data records, 4 owner-path capability gaps, and 0 external-institution blockers. B194, B197, and B219 are actionable open items; LA-010 is partial because root CLI delegation is source-visible while its compatibility matrix is UNRUN. LA-032 remains held on the named missing complete-layout/inventory-bound loader capability. No H14 behavioral or P41 result is claimed; the 282 finding denominator remains intact.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
@@ -96,6 +96,10 @@
       "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710",
       "held_review_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8",
       "scope": "No-record and held source/owner review only. All finding-level behavioral tests and four-base replays remain UNRUN except LA-021 bounded corpus instrument; artifacts are cited from the reviewed branch and are not yet present in this worktree."
+    },
+    "h14_owner_capability_map": {
+      "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844",
+      "scope": "H14 source/owner-path blocker map for the 14 Appendix C held findings; source-only dispositions, not behavioral closure or P41 evidence."
     }
   },
   "reported_test_catalog": {
@@ -1761,14 +1765,14 @@
       "appendix_c_status": "held",
       "status": "held",
       "appendix_c_comparison": {
-        "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B31."
+        "relation": "agreement_held_blocker_refined",
+        "detail": "Appendix C held status retained. H14 source review identifies the owner decision on estimand/unit binding as the single blocker; the producer/served-consumer chain and all behavior remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B31."
       },
-      "residual": "Existing `ValueOuterSet` and `UncertaintyEnvelope` contracts exist, so repository-wide smallest-capability absence is not established. The live Foundry bridge collapses a point-identified estimate to point bounds or symmetrizes a proxy interval and loses statistical interval semantics/confidence/unit/estimand linkage. Blocker: owner decision by Runtime Value Gate/IR uncertainty owners on how substantive estimand and unit bind the existing identification bounds to statistical/model uncertainty, including linked `UncertaintyEnvelope` versus versioned composite. Distinguishing report with asymmetric interval and compatible unit is UNRUN.",
+      "residual": "Owner decision remains the one blocker: define how existing identification bounds bind to statistical/model uncertainty, estimand, and units (linked UncertaintyEnvelope versus a versioned composite). The N8 result-to-receipt production and served-consumer chain is not established. The complete 2,693-file direct-call census does not exclude aliases, dynamic deserialization, external producers, or other ValueOuterSet paths. Distinguishing served witness and controls remain UNRUN.",
       "residual_owner": {
         "kind": "owner_decision",
         "name": "Runtime Value Gate / ValueOuterSet and IR uncertainty contract owners; principal decision required",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "appointment_status": "Decision pending; no semantic binding rule or served production chain is admitted."
       },
       "r_class": null,
       "p_triage": null,
@@ -1785,13 +1789,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@git-blob:e73454e6b50624acc69627f48172a7612c9ccd9c",
-        "blocker_path_scope": "Current owner contract path; class field inventory is the relevant locus. Absence/audit finding remains provisional until held-audit receipt is committed.",
+        "blocker_path_scope": "Existing owner contract locus; H14 source census is literal-call evidence only and does not establish producer absence.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B31",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B31",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -3361,13 +3371,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 narrows the single blocker to an immutable owner-issued read identity for the exact bytes shared by selection and cache identity. Behavioral and mutation witnesses remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B61."
       },
-      "residual": "A SourceSnapshot byte-digest/replay bridge exists, but ResolveParametersNode does not use it: the node selects from SKG path/index state and records version/ref identifiers while the idempotency key binds declared state, not consumed database bytes. Residual: produce a same-run source-immutability/reissue record or show cache identity binds the bytes actually consumed.",
+      "residual": "One data-record blocker: the SKG source owner must issue an immutable snapshot/read-handle identity binding the exact bytes consumed by both the ResolveParameters query and its cache key. SourceSnapshot exists but does not wrap the live SKGQuery path; recording a version/ref after selection does not establish same-run byte identity. Same-path mutation, removal, and preserving controls remain UNRUN.",
       "residual_owner": {
         "kind": "data_record",
         "name": "SKG source owner and ResolveParametersNode run-scope binding",
-        "appointment_status": "existing snapshot bridge is not evidence of this node’s run-scope source identity"
+        "appointment_status": "Required source-owner snapshot/read-handle record is not supplied for the bytes selected and consumed by this node."
       },
       "r_class": null,
       "p_triage": null,
@@ -3385,14 +3395,20 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/pdc/_impl/world_model_record.py@git-blob:f036b333eb50e35110b21c209638b30e90b525ba",
-        "blocker_path_scope": "Current WMR SKG reference path; this is code locus, not proof that an external immutable snapshot exists.",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py@git-blob:365ce2b0efcd55b1e47f823057b2201e37c68cb3",
+        "blocker_path_scope": "ResolveParameters live query and cache-key binding path; existing SourceSnapshot does not wrap this query.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B61",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B61",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B61",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -10710,16 +10726,16 @@
       "closure_owner": "UQP-03",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "held",
-      "status": "held",
+      "status": "open",
       "appendix_c_comparison": {
-        "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B194."
+        "relation": "disagrees",
+        "detail": "Appendix C lists B194 as held. H14 confirms an actionable missing capability on the Monte Carlo result/report owner path, so the latest ledger classifies it open. This is a source-only classification; test, removal probe, controls, and P41 are UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B194."
       },
-      "residual": "Monte Carlo filters finite successful values but no owner-issued persisted draw-index→outcome/reason map with declared denominator is carried through posterior/report consumer. Blocker is that specific data record from `_build_results`/PropagationResult/PosteriorSamplesCarrier, not a claim the capability is absent repository-wide. Inject known failed draw indices and require consumer/report to use denominator; witness UNRUN.",
+      "residual": "Actionable owner-path capability gap: typed per-draw outcome/reason provenance must survive _build_results through PropagationResult and the report, including draw identity, attempts, denominator, and conditionality. Aggregate failure counters and the successful-only PosteriorSamplesCarrier do not preserve failed draw mass/reasons on this path. This is a source-level owner-path finding, not a repository-wide absence claim. P41, the result/report witness, removal probe, and controls remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "Monte Carlo result producer and posterior/report consumer; data-record issuer",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "kind": "smallest_missing_capability",
+        "name": "Monte Carlo _build_results / PropagationResult / report owner — per-draw outcome provenance",
+        "appointment_status": "The typed per-draw outcome/reason capability is absent on this owner path; behavioral proof remains UNRUN."
       },
       "r_class": null,
       "p_triage": null,
@@ -10736,13 +10752,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@git-blob:38f409e574dc2a97badc694499f534734123006a",
-        "blocker_path_scope": "Current Monte Carlo producer locus; this is not a run-data record or behavioral witness.",
+        "blocker_path_scope": "Monte Carlo producer locus; the missing per-draw provenance is scoped to this result/report path, not a repo-wide absence census.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B194",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B194",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B194",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -10864,16 +10886,16 @@
       "closure_owner": "CAL-06",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "held",
-      "status": "held",
+      "status": "open",
       "appendix_c_comparison": {
-        "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B197."
+        "relation": "disagrees",
+        "detail": "Appendix C lists B197 as held. H14 confirms an actionable missing group-to-field projection on the current calibration report/adapter path, so the latest ledger classifies it open. B198 does not close B197. Behavioral witness, removal probe, controls, and P41 remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B197."
       },
-      "residual": "Optimizer retains group handles, but CalibrationReport and uncertainty adapter do not bind tied/untied group handles to ordered field identities and covariance/Hessian axes. Blocker is the calibration result/data record carrying group→field projection and its consumer witness, not a repository-wide absence claim. B198 tests do not close B197; witness UNRUN.",
+      "residual": "Actionable owner-path capability gap: a persisted tie-group-to-field projection must survive CalibrationReport and reach the uncertainty adapter with covariance/Hessian axes aligned to named fields. The optimizer retains group handles, but the current report/adapter path does not preserve that mapping through the welfare consumer. P41, round-trip witness, removal probe, and controls remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "Foundry calibrator/report producer and uncertainty adapter; data-record owner",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "kind": "smallest_missing_capability",
+        "name": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
+        "appointment_status": "The required persisted group-to-field projection is absent on the current report-to-adapter path; behavioral proof remains UNRUN."
       },
       "r_class": null,
       "p_triage": null,
@@ -10889,14 +10911,20 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/calibrator.py@git-blob:3567d8e57dc1a05f8653c164683cb515807de2f2",
-        "blocker_path_scope": "Current calibration owner path; this is not a group-projection witness.",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:d547b27f4f64091ea399c7bf7d8c6f557504c774",
+        "blocker_path_scope": "Current calibration report-to-uncertainty adapter path; B198 tests are not evidence for this tied-group property.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B197",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B197",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B197",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -11082,13 +11110,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 confirms the single blocker is an owner choice/versioning decision for point and interval semantics. Skewed-summary behavior and historical replay remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B201."
       },
-      "residual": "The summarizer uses the mean as point_estimate and equal-tail quantiles as the interval, while the public envelope requires the point inside that interval. Residual: the public IR owner must decide/version point-functional semantics and historical serialization for valid skewed summaries.",
+      "residual": "One owner decision: choose and version the point functional independently from equal-tail interval semantics for skewed posterior summaries, while preserving historical v1.1 serialization/replay. No owner ruling or behavioral/history replay is admitted; all proposed witnesses remain UNRUN.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "Public IR owner — point-functional and versioned historical serialization decision",
-        "appointment_status": "owner decision pending; no interval widening or semantic relabeling is authorized"
+        "name": "Public IR owner — point-functional semantics and versioned historical serialization",
+        "appointment_status": "Owner decision pending; no interval widening or semantic relabeling is authorized."
       },
       "r_class": null,
       "p_triage": null,
@@ -11105,7 +11133,7 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
-        "blocker_path_scope": "Current public IR uncertainty path; versioning remains an owner decision.",
+        "blocker_path_scope": "Public IR uncertainty semantics and historical serializer path; decision remains pending.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
@@ -11118,6 +11146,12 @@
           "identity": "DECISION_RECORDS.md#held-B201",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#B201",
           "scope": "draft only; principal/owner ruling pending"
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B201",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -11136,13 +11170,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 confirms the single blocker is the public-IR source-law/joint-identity decision coordinated with B201. Persistence, reload, and historical replay remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B202."
       },
-      "residual": "PosteriorSamplesCarrier exists, but the summary producer does not attach the received draws as distribution_payload or a content-bound ref. Residual: the public IR owner must decide/version sample and joint-identity semantics with a historical serializer, coordinated with B201.",
+      "residual": "One owner decision: choose and version how BayesianCalibrationPosteriorSummary identifies its source law (existing inline carrier versus content-bound CAS reference), including sample axes, weights, joint draw identity/compression, and historical serialization. PosteriorSamplesCarrier exists, but the producer binding and owner choice are unresolved. Persistence/reload and joint-law witnesses remain UNRUN.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "Public IR owner — schema-versioned sample/joint identity decision",
-        "appointment_status": "owner decision pending; existing carrier does not supply this producer binding"
+        "name": "Public IR owner — schema-versioned source-law and joint-draw identity",
+        "appointment_status": "Owner decision pending; the existing carrier does not supply producer binding."
       },
       "r_class": null,
       "p_triage": null,
@@ -11159,7 +11193,7 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
-        "blocker_path_scope": "Current public IR uncertainty path; versioning remains an owner decision.",
+        "blocker_path_scope": "Public posterior-summary law representation and historical serializer path; decision remains pending.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
@@ -11172,6 +11206,12 @@
           "identity": "DECISION_RECORDS.md#held-B202",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#B202",
           "scope": "draft only; principal/owner ruling pending"
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B202",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -12065,16 +12105,16 @@
       "closure_owner": "GRF-02",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "held",
-      "status": "held",
+      "status": "open",
       "appendix_c_comparison": {
-        "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The new H14 blocker audit shows that NetworkX execution is environment-admitted; the previous external-institution blocker is unsupported. Reclassify the remaining discriminator-specific need as a data record: accepted exporter/consumer round-trip across parallel edge identities. Behavioral witness and semantic-absence verdict remain UNRUN."
+        "relation": "disagrees",
+        "detail": "Appendix C lists B219 as held on an environment_not_established label. H14 supersedes that rationale: the source path and existing direct exporter test are environment-admitted, and the current owner path overwrites same-endpoint edge identities. The missing export capability is actionable/open; P41 and behavioral/removal/control witnesses remain UNRUN. No ID-engine effect is inferred. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B219."
       },
-      "residual": "NetworkX execution is environment-admitted under the held review's cached-archive note, so no external-institution blocker is established. The remaining blocker is an accepted data record through the actual `CausalGraph.to_networkx()` and ID-engine consumer showing two same-endpoint edges with distinct mark/lag/metadata survive round-trip and insertion permutations; ordinary single-edge export is the control. The zero direct MultiDiGraph spelling census does not establish repository-wide semantic absence because aliases/dynamic paths remain unresolved. The distinguishing behavioral witness remains UNRUN.",
+      "residual": "Actionable owner-path capability gap: CausalGraphModel.to_networkx constructs a DiGraph, so repeated same-endpoint typed/lagged edges overwrite one another; the export must preserve parallel edge identity and metadata. The existing four-insertion-order direct test is a candidate but its P41 replay is UNRUN. id_engine/core.py builds its own mixed graph from original edges and discards the exporter result, so downstream ID-engine impact is not established. Single-edge control and property-removal probe remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "CausalGraph exporter and ID-engine graph consumer evidence owner",
-        "appointment_status": "source paths and data-record owner role identified; no individual appointment or behavioral closure is claimed"
+        "kind": "smallest_missing_capability",
+        "name": "CausalGraphModel.to_networkx owner — multiedge-preserving NetworkX export",
+        "appointment_status": "Multiedge-preserving export is missing from this owner path; no repository-wide alias/dynamic census or behavioral verdict is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -12092,8 +12132,8 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py@git-blob:b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
-        "blocker_path_scope": "Current ADMG operations path to inspect in the accepted exporter/consumer round-trip; this does not establish semantic capability absence.",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:f8758f86a0e78fb748e658fdc7d92addbb54df88",
+        "blocker_path_scope": "Actual CausalGraphModel.to_networkx export path. The ID-engine conversion result is discarded, so consumer impact is not established.",
         "held_audit_receipt_status": "read-only H14 audit confirms data_record blocker; held status and semantic UNRUN remain unchanged",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
@@ -12102,7 +12142,13 @@
           "scope": "Blocker refinement only; H14 audit identifies an evidence/data record as the remaining blocker. No behavioral closure or repository-wide semantic absence is claimed."
         },
         "blocker_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-20260924.md@sha256:70047d13784b61630f99ab921aedd13368aac37351f50cf5b10e1fb39637153e",
-        "blocker_audit_scope": "Full 14/14 held-row audit: 4 owner-decision blockers, 10 data-record blockers, 0 external-institution blockers, 0 justified missing-capability claims; semantic absence remains UNRUN."
+        "blocker_audit_scope": "Full 14/14 held-row audit: 4 owner-decision blockers, 10 data-record blockers, 0 external-institution blockers, 0 justified missing-capability claims; semantic absence remains UNRUN.",
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:B219",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B219",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+        }
       }
     },
     {
@@ -12687,13 +12733,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 identifies the single missing record as the complete DTO/import/distribution/historical consumer inventory; no removal or compatibility behavior is admitted. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-005."
       },
-      "residual": "The DTOs remain importable and identity-bound; the current review accepts only LA-006 and leaves LA-005/026/027 compatibility-pending. Residual: complete distribution, supported-input, external-caller inventory and historical round-trip record.",
+      "residual": "One data-record blocker: complete exact DTO/import/package/historical-data consumer inventory for AgentType, RegionProfile, and SimulationConfig before moving or retiring their legacy definitions. Current definitions remain importable; text search does not establish external caller absence or distribution compatibility. Built-distribution and historical-payload witnesses remain UNRUN.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "DFK schema owner / distribution and compatibility consumer owners",
-        "appointment_status": "external consumer census and historical record pending; source-symbol search does not prove external absence"
+        "name": "DFK schema owner and distribution/compatibility consumer owners",
+        "appointment_status": "Complete dynamic/import/package and historical-payload inventory is not admitted; current source presence is not a consumer-absence record."
       },
       "r_class": null,
       "p_triage": null,
@@ -12709,14 +12755,20 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py@git-blob:033094124e8cbb925fe05f13dad652b24cbe7bb3",
-        "blocker_path_scope": "Current canonical schema owner path; the required complete distribution/external-consumer data record is missing.",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/domain/schema.py@git-blob:098c04de8a8fa4987b78fa0d7e3cb0af25ef5616",
+        "blocker_path_scope": "Legacy DTO definitions and supported distribution/import/history contract; external-caller absence remains not_established.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-005",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-005",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-005",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -12955,16 +13007,16 @@
       "closure_owner": "MIG-01",
       "mapping_ref": "legacy_to_bundles",
       "appendix_c_status": "held",
-      "status": "held",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-010."
+        "relation": "disagrees",
+        "detail": "Appendix C lists LA-010 as held with a duplicate-runner/self-edge residual. H14 finds the root CLI delegates to the canonical runner, so the duplicate implementation premise is gone at source level. Keep LA-010 partial for the separate compatibility data record; do not conflate LA-049's self-edge decision. Behavior remains UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-010."
       },
-      "residual": "Root CLI delegates to the canonical runner and argv/status forwarding has a bounded test. Remaining blocker is an end-to-end compatibility data record for JSON/YAML, explicit/default targets, current/historical source versions, malformed inputs, errors/exit/output, newline/encoding, write failures and supported historical fixtures. The same-version Trinity no-op/self-edge decision belongs to LA-049, not LA-010. Actual root CLI matrix is UNRUN.",
+      "residual": "The root CLI is now a thin call-through to the canonical migration runner, removing the duplicate-runner source premise at this head. Residual: an end-to-end compatibility record for JSON/YAML, current/historical versions, default/explicit targets, malformed inputs, errors/exit/output, encoding/newlines, write failures, and supported historical fixtures. The actual root CLI matrix is UNRUN. LA-049 owns the separate same-version Trinity self-edge question.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "Canonical migration CLI owner and external caller/fixture owner; data-record blocker",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "name": "Canonical migration CLI owner and compatibility-fixture/data-record owner",
+        "appointment_status": "Canonical runner ownership is established at source level; compatibility matrix and fixture record remain absent."
       },
       "r_class": null,
       "p_triage": null,
@@ -12980,8 +13032,8 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:14f1c0319522800ebd7c9023be6177b40ffd16fd",
-        "blocker_path_scope": "Current canonical policy_ir migration path; self-edge requirement remains an owner decision.",
+        "blocker_path_at_sha": "policy-engine/migrate.py@git-blob:4e402d2c11146f86dab86f0473ce2ad970b8cd8b",
+        "blocker_path_scope": "Root CLI call-through to canonical runner; forwarding is source-visible, while end-to-end compatibility remains unmeasured.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
@@ -12995,6 +13047,12 @@
           "candidate_test_identity": "proposed:LA010_root_cli_full_compatibility_matrix",
           "behavioral_verdict": "UNRUN",
           "scope": "Card property and distinguishing seam recorded from the source card and supplied read-only audit. The candidate identity is not a test receipt unless explicitly labeled as an accepted prior receipt; current four-base replay remains UNRUN."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-010",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-010",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -13833,13 +13891,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 refines the single blocker to the distribution/external-caller/historical-payload record for the exact descriptor, not a repository-wide cleanup claim. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-026."
       },
-      "residual": "GeneratedSchemaModule remains a three-field placeholder and its compatibility FQN is intentionally importable. Residual: record the wheel/sdist, external-consumer and historical-payload contract before deciding exact-FQN retirement.",
+      "residual": "One data-record blocker: complete source/import/dynamic-loader/package/ABI/history inventory for the GeneratedSchemaModule descriptor before deciding whether to retire or move its compatibility FQN. The descriptor is a three-field placeholder and current owner is data_forge/kernel/schemas; selected symbol scans do not establish external or retained-payload absence. Distribution/history witnesses remain UNRUN.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "DFK schema owner / distribution and compatibility consumer owners",
-        "appointment_status": "distribution/external consumer evidence missing; whole-tree symbols do not establish external absence"
+        "name": "DFK schema owner and distribution/compatibility consumer owners",
+        "appointment_status": "Complete dynamic-loader, wheel/sdist, external-consumer and historical-payload inventory is not admitted."
       },
       "r_class": null,
       "p_triage": null,
@@ -13856,13 +13914,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py@git-blob:ac44baf02ab49e496631617060f32bbfde3add0e",
-        "blocker_path_scope": "Current schema codegen path; distribution/consumer inventory is required before retirement.",
+        "blocker_path_scope": "GeneratedSchemaModule descriptor and canonical schema registry owner; no external caller absence is inferred.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-026",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-026",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-026",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -13881,13 +13945,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 confirms the single blocker is an old-address/import-identity and distribution/history record; no behavioral or package test has run. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-027."
       },
-      "residual": "The alias initializer re-exports canonical schema classes and existing tests retain FQN/import identity. Residual: complete the consumer inventory and compatibility-window record, then verify the alias result in wheel/sdist and historical imports.",
+      "residual": "One data-record blocker: establish the old import address, package inclusion, dynamic caller set, and historical import identity before retiring or changing the re-export alias. The initializer re-exports canonical classes; lexical non-use alone does not prove compatibility-window completion. Wheel/sdist and historical-import witnesses remain UNRUN.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "DFK schema owner / distribution and compatibility consumer owners",
-        "appointment_status": "distribution/external consumer evidence missing; whole-tree symbols do not establish external absence"
+        "name": "DFK schema owner and distribution/compatibility consumer owners",
+        "appointment_status": "Old-address caller/distribution/history inventory remains unadmitted; current alias source does not prove retirement safety."
       },
       "r_class": null,
       "p_triage": null,
@@ -13904,13 +13968,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py@git-blob:09439357496c6e30c16444d8a5e7c15d5a3c09f3",
-        "blocker_path_scope": "Current compatibility-address path; distribution/consumer inventory is required before retirement.",
+        "blocker_path_scope": "Compatibility alias initializer and canonical schema-service identity; external caller absence remains not_established.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-027",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-027",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-027",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -14098,13 +14168,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14's complete package census finds 5/11 direct .common importers, so the single blocker is the named caller/registry-selected output parity record, not absence of a generic helper. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-031."
       },
-      "residual": "The generic canonical helper exists. In the complete builders/ denominator, 5 of 11 Python files still import .common; selected helper parity tests do not provide the full caller/import budget, registry map or selected-stage output comparison. Residual: produce those owner-path records.",
+      "residual": "One data-record blocker: map the actual registry-selected production builder for each of the five direct .common importers in the complete 11-file builder package and record byte/content, diagnostic, warning, and write-behavior parity after explicit routing. This is not a zero-caller retirement; the helper has active callers. Full caller/output witness remains UNRUN.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "Ukraine builders migration owner",
-        "appointment_status": "remaining import budget and stage-output byte-parity record pending; not an absent generic helper"
+        "name": "Ukraine builder migration owner — five importer caller/registry/output map",
+        "appointment_status": "Five direct .common importers remain in the 11-file denominator; selected production callers and output-parity record are incomplete."
       },
       "r_class": null,
       "p_triage": null,
@@ -14121,13 +14191,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py@git-blob:97c1f1dca8db13dc6409919ca2cf81feea43d997",
-        "blocker_path_scope": "Current Ukraine builder path; production caller/cutover appointment is missing.",
+        "blocker_path_scope": "Canonical helper and its five current direct importers; do not infer that every helper is unused or retire common wholesale.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-031",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-031",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-031",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -14146,13 +14222,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-032."
+        "detail": "Appendix C held status retained. H14 confirms that generic verified-stage receipt production exists but the demographic loader lacks the complete-layout/inventory-bound selection; reuse the existing Data Forge receipt owner. End-to-end behavior remains UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-032."
       },
-      "residual": "Generic verified-stage receipt production/readers exist, but no owner receipt binds the selected Ukraine demography input set to per-file digests and reopens that same receipt through the consumer. Blocker is an owner-issued input/digest data record for this selected set; lexical scan is not semantic absence. End-to-end receipt/reopen witness UNRUN.",
+      "residual": "One smallest missing capability: a complete-layout, inventory/digest-bound demographic selection wired through the existing Data Forge verified-stage receipt/read owner. VerifiedUkraineStageArtifacts exists, but load_demography_artifacts independently selects files across hierarchical and flat layouts and does not bind/reopen the same complete selected set. Reuse the existing receipt/store owner; add no parallel CAS or second world-growth path. Served producer/receipt/reader and sibling-loader witnesses remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "Ukraine data/input owner and verified-stage receipt consumer",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "kind": "smallest_missing_capability",
+        "name": "Ukraine demography loader — inventory-bound complete-layout selector through VerifiedUkraineStageArtifacts",
+        "appointment_status": "The complete selected-set admission is absent on the demographic loader path; reuse the existing Data Forge receipt owner. Behavior remains UNRUN."
       },
       "r_class": null,
       "p_triage": null,
@@ -14169,13 +14245,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py@git-blob:32d925f0d443ea61c08b16986b87ed053dd8c9a8",
-        "blocker_path_scope": "Current demography reader path; whole-snapshot inventory/digest receipt is missing.",
+        "blocker_path_scope": "Demographic loader selection and binding to the existing VerifiedUkraineStageArtifacts receipt; no new storage or world-growth path.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-032",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-032",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-032",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },
@@ -15078,13 +15160,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held this finding. The 2026-09-24 held review preserves held status and refines the single blocker using owner-path evidence; candidate behavioral witnesses remain UNRUN."
+        "detail": "Appendix C held status retained. H14 separates LA-049's same-version self-edge decision from LA-010's root CLI compatibility data record; owner decision and behavioral witnesses remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-049."
       },
-      "residual": "The current-version public migration path calls TrinityBundle.model_validate; the unresolved 1.0→1.0 identity edge is unreachable under generic same-version no-op. Residual: the MIG-01 owner must decide whether same-version means untouched or validated-current Trinity.",
+      "residual": "One owner decision: determine whether the policy_ir 1.0→1.0 self-edge is an identity/no-op or must run current-version Trinity validation, without changing generic same-version semantics for every edge. The MIG-01 owner ruling and actual CLI/helper postcondition remain UNRUN.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "MIG-01 migration owner — same-version no-op and self-edge postcondition",
-        "appointment_status": "decision pending; current bounded J0678 review does not settle the postcondition"
+        "name": "MIG-01 migration owner — policy_ir same-version no-op/self-edge postcondition",
+        "appointment_status": "Owner decision pending; current bounded J0678 review does not settle the postcondition."
       },
       "r_class": null,
       "p_triage": null,
@@ -15101,13 +15183,19 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:14f1c0319522800ebd7c9023be6177b40ffd16fd",
-        "blocker_path_scope": "Current canonical policy_ir migration path; self-edge requirement remains an owner decision.",
+        "blocker_path_scope": "policy_ir 1.0→1.0 edge and generic migration no-op boundary; separate from LA-010 root CLI delegation.",
         "held_audit_receipt_status": "pending_separate_candidate_commit",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-049",
           "behavioral_verdict": "UNRUN",
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "h14_source_review": {
+          "identity": "H14 source-owner capability map:LA-049",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-049",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         }
       }
     },

@@ -1746,6 +1746,164 @@ unwired backend/adapter; all-backend support requires positive witnesses across 
 configured backend. Neither rollout makes the 461-file syntactic reference set a
 blanket conversion list.
 
+### R9 addendum — P41 reassessment and lean deviation (2026-09-25)
+
+**Status and relation to the earlier proposal.** This dated lane proposal is based on
+the four-base P41 collision capture and the subsequent class reassessment. It
+supersedes the earlier conditional multi-view recommendation and the generic
+multi-view target in the Pattern pass above as the proposed repair for these
+measured regressions. That text remains design exploration, not the current lane
+repair recommendation. This addendum does not close B150 or settle whether PolicyOS
+needs a general same-bytes/multiple-use capability. No principal choice or repair
+behavior is established by this addendum.
+
+**Question.** Should R9 address the observed ProgramGraph and epoch profile
+conflicts by weakening CAS profile validation, adding generic typed views, or
+correcting the producer-owned profiles while preserving strict CAS semantics?
+
+**Options and costs.**
+
+1. **Lane proposal — preserve strict CAS and correct the two producer profiles.**
+   Keep `_ManifestLifecycle.validate_profile` fail-closed. In the ProgramGraph
+   owner, emit no constraint report when no `check_constraints` operation ran; when
+   checks do run, derive the report's input lineage from the definitions and state
+   actually consumed. Leave state-delta and metrics input lineage intact. In the
+   test-owned epoch setup, request `policy.admission` for the initial write used by
+   `_policy_configuration`, while retaining the fixture helper's existing default
+   for unrelated chronology cases. The graph/report owner bears the producer
+   contract and test cost; test owners bear the narrow fixture change and replay
+   cost. This preserves byte deduplication and truthful refs, but leaves generic
+   occurrence provenance unresolved.
+2. **Add generic selected multi-view CAS now.** This could represent two genuinely
+   required profiles over identical bytes, but costs a versioned view contract,
+   tenant-bound ownership and signatures, quota and transfer rules, adapter and
+   consumer migration, ProgramGraph selector propagation, and historical
+   serializers. The artifact-store owner and every admitted producer/consumer
+   would carry that broad implementation and compatibility cost. P41 supplies no
+   witness that either measured regression needs two simultaneously consumed
+   profiles; the exact ProgramGraph manifest/input list was not captured.
+3. **Add a typed use/provenance record if an existing run/evidence owner cannot
+   preserve the relation.** This can keep one physical blob and one truthful
+   manifest while recording separate event uses. It costs a typed producer,
+   persistence, replay and consumer path only if the existing owner is insufficient.
+   No complete generic use-record owner or served caller requiring this record is
+   established; do not create an envelope without that witness.
+4. **Return a ref for a requested profile that the store does not hold — rejected.**
+   It avoids the immediate exception but makes the ref claim a false kind or input
+   closure. Readers then bear the integrity failure, contrary to B150 and the
+   CAS owner's contract.
+
+**Premises.** P41 records the ProgramGraph discriminator as 24 passing cases at
+the execution base, 23 passing and one failing at E02, 24 passing on main, and 23
+passing and one failing at Phase 0. Its failure names the same blob
+`sha256:7b19c822faafb9f9a41dfdba35ee9195060e12cb60fb434f8a53544153b00bcd` and
+only an `inputs` mismatch; P41 did not retain the first manifest or exact input
+list. Source shows an empty default `ConstraintReport` is persisted even when no
+constraint-check operation ran, with the broad run input list including changing
+patch refs. Those refs are real dependencies of state deltas/metrics, but are not
+dependencies of an unchecked empty report. P41 also records four main-to-Phase-0
+epoch setup failures with `kind` mismatch on the same admission blob
+`sha256:d9c2c0b074bc0f24007b282fdaaacce72c2be4bc7966ade07a2d6c6994ef4f04`:
+the fixture first stores the canonical statement as
+`fixture.predicate-policy-admission`, then `_policy_configuration` persists those
+same bytes as `policy.admission`. The fixture label has no independent semantic
+reader; the signed policy type is consumer-facing. These four epoch comparisons
+are main-to-Phase-0 only; the affected cases or test files are absent at the older
+E02 revisions. The strict store check correctly refuses both mismatches, and B150
+allows a typed use/provenance record as an alternative when distinct uses are
+actually required. Evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-class-reassessment-20260925.md@sha256:1f54814c61acf25410302b99fa336599d874016bb79833f65b656630cb44ea4b`;
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-p41-collision-capture-20260925.md@sha256:3356a5c5d2309274d27276332be69f4819326c2e0ebcc7d2cdc97b49bfd8d396`;
+`PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@36bcff0953c8b8e010f66ad7a0b355458b0f640d`.
+
+**Proposed choice; principal status and deviation.** Propose option 1 for the
+observed regression repairs: strict CAS, a truthful output-specific ProgramGraph
+constraint-report profile, and a fixture-specific `policy.admission` initial kind.
+This explicitly deviates from the original R9 lean in §7.1, which asked to support
+multiple honest typed views of one blob. The P41 evidence explains the deviation:
+these two conflicts have producer-side causes and do not demonstrate that multiple
+semantic profiles must be selected concurrently. Do not interpret this proposal as
+principal approval or as proof that the proposed fixes work. Keep the broader
+view/use decision pending; the current generic multi-view producer/consumer chain
+and a complete typed use-record owner are `not_established`. No production signer,
+authority view, API selector, or backend-wide support is proposed here.
+
+**P37 — predicates at admission.** CAS recomputes exact byte identity and whether
+the requested profile equals the stored manifest (`recomputed`). It does not
+recompute whether a caller's `inputs` were consumed to produce an output or whether
+a `kind` names the actual semantic type; those producer predicates are
+`not_established` until the owning paths derive and behaviorally verify them. For
+the ProgramGraph case, the precise persisted input list is `not_established` even
+though source and the failing field point to the broad generic input list. For the
+epoch fixture, P41 and source establish the write order, canonical payload identity,
+requested kinds, and the absence of a consumer for the fixture label; this supports
+the narrow fixture alignment, but does not establish an issuer or signed production
+authority. A generic selected view, tenant ownership, and a required signature
+would each need independent owner/store reconciliation; a caller-supplied view ID,
+kind string, or test key cannot establish them.
+
+**P38 — property and divergence.** Property: every returned ref describes the
+exact persisted artifact profile, and each profile's lineage names the inputs that
+actually produced that artifact. The CAS currently compares the requested profile
+to the first persisted profile and correctly refuses a mismatch. The ProgramGraph
+producer diverges by attaching step-varying patch refs to a constant empty report
+that ran no checks; the equality gate then refuses a later report write even though
+those refs did not affect that report. The epoch test helper diverges by first
+persisting the consumer-facing policy statement under a fixture-only kind, after
+which the signed-evidence owner correctly refuses to return a `policy.admission`
+ref over that stored manifest. Relaxing the gate would make the returned ref
+untruthful. A generic view marker would also diverge if it selected a manifest
+without recomputing actual inputs and reconciling owner/signature evidence.
+
+**Remainder and standing.** The ProgramGraph repair does not settle whether a real
+checked report may recur with identical bytes and different necessary input
+closures; its actual checks must remain bound. The epoch fixture alignment does
+not appoint an issuer or change the deployed epoch reader's signature policy.
+B150's broader distinct-use provenance remains `not_established`: the existing
+simulation receipt is partial, and no complete generic use-record producer was
+identified. The artifact owner owns strict blob/profile integrity; the graph
+producer owns report semantics; the test helper owns fixture labels. The principal
+and CAS/artifact owner retain the decision on generic selected views versus a typed
+use record. No historical manifest/signature is restamped, and no source or test
+behavior is claimed fixed or verified by this draft.
+
+**Falsifier / revisit trigger.** For option 1, retain report and fixture markers,
+then remove the `check_constraints`-ran condition: the unchecked report must again
+carry irrelevant changing patch inputs and reproduce the collision. Keep a positive
+control with an actual check proving its report persists with the checked
+definitions/state lineage, and keep state-delta/metrics lineage for their patch
+dependencies. Restore the fixture's initial
+`fixture.predicate-policy-admission` kind while retaining the later
+`policy.admission` signed write: the setup must refuse the mismatch; the preserving
+control uses `policy.admission` for this configured fixture and confirms
+verification reads the exact persisted manifest, while unrelated chronology
+fixtures still use the default. Separately, retain API markers but remove strict
+stored-profile comparison; changed-kind and changed-input negative writes must
+then show why the returned ref would be false. Reopen the generic-view/use-record
+choice only when a served production witness shows identical payload bytes with two
+independently required semantic relations, both consumed; first demonstrate that
+the existing typed run/evidence owner cannot preserve the relation. Removing just
+one selected view/use while leaving the blob and sibling relation must break only
+its dependent consumer. A synthetic two-profile unit case alone does not falsify
+the present lane proposal. These are acceptance probes, not results already run.
+
+**Where it binds.** Strict stored-winner profile checks at
+`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`
+and `src/polisyos/core/artifacts/store.py@775d9811ae8fc3fd075845400b7a0b452600e387`;
+truthful report emission/lineage at
+`src/polisyos/foundry/execute/_internal/graph/__init__.py@c771be51959fe826f197b77f88afadf3a6833c16`
+and its served horizon caller
+`src/polisyos/runtime/quality/joint_simulation_horizon.py@e74fa941d673b98b51e3b90934db666ecfa6467c`;
+the fixture write at `tests/_helpers/chronology_qualification.py` and its
+`_policy_configuration` consumer in
+`tests/unit/runtime/quality/test_epoch_deployment.py`; and the shared conflict
+negative at `tests/unit/core/phase0/test_artifact_store.py`. The behavior witnesses
+are the ProgramGraph horizon and real constraint-executor tests plus the listed
+epoch setup/readers. This addendum does not authorize a general view selector,
+production epoch signing, unrelated API/generated artifacts, or changes to the
+debt register/plans. P41 measured the prior behavior; proposed repair controls
+remain unrun and must be verified before any closure claim.
+
 ## R11 — CYC-04 blocked repeated candidate must not reach N9
 
 **Question.** When the loop marks a repeated candidate `blocked`, what must happen

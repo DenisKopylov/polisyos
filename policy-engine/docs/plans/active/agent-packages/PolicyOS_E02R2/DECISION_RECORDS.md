@@ -2,7 +2,7 @@
 
 **Status:** proposals for the principal; none is ratified by this file. Repeating a
 lane lean does not make it a principal decision. The principal’s ruling, signer, and
-date remain pending for R1, R2, R5, R9, and R13.
+date remain pending for R1, R2, R5, R9, R11, and R13.
 
 **Prepared:** 2026-09-24. **Code inspected:** candidate base
 `73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
@@ -506,6 +506,111 @@ one generic, typed multi-view contract implemented by the shared owner, not
 consumer-specific exceptions. Multi-view refs/artifacts are `artifact_missing` and
 consumer resolution is `consumer_missing` until the shared contract, every backend,
 and a mismatch-negative witness are wired.
+
+## R11 — CYC-04 VOI semantics after a repeated candidate cycle
+
+**Question.** When the loop’s final candidate repeats the immediately preceding
+candidate, should `blocked` remain a distinct safety cap, or should the VOI outcome
+be expressed as `stop` or `escalate`?
+
+**Options and costs.**
+
+1. **Proposed lean:** preserve `blocked` as a typed safety cap for a repeated
+   candidate cycle. Keep `terminal_kind=search_ceiling_repair_required` and the
+   `fake_cycle_same_candidate_repeated` reason. The scheduler’s `advance` result is
+   advisory and must not override the blocked outcome or authorize another cycle.
+   This accurately separates non-progress from an ordinary stop or a request for
+   human judgment. Its cost is that the board, promotion, public projection, and
+   recursive-routing consumers must all preserve this cap; their complete behavior
+   has not been demonstrated here.
+2. Map the outcome to `stop` or `escalate`, retaining the repeated-candidate reason
+   only as diagnostic metadata. This matches the current test expectation and keeps
+   the older action vocabulary, but risks describing a non-progressing repeated
+   candidate as an ordinary stop or as a human decision rather than a repair-required
+   cap.
+3. Allow the scheduler’s `advance` to continue the loop. This avoids a new action
+   state, but permits a repeated candidate to count as another search cycle and
+   violates the loop’s non-repeat discipline.
+
+**Premises.** The phase-0 JUnit stdout for
+`tests/unit/runtime/quality/test_generation_cycle.py::test_controller_runs_counterexample_driven_revision_over_two_real_cycles`
+(lines 160–166) records final `next_action=blocked`,
+`terminal_kind=search_ceiling_repair_required`, `scheduler_action=advance`, and
+`reason=fake_cycle_same_candidate_repeated`. The accompanying review measured fixture
+candidate hashes of 1 at cycle 0 and 2 at each of cycles 1 and 2; the adjacent repeat
+is what makes the third cycle a repeated-candidate case. The test’s final assertion
+currently expects `stop` or `escalate`. This replay establishes the outcome of that
+fixture and the disagreement with its expectation; it does not establish which
+vocabulary is correct or prove how every production consumer handles `blocked`.
+
+**Proposed choice; principal status.** Recommend option 1, subject to Denis’s
+principal ruling. Define `blocked` as a non-advancing cap for this repeated-candidate
+condition, with `search_ceiling_repair_required` preserved as the terminal kind.
+The `scheduler_action=advance` field must not override that cap. Do not change the
+base test expectation on this draft alone: a changed expectation needs a behavioral
+witness for the chosen semantics and consumer composition. The cited JUnit trace is
+not evidence that the board, promotion, projection, or recursive routing paths
+consume `blocked` safely; none of that consumer proof is claimed here.
+
+**P37 — gate predicates at admission.**
+
+- The repeated-candidate predicate depends on the adjacent candidates’ actual
+  content identities, not a retained reason string or terminal marker. Recomputing
+  equality from persisted candidate bytes is `recomputed`; whether every validator
+  and consumer does so is `not_established` in this draft.
+- A `blocked` decision must dominate an `advance` scheduler recommendation before
+  any additional cycle or authority-bearing action. The JUnit output shows both
+  fields but does not prove consumer precedence; downstream composition remains
+  `not_established` and cannot carry an authority-grade positive.
+
+**P38 — property and divergence.** Property: once adjacent cycle candidates repeat,
+that repeated occurrence cannot be treated as new progress or reach current authority
+through an `advance` recommendation. The observed decision contains
+`next_action=blocked` and `scheduler_action=advance` at once. A consumer that gates on
+`scheduler_action` while ignoring `next_action` would diverge from the property by
+advancing after the typed block. Whether a production consumer takes that path is
+not established here; the coexisting values make precedence a required behavioral
+witness, not an assumed implementation fact.
+
+**Remainder.** This proposal defines only the CYC-04 repeated-candidate case; it does
+not define every use of `blocked` or establish general VOI-consumer behavior. The
+run validator must reject a non-final blocked cycle. Board, promotion, public
+projection, and recursive-routing composition remain unproven and must not treat this
+draft as proof that a blocked candidate cannot affect current authority. The test
+expectation remains evidence of the old contract, not proof of the correct contract.
+
+**Remainder standing and signatory.** Denis is the pending principal signatory for
+the action vocabulary. `runtime/quality` is the code boundary for the loop decision,
+but an assigned engineering signatory for the broader consumer composition is not
+established by this record. Owners for the board, promotion, public projection, and
+recursive-routing consumers are also not identified here; their standing is
+`unallocated/not_established` until appointed. Until those owners provide behavioral
+witnesses, this draft grants no consumer authority to interpret `blocked` as a safe
+terminal.
+
+**Falsifier / revisit trigger.** The proposed cap fails if a run with equal adjacent
+candidate content hashes receives a different reason while retaining the repeated
+candidate condition, if a candidate-hash difference still produces
+`fake_cycle_same_candidate_repeated`, if another cycle executes after `blocked`, or
+if any consumer admits the blocked candidate to current authority. For the
+removal probe, preserve the reason marker but change the actual adjacent hashes; the
+behavioral assertion must turn red if the marker alone still produces the block.
+These are acceptance probes, not results claimed by this draft.
+
+**Where it binds.** Typed result and scheduler precedence at
+`runtime/quality/generation_cycle.py::LoopVOIDecision` and
+`GenerationCycleController.decide_next_action`; repeated-candidate classification
+and run validation in `generation_cycle.py`; and the board, promotion, public
+projection, and recursive-routing consumers named by CYC-04. The loop result is not
+complete until those consumers consume the typed block and prevent later-cycle or
+current-authority use.
+
+**Pattern pass.** P04/P05/P29/P37/P38/P41. The observed gap is the coexistence of a
+blocking `next_action` and an `advance` recommendation, with consumer precedence not
+established. Target: one typed blocked cap that is derived from candidate identity
+and enforced across every consumer. The test trace exists; consumer-composition
+verification remains `verification_missing`. No test expectation change or
+implementation is claimed by this decision draft.
 
 ## R13 — one world-growth path and runtime store custody
 

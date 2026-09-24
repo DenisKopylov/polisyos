@@ -825,6 +825,34 @@ map to satisfy the “context established” branch (`runtime/quality/recursive_
 The HTTP composition deliberately passes `{}` when both EvalSafety and
 `CycleSubstrateContext` are absent (`runtime/http/services/control/generation_cycle.py:665-669`).
 That served ordinary candidate-only N6 path is not established as `simulate_only`.
+The selector census at source head
+`dcf8e09dca037e8af7a8f38901ab75544720a0f7` found no trusted candidate-only
+execution-band policy or field. The `EvaluationMode` vocabulary contains
+`simulate_only`, `retrospective`, `measurement_audit`, `sandbox_pilot`,
+`field_pilot`, and `deployment`, but no candidate-only band
+(`pdc/_impl/evaluation_safety.py:43-50`). The recursive controller accepts no band
+argument (`runtime/quality/recursive_generation_cycle.py:760-768`). The NL worker
+passes the `EvaluationExecutionContext` only when `_admit_evaluation_safety_attempt`
+returns one; otherwise it passes `None` (`runtime/http/services/control/run_lifecycle.py:3278-3282,3325-3329`).
+The HTTP helper distinguishes omitted context from explicit `None` and tells the
+caller to choose the ordinary simulation-only route (`runtime/http/services/control/generation_cycle.py:498-524`);
+it then maps absent context to `{}` (`:665-669`). These are context/argument shapes,
+not a trusted candidate-only selector. The EvalSafety attempt path returns `None`
+when its context extension payload has no attempt key
+(`runtime/http/services/control/run_lifecycle.py:2863-2868`);
+its canonical mode therefore cannot select a band when no attempt/result exists.
+The closest server-side policy field is `ControlJobRecord.effective_execution_profile`,
+resolved by `_resolve_execution_policy` (`runtime/http/services/control/run_lifecycle.py:1955-1969`;
+`runtime/http/services/control_plane_store.py:844-855`); it controls execution/deployment
+posture, not candidate-only versus EvalSafety-evaluated N6. Persisted `job.kind`
+dispatches the NL worker (`runtime/http/services/control/run_lifecycle.py:3266`),
+but does not select an execution band. `CycleSubstrateContext.authority_purpose`
+labels the context envelope (`runtime/quality/cycle_substrate.py:128-130`), and
+`epoch_strangle_disposition="candidate_only"` is an output emitted after N6/N9
+(`runtime/http/services/control/run_lifecycle.py:3397-3401`); neither selects the
+band at admission. Therefore candidate-only selection is `not_established`; do not
+derive it from the profile field, caller mode token, `None`/missing context, job
+kind, input-envelope purpose, post-run label, or absent EvalSafety output.
 S0-K06 keeps cheap candidate computation open while binding authority actions to
 verified scope; ADR-0179 principle 4 calls over-refusal a defect
 (`docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`).
@@ -833,21 +861,32 @@ verified scope; ADR-0179 principle 4 calls over-refusal a defect
 to principal ruling. Use the already-owned EvalSafety verifier, not a new parallel
 gate. Select candidate-only computation through an explicit typed band, with no
 EvalSafety `ValuePort`, no authority, and a `not_established` scope limitation;
-absence of EvalSafety or substrate context does not establish `simulate_only`.
-Whenever EvalSafety evaluates a non-simulation leaf, compute the recursive leaf set
-from the validated graph and require exact denominator equality on every controller
-path, including rejecting an empty map for a nonempty leaf set. Refuse evaluated
-authority-grade work if any leaf’s current safety head is absent, stale, mismatched,
-or unresolved. A `CycleSubstrateContext` is not an EvalSafety context. The ordinary
-contextless candidate route remains available only under the explicit candidate-only
-band and cannot authorize promotion, publication, or deployment.
+but this band is not selected by any trusted field in the inspected source. The
+proposal requires an existing runtime mode-resolution owner to issue a canonical
+band bound to the persisted run; until that owner/field is identified, the selector
+remains `not_established` and this draft does not authorize deriving it from
+caller-controlled mode, missing context, or no EvalSafety result. Reuse the one
+typed context/scope limitation proposed for the compiled wrapper's R1 schema v2 to
+persist the resulting unknown; that limitation records the scope gap and is not the
+selector itself. Do not add a parallel limitation artifact or label the band
+`simulate_only`. Whenever EvalSafety evaluates a non-simulation leaf, compute the
+recursive leaf set from the validated graph and require exact denominator equality
+on every controller path, including rejecting an empty map for a nonempty leaf set.
+Refuse evaluated authority-grade work if any leaf’s current safety head is absent,
+stale, mismatched, or unresolved. A `CycleSubstrateContext` is not an EvalSafety
+context. Ordinary candidate computation remains a product requirement, but its
+band cannot be admitted until the trusted runtime selector is established; it
+cannot authorize promotion, publication, or deployment.
 
 **P37 — gate predicates at admission.**
 
 - Leaf membership is recomputed from the validated recursive graph (`recomputed`).
-- Canonical execution band and mode are taken from their verified owners
-  (`recomputed`); a missing context or request mode token alone is
-  `consumer_asserted` and cannot select candidate-only or downgrade an evaluated
+- For non-simulation EvalSafety-evaluated runs, mode comes from the EvalSafety
+  context and is independently reconciled by its verifier
+  (`independently_reconciled`). The
+  candidate-only selector has no current owner/field (`not_established`); a caller
+  mode token, missing context, absent EvalSafety result, or NL job-kind dispatch
+  alone is `consumer_asserted` and cannot select it or downgrade an evaluated
   non-simulation request.
 - Context-map completeness is the equality of the exact context keys and graph leaf
   refs for an EvalSafety-evaluated run, including the empty-map case (`recomputed`).
@@ -861,22 +900,27 @@ band and cannot authorize promotion, publication, or deployment.
 
 **P38 — property and divergence.** Property: every EvalSafety-evaluated
 non-simulation recursive leaf has its own current EvalSafety head, regardless of
-factory or context map shape, while ordinary candidate-only N6 remains possible
-under unknown scope without creating an EvalSafety result. Current implementation:
-the denominator guard is inside the no-factory branch and skips equality for an
-empty context mapping; HTTP also passes `{}` when both contexts are absent without
-an explicit candidate-only band. Divergent cases: an evaluated graph with one leaf
-and `evaluation_contexts_by_node={}` does not raise the denominator mismatch; a
-controller factory also bypasses the guard; and a contextless ordinary request
-does not carry a typed candidate-only limitation. The evaluated-mode property fails
-while the present predicate can be green, and simply making absence fail closed
-would violate the candidate-band property.
+factory or context map shape, while ordinary candidate-only N6 is selected by a
+trusted runtime owner, proceeds under unknown scope, and creates no EvalSafety
+result. Current implementation: the denominator guard is inside the no-factory
+branch and skips equality for an empty context mapping; HTTP passes `{}` when both
+contexts are absent and has no band selector; `EvaluationMode` has no candidate-only
+value. Divergent cases: an evaluated graph with one leaf and
+`evaluation_contexts_by_node={}` does not raise the denominator mismatch; a
+controller factory also bypasses the guard; and the contextless ordinary request
+neither proves candidate-only policy selection nor persists R1's typed v2
+limitation. The evaluated-mode property fails while the present predicate can be
+green; treating absence as the selector would test a proxy and would not satisfy the
+candidate-band property.
 
 **Remainder.** Neither candidate-only N6 nor `simulate_only` is safe for promotion
 or publication; authority remains separately gated. Candidate-only computation
-records the unknown scope as `not_established` and emits no EvalSafety result. Any
-EvalSafety-evaluated non-simulation leaf remains blocked until its exact current
-context is verified. The candidate-only band must be explicit in the run record.
+must record the unknown scope as `not_established` in the single R1 compiled-wrapper
+v2 limitation and emits no EvalSafety result. The band selector itself remains
+`not_established` until an existing trusted runtime mode-resolution owner is
+identified and bound to the run. Any EvalSafety-evaluated non-simulation leaf
+remains blocked until its exact current context is verified. The limitation is not
+a selector and must not become a duplicate artifact.
 
 **Remainder standing and signatory.** Missing, stale, or mismatched EvalSafety
 evidence has standing `not_established` and blocks every EvalSafety-evaluated
@@ -886,17 +930,20 @@ existing consumer-admission verifier in
 `runtime/quality/evaluation_safety.py` owns the software check; its module explicitly
 does not make an institutional appointment, and this record names no external
 evidence signer. The recursive runtime owns enforcing the denominator and selecting
-an explicit candidate-only band, but cannot sign EvalSafety evidence. Denis remains
-the pending principal signatory for this proposed mode boundary; candidate-only
-cannot be inferred from `simulate_only`, absent context, or a caller token.
+an explicit candidate-only band only after its trusted selector owner is established,
+but cannot sign EvalSafety evidence. Denis remains the pending principal signatory
+for this proposed mode boundary; candidate-only cannot be inferred from
+`simulate_only`, absent context, absent EvalSafety output, or a caller token.
 
 **Falsifier / revisit trigger.** Reopen if any EvalSafety-evaluated non-simulation
 leaf proceeds with a missing, empty, incomplete, stale, or foreign EvalSafety
 context; repeat with a custom controller factory. An empty map for a graph with a
-nonempty evaluated leaf set must refuse. The positive control is the served
-contextless ordinary candidate route: with an explicit candidate-only band it
-proceeds, records scope `not_established`, emits no EvalSafety result, and cannot
-cross an authority gate. These are required tests; none is claimed as run here.
+nonempty evaluated leaf set must refuse. A caller token, `None` context, or absent
+EvalSafety result must not select candidate-only mode. The positive control is a
+served ordinary candidate route selected by the trusted runtime owner: it proceeds
+under the explicit band, records scope `not_established` in R1's v2 wrapper
+limitation, emits no EvalSafety result, and cannot cross an authority gate. These
+are required tests; none is claimed as run here.
 
 **Where it binds.** Structural check in
 `runtime/quality/recursive_generation_cycle.py::RecursiveGenerationCycleController.run`;
@@ -908,8 +955,9 @@ promotion/publication consumers retain their own authority checks.
 implementation checks a proxy for “context provided” instead of exact current
 coverage. Target: graph-derived denominator plus the canonical current-head owner.
 The verifier exists; structural coverage over all evaluated controller paths is
-`verification_missing` until the empty-map/factory falsifiers and the explicit
-candidate-only served control pass.
+`verification_missing` until the empty-map/factory falsifiers pass. Candidate-only
+band selection is itself `not_established` until the runtime owner exists; the
+served control must prove the owner selection and R1 v2 limitation together.
 
 ## R9 — CAS supports several honest typed views of one blob
 

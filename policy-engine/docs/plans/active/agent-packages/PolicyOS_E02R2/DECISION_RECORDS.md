@@ -598,119 +598,138 @@ the base-passing test set has been replayed or restored.
 
 ## R4 — GY-N6 contract validator must return a verdict
 
-**Question.** When the governed GY-N6 run reaches N9 with a revised design-problem
-basis that does not match its bound confidence-ledger risk scope, how should the
-validator report that deterministic semantic refusal, and what would authorize a
-future basis transition?
+**Question.** How should the validator construct its isolated N9 verification state
+so it follows the problem actually presented at N9, and how should it distinguish a
+known semantic refusal from an inspection failure? Separately, what is established
+about a later production invocation that encounters an existing durable ledger
+under an earlier basis?
 
 **Options and costs.**
 
-1. Rebase or replace the existing ledger under the revised basis. This could make
-   N9 proceed, but risks discarding non-resettable cumulative spend and needs an
-   owner-authorized, replayable transition that does not exist today.
-2. Accept matching `scope_id` while ignoring inequality in the full risk-scope
-   projection. This avoids the exception but lets a same-ID basis change bypass the
+1. **Proposed choice:** keep exact full-risk-scope equality and lazily create one
+   checker-local verification session at the first N9 call, using that call's final
+   `DesignProblem` binding. Share the same session across the N9 summary batch and
+   receipt revalidation. This aligns the checker fixture with N9's actual input, but
+   the temporary verification ledger does not establish how a repeated production
+   invocation behaves with an older durable root.
+2. Keep the eager pre-controller verification session and report its later scope
+   mismatch as semantic `fail`. This preserves equality but reports the checker
+   fixture's lifecycle mismatch as if it were a production ledger refusal, leaving
+   the intended N6→N9 contract unmeasured.
+3. Accept matching `scope_id` while ignoring inequality in the complete risk-scope
+   projection. This avoids the mismatch but lets a same-ID basis change bypass the
    owner guard and confuse prior spend with newly admitted risk.
-3. **Proposed choice:** retain full risk-scope equality. Treat the observed
-   `confidence_ledger_scope_binding_mismatch` as a semantic `fail` in the validator,
-   not as `UNRUN`, and keep production N9 fail-closed. Return typed `UNRUN` (exit 2
-   with measured/not-measured disclosure) only when inspection or recomputation
-   fails before establishing a semantic result. Do not create a fresh verification
-   session under the final basis, weaken equality, rebase a receipt, or restamp a
-   ledger. A future revised-basis admission requires an owner-authorized,
-   append-only, replayable transition preserving cumulative spend and lineage.
+4. Rebase or replace a durable ledger under the revised basis. This could make a
+   repeated N9 call proceed, but risks discarding non-resettable cumulative spend
+   and needs an owner-authorized, replayable transition that is not established.
 
-**Premises.** The current checker creates `ConfidenceLedgerSession._for_verification`
-from a pre-controller `N9DesignProblemBinding` in
-`_build_live_payload_in_verification_namespace`; the later N9 receipt is validated
-against `confidence_risk_scope_for_problem(replay_input.design_problem_binding)`.
-N9 binds the full risk-scope projection and raises on inequality, even when the
-stable scope identifier is unchanged. The current live N6→N9 path reaches that owner
-guard and deterministically produces `confidence_ledger_scope_binding_mismatch`;
-the current-head `--check` lets the corresponding `ValueError` escape instead of
-reporting that semantic failure. At the execution base the validator returns a
-typed fail with three issues. The ledger anchors the full scope and persisted
-receipts/events witness cumulative spend; an owner transition cannot be inferred
-from a stable identifier alone. Existing tests refuse unrelated scope binding and
-prevent deleting ledger events from resetting spend
+**Premises.** `_build_live_payload_in_verification_namespace` currently opens
+`ConfidenceLedgerSession._for_verification` before the controller, from the initial
+problem binding. N6 can revise the problem before N9. In contrast,
+`CanonicalN9PromotionPort.__call__` derives the binding from its N9 `problem` and
+opens the production session there; `_run_n9_promotion_port_batch` then checks exact
+equality with the complete `confidence_risk_scope_for_problem(problem_binding)`.
+Thus the checker’s observed mismatch is explained by its eager fixture session and
+does not establish a production refusal. Receipt revalidation must use the same
+checker-local session as the N9 batch, rather than opening a second session. The
+execution-base validator returns a typed fail with three issues; current-head
+`--check` lets `confidence_ledger_scope_binding_mismatch` escape as `ValueError`.
+The production owner returns typed `not_promoted` for a `ConfidenceLedgerError`
+while opening its durable session, but behavior for a repeated invocation whose
+existing root is bound to an earlier basis remains `UNRUN` pending a behavioral
+witness. The ledger anchors the full scope and persisted receipts/events witness
+cumulative spend; a stable identifier does not prove continuity or authorize a
+transition. Existing tests refuse unrelated scope binding and prevent deleting
+ledger events from resetting spend
 (`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py@b8134aeffe3b96760e7fd9663ae9670e85391160`,
 `src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`,
 `src/polisyos/runtime/quality/confidence_ledger.py@c3775ce0a96966fcbc46fa243e5cc03f3a80c84b`,
 `tests/unit/runtime/quality/test_promotion_sequence.py@fd72907d54b287a2d22031786e6cfd955a40c4d1`,
 `tests/unit/runtime/quality/test_confidence_ledger.py@1537ea3e9984fd9599d4d95b3c9e95c040af6fbf`).
-The named validator tests are
-`test_generation_cycle_contract_mutations_turn_red` and
+The validator tests are `test_generation_cycle_contract_mutations_turn_red` and
 `test_generation_cycle_contract_write_refuses_stale_comparison_admission`
 (`tests/unit/runtime/quality/test_generation_cycle.py@4f851cb207267a13877647ef82a2b73f3a24360a`).
-The current P41 four-base receipts and exact command output for this failure remain
-pending broker citation; this draft makes no test-pass claim.
+The mutation test’s existing denominator is 12; the fix must keep all 12 mutations
+red. The P41 four-base receipts and exact command output remain pending broker
+citation; this draft makes no test-pass claim.
 
-**Proposed choice; principal status.** Recommend option 3 for the validator and
-retain the runtime owner's exact guard. Convert the deterministic owner error into
-a typed `fail` containing `confidence_ledger_scope_binding_mismatch`; preserve the
-other measured issues. `UNRUN` is reserved for an inspection/recomputation failure
-that prevents any verdict, not for this observed mismatch. No fresh ledger session
-may be opened using the revised basis to make this run green. Production N9
-continues refusing the revised basis. Whether to authorize the ConfidenceLedger
-owner to design an append-only same-scope basis-transition capability remains a
-principal decision; any such capability must replay the prior lineage and carry
-cumulative spend forward. No transition or receipt reissue is authorized here.
+**Proposed choice; principal status.** Recommend option 1 for the validator and
+retain the runtime owner's exact guard. The checker must create a single temporary
+verification session lazily from the final problem binding at its first N9 call,
+then reuse it for the complete summary batch and receipt revalidation. A known
+semantic mismatch after that coherent setup returns typed `fail` with
+`confidence_ledger_scope_binding_mismatch`; successful validation returns `PASS`;
+an inspection or recomputation failure that prevents a verdict returns typed
+`UNRUN` (exit 2 with measured/not-measured disclosure). No production ledger is
+replaced or restamped here. The separate behavior of a repeated production call
+against an existing old-basis durable root is `UNRUN` pending a witness; if that
+path refuses admission, it must remain a typed non-promotion unless an
+owner-authorized append-only transition preserves prior lineage and cumulative
+spend. Denis remains principal for any authority decision on such a transition;
+no transition or receipt reissue is authorized by this draft.
 
-**P37 — gate predicates at admission.** The final N9 design-problem binding and its
-full `ConfidenceRiskBudgetScope` are recomputed from the promotion input. Ledger
-events, receipt witness, and spend lineage must be independently resolved from the
-owner; matching `scope_id` is only an identifier, not proof of basis equality or
-continuity. The N9 owner's observed full-scope mismatch is `recomputed` and yields
-`fail`; failure to inspect/recompute before establishing that fact is `UNRUN`, not
-a semantic refusal and not a pass. Any basis-transition authority is
-`institutionally_supplied` by the ledger owner and principal, and remains
+**P37 — gate predicates at admission.** The checker’s final N9 binding and full
+`ConfidenceRiskBudgetScope` are recomputed from the N9 `DesignProblem`; exact
+equality between that scope and the one in the single checker-local session is
+recomputed. Receipt, event and spend lineage for a production durable root must be
+independently resolved from the ledger owner; the old-root repeated-invocation
+behavior is `not_established` until that witness exists. Matching `scope_id` is
+only an identifier, not proof of basis equality or continuity. Any transition
+authority is institutionally supplied by the ledger owner and principal and remains
 `not_established` until recorded.
 
-**P38 — property and divergence.** Property: the validator returns a three-valued
-verdict about the final N9 binding and ledger projection, while production N9 never
-accepts a revised basis without an authorized, spend-preserving transition. Current
-implementation reaches the exact full-scope owner guard but the checker lets its
-deterministic mismatch escape as `ValueError`, so the gate does not emit its semantic
-`fail` verdict. A fresh verification session under the new basis or a comparison of
-only `scope_id` would mask the production non-resettable-budget gap. Divergent case:
-the final binding has the same identifier but a changed basis while no replayable
-ledger transition exists; the correct measured result is the named semantic failure,
-not a crash, green result, or inspection-level `UNRUN`.
+**P38 — property and divergence.** Property: the contract validator exercises one
+coherent N6→N9 flow and returns PASS, semantic FAIL, or UNRUN according to its
+evidence; production N9 never accepts a changed durable basis without an authorized,
+spend-preserving transition. The checker currently binds its verification session
+before N6 and later compares that scope with the N9 problem, so it can test a
+fixture-lifecycle mismatch instead of the contract. Divergent case: N6 changes the
+problem basis before N9; the checker session still represents the earlier problem,
+although production N9 opens its session from the final problem. Separately, a
+temporary fresh checker ledger cannot decide how production handles an existing
+durable root from an earlier basis. The implementation therefore needs the lazy
+checker session and a separate production witness; full-scope equality must not be
+weakened to make either path green.
 
-**Remainder and signatory.** This draft authorizes no production basis transition,
-new verification scope, ledger restamp, or cumulative-spend reset. `runtime/quality`
-owns the typed N9 binding and validator composition. The ConfidenceLedger owner must
-propose any future append-only replayable transition and cumulative-spend rules;
-Denis remains the principal signatory for that authority decision. Until a transition
-is authorized and its lineage witness exists, revised-basis N9 admission stays
-blocked.
+**Remainder and signatory.** This draft authorizes only checker-local session
+construction and verdict composition. It does not authorize a production basis
+transition, durable ledger replacement, cumulative-spend reset, or receipt reissue.
+`runtime/quality` owns the typed N9 binding and validator composition. The
+ConfidenceLedger owner must propose any future append-only replayable transition
+and cumulative-spend rules; Denis remains the principal signatory for that authority
+decision. Until a production old-root witness and any required owner transition
+exist, that behavior remains `UNRUN` and revised-basis admission cannot claim
+closure.
 
-**Falsifier / revisit trigger.** Reopen if the deterministic full-scope mismatch is
-not returned as semantic `fail` with `confidence_ledger_scope_binding_mismatch`, if
-the checker turns it into `UNRUN`, if a same-`scope_id` basis mutation passes
-without an owner transition, or if a new session masks the mismatch. A
-marker-preserving negative probe changes the basis while keeping the stable scope ID
-and existing record markers; production N9 and the validator must retain the
-semantic refusal. The preserving control uses an unchanged full binding and its
-existing owner-backed ledger lineage; it must not create a new scope to pass. An
-inspection/recomputation failure that prevents a semantic result must return
-`UNRUN`/exit 2. Any future transition must prove exact historical replay and
-cumulative-spend continuity. These are acceptance criteria; none is claimed as run.
+**Falsifier / revisit trigger.** Reopen if the checker does not derive its sole
+verification session from the final N9 binding, if the summary batch and receipt
+revalidation use different sessions, if full-scope inequality can pass, or if any
+of the 12 existing contract mutations turns green. The negative probe changes the
+N6-produced basis while retaining scope and record markers; after session alignment,
+a genuine full-scope mismatch must return semantic FAIL with
+`confidence_ledger_scope_binding_mismatch`, not crash or become UNRUN. The
+preserving control keeps the complete binding unchanged and shares its checker
+session through summary and receipt validation. Inspection/recomputation failure
+before a semantic result returns UNRUN/exit 2. A separate unrun production probe
+seeds an old durable root and invokes N9 with a revised same-ID basis, asserting a
+typed non-promotion and unchanged prior events/spend; only an owner-authorized
+transition with exact replay and spend continuity can change that result. These
+are acceptance criteria, not claims that the tests or probes have run.
 
-**Where it binds.** Verification session construction and verdict composition in
-`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`; exact N9
-binding in `src/polisyos/runtime/quality/promotion_sequence.py`; risk-scope and
-lineage custody in `src/polisyos/runtime/quality/confidence_ledger.py`. Any
-revised-basis transition is a future owner capability and is not supplied by the
+**Where it binds.** Checker-local lazy session creation, reuse, and verdict
+composition in `tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`;
+production session opening and exact N9 equality in
+`src/polisyos/runtime/quality/promotion_sequence.py`; risk-scope and lineage
+custody in `src/polisyos/runtime/quality/confidence_ledger.py`. A revised-basis
+durable transition is a future ledger-owner capability and is not supplied by the
 validator.
 
-**Pattern pass.** P04/P05/P07/P29/P32/P37/P38/P41. The checker currently crashes
-instead of reporting the owner's deterministic full-scope mismatch; weakening that
-scope to its stable ID or minting a fresh verification basis would mask the
-non-resettable-budget property. Target: preserve exact full-scope equality, return
-`fail` for the named semantic mismatch and `UNRUN` only when inspection/recomputation
-cannot decide; production revised-basis admission remains `not_established` until
-an owner-signed replayable transition exists.
+**Pattern pass.** P04/P05/P07/P29/P32/P37/P38/P41. The checker’s pre-N6 session
+acts as a proxy for the final N9 basis; the production owner’s full-scope equality
+is the property and must remain intact. Target: align the checker’s temporary
+session with N9’s final input, report semantic mismatch as FAIL and inspection
+failure as UNRUN, and leave production durable-root continuity `not_established`
+until witnessed.
 
 ## R5 — EvalSafety context denominator for non-simulation leaves
 

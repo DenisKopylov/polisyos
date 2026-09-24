@@ -68,6 +68,14 @@ ADAPTIVE_RSS_PROJECTION_MULTIPLIER = 1.25
 PROCESS_GROUP_LAUNCH_STAGGER_SECONDS = 0.5
 PROCESS_GROUP_STARTUP_SECONDS = 60.0
 HARD_MEMORY_RESERVE_PERCENT = 30
+RESOURCE_HARD_LIMIT_CODES = frozenset({
+    "process_group_rss_limit_exceeded",
+    "minimum_memory_free_percent_breached",
+    "aggregate_cpu_hard_limit_exceeded",
+    "process_group_count_limit_exceeded",
+    "maximum_swap_growth_exceeded",
+    "minimum_scratch_free_space_breached",
+})
 LEGACY_CHECKPOINT_HARNESS_SHA256 = (
     "dc9fc32c6e4f20a1c2976c9eac8fb3f285869f02531e5ecca943ecd76dc08c9e"
 )
@@ -1063,16 +1071,50 @@ def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
     complete_rows = [
         row for row in sampled_rows if required.issubset(row["resource_metrics"])
     ]
-    guarded_rows = [row for row in relevant_rows if row.get("resource_guard")]
-    status = "UNRUN" if incomplete_rows or not complete_rows else "fail" if guarded_rows else "pass"
-    reason = None
-    if status == "UNRUN":
-        reason = (
-            f"resource coverage incomplete for {len(incomplete_rows)}/{len(relevant_rows)} "
-            f"present non-skipped cells; {len(complete_rows)} cells have complete measurements"
+    guard_metadata = {
+        (row["revision_key"], row["test_path"]): _resource_guard_metadata(
+            row.get("resource_guard"),
+            row.get("resource_guard_kind"),
+            row.get("resource_guard_code"),
         )
-    elif guarded_rows:
-        reason = f"resource guard recorded for {len(guarded_rows)} present cells"
+        for row in relevant_rows
+        if row.get("resource_guard")
+    }
+    guarded_rows = [row for row in relevant_rows if row.get("resource_guard")]
+    hard_guard_rows = [
+        row for row in guarded_rows
+        if guard_metadata[(row["revision_key"], row["test_path"])]["kind"] == "hard_limit"
+    ]
+    unresolved_guard_rows = [row for row in guarded_rows if row not in hard_guard_rows]
+    # A confirmed hard-limit breach is decisive even if the interrupted cell
+    # has incomplete sampling. Stops, inspection failures, and unclassified
+    # guards remain UNRUN even when their last sample was complete.
+    status = (
+        "fail" if hard_guard_rows
+        else "UNRUN" if incomplete_rows or not complete_rows or unresolved_guard_rows
+        else "pass"
+    )
+    reason = None
+    coverage_caveat = (
+        f"resource coverage incomplete for {len(incomplete_rows)}/{len(relevant_rows)} "
+        f"present non-skipped cells; {len(complete_rows)} cells have complete measurements"
+        if incomplete_rows else None
+    )
+    if hard_guard_rows:
+        codes = sorted({
+            guard_metadata[(row["revision_key"], row["test_path"])]["code"]
+            for row in hard_guard_rows
+        })
+        reason = (
+            f"hard resource guard in {len(hard_guard_rows)} present cells ({', '.join(codes)})"
+        )
+        if coverage_caveat:
+            reason += f"; {coverage_caveat}"
+    elif status == "UNRUN":
+        reason = (
+            coverage_caveat
+            or f"resource guard or inspection is unresolved for {len(unresolved_guard_rows)} present cells"
+        )
     metrics: dict[str, Any] = {}
     if complete_rows:
         observed = [row["resource_metrics"] for row in complete_rows]
@@ -1100,9 +1142,34 @@ def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
         "sampled_cell_count": len(complete_rows),
         "incomplete_cell_count": len(incomplete_rows),
         "guarded_cell_count": len(guarded_rows),
+        "hard_guard_cell_count": len(hard_guard_rows),
+        "unresolved_guard_cell_count": len(unresolved_guard_rows),
         "reason": reason,
         "metrics": metrics,
     }
+
+
+def _resource_guard_metadata(
+    reason: str | None,
+    kind: str | None = None,
+    code: str | None = None,
+) -> dict[str, str | None]:
+    """Classify a resource stop; only source-issued hard-limit codes imply FAIL."""
+    if reason is None:
+        return {"kind": kind, "code": code}
+    if code in RESOURCE_HARD_LIMIT_CODES:
+        return {"kind": "hard_limit", "code": code}
+    normalized = reason.casefold()
+    for limit_code in RESOURCE_HARD_LIMIT_CODES:
+        if f"hard-limit:{limit_code}:" in normalized:
+            return {"kind": "hard_limit", "code": limit_code}
+    if kind == "hard_limit":
+        return {"kind": "operational_unrun", "code": code or "unclassified_hard_limit"}
+    if "parent received sigint" in normalized or "parent received sigterm" in normalized:
+        return {"kind": "interruption", "code": code}
+    if "inspection" in normalized or "census" in normalized:
+        return {"kind": "inspection", "code": code}
+    return {"kind": kind or "operational_unrun", "code": code}
 
 
 def _safety_skip_row(revision: dict[str, Any], test_path: str) -> dict[str, Any]:
@@ -1142,28 +1209,47 @@ def _safety_skip_row(revision: dict[str, Any], test_path: str) -> dict[str, Any]
 
 def _resource_guard_reason(snapshot: dict[str, Any], swap_start_bytes: int) -> str | None:
     if snapshot["process_group_rss_kib_sum"] > MAX_PROCESS_GROUP_RSS_KIB:
-        return (
+        return _typed_hard_resource_guard(
+            "process_group_rss_limit_exceeded",
             "process group RSS exceeded "
             f"{MAX_PROCESS_GROUP_RSS_KIB} KiB"
         )
     if snapshot["system_memory_free_percent"] < MIN_MEMORY_FREE_PERCENT:
-        return (
+        return _typed_hard_resource_guard(
+            "minimum_memory_free_percent_breached",
             "system memory free percentage fell below "
             f"{MIN_MEMORY_FREE_PERCENT}%"
         )
     if snapshot.get("aggregate_process_group_cpu_percent_sum", 0) > MAX_RUNNING_BATCH_CPU_PERCENT:
-        return (
+        return _typed_hard_resource_guard(
+            "aggregate_cpu_hard_limit_exceeded",
             "aggregate pytest process-group CPU exceeded running hard limit "
             f"{MAX_RUNNING_BATCH_CPU_PERCENT}%"
         )
     if snapshot.get("active_process_group_count", 0) > MAX_PROCESS_GROUPS:
-        return f"active pytest process groups exceeded {MAX_PROCESS_GROUPS}"
+        return _typed_hard_resource_guard(
+            "process_group_count_limit_exceeded",
+            f"active pytest process groups exceeded {MAX_PROCESS_GROUPS}",
+        )
     swap_growth = max(0, snapshot["system_swap_used_bytes"] - swap_start_bytes)
     if swap_growth > MAX_SWAP_GROWTH_BYTES:
-        return f"swap grew by more than {MAX_SWAP_GROWTH_BYTES} bytes"
+        return _typed_hard_resource_guard(
+            "maximum_swap_growth_exceeded",
+            f"swap grew by more than {MAX_SWAP_GROWTH_BYTES} bytes",
+        )
     if snapshot["scratch_volume_free_bytes"] < MIN_DISK_FREE_BYTES:
-        return f"scratch volume free space fell below {MIN_DISK_FREE_BYTES} bytes"
+        return _typed_hard_resource_guard(
+            "minimum_scratch_free_space_breached",
+            f"scratch volume free space fell below {MIN_DISK_FREE_BYTES} bytes",
+        )
     return None
+
+
+def _typed_hard_resource_guard(code: str, reason: str) -> str:
+    """Keep the originating hard-limit code attached as the guard propagates."""
+    if code not in RESOURCE_HARD_LIMIT_CODES:
+        raise RuntimeError(f"unknown hard resource guard code: {code}")
+    return f"hard-limit:{code}: {reason}"
 
 
 def _machine_admission_state(
@@ -1230,6 +1316,7 @@ def _unrun_before_process_admission(
     revision: dict[str, Any],
     reason: str,
 ) -> dict[str, Any]:
+    guard_metadata = _resource_guard_metadata(reason)
     return {
         "revision_key": job.revision_key,
         "revision_label": revision["label"],
@@ -1249,6 +1336,8 @@ def _unrun_before_process_admission(
         "returncode": None,
         "timed_out": False,
         "resource_guard": reason,
+        "resource_guard_kind": guard_metadata["kind"],
+        "resource_guard_code": guard_metadata["code"],
         "elapsed_seconds": 0.0,
         "suite_status": "UNRUN",
         "inspection_error": reason,
@@ -1473,6 +1562,7 @@ def _run_job(
             # A green-looking JUnit file cannot hide a process-level failure.
             suite_status = "fail"
 
+    guard_metadata = _resource_guard_metadata(resource_guard)
     return {
         "revision_key": job.revision_key,
         "revision_label": revision["label"],
@@ -1490,6 +1580,8 @@ def _run_job(
         "returncode": returncode,
         "timed_out": timed_out,
         "resource_guard": resource_guard,
+        "resource_guard_kind": guard_metadata["kind"],
+        "resource_guard_code": guard_metadata["code"],
         "resource_group_live_after_exit": live_process_group_after_exit,
         "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
         "resource_metrics": _resource_summary(resource_samples) if resource_samples else None,

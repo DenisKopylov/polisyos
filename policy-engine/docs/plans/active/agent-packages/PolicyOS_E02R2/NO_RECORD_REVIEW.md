@@ -1,6 +1,6 @@
 # No finding-level record review (N18)
 
-Review tree: `codex/e02-r2-held-review` at `2bddd8d99a55aa81579796bc67bff11b6d808387`, based on the E02-R2 merge at `73c656744f051d9f40667da7f8bc91c61d8b4ebf`.
+Source/test review tree: `codex/e02-r2-held-review` at `2bddd8d99a55aa81579796bc67bff11b6d808387`, based on the E02-R2 merge at `73c656744f051d9f40667da7f8bc91c61d8b4ebf`. The cited code/test source tree remains pinned there; subsequent changes through this review update are documentation-only.
 
 ## Scope and evidence status
 

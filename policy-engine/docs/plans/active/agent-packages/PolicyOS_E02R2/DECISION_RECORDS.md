@@ -125,9 +125,11 @@ source checkout or treating current-source drift as proof that history is invali
 
 **Options and costs.**
 
-1. Re-hash the full `src/polisyos` tree at every consumer replay. This is simple to
-   understand, but every consumer and packaged deployment pays for live source
-   access; unrelated edits can invalidate old runs.
+1. Re-hash all Python files under `src/polisyos` at every consumer replay. The
+   implementation uses `source_root.rglob('*.py')`; non-Python files are outside
+   that denominator. This is simple to understand, but every consumer and packaged
+   deployment pays for live source access; unrelated Python edits can invalidate
+   old runs.
 2. Remove the strangle receipt and stop checking the production-path property. This
    removes false staleness, but the runtime and public projections lose evidence for
    a safety-relevant orchestration boundary.
@@ -168,9 +170,11 @@ engineering reissue path; this proposal does not authorize a reissue or restamp.
 
 At the inspected base, `StrangleReceipt` documents that it does not establish build
 or deployment identity and admits that alias/dynamic-call completeness is not
-established. It computes a source hash over `src/polisyos`; `verify_current` and
-`validate_generation_cycle_run` require a live `repo_root` and compare the current
-tree during validation (`runtime/quality/generation_cycle.py`).
+established. It computes a source hash over all Python files under `src/polisyos`
+using `source_root.rglob('*.py')`; non-Python files are outside that denominator.
+`verify_current` and `validate_generation_cycle_run` require a live `repo_root` and
+compare those current Python files during validation
+(`runtime/quality/generation_cycle.py`).
 `GenerationCycleRun` currently accepts v1 and v2; extending it requires v3 plus
 historical projections for both older versions. The confidence ledger already
 computes the canonical loaded-runtime identity internally, but this code path does
@@ -215,9 +219,11 @@ exists.
 **P38 — property and divergence.** Property: the deployed production N6 path does
 not route through `run_fixture`, and a persisted run remains replayable as historical
 evidence independent of a live source checkout. Current implementation: the
-consumer calls `StrangleReceipt.verify_current`, which hashes the entire
-`src/polisyos` tree and requires `repo_root`; no public packaged currentness bridge
-from the canonical identity owner is wired to `GenerationCycleRun`. Divergent case:
+consumer calls `StrangleReceipt.verify_current`, which hashes all Python files
+under `src/polisyos` via `source_root.rglob('*.py')`; non-Python files are outside
+that denominator, and the method requires `repo_root`. No public packaged
+currentness bridge from the canonical identity owner is wired to `GenerationCycleRun`.
+Divergent case:
 a packaged historical run with its persisted receipt but no live checkout cannot be
 replayed by the current validator; it raises
 `generation_cycle_strangle_receipt_currentness_not_established` even though the

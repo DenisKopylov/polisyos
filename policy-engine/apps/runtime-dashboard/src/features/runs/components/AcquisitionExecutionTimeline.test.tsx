@@ -4,11 +4,11 @@ import type {
   AcquisitionDecisionRequestResponse,
   AcquisitionExecutionResponse,
   AcquisitionGrowthPayload,
-  AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 
 import type { ControlJobResponse } from "@/api/hooks/useControlJobStatus";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { AcquisitionExecutionTimeline } from "./AcquisitionExecutionTimeline";

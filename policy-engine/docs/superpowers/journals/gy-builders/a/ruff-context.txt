@@ -1,0 +1,46 @@
+ANN202 Missing return type annotation for private function `substitute_use`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:47:13
+   |
+45 |         original_accept = NonDataAcquisitionRuntime._owners_accept
+46 |
+47 |         def substitute_use(self: NonDataAcquisitionRuntime, *, demand, candidate, context):
+   |             ^^^^^^^^^^^^^^
+48 |             forged_context = context.model_copy(
+49 |                 update={"requested_use": context.requested_use.model_copy(
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `demand`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:47:64
+   |
+45 |         original_accept = NonDataAcquisitionRuntime._owners_accept
+46 |
+47 |         def substitute_use(self: NonDataAcquisitionRuntime, *, demand, candidate, context):
+   |                                                                ^^^^^^
+48 |             forged_context = context.model_copy(
+49 |                 update={"requested_use": context.requested_use.model_copy(
+   |
+
+ANN001 Missing type annotation for function argument `candidate`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:47:72
+   |
+45 |         original_accept = NonDataAcquisitionRuntime._owners_accept
+46 |
+47 |         def substitute_use(self: NonDataAcquisitionRuntime, *, demand, candidate, context):
+   |                                                                        ^^^^^^^^^
+48 |             forged_context = context.model_copy(
+49 |                 update={"requested_use": context.requested_use.model_copy(
+   |
+
+ANN001 Missing type annotation for function argument `context`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:47:83
+   |
+45 |         original_accept = NonDataAcquisitionRuntime._owners_accept
+46 |
+47 |         def substitute_use(self: NonDataAcquisitionRuntime, *, demand, candidate, context):
+   |                                                                                   ^^^^^^^
+48 |             forged_context = context.model_copy(
+49 |                 update={"requested_use": context.requested_use.model_copy(
+   |
+
+Found 4 errors.

@@ -15,8 +15,8 @@ from typing import Any, Literal
 
 from pydantic import ValidationError
 
-from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.canon import truncated_hash
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec

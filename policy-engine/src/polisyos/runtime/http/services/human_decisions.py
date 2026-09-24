@@ -450,12 +450,30 @@ def _pa2_packet_join_issues(
         None,
     )
     snapshot = source.permission_snapshot
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.quality.agent_action_authority import ACQUISITION_ACTION_KIND
+
+    # Acquisition is an in-envelope action with mandatory pre-action human
+    # accountability. Its exact tuple/permission distinguishes it from S7's
+    # out-of-envelope review; a request reason alone cannot select this arm.
+    acquisition_source = (
+        source.action_kind == ACQUISITION_ACTION_KIND
+        and source.operation_id == ACQUISITION_ACTION_KIND
+        and source.operation_version == "v1"
+        and envelope is not None
+        and envelope.action_kind == source.action_kind
+        and envelope.operation_id == source.operation_id
+        and envelope.operation_version == source.operation_version
+        and envelope.required_permission is RuntimePermission.EVIDENCE_ACQUIRE
+        and snapshot is not None
+        and snapshot.required_permission == RuntimePermission.EVIDENCE_ACQUIRE.value
+    )
     expected_source_checks = (
         ("verified_identity", True, "recomputed"),
         ("explicit_permission", True, "recomputed"),
         ("mandate_bounded_delegation", True, "independently_reconciled"),
-        ("operation_in_envelope", False, "recomputed"),
-        ("live_accountability", True, "recomputed"),
+        ("operation_in_envelope", acquisition_source, "recomputed"),
+        ("live_accountability", not acquisition_source, "recomputed"),
     )
     source_checks = tuple(
         (check.predicate, check.satisfied, check.provenance) for check in source.predicate_checks
@@ -472,14 +490,19 @@ def _pa2_packet_join_issues(
         source.outcome != "refused"
         or source.refusal_reasons
         not in (
-            ("operation_out_of_envelope",),
-            ("operation_out_of_envelope", "human_decision_missing"),
+            (("human_decision_missing",),)
+            if acquisition_source
+            else (
+                ("operation_out_of_envelope",),
+                ("operation_out_of_envelope", "human_decision_missing"),
+            )
         )
         or source_checks != expected_source_checks
         or request.decision_class_id != "mandate_boundary"
         or request.interaction_mode != "request_driven"
         or request.disposition != "request_human_decision"
-        or set(request.need_reasons) != {"out_of_envelope"}
+        or set(request.need_reasons)
+        != {"acquisition_required" if acquisition_source else "out_of_envelope"}
         or not provenance_required.issubset(request.provenance_refs)
         or not (request.requested_at <= source.decided_at <= now)
         or basis_ref is None
@@ -741,6 +764,8 @@ def _exposure_binding_issues(
 
 class HumanDecisionAuthoritySinkProtocol(Protocol):
     """Narrow structural type for the exact runtime-owned authority sink."""
+
+    def run_custody_operation(self, operation: Callable[[], None]) -> None: ...
 
     def reserve_action(
         self,
@@ -1566,6 +1591,7 @@ class HumanDecisionService:
     ) -> HumanDecisionRecordReceipt:
         """Persist, sign, reconcile, and commit one exact V2 decision record."""
 
+        self._require_bound_mutation_command(command, bound_permission)
         resolved = self._resolve_gate(
             command.gate_input,
             bound_permission=bound_permission,
@@ -1741,7 +1767,11 @@ class HumanDecisionService:
                 write_context=write_context,
             )
             raise HumanDecisionPersistenceError("human-decision v2 record has no validity boundary")
-        try:
+
+        def _finalize_record() -> None:
+            nonlocal record_ref, durable_event_id, signature_verified
+            nonlocal write_failure, recovery_finalized, receipt
+
             with self._sink.hold_write_fence(
                 tenant_id=cast("str", record.tenant_id),
                 governed_action_key=governed_action_key,
@@ -1836,6 +1866,9 @@ class HumanDecisionService:
                         durable_event_id=(durable_event_id if has_reconciled_orphan else None),
                     )
                     recovery_finalized = True
+
+        try:
+            self._sink.run_custody_operation(_finalize_record)
         except Exception as exc:
             if not recovery_finalized:
                 self._freeze_failed_reservation(
@@ -2241,6 +2274,36 @@ class HumanDecisionService:
             or evaluated_at > now
         ):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-SOURCE-INVALID")
+        resolution = self.revalidate_gateway_adapter_custody(adapter)
+        self._assert_live_pa2_inputs(
+            resolution,
+            evaluated_at=evaluated_at,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bound_permission=bound_permission,
+            resolved_contract=resolved_contract,
+            admission=admission,
+            admission_ref=cast("str", admission_ref),
+            selected_envelope=selected_envelope,
+            effect_binding=effect_binding,
+        )
+        return resolution
+
+    def revalidate_gateway_adapter_custody(
+        self,
+        adapter: HumanDecisionPA2GatewayAdapterInput,
+    ) -> _ResolvedPA2OperationalAuthority:
+        """Reopen signed DS9 inputs and the current reservation for durable replay.
+
+        This proves custody/currentness only. Request callers must additionally
+        bind their live DS20 proof with ``resolve_gateway_adapter``; the worker
+        binds its persisted allow and signed admission through the authority
+        gateway before consuming this result. No permission proof is minted.
+        """
+        now = self._now()
+        if type(adapter) is not HumanDecisionPA2GatewayAdapterInput:
+            raise HumanDecisionOperationalResolutionError("DS9-DECISION-PRODUCER-MISSING")
         record = self.read_record(
             adapter.record_ref,
             tenant_id=adapter.tenant_id,
@@ -2284,19 +2347,6 @@ class HumanDecisionService:
         ):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-V1-REVALIDATION")
         resolution = self._revalidate_record_inputs(record, adapter, now=now)
-        self._assert_live_pa2_inputs(
-            resolution,
-            evaluated_at=evaluated_at,
-            operation=operation,
-            invocation=invocation,
-            intent=intent,
-            bound_permission=bound_permission,
-            resolved_contract=resolved_contract,
-            admission=admission,
-            admission_ref=cast("str", admission_ref),
-            selected_envelope=selected_envelope,
-            effect_binding=effect_binding,
-        )
         return resolution
 
     def _resolve_gate(
@@ -3543,6 +3593,43 @@ class HumanDecisionService:
         }
         return tuple(unique[key] for key in sorted(unique))
 
+    def _require_bound_mutation_command(
+        self,
+        command: HumanDecisionCreateCommand,
+        permission: BoundActionPermissionVerification,
+    ) -> None:
+        """Bind every consumed command field to the real pre-OPA body and exposure."""
+        from polisyos.runtime.http.errors import RuntimeHTTPError
+        from polisyos.runtime.http.resource_binding import human_decision_create_from_bound_resource
+
+        gate = command.gate_input
+        self._require_bound_route_permission(
+            permission,
+            tenant_id=gate.tenant_id,
+            run_id=gate.run_id,
+            route_permission=self._resolver_policy.required_permission,
+            resource_kind="runtime.run.human_decision",
+        )
+        try:
+            context = human_decision_create_from_bound_resource(
+                permission.bound_resource, run_id=gate.run_id
+            )
+        except RuntimeHTTPError as exc:
+            raise HumanDecisionOperationalResolutionError(
+                "DS9-DECISION-PERMISSION-UNVERIFIED"
+            ) from exc
+        body = context["body"]
+        # Derive from the typed consumed command, not a second body-field list.
+        expected = gate.model_dump(
+            mode="json", exclude={"tenant_id", "run_id", "exposure_session_ref"}
+        )
+        expected.update(command.model_dump(mode="json", exclude={"gate_input", "decision_action"}))
+        expected["action"] = command.decision_action
+        if context["exposure_session_ref"] != gate.exposure_session_ref or any(
+            body.get(name) != value for name, value in expected.items()
+        ):
+            raise HumanDecisionOperationalResolutionError("DS9-DECISION-PERMISSION-UNVERIFIED")
+
     def _require_bound_route_permission(
         self,
         permission: ActionPermissionVerification | BoundActionPermissionVerification,
@@ -3575,6 +3662,26 @@ class HumanDecisionService:
             **dict(required_selectors or {}),
         }
         selector_map = dict(getattr(bound, "canonical_selectors", ()))
+        expected_canonical = {
+            name: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+            for name, value in expected_selectors.items()
+        }
+        if resource_kind == "runtime.run.human_decision":
+            from polisyos.runtime.http.errors import RuntimeHTTPError
+            from polisyos.runtime.http.resource_binding import (
+                human_decision_create_from_bound_resource,
+            )
+
+            try:
+                # This owner reader recomputes exact full selectors, including
+                # absent fields and exposure hash, from the sealed mutation.
+                human_decision_create_from_bound_resource(bound, run_id=run_id)
+            except RuntimeHTTPError as exc:
+                raise HumanDecisionOperationalResolutionError(
+                    "DS9-DECISION-PERMISSION-UNVERIFIED"
+                ) from exc
+            expected_canonical = dict(bound.canonical_selectors)
+
         binding = verification.requirement.resource_binding
         if (
             type(bound) is not BoundAuthorizationResource
@@ -3589,12 +3696,7 @@ class HumanDecisionService:
             or bound.tenant_id != tenant_id
             or bound.authority is not BindingAuthority.OWNERSHIP_VERIFIED
             or bound.resource_kind != f"{resource_kind}.ownership_verified"
-            or set(selector_map) != set(expected_selectors)
-            or any(
-                selector_map.get(name)
-                != json.dumps(value, ensure_ascii=False, separators=(",", ":"))
-                for name, value in expected_selectors.items()
-            )
+            or selector_map != expected_canonical
         ):
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-PERMISSION-UNVERIFIED")
         granted = {item.value for item in verification.granted_permissions}

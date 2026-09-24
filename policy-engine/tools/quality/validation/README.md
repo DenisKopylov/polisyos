@@ -19,6 +19,24 @@ Operational rules:
 
 - Generated evidence should be deterministic and safe for CI diffing.
 
+## Independent multilingual catalogue census
+
+`check_multilingual_locale_census.py` runs Lex's catalogue parser and the separately
+allocated `locale_census_independent.py` text-grammar parser. It reconciles every
+direct catalogue member and exact string-leaf path/value maps before emitting counts
+and byte identities. Unreadable members are ambiguous; structural agreement never
+establishes legal equivalence, translation quality or source authority (W5-K06).
+
+```bash
+python -m tools.quality.validation.check_multilingual_locale_census --check
+```
+
+`--corrupt-parser a` and `--corrupt-parser b` must each return exit 1. `--receipt PATH`
+recomputes an earlier receipt and refuses any changed decisive field. The parser
+implementations share their declared denominator and result interface, not parsing
+or flattening helpers. Full leaf maps stay in memory; the receipt stores no copy of
+the locale sources.
+
 ## Policy Design Case Local Validation Ladder
 
 Wave 12.A re-executes the original W6.A local ladder over the compiled

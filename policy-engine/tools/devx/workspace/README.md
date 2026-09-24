@@ -118,3 +118,36 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
   root, чтобы closeout на Linux был воспроизводимым.
 
 - Last updated: 2026-05-03
+
+## Worktree admission
+
+Before naming a branch and path in any commissioning prompt, run the registered
+read-only preflight with both exact selectors. For example, this existing lane
+was checked with:
+
+```sh
+uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume \
+  --branch codex/measurement-plane \
+  --path /Users/deniskopylov/polisyos/.worktrees/measurement-plane
+```
+
+Use `create` to check a proposed unused pair and `resume` to check an existing
+attachment. `--path` is the absolute worktree root, including its exact spelling,
+not the nested product directory. There are no default selectors or substitute
+names. Retain the complete JSON receipt. Exit 0 admits that pair; exit 1 rejects
+it; exit 2 means the observation is incomplete and cannot admit it.
+
+The receipt reconciles every Git registration and linked admin record, required
+admin files, live `.git` backlinks, branch/HEAD/common-repository identities, and
+the requested filesystem path. Missing registered paths still occupy their
+names; dangling symlinks and path aliases cannot pass create admission. Git or
+filesystem errors retain their evidence and produce an incomplete verdict.
+
+Admission runs before normal doctor dependency, lockfile, or browser checks.
+It does not reserve names or prune records. Its named `unresolved_by_construction`
+limits include sequential observation, moved directories beyond registered
+paths, name reservation, and external prompt writers. Root serializes creation,
+reruns admission immediately before it, and checks the exact pair with `resume`
+afterward. A failed pair requires explicit re-commissioning and a fresh check of
+both changed selectors. Ordinary doctor behavior remains available without the
+admission flags.

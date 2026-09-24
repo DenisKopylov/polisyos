@@ -66,6 +66,19 @@ retrieval README rather than being part of the root facade contract.
   reports, and processing-guarantee contracts.
 - [`evidence/`](evidence/) owns evidence bundles, decision-data envelopes, and
   fact writing.
+  `evidence/non_data_acquisition.py` extends that plane with persisted candidate
+  object intake, independent verifier admission and re-entry receipts.
+  `evidence/ceiling_relations.py` owns the eight explicit non-data ceiling relations
+  registered in `evidence/ceiling_vocabulary.json`; unknown fields and identities
+  fail closed. Same-stream row growth cannot resolve a missing non-data object.
+  The verifier port permits an independently owned GY-AS1 oracle; that battery and
+  institutional authority are outside this implementation.
+  `evidence/acquisition_assurance.py` is the non-test synthetic assurance caller:
+  it executes AQ1 intake, persisted receipt verification and demanding-owner
+  re-entry. `tools.quality.validation.check_gy_acquisition_assurance` grades the
+  immutable corpus through a separately authored isolated oracle. Reference
+  terminal knowledge remains distinct from AQ1 process state; the battery grants
+  no institutional authority or general real-world completeness.
 - [`identity/`](identity/) owns dataset and segment manifest identity.
 - [`numerics/`](numerics/) owns finite-number and numerical-stability helpers.
 - [`data_plane/`](data_plane/) owns shape/time semantics plus orchestration,

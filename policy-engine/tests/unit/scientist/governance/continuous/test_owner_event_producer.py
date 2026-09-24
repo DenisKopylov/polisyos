@@ -53,7 +53,12 @@ from tests.unit.scientist.evidence.claims.test_head_index import (
 def owner_event_case(tmp_path: Path):
     """Use explicit synthetic root authority; production defaults remain unappointed."""
 
-    store = FileSystemCAS(tmp_path / "cas")
+    return _build_owner_event_case(tmp_path, store=FileSystemCAS(tmp_path / "cas"))
+
+
+def _build_owner_event_case(tmp_path: Path, *, store):
+    """Use the same explicit test authority with the caller's real CAS composition."""
+
     policy = _fixture_policy(store)
     owner = _RepositoryClaimLedgerOwner(
         store=store,

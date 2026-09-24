@@ -1,0 +1,366 @@
+{
+  "corpus_id": "synthetic-en-ua-high-stakes-v1",
+  "not_legal_advice": true,
+  "cases": [
+    {
+      "schema_version": "1",
+      "purpose": "planning",
+      "contexts": [
+        "inside_interval",
+        "outside_interval"
+      ],
+      "source_language": "en",
+      "target_language": "uk",
+      "jurisdiction": "UA",
+      "ground_truth": "synthetic_candidate",
+      "valid_until": "2027-09-10T00:00:00Z",
+      "excluded_contexts": [
+        "unmodeled",
+        "real_operator_population"
+      ],
+      "rule_refs": [
+        "W5-K06",
+        "WP-11",
+        "WP-12"
+      ],
+      "qualified_holders": [],
+      "proposition_id": "limited-planning",
+      "source": {
+        "text": "Status: limited. Planning is permitted only within the stated interval. It is not confirmed.",
+        "digest": "a15b31c7627a646a9cd27a0ac34ff5d0d33f47a7d59235d777473d1a649bc54e",
+        "status_ids": [
+          "limited"
+        ],
+        "modality": "qualified_permission",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "plan",
+              "authorize_payment"
+            ]
+          }
+        }
+      },
+      "target": {
+        "text": "Статус: обмежений. Планування дозволено лише в межах зазначеного інтервалу. Це не підтверджений результат.",
+        "digest": "78dabd802d77806ea8850930b8c894ccf09027058b4ca917422b88bb7ccc614f",
+        "status_ids": [
+          "limited"
+        ],
+        "modality": "qualified_permission",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "plan",
+              "authorize_payment"
+            ]
+          }
+        }
+      },
+      "defective_target": {
+        "text": "Статус: підтверджено із застереженням. Результат можна використовувати для планування.",
+        "digest": "b1e45ea0bd38ca6d34d1b948733aa194c22171b944eca193d5e12ea8b3e11e29",
+        "status_ids": [
+          "confirmed"
+        ],
+        "modality": "permission",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect",
+              "plan"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "schema_version": "1",
+      "purpose": "planning",
+      "contexts": [
+        "inside_interval",
+        "outside_interval"
+      ],
+      "source_language": "en",
+      "target_language": "uk",
+      "jurisdiction": "UA",
+      "ground_truth": "synthetic_candidate",
+      "valid_until": "2027-09-10T00:00:00Z",
+      "excluded_contexts": [
+        "unmodeled",
+        "real_operator_population"
+      ],
+      "rule_refs": [
+        "W5-K06",
+        "WP-11",
+        "WP-12"
+      ],
+      "qualified_holders": [],
+      "proposition_id": "payment-prohibition",
+      "source": {
+        "text": "This evidence may not be used to authorise payment.",
+        "digest": "a649cb19a939d6195142f5b95228f12a8b6dbf9dd9a231ba986811487cf1c6b2",
+        "status_ids": [
+          "limited"
+        ],
+        "modality": "prohibition",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "plan",
+              "authorize_payment"
+            ]
+          }
+        }
+      },
+      "target": {
+        "text": "Ці докази заборонено використовувати для надання дозволу на виплату.",
+        "digest": "c0476463fb4f2f6e7aabda70966005f4c79e2051f42690175c14874585895343",
+        "status_ids": [
+          "limited"
+        ],
+        "modality": "prohibition",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [],
+            "forbidden": [
+              "authorize_payment"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "plan",
+              "authorize_payment"
+            ]
+          }
+        }
+      },
+      "defective_target": {
+        "text": "Ці докази не рекомендується використовувати для погодження виплати.",
+        "digest": "4805ff34c02de9e5a9942f412c174c0178aae16bf914c8bc1f9e637d3b81fe45",
+        "status_ids": [
+          "limited"
+        ],
+        "modality": "recommendation",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect",
+              "authorize_payment"
+            ],
+            "required": [],
+            "forbidden": []
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "plan",
+              "authorize_payment"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "schema_version": "1",
+      "purpose": "planning",
+      "contexts": [
+        "inside_interval",
+        "outside_interval"
+      ],
+      "source_language": "en",
+      "target_language": "uk",
+      "jurisdiction": "UA",
+      "ground_truth": "synthetic_candidate",
+      "valid_until": "2027-09-10T00:00:00Z",
+      "excluded_contexts": [
+        "unmodeled",
+        "real_operator_population"
+      ],
+      "rule_refs": [
+        "W5-K06",
+        "WP-11",
+        "WP-12"
+      ],
+      "qualified_holders": [],
+      "proposition_id": "negative-states",
+      "source": {
+        "text": "Stale requires revalidation; superseded requires successor lookup; withdrawn may not be used.",
+        "digest": "da4f0cfd33d90977b2d5a69059fd88c2958f5524203c254dda5a8eb4d7fc4b24",
+        "status_ids": [
+          "stale",
+          "superseded",
+          "withdrawn"
+        ],
+        "modality": "prohibition",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "revalidate",
+              "lookup_successor"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          }
+        }
+      },
+      "target": {
+        "text": "Застаріле потребує повторної перевірки; замінене потребує пошуку наступника; відкликане використовувати заборонено.",
+        "digest": "eabd833df512326fc15b73277a6e17f7eb5f3fcfe2a42f7d0421d93d9a825cd7",
+        "status_ids": [
+          "stale",
+          "superseded",
+          "withdrawn"
+        ],
+        "modality": "prohibition",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "revalidate",
+              "lookup_successor"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          }
+        }
+      },
+      "defective_target": {
+        "text": "Недійсне.",
+        "digest": "52464337f2b1e41f1ce46027d3ece4941e68d8b54c4be46c12c45e7ccc6121fd",
+        "status_ids": [
+          "invalid"
+        ],
+        "modality": "prohibition",
+        "action_profiles": {
+          "inside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "revalidate",
+              "lookup_successor"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          },
+          "outside_interval": {
+            "allowed": [
+              "inspect"
+            ],
+            "required": [
+              "defer"
+            ],
+            "forbidden": [
+              "use_withdrawn"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

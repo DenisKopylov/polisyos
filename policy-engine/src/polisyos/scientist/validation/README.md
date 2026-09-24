@@ -28,9 +28,9 @@ should import from this validation hub.
 reconciles the complete owner target denominator, persists the complete pending freeze before the
 first packet mutation, resumes idempotently after a crash, and exposes completed evidence only by
 content-bound receipt ref. Generic dependency events cannot admit or clear semantic-epoch state.
-The production composition has no epoch-transition signing authority, so positive signed
-transition issuance remains absent; an explicitly appointed test verifier proves the intake
-mechanism without promoting that retained institutional gap.
+Runtime can configure canonical production and independent origin verification on this same
+owner. Empty deployments retain `NoEpochTransitionVerifier`; the HTTP request cannot supply a
+verifier or authority. A signature never substitutes for canonical producer provenance.
 
 Scientist can also persist and exact-read a strict semantic-epoch impact snapshot from the same
 nullable owner walk used by the legacy denominator resolver. Strict materialization refuses a
@@ -39,7 +39,14 @@ owner index is available for reconciliation admission bindings and creates no di
 sidecar-aware admission writes its first binding. When an explicit Runtime reader is configured,
 first admission validates the exact sidecar and freezes its handle before the unchanged v1 pending
 batch; restart replay resolves only that frozen handle and never consults the live owner index.
-The literal `None` default preserves legacy admission, and no production reader is appointed yet.
+An entirely unconfigured owner has a typed unavailable reconciliation reader. An explicitly
+injected legacy verifier with no reader retains its previous behavior. Runtime production
+composition installs a producing reader which delegates admission to the existing strict reader.
+
+`epoch_certificate_issuance.py` is a neutral internal protocol and sealed canonical completion
+witness. The real decision-packet builder invokes this port before and after persistence; Runtime
+owns the concrete complete-basis resolver and admission index. A missing resolver persists a typed
+nonreceipt, and arbitrary invocation labels cannot become a semantic-epoch dependency.
 
 ## Common Commands
 

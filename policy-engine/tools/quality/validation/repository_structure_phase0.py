@@ -958,20 +958,32 @@ def collect_gate_findings(
     package: str | None = None,
     scope: str = "all",
 ) -> list[dict[str, Any]]:
+    findings, _ = _collect_gate_measurement(repo_root, gate, package=package, scope=scope)
+    return findings
+
+
+def _collect_gate_measurement(
+    repo_root: Path,
+    gate: str,
+    *,
+    package: str | None = None,
+    scope: str = "all",
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     gate = GATE_ALIASES.get(gate, gate)
+    findings: list[dict[str, Any]] = []
     try:
         tracked_paths = _tracked_entries(_git_root(repo_root.resolve()))
         inventory = collect_inventory(repo_root, tracked_paths=tracked_paths)
-    except (OSError, UnicodeError, subprocess.CalledProcessError) as exc:
-        return [{"gate": "repository_input", "severity": "error", "message": str(exc)}]
-    gates = GATE_FUNCTIONS.keys() if gate == "all" else (gate,)
-    findings: list[dict[str, Any]] = []
-    for gate_id in gates:
-        findings.extend(GATE_FUNCTIONS[gate_id](repo_root, inventory, tracked_paths))
-    findings = _apply_structure_exceptions(
-        findings, _load_structure_exceptions(repo_root, tracked_paths)
-    )
-    return _filter_gate_findings(findings, package=package, scope=scope)
+        gates = GATE_FUNCTIONS.keys() if gate == "all" else (gate,)
+        for gate_id in gates:
+            findings.extend(GATE_FUNCTIONS[gate_id](repo_root, inventory, tracked_paths))
+        findings = _apply_structure_exceptions(
+            findings, _load_structure_exceptions(repo_root, tracked_paths)
+        )
+    except (OSError, UnicodeError, subprocess.CalledProcessError, tomllib.TOMLDecodeError) as exc:
+        findings.append({"gate": "repository_input", "severity": "error", "message": str(exc)})
+        return findings, None
+    return _filter_gate_findings(findings, package=package, scope=scope), inventory
 
 
 def render_markdown(inventory: dict[str, Any]) -> str:
@@ -1165,12 +1177,28 @@ def main() -> int:
         print(json.dumps(inventory, indent=2, sort_keys=True))
         return 0
 
-    findings = collect_gate_findings(
+    findings, inventory = _collect_gate_measurement(
         repo_root,
         args.gate,
         package=args.package,
         scope=args.scope,
     )
+    complete = inventory is not None
+    status = "UNRUN" if not complete else "FAILED" if findings else "passed"
+    measurement: dict[str, Any] = {
+        "measures": "Selected structural predicates over tracked repository inputs.",
+        "not_measured": "runtime behavior, semantic correctness, or untracked station files",
+        "selected_gate": GATE_ALIASES[args.gate],
+    }
+    if GATE_ALIASES[args.gate] in {"all", "pyproject_size"}:
+        measurement["measures"] += " Pyproject physical lines include comments and blank lines."
+        measurement["not_measured"] += (
+            ", configuration complexity, dependency correctness, resolver cost, or TOML validity"
+        )
+        measurement["pyproject_physical_lines"] = (
+            inventory["pyproject"]["line_count"] if inventory is not None else None
+        )
+        measurement["pyproject_max_lines"] = DEFAULT_MAX_PYPROJECT_LINES
     if args.json:
         print(
             json.dumps(
@@ -1179,15 +1207,26 @@ def main() -> int:
                     "package": args.package,
                     "scope": args.scope,
                     "findings": findings,
+                    "status": status,
+                    "complete_verdict": complete,
+                    "finding_coverage": "complete" if complete else "partial",
+                    "measurement": measurement,
                 },
                 indent=2,
                 sort_keys=True,
             )
         )
     else:
-        print(f"repository-structure {args.gate}: {len(findings)} finding(s) [{args.mode}]")
+        verdict = (
+            status if complete else "UNRUN: no complete verdict; findings are partial coverage"
+        )
+        print(f"repository-structure {args.gate}: {verdict} [{args.mode}]")
+        print(f"Measured scope: {measurement['measures']}")
+        print(f"Not measured: {measurement['not_measured']}.")
         for finding in findings:
             print(f"- {finding['gate']}: {finding['message']}")
+    if not complete:
+        return 2
     if args.mode == "fail-closed" and findings:
         return 1
     return 0

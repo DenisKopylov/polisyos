@@ -1,0 +1,34 @@
+id = "2026-09-24-e02-r2-openapi-integration"
+title = "Integrate E02 and main Runtime API schemas"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "The generated Runtime API client now includes the merged acquisition and governed-public-record contracts."
+evidence = [
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "The debug API's ArtifactID component is now an alias of ArtifactID-Input. The fully qualified Core and IR ArtifactID component names remain separate because they are different owner types; both retain their prior string wire representation. The merged OpenAPI schema adds main's acquisition and governed-public-record components without removing E02 paths or components."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API"
+migration = "Regenerate typed clients from the merged OpenAPI snapshot. Existing sha256 artifact ID values remain valid on the wire."
+api = "The ArtifactID schema reference is an alias, and qualified Core and IR artifact ID components are distinct. The endpoint and string payload forms remain unchanged."
+limitations = "Schema generation does not establish runtime endpoint behavior or authorize reissue of trust-posture, loaded-runtime, or GY promotion epochs."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-r2-artifact-id-component-split"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API OpenAPI component names and generated client types"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+release_note = "The generated Runtime API schema separates Core and IR artifact ID component names while keeping artifact ID strings unchanged."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

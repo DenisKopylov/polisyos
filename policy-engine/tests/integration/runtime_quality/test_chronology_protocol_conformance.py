@@ -63,7 +63,7 @@ def _verified_result(
     assert isinstance(
         result,
         (
-            contract.NativeProjectionCustodyGap,
+            contract.NativeChronologyQualified,
             contract.NativeExteriorNotEstablished,
             contract.NativeAuthorityHeadNotEstablished,
             contract.NativeExteriorAndAuthorityHeadNotEstablished,
@@ -100,7 +100,7 @@ def _assert_owner_policy_changes_authority_not_proof(root: Path) -> None:
     )
     optional_result = _qualify(no_head_required)
     required_result = _qualify(head_required)
-    assert isinstance(optional_result, contract.NativeProjectionCustodyGap)
+    assert isinstance(optional_result, contract.NativeChronologyQualified)
     assert isinstance(required_result, contract.NativeAuthorityHeadNotEstablished)
     assert (
         optional_result.proof_result.bundle_content_hash
@@ -134,7 +134,7 @@ def test_two_native_shapes_preserve_scope_and_reject_parent_scope(
 ) -> None:
     case = make_qualification_case(tmp_path / shape, shape=shape, member_count=2)
     accepted = _qualify(case)
-    assert isinstance(accepted, contract.NativeProjectionCustodyGap)
+    assert isinstance(accepted, contract.NativeChronologyQualified)
     assert accepted.proof_result.parsed_header.scope_ref == case.query.domain.scope_ref
 
     foreign_query = _foreign_scope_query(case.query)
@@ -276,7 +276,7 @@ def test_native_multi_head_is_preserved_and_never_time_selected(tmp_path: Path) 
         required_native_head_role="current_branch_heads",
     )
     result = _qualify(case)
-    assert isinstance(result, contract.NativeProjectionCustodyGap)
+    assert isinstance(result, contract.NativeChronologyQualified)
     candidate = result.reconciliation.owner_context.owner_qualified_candidate.candidate
     assert candidate.native_authority_head_refs == heads
     assert "native_authority_head_refs" not in type(result.proof_result.parsed_header).model_fields
@@ -314,8 +314,17 @@ def test_offline_replay_uses_only_frozen_inputs(tmp_path: Path) -> None:
 
 def test_projection_suppression_reports_custody_gap_without_rewriting_terminal(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     case = make_qualification_case(tmp_path, shape="inventory", member_count=2)
+    original = case.store.put_bytes
+
+    def suppress_projection(payload: bytes, options: Any) -> Any:
+        if options.kind == "core.chronology.native_projection":
+            raise OSError("projection custody unavailable")
+        return original(payload, options)
+
+    monkeypatch.setattr(case.store, "put_bytes", suppress_projection)
     result = _qualify(case)
     assert isinstance(result, contract.NativeProjectionCustodyGap)
     assert result.status == "native_not_established"
@@ -500,14 +509,14 @@ def test_authority_only_and_annotation_only_heads_move_orthogonally(
 def test_inventory_without_native_head_uses_empty_head_tuple(tmp_path: Path) -> None:
     case = make_qualification_case(tmp_path, shape="inventory", member_count=1)
     result = _qualify(case)
-    assert isinstance(result, contract.NativeProjectionCustodyGap)
+    assert isinstance(result, contract.NativeChronologyQualified)
     assert case.candidate.native_authority_head_refs == ()
 
 
 def test_predicate_class_comes_from_owner_verifier_receipt(tmp_path: Path) -> None:
     case = make_qualification_case(tmp_path, shape="inventory", member_count=1)
     result = _qualify(case)
-    assert isinstance(result, contract.NativeProjectionCustodyGap)
+    assert isinstance(result, contract.NativeChronologyQualified)
     receipt = (
         result.reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
     )

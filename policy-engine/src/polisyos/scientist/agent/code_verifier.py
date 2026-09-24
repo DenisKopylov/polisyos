@@ -18,8 +18,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 
 logger = get_logger(__name__)

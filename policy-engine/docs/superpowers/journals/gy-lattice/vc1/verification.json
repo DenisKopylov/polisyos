@@ -1,0 +1,198 @@
+{
+  "schema_version": "gy-lattice.vc1.verification.v1",
+  "lane_merge_base": "992aa493f",
+  "branch": "codex/gy-lattice-and-custody",
+  "task": "GY-VC1",
+  "implementation_standing": "candidate_identity_crosswalk_implemented",
+  "source_sha256": {
+    "docs/superpowers/specs/2026-09-10-gy-vc1-decision.md": "433021dbee2c6301b7e5fe8002092eaf760f0759cfa24503aa7666bd6ef9c0d0",
+    "docs/reference/canonical-vocabulary-crosswalk.v1.json": "5cf2b1a28cd268fdd8c01d328c51ddc4b609463076d5e9d04501a61fd78fea7f",
+    "docs/reference/canonical-vocabulary-crosswalk.md": "70b71f7797dd223e066c2820501e682a2ca54dad410da409d6e607995d10f2f7",
+    "src/polisyos/runtime/quality/vocabulary_crosswalk.py": "5449b6653ccf9ff214a01238e0c10450d58fbcbe1228f5c0c829a951743dde2d",
+    "tools/quality/validation/check_canonical_vocabulary_crosswalk.py": "75558e0f81af64971ca759533c34c0bf85f43fefc4b5732267d91dddc05dd340",
+    "tests/unit/runtime/quality/test_vocabulary_crosswalk.py": "3039fa96884303f6258179bed93d309d701db13eb22f5d64a7241034a8f29db3",
+    "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py": "94142508db00745739ef97a304b10002c571eb0fdff89e84a28e3a975069fffc"
+  },
+  "gates": [
+    {
+      "name": "final_exact_targeted_nodes",
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest -v tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_canonical_movement_admits_every_member_and_refuses_unknowns tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_second_arbitrarily_named_movement_vocabulary_is_refused tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_removing_registry_independence_cannot_hide_a_new_namespace tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_blocking_loss_refuses_for_each_dimension_and_display_loss_preserves_identity tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_no_status_addition_and_no_source_identity_or_owner_substitution tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_factor_axes_are_not_lifecycle_statuses tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_reference_is_total_and_recomputed_from_all_declared_owners tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_missing_extra_and_corrupt_semantic_rows_fail tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_removing_anti_fork_property_keep_markers_is_detected tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_removing_loss_refusal_keep_marker_contract_is_detected tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_changed_source_denominator_and_unreadable_source_are_not_zero tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_institutional_reconciliation_preserves_candidate_and_unallocated_boundaries tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_actual_production_caller_refuses_a_second_namespace_and_removal_is_red tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_independent_source_parser_keeps_digit_bearing_lifecycle_members tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_qualified_reason_identity_keeps_digits_and_complete_namespace > docs/superpowers/journals/gy-lattice/vc1/raw/final-15-nodes.txt 2>&1",
+      "exit_code": 0,
+      "nodeids": [
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_canonical_movement_admits_every_member_and_refuses_unknowns",
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_second_arbitrarily_named_movement_vocabulary_is_refused",
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_removing_registry_independence_cannot_hide_a_new_namespace",
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_blocking_loss_refuses_for_each_dimension_and_display_loss_preserves_identity",
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_no_status_addition_and_no_source_identity_or_owner_substitution",
+        "tests/unit/runtime/quality/test_vocabulary_crosswalk.py::test_factor_axes_are_not_lifecycle_statuses",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_reference_is_total_and_recomputed_from_all_declared_owners",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_missing_extra_and_corrupt_semantic_rows_fail",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_removing_anti_fork_property_keep_markers_is_detected",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_removing_loss_refusal_keep_marker_contract_is_detected",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_changed_source_denominator_and_unreadable_source_are_not_zero",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_institutional_reconciliation_preserves_candidate_and_unallocated_boundaries",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_actual_production_caller_refuses_a_second_namespace_and_removal_is_red",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_independent_source_parser_keeps_digit_bearing_lifecycle_members",
+        "tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py::test_qualified_reason_identity_keeps_digits_and_complete_namespace"
+      ],
+      "result": "15 passed in 144.54s",
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/final-15-nodes.txt",
+        "sha256": "688fd37be9e4003a3765c2c6d8f5f9fa4af1db6a5915e9fc5abade8f825a9745"
+      }
+    },
+    {
+      "name": "reference_generation_and_recomputation",
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_canonical_vocabulary_crosswalk --write > docs/superpowers/journals/gy-lattice/vc1/raw/reference-final-98.txt 2>&1",
+      "exit_code": 0,
+      "result": "98 entries in 13 source vocabularies; complete independent sets agree",
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/reference-final-98.txt",
+        "sha256": "0632e493f8d6c59cca8a1bbfe02e9d809c8c3ddb9a1dbba7600fb1a721a9d46d"
+      }
+    },
+    {
+      "name": "corrupt_semantic_field",
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_canonical_vocabulary_crosswalk --check --artifact docs/superpowers/journals/gy-lattice/vc1/raw/corrupt-crosswalk-98.json > docs/superpowers/journals/gy-lattice/vc1/raw/corrupt-field-drift-98.txt 2>&1",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "mutation": "entries[0].losses.source_identity: blocking -> tolerable; every other parsed field unchanged",
+      "mutated_artifact": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/corrupt-crosswalk-98.json",
+        "sha256": "38ac0584ab5f3d9d1d812af81eaecf60597e6f1f425826dab2af60c0b233082d"
+      },
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/corrupt-field-drift-98.txt",
+        "sha256": "1801129c8855679b21691dfdb24ec48c5256c60f2580beb230e7d306ec7c5e94"
+      }
+    },
+    {
+      "name": "ruff",
+      "command": ".venv/bin/python -m ruff check src/polisyos/runtime/quality/vocabulary_crosswalk.py tools/quality/validation/check_canonical_vocabulary_crosswalk.py tests/unit/runtime/quality/test_vocabulary_crosswalk.py tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py > docs/superpowers/journals/gy-lattice/vc1/raw/ruff-complete.txt 2>&1",
+      "exit_code": 0,
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/ruff-complete.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "name": "closed_owners_untouched",
+      "command": "git diff --exit-code 992aa493f -- src/polisyos/runtime/quality/adaptation_transition.py src/polisyos/fabric/evidence/non_data_acquisition.py src/polisyos/fabric/evidence/ceiling_relations.py src/polisyos/lex/knowledge/multilingual_assurance.py > docs/superpowers/journals/gy-lattice/vc1/raw/closed-owners-unchanged.txt 2>&1",
+      "exit_code": 0,
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/closed-owners-unchanged.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "remove_properties_keep_markers",
+      "exit_code": 0,
+      "mutations": [
+        {
+          "callable": "runtime.validate_movement_registry",
+          "replacement": "lambda _: None",
+          "required_checker_failure": "movement_fork_admitted"
+        },
+        {
+          "callable": "runtime.project_term",
+          "replacement": "delegate to original while setting losses=()",
+          "required_checker_failure": "blocking_loss_admitted:<dimension> for every runtime.BLOCKING_DIMENSIONS member"
+        },
+        {
+          "callable": "constrained_response.require_canonical_movement",
+          "replacement": "lambda *args: runtime.MovementClass.EXPECTED_VARIATION",
+          "required_checker_failure": "production_namespace_fork_admitted"
+        }
+      ],
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/removal-probes.txt",
+        "sha256": "a15d0be9e5cc18fe4214b42ec01ead190f08b2f13fabb893f5303d6065ced0fa"
+      },
+      "command": "PYTHONPATH=src .venv/bin/python - <<'PY' > docs/superpowers/journals/gy-lattice/vc1/raw/removal-probes.txt 2>&1\nfrom unittest.mock import patch\nfrom tools.quality.validation import check_canonical_vocabulary_crosswalk as checker\nfrom polisyos.runtime.quality import vocabulary_crosswalk as runtime\nfrom polisyos.runtime.quality import constrained_response as consumer\nbaseline = checker.runtime_probe_failures() + checker.production_probe_failures()\nprint('BASELINE', baseline, flush=True)\nassert baseline == []\nwith patch.object(runtime, 'validate_movement_registry', lambda _: None):\n    result = checker.runtime_probe_failures()\n    print('REMOVE registry property KEEP vocabulary/markers:', result, flush=True)\n    assert 'movement_fork_admitted' in result\nactual = runtime.project_term\nwith patch.object(runtime, 'project_term', lambda entry, *, current_status, losses=(): actual(entry, current_status=current_status, losses=())):\n    result = checker.runtime_probe_failures()\n    print('REMOVE loss refusal KEEP entry/policy markers:', result, flush=True)\n    assert set(result) == {'blocking_loss_admitted:' + item for item in runtime.BLOCKING_DIMENSIONS}\nwith patch.object(consumer, 'require_canonical_movement', lambda *args: runtime.MovementClass.EXPECTED_VARIATION):\n    result = checker.production_probe_failures()\n    print('REMOVE production namespace admission KEEP typed field/import:', result, flush=True)\n    assert 'production_namespace_fork_admitted' in result\nprint('ALL REMOVALS TURNED THEIR OWN CHECK RED; originals restored', flush=True)\nPY"
+    },
+    {
+      "name": "final_cli_check",
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_canonical_vocabulary_crosswalk --check > docs/superpowers/journals/gy-lattice/vc1/raw/check-98.txt 2>&1",
+      "exit_code": 0,
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/check-98.txt",
+        "sha256": "0632e493f8d6c59cca8a1bbfe02e9d809c8c3ddb9a1dbba7600fb1a721a9d46d"
+      }
+    }
+  ],
+  "independent_census_receipt": {
+    "path": "docs/superpowers/journals/gy-lattice/vc1/raw/census-and-routes.txt",
+    "sha256": "0208d03fbe7d17f537bc1fbc5c2617588457261a73e0b98b4ee05aa4ff5e29ac"
+  },
+  "red_first": [
+    {
+      "exit_code": 2,
+      "reason": "requested runtime module absent",
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/red-runtime.txt",
+        "sha256": "0050e61c81cda33dad5dbf5cd5427d95405baecce5b3d620776d3f89409ffbac"
+      }
+    },
+    {
+      "exit_code": 2,
+      "reason": "requested checker module absent",
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/vc1/raw/red-checker.txt",
+        "sha256": "a2e878aeca9aa2e1c6ab107491f1f163d75160dd30a716299215582c126dae31"
+      }
+    }
+  ],
+  "source_vocabulary_counts": {
+    "SMDV-1@1": 7,
+    "ops.epistemic@1": 5,
+    "ops.exposure@1": 5,
+    "ops.intervention@1": 5,
+    "ops.claim@1": 4,
+    "fabric.ceiling-dimension@1": 8,
+    "int-r2.process@candidate-1": 12,
+    "fabric.acquisition-process@1": 5,
+    "int-r6.semantic@candidate-1": 5,
+    "int-r5.result@0.1.0-candidate": 4,
+    "int-r5.lifecycle@0.1.0-candidate": 17,
+    "int-r5.cure@0.1.0-candidate": 5,
+    "int-r5.reason@0.1.0-candidate": 16
+  },
+  "row_count": 98,
+  "superseded_iterations": "95/97-row iterations omitted digit-bearing identifiers. The second finding was the same P35 class one level deeper; complete qualified-identity token parsing and independently tokenized source readers replace alphabetic-only assumptions. Final denominator is 98, not 95 or 97.",
+  "production_callers": {
+    "movement_admission": "polisyos.runtime.quality.constrained_response",
+    "projection": "tools.quality.validation.check_canonical_vocabulary_crosswalk",
+    "atlas_surface": "deferred to DS12; new dashboard UI surface_out_of_scope",
+    "live_monitoring_learning": "deferred to GY-O1/GY-O3; posterior assertion GY-AS3"
+  },
+  "bounded_claims": [
+    "Anti-fork proof covers the admitted movement channel, its complete registry, actual ResponseEvent/ResponseFactors type identities and the executed namespace falsifier; arbitrary future code/prose bypass detection is not claimed.",
+    "Projection losses describe a presentation request. The projector is candidate identity transport, not institutional-provenance authentication.",
+    "Existing custody lifecycle status is preserved; no closed owner module or target status was changed."
+  ],
+  "claims_refused": [
+    "Institutional appointment, causal diagnosis/update, human comprehension, legal equivalence, co-authentic legal authority and authority-grade domain vocabulary terms are not established by this crosswalk.",
+    "Three unallocated semantic-vocabulary families retain precise owner-supply requirements; two other families have conditional existing-comparison mappings."
+  ],
+  "routed_findings": [
+    {
+      "destination": "int-r2-ceiling-vocabulary-owners",
+      "finding": "Conditional relation/capacity mappings ruled; estimand, legal/normative/write operation and assurance semantic owners/terms remain absent with explicit prerequisites."
+    },
+    {
+      "destination": "w5-institutional-authority-slots",
+      "finding": "Predicted exact names are 5/12 over 2647 tracked source .py files at base; source+tests denominator5207 and all policy-engine .py denominator6136. Delivered mechanism vocabulary, not name census, determines capability."
+    },
+    {
+      "destination": "GY plan / wave5 routing-map owner",
+      "finding": "VC1 bullet lists twelve unique routes, independently tokenized and matched to complete routing table, while narrative says thirteen."
+    },
+    {
+      "destination": "GY-O1 / GY-O3 / GY-AS3 / DS12",
+      "finding": "Later live monitoring/learning integration, posterior-consumer assertion and Atlas UI surface remain assigned there."
+    }
+  ],
+  "shared_readme_text": "vocabulary_crosswalk.py owns canonical SMDV movement admission and E/X/V/C identities consumed by constrained_response.py; its scoped projector preserves the existing custody status and refuses semantic loss. Versioned reference: docs/reference/canonical-vocabulary-crosswalk.v1.json; checker: tools.quality.validation.check_canonical_vocabulary_crosswalk.",
+  "architecture_guardrails": "Root owns the full gate. No guardrail pass or freshness completion is claimed by this workstream.",
+  "initial_red_invocation_note": "Runtime test creation preceded the initial red gate in the same shell invocation; pytest was the final command and supplied the actual exit2. Final deciding gates were standalone."
+}

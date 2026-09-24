@@ -1,9 +1,8 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { axe } from "vitest-axe";
+import axe from "axe-core";
+
+import openApiDocument from "../../../../../../schemas/runtime_api_v1.openapi.json";
 
 import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/useConfidenceLedgerRiskSpend";
 import {
@@ -17,12 +16,7 @@ import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { ConfidenceLedgerRiskSpend } from "./ConfidenceLedgerRiskSpend";
 
 function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
-  const openApi = JSON.parse(
-    readFileSync(
-      resolve(process.cwd(), "../../schemas/runtime_api_v1.openapi.json"),
-      "utf8",
-    ),
-  ) as {
+  const openApi = openApiDocument as unknown as {
     paths: Record<
       string,
       {
@@ -94,14 +88,14 @@ describe("ConfidenceLedgerRiskSpend accessibility", () => {
       </LocaleProvider>,
     );
 
-    expect((await axe(document.body)).violations).toHaveLength(0);
+    expect((await axe.run(document.body)).violations).toHaveLength(0);
 
     fireEvent.click(
       screen.getAllByRole("button", {
         name: /≤ δ relative to the declared obligation set/iu,
       })[0],
     );
-    expect(screen.getByRole("dialog")).toBeVisible();
-    expect((await axe(document.body)).violations).toHaveLength(0);
+    await expect.element(screen.getByRole("dialog")).toBeVisible();
+    expect((await axe.run(document.body)).violations).toHaveLength(0);
   }, 30_000);
 });

@@ -45,11 +45,10 @@ fi
 OUT_FILE="${OUTPUT_ROOT}/apps/runtime-dashboard/src/api/types.ts"
 
 if ! command -v corepack > /dev/null 2>&1; then
-  echo "corepack is required to run openapi-typescript" >&2
-  exit 1
+  echo "UNRUN: corepack is required to run the locked openapi-typescript" >&2
+  exit 2
 fi
-
-PNPM=(corepack pnpm)
+PNPM=(corepack pnpm --dir "${PROJECT_ROOT}/apps/runtime-dashboard")
 CLIENT_PACKAGE_ROOT="${PROJECT_ROOT}/packages/runtime-api-client"
 
 mkdir -p "$(dirname "${OUT_FILE}")"

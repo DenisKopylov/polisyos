@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from typing import ClassVar
 
 import pytest
+
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -655,7 +656,9 @@ class TestConnectionConfig:
     def test_redacted_hides_credentials(self, sample_config: ConnectionConfig) -> None:
         redacted = sample_config.redacted()
 
-        assert redacted.auth_credentials == {"api_key": "***"}
+        assert set(redacted.auth_credentials) == {"api_key"}
+        assert redacted.auth_credentials["api_key"].startswith("[POLISYOS_SECRET_")
+        assert "test_secret_key_12345" not in str(redacted.to_dict())
         assert sample_config.auth_credentials["api_key"] == "test_secret_key_12345"
 
     def test_redacted_preserves_non_sensitive(self, sample_config: ConnectionConfig) -> None:

@@ -51,6 +51,13 @@ PHASE_LOCAL_JUNK_PATTERN = "phase*-local-junk-*"
 PHASE_LOCAL_JUNK_EXCEPTION_KIND = "phase_local_junk_residue"
 PHASE_LOCAL_JUNK_SCRATCH_POLICY = "explicitly_ignored"
 SCHEMA_DATA_SUFFIXES = {".json", ".md", ".toml", ".yaml", ".yml"}
+MEASUREMENT = {
+    "measured": "Directory contracts, tracked-file volume and local-document presence, "
+    "fixture registrations, and the configured filesystem-residue scopes.",
+    "omission": "Not measured: documentation substance, runtime behavior, fixture adequacy, "
+    "or hosted CI. Tracked-file metrics exclude untracked/ignored contents; missing local "
+    "roots are not inspected. Filesystem-residue checks use their separate on-disk scopes.",
+}
 
 
 @dataclass(frozen=True)
@@ -79,6 +86,7 @@ def build_report(
     repo_root = repo_root.resolve()
     contract_path = contract_path if contract_path.is_absolute() else repo_root / contract_path
     contract = _read_toml(contract_path)
+    _tracked_files(repo_root)  # A failed Git census must not become empty coverage.
     directory_contracts = _read_toml(
         repo_root / "architecture" / "policies" / "directory_contracts.toml"
     )
@@ -111,6 +119,9 @@ def build_report(
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "contract": _rel(contract_path, repo_root),
         "status": status,
+        "complete_verdict": True,
+        "finding_coverage": "declared scope only",
+        "measurement": MEASUREMENT,
         "mode": header.get("mode", ""),
         "top_level_path_moves_active": top_level_path_moves_active,
         "fail_closed_closure": fail_closed_closure,
@@ -129,6 +140,8 @@ def dump_json(payload: dict[str, Any]) -> str:
 
 
 def render_markdown(payload: dict[str, Any]) -> str:
+    if payload["status"] == "UNRUN":
+        return f"# Directory Health: UNRUN\n\n{payload['reason']}\n\n{MEASUREMENT['omission']}\n"
     dashboard = payload["dashboard"]
     metrics = dashboard["metrics"]
     lines = [
@@ -138,6 +151,8 @@ def render_markdown(payload: dict[str, Any]) -> str:
         f"- Contract: `{payload['contract']}`",
         f"- Mode: `{payload['mode']}`",
         f"- Status: `{payload['status']}`",
+        f"- {MEASUREMENT['measured']}",
+        f"- {MEASUREMENT['omission']}",
         f"- Top-level path moves active: `{payload['top_level_path_moves_active']}`",
         f"- Contract errors: {payload['contract_error_count']}",
         f"- Closure findings: {payload['finding_count']}",
@@ -227,7 +242,16 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     repo_root = args.repo_root.resolve()
     contract_path = args.contract if args.contract.is_absolute() else repo_root / args.contract
-    payload = build_report(repo_root, contract_path=contract_path)
+    try:
+        payload = build_report(repo_root, contract_path=contract_path)
+    except (OSError, ValueError, SyntaxError, subprocess.CalledProcessError) as exc:
+        payload = {
+            "status": "UNRUN",
+            "complete_verdict": False,
+            "finding_coverage": "partial",
+            "measurement": MEASUREMENT,
+            "reason": f"{type(exc).__name__}: {exc}",
+        }
     rendered = dump_json(payload) if args.format == "json" else render_markdown(payload)
 
     if args.json_output is not None:
@@ -245,6 +269,8 @@ def run_cli(argv: list[str] | None = None) -> int:
     if args.json_output is None and args.markdown_output is None:
         print(rendered, end="" if rendered.endswith("\n") else "\n")  # noqa: T201
 
+    if payload["status"] == "UNRUN":
+        return 2
     if args.fail_on_regression and (
         payload["contract_error_count"]
         or payload["regression_count"]
@@ -273,16 +299,13 @@ def _rel(path: Path, repo_root: Path) -> str:
 
 
 def _git_lines(repo_root: Path, *args: str) -> list[str]:
-    try:
-        completed = subprocess.run(  # noqa: S603
-            ["git", *args],  # noqa: S607
-            cwd=repo_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return []
+    completed = subprocess.run(  # noqa: S603
+        ["git", *args],  # noqa: S607
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return [line for line in completed.stdout.splitlines() if line.strip()]
 
 

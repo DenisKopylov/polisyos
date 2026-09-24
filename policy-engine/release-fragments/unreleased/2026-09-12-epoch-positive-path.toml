@@ -1,0 +1,75 @@
+id = "2026-09-12-epoch-positive-path"
+title = "Wire canonical epoch execution provenance into strict batch intake"
+type = "added"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "Add canonical issuance and transition-origin owners, exact verification and denominator reconciliation, and captured deployment composition with typed empty authority slots."
+evidence = [
+  "tests/unit/runtime/http/test_decision_validity_api.py",
+  "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+  "tests/unit/runtime/quality/test_epoch_deployment.py",
+  "tests/unit/scientist/validation/test_epoch_certificate_issuance.py",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "Existing request DTOs and strict admission predicates remain unchanged. Empty production configuration still refuses. Explicit legacy verifier injection without a reconciliation reader retains its prior behavior."
+change_class = "python-public-api; schema-openapi-abi"
+surface_classification = "public_stable: polisyos.core.security"
+migration = "No artifact migration is required. Privileged deployment composition may provide independently verified evidence and native owner protocols; institutional slots remain empty by default."
+api = "Expose existing exact signed-evidence verification and thin acceptance/holder appointment verification wrappers through the admitted core.security facade."
+limitations = "Same-epoch transitions, the qualified pre-N9 query carrier and native semantic-change event admission remain the precise EP-D02/EP-D03/EP-D04 decision boundaries. Signed declarations alone do not establish native predicate semantics or complete executable recipe inputs."
+generated_client_compatibility = "unchanged: current OpenAPI example dependency bindings only; no operation or DTO changes"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["docs/superpowers/specs/2026-09-12-epoch-positive-path-stage1.md"]
+
+[[compatibility_change]]
+id = "epoch-exact-appointment-verification-helpers"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.security"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Deployment composition reuses exact evidence verification through the existing security facade; the helpers confer no appointment."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["docs/superpowers/specs/2026-09-12-epoch-positive-path-stage1.md"]
+
+[[compatibility_change]]
+id = "epoch-signed-repository-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing exact signed-evidence repository lazily through Core for Runtime composition without a deep-import exception."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "epoch-scientist-owner-ports"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose neutral canonical issuance witnesses/ports and existing Decision Validity/monitor readers through the Scientist facade. Canonical completion minting remains private to the real node execution."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = ["docs/superpowers/specs/2026-09-12-epoch-positive-path-stage1.md"]
+
+[[compatibility_change]]
+id = "epoch-current-openapi-example-bindings"
+change_class = "schema-openapi-abi"
+impact = "compatible"
+surface = "public_stable: Runtime OpenAPI confidence-ledger-risk-spend example"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Recompute the existing example's current consulted-dependency basis and dependent replay/projection/worker-receipt bindings after canonical epoch source composition changed. Operations, DTOs and authority/status rules remain unchanged."
+generated_client_compatibility = "unchanged"
+migration_docs = []
+runbook_docs = ["docs/superpowers/journals/2026-09-12-epoch-positive-path.md"]

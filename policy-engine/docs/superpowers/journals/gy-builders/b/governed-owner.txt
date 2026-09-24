@@ -1,0 +1,36 @@
+{
+  "denominator": "architecture/**/*.json",
+  "rglob_files": 520,
+  "os_walk_files": 520,
+  "identity_sets_equal": true,
+  "unreadable_ambiguous": [],
+  "source_member_dict_occurrences": 2017,
+  "independent_literal_source_member_occurrences": 2017,
+  "exact_existing_owner_member_records": [
+    {
+      "artifact": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "decisive": true,
+      "declared_identity": "sha256:fe4a7061815c4996dc527567e9a9ea0ba96b1777e617575abbcd156f837117f8",
+      "member_id": "module:polisyos.runtime.http.services.control_plane_store",
+      "member_kind": "source",
+      "predicate_class": "recomputed",
+      "resolved_identity": "sha256:fe4a7061815c4996dc527567e9a9ea0ba96b1777e617575abbcd156f837117f8"
+    }
+  ],
+  "new_module_recorded_source_member_matches": [],
+  "preserved_owner_bytes_against_lane_base": [
+    {
+      "path": "src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "8ada28c11dd2a96bc3f6e866a463a72e70470ddceffa628fdc723955bf721c16"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/ownership.py",
+      "sha256": "b535203c2893d1c09a93d17c62c645692323c433cd92b88f004cc04ee4232a85"
+    },
+    {
+      "path": "src/polisyos/fabric/io/atomic.py",
+      "sha256": "e85c51a0938d6e871ca6056040e72cfe5e96d069023ed2dbde668b353d4b4c77"
+    }
+  ],
+  "scope": "recorded source-member dictionary identities; not inferred transitive closure"
+}

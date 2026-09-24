@@ -1,0 +1,108 @@
+{
+  "rows": [
+    {
+      "name": "plain",
+      "text": "| id | subject | owner |",
+      "cells": [" id ", " subject ", " owner "]
+    },
+    {
+      "name": "no_outer_pipes",
+      "text": " id | subject | owner ",
+      "cells": [" id ", " subject ", " owner "]
+    },
+    {
+      "name": "outer_padding",
+      "text": "  | a | b |  ",
+      "cells": [" a ", " b "]
+    },
+    {
+      "name": "empty_middle_and_final",
+      "text": "|a||b||",
+      "cells": ["a", "", "b", ""]
+    },
+    { "name": "empty_first", "text": "||a|", "cells": ["", "a"] },
+    { "name": "empty_only", "text": "||", "cells": [""] },
+    { "name": "empty_text", "text": "", "cells": [""] },
+    {
+      "name": "escaped_pipe",
+      "text": "| a\\|b | c |",
+      "cells": [" a\\|b ", " c "]
+    },
+    {
+      "name": "even_backslashes",
+      "text": "|a\\\\|b|",
+      "cells": ["a\\\\", "b"]
+    },
+    {
+      "name": "odd_backslashes",
+      "text": "|a\\\\\\|b|c|",
+      "cells": ["a\\\\\\|b", "c"]
+    },
+    { "name": "escaped_final_pipe", "text": "|a\\|", "cells": ["a\\|"] },
+    {
+      "name": "code_pipe",
+      "text": "| `left|right` | c |",
+      "cells": [" `left|right` ", " c "]
+    },
+    {
+      "name": "multi_backticks",
+      "text": "| ``left`|right`` | c |",
+      "cells": [" ``left`|right`` ", " c "]
+    },
+    {
+      "name": "triple_backticks",
+      "text": "| ```a``|b`|c``` | d |",
+      "cells": [" ```a``|b`|c``` ", " d "]
+    },
+    {
+      "name": "unmatched_backticks",
+      "text": "| `a | b |",
+      "cells": [" `a ", " b "]
+    },
+    {
+      "name": "mismatched_backticks",
+      "text": "| ``a|b` | c |",
+      "cells": [" ``a", "b` ", " c "]
+    },
+    {
+      "name": "unmatched_then_matched",
+      "text": "| ```a | `b|c` | d |",
+      "cells": [" ```a ", " `b|c` ", " d "]
+    },
+    {
+      "name": "escaped_opening_tick",
+      "text": "| \\`a|b` | c |",
+      "cells": [" \\`a", "b` ", " c "]
+    },
+    {
+      "name": "code_backslash_is_literal",
+      "text": "| `a\\`|b|",
+      "cells": [" `a\\`", "b"]
+    },
+    {
+      "name": "multiple_code_spans",
+      "text": "| `a|b` and ``c|`d`` | e |",
+      "cells": [" `a|b` and ``c|`d`` ", " e "]
+    },
+    {
+      "name": "unicode_and_whitespace",
+      "text": "|  причинність `а|б`\t|\t x  |",
+      "cells": ["  причинність `а|б`\t", "\t x  "]
+    }
+  ],
+  "custody_subjects": [
+    "synthetic subject",
+    "`left|right`",
+    "left\\|right",
+    "``left`|right``",
+    "```left``|middle`|right```",
+    "````unmatched without a pipe",
+    ""
+  ],
+  "malformed_subjects": [
+    "left|right",
+    "`left|right",
+    "``left|right`",
+    "left|right|extra"
+  ]
+}

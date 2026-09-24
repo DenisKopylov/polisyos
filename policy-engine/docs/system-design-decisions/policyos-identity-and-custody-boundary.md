@@ -3,8 +3,8 @@ title: PolicyOS Identity And The Custody Boundary
 status: ratified design decision — system identity and scope boundary
 owner: team-architecture
 created: 2026-07-20
-last_reviewed: 2026-08-31
-decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten. Amended additively again 2026-08-31 by a third principal ruling, recorded as §9 item 6 — an appointment binds the act it names, never the vocabulary that describes it; verifying a signature is not signing. Nothing prior is rewritten.
+last_reviewed: 2026-09-17
+decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten. Amended additively again 2026-08-31 by a third principal ruling, recorded as §9 item 6 — an appointment binds the act it names, never the vocabulary that describes it; verifying a signature is not signing. Nothing prior is rewritten. Amended additively again 2026-09-17 by a fourth principal ruling, recorded as §9 item 7 — a decision is recorded so that it is visible, with its options, premises, remainder and revisit trigger, and a later change is made by a dated record that names what moved it. Nothing prior is rewritten.
 supersedes: nothing (sharpens the constitution's §1 Vision; the amendment is recorded there and points here)
 informs:
   - docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
@@ -233,6 +233,49 @@ reconciliation require new sovereign machinery — decline them, integrate inste
    context both call sites receive. Under this rule the vocabulary and the verifier move, the
    minting stays with `GY-O0`, the resolver disappears into the context Runtime already builds,
    and no appointment is re-ratified.
+
+7. **For every decision (added 2026-09-17, principal's ruling):** the property that matters most
+   is not that a decision is the best one at the moment it is taken — though that is very
+   valuable — but that it is **visible**, so that a later change arriving through the feedback
+   loop is easy to make and explicit when made. A visible decision can be reopened cheaply by
+   the evidence that refutes it. An invisible one is changed silently, or never.
+
+   **What visible means.** A decision is recorded where it binds — the act, the register row,
+   the plan, the ADR it governs; this adds no new document class — and the record carries:
+
+   - **the question** as the deciding party understood it;
+   - **the options considered**, including those not taken, each with what it costs and who
+     pays;
+   - **the choice**, who made it, on whose proposal, and the date;
+   - **the premises** it rests on, each cited to the statement that carries it — a citation is
+     a claim, and it is checked by opening the cited statement;
+   - **what it does not decide**: the remainder, its standing, and who signs it;
+   - **the revisit trigger**: the observation that would reopen it, stated as a falsifier
+     rather than as a mood;
+   - **where it binds**: the rows, acts, prompts and code it reaches, so that a change can find
+     everything the old decision reached.
+
+   A preliminary option, a lean or a research recommendation is recorded **as that** and is not
+   promoted into a decision by being repeated. A change is made by an appended, dated record that
+   names the decision it changes and the evidence that moved it (`S0-K08` applied to decisions),
+   never by rewriting the earlier record or quietly editing its consumers.
+
+   **Why this follows from the custody boundary rather than adding to it.** PolicyOS exists to keep
+   the justification of a policy decision inspectable after the fact. A system that demands that of
+   the decisions it serves and does not practise it on its own architecture has placed its custody
+   rule one band too low. And the measured cost is on record. On 2026-09-10 a candidate was refused
+   as a duplicate of a ratification that did not exist; it was caught four days later only because
+   the refusal named the statement it relied on, and it could be corrected only because the places
+   the refusal had reached could be enumerated. In the same week a prompt exemption for a whole
+   generated-artifact family carried an unstated premise — *every snapshot difference is
+   environmental* — and hid a real contract change for a full wave; stated as a premise with a
+   falsifier, it would have been reopened by the first difference larger than the known set.
+
+   **How to apply.** Before acting on a decision, check that its record has these parts; when one
+   is missing, supply it or say that it is missing. When evidence contradicts a recorded premise,
+   the decision is reopened by name, even when the conclusion may survive. Research commissioned to
+   inform a decision delivers options with their costs, premises and revisit triggers, so that the
+   decision record can be assembled without re-deriving the reasoning.
 
 ## 10. Impact note (constitution §12 requirements)
 

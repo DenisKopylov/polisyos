@@ -472,6 +472,7 @@ def _run(
     scenario: str = "success",
     constraints: LiveCatalogExecutionConstraints | None = None,
     authority_entry: object | None = None,
+    execution_dependencies: dict[str, object] | None = None,
 ) -> tuple[object, object, _OrchestratedWorldBankStub, Path]:
     repo_root = tmp_path / "repo"
     entry = authority_entry or _entry()
@@ -512,6 +513,7 @@ def _run(
         constraints=constraints or _constraints(),
         journal_path=journal_path,
         cas_root=tmp_path / "cas",
+        **(execution_dependencies or {}),
     )
     return authority, result, stub, journal_path
 
@@ -831,6 +833,91 @@ def test_route_binding_rejects_non_world_bank_connector_before_attempt_resolutio
         )
 
     assert exc_info.value.code == "live_route_connector_family_out_of_scope"
+
+
+def test_live_executor_consults_injected_registry_and_reopens_injected_store(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+
+    profile = SourceProfileRegistry.get_instance().get(_PROFILE_ID)
+    requested_profiles: list[str] = []
+
+    class Profiles:
+        def get(self, profile_id: str) -> object:
+            requested_profiles.append(profile_id)
+            return profile
+
+        def list_all(self) -> list[object]:
+            return [profile]
+
+        def list_by_family(self, connector_family: str) -> list[object]:
+            return [profile] if connector_family == "worldbank" else []
+
+    class RecordingStore(FileSystemCAS):
+        def get_bytes(self, artifact_id):
+            reopened.append(str(artifact_id))
+            return super().get_bytes(artifact_id)
+
+    reopened: list[str] = []
+    store = RecordingStore(tmp_path / "cas")
+    providers = resolve_control_registry_providers(source_profiles=Profiles())
+    _authority, evidence, _stub, _journal = _run(
+        tmp_path,
+        monkeypatch,
+        execution_dependencies={"artifact_store": store, "registry_providers": providers},
+    )
+
+    assert requested_profiles == [_PROFILE_ID]
+    assert str(evidence.data_snapshot_ref.artifact_id) in reopened
+    assert str(evidence.normalized_data_artifact_id) in reopened
+    assert store.has(evidence.raw_artifact_id)
+    assert evidence.transport_trace.raw_evidence_ref == evidence.raw_evidence_ref
+
+
+def test_live_executor_does_not_fall_back_when_injected_profile_is_absent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+
+    class AbsentProfiles:
+        def get(self, profile_id: str) -> None:
+            return None
+
+        def list_all(self) -> list[object]:
+            return []
+
+        def list_by_family(self, connector_family: str) -> list[object]:
+            return []
+
+    providers = resolve_control_registry_providers(source_profiles=AbsentProfiles())
+    with pytest.raises(LiveAcquisitionExecutionError, match="live_source_profile_unresolved"):
+        _run(tmp_path, monkeypatch, execution_dependencies={"registry_providers": providers})
+    assert not (tmp_path / "journal.jsonl").exists()
+    assert not (tmp_path / "cas").exists()
+
+
+def test_live_executor_rejects_an_injected_store_with_different_artifact_backing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "other-cas")
+
+    with pytest.raises(LiveAcquisitionExecutionError) as refusal:
+        _run(tmp_path, monkeypatch, execution_dependencies={"artifact_store": store})
+
+    events = _journal_events(tmp_path / "journal.jsonl")
+    terminals = [event for event in events if event["event_kind"] == "live_attempt_terminal"]
+    assert len(terminals) == 1
+    assert terminals[0]["failure_code"] == refusal.value.code
+    assert terminals[0]["failure_code"] != "measured_pending_passport"
+    assert terminals[0]["response_admitted"] is False
 
 
 def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_evidence(

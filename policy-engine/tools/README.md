@@ -126,3 +126,5 @@ tools/design/
   и docs surfaces.
 
 - Last updated: 2026-05-03
+
+Measurement authors: follow the [input disclosure and register-reader contract](../docs/how-to/author-measurement-instruments.md) before adding an absence verdict.

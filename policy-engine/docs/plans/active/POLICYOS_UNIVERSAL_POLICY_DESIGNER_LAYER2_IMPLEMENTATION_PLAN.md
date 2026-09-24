@@ -3,7 +3,8 @@ title: PolicyOS Universal Policy Designer (Layer-2, B-on-A) Implementation Plan
 status: active-draft
 owner: team-policyos-runtime
 created: 2026-05-30
-revised: 2026-05-30 (hardened: S0 readiness gate, dependency DAG, per-cell closure contract, early fail-closed blind-spots)
+revised: >-
+  2026-05-30 (hardened: S0 readiness gate, dependency DAG, per-cell closure contract, early fail-closed blind-spots)
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml
 capability_ratchet: ../../../architecture/policy_design_case/capability_reality_report.json

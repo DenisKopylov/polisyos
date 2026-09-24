@@ -66,6 +66,7 @@ allowed_root_loose_files = [
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "pyproject.toml",
+  "hatch.toml",
   "pytest.ini",
   "ruff.toml",
   "uv.lock",
@@ -86,6 +87,8 @@ data_only_directory_names = [
 ]
 registered_frontend_fixture_roots = [
   "apps/runtime-dashboard/src/test/contracts/fixtures",
+  "apps/runtime-dashboard/src/test/fixtures",
+  "apps/runtime-dashboard/src/features/trust/components/__fixtures__",
 ]
 ignored_empty_directory_roots = [
   ".git",

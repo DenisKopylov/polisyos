@@ -151,7 +151,7 @@ def test_scientist_phase1_gate_builds_passing_json_report(tmp_path: Path) -> Non
     assert payload["passes_all"] is True
     assert payload["reliability_scorecard"]["passes_all"] is True
     assert payload["ratchet_results"]["critical_broad_exception_targets_clean"] is True
-    assert payload["ratchet_results"]["no_live_model_copy_deep_true_hot_paths"] is True
+    assert payload["ratchet_results"]["no_explicit_model_copy_deep_true"] is True
 
 
 def test_scientist_phase1_gate_matches_parametrized_cases_for_required_names(
@@ -283,4 +283,122 @@ def test_scientist_phase1_gate_fails_on_missing_evidence_and_broad_handlers(tmp_
     assert any(
         item.startswith("reliability:scenario_missing:tool_failure_with_retry")
         for item in payload["notes"]
+    )
+
+
+def test_scientist_phase1_copy_scan_uses_ast_and_reports_unresolved_calls(tmp_path: Path) -> None:
+    source = tmp_path / "src/polisyos/scientist/candidate.py"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "# model_copy(deep=True) is only a comment\n"
+        "label = 'model_copy(deep=True)'\n"
+        "a = candidate.model_copy(deep = True)\n"
+        "b = candidate.model_copy(\n    deep=True, update={}\n)\n"
+        "copy = candidate.model_copy\n"
+        "c = copy(deep=True)\n"
+        "d = candidate.model_copy(deep=flag)\n"
+        "e = candidate.model_copy(**options)\n"
+        "f = candidate.model_copy(deep=False)\n",
+        encoding="utf-8",
+    )
+    scan = check_scientist_phase1_gate._scan_for_explicit_deep_copy_calls(tmp_path, set())
+    assert scan["findings"] == [
+        "src/polisyos/scientist/candidate.py:3",
+        "src/polisyos/scientist/candidate.py:4",
+    ]
+    assert {item["line"] for item in scan["unresolved_by_construction"]} == {8, 9, 10}
+    assert scan["unmeasured"]
+    assert scan["source_files"] == ["src/polisyos/scientist/candidate.py"]
+
+
+def test_scientist_phase1_absent_or_malformed_source_is_unrun(tmp_path: Path) -> None:
+    benchmark = tmp_path / "bench.json"
+    junit = tmp_path / "cases.xml"
+    output = tmp_path / "out.json"
+    _write_benchmark_json(benchmark, [])
+    _write_junit_xml(junit, [])
+    args = [
+        "--repo-root",
+        str(tmp_path),
+        "--benchmark-json",
+        str(benchmark),
+        "--junit-xml",
+        str(junit),
+        "--output",
+        str(output),
+    ]
+    assert check_scientist_phase1_gate.main(args) == 2
+    payload = json.loads(output.read_text())
+    assert payload["status"] == "UNRUN"
+    assert payload["complete_verdict"] is False
+    _write_source_tree(tmp_path)
+    (tmp_path / "src/polisyos/scientist/candidate.py").write_text("def broken(:\n")
+    assert check_scientist_phase1_gate.main(args) == 2
+    assert json.loads(output.read_text())["status"] == "UNRUN"
+
+
+def test_scientist_phase1_broad_handler_scan_ignores_comments_and_includes_tuples(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "candidate.py"
+    source.write_text(
+        "# except Exception: is not a handler\n"
+        "try:\n    run()\nexcept (ValueError, Exception):\n    raise\n"
+    )
+    assert check_scientist_phase1_gate._scan_for_broad_handlers(tmp_path, ["candidate.py"]) == [
+        "candidate.py:4"
+    ]
+
+
+def test_scientist_phase1_qualified_handler_is_explicitly_unmeasured(tmp_path: Path) -> None:
+    from polisyos.scientist.validation import reliability_scorecard
+
+    _write_source_tree(tmp_path)
+    benchmark = tmp_path / "bench.json"
+    junit = tmp_path / "cases.xml"
+    output = tmp_path / "out.json"
+    _write_benchmark_json(
+        benchmark,
+        [
+            case
+            for cases in reliability_scorecard.BENCHMARK_EVIDENCE_CASES.values()
+            for case in cases
+        ],
+    )
+    _write_junit_xml(
+        junit,
+        [
+            case
+            for group in (
+                check_scientist_phase1_gate.PHASE1_TEST_CASES,
+                reliability_scorecard.SCENARIO_EVIDENCE_CASES,
+                reliability_scorecard.OPERATIONAL_EVIDENCE_CASES,
+            )
+            for cases in group.values()
+            for case in cases
+        ],
+    )
+    source = tmp_path / check_scientist_phase1_gate.DEFAULT_BROAD_EXCEPTION_TARGETS[0]
+    source.write_text("import builtins\ntry:\n    run()\nexcept builtins.Exception:\n    pass\n")
+    assert (
+        check_scientist_phase1_gate.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--benchmark-json",
+                str(benchmark),
+                "--junit-xml",
+                str(junit),
+                "--output",
+                str(output),
+                "--require-passing",
+            ]
+        )
+        == 0
+    )
+    payload = json.loads(output.read_text())
+    assert payload["broad_exception_findings"] == []
+    assert "qualified/aliased exception types" in payload["measurement_scope"]
+    assert (
+        "bare or unqualified Exception/BaseException handler syntax" in payload["measurement_scope"]
     )

@@ -4,11 +4,11 @@ import type {
   AcquisitionDecisionRequestResponse,
   AcquisitionExecutionResponse,
   AcquisitionRouteMutationRequest,
-  AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useControlJobStatus } from "@/api/hooks/useControlJobStatus";
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import {
   executeAcquisitionRoute,
   requestAcquisitionDecision,

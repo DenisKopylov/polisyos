@@ -1,9 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
-import type {
-  AcquisitionRouteProjection,
-  StructuralRouteProjection,
-} from "@polisyos/runtime-api-client";
+import type { StructuralRouteProjection } from "@polisyos/runtime-api-client";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@polisyos/atlas-ui";
 
@@ -70,6 +68,35 @@ describe("AcquisitionRouteDetail", () => {
     expect(detail).toHaveTextContent("structural_gap");
     expect(detail).toHaveTextContent("not_a_data_gap");
     expect(detail).toHaveTextContent("not_applicable");
+    expect(within(detail).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("shows a candidate non-data split refusal without enabling acquisition", () => {
+    const route = {
+      action_eligibility: "blocked",
+      available_catalog_rows: 1_000_000,
+      cost: 1,
+      gap_class: "not_established",
+      missing_link: "split_required",
+      route_class: "candidate_non_data:legal_mandate,normative_authorization",
+      route_id: "candidate:compound-authorization",
+      witness_kind: "split_required",
+    } as unknown as StructuralRouteProjection;
+    render(
+      <LocaleProvider>
+        <AcquisitionRouteDetail kind="structural" route={route} />
+      </LocaleProvider>,
+    );
+
+    const detail = screen.getByTestId(
+      "acquisition-structural-route-candidate:compound-authorization",
+    );
+    expect(detail).toHaveTextContent(
+      "candidate_non_data:legal_mandate,normative_authorization",
+    );
+    expect(detail).toHaveTextContent("not_established");
+    expect(detail).toHaveTextContent("blocked");
+    expect(within(detail).getAllByText("split_required")).toHaveLength(2);
     expect(within(detail).queryByRole("button")).not.toBeInTheDocument();
   });
 

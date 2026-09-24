@@ -4,8 +4,6 @@ import type {
   AcquisitionDecisionRequestResponse,
   AcquisitionExecutionResponse,
   AcquisitionGrowthPayload,
-  AcquisitionRouteListResponse,
-  AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 
 const acquisitionReplayPinsSchema = z
@@ -19,50 +17,78 @@ const acquisitionReplayPinsSchema = z
   })
   .strict();
 
-export const acquisitionRouteProjectionSchema: z.ZodType<AcquisitionRouteProjection> =
-  z
-    .object({
+const acquisitionRouteBaseSchema = z
+  .object({
+    authority_capability: z.enum(["ready", "producer_missing"]),
+    cell_id: z.string().min(1),
+    cost_basis: z.record(z.string(), z.unknown()),
+    execution_capability: z.enum(["ready", "producer_missing"]),
+    external_nonclosures: z.array(z.string()),
+    planner_record_id: z.string().min(1),
+    planner_report_hash: z.string().min(1),
+    recommended_strategy: z.string().min(1),
+    replay_pins: acquisitionReplayPinsSchema,
+    route_id: z.string().min(1),
+    route_projection_hash: z.string().min(1),
+    route_status: z.literal("costed_actionable"),
+    run_id: z.string().min(1),
+    schema_version: z.literal("AcquisitionRouteProjection@1.0"),
+    tenant_id: z.string().min(1),
+  })
+  .strict();
+
+// This nongenerated adapter owns the current route wire shape until the
+// canonical client is regenerated. Native qualification never supplies the
+// independently owned action-authority capability.
+export const acquisitionRouteProjectionSchema = z.discriminatedUnion(
+  "qualification_status",
+  [
+    acquisitionRouteBaseSchema.extend({
+      // Preserve older negative packets without manufacturing an absent count.
+      // eslint-disable-next-line policyos/quantity-must-be-wrapped -- Wire-schema zero discriminator, not a rendered decision quantity.
+      admitted_observation_delta: z.literal(0).optional(),
       authority_badge: z.literal("behavioral_fixture_not_production"),
-      authority_capability: z.enum(["ready", "producer_missing"]),
-      cell_id: z.string().min(1),
-      cost_basis: z.record(z.string(), z.unknown()),
-      execution_capability: z.enum(["ready", "producer_missing"]),
-      external_nonclosures: z.array(z.string()),
-      planner_record_id: z.string().min(1),
-      planner_report_hash: z.string().min(1),
       qualification_predicate: z.literal("not_established"),
       qualification_reason: z.literal("policy_admission_missing"),
       qualification_status: z.literal("pending_epoch_activation"),
-      recommended_strategy: z.string().min(1),
-      replay_pins: acquisitionReplayPinsSchema,
-      route_id: z.string().min(1),
-      route_projection_hash: z.string().min(1),
-      route_status: z.literal("costed_actionable"),
-      run_id: z.string().min(1),
-      schema_version: z.literal("AcquisitionRouteProjection@1.0"),
-      tenant_id: z.string().min(1),
       world_growth: z.literal("no_growth"),
-    })
-    .strict();
+    }),
+    acquisitionRouteBaseSchema.extend({
+      admitted_observation_delta: z.number().int().positive(),
+      authority_badge: z.literal("native_owner_verified"),
+      qualification_predicate: z.literal("independently_reconciled"),
+      qualification_reason: z.literal("native_owner_readback"),
+      qualification_status: z.literal("activated"),
+      world_growth: z.literal("admitted_delta"),
+    }),
+  ],
+);
 
-export const acquisitionRouteListResponseSchema: z.ZodType<AcquisitionRouteListResponse> =
-  z
-    .object({
-      routes: z.array(acquisitionRouteProjectionSchema),
-      run_id: z.string().min(1),
-    })
-    .strict()
-    .superRefine((value, context) => {
-      for (const [index, route] of value.routes.entries()) {
-        if (route.run_id !== value.run_id) {
-          context.addIssue({
-            code: "custom",
-            message: "acquisition route is cross-bound to another run",
-            path: ["routes", index, "run_id"],
-          });
-        }
+export type AcquisitionRouteProjection = z.infer<
+  typeof acquisitionRouteProjectionSchema
+>;
+
+export const acquisitionRouteListResponseSchema = z
+  .object({
+    routes: z.array(acquisitionRouteProjectionSchema),
+    run_id: z.string().min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    for (const [index, route] of value.routes.entries()) {
+      if (route.run_id !== value.run_id) {
+        context.addIssue({
+          code: "custom",
+          message: "acquisition route is cross-bound to another run",
+          path: ["routes", index, "run_id"],
+        });
       }
-    });
+    }
+  });
+
+export type AcquisitionRouteListResponse = z.infer<
+  typeof acquisitionRouteListResponseSchema
+>;
 
 const acquisitionBacklogProjectionSchema = z
   .object({

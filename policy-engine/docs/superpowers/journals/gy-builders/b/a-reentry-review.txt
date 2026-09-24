@@ -1,0 +1,15 @@
+{
+  "narrow_purpose": "purpose:bounded-research",
+  "broad_purpose": "purpose:research",
+  "narrow_result": "reentry_closed",
+  "broad_result": "reentry_closed",
+  "same_reentry_inputs": true,
+  "narrow_input_hashes": [
+    "e12d713046f6361f20bcf0585faf1201034c992907db636a2819413f5689face",
+    "e12d713046f6361f20bcf0585faf1201034c992907db636a2819413f5689face"
+  ],
+  "broad_input_hashes": [
+    "e12d713046f6361f20bcf0585faf1201034c992907db636a2819413f5689face",
+    "e12d713046f6361f20bcf0585faf1201034c992907db636a2819413f5689face"
+  ]
+}

@@ -11,7 +11,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.common.llm_json import extract_llm_json_object
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_pi_prompt
 from polisyos.scientist.agent.protocols import (

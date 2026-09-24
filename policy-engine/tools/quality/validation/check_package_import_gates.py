@@ -7,6 +7,7 @@ import argparse
 import ast
 import copy
 import json
+import subprocess
 import tomllib
 from dataclasses import dataclass
 from datetime import date
@@ -76,6 +77,13 @@ IGNORED_TOP_LEVEL_ROOTS = {
 }
 SCHEMA_DATA_SUFFIXES = {".json", ".md", ".toml", ".yaml", ".yml"}
 SCHEMA_PYTHON_CACHE_SUFFIXES = {".pyc", ".pyo"}
+MEASUREMENT = {
+    "measured": "Declared package/import contracts, static source graph and size ratchets; "
+    "top-level directory presence and tracked Python root classification.",
+    "omission": "Not measured: runtime import execution, framework invocation, semantic "
+    "correctness, dependency installation, or hosted CI. Root Python classification excludes "
+    "untracked and ignored Python; absent local-only roots are not inspected.",
+}
 
 
 @dataclass(frozen=True)
@@ -110,6 +118,8 @@ def build_report(
     contract_path = _resolve(repo_root, contract_path)
     contract = _read_toml(contract_path)
     findings: list[Finding] = []
+    root_measurement: dict[str, Any] = {}
+    root_findings = _check_importable_root_contracts(repo_root, measurement=root_measurement)
 
     findings.extend(_check_conversion_contract(repo_root, contract_path, contract))
     legacy_report = architecture_report_only_contracts.build_report(
@@ -123,7 +133,7 @@ def build_report(
     scientist_layout_findings = _check_scientist_first_level_roots(repo_root)
     scientist_root_file_findings = _check_scientist_root_python_files(repo_root)
     extension_checks = {
-        "importable_roots": _check_importable_root_contracts(repo_root),
+        "importable_roots": root_findings,
         "schema_only": _check_schema_only_root(repo_root),
         "root_file_exceptions": _check_root_file_exceptions(repo_root),
         "scientist_layout": scientist_layout_findings,
@@ -147,6 +157,9 @@ def build_report(
         "phase": PHASE,
         "mode": "fail_closed",
         "status": "failed" if findings else "passed",
+        "complete_verdict": True,
+        "finding_coverage": "declared scope only",
+        "measurement": {**MEASUREMENT, "importable_roots": root_measurement},
         "contract": _relative(contract_path, repo_root),
         "finding_count": len(findings),
         "findings": [finding.as_dict() for finding in findings],
@@ -168,7 +181,18 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     repo_root = args.repo_root.resolve()
     contract_path = _resolve(repo_root, args.contract)
-    payload = build_report(repo_root, contract_path=contract_path)
+    try:
+        payload = build_report(repo_root, contract_path=contract_path)
+    except (OSError, ValueError, SyntaxError, subprocess.CalledProcessError) as exc:
+        payload = {
+            "status": "UNRUN",
+            "complete_verdict": False,
+            "finding_coverage": "partial",
+            "measurement": MEASUREMENT,
+            "reason": f"{type(exc).__name__}: {exc}",
+            "findings": [],
+            "finding_count": 0,
+        }
     rendered = dump_json(payload)
 
     if args.json_output is not None:
@@ -177,6 +201,8 @@ def run_cli(argv: list[str] | None = None) -> int:
     else:
         print(rendered, end="")  # noqa: T201
 
+    if payload["status"] == "UNRUN":
+        return 2
     if args.fail_closed and payload["finding_count"]:
         return 1
     return 0
@@ -394,16 +420,24 @@ def _check_summary_blockers(summary: dict[str, Any]) -> list[Finding]:
     return findings
 
 
-def _check_importable_root_contracts(repo_root: Path) -> list[Finding]:
+def _check_importable_root_contracts(
+    repo_root: Path, *, measurement: dict[str, Any] | None = None
+) -> list[Finding]:
     contracts_path = repo_root / "architecture" / "policies" / "directory_contracts.toml"
-    if not contracts_path.exists():
-        return []
     data = _read_toml(contracts_path)
+    tracked = subprocess.run(  # noqa: S603
+        ["git", "ls-files", "-z"],  # noqa: S607
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split("\0")
     contracts = {str(item.get("path", "")): item for item in data.get("contract", [])}
     non_product_roots = {
         str(item.get("path", "")): item for item in data.get("non_product_python_root", [])
     }
     findings: list[Finding] = []
+    unmeasured_local_roots: list[str] = []
     for child in sorted(path for path in repo_root.iterdir() if path.is_dir()):
         name = child.name
         if name in IGNORED_TOP_LEVEL_ROOTS or (
@@ -421,8 +455,8 @@ def _check_importable_root_contracts(repo_root: Path) -> list[Finding]:
             continue
         if name == "src":
             continue
-        py_files = sorted(child.rglob("*.py"))
-        init_files = sorted(child.rglob("__init__.py"))
+        py_files = [path for path in tracked if path.startswith(name + "/") and path.endswith(".py")]
+        init_files = [path for path in py_files if path.endswith("/__init__.py")]
         if (py_files or init_files) and name not in non_product_roots:
             findings.append(
                 Finding(
@@ -430,12 +464,19 @@ def _check_importable_root_contracts(repo_root: Path) -> list[Finding]:
                     name,
                     "importable Python root outside src/polisyos lacks "
                     "non_product_python_root policy",
-                    f"python_files={len(py_files)} init_files={len(init_files)}",
+                    f"tracked_python_files={len(py_files)} tracked_init_files={len(init_files)}",
                 )
             )
     for root, item in sorted(non_product_roots.items()):
         path = repo_root / root
-        if not path.exists():
+        contract = contracts.get(root, {})
+        local_only = (
+            contract.get("status") == "local_only"
+            and contract.get("topology_commit_policy") == "ignored"
+        )
+        if not path.exists() and local_only:
+            unmeasured_local_roots.append(root)
+        elif not path.exists():
             findings.append(
                 Finding(
                     "importable-root-contracts",
@@ -452,6 +493,12 @@ def _check_importable_root_contracts(repo_root: Path) -> list[Finding]:
                         f"non_product_python_root policy missing `{field}`",
                     )
                 )
+    if measurement is not None:
+        measurement.update(
+            python_denominator="git ls-files: tracked .py files only",
+            unmeasured_local_roots=unmeasured_local_roots,
+            omission=MEASUREMENT["omission"],
+        )
     return findings
 
 

@@ -1,3 +1,7 @@
+import {
+  evidenceFixtureWatchdog,
+  PERSISTENCE_TEST_TIMEOUT_MS,
+} from "@/test/evidence/persistenceProcessResult";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -591,12 +595,14 @@ function inspectConsumers(files: string[]): ConsumerCensus {
   return census;
 }
 
-describe("Cycle Board production consumer census", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("Cycle Board production consumer census", watchdog, () => {
   let census: ConsumerCensus;
 
   beforeAll(() => {
     census = inspectConsumers(productionPopulation());
-  }, 45_000);
+  }, PERSISTENCE_TEST_TIMEOUT_MS);
 
   it("has one acquisition-growth intake shared by the approval flow and Cycle Board", () => {
     expect(census.acquisitionClientCalls).toEqual([

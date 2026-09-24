@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/docs/superpowers/journals/gy-builders/a/research_probe.py", line 83, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/docs/superpowers/journals/gy-builders/a/research_probe.py", line 66, in main
+    ref = store.put_bytes(blob, opts=PutOptions(kind="research.non_data_candidate"))
+                                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+{
+  "denominator_path": "policy-engine/src/**/*.py",
+  "pathlib_python_files": 2640,
+  "git_python_files": 2640,
+  "ambiguous": [],
+  "token_matching_files": {
+    "non_data_acquisition": [],
+    "AuthorityCeiling": [],
+    "GapShapeAssessment": []
+  },
+  "independent_rg_matching_files": {
+    "non_data_acquisition": [],
+    "AuthorityCeiling": [],
+    "GapShapeAssessment": []
+  }
+}

@@ -6,11 +6,13 @@ import asyncio
 import contextvars
 import os
 import sqlite3
+import threading
 from concurrent.futures import (
     CancelledError as FutureCancelledError,
     ThreadPoolExecutor,
     TimeoutError as FutureTimeoutError,
 )
+from dataclasses import dataclass
 from functools import wraps
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -30,6 +32,11 @@ from polisyos.runtime.http.errors import (
 
 T = TypeVar("T")
 _MIN_BLOCKING_TIMEOUT_SECONDS = 0.1
+
+
+@dataclass
+class _BlockingAttempt:
+    unavailable: bool = False
 
 
 def _env_float(name: str, default: float) -> float:
@@ -80,6 +87,7 @@ class BlockingDependencyGuard:
         )
         self._unavailable_exception_types = unavailable_exception_types
         self._unavailable_exception_predicate = unavailable_exception_predicate
+        self._execution = threading.local()
 
     def run(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         if self._closed:
@@ -87,6 +95,21 @@ class BlockingDependencyGuard:
                 self._dependency_name,
                 detail=f"{self._dependency_name} dependency guard is closed",
             )
+        active = getattr(self._execution, "attempt", None)
+        if active is not None:
+            # The outer attempt owns the deadline and breaker lease. Keep nested
+            # transaction operations on its worker; copied contexts on another
+            # worker must not inherit this thread-affine permission.
+            try:
+                return func(*args, **kwargs)
+            except Exception as exc:
+                if self._is_unavailable_exception(exc):
+                    active.unavailable = True
+                    raise RuntimeDependencyUnavailableError(
+                        self._dependency_name,
+                        detail=str(exc) or f"{self._dependency_name} is temporarily unavailable",
+                    ) from exc
+                raise
         lease = self._breaker.acquire_attempt()
         if lease is None:
             raise RuntimeDependencyUnavailableError(
@@ -95,7 +118,16 @@ class BlockingDependencyGuard:
             )
         try:
             context = contextvars.copy_context()
-            future = self._executor.submit(context.run, func, *args, **kwargs)
+            attempt = _BlockingAttempt()
+
+            def _invoke() -> T:
+                self._execution.attempt = attempt
+                try:
+                    return func(*args, **kwargs)
+                finally:
+                    self._execution.attempt = None
+
+            future = self._executor.submit(context.run, _invoke)
         except RuntimeError as exc:
             self._release_cancelled_lease(lease)
             raise RuntimeDependencyUnavailableError(
@@ -112,6 +144,9 @@ class BlockingDependencyGuard:
             self._breaker.record_failure(lease)
             raise RuntimeDependencyTimeoutError(self._dependency_name) from exc
         except Exception as exc:
+            if attempt.unavailable:
+                self._breaker.record_failure(lease)
+                raise
             if self._is_unavailable_exception(exc):
                 self._breaker.record_failure(lease)
                 raise RuntimeDependencyUnavailableError(
@@ -120,7 +155,10 @@ class BlockingDependencyGuard:
                 ) from exc
             self._breaker.record_success(lease)
             raise
-        self._breaker.record_success(lease)
+        if attempt.unavailable:
+            self._breaker.record_failure(lease)
+        else:
+            self._breaker.record_success(lease)
         return result
 
     def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
@@ -219,6 +257,11 @@ class GuardedDependencyProxy:
         self._target = target
         self._guard = guard
 
+    def run_operation(self, operation: Callable[[], T]) -> T:
+        """Run a complete operation, including its transaction, on one worker."""
+
+        return self._guard.run(operation)
+
     def __getattr__(self, name: str) -> Any:
         if name == "close":
             return self.close
@@ -239,6 +282,14 @@ class GuardedDependencyProxy:
                 target_close()
         finally:
             self._guard.close()
+
+
+def run_guarded_dependency_operation[T](dependency: object, operation: Callable[[], T]) -> T:
+    """Keep a complete operation within its configured dependency guard."""
+
+    if isinstance(dependency, GuardedDependencyProxy):
+        return dependency.run_operation(operation)
+    return operation()
 
 
 def _build_breaker(*, circuit_id: str, env_prefix: str) -> CircuitBreaker:
@@ -311,4 +362,5 @@ __all__ = [
     "build_runtime_opa_async_guard",
     "guard_runtime_cas",
     "guard_runtime_control_store",
+    "run_guarded_dependency_operation",
 ]

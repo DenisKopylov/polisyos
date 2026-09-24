@@ -1,0 +1,14 @@
+T201 `print` found
+  --> docs/superpowers/journals/gy-builders/a/test_denominator_probe.py:82:5
+   |
+80 |     observed = CollectionCounter()
+81 |     result = pytest.main([*FILES, "--collect-only", "-o", "addopts=", "-qq"], plugins=[observed])
+82 |     print(json.dumps({"file_type_denominator": "two named Python test modules", "ast": expected,
+   |     ^^^^^
+83 |                       "pytest": dict(observed.counts), "ambiguous": 0}, sort_keys=True))
+84 |     if result != pytest.ExitCode.OK or dict(observed.counts) != expected:
+   |
+help: Remove `print`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

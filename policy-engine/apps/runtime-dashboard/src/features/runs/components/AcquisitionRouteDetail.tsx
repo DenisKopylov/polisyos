@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import type {
-  AcquisitionRouteProjection,
-  StructuralRouteProjection,
-} from "@polisyos/runtime-api-client";
+import type { StructuralRouteProjection } from "@polisyos/runtime-api-client";
+
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 
 import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";

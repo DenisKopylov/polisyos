@@ -11,7 +11,7 @@ from json import JSONDecodeError
 
 from pydantic import ValidationError
 
-from polisyos.common.llm_json import extract_llm_json_object
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.scientist.agent.protocols import DraftResult
 
 from .drafter_models import (

@@ -16,9 +16,11 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.common.markdown import split_markdown_table_row
 from polisyos.runtime.http.services.cycle_board_contracts import (
     HistoricalDS4Disposition,
     HistoricalProducerAvailability,
+    HistoricalProducerAvailabilityReadReceipt,
 )
 
 if TYPE_CHECKING:
@@ -81,6 +83,16 @@ class N13BGlobalMovementSignal(BaseModel):
 
 class HistoricalDispositionError(ValueError):
     """Reject incomplete or arithmetically inconsistent DS4 owner tables."""
+
+
+class HistoricalProducerAvailabilityError(ValueError):
+    """Refuse historical input while retaining the actual read and selector receipt."""
+
+    def __init__(
+        self, message: str, *, read_receipt: HistoricalProducerAvailabilityReadReceipt
+    ) -> None:
+        super().__init__(message)
+        self.read_receipt = read_receipt
 
 
 def _sha256(raw_bytes: bytes) -> str:
@@ -237,19 +249,75 @@ def load_historical_producer_availability(
 ) -> HistoricalProducerAvailability:
     """Parse the environment-relative DS3 denominator from its owner record."""
 
-    raw_bytes = (repository_root / _ATLAS_PLAN_SOURCE).read_bytes()
-    source_text = raw_bytes.decode("utf-8")
-    match = re.search(
-        r"Producer availability denominator \| DS3 measured (\d+) available / "
+    source_ref = _ATLAS_PLAN_SOURCE.as_posix()
+    receipt = HistoricalProducerAvailabilityReadReceipt(
+        source_ref=source_ref,
+        read_status="failed",
+        status="UNRUN",
+        coverage="partial",
+        source_content_hash=None,
+        read_error=None,
+        table_row_denominator=None,
+        selected_measurement_cell_count=None,
+    )
+    try:
+        raw_bytes = (repository_root / _ATLAS_PLAN_SOURCE).read_bytes()
+    except OSError as exc:
+        raise HistoricalProducerAvailabilityError(
+            "historical producer availability input is unreadable",
+            read_receipt=receipt.model_copy(update={"read_error": type(exc).__name__}),
+        ) from exc
+    receipt = receipt.model_copy(
+        update={
+            "read_status": "read",
+            "source_content_hash": _sha256(raw_bytes),
+        }
+    )
+    try:
+        source_text = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HistoricalProducerAvailabilityError(
+            "historical producer availability input is not UTF-8",
+            read_receipt=receipt.model_copy(update={"read_error": type(exc).__name__}),
+        ) from exc
+    measured_cells = []
+    table_rows = 0
+    for line in source_text.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        table_rows += 1
+        cells = split_markdown_table_row(line)
+        # Status and debt-title decoration cannot change a historical measurement.
+        measured_cells.extend(
+            cell.strip() for cell in cells if cell.strip().startswith("DS3 measured")
+        )
+    receipt = receipt.model_copy(
+        update={
+            "table_row_denominator": table_rows,
+            "selected_measurement_cell_count": len(measured_cells),
+            "status": "COMPLETE",
+            "coverage": "complete_selected_input",
+        }
+    )
+    if len(measured_cells) != 1:
+        raise HistoricalProducerAvailabilityError(
+            "historical producer availability owner row is absent or ambiguous",
+            read_receipt=receipt,
+        )
+    match = re.fullmatch(
+        r"DS3 measured (\d+) available / "
         r"(\d+) `invalid_source` / (\d+) `artifact_missing` from a worktree WITHOUT "
-        r"`production_data`",
-        source_text,
+        r"`production_data`(?:\s+[—–-].*)?",
+        measured_cells[0],
     )
     if match is None:
-        raise ValueError("historical producer availability owner row is absent")
+        raise HistoricalProducerAvailabilityError(
+            "historical producer availability measurement is malformed", read_receipt=receipt
+        )
     return HistoricalProducerAvailability(
         source_ref=_ATLAS_PLAN_SOURCE.as_posix(),
         source_content_hash=_sha256(raw_bytes),
+        read_receipt=receipt,
         counts={
             "available": int(match.group(1)),
             "invalid_source": int(match.group(2)),

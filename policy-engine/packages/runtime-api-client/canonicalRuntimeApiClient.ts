@@ -30,6 +30,9 @@ export type AcquisitionGrowthPayload =
 export type AcquisitionGrowthSummary =
   RuntimeApiComponents["schemas"]["AcquisitionGrowthSummary"];
 
+export type AcquisitionMovementArtifact =
+  RuntimeApiComponents["schemas"]["AcquisitionMovementArtifact"];
+
 export type AcquisitionRouteListResponse =
   RuntimeApiComponents["schemas"]["AcquisitionRouteListResponse"];
 
@@ -848,6 +851,24 @@ export type GovernanceDebugResponse =
 export type GovernanceDebugView =
   RuntimeApiComponents["schemas"]["GovernanceDebugView"];
 
+export type GovernedPublicJsonValue =
+  RuntimeApiComponents["schemas"]["GovernedPublicJsonValue"];
+
+export type GovernedPublicRecord =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecord"];
+
+export type GovernedPublicRecordDimensions =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordDimensions"];
+
+export type GovernedPublicRecordIssued =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordIssued"];
+
+export type GovernedPublicRecordPrepared =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordPrepared"];
+
+export type GovernedPublicRecordVerificationResponse =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordVerificationResponse"];
+
 export type GuardedProjectionId =
   RuntimeApiComponents["schemas"]["GuardedProjectionId"];
 
@@ -859,6 +880,9 @@ export type HistoricalDS4Disposition =
 
 export type HistoricalProducerAvailability =
   RuntimeApiComponents["schemas"]["HistoricalProducerAvailability"];
+
+export type HistoricalProducerAvailabilityReadReceipt =
+  RuntimeApiComponents["schemas"]["HistoricalProducerAvailabilityReadReceipt"];
 
 export type HumanDecisionAllowedDecision =
   RuntimeApiComponents["schemas"]["HumanDecisionAllowedDecision"];
@@ -1069,6 +1093,11 @@ export type MonitoringVerdict =
 
 export type MonitoringWindow =
   RuntimeApiComponents["schemas"]["MonitoringWindow"];
+
+export type MovementRecord = RuntimeApiComponents["schemas"]["MovementRecord"];
+
+export type MovementRowProjection =
+  RuntimeApiComponents["schemas"]["MovementRowProjection"];
 
 export type N13AAcquisitionCensusPayload =
   RuntimeApiComponents["schemas"]["N13AAcquisitionCensusPayload"];
@@ -2677,18 +2706,18 @@ export class RuntimeApiClient {
 
   async verifyPublicDecisionRecord(params: {
     record_id: string;
-  }): Promise<PublicDecisionVerificationResponse> {
+  }): Promise<
+    | PublicDecisionVerificationResponse
+    | GovernedPublicRecordVerificationResponse
+  > {
     const path = `/api/v1/public-decisions/verification`;
     const query = this.buildQuery({
       record_id: params.record_id,
     });
-    return this.request<PublicDecisionVerificationResponse>(
-      "GET",
-      path,
-      query,
-      undefined,
-      undefined,
-    );
+    return this.request<
+      | PublicDecisionVerificationResponse
+      | GovernedPublicRecordVerificationResponse
+    >("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {

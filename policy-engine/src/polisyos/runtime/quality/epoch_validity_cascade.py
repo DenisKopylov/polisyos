@@ -17,7 +17,7 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence  # noqa: TC003
 from dataclasses import dataclass
-from typing import Literal, Protocol, Self
+from typing import TYPE_CHECKING, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -34,6 +34,9 @@ from polisyos.runtime.quality.semantic_epoch import (
     SemanticEpochProductionReceipt,
     SemanticEpochService,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.epoch_transition_origin import FileEpochTransitionOriginOwner
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -1128,12 +1131,14 @@ class EpochValidityTransitionProducer:
         epoch_history: EpochTransitionHistoryRepository,
         signed_artifacts: core_contracts.chronology.SignedArtifactEvidenceRepository,
         signing_authority: EpochTransitionSigningAuthority,
+        origins: FileEpochTransitionOriginOwner | None = None,
     ) -> None:
         self._dependency_inventory = dependency_inventory
         self._adjudications = adjudications
         self._epoch_history = epoch_history
         self._signed_artifacts = signed_artifacts
         self._signing_authority = signing_authority
+        self._origins = origins
 
     def produce_and_persist(
         self,
@@ -1156,6 +1161,8 @@ class EpochValidityTransitionProducer:
             current_epoch_receipt_ref=current_epoch_receipt_ref,
             authority_purpose=authority_purpose,
         )
+        if current.requested_query_context_ref != requested_query_context_ref:
+            raise ValueError("epoch_transition_current_query_context_mismatch")
         dependencies = EpochDependencyDenominatorReceipt.model_validate(
             self._dependency_inventory.resolve_complete_epoch_dependencies(
                 authority_purpose=authority_purpose,
@@ -1209,15 +1216,45 @@ class EpochValidityTransitionProducer:
                 code="epoch_transition_exact_evidence_unavailable",
                 predicate_class="not_established",
             )
-        # The exact signed bytes still cannot appoint their own producer identity.
-        # Until an owner-held producer-identity carrier exists, positive issuance
-        # remains unavailable rather than copying signer provenance into that role.
-        del record
-        return EpochTransitionSigningNonReceipt(
-            status="not_established",
-            code="epoch_transition_exact_evidence_unavailable",
-            predicate_class="not_established",
-        )
+        try:
+            from polisyos.runtime.quality.epoch_transition_origin import (
+                _seal_completed_epoch_transition_execution,
+            )
+
+            if self._origins is None:
+                raise ValueError("epoch_transition_origin_owner_not_established")
+            execution = _seal_completed_epoch_transition_execution(
+                previous_epoch_manifest_ref=previous_epoch_ref,
+                current_epoch_production_receipt_ref=current_epoch_receipt_ref,
+                transition=transition, dependencies=dependencies,
+                adjudications=adjudications, signed=signed,
+            )
+            origin_ref = self._origins._admit_completed_execution(execution)
+            self._origins.resolve_admitted_origin(
+                origin_ref=origin_ref, transition_artifact_ref=record.artifact_ref,
+                signed_artifact_evidence_ref=signed.evidence_record_ref,
+                signing_profile_ref=record.signing_profile_ref,
+                authority_purpose=authority_purpose,
+                requested_query_context_ref=requested_query_context_ref,
+            )
+            return PersistedEpochValidityTransition(
+                transition_artifact_ref=record.artifact_ref,
+                transition_content_hash=transition.transition_content_hash,
+                dependency_denominator_ref=dependencies.denominator_ref,
+                adjudication_denominator_ref=adjudications.denominator_ref,
+                signed_artifact_evidence_ref=signed.evidence_record_ref,
+                signing_profile_ref=record.signing_profile_ref,
+                producer_identity_ref=origin_ref,
+                signer_provenance_ref=record.signer_provenance_ref,
+                requested_query_context_ref=requested_query_context_ref,
+                authority_purpose=authority_purpose,
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            return EpochTransitionSigningNonReceipt(
+                status="not_established",
+                code="epoch_transition_exact_evidence_unavailable",
+                predicate_class="not_established",
+            )
 
 
 # ---------------------------------------------------------------------------

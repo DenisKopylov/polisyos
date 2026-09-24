@@ -1,3 +1,4 @@
+import { evidenceFixtureWatchdog } from "@/test/evidence/persistenceProcessResult";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -23,7 +24,9 @@ async function readBlobBytes(blob: Blob): Promise<Uint8Array> {
   });
 }
 
-describe("trust posture MACHINE and DOM twins", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("trust posture MACHINE and DOM twins", watchdog, () => {
   afterEach(() => vi.restoreAllMocks());
 
   it("downloads a defensive copy of captured bytes without reserialization", async () => {
@@ -181,6 +184,6 @@ describe("trust posture MACHINE and DOM twins", () => {
         twin.assertTrustPostureDomParity(root, register, labels),
       ).toThrow(/DS11-DOM-PARITY-DRIFT/);
     }
-  }, 60_000);
+  });
   /* eslint-enable testing-library/no-node-access, testing-library/no-container */
 });

@@ -2,10 +2,10 @@ import type {
   AcquisitionDecisionRequestResponse,
   AcquisitionExecutionResponse,
   AcquisitionGrowthPayload,
-  AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 
 import type { ControlJobResponse } from "@/api/hooks/useControlJobStatus";
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";

@@ -1,0 +1,19 @@
+{
+  "denominator_path": "src/**/*.py",
+  "rglob_count": 2640,
+  "os_walk_count": 2640,
+  "identity_sets_equal": true,
+  "unreadable_ambiguous": [],
+  "symbol_matches": {
+    "AdaptationTransitionRequest": [],
+    "AdaptationDecisionRecord": [],
+    "RestartEvidenceRecord": [],
+    "KPIControlStateSnapshot": []
+  }
+}
+{
+  "control_store_reopen_duplicate_same_identity": true,
+  "control_store_payload_collision_returns_existing": true,
+  "control_store_checkpoint_reopened": "published",
+  "http_pending_reservation_process_local": true
+}

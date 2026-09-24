@@ -333,3 +333,81 @@ def test_case_provider_is_backed_by_canonical_global_index(runtime_api_env) -> N
         assert index["source_artifact_refs"] == [str(produced.binding_ref.artifact_id)]
         assert index["entries"][0]["run_id"] == "R_case_index_producer"
         assert index["authority_owner_ref"] is None
+
+
+def test_case_provider_refuses_invalid_persisted_binding(runtime_api_env, monkeypatch) -> None:
+    """A valid CAS binding with false case identity becomes a persisted HTTP refusal."""
+    from polisyos.core import artifacts
+
+    secure_client, cell, identity = _build_secure_client(
+        runtime_api_env, opa_client=_AllowOPA(), claims_by_token={}
+    )
+    tenant_id = runtime_api_env["tenant_a"]
+    bearer = "case-index-invalid-binding-token"
+    identity.put_claim(
+        bearer,
+        _claims(tenant_id=tenant_id, cell_id=cell.cell_id, jti="case-index-invalid-binding"),
+    )
+    headers = {"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant_id}
+    context = secure_client.app.state.runtime_container.runtime_api_context
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
+        produced = execute_s2_design_search_operation(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            search_input=Layer2S2DesignSearchInput(
+                case_id="case:bound-owner",
+                intent_ref="intent:employment",
+                grammar_ref="grammar:policy",
+                instrument_families=("subsidy", "tax", "regulation"),
+                parameter_space={"rate": ("low", "high")},
+                actor_ref="actor:policy-designer",
+                domain="employment",
+                objective_refs=("objective:employment",),
+                construct_refs=("construct:employment",),
+                authority_profile_ref="authority:shadow",
+                generated_at=datetime(2026, 9, 10, tzinfo=UTC),
+            ),
+            store=context.store,
+            core_runs_root=context.core_runs_root,
+            run_id="R_case_index_invalid_binding",
+        )
+        source = context.store.get_manifest(produced.binding_ref.artifact_id)
+        payload = from_canonical_bytes(context.store.get_bytes(produced.binding_ref.artifact_id))
+        payload["case_id"] = "case:forged-owner-with-unchanged-ledger"
+        forged = context.store.put_json(
+            payload,
+            artifacts.PutOptions(
+                kind=source.kind,
+                media_type=source.media_type,
+                schema=source.artifact_schema,
+                producer=source.producer,
+            ),
+        )
+        assert forged.artifact_id != produced.binding_ref.artifact_id
+        assert context.store.verify(forged.artifact_id).ok
+
+    body = _search_body(resource_kinds=["case"])
+    body["search"]["budget"]["match_all"] = True
+    response_refs: list[str] = []
+    with secure_client as client:
+        control = secure_client.app.state._control_service
+        original_put = control._put_json_artifact
+
+        def capture_response(payload, *, kind: str, schema_name: str) -> str:
+            ref = original_put(payload, kind=kind, schema_name=schema_name)
+            if kind == "runtime.capability_discovery_response":
+                response_refs.append(ref)
+            return ref
+
+        monkeypatch.setattr(control, "_put_json_artifact", capture_response)
+        response = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        assert response.status_code == 200
+        packet = CapabilityDiscoveryResponse.model_validate(response.json())
+        assert packet.results == ()
+        assert packet.frontier.completeness_status == "producer_unavailable"
+        assert packet.frontier.incompleteness_reasons == (
+            "case:case_index_binding_content_mismatch",
+        )
+        assert len(response_refs) == 1
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
+            persisted_response = from_canonical_bytes(context.store.get_bytes(response_refs[0]))
+        assert persisted_response == response.json()

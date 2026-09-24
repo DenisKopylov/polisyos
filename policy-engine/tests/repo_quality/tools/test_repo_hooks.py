@@ -368,3 +368,39 @@ def test_primary_user_hook_with_lefthook_named_helper_is_preserved(
         assert backup.is_file(), "The installer must preserve the user hook before replacement."
         assert backup.read_bytes() == user_bytes
         assert primary.read_bytes() != user_bytes
+
+
+@pytest.mark.parametrize("from_dashboard", [False, True])
+@pytest.mark.parametrize("typecheck_exit", [0, 29])
+def test_pre_push_dispatches_only_typecheck_and_propagates_its_result(
+    tmp_path: Path, hook_env: dict[str, str], from_dashboard: bool, typecheck_exit: int
+) -> None:
+    """Run the installed hook without pushing; an unselected suite cannot veto it."""
+    repo = _seed(tmp_path / "pre-push station", hook_env)
+    _prepare(repo, hook_env)
+    trace = tmp_path / "commands.jsonl"
+    corepack = Path(hook_env["PATH"].split(os.pathsep)[0]) / "corepack"
+    corepack.write_text(
+        "#!/bin/sh\n"
+        'printf "%s\\n" "$*" >> "$HOOK_COMMAND_TRACE"\n'
+        'if [ "$*" = "pnpm run typecheck" ]; then\n'
+        '  exit "$HOOK_TYPECHECK_EXIT"\n'
+        "fi\n"
+        "# Any unit-suite dispatch would fail, even when typecheck passes.\n"
+        "exit 73\n",
+        encoding="utf-8",
+    )
+    corepack.chmod(0o755)
+    result = _run(
+        str(repo / ".git/hooks/pre-push"),
+        cwd=repo / DASHBOARD if from_dashboard else repo,
+        env={
+            **hook_env,
+            "HOOK_COMMAND_TRACE": str(trace),
+            "HOOK_TYPECHECK_EXIT": str(typecheck_exit),
+        },
+        check=False,
+    )
+
+    assert trace.read_text(encoding="utf-8").splitlines() == ["pnpm run typecheck"]
+    assert (result.returncode == 0) is (typecheck_exit == 0), result.stdout + result.stderr

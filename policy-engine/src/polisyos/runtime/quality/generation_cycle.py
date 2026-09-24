@@ -50,6 +50,7 @@ from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -3497,6 +3498,10 @@ class GenerationCycleController:
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
+            source = (
+                promotion_runtime.promotion_evidence_source
+                if promotion_runtime is not None else None
+            )
             promotion_port = CanonicalN9PromotionPort(
                 repo_root=repo_root,
                 context_provider=self._promotion_source_context,
@@ -3505,6 +3510,8 @@ class GenerationCycleController:
                     epoch_n9_evidence_resolver
                     or getattr(promotion_runtime, "epoch_n9_evidence_resolver", None)
                 ),
+                measurement_catalog=source.measurement_catalog if source is not None else None,
+                measurement_providers=source.measurement_providers if source is not None else None,
             )
         self._promotion_port = promotion_port
         self._promotion_runtime = promotion_runtime
@@ -3560,7 +3567,6 @@ class GenerationCycleController:
         )
 
     def _begin_source_run(self, run_id: str) -> None:
-        from polisyos.core import artifacts
         from polisyos.runtime.quality.generation_source import GenerationSourceRepository
         from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
@@ -3574,9 +3580,13 @@ class GenerationCycleController:
         self._n7_candidate_bindings = {}
         try:
             store = (
-                self._promotion_runtime.store
-                if self._promotion_runtime is not None
-                else artifacts.FileSystemCAS(root / ".polisyos/runtime/generation_source")
+                self._promotion_runtime.store if self._promotion_runtime is not None
+                else build_artifact_store(
+                    ArtifactStoreConfig(
+                        backend="filesystem",
+                        root=str(root / ".polisyos/runtime/generation_source"),
+                    ),
+                )
             )
             self._source_repository = GenerationSourceRepository(store)
         except (OSError, ValueError):
@@ -3639,8 +3649,12 @@ class GenerationCycleController:
         summary: CandidateSummary,
         problem: DesignProblem,
     ) -> Mapping[str, Any]:
+        runtime = self._promotion_runtime
+        context = dict(runtime.promotion_evidence_source.context_for(
+            candidate_summary=summary, problem=problem, store=runtime.store,
+        )) if runtime is not None else {}
         if self._source_repository is None or self._source_run_id is None:
-            return {}
+            return context
         source_summary = summary
         if summary.source_content_hash is not None:
             source_summary = summary.model_copy(
@@ -3654,7 +3668,13 @@ class GenerationCycleController:
         )
         if resolution.status != "resolved":
             self._source_issues.append(resolution.code)
-        return resolution.context
+        source_refs = tuple(context.get("producer_root_refs", ()))
+        context.update(resolution.context)
+        if source_refs:
+            context["producer_root_refs"] = (
+                *source_refs, *tuple(resolution.context.get("producer_root_refs", ())),
+            )
+        return context
 
     async def run(
         self,
@@ -3771,6 +3791,7 @@ class GenerationCycleController:
             promotion,
             problem=last_cycle_problem,
             open_world_resolver=self._open_world_resolver,
+            epoch_validity_resolver=self._epoch_n9_evidence_resolver,
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
@@ -9223,6 +9244,7 @@ def _apply_promotion_to_summaries(
     *,
     problem: DesignProblem | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
@@ -9240,6 +9262,7 @@ def _apply_promotion_to_summaries(
                 summary,
                 problem=problem,
                 open_world_resolver=open_world_resolver,
+                epoch_validity_resolver=epoch_validity_resolver,
                 promotion_evidence_resolver=promotion_evidence_resolver,
             )
             and summary.current_valid
@@ -9269,6 +9292,7 @@ def _promotion_receipt_allows_decision_front(
     *,
     problem: DesignProblem | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
@@ -9280,6 +9304,7 @@ def _promotion_receipt_allows_decision_front(
         summary,
         design_problem=problem,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
         promotion_evidence_resolver=promotion_evidence_resolver,
     )
 

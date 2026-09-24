@@ -1,0 +1,19 @@
+/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:42: UserWarning: Field name "construct" in "ScenarioItem" shadows an attribute in parent "InstrumentModel"
+  class ScenarioItem(InstrumentModel):
+/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:125: UserWarning: Field name "construct" in "SafetyCell" shadows an attribute in parent "InstrumentModel"
+  class SafetyCell(InstrumentModel):
+{
+  "corpus_path": "tests/fixtures/runtime_quality/operator_comprehension.json",
+  "corpus_sha256": "646172cfe30418249032999f929f15ae6abfc910e90d6e2fc85308694cf54f37",
+  "item_denominator": 40,
+  "training_items": 8,
+  "sealed_items": 32,
+  "complete_pair_denominator": 256,
+  "literal_reuse_pair_count": 32,
+  "independent_reverse_pair_count": 32,
+  "training_items_reused": 8,
+  "sealed_items_with_training_core": 32,
+  "real_owner_admitted_corpus": "synthetic-operator-authority-v1",
+  "real_owner_seal": "c33d87b7b4a795a734bea32be02b9e2d51fac9316c1f9af173be327156f45819",
+  "classification": "NEW class: partition semantics reduced to caller-supplied IDs and exact decorated bytes"
+}

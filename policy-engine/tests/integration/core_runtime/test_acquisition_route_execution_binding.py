@@ -90,9 +90,7 @@ def _projection_closure(
             **{
                 **vars(route.planner_record),
                 "acquisition_id": "acquisition-government-balance",
-                "recommended_strategy": SimpleNamespace(
-                    value="production_snapshot_build"
-                ),
+                "recommended_strategy": SimpleNamespace(value="production_snapshot_build"),
             }
         ),
         cost_basis_record=_CostBasis(),
@@ -322,13 +320,16 @@ def test_route_projection_states_world_bank_only_scope_without_contract_change(
     assert externally_supplied.execution_capability == "producer_missing"
 
     service._production_execution_port = production_port
+    # Installed code alone does not establish configured authority slots.
+    unallocated = service._projection(_projection_closure())
+    assert unallocated.authority_capability == "producer_missing"
+    service._authority_provider.authority_available = True
     ready = service._projection(_projection_closure())
 
     assert ready.authority_capability == "ready"
     assert ready.execution_capability == "ready"
     assert (
-        "connector_families_except_worldbank.wdi:surface_out_of_scope"
-        in ready.external_nonclosures
+        "connector_families_except_worldbank.wdi:surface_out_of_scope" in ready.external_nonclosures
     )
     assert "non_fixture_n13b_owner_port:bridge_missing" not in ready.external_nonclosures
     assert ready.authority_badge == "behavioral_fixture_not_production"
@@ -402,13 +403,7 @@ def test_missing_authority_owner_refuses_before_attempt_reservation(
         )
 
     assert exc_info.value.code == "acquisition_authority_producer_missing"
-    lease_root = (
-        runtime_state_root
-        / "runtime"
-        / "acquisition"
-        / "worldbank-wdi"
-        / "attempt-leases"
-    )
+    lease_root = runtime_state_root / "runtime" / "acquisition" / "worldbank-wdi" / "attempt-leases"
     assert not lease_root.exists()
 
 

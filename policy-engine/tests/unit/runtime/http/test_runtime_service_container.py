@@ -71,7 +71,26 @@ def test_runtime_container_installs_one_acquisition_action_service(tmp_path) -> 
 
 def test_runtime_container_surfaces_typed_unavailable_custody_without_failing_health(
     tmp_path,
+    monkeypatch,
 ) -> None:
+    from pathlib import Path
+
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.runtime.quality import substrate_registry
+
+    catalog_root = tmp_path / "retrieval-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    original = substrate_registry.default_substrate_catalog_paths
+    startup_root = Path.cwd().resolve()
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(original(root), l1_dcat_path=catalog_root / "catalog.duckdb")
+            if Path(root).resolve() == startup_root
+            else original(root)
+        ),
+    )
     config_root = tmp_path / "unconfigured"
     config_root.mkdir()
     runtime = _runtime(_config_mapping(config_root))

@@ -3,7 +3,8 @@ title: PolicyOS Universal Policy Designer (Layer-3, Grounding & Subordination) I
 status: active-draft
 owner: team-architecture
 created: 2026-06-03
-revised: 2026-06-06 (free-growth/search discipline: discovery posture, replayable search frontier, no-hardcode closure)
+revised: >-
+  2026-06-06 (free-growth/search discipline: discovery posture, replayable search frontier, no-hardcode closure)
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml

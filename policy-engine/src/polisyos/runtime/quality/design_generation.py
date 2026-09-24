@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.common.llm_json import extract_llm_json
+from polisyos.common.serialization import extract_llm_json
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
     NodeIntervention,

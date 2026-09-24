@@ -10,6 +10,7 @@ export default defineConfig({
     "../../_cache/apps/runtime-dashboard/vitest-confidence-ledger-browser",
   ),
   plugins: [react()],
+  optimizeDeps: { include: ["axe-core"] },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -17,6 +18,10 @@ export default defineConfig({
   },
   test: {
     name: "confidence-ledger-browser",
+    attachmentsDir: path.resolve(
+      __dirname,
+      "../../_build/apps/runtime-dashboard/vitest-attachments",
+    ),
     browser: {
       enabled: true,
       headless: true,
@@ -26,6 +31,7 @@ export default defineConfig({
     css: true,
     globals: true,
     include: [
+      "src/features/runs/components/ConfidenceLedgerRiskSpend.a11y.browser.test.tsx",
       "src/features/runs/export/confidenceLedgerRiskSpendTwin.browser.test.tsx",
     ],
   },

@@ -160,8 +160,8 @@ class AppointedAnchorFixture:
             requested_query_context_ref=query_ref,
         )
         qualified = self._qualify_case(case)
-        if not isinstance(qualified, contract.NativeProjectionCustodyGap):
-            raise AssertionError("fixture native owner must reach the declared projection gap")
+        if not isinstance(qualified, contract.NativeChronologyQualified):
+            raise AssertionError("fixture native owner must persist its qualified projection")
         reconciliation = qualified.reconciliation
         candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
         built = build_full_prefix_bundle(
@@ -416,7 +416,7 @@ class AppointedAnchorFixture:
         if case is None:
             raise ValueError("no owner-qualified native reconciliation exists for the query")
         qualified = self._qualify_case(case)
-        if not isinstance(qualified, contract.NativeProjectionCustodyGap):
+        if not isinstance(qualified, contract.NativeChronologyQualified):
             raise ValueError("native owner did not produce the declared qualified result")
         reconciliation = qualified.reconciliation
         candidate = reconciliation.owner_context.owner_qualified_candidate.candidate

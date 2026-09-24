@@ -219,6 +219,46 @@ def test_connection_config_redaction_uses_shared_secret_pii_scanner() -> None:
     assert "[POLISYOS_SECRET_" in str(payload)
 
 
+def test_connection_config_redaction_preserves_arbitrary_credential_keys_without_values() -> None:
+    config = ConnectionConfig(
+        url="https://example.test",
+        headers={"Authorization": "Bearer abcdefghijklmnop"},
+        auth_credentials={"custom_field": "short", "opaque_material": "another-secret"},
+    )
+
+    redacted = config.redacted()
+
+    assert set(redacted.auth_credentials) == {"custom_field", "opaque_material"}
+    assert all(
+        value.startswith("[POLISYOS_SECRET_") for value in redacted.auth_credentials.values()
+    )
+    assert "short" not in str(redacted.to_dict(redact=False))
+    assert "another-secret" not in str(redacted.to_dict(redact=False))
+    assert "abcdefghijklmnop" not in redacted.headers["Authorization"]
+    assert config.auth_credentials["custom_field"] == "short"
+    with pytest.raises(TypeError):
+        redacted.auth_credentials["custom_field"] = "changed"
+
+
+def test_connection_config_rejects_unavailable_scanner_shape(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.fabric.connectors import base
+
+    monkeypatch.setattr(
+        base,
+        "scan_secret_and_pii",
+        lambda *_args, **_kwargs: SimpleNamespace(redacted_payload={}),
+    )
+    config = ConnectionConfig(url="https://example.test", auth_credentials={"key": "secret"})
+
+    with pytest.raises(
+        ValueError,
+        match="redaction UNRUN:.*shape; credentials and headers have no complete redaction verdict",
+    ):
+        config.redacted()
+
+
 def test_request_json_rejects_oversized_content_length() -> None:
     class _LimitedConnector(_DummyConnector):
         resilience_profile = HTTPResilienceProfile(max_response_bytes=8, max_json_bytes=8)

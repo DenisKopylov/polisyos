@@ -6,6 +6,18 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "verify_signed_evidence": (
+        "polisyos.core.security.chronology_anchor",
+        "verify_signed_evidence",
+    ),
+    "verify_acceptance_appointment": (
+        "polisyos.core.security.chronology_anchor",
+        "verify_acceptance_appointment",
+    ),
+    "verify_holder_appointment": (
+        "polisyos.core.security.chronology_anchor",
+        "verify_holder_appointment",
+    ),
     "C3_CANONICAL_CODECS": (
         "polisyos.core.security.chronology_anchor",
         "C3_CANONICAL_CODECS",
@@ -289,6 +301,9 @@ if TYPE_CHECKING:
         parse_canonical_statement,
         raw_content_hash,
         semantic_content_hash,
+        verify_acceptance_appointment,
+        verify_holder_appointment,
+        verify_signed_evidence,
     )
     from polisyos.core.security.db_backend import (
         DatabaseBackend,
@@ -387,9 +402,9 @@ if TYPE_CHECKING:
     from polisyos.core.security.tenant_quota import TenantQuotaLimits
 
 __all__ = [
+    "C3_CANONICAL_CODECS",
     "SECURITY_ASSURANCE_REPORT_REF_KEY",
     "SECURITY_REPORT_FILE",
-    "C3_CANONICAL_CODECS",
     "TENANT_HEADER",
     "AccessScope",
     "AttestationDeniedError",
@@ -433,8 +448,8 @@ __all__ = [
     "IdentityError",
     "IdentityNotAvailableError",
     "IdentityVerificationError",
-    "InTotoStatement",
     "InMemoryAnchorReadbackChallengeRepository",
+    "InTotoStatement",
     "IsolationLevel",
     "LocalJsonlBackend",
     "MFARequiredError",
@@ -470,9 +485,9 @@ __all__ = [
     "VulnerabilityRecord",
     "VulnerabilitySeverity",
     "build_default_audit_backends_from_env",
-    "build_security_assurance_report",
     "build_full_prefix_bundle",
     "build_retention_package",
+    "build_security_assurance_report",
     "canonical_statement_bytes",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
@@ -489,6 +504,9 @@ __all__ = [
     "set_current_access_scope",
     "tenant_scope",
     "validate_tenant_id",
+    "verify_acceptance_appointment",
+    "verify_holder_appointment",
+    "verify_signed_evidence",
 ]
 
 

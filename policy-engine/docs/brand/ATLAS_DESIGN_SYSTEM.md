@@ -11,7 +11,7 @@ retained_for: DS2 comparison and DS4 migration
 
 # PolicyOS Atlas Design System
 
-**Status:** Transitional live v4 baseline; superseded as a governing source by [Atlas Source-Of-Truth](./ATLAS_SOURCE_OF_TRUTH.md)
+**Status:** Transitional live v4 baseline; superseded as a governing source by Atlas Source-Of-Truth (repository decision record: `docs/brand/ATLAS_SOURCE_OF_TRUTH.md`, unpublished).
 
 **Source archive:** `PolicyOS Atlas Design System-4.zip`, received 2026-04-29
 

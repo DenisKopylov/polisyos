@@ -26,6 +26,27 @@ def _ref(fill: str, *, kind: str = "test") -> ArtifactRef:
     )
 
 
+def _projection_receipt(reconciliation, proof_result):
+    statement = contract.NativeChronologyProjectionStatement(
+        schema_version="polisyos.chronology.native-projection.v1",
+        reconciliation=reconciliation,
+        proof_result=proof_result,
+    )
+    raw = contract._frame_record(
+        contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+    )
+    digest = contract._sha256_digest(raw)
+    return contract.PersistedNativeChronologyProjection(
+        artifact_ref=ArtifactRef(
+            artifact_id=ArtifactID(digest),
+            kind="core.chronology.native_projection",
+            media_type="application/octet-stream",
+        ),
+        raw_cas_hash=digest,
+        statement=statement,
+    )
+
+
 def _domain(*, family: str = "epoch", scope_fill: str = "0") -> contract.ChronologyProofDomain:
     return contract.ChronologyProofDomain(
         format="polisyos.chronology.full-prefix.v1",
@@ -956,6 +977,9 @@ def test_verified_terminal_proof_header_binds_reconciliation(
                 reconciliation=reconciliation,
                 proof_result=foreign.result,
                 persisted_proof=foreign.persisted,
+                projection_receipt=_projection_receipt(
+                    reconciliation, _verified_case(reconciliation).result
+                ),
             )
         elif terminal_kind == "exterior":
             contract.NativeExteriorNotEstablished(
@@ -1111,6 +1135,7 @@ def test_qualified_leaf_rejects_a_different_persisted_verified_proof(tmp_path: P
             reconciliation=reconciliation,
             proof_result=base.result,
             persisted_proof=foreign.persisted,
+            projection_receipt=_projection_receipt(reconciliation, base.result),
         )
 
 

@@ -620,6 +620,57 @@ capacity on work that unblocks nothing.
 
 ---
 
+## Group E — Decision research for the correspondence vocabularies (`CV-DR*`) — 5 active (commissioned 2026-09-17)
+
+**Specific context.** The correspondence-vocabularies lane
+(`docs/research/policy-operations/correspondence-vocabularies/README.md`, 2026-09-13) settled ownership, built the
+independent candidate and refusal projection, and stopped the five positive adapters at five exact questions,
+`CV-Q1` to `CV-Q5`. The architect's preliminary options of 2026-09-16 gave no evident answer to any of them, and on
+2026-09-17 the principal commissioned deep decision research rather than taking a decision. **These tasks deliver
+options, not rulings.** Each ends with a preliminary optimal option and a decision-record draft in the form the identity
+decision's §9 item 7 requires — options with their costs and who pays them, premises with citations, what the option
+does not decide, and revisit triggers stated as falsifiers — so that the principal's decision can be assembled, and later
+changed, without re-deriving the reasoning.
+
+**Deliberate deviations from the standard form.**
+
+- **Freedom of method.** The researcher may challenge the question's framing, including showing that it is two
+  questions or the wrong one, provided the challenge is argued from evidence. The *already settled* column of the CV
+  table stands unless evidence refutes an item; a refutation is reported first, before any option.
+- **A precedent survey replaces the generic external baseline (§3).** Who has faced this problem, or a structurally
+  similar one, in any field and not only in policy; what they decided and who decided; what it gained; what it cost and
+  who paid; and what later happened to the decision — kept, revised or abandoned, and why. Structural similarity is
+  argued, never assumed from a shared word.
+- **§4 Result** is a set of at least three options, one of them the least-commitment option, each with gains, costs and
+  failure modes, followed by a preliminary optimal option and the reasoning that ranks it.
+- **§11 is added — a decision-record draft** in the §9 item 7 form.
+- The operational closure addendum is not required; a state machine is included only where an option needs one.
+
+**Boundaries every task keeps.** `research_only`. `W5-K07` and `W5-K08` bind the projection of any positive
+correspondence; identity decision §9 items 5 to 7 apply. The research creates no code contract, owner appointment or gate
+(Research Quality Bar, last bullet), reports standing on the three axes, and delivers under pipeline §5. The five may run
+in parallel: their deliverable paths are disjoint, and their only shared surface is the CV table and the `INT-R2`
+ceiling fields, where each task owns exactly its own question. The precedent directions named below are starting
+points to verify, not findings.
+
+| ID | Independent research task | Minimum required output | Benchmark proxy / falsifier | Later integration target |
+| --- | --- | --- | --- | --- |
+| `CV-DR1` | **Legal-subject correspondence (`CV-Q1`, B1).** What should the positive assertion *this provision and this lever have the same authoritative legal subject* mean for a named recognition purpose — an external binding legal determination, PolicyOS's own evidence-grounded and source-relative semantic assertion, or a structure the question has not named — and what are its wrong-making authority, source acceptance rule, jurisdiction, scope and time, and issuer? Directions: machine-readable law and rules-as-code programmes, legal-informatics identifier and annotation standards, and any domain where a machine asserts that a rule applies to a thing. | Precedent survey; at least three options with costs; preliminary optimal option; §11 decision-record draft; the counterexample of an author inventing both memberships and certifying their equality. | Under the recommended option the transposition probe of `s3-law-to-lever-correspondence-is-unverified` turns the owner red while the honest trace survives. | `s3-law-to-lever-correspondence-is-unverified`; `GY-S3` and the Lex intervention-mapping owner |
+| `CV-DR2` | **Normative purposes (`CV-Q2`).** For the commissioned consent, waiver and ethics-determination purposes, which first regime-specific operation definitions and evidence-to-use implications should the adapter admit, preserving protocol, site, population, risk and version identity; which intake or registrar; and is the existing ranking owner a separately scoped member or only a reusable intake pattern? Directions: research-ethics and consent regimes, machine-readable consent and data-use vocabularies, and consent records in health and data-protection infrastructure. | As `CV-DR1`. | Under the recommended option a valid ranking permission fails as consent for a changed protocol. | `int-r2-ceiling-vocabulary-owners` (normative field); `GY-AQ1` independent-owner ports; `GY-VC1` registration |
+| `CV-DR3` | **Assurance level (`CV-Q3`).** Which named engagement profile should `engagement.level` interpret — subject, criteria, period, scope and level definitions — and how are other profiles related to it or declared incomparable? Directions: assurance and attestation standards, and how reporting frameworks and rating schemes compare engagements across profiles. | As `CV-DR1`. | Under the recommended option neither an integrity PASS nor agreed-upon procedures satisfies limited or reasonable assurance. | `int-r2-ceiling-vocabulary-owners` (assurance field); the DS16 assurance projection |
+| `CV-DR4` | **Estimand target binding (`CV-Q4`).** Which question-binding artifact should be the source of truth for population, contrast, outcome, horizon, intercurrent-event and regime identity, and which evidence implications may be registered for the bound target or for a justified equivalent or transported target? Directions: estimand frameworks in clinical trials, target-trial emulation, transportability theory, indirectness grading in evidence synthesis, and health-technology-assessment practice. | As `CV-DR1`. | Under the recommended option two bindings differing only in horizon or regime do not compare equal, and an unknown or incomparable pair refuses. | `estimand-binding-strength-terms-unregistered`; `team-foundry`, `methods/catalog/causal` |
+| `CV-DR5` | **Write operations (`CV-Q5`).** Which actual canonical mutation and resource are demanded, and which substantive-right and technical-grant owners must jointly authorize that operation? Directions: the separation of legal basis from access control in data protection, delegation-of-authority and dual-control practice, relationship- and attribute-based authorization systems, and policy-as-code. | As `CV-DR1`. | Under the recommended option valid credentials without the substantive right refuse, and so does the right without the grant. | `int-r2-ceiling-vocabulary-owners` (write field); PDC `OperationContract`; Runtime `ACQUIRE` |
+
+**Delivery flow amended 2026-09-17 by the principal — this group runs under pipeline §7 (Library-first,
+n + 1 prompts).**
+- The five research reports, the synthesizer's analysis and the audit and red-team passes live in Library.
+- The repository receives one publication: the synthesizer's final decision packages on the branch
+  `research/cv-dr-decisions`, under `policy-engine/docs/research/policy-operations/cv-dr-decisions/`.
+- This replaces, for this group only, the per-task branches implied by *delivers under pipeline §5* above.
+- Everything else in this section stands.
+
+---
+
 ## Deferred Registry (36 IDs — typed activation triggers, specs preserved)
 
 Deferred ≠ rejected. Each row keeps its Rev-1 topic and boundary class and gains a typed
@@ -725,6 +776,11 @@ standing is changed by the appended ratification record, never by rewriting them
 | `INT-R4` ‖ `OPS-R5` | Post-deployment learning under performativity ‖ KPI control and response governance | **delivered + audited + amended + verified** (declared joint pair; not separable) | `accepted_narrow_scope` · `absent/unallocated` · `NO_GO`; `CONFORMS_WITH_GAPS`, 11/18 closed, 5 partial, 2 not closed; closure tests 4/12 pass | `docs/research/policy-operations/int-r4-performative-effect-update-diagnosis.md`, `ops-r5-monitoring-diagnosis-and-adaptation.md` + `int-r4/`, `ops-r5/`; audit + verification `audits/int-r4-ops-r5/` | ratified as `W5-K03` and `W5-K04`. **The wave's central composition and its cleanest band cut:** the assertion half is ratified, the action half is withheld as `WP-04`–`WP-08`. Engineering: `GY-O1`/`GY-O3` riders, `GY-AS2`/`GY-AS3`, Phase 8 `GY-CR1`–`CR3` |
 | `INT-R5` | Decision-authority validity | **delivered + audited + amended + verified** | `accepted_narrow_scope` · `absent/unallocated` · `NO_GO`; `CONFORMS_WITH_GAPS`, 17/18 closed, 1 partial; 7/9 lift conditions | `docs/research/policy-operations/int-r5-decision-authority-validity.md` + `int-r5/`; audit + verification `audits/int-r5/` | ratified as `W5-K05`. The audit **killed a false universal inequality** — authority need not differ between check and use; what survives is an information limit over two admissible histories. Carried: `int-r5-complete-authority-chain-denominator`, `W5-SOURCE-REPLAY` |
 | `INT-R6` | Multilingual authority equivalence | **delivered + audited + amended + verified + remediated + delta-verified** | `accepted_narrow_scope` · `absent/unallocated` · `NO_GO`; `CONFORMS_WITH_GAPS`, Stage-4 `NO_GO` **lifted**; 8/9 lift conditions | `docs/research/policy-operations/int-r6-multilingual-authority-equivalence-protocol.md` + `int-r6/`; audit, verification, remediation and delta verification `audits/int-r6*/` | ratified as `W5-K06`. Carried the wave's **sole blocking finding** (`IR6-A01`), now closed; its prior current-census positive was **withdrawn rather than laundered**. Machinery `GY-ML1`; residual `int-r6-independent-current-leaf-identity-census` |
+| `CV-DR1` | Legal-subject correspondence (`CV-Q1`) | **delivered + audited** under pipeline §7 (Library-first); published 2026-09-17 by the architect; **principle decided** in ADR-0179 — own purpose-scoped assessment; minimum sufficient source profile; **first profile open**: first decision level and issuer in Ukraine, source profile, first provision–lever pair | `research_standing: accepted_narrow_scope` — the architect's classification; the package carries `research_only` and `GO_WITH_REVISIONS`, which are not standing values · `capability_standing`: not certified · `gate_standing: NO_GO` | `docs/research/policy-operations/cv-dr-decisions/cv-dr1-legal-subject-correspondence.md` + series `README.md` | decided → ADR-0179 |
+| `CV-DR2` | Consent, waiver and ethics determinations (`CV-Q2`) | **delivered + audited** under pipeline §7 (Library-first); published 2026-09-17 by the architect; **principle decided** in ADR-0179 — requirement-specific implications of distinct acts; ranking is intake pattern, never consent; **first profile open**: first regime and consumer proposition | `research_standing: accepted_narrow_scope` — the architect's classification; the package carries `research_only` and `GO_WITH_REVISIONS`, which are not standing values · `capability_standing`: not certified · `gate_standing: NO_GO` | `docs/research/policy-operations/cv-dr-decisions/cv-dr2-consent-waiver-ethics-operations.md` + series `README.md` | decided → ADR-0179 |
+| `CV-DR3` | Assurance engagement level (`CV-Q3`) | **delivered + audited** under pipeline §7 (Library-first); published 2026-09-17 by the architect; **principle decided** in ADR-0179 — profile-qualified native meaning, no implicit default; case-specific dossier first; **first profile open**: first named application and criteria | `research_standing: accepted_narrow_scope` — the architect's classification; the package carries `research_only` and `GO_WITH_REVISIONS`, which are not standing values · `capability_standing`: not certified · `gate_standing: NO_GO` | `docs/research/policy-operations/cv-dr-decisions/cv-dr3-assurance-engagement-level.md` + series `README.md` | decided → ADR-0179 |
+| `CV-DR4` | Estimand target binding (`CV-Q4`) | **delivered + audited** under pipeline §7 (Library-first); published 2026-09-17 by the architect; **principle decided** in ADR-0179 — one versioned target definition, no second editable truth; **first profile open**: physical representation | `research_standing: accepted_narrow_scope` — the architect's classification; the package carries `research_only` and `GO_WITH_REVISIONS`, which are not standing values · `capability_standing`: not certified · `gate_standing: NO_GO` | `docs/research/policy-operations/cv-dr-decisions/cv-dr4-estimand-target-binding.md` + series `README.md` | decided → ADR-0179 |
+| `CV-DR5` | Write operations — right and grant (`CV-Q5`) | **delivered + audited** under pipeline §7 (Library-first); published 2026-09-17 by the architect; **principle decided** in ADR-0179 — same-effect right-and-grant conjunction; native reuse of the existing chain; **first profile open**: complete effect coverage and phase-specific grants | `research_standing: accepted_narrow_scope` — the architect's classification; the package carries `research_only` and `GO_WITH_REVISIONS`, which are not standing values · `capability_standing`: not certified · `gate_standing: NO_GO` | `docs/research/policy-operations/cv-dr-decisions/cv-dr5-write-operation-right-and-grant.md` + series `README.md` | decided → ADR-0179 |
 | … | … | … | … | … | — |
 
 **Consolidation artifacts** (the synthesis layer over the three anchors) live at

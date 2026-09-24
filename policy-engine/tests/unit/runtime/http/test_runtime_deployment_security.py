@@ -22,6 +22,49 @@ class _AlwaysTrueReplayStore:
         return True
 
 
+def test_epoch_evidence_owner_is_deployment_attested_and_not_shared(tmp_path: Path) -> None:
+    security = _deployment_security_module()
+    first = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    second = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    assert first.epoch_deployment is not second.epoch_deployment
+    assert first.epoch_deployment.has_transition_evidence_configuration is False
+    object.__setattr__(first, "epoch_deployment", second.epoch_deployment)
+    with pytest.raises(TypeError, match="factory attestation is invalid"):
+        security.require_factory_produced_deployment_security(first)
+
+
+def test_epoch_privileged_source_ports_are_captured_and_attested(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        NoEpochCertificateIssuanceInputResolver,
+    )
+    from tests.unit.runtime.quality.test_epoch_deployment import _policy_configuration
+
+    security = _deployment_security_module()
+    epoch_config, case = _policy_configuration(tmp_path)
+    raw = _config_mapping(tmp_path)
+    raw["epoch_deployment"] = epoch_config.model_dump(mode="json")
+    issuance = NoEpochCertificateIssuanceInputResolver()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(raw),
+        native_epoch_policy_verifier=case.owner_verifier,
+        epoch_certificate_issuance_input_resolver=issuance,
+    )
+    assert runtime.epoch_deployment.epoch_certificate_issuance_input_resolver is issuance
+    assert runtime.epoch_deployment.epoch_perturbation_adjudication_provider is None
+    assert runtime.epoch_deployment.epoch_owner_disposition_evidence_reader is None
+    result = issuance.resolve_verified_inputs(
+        run_id="run", canonical_producer_ref="producer", invocation_input_refs=()
+    )
+    assert result.status == "not_established"
+    issuance.resolve_verified_inputs = lambda **kwargs: None
+    with pytest.raises(TypeError, match="factory attestation is invalid"):
+        security.require_factory_produced_deployment_security(runtime)
+
+
 def _config_mapping(tmp_path: Path) -> dict[str, object]:
     registry_path = tmp_path / "cells.json"
     registry_path.write_text(
@@ -343,6 +386,7 @@ def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
             step_up_verifier=runtime_a.step_up_verifier,
             principal_grants=runtime_a.principal_grants,
             human_decision_custody=runtime_a.human_decision_custody,
+            epoch_deployment=runtime_a.epoch_deployment,
         )
 
     runtime_b = security.build_deployment_security(config_b)

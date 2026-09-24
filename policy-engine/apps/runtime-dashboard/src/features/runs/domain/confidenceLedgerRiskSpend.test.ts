@@ -1,3 +1,4 @@
+import { evidenceFixtureWatchdog } from "@/test/evidence/persistenceProcessResult";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -824,7 +825,9 @@ async function refreshTransportIdentity(packet: {
   }).toString()}`;
 }
 
-describe("confidence-ledger risk-spend strict admission", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("confidence-ledger risk-spend strict admission", watchdog, () => {
   it("covers every generated owner const and single-value enum with the runtime literal table", () => {
     const generated = generatedOwnerLiteralInventory();
     const runtime = [...CONFIDENCE_LEDGER_OWNER_LITERAL_RULES].sort(
@@ -1563,7 +1566,7 @@ describe("confidence-ledger risk-spend strict admission", () => {
   });
 });
 
-describe("confidence-ledger shared protected-query evaluator", () => {
+describe("confidence-ledger shared protected-query evaluator", watchdog, () => {
   it("derives one exact receipt from independently admitted candidate and captured bytes", async () => {
     const packet = availablePacket();
     const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));

@@ -12,15 +12,17 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.markdown import split_markdown_table_row
+
 CLAIM_POSTURE_SCHEMA = "policyos.trust.claim_posture_register.v1"
 CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v4"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
 RATIFIED_IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
 RATIFIED_IDENTITY_CONTENT_DIGEST = (
-    "sha256:9a660772c5a5ce863165cd0da48880438190fa95ad3a651312a56dc6c19b1a2d"
+    "sha256:f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce"
 )
 RATIFIED_IDENTITY_BASIS_DIGEST = (
-    "sha256:89a888e3ed7ac47b3572b84bafb231354de7926275c43b2fe25a00e15b202d99"
+    "sha256:27e5da9920752a6aab5010c857b86d40245764c71e7780fc9a7f0cef44dd87d0"
 )
 CUSTODY_APPOINTMENT_SOURCE_PATH = "docs/plans/active/DEBT-REGISTER.md"
 CUSTODY_APPOINTMENT_CONTRACT: Mapping[str, tuple[str, str]] = {
@@ -1859,7 +1861,7 @@ def _validate_custody_appointments(
         digest = "sha256:" + hashlib.sha256(source.source_content.encode("utf-8")).hexdigest()
         if source.content_digest != digest:
             raise ValueError("custody appointment digest differs from admitted source bytes")
-        cells = [cell.strip() for cell in source.source_content.strip().strip("|").split("|")]
+        cells = [cell.strip() for cell in split_markdown_table_row(source.source_content)]
         if len(cells) != 5:
             raise ValueError("custody appointment source row must contain exactly five cells")
         ids = re.findall(r"`([^`]+)`", cells[0])

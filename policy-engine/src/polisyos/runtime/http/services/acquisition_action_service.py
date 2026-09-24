@@ -37,6 +37,9 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthConfig
+    from polisyos.runtime.quality.epoch_deployment import EpochDeployment
 
     from .control_plane_store import AcquisitionActionHeadRecord, ControlJobRecord
 
@@ -96,11 +99,18 @@ class AcquisitionRouteProjection(BaseModel):
     route_status: Literal["costed_actionable"] = "costed_actionable"
     authority_capability: Literal["ready", "producer_missing"]
     execution_capability: Literal["ready", "producer_missing"]
-    qualification_status: Literal["pending_epoch_activation"] = "pending_epoch_activation"
-    qualification_predicate: Literal["not_established"] = "not_established"
-    qualification_reason: Literal["policy_admission_missing"] = "policy_admission_missing"
-    world_growth: Literal["no_growth"] = "no_growth"
-    authority_badge: Literal["behavioral_fixture_not_production"] = (
+    qualification_status: Literal["pending_epoch_activation", "activated"] = (
+        "pending_epoch_activation"
+    )
+    qualification_predicate: Literal["not_established", "independently_reconciled"] = (
+        "not_established"
+    )
+    qualification_reason: Literal["policy_admission_missing", "native_owner_readback"] = (
+        "policy_admission_missing"
+    )
+    world_growth: Literal["no_growth", "admitted_delta"] = "no_growth"
+    admitted_observation_delta: int = Field(default=0, ge=0)
+    authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
         "behavioral_fixture_not_production"
     )
     external_nonclosures: tuple[str, ...] = (
@@ -163,7 +173,7 @@ class AcquisitionOwnerExecutionResult(BaseModel):
         pattern=_SHA256_PATTERN,
     )
     post_epoch_event_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
-    authority_badge: Literal["behavioral_fixture_not_production"] = (
+    authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
         "behavioral_fixture_not_production"
     )
 
@@ -227,6 +237,7 @@ class AcquisitionAuthorityGatewayProvider(Protocol):
         closure: VerifiedAcquisitionRouteClosure,
         request: AcquisitionRouteMutationRequest,
         job_id: str,
+        decision_ref: str,
         effect_handler: Callable[[OperationInvocationRecord], object],
     ) -> AgentActionAuthorityGateway: ...
 
@@ -241,6 +252,9 @@ class AcquisitionActionService:
         human_decision_service: HumanDecisionService,
         authority_provider: AcquisitionAuthorityGatewayProvider | None = None,
         execution_port: AcquisitionExecutionPort | None = None,
+        world_growth_config: AcquisitionWorldGrowthConfig | None = None,
+        epoch_deployment: EpochDeployment | None = None,
+        movement_service: AcquisitionMovementService | None = None,
     ) -> None:
         if type(control_service) is not ControlPlaneService:
             raise TypeError("acquisition service requires the exact control service")
@@ -253,7 +267,9 @@ class AcquisitionActionService:
             )
 
             execution_port = build_production_world_bank_wdi_execution_port(
-                control_service=control_service
+                control_service=control_service,
+                world_growth_config=world_growth_config,
+                epoch_deployment=epoch_deployment,
             )
             production_execution_port = execution_port
         if authority_provider is not None and any(
@@ -266,6 +282,7 @@ class AcquisitionActionService:
             for name in ("execute", "reenter", "resume_reentry")
         ):
             raise TypeError("acquisition execution port contract invalid")
+        self._movement_service = movement_service
         self.control_service = control_service
         self.human_decision_service = human_decision_service
         self._authority_provider = authority_provider
@@ -384,6 +401,7 @@ class AcquisitionActionService:
         self._require_execution_port()
         operation, invocation, intent = self._action_tuple(closure, request)
         job_id = self._job_id(closure, request)
+        action_generation = self._action_generation(closure, job_id)
 
         def _no_http_effect(_invocation: OperationInvocationRecord) -> object:
             raise RuntimeError("HTTP acquisition reservation cannot invoke an effect")
@@ -407,6 +425,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("human_decision_required") from exc
         decision_ref = str(persisted.write_result.cas_ref.artifact_id)
         requested = self._phase_receipt(
+            action_generation=action_generation,
             closure=closure,
             job_id=job_id,
             decision_ref=decision_ref,
@@ -468,7 +487,9 @@ class AcquisitionActionService:
         if (operation, invocation, intent) != expected_tuple:
             raise AcquisitionActionServiceError("acquisition_job_action_binding_mismatch")
         decision_ref = str(payload.get("decision_ref") or "")
+        action_generation = self._action_generation(closure, job.job_id)
         seed = self._phase_receipt(
+            action_generation=action_generation,
             closure=closure,
             job_id=job.job_id,
             decision_ref=decision_ref,
@@ -482,6 +503,7 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("acquisition_requested_head_missing")
         port = self._require_execution_port()
         if head.receipt_phase == "terminal":
+            self._consume_movement(head.receipt_ref)
             return {
                 "state": "completed",
                 "phase": "acquisition",
@@ -495,10 +517,30 @@ class AcquisitionActionService:
                 pending_receipt=pending,
                 reentry=lambda: port.resume_reentry(closure, pending.owner_receipt_refs),
             )
+            self._consume_movement(terminal.receipt_ref)
+            return self._terminal_progress(terminal)
+        if head.receipt_phase == "executing" and self._production_execution_bridge_installed():
+            # A lost acknowledgement may hide an already committed native effect.
+            # Recovery cannot invoke the connector or consume authority again.
+            result = self._production_execution_port.recover_owned_result(closure)
+            pending = self._phase_receipt(
+                action_generation=action_generation,
+                closure=closure,
+                job_id=job.job_id,
+                decision_ref=decision_ref,
+                receipt_phase="world_committed_reentry_pending",
+                predecessor_receipt_ref=head.receipt_ref,
+                owner_receipt_refs=result.owner_receipt_refs,
+            )
+            terminal = persist_world_commit_and_reenter(
+                sink=sink, pending_receipt=pending, reentry=lambda: port.reenter(closure, result)
+            )
+            self._consume_movement(terminal.receipt_ref)
             return self._terminal_progress(terminal)
         if head.receipt_phase != "requested":
             raise AcquisitionActionServiceError("acquisition_action_head_not_recoverable")
         executing = self._phase_receipt(
+            action_generation=action_generation,
             closure=closure,
             job_id=job.job_id,
             decision_ref=decision_ref,
@@ -519,6 +561,7 @@ class AcquisitionActionService:
             request=request,
             job_id=job.job_id,
             effect_handler=_effect,
+            decision_ref=decision_ref,
         )
         persisted = gateway.load_persisted_decision(decision_ref)
         gateway.execute_bound_effect(
@@ -532,14 +575,18 @@ class AcquisitionActionService:
         result = result_holder[0]
         if result.disposition == "quarantined_no_growth":
             terminal = self._terminal_receipt(
+                action_generation=action_generation,
                 closure=closure,
                 job_id=job.job_id,
                 decision_ref=decision_ref,
                 predecessor_receipt_ref=executing_head.receipt_ref,
                 owner_receipt_refs=result.owner_receipt_refs,
             )
-            return self._terminal_progress(sink.persist_terminal(terminal))
+            terminal_head = sink.persist_terminal(terminal)
+            self._consume_movement(terminal_head.receipt_ref)
+            return self._terminal_progress(terminal_head)
         pending = self._phase_receipt(
+            action_generation=action_generation,
             closure=closure,
             job_id=job.job_id,
             decision_ref=decision_ref,
@@ -552,7 +599,12 @@ class AcquisitionActionService:
             pending_receipt=pending,
             reentry=lambda: port.reenter(closure, result),
         )
+        self._consume_movement(terminal.receipt_ref)
         return self._terminal_progress(terminal)
+
+    def _consume_movement(self, receipt_ref: str) -> None:
+        if getattr(self, "_movement_service", None) is not None:
+            self._movement_service.consume_terminal(supplier_receipt_ref=receipt_ref)
 
     def _resolve(
         self,
@@ -576,8 +628,28 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(exc.code) from exc
 
     def _projection(self, closure: VerifiedAcquisitionRouteClosure) -> AcquisitionRouteProjection:
+        from polisyos.runtime.quality.acquisition_executor import (
+            SemanticEpochAdmissionResolutionError,
+        )
+
         execution_bridge_installed = self._production_execution_bridge_installed()
         execution_ready = self._production_execution_bridge_ready(closure)
+        try:
+            growth = (
+                self._production_execution_port.project_world_growth(closure)
+                if execution_bridge_installed
+                else None
+            )
+        except (SemanticEpochAdmissionResolutionError, ValueError, OSError) as exc:
+            raise AcquisitionActionServiceError("acquisition_native_admission_unverified") from exc
+        authority_nonclosures = getattr(
+            self._authority_provider,
+            "external_nonclosures",
+            (
+                "current_mandate_owner:producer_missing",
+                "deterministic_admission_bundle:producer_missing",
+            ),
+        )
         return AcquisitionRouteProjection(
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -591,14 +663,26 @@ class AcquisitionActionService:
             replay_pins=self._pins(closure),
             authority_capability=(
                 "ready"
-                if execution_ready and self._authority_provider is not None
+                if execution_ready
+                and getattr(self._authority_provider, "authority_available", False)
                 else "producer_missing"
             ),
             execution_capability=("ready" if execution_ready else "producer_missing"),
+            qualification_status="activated" if growth is not None else "pending_epoch_activation",
+            qualification_predicate="independently_reconciled"
+            if growth is not None
+            else "not_established",
+            qualification_reason="native_owner_readback"
+            if growth is not None
+            else "policy_admission_missing",
+            world_growth="admitted_delta" if growth is not None else "no_growth",
+            admitted_observation_delta=0 if growth is None else growth.admitted_observation_delta,
+            authority_badge="native_owner_verified"
+            if growth is not None
+            else "behavioral_fixture_not_production",
             external_nonclosures=(
-                "fresh_positive_production_route:absent/unallocated",
-                "current_mandate_owner:producer_missing",
-                "deterministic_admission_bundle:producer_missing",
+                *(("fresh_positive_production_route:artifact_missing",) if growth is None else ()),
+                *authority_nonclosures,
                 "connector_families_except_worldbank.wdi:surface_out_of_scope",
                 *(
                     ("non_fixture_n13b_owner_port:bridge_missing",)
@@ -714,6 +798,19 @@ class AcquisitionActionService:
         ).encode()
         return f"acquisition-{hashlib.sha256(payload).hexdigest()}"
 
+    def _action_generation(self, closure: VerifiedAcquisitionRouteClosure, job_id: str) -> int:
+        try:
+            return self.control_service.acquisition_route_sink.resolve_action_generation(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+                job_id=job_id,
+            )
+        except (ValueError, RuntimeError, OSError) as exc:
+            raise AcquisitionActionServiceError("acquisition_action_generation_unverified") from exc
+
     @staticmethod
     def _phase_receipt(
         *,
@@ -723,6 +820,7 @@ class AcquisitionActionService:
         receipt_phase: Literal["requested", "executing", "world_committed_reentry_pending"],
         predecessor_receipt_ref: str | None,
         owner_receipt_refs: tuple[str, ...],
+        action_generation: int = 1,
     ) -> AcquisitionRoutePhaseReceipt:
         coarse, recovery = {
             "requested": ("requested", "none"),
@@ -739,7 +837,7 @@ class AcquisitionActionService:
             run_id=closure.run_id,
             source_job_id=closure.source_job_id,
             route_id=closure.route_id,
-            action_generation=1,
+            action_generation=action_generation,
             job_id=job_id,
             compiled_ref=closure.compiled_ref,
             planner_report_hash=agent_action_content_hash(closure.planner_report),
@@ -761,6 +859,7 @@ class AcquisitionActionService:
         decision_ref: str,
         predecessor_receipt_ref: str,
         owner_receipt_refs: tuple[str, ...],
+        action_generation: int = 1,
     ) -> AcquisitionRouteLoopReceipt:
         return AcquisitionRouteLoopReceipt(
             receipt_id=f"{job_id}.terminal",
@@ -769,7 +868,7 @@ class AcquisitionActionService:
             run_id=closure.run_id,
             source_job_id=closure.source_job_id,
             route_id=closure.route_id,
-            action_generation=1,
+            action_generation=action_generation,
             job_id=job_id,
             compiled_ref=closure.compiled_ref,
             planner_report_hash=agent_action_content_hash(closure.planner_report),
@@ -848,7 +947,7 @@ class AcquisitionActionService:
         if not self._production_execution_bridge_installed():
             raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
         try:
-            production_port.reserve_route_binding(closure)
+            production_port.prepare_route_execution(closure)
         except LiveAcquisitionExecutionError as exc:
             raise AcquisitionActionServiceError(exc.code) from exc
 

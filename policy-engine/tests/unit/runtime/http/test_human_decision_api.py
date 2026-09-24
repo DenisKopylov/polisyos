@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 from unittest.mock import Mock
+
+import pytest
 
 from polisyos.runtime.http.dependencies import get_optional_human_decision_service
 from polisyos.runtime.http.services.human_decision_contracts import (
@@ -12,6 +15,29 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionGateResponse,
     HumanDecisionGateResult,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolated_catalog_input(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Provision the normal runtime fixture's persisted catalog before startup."""
+    from dataclasses import replace
+
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.runtime.quality import substrate_registry
+
+    catalog_root = tmp_path / "retrieval-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    original = substrate_registry.default_substrate_catalog_paths
+    startup_root = Path.cwd().resolve()
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(original(root), l1_dcat_path=catalog_root / "catalog.duckdb")
+            if Path(root).resolve() == startup_root
+            else original(root)
+        ),
+    )
 
 
 def test_human_decision_missing_producer_is_typed_not_a_missing_route(

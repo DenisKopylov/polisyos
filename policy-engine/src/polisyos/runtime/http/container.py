@@ -51,7 +51,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.public_decision_verification import (
         PublicDecisionVerificationService,
     )
+    from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
     from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -143,8 +145,10 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     public_decision_verification_service: PublicDecisionVerificationService
     control_service: ControlPlaneService | None = None
+    epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
     human_decision_service: HumanDecisionService | None = None
     acquisition_action_service: AcquisitionActionService | None = None
+    acquisition_movement_service: AcquisitionMovementService | None = None
     production_approval_resolver: ProductionApprovalPacketResolver | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
 
@@ -284,7 +288,9 @@ class RuntimeServiceContainer:
             epoch_claim_lifecycle_bridge=epoch_claim_lifecycle_bridge,
             control_registry_providers=control_registry_providers,
             public_decision_verification_service=build_public_decision_verification_service(
-                cas_root=config.cas_root
+                cas_root=config.cas_root,
+                store=runtime_api_context.store,
+                claim_owner=claim_ledger_owner,
             ),
             control_service=overrides.control_service,
         )
@@ -301,6 +307,39 @@ class RuntimeServiceContainer:
             self.runtime_security = replace(
                 self.runtime_security,
                 human_decision_custody=deployment_security.human_decision_custody,
+            )
+            from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
+
+            epoch_deployment = deployment_security.epoch_deployment
+            from polisyos.runtime.quality.epoch_transition_verification import (
+                build_deployed_epoch_issuance_owner,
+                configure_deployed_epoch_intake,
+            )
+
+            configure_deployed_epoch_intake(
+                owner=self.decision_validity_service,
+                deployment=epoch_deployment,
+            )
+            self.epoch_certificate_issuance_owner = build_deployed_epoch_issuance_owner(
+                store=self.runtime_api_context.store,
+                deployment=epoch_deployment,
+            )
+            if self.control_service is not None:
+                self.control_service._epoch_certificate_issuance_owner = (
+                    self.epoch_certificate_issuance_owner
+                )
+            with epoch_deployment.composition_scope():
+                self.epoch_anchor_custody_provider = (
+                    build_production_epoch_anchor_custody_provider()
+                )
+            self.runtime_api_context.temporal._semantic_epoch_service = (
+                SemanticEpochService.for_deployment_policy_query(
+                    artifact_store=self.runtime_api_context.store,
+                    deployment=epoch_deployment,
+                )
+            )
+            self.promotion_runtime.configure_semantic_epoch_service(
+                semantic_epoch_service=self.runtime_api_context.temporal._semantic_epoch_service
             )
         app.state.runtime_container = self
         self._bind_legacy_state(app)
@@ -320,12 +359,15 @@ class RuntimeServiceContainer:
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                     decision_validity_service=self.decision_validity_service,
+                    epoch_certificate_issuance_owner=self.epoch_certificate_issuance_owner,
                     promotion_runtime=self.promotion_runtime,
                     epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
                     normative_authority_trust=self.config.normative_authority_trust,
                     published_signature_population_provider=(
                         PublicVerificationRecordPopulationProvider(
-                            source=self.public_decision_verification_service
+                            source=self.public_decision_verification_service,
+                            admission_source=self.public_decision_verification_service.governed_owner,
+                            store=self.runtime_api_context.store,
                         )
                     ),
                 )
@@ -348,12 +390,6 @@ class RuntimeServiceContainer:
                     required_permission="runs.human_decisions.create",
                 ),
                 access_audit_path=access_audit_path,
-            )
-            self.acquisition_action_service = AcquisitionActionService(
-                control_service=control_service,
-                human_decision_service=self.human_decision_service,
-                authority_provider=self.config.overrides.acquisition_authority_provider,
-                execution_port=self.config.overrides.acquisition_execution_port,
             )
             from polisyos.runtime.quality.approval import (
                 _issue_production_decision_packet_resolver,
@@ -387,6 +423,51 @@ class RuntimeServiceContainer:
                 # mutated deployment authority.  Keep startup observable while
                 # removing the unregistered resolver from every consumer seam.
                 self.production_approval_resolver = None
+            from polisyos.runtime.http.deployment_security import (
+                require_factory_produced_deployment_security,
+            )
+            from polisyos.runtime.http.services.acquisition_authority_provider import (
+                ProductionAcquisitionAuthorityProvider,
+            )
+            from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
+            from polisyos.runtime.quality.epoch_deployment import build_epoch_deployment
+
+            deployment = getattr(app.state, "runtime_deployment_security", None)
+            if deployment is not None:
+                deployment = require_factory_produced_deployment_security(deployment)
+            epoch_deployment = (
+                deployment.epoch_deployment
+                if deployment is not None
+                else build_epoch_deployment(None)
+            )
+            self.acquisition_movement_service = AcquisitionMovementService(
+                control_store=control_service._control_store,
+                artifact_store=control_service._artifact_store,
+                event_log=control_service._diagnostic_event_log,
+                epoch_deployment=epoch_deployment,
+            )
+            authority_provider = self.config.overrides.acquisition_authority_provider
+            if authority_provider is None and deployment is not None:
+                authority_provider = ProductionAcquisitionAuthorityProvider(
+                    deployment_security=deployment,
+                    artifact_store=control_service._artifact_store,
+                    event_log=control_service._diagnostic_event_log,
+                    idempotency_store=self.runtime_idempotency_store,
+                    execution_profile=self.deployment_policy.effective_profile,
+                    human_decision_service=self.human_decision_service,
+                    production_approval_resolver=self.production_approval_resolver,
+                )
+            self.acquisition_action_service = AcquisitionActionService(
+                control_service=control_service,
+                human_decision_service=self.human_decision_service,
+                authority_provider=authority_provider,
+                execution_port=self.config.overrides.acquisition_execution_port,
+                world_growth_config=(
+                    deployment.config.acquisition_world_growth if deployment is not None else None
+                ),
+                epoch_deployment=epoch_deployment,
+                movement_service=self.acquisition_movement_service,
+            )
             control_service.bind_capability_discovery_service(
                 CapabilityDiscoveryService(
                     providers=(self.control_registry_providers.capability_discovery_providers),

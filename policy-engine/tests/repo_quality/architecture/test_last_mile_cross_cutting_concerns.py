@@ -78,7 +78,7 @@ def _primary_supported_entrypoints_by_module() -> dict[str, set[str]]:
 
 
 def _registered_debt_statuses() -> dict[str, str]:
-    debts, _ = check_debt_ledger._parse_register(DEBT_REGISTER.read_text(encoding="utf-8"))
+    debts, _, _, _ = check_debt_ledger._parse_register(DEBT_REGISTER.read_text(encoding="utf-8"))
     return {str(debt.debt_id): str(debt.status) for debt in debts}
 
 

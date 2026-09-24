@@ -1,4 +1,5 @@
 import {
+  evidenceFixtureWatchdog,
   parsePersistenceProcessResult,
   PERSISTENCE_CHILD_TIMEOUT_MS,
   PERSISTENCE_TEST_TIMEOUT_MS,
@@ -275,12 +276,14 @@ function expectPersistedHealth(
   });
 }
 
-describe("Atlas health metrics", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("Atlas health metrics", watchdog, () => {
   let report: AtlasHealthMetricReport;
 
   beforeAll(() => {
     report = measureAtlasHealthMetrics();
-  }, 60_000);
+  }, PERSISTENCE_TEST_TIMEOUT_MS);
 
   it("derives the exact seven-metric population and rejects a new identity", () => {
     expect(report.measurements.map(({ metric_id }) => metric_id)).toEqual(

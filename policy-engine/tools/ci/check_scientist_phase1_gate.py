@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
-import re
 import sys
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable, Sequence
 from pathlib import Path
+from typing import TypedDict
 
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import ensure_repo_import_roots
@@ -22,6 +23,14 @@ from polisyos.scientist.validation.reliability_scorecard import (  # noqa: E402
 )
 
 ASSESSMENT_ID = "scientist_phase1_gate"
+MEASUREMENT_SCOPE = (
+    "Partial coverage: supplied JUnit pass names and benchmark names, plus Python AST "
+    "bare or unqualified Exception/BaseException handler syntax (including tuples) "
+    "and explicit .model_copy(deep=True) syntax. Unmeasured: execution "
+    "provenance of those reports, benchmark performance, runtime receiver types, call "
+    "reachability/hotness, copy necessity/cost, opaque aliases and dynamic arguments, "
+    "qualified/aliased exception types, and allowlisted/excluded source."
+)
 PHASE1_TEST_CASES: dict[str, tuple[str, ...]] = {
     "machine_readable_status": (
         "test_scientist_remediation_status_report_covers_all_workstreams",
@@ -132,32 +141,79 @@ def _load_benchmark_names(path: Path) -> set[str]:
 
 def _scan_for_broad_handlers(repo_root: Path, targets: Sequence[str]) -> list[str]:
     findings: list[str] = []
-    pattern = re.compile(r"except\s+Exception\b")
     for relative_path in targets:
-        source_path = (repo_root / relative_path).resolve()
-        if not source_path.exists():
-            findings.append(f"missing_target:{relative_path}")
-            continue
-        for line_number, line in enumerate(
-            source_path.read_text(encoding="utf-8").splitlines(), start=1
-        ):
-            if pattern.search(line):
-                findings.append(f"{relative_path}:{line_number}")
-    return findings
+        source_path = repo_root / relative_path
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ExceptHandler):
+                continue
+            names = ast.walk(node.type) if node.type is not None else ()
+            if node.type is None or any(
+                isinstance(item, ast.Name) and item.id in {"Exception", "BaseException"}
+                for item in names
+            ):
+                findings.append(f"{relative_path}:{node.lineno}")
+    return sorted(findings)
 
 
-def _scan_for_live_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> list[str]:
+class _DeepCopyScan(TypedDict):
+    findings: list[str]
+    unresolved_by_construction: list[dict[str, str | int]]
+    source_files: list[str]
+    excluded_paths: list[str]
+    unmeasured: str
+
+
+def _scan_for_explicit_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> _DeepCopyScan:
     findings: list[str] = []
-    for source_path in (repo_root / "src/polisyos/scientist").rglob("*.py"):
+    unresolved: list[dict[str, str | int]] = []
+    source_files: list[str] = []
+    source_root = repo_root / "src/polisyos/scientist"
+    if not source_root.is_dir():
+        raise ValueError(f"source root is unavailable: {source_root}")
+    for source_path in sorted(source_root.rglob("*.py")):
         relative_path = str(source_path.relative_to(repo_root))
         if relative_path in allowlist:
             continue
-        for line_number, line in enumerate(
-            source_path.read_text(encoding="utf-8").splitlines(), start=1
-        ):
-            if "model_copy(deep=True)" in line:
-                findings.append(f"{relative_path}:{line_number}")
-    return findings
+        source_files.append(relative_path)
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            is_model_copy = isinstance(node.func, ast.Attribute) and node.func.attr == "model_copy"
+            deep = next((kw.value for kw in node.keywords if kw.arg == "deep"), None)
+            literal_deep = isinstance(deep, ast.Constant) and deep.value is True
+            if is_model_copy and literal_deep:
+                findings.append(f"{relative_path}:{node.lineno}")
+            elif (
+                is_model_copy
+                and (
+                    (
+                        deep is not None
+                        and not (isinstance(deep, ast.Constant) and deep.value is False)
+                    )
+                    or any(kw.arg is None for kw in node.keywords)
+                )
+            ) or (not is_model_copy and literal_deep):
+                unresolved.append(
+                    {
+                        "path": relative_path,
+                        "line": node.lineno,
+                        "class": "unresolved_by_construction",
+                        "reason": "dynamic_deep_argument"
+                        if is_model_copy
+                        else "callable_target_unknown",
+                    }
+                )
+    if not source_files:
+        raise ValueError(f"no non-allowlisted Python source files: {source_root}")
+    return {
+        "findings": sorted(findings),
+        "unresolved_by_construction": unresolved,
+        "source_files": source_files,
+        "excluded_paths": sorted(allowlist),
+        "unmeasured": MEASUREMENT_SCOPE,
+    }
 
 
 def _build_payload(
@@ -182,10 +238,12 @@ def _build_payload(
         for category, cases in PHASE1_TEST_CASES.items()
     }
     broad_handler_findings = _scan_for_broad_handlers(repo_root, broad_exception_targets)
-    deep_copy_findings = _scan_for_live_deep_copy_calls(repo_root, deep_copy_allowlist)
+    deep_copy_scan = _scan_for_explicit_deep_copy_calls(repo_root, deep_copy_allowlist)
+    deep_copy_findings = deep_copy_scan["findings"]
     ratchet_results = {
         "critical_broad_exception_targets_clean": not broad_handler_findings,
-        "no_live_model_copy_deep_true_hot_paths": not deep_copy_findings,
+        "no_explicit_model_copy_deep_true": not deep_copy_findings,
+        "no_unresolved_deep_copy_candidates": not deep_copy_scan["unresolved_by_construction"],
     }
 
     notes = [
@@ -198,19 +256,28 @@ def _build_payload(
         *[f"reliability:{note}" for note in reliability.notes],
         *[f"broad_exception:{item}" for item in broad_handler_findings],
         *[f"deep_copy:{item}" for item in deep_copy_findings],
+        *[
+            f"unresolved_by_construction:{item}"
+            for item in deep_copy_scan["unresolved_by_construction"]
+        ],
     ]
-
+    passes_all = (
+        reliability.passes_all and all(test_results.values()) and all(ratchet_results.values())
+    )
     return {
         "assessment_id": ASSESSMENT_ID,
-        "passes_all": reliability.passes_all
-        and all(test_results.values())
-        and all(ratchet_results.values()),
+        "status": "passed" if passes_all else "FAILED",
+        "complete_verdict": True,
+        "measurement_scope": MEASUREMENT_SCOPE,
+        "passes_all": passes_all,
         "reliability_scorecard": reliability.to_dict(),
         "phase1_test_results": test_results,
         "required_cases": {key: list(value) for key, value in PHASE1_TEST_CASES.items()},
         "ratchet_results": ratchet_results,
         "broad_exception_findings": broad_handler_findings,
         "deep_copy_findings": deep_copy_findings,
+        "deep_copy_scan": deep_copy_scan,
+        "broad_exception_targets": list(broad_exception_targets),
         "benchmark_source": str(benchmark_json),
         "junit_sources": [str(path) for path in junit_xml],
         "notes": notes,
@@ -238,10 +305,10 @@ def _phase1_result(payload: dict[str, object]) -> ToolResult:
     missing = list(notes) if isinstance(notes, list) else []
     status = "ok" if payload.get("passes_all") else "failed"
     summary = (
-        "Scientist Phase 1 acceptance barrier has complete repo-tracked evidence"
+        "Scientist Phase 1 supplied-evidence and source-syntax checks passed. "
         if status == "ok"
-        else "Scientist Phase 1 acceptance barrier is missing required evidence"
-    )
+        else "Scientist Phase 1 supplied-evidence or source-syntax checks FAILED. "
+    ) + MEASUREMENT_SCOPE
     messages = tuple(
         ToolMessage(
             level="error",
@@ -296,7 +363,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--deep-copy-allowlist",
         action="append",
         default=None,
-        help="Optional override for source files allowed to mention model_copy(deep=True).",
+        help="Optional override for Python paths excluded from the deep-copy syntax scan.",
     )
     parser.add_argument("--output", type=Path, help="Optional output file path.")
     parser.add_argument(
@@ -322,16 +389,24 @@ def main(argv: Sequence[str] | None = None) -> int:
             broad_exception_targets=broad_exception_targets,
             deep_copy_allowlist=deep_copy_allowlist,
         )
-    except ValueError as exc:
-        result = ToolResult.failed(
-            "ci.check-scientist-phase1-gate",
-            str(exc),
+    except (OSError, UnicodeError, SyntaxError, ValueError) as exc:
+        result = ToolResult(
+            tool="ci.check-scientist-phase1-gate",
+            status="UNRUN",
+            summary=f"No complete verdict: {exc}. {MEASUREMENT_SCOPE}",
             exit_code=2,
         )
         if args.output_format == "json":
             _emit(
                 json.dumps(
-                    {"assessment_id": ASSESSMENT_ID, "error": str(exc)},
+                    {
+                        "assessment_id": ASSESSMENT_ID,
+                        "status": "UNRUN",
+                        "complete_verdict": False,
+                        "passes_all": False,
+                        "error": str(exc),
+                        "measurement_scope": MEASUREMENT_SCOPE,
+                    },
                     indent=2,
                     sort_keys=True,
                 ),
@@ -339,6 +414,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         else:
             _emit(format_tool_result(result, output_format=args.output_format), output=args.output)
+        if args.output is not None:
+            print(result.summary)
         return 2
 
     if args.output_format == "json":
@@ -348,6 +425,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             format_tool_result(_phase1_result(payload), output_format=args.output_format),
             output=args.output,
         )
+    if args.output is not None:
+        print(_phase1_result(payload).summary)
 
     if args.require_passing and not bool(payload.get("passes_all")):
         return 1

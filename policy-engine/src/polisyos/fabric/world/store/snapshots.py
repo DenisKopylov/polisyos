@@ -13,6 +13,7 @@ from typing import Any
 import pandas as pd
 
 from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.quality.safety import quote_sql_identifier
@@ -25,7 +26,6 @@ from polisyos.fabric.security import (
     resolve_artifact_governance,
     validate_artifact_governance,
 )
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.world.materialize.sql import (
     sql_insert_missing_nodes,
     sql_update_world_nodes,
@@ -208,9 +208,7 @@ class WorldBranchGovernanceEvidence:
     source_snapshot_id: str | None = None
     merge_strategy: str | None = None
     retained_audit_ref: str | None = None
-    conflict_summary: WorldBranchConflictSummary = field(
-        default_factory=WorldBranchConflictSummary
-    )
+    conflict_summary: WorldBranchConflictSummary = field(default_factory=WorldBranchConflictSummary)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -264,9 +262,7 @@ class WorldBranchMergeReport:
     merge_policy: str
     merged_snapshot: WorldSnapshotRecord
     resolved_conflicts: tuple[WorldMergeConflictResolution, ...] = ()
-    conflict_summary: WorldBranchConflictSummary = field(
-        default_factory=WorldBranchConflictSummary
-    )
+    conflict_summary: WorldBranchConflictSummary = field(default_factory=WorldBranchConflictSummary)
     governance_evidence: WorldBranchGovernanceEvidence | None = None
 
 
@@ -441,7 +437,9 @@ def register_world_snapshot_record(
     )
     existing_branch = _maybe_get_world_branch(root, record.branch_name)
     event_kind = "branch_created" if existing_branch is None else "branch_head_updated"
-    actor = str(record.provenance.get("actor") or getattr(existing_branch, "actor", "fabric.system"))
+    actor = str(
+        record.provenance.get("actor") or getattr(existing_branch, "actor", "fabric.system")
+    )
     reason = str(
         record.provenance.get("reason")
         or ("snapshot_registered" if existing_branch is None else "snapshot_head_registered")
@@ -776,8 +774,7 @@ def merge_world_branch(
             SimulationDB(db_path=str(temp_db_path)) as merged_db,
             SimulationDB(db_path=str(source_snapshot.snapshot_path)) as source_db,
         ):
-            merged_db.conn.execute("BEGIN")
-            try:
+            with merged_db.as_backend().transaction():
                 source_tables = set(_list_world_tables(source_db))
                 target_tables = set(_list_world_tables(merged_db))
                 for table_name in _MERGEABLE_WORLD_TABLES:
@@ -810,11 +807,6 @@ def merge_world_branch(
                     merged_db,
                     source_db=source_db,
                 )
-                merged_db.conn.execute("COMMIT")
-            except Exception:
-                merged_db.conn.execute("ROLLBACK")
-                raise
-
             conflict_summary = _conflict_summary_from_resolutions(conflict_resolutions)
             merge_governance = _build_branch_governance_event(
                 event_kind="branch_merged",
@@ -1330,8 +1322,7 @@ def _merge_table_frames(
     if conflicts and merge_policy == "fail_on_conflict":
         keys = [key for key, _, _ in conflicts]
         raise WorldBranchMergeConflictError(
-            f"merge conflict in {table_name} for keys: "
-            + ", ".join(repr(key) for key in keys),
+            f"merge conflict in {table_name} for keys: " + ", ".join(repr(key) for key in keys),
             table_name=table_name,
             merge_policy=merge_policy,
             conflict_keys=keys,
@@ -1444,8 +1435,7 @@ def _conflict_summary_from_resolutions(
         table_names=("world.world_facts",),
         unresolved=False,
         notes=tuple(
-            f"{resolution.subject_id}:{resolution.predicate_id}"
-            for resolution in resolutions
+            f"{resolution.subject_id}:{resolution.predicate_id}" for resolution in resolutions
         ),
     )
 

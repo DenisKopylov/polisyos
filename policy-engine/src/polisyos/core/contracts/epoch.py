@@ -899,6 +899,7 @@ class SemanticEpochProductionReceiptStatement(_EpochModel):
     history_append_receipt_ref: ArtifactRef | None
     chronology_bundle_ref: ArtifactRef | None
     chronology_verification_ref: ArtifactRef | None
+    chronology_projection_ref: ArtifactRef | None = None
     requested_query_context_ref: Digest
     failure_codes: tuple[str, ...]
 
@@ -916,6 +917,8 @@ class SemanticEpochProductionReceiptStatement(_EpochModel):
             raise ValueError("positive epoch receipt lacks persisted proof fields")
         if not positive and any(value is not None for value in positive_fields):
             raise ValueError("negative epoch receipt carries positive proof fields")
+        if not positive and self.chronology_projection_ref is not None:
+            raise ValueError("negative epoch receipt carries native projection custody")
         if positive == bool(self.failure_codes):
             raise ValueError("epoch production failures are required exactly when negative")
         if self.production_mode == "ordinary" and (

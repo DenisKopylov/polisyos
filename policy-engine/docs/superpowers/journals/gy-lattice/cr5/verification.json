@@ -1,0 +1,127 @@
+{
+  "task": "GY-CR5",
+  "status": "verified_pending_root_integrated_closeout",
+  "lane_base": "992aa493f",
+  "source_unchanged_from_base": {
+    "src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py": "1641aa6eca22d0796fc879ad034104b266305c87640835d4be9c7faa292d419f",
+    "src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py": "b8eb3a3c57d95e198990103bc01bf2b33f9b4129f1a2c447b0864498c928f1bc",
+    "src/polisyos/data_forge/domains/academic/batch/admitted_claim_adjudications.py": "32e1dc79651082078886303ce34afac29cb8d5085d85cead69a81609bbc1cb66",
+    "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py": "b382abfc199a552df8f1eee5405aa30a5531228fcd8cea85fc0b16db8e05502b",
+    "src/polisyos/data_forge/domains/academic/batch/graph_builder.py": "0d1b79b2dc45d3d97dbb7f2414be69ecae534a1212dfdaa917b21b9a272b996d",
+    "src/polisyos/data_forge/domains/academic/batch/conflict_resolve.py": "a3691faa832b2f00144c02135a37c9bcf17d7a8a21c787c062f3f4c8debb0f56",
+    "src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py": "4f7fff24eae26f9808b30a8db80bb3dde863f52591e43d34f39c1584d9fbe5fd",
+    "src/polisyos/scientist/methods/autotune/registry.py": "b7726f172b7d5f7cb5e497ddf9988ac42ea90e3153a6431cca3d76cb15194ac2",
+    "src/polisyos/ir/analytics/literature.py": "d8ad210cffcf66f1f4d02132655e6d5fb2c69c6a5b46f41444f168d748fd3597",
+    "tests/integration/data_forge/domains/academic/batch/test_claim_adjudication_pipeline.py": "28da62f64ccb316ffb4944c287474931617ed44fc27b9ccb1b174bd89d5098a2",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py": "f6652db152687163587ed029a485e934697f69fc1e752abb5d81386535323a0a",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py": "b62480b4fb10e8006a8e9c537b0ff7f9ab61486e19b261b11aa5a10f15bdc821",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py": "6b14ddd411f1c5e62239d6e016a6a58055afc712b8272f32be95f3f796273827",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py": "50107f2552766de195fd93490256f03a8b4e632a84d04c40bb95a143ef2b8474",
+    "tests/unit/data_forge/domains/academic/batch/_claim_evidence.py": "c47e043da152e9ee9f45d697c2560419da0b9ea9c88a1f477bbfeec59c5c6a0b"
+  },
+  "helper_sha256": "b016876e577fdbfca90a58a221435cb519e9c5512b4ab2d5d5d257305a03b5d1",
+  "explicit_test_nodes": [
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_signed_observations_drive_runtime_and_direct_materialization",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_empty_deployment_appointment_cannot_publish",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_valid_champion_does_not_authorize_fabricated_run_result",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_appointment_cannot_name_its_producer_as_evaluator",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_graph_rejects_raw_or_unminted_verified_rows_before_writing",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_verified_rows_recheck_current_champion_at_graph_use",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_retained_promotion_basis_requires_actual_incumbent_observations",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_claim_transition_rejects_alternate_policy_without_changing_basis",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_every_current_input_field_is_required_and_content_bound",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py::test_verified_receipt_drives_graph_and_conflict_consumers",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py::test_constant_receipt_rejects_false_to_true_projection_flip_in_both_consumers",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py::test_invalid_replacement_receipt_cannot_erase_existing_admitted_pointer",
+    "tests/integration/data_forge/domains/academic/batch/test_claim_adjudication_pipeline.py::test_rich_producer_subject_survives_admission_and_both_consumers",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_raw_input_excludes_producer_publish_authority_and_freezes_bytes",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_missing_champion_blocks_without_emitting_result",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_promoted_champion_executes_and_publishes_strong_fulltext",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_model_positive_cannot_publish_abstract_only_claim",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_evaluation_candidate_mismatch_blocks_admission",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_required_guardrail_false_blocks_admission",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_tampered_raw_blob_is_rejected_before_execution",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_execution_result_cannot_be_presented_as_validity_evidence",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_scientist_cli_route_executes_real_transport_and_materializes_receipt"
+  ],
+  "denominator": {
+    "complete_test_files": 5,
+    "complete_function_nodes": 25,
+    "ast_parameter_expansion": 46,
+    "independent_pytest_collection": 46
+  },
+  "deciding_gates": [
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py collect",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/collection-corrected.txt",
+      "sha256": "e0ed9454ba1f6f4a903f97beb5f9300cad00676a755fd262c08b90866cb3a0d0",
+      "wall_seconds": 34.62,
+      "failed_nodes": []
+    },
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py baseline",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/baseline.txt",
+      "sha256": "56e1188a57af558e045aae7234f919b3b51d97f1687246042d7bc46169f301b2",
+      "wall_seconds": 34.11,
+      "failed_nodes": []
+    },
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py authentication",
+      "exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/removal-authentication.txt",
+      "sha256": "bfbd860821be6fef5bceb88a080e9c36979c7f11d3b8789fd1379036fdec7116",
+      "wall_seconds": 30.04,
+      "failed_nodes": [
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[signature-scientist]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[signature-data_forge]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[unappointed_signer-scientist]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[unappointed_signer-data_forge]"
+      ]
+    },
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py observation",
+      "exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/removal-observation.txt",
+      "sha256": "191457056054036d5b5255e565d257eae5fb0ae76466686524ab33405b686db2",
+      "wall_seconds": 36.65,
+      "failed_nodes": [
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_valid_champion_does_not_authorize_fabricated_run_result[scientist]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_valid_champion_does_not_authorize_fabricated_run_result[data_forge]"
+      ]
+    },
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py current_subject",
+      "exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/removal-current-subject.txt",
+      "sha256": "ed7587aa53dd6145ff3737706253a1ed5472c6ad1d2c63a34df8e0088c98facd",
+      "wall_seconds": 37.97,
+      "failed_nodes": [
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[cause_variable-graph]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[cause_variable-conflict]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[direction-graph]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[direction-conflict]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[scope_conditions-graph]",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_subject_binding.py::test_full_subject_reaches_both_consumers_without_borrowed_grades[scope_conditions-conflict]"
+      ]
+    },
+    {
+      "command": "env PYTHONPATH=.:src .venv/bin/python docs/superpowers/journals/gy-lattice/cr5/verify.py unfavorable",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/unfavorable-consumers.txt",
+      "sha256": "d2b0ec4128a4eee42b5bc26df3fcfa6b44bac51ab0dc2befbbd0eca02baa22c8",
+      "wall_seconds": 26.43,
+      "failed_nodes": []
+    },
+    {
+      "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-lattice/cr5/verify.py",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr5/raw/ruff-final.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ]
+}

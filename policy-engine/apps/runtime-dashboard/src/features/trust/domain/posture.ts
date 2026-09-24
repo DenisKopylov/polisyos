@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { splitMarkdownTableRow } from "./markdown";
+
 function isGregorianIsoDate(value: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
   if (!match) return false;
@@ -535,9 +537,9 @@ const CLOSED_PROJECTION_GROUPS = [
 const RATIFIED_IDENTITY_PATH =
   "docs/system-design-decisions/policyos-identity-and-custody-boundary.md";
 const RATIFIED_IDENTITY_CONTENT_DIGEST =
-  "sha256:9a660772c5a5ce863165cd0da48880438190fa95ad3a651312a56dc6c19b1a2d";
+  "sha256:f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce";
 const RATIFIED_IDENTITY_BASIS_DIGEST =
-  "sha256:89a888e3ed7ac47b3572b84bafb231354de7926275c43b2fe25a00e15b202d99";
+  "sha256:27e5da9920752a6aab5010c857b86d40245764c71e7780fc9a7f0cef44dd87d0";
 const CUSTODY_APPOINTMENT_SOURCE_PATH = "docs/plans/active/DEBT-REGISTER.md";
 const CUSTODY_APPOINTMENT_DEBT_IDS = [
   "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
@@ -1312,11 +1314,9 @@ async function validateCustodyAppointments(
     }
     const digest = await sha256(source.source_content);
     if (source.content_digest !== digest) return false;
-    const cells = source.source_content
-      .trim()
-      .replace(/^\||\|$/gu, "")
-      .split("|")
-      .map((cell) => cell.trim());
+    const cells = splitMarkdownTableRow(source.source_content).map((cell) =>
+      cell.trim(),
+    );
     if (cells.length !== 5) return false;
     const tokens = (value: string): string[] =>
       [...value.matchAll(/`([^`]+)`/gu)].map((match) => match[1]!);

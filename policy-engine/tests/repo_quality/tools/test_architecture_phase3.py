@@ -461,9 +461,82 @@ def test_generated_probe_refuses_unprepared_project_environment(
     )
     monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
 
-    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+    with pytest.raises(RuntimeError, match="UNRUN") as failure:
+        guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
 
-    assert [finding.detail for finding in findings] == ["probe_environment_preparation_failed"]
+    assert failure.value.unrun_checks[0].phase == "environment"
+    assert failure.value.unrun_checks[0].family_id == family.family_id
+    assert not failure.value.violations
+
+
+@pytest.mark.parametrize("missing_executable", [False, True])
+def test_failed_generator_is_unrun_and_cannot_admit_partial_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, missing_executable: bool
+) -> None:
+    """A failed producer cannot establish freshness, even when it wrote matching bytes."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "partial.txt", "matching\n")
+    _write_expected_output(expected, "sibling.txt", "stale\n")
+    command = (
+        (str(tmp_path / "missing-interpreter"),)
+        if missing_executable
+        else (
+            sys.executable,
+            "-c",
+            "import pathlib,sys; p=pathlib.Path(sys.argv[1]); p.mkdir(parents=True); "
+            "(p/'partial.txt').write_text('matching\\n'); "
+            "print('producer-unavailable-witness',file=sys.stderr); sys.exit(17)",
+            "{output_root}",
+        )
+    )
+    families = [
+        _generated_client_family(
+            source,
+            family_id="failed-producer",
+            declared_outputs=("partial.txt",),
+            emitted_outputs=(),
+            output_probe_command=command,
+        ),
+        _generated_client_family(
+            source,
+            family_id="completed-sibling",
+            declared_outputs=("sibling.txt",),
+            emitted_outputs=(("sibling.txt", "fresh\n"),),
+        ),
+    ]
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+
+    with pytest.raises(RuntimeError, match="UNRUN") as failure:
+        guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
+
+    assert [(check.family_id, check.phase) for check in failure.value.unrun_checks] == [
+        ("failed-producer", "generator")
+    ]
+    assert [(finding.subject, finding.detail) for finding in failure.value.violations] == [
+        ("completed-sibling", "sibling.txt")
+    ]
+    if not missing_executable:
+        assert "producer-unavailable-witness" in str(failure.value)
+
+
+def test_non_decodable_generator_output_is_an_unrun_measurement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Even a zero exit cannot make an unreadable producer response a verdict."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "expected\n")
+    family = _generated_client_family(
+        source, family_id="invalid-encoding", declared_outputs=("generated.txt",),
+        emitted_outputs=(),
+        output_probe_command=(sys.executable, "-c", "import os; os.write(1, b'\\xff')"),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError, match="UnicodeDecodeError"):
+        guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
 
 
 def test_guardrails_rejects_emitted_but_unregistered_output(
@@ -572,6 +645,44 @@ def test_guardrails_check_discloses_the_standalone_status_gate(
         guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE
         in capsys.readouterr().out.splitlines()
     )
+
+
+def test_guardrail_cli_cannot_waive_an_unrun_required_measurement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Artifact exceptions cannot turn an unavailable producer into a complete verdict."""
+    exceptions = tmp_path / "exceptions.toml"
+    registry = tmp_path / "registry.md"
+    exceptions.write_text(
+        '[[exception]]\nid = "unrun-waiver"\ncheck = "generated_artifact"\n'
+        'owner = "test"\nreason = "must not waive missing measurement"\n'
+        f'expires = "{(dt.date.today() + dt.timedelta(days=7)).isoformat()}"\n'
+        'subject_glob = "*"\ndetail_glob = "*"\n'
+    )
+    registry.write_text("| unrun-waiver | fixture exception |\n")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "guardrails",
+            "check",
+            "--exceptions",
+            str(exceptions),
+            "--exceptions-registry",
+            str(registry),
+        ],
+    )
+
+    def unavailable(_source: Path, _environment: dict[str, str]) -> None:
+        raise OSError("unavailable-station-witness")
+
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", unavailable)
+    assert guardrails.main() == 2
+    output = capsys.readouterr().out
+    assert "Architecture guardrail check UNRUN" in output
+    assert "unavailable-station-witness" in output
+    assert "Architecture guardrail check passed." not in output
+    assert "Architecture guardrail check FAILED:" not in output
 
 
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(

@@ -1258,6 +1258,68 @@ Rules:
   low effective_n -> proof-grade-only or high abstain
   adversarial stress failure -> quarantine scope and lower confidence
 
+## E.4.1. Adoption: four stratum keys, four moved to epoch scope
+Ruled 2026-09-08, written here 2026-09-10. This is an adoption decision over E.4, not a revision of it.
+
+The calibrated stratum is `operator_family x target_type x domain x difficulty_tier`, where
+`difficulty_tier` is derived from input alone and is **outcome-blind**. `proposer_model`,
+`prompt_version`, `atom_birth_cohort` and `reference_epoch` are not stratum keys. They are the
+certificate's **epoch scope**.
+
+### Why the collapse is sound
+E.4's own Rules already offer the disjunction: `new prompt/model -> new stratum **or** epoch`. This
+adoption takes the epoch branch, and takes it for all four keys. Three steps.
+
+1. **The seven keys are three different kinds of thing.** `operator_family`, `target_type` and
+   `domain` describe *what is being bound*, and they change the difficulty of the binding itself.
+   `proposer_model` and `prompt_version` describe *who proposed the candidate*: they change the
+   candidate distribution entering the gate, not the difficulty of deciding any particular
+   candidate. `atom_birth_cohort` and `reference_epoch` describe *how current the reference is* —
+   a staleness property, which 12.1 already governs.
+2. **Only the first kind may be a stratum key, because only it changes what the bound is about.** A
+   bound stratified on the proposer answers *how often is this model's confident bind wrong*, which
+   is a claim about the model. CGF's claim is about **the gate**: how often a bind the gate admitted
+   is wrong. Under the band separation a proposer is free — embeddings and LLMs prioritize at no
+   cost and the gate pays when it binds — so a proposer change must not consume calibration budget.
+3. **Staleness is already the correct mechanism for the other four.** 12.1's invariant holds that a
+   certificate is valid only for its declared reference/model/validator epoch and that a revision
+   stales affected certificates. Making these stratum keys would demand a *new calibration campaign*
+   on every model or prompt change; making them epoch scope **stales the certificate** and demands a
+   re-declaration. The second is both cheaper and stricter — a staled certificate cannot be used at
+   all, whereas a thinly populated new stratum can be used badly.
+
+### What this buys, and what it costs
+Four keys still exceed the affordable budget at roughly 36 cells. `delta_RT1_relation = 0.04` at a
+per-bind ceiling of `0.01` (exactly `n=299, k=0, alpha=0.05`) buys **four authority-grade bindings
+per run**. So calibrate **one pre-declared stratum first** — the hardest tier of the production
+domain — publish the bound scoped explicitly to that cell, and let the other thirty-five refuse into
+candidate-band custody under `INT-K06`. Expansion is one stratum per campaign, each pre-declared and
+dated.
+
+A bound covering one cell of thirty-six is worth more than no bound **provided the scope is stated
+and the rest refuse**. The cost is stated plainly and may not be elided: this is *not* a bound on the
+gate across its operating range, and any projection carrying it must carry its stratum.
+
+### Re-declaration trigger
+A certificate's declared epoch scope names `proposer_model`, `prompt_version`, `atom_birth_cohort`
+and `reference_epoch`. When any of the four moves:
+
+- the certificate **stales immediately** for every binding made under it. This is 12.1's existing
+  rule; no new enforcement is introduced here.
+- the calibrated bound **does not transfer**. The new epoch begins with no bound, never with the
+  previous one.
+- re-declaration requires a **dated frame manifest** naming the new epoch scope, the unchanged four
+  stratum keys, and the complete denominator of the calibration set.
+- the re-declaration must state whether the calibration set is **re-collected or reused**. Reuse is
+  admissible only when the moved key is `reference_epoch` and the repair is proven to touch no member
+  of the set. A `proposer_model` or `prompt_version` move never permits reuse, because the candidate
+  distribution is exactly what changed.
+
+`atom_birth_cohort` keeps E.4's own cold-start rule unchanged: a new cohort enters `cold_start` and
+is proof-grade-only or high-abstain until `effective_n` is adequate.
+
+**Do not spend an adjudication budget before the frame manifest exists.**
+
 ## E.5. Decision audit states
 Output
 Required certificate

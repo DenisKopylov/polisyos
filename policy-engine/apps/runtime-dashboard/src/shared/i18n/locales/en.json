@@ -3079,6 +3079,40 @@
       "title": "Glossary lens"
     },
     "viewer": {
+      "governed": {
+        "title": "Governed public record",
+        "recordAuthenticated": "Public record issuance authenticated",
+        "issuer": "Issuer",
+        "issuedAt": "Issued at",
+        "claims": "Retained claims",
+        "supportStatus": "Source support status",
+        "publicationStatus": "Source publication status",
+        "readiness": "Source readiness",
+        "caveat": "This record establishes bounded public custody of the exact document below. Each verification dimension stands separately; publication does not establish policy performance or current decision authority.",
+        "signature": "Record signature",
+        "signatureValid": "Cryptographically valid",
+        "keyStatus": "Signing key status",
+        "keyStates": {
+          "trusted": "Trusted",
+          "revoked": "Revoked"
+        },
+        "revokedCaveat": "The signing key is revoked. This record retains authenticated historical issuance; current authority remains not established.",
+        "issuerIssuance": "Issuer authorization at issuance",
+        "established": "Established",
+        "permittedUses": "Permitted use",
+        "deniedUses": "Uses this record does not permit",
+        "uses": {
+          "bounded_public_custody": "Bounded public custody",
+          "policy_performance": "Policy performance",
+          "current_policy_authority": "Current policy authority",
+          "complete_public_history": "Complete public history",
+          "first_publication": "First publication"
+        },
+        "limitations": "Record limitations",
+        "completeDocument": "Complete public document",
+        "documentDescription": "All retained claims, conditions, statuses, lifecycle events and document fields are shown as issued. Reference handles identify public record entries; they do not provide the underlying private evidence.",
+        "issuanceRecord": "Issuance record"
+      },
       "recordAuthenticated": "Verification record authenticated",
       "candidateCaveat": "This authenticated record contains a candidate document preview. It does not establish publication authority or verify the decision.",
       "recordId": "Verification record ID",

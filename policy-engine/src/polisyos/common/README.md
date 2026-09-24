@@ -11,7 +11,10 @@ migration primitives. Keep domain logic out of this package.
 
 - `src/polisyos/common/__init__.py` for the lazy facade contract.
 - `src/polisyos/common/serialization.py` for canonical JSON helpers and
-  round-trip guarantees.
+  round-trip guarantees. It also owns extraction of syntactically valid JSON
+  from LLM response text. Extraction produces a candidate value; downstream
+  schema, grounding and authority checks remain mandatory. The former
+  unregistered `common/llm_json.py` implementation is consolidated here.
 
 - `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
 - `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the
@@ -25,6 +28,23 @@ migration primitives. Keep domain logic out of this package.
 
 - `src/polisyos/common/env_parsing.py` if you are working on bootstrap
   internals; it is intentionally not part of the exported facade.
+
+## Internal Markdown table syntax
+
+`markdown.py` owns `split_markdown_table_row(text: str) -> list[str]`, an internal,
+stdlib-only syntax API. It separates delimiter pipes from escaped pipes and
+pipes inside matched, equal-length backtick runs (including multiple backticks).
+Unmatched runs remain literal. Optional outer delimiters are removed; empty cells
+and source text inside cells, including whitespace and escapes, are preserved.
+Consumers trim display values themselves and retain original bytes for hashes.
+
+Ledger and custody consumers share this tokenizer before applying their own
+column grammar. Tokenization establishes no identity, status, ownership or
+command authority; custody admission still checks the fixed appointment contract
+and byte digests. The browser counterpart lives beside the trust posture consumer.
+Both implementations exercise `tests/fixtures/common/markdown_table_rows.json`.
+This module is not exported through the Common facade. For consumer authoring,
+follow the [measurement register decision](../../../docs/superpowers/specs/2026-09-12-measurement-register-format.md).
 
 ## Public API
 

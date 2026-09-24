@@ -1,0 +1,24 @@
+[build.targets.wheel]
+packages = ["src/polisyos", "tools"]
+
+[build]
+directory = "_build/dist"
+
+[build.targets.sdist]
+include = [
+  "src/polisyos",
+  "benchmarks",
+  "docs",
+  "ops",
+  "schemas",
+  "tools",
+  "CHANGELOG.md",
+  "README.md",
+  "ruff.toml",
+  "mypy.ini",
+  "basedpyright.toml",
+  "pytest.ini",
+  "mutmut.cfg",
+  "pyproject.toml",
+  "hatch.toml",
+]

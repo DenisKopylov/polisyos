@@ -185,7 +185,7 @@ def test_predicate_reconciliation_is_a_bijection_not_tuple_order(tmp_path: Any) 
         request=case.query,
     )
 
-    assert isinstance(result, contract.NativeProjectionCustodyGap)
+    assert isinstance(result, contract.NativeChronologyQualified)
 
 
 class _ReceiptWithoutPredicateEvidence:

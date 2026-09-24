@@ -7345,7 +7345,10 @@ class NaturalLanguageRunMixin:
             )
             scientist_progress_bridge.start()
             try:
-                final_state = run_experiment(state_payload, store=self._artifact_store)
+                final_state = run_experiment(
+                    state_payload, store=self._artifact_store,
+                    epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
+                )
             except Exception as exc:
                 scientist_progress_bridge.stop()
                 _emit_job_progress(

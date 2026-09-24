@@ -2,9 +2,7 @@ import {
   RuntimeApiClient,
   type AcquisitionDecisionRequestResponse,
   type AcquisitionExecutionResponse,
-  type AcquisitionRouteListResponse,
   type AcquisitionRouteMutationRequest,
-  type AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 
 import {
@@ -13,6 +11,8 @@ import {
   acquisitionGrowthPacketSchema,
   acquisitionRouteListResponseSchema,
   acquisitionRouteProjectionSchema,
+  type AcquisitionRouteListResponse,
+  type AcquisitionRouteProjection,
 } from "@/features/runs/api/acquisitionRouteValidators";
 import {
   governedQueryOptions,

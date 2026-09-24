@@ -11,3 +11,5 @@ use a domain prefix already assigned to a subdirectory unless it is a canonical
 root contract listed in that index. Gate source contracts live under
 `architecture/gates/**` and are indexed by gate ID in
 `architecture/gates/index.toml`.
+
+Measurement authors: follow the [input disclosure and register-reader contract](../docs/how-to/author-measurement-instruments.md) before adding an absence verdict.

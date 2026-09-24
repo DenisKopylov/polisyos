@@ -86,6 +86,14 @@ if TYPE_CHECKING:
 
         def put_json(self, payload: object, options: object) -> object: ...
 
+        def sign_artifact(
+            self,
+            artifact_id: object,
+            signer: artifacts.Ed25519Signer,
+            *,
+            signer_identity: str | None = ...,
+        ) -> object: ...
+
 
 def write_runtime_authority_artifact(
     store: object,
@@ -499,7 +507,7 @@ class AgentActionAuthorityGateway:
         event_log: RuntimeDiagnosticEventLog,
         idempotency_store: RuntimeIdempotencyStore,
         artifact_verifier: artifacts.Ed25519Verifier,
-        bound_permission: BoundActionPermissionVerification,
+        bound_permission: BoundActionPermissionVerification | None,
         admission_producer_identity: str,
         write_context: AgentActionAuthorityWriteContext,
         contract_refs_by_resource_digest: Mapping[str, str],
@@ -511,6 +519,11 @@ class AgentActionAuthorityGateway:
         human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionGatewayAdapterInput]
         | None = None,
         production_approval_resolver: object | None = None,
+        _replay_decision_ref: str | None = None,
+        decision_signer: artifacts.Ed25519Signer | None = None,
+        decision_signer_identity: str | None = None,
+        human_decision_information_refs: tuple[str, ...] | None = None,
+        human_decision_disconfirming_refs: tuple[str, ...] | None = None,
     ) -> None:
         required_cas_capabilities = (
             "has",
@@ -530,12 +543,24 @@ class AgentActionAuthorityGateway:
             raise TypeError("agent action authority requires the server idempotency owner")
         if type(artifact_verifier) is not artifacts.Ed25519Verifier:
             raise TypeError("agent action authority requires the trusted signature verifier")
-        try:
-            bound_permission_hash = agent_action_permission_hash(bound_permission)
-        except (TypeError, ValueError) as exc:
-            raise TypeError(
-                "agent action authority requires the exact DS20 request-state proof"
-            ) from exc
+        if bound_permission is None and _replay_decision_ref is not None:
+            bound_permission_hash = None
+        else:
+            try:
+                bound_permission_hash = agent_action_permission_hash(bound_permission)
+            except (TypeError, ValueError) as exc:
+                raise TypeError(
+                    "agent action authority requires the exact DS20 request-state proof"
+                ) from exc
+        self._replay_decision_ref = _replay_decision_ref
+        if decision_signer is not None and (
+            type(decision_signer) is not artifacts.Ed25519Signer or not decision_signer_identity
+        ):
+            raise TypeError("decision signing requires a purpose-appointed signer and identity")
+        self._decision_signer = decision_signer
+        self._decision_signer_identity = decision_signer_identity
+        self._human_decision_information_refs = human_decision_information_refs
+        self._human_decision_disconfirming_refs = human_decision_disconfirming_refs
         if not admission_producer_identity.strip():
             raise ValueError("admission producer identity must be non-empty")
         self._artifact_store = artifact_store
@@ -605,6 +630,80 @@ class AgentActionAuthorityGateway:
                 raise ValueError(f"duplicate agent action effect binding: {binding.key!r}")
             binding_map[binding.key] = binding
         self._effect_bindings = MappingProxyType(binding_map)
+        if _replay_decision_ref is not None:
+            persisted = self.load_persisted_decision(_replay_decision_ref)
+            self._require_replay_authority(persisted.decision)
+
+    @classmethod
+    def for_persisted_decision(
+        cls,
+        *,
+        decision_ref: str,
+        artifact_store: _SignedCasProtocol,
+        event_log: RuntimeDiagnosticEventLog,
+        idempotency_store: RuntimeIdempotencyStore,
+        artifact_verifier: artifacts.Ed25519Verifier,
+        admission_producer_identity: str,
+        write_context: AgentActionAuthorityWriteContext,
+        contract_refs_by_resource_digest: Mapping[str, str],
+        mandate_authority_evidence_refs_by_owner_ref: Mapping[str, str],
+        admission_refs_by_invocation_hash: Mapping[str, str],
+        effect_bindings: tuple[AgentActionEffectBinding, ...],
+        decision_signer_identity: str | None = None,
+    ) -> AgentActionAuthorityGateway:
+        """Reopen one durable allow for effect replay without issuing a DS20 proof.
+
+        The decision's CAS/event identity and its signed admission and live
+        mandate are verified during construction and again before the effect.
+        This gateway cannot enter request authority scope or persist decisions.
+        """
+        return cls(
+            artifact_store=artifact_store,
+            event_log=event_log,
+            idempotency_store=idempotency_store,
+            artifact_verifier=artifact_verifier,
+            bound_permission=None,
+            admission_producer_identity=admission_producer_identity,
+            write_context=write_context,
+            contract_refs_by_resource_digest=contract_refs_by_resource_digest,
+            mandate_authority_evidence_refs_by_owner_ref=(
+                mandate_authority_evidence_refs_by_owner_ref
+            ),
+            admission_refs_by_invocation_hash=admission_refs_by_invocation_hash,
+            effect_bindings=effect_bindings,
+            _replay_decision_ref=decision_ref,
+            decision_signer_identity=decision_signer_identity,
+        )
+
+    def _require_replay_authority(self, decision: AgentActionAuthorityDecision) -> None:
+        snapshot = decision.permission_snapshot
+        if (
+            decision.outcome != "allowed"
+            or snapshot is None
+            or snapshot.tenant_id != self._write_context.tenant_id
+            or snapshot.required_permission not in snapshot.granted_permissions
+            or decision.bound_resource_digest != snapshot.resource_digest
+            or any(
+                check.provenance not in {"recomputed", "independently_reconciled"}
+                for check in decision.predicate_checks
+            )
+        ):
+            raise AgentActionAuthorityRecordingError("replay requires a verified allowed snapshot")
+        admission, admission_ref = self.resolve_admission_bundle(decision.invocation_content_hash)
+        resolved = self.resolve_delegation_contract(snapshot.resource_digest)
+        if (
+            admission_ref != decision.admission_bundle_ref
+            or admission.permission_proof_hash != _exact_hash(snapshot)
+            or admission.bound_resource_digest != snapshot.resource_digest
+            or admission.delegation_contract_ref != decision.contract_ref
+            or resolved.contract_cas_ref != decision.contract_ref
+            or admission.operation_content_hash != decision.operation_content_hash
+            or admission.invocation_content_hash != decision.invocation_content_hash
+            or admission.intent_content_hash != decision.intent_content_hash
+            or admission.effect_binding_digest != decision.effect_binding_digest
+            or resolved.mandate_authority_evidence_ref not in decision.replay_input_refs
+        ):
+            raise AgentActionAuthorityRecordingError("replay signed authority binding changed")
 
     @property
     def write_context(self) -> AgentActionAuthorityWriteContext:
@@ -616,6 +715,8 @@ class AgentActionAuthorityGateway:
     def bound_permission(self) -> BoundActionPermissionVerification:
         """Return the exact request-scoped DS20 proof installed by the composition root."""
 
+        if self._bound_permission is None:
+            raise AgentActionAuthorityRecordingError("replay cannot issue request authority")
         return self._bound_permission
 
     def owns_bound_permission(self, candidate: object) -> bool:
@@ -979,6 +1080,9 @@ class AgentActionAuthorityGateway:
     ) -> PersistedAgentActionDecision:
         """Persist and independently reconcile the exact decision bytes."""
 
+        if self._replay_decision_ref is not None:
+            raise AgentActionAuthorityRecordingError("replay cannot persist request authority")
+
         payload = decision.model_dump(mode="json")
         canon_spec = canon.CanonSpec()
         expected_sha = canon.content_hash(canon.to_canonical_bytes(payload, canon_spec))
@@ -1029,6 +1133,13 @@ class AgentActionAuthorityGateway:
                 raise ValueError("persisted decision manifest mismatch")
             if report.durable_event_id is None:
                 raise ValueError("persisted decision durable event missing")
+            if self._decision_signer is not None:
+                self._artifact_store.sign_artifact(
+                    result.cas_ref.artifact_id,
+                    self._decision_signer,
+                    signer_identity=self._decision_signer_identity,
+                )
+                self._require_decision_signature(expected_ref)
         except Exception as exc:
             raise AgentActionAuthorityRecordingError(
                 "agent action authority decision was not content-bound; effect refused"
@@ -1043,6 +1154,7 @@ class AgentActionAuthorityGateway:
         """Load one exact decision ref without scanning or trusting a job payload."""
 
         try:
+            self._require_decision_signature(decision_ref)
             artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
             if not self._artifact_store.has(artifact_id):
                 raise ValueError("decision artifact missing")
@@ -1098,6 +1210,20 @@ class AgentActionAuthorityGateway:
             ) from exc
         return loaded
 
+    def _require_decision_signature(self, decision_ref: str) -> None:
+        if self._decision_signer_identity is None:
+            return
+        signature = self._artifact_store.verify_signature(
+            artifacts.ArtifactID.model_validate(decision_ref),
+            self._artifact_verifier,
+            strict_identity=True,
+        )
+        if (
+            signature.status is not artifacts.SignatureVerificationStatus.VALID
+            or signature.signer_identity != self._decision_signer_identity
+        ):
+            raise AgentActionAuthorityRecordingError("decision source signature is unverified")
+
     def execute_bound_effect(
         self,
         *,
@@ -1109,6 +1235,10 @@ class AgentActionAuthorityGateway:
         """Revalidate owner inputs and execute only the sealed, exact adapter binding."""
 
         decision = self._revalidate_persisted_decision(persisted)
+        if self._replay_decision_ref is not None:
+            if str(persisted.write_result.cas_ref.artifact_id) != self._replay_decision_ref:
+                raise AgentActionAuthorityRecordingError("replay decision selector changed")
+            self._require_replay_authority(decision)
         if decision.outcome != "allowed":
             raise AgentActionAuthorityRecordingError("a refusal cannot execute an effect")
         binding = self.resolve_effect_binding(intent=intent, operation=operation)
@@ -1160,6 +1290,7 @@ class AgentActionAuthorityGateway:
 
         try:
             decision_ref = str(persisted.write_result.cas_ref.artifact_id)
+            self._require_decision_signature(decision_ref)
             payload = persisted.decision.model_dump(mode="json")
             expected_sha = canon.content_hash(canon.to_canonical_bytes(payload, canon.CanonSpec()))
             expected_ref = f"sha256:{expected_sha}"
@@ -1345,6 +1476,8 @@ def agent_action_authority_scope(
 
     if type(gateway) is not AgentActionAuthorityGateway:
         raise TypeError("agent action authority scope requires the exact server gateway")
+    if gateway._replay_decision_ref is not None:
+        raise AgentActionAuthorityRecordingError("replay cannot enter request authority scope")
     token = _ACTIVE_GATEWAY.set(gateway)
     try:
         yield
@@ -1714,6 +1847,8 @@ def _produce_decision(
             if _is_acquisition_execution(validated_intent, validated_operation)
             else "out_of_envelope"
         ),
+        information_refs=gateway._human_decision_information_refs,
+        disconfirming_refs=gateway._human_decision_disconfirming_refs,
     )
     decision_record_ref: str | None = None
     acquisition_requires_human = _is_acquisition_execution(
@@ -2038,6 +2173,8 @@ def _human_decision_request(
     resource_digest: str | None,
     effect_binding_digest: str | None,
     required_decision_reason: str,
+    information_refs: tuple[str, ...] | None,
+    disconfirming_refs: tuple[str, ...] | None,
 ) -> HumanDecisionRequest:
     binding_hash = _exact_hash(
         {
@@ -2080,6 +2217,15 @@ def _human_decision_request(
             s6_mandate_firewall_disposition=contract.s6_mandate_firewall_disposition,
             rule_version_ref=contract.rule_version_ref,
         )
+        if information_refs is not None:
+            base = base.model_copy(
+                update={
+                    "five_rights_binding": base.five_rights_binding.model_copy(
+                        update={"required_information_refs": information_refs}
+                    ),
+                    "disconfirming_evidence_refs": list(disconfirming_refs or ()),
+                }
+            )
         return base.model_copy(
             update={
                 "request_id": request_id,

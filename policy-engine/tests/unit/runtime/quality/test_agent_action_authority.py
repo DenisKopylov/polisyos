@@ -1040,11 +1040,16 @@ def test_agent_gateway_rejects_cross_arm_fields() -> None:
 
 def test_agent_gateway_production_arm_requires_packet_ref_and_concrete_resolver(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from dataclasses import replace
+
     from fastapi.testclient import TestClient
 
+    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import resolve_production_approval_resolver
+    from polisyos.runtime.quality import substrate_registry
     from polisyos.runtime.quality.approval import ProductionApprovalCurrentnessProjection
     from tests.unit.runtime.http.test_runtime_deployment_security import (
         _config_mapping_with_human_decision_custody,
@@ -1124,6 +1129,20 @@ def test_agent_gateway_production_arm_requires_packet_ref_and_concrete_resolver(
                 production_approval_resolver=candidate,
             )
 
+    # Supply the actual catalog input for this isolated runtime's startup root.
+    catalog_root = tmp_path / "retrieval-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+    startup_root = Path.cwd().resolve()
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(default_catalog_paths(root), l1_dcat_path=catalog_root / "catalog.duckdb")
+            if Path(root).resolve() == startup_root
+            else default_catalog_paths(root)
+        ),
+    )
     security = _deployment_security_module()
     runtime = security.build_deployment_security(
         security.DeploymentSecurityConfig.from_mapping(
@@ -1165,6 +1184,7 @@ def _prepared_v2_human_decision(
     signed_source_permission_jwt_id: str | None = None,
 ) -> tuple[Any, Any, Any]:
     from tests.unit.runtime.http.test_human_decision_service import (
+        _create_record_with_bound_mutation,
         _signed_current_gate_fixture,
     )
 
@@ -1190,7 +1210,8 @@ def _prepared_v2_human_decision(
                 source_update={"permission_snapshot": source.permission_snapshot},
             )
         )
-    receipt = fixture.service.create_record(
+    receipt = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=gate_input,
             decision_action="approve",
@@ -1239,12 +1260,14 @@ def test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from tests.unit.runtime.http.test_human_decision_service import (
+        _create_record_with_bound_mutation,
         _signed_current_gate_fixture,
     )
 
     contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
     fixture = _signed_current_gate_fixture(tmp_path)
-    receipt = fixture.service.create_record(
+    receipt = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.adapter_input,
             decision_action="approve",

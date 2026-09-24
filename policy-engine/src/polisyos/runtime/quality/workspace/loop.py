@@ -22,8 +22,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
+from polisyos.core.artifacts import ArtifactStore, PutOptions
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -1353,7 +1354,7 @@ def _compose_production_case_admission(
 
 
 def _read_production_json(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: str,
     *,
     kind: str,
@@ -1396,7 +1397,7 @@ def _read_production_json(
 
 def resolve_production_case_admission(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     receipt_ref: str,
     request_ref: str,
     catalog: read_api.catalog.DatasetCatalogGraph,
@@ -1437,7 +1438,7 @@ def resolve_production_case_admission(
 
 
 def _production_diagnostic_put(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     payload: dict[str, Any],
     *,
     kind: str,
@@ -1494,7 +1495,7 @@ class WorkspaceLoop:
         *,
         registry: OperationRegistry | None = None,
         catalog_graph: CatalogGraphProtocol | None = None,
-        artifact_store: FileSystemCAS | None = None,
+        artifact_store: ArtifactStore | None = None,
         staged_foundry_inputs: StagedFoundryInputBinding | None = None,
         eval_safety_execution_context: EvaluationExecutionContext | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
@@ -1510,7 +1511,7 @@ class WorkspaceLoop:
         self._phase2_method_readbacks: dict[
             int,
             tuple[
-                ArtifactRef, FoundryMethodOutputConsumer, FoundryConsumptionResult, FileSystemCAS
+                ArtifactRef, FoundryMethodOutputConsumer, FoundryConsumptionResult, ArtifactStore
             ],
         ] = {}
         if catalog_graph is None:
@@ -1612,10 +1613,15 @@ class WorkspaceLoop:
 
         return self.run_fixture(fixture_id)
 
-    def _phase2_store(self) -> FileSystemCAS:
+    def _phase2_store(self) -> ArtifactStore:
         if self._artifact_store is not None:
             return self._artifact_store
-        return FileSystemCAS(Path(tempfile.gettempdir()) / "polisyos-gy-phase2-cas")
+        return build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(Path(tempfile.gettempdir()) / "polisyos-gy-phase2-cas"),
+            ),
+        )
 
     def _phase2_context(self, *, workspace_id: str) -> tuple[ClaimCapableExecutionContext, object]:
         store = self._phase2_store()

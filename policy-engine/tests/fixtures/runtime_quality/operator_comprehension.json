@@ -1,0 +1,1110 @@
+{
+  "schema_version": "2",
+  "corpus_id": "synthetic-operator-authority-v2",
+  "build_ref": "synthetic-instrument-packet-v1",
+  "rule_refs": [
+    "W5-K02",
+    "WP-09",
+    "AUI-R10",
+    "AUI-R11",
+    "AUI-R12"
+  ],
+  "mandatory_constructs": [
+    "unknown",
+    "outer_set",
+    "incomparable",
+    "delta_budget",
+    "currentness",
+    "quarantine",
+    "weakest_link",
+    "after_hours"
+  ],
+  "modalities": [
+    "visual_pointer",
+    "keyboard_only",
+    "screen_reader",
+    "low_numeracy"
+  ],
+  "items": [
+    {
+      "item_id": "unknown:visual_pointer",
+      "partition": "sealed",
+      "construct": "unknown",
+      "modality": "visual_pointer",
+      "blockers": [
+        "missing_observation"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "Unknown is not zero. Acquire the missing observation.",
+      "stimulus_family": [
+        "Unknown is not zero. Acquire the missing observation."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "unknown:keyboard_only",
+      "partition": "sealed",
+      "construct": "unknown",
+      "modality": "keyboard_only",
+      "blockers": [
+        "missing_observation"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "Unknown is not zero. Acquire the missing observation.",
+      "stimulus_family": [
+        "Unknown is not zero. Acquire the missing observation."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "unknown:screen_reader",
+      "partition": "sealed",
+      "construct": "unknown",
+      "modality": "screen_reader",
+      "blockers": [
+        "missing_observation"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "Unknown is not zero. Acquire the missing observation.",
+      "stimulus_family": [
+        "Unknown is not zero. Acquire the missing observation."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "unknown:low_numeracy",
+      "partition": "sealed",
+      "construct": "unknown",
+      "modality": "low_numeracy",
+      "blockers": [
+        "missing_observation"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "Unknown is not zero. Acquire the missing observation.",
+      "stimulus_family": [
+        "Unknown is not zero. Acquire the missing observation."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:unknown",
+      "partition": "training",
+      "construct": "unknown",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:unknown"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "Training station T1 has no battery-temperature reading because its sensor is offline. Acquire a fresh sensor reading before simulated release.",
+      "stimulus_family": [
+        "Training station T1 has no battery-temperature reading because its sensor is offline. Acquire a fresh sensor reading before simulated release."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "outer_set:visual_pointer",
+      "partition": "sealed",
+      "construct": "outer_set",
+      "modality": "visual_pointer",
+      "blockers": [
+        "distribution_absent"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The outer set has no internal probability distribution. Defer the point-dependent action.",
+      "stimulus_family": [
+        "The outer set has no internal probability distribution. Defer the point-dependent action."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "outer_set:keyboard_only",
+      "partition": "sealed",
+      "construct": "outer_set",
+      "modality": "keyboard_only",
+      "blockers": [
+        "distribution_absent"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The outer set has no internal probability distribution. Defer the point-dependent action.",
+      "stimulus_family": [
+        "The outer set has no internal probability distribution. Defer the point-dependent action."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "outer_set:screen_reader",
+      "partition": "sealed",
+      "construct": "outer_set",
+      "modality": "screen_reader",
+      "blockers": [
+        "distribution_absent"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The outer set has no internal probability distribution. Defer the point-dependent action.",
+      "stimulus_family": [
+        "The outer set has no internal probability distribution. Defer the point-dependent action."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "outer_set:low_numeracy",
+      "partition": "sealed",
+      "construct": "outer_set",
+      "modality": "low_numeracy",
+      "blockers": [
+        "distribution_absent"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The outer set has no internal probability distribution. Defer the point-dependent action.",
+      "stimulus_family": [
+        "The outer set has no internal probability distribution. Defer the point-dependent action."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:outer_set",
+      "partition": "training",
+      "construct": "outer_set",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:outer_set"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "The practice reserve lies somewhere between two and nine tokens with no probability inside that set. Defer setting a single amount.",
+      "stimulus_family": [
+        "The practice reserve lies somewhere between two and nine tokens with no probability inside that set. Defer setting a single amount."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "incomparable:visual_pointer",
+      "partition": "sealed",
+      "construct": "incomparable",
+      "modality": "visual_pointer",
+      "blockers": [
+        "criterion_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The alternatives are incomparable. Abstain from ranking.",
+      "stimulus_family": [
+        "The alternatives are incomparable. Abstain from ranking."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "incomparable:keyboard_only",
+      "partition": "sealed",
+      "construct": "incomparable",
+      "modality": "keyboard_only",
+      "blockers": [
+        "criterion_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The alternatives are incomparable. Abstain from ranking.",
+      "stimulus_family": [
+        "The alternatives are incomparable. Abstain from ranking."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "incomparable:screen_reader",
+      "partition": "sealed",
+      "construct": "incomparable",
+      "modality": "screen_reader",
+      "blockers": [
+        "criterion_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The alternatives are incomparable. Abstain from ranking.",
+      "stimulus_family": [
+        "The alternatives are incomparable. Abstain from ranking."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "incomparable:low_numeracy",
+      "partition": "sealed",
+      "construct": "incomparable",
+      "modality": "low_numeracy",
+      "blockers": [
+        "criterion_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The alternatives are incomparable. Abstain from ranking.",
+      "stimulus_family": [
+        "The alternatives are incomparable. Abstain from ranking."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:incomparable",
+      "partition": "training",
+      "construct": "incomparable",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:incomparable"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "Practice route north is shorter while route south has fewer stairs. No tradeoff rule is supplied. Abstain from declaring an overall winner.",
+      "stimulus_family": [
+        "Practice route north is shorter while route south has fewer stairs. No tradeoff rule is supplied. Abstain from declaring an overall winner."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "delta_budget:visual_pointer",
+      "partition": "sealed",
+      "construct": "delta_budget",
+      "modality": "visual_pointer",
+      "blockers": [
+        "benefit_absent"
+      ],
+      "admissible_actions": [
+        "inspect"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "A remaining error allowance is not a benefit estimate. Inspect its declared basis.",
+      "stimulus_family": [
+        "A remaining error allowance is not a benefit estimate. Inspect its declared basis."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "delta_budget:keyboard_only",
+      "partition": "sealed",
+      "construct": "delta_budget",
+      "modality": "keyboard_only",
+      "blockers": [
+        "benefit_absent"
+      ],
+      "admissible_actions": [
+        "inspect"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "A remaining error allowance is not a benefit estimate. Inspect its declared basis.",
+      "stimulus_family": [
+        "A remaining error allowance is not a benefit estimate. Inspect its declared basis."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "delta_budget:screen_reader",
+      "partition": "sealed",
+      "construct": "delta_budget",
+      "modality": "screen_reader",
+      "blockers": [
+        "benefit_absent"
+      ],
+      "admissible_actions": [
+        "inspect"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "A remaining error allowance is not a benefit estimate. Inspect its declared basis.",
+      "stimulus_family": [
+        "A remaining error allowance is not a benefit estimate. Inspect its declared basis."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "delta_budget:low_numeracy",
+      "partition": "sealed",
+      "construct": "delta_budget",
+      "modality": "low_numeracy",
+      "blockers": [
+        "benefit_absent"
+      ],
+      "admissible_actions": [
+        "inspect"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "A remaining error allowance is not a benefit estimate. Inspect its declared basis.",
+      "stimulus_family": [
+        "A remaining error allowance is not a benefit estimate. Inspect its declared basis."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:delta_budget",
+      "partition": "training",
+      "construct": "delta_budget",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:delta_budget"
+      ],
+      "admissible_actions": [
+        "inspect"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "Practice protocol D-T permits three more exploratory checks; this does not estimate either option’s benefit. Inspect the protocol before acting.",
+      "stimulus_family": [
+        "Practice protocol D-T permits three more exploratory checks; this does not estimate either option’s benefit. Inspect the protocol before acting."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "currentness:visual_pointer",
+      "partition": "sealed",
+      "construct": "currentness",
+      "modality": "visual_pointer",
+      "blockers": [
+        "stale_basis"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The sole decision basis is stale. Acquire a current basis.",
+      "stimulus_family": [
+        "The sole decision basis is stale. Acquire a current basis."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "currentness:keyboard_only",
+      "partition": "sealed",
+      "construct": "currentness",
+      "modality": "keyboard_only",
+      "blockers": [
+        "stale_basis"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The sole decision basis is stale. Acquire a current basis.",
+      "stimulus_family": [
+        "The sole decision basis is stale. Acquire a current basis."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "currentness:screen_reader",
+      "partition": "sealed",
+      "construct": "currentness",
+      "modality": "screen_reader",
+      "blockers": [
+        "stale_basis"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The sole decision basis is stale. Acquire a current basis.",
+      "stimulus_family": [
+        "The sole decision basis is stale. Acquire a current basis."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "currentness:low_numeracy",
+      "partition": "sealed",
+      "construct": "currentness",
+      "modality": "low_numeracy",
+      "blockers": [
+        "stale_basis"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The sole decision basis is stale. Acquire a current basis.",
+      "stimulus_family": [
+        "The sole decision basis is stale. Acquire a current basis."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:currentness",
+      "partition": "training",
+      "construct": "currentness",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:currentness"
+      ],
+      "admissible_actions": [
+        "acquire"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "The practice equipment inspection expired yesterday and the replacement note lacks verification. Acquire a current inspection before relying on it.",
+      "stimulus_family": [
+        "The practice equipment inspection expired yesterday and the replacement note lacks verification. Acquire a current inspection before relying on it."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "quarantine:visual_pointer",
+      "partition": "sealed",
+      "construct": "quarantine",
+      "modality": "visual_pointer",
+      "blockers": [
+        "quarantined_basis"
+      ],
+      "admissible_actions": [
+        "request_review"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "This evidence is quarantined. Request its admission review.",
+      "stimulus_family": [
+        "This evidence is quarantined. Request its admission review."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "quarantine:keyboard_only",
+      "partition": "sealed",
+      "construct": "quarantine",
+      "modality": "keyboard_only",
+      "blockers": [
+        "quarantined_basis"
+      ],
+      "admissible_actions": [
+        "request_review"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "This evidence is quarantined. Request its admission review.",
+      "stimulus_family": [
+        "This evidence is quarantined. Request its admission review."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "quarantine:screen_reader",
+      "partition": "sealed",
+      "construct": "quarantine",
+      "modality": "screen_reader",
+      "blockers": [
+        "quarantined_basis"
+      ],
+      "admissible_actions": [
+        "request_review"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "This evidence is quarantined. Request its admission review.",
+      "stimulus_family": [
+        "This evidence is quarantined. Request its admission review."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "quarantine:low_numeracy",
+      "partition": "sealed",
+      "construct": "quarantine",
+      "modality": "low_numeracy",
+      "blockers": [
+        "quarantined_basis"
+      ],
+      "admissible_actions": [
+        "request_review"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "This evidence is quarantined. Request its admission review.",
+      "stimulus_family": [
+        "This evidence is quarantined. Request its admission review."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:quarantine",
+      "partition": "training",
+      "construct": "quarantine",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:quarantine"
+      ],
+      "admissible_actions": [
+        "request_review"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "A practice archive entry failed checksum validation and is outside admitted evidence. Request its review without using that entry.",
+      "stimulus_family": [
+        "A practice archive entry failed checksum validation and is outside admitted evidence. Request its review without using that entry."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "weakest_link:visual_pointer",
+      "partition": "sealed",
+      "construct": "weakest_link",
+      "modality": "visual_pointer",
+      "blockers": [
+        "mandate_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The mandate is missing although the other links pass. Abstain from publication.",
+      "stimulus_family": [
+        "The mandate is missing although the other links pass. Abstain from publication."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "weakest_link:keyboard_only",
+      "partition": "sealed",
+      "construct": "weakest_link",
+      "modality": "keyboard_only",
+      "blockers": [
+        "mandate_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The mandate is missing although the other links pass. Abstain from publication.",
+      "stimulus_family": [
+        "The mandate is missing although the other links pass. Abstain from publication."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "weakest_link:screen_reader",
+      "partition": "sealed",
+      "construct": "weakest_link",
+      "modality": "screen_reader",
+      "blockers": [
+        "mandate_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The mandate is missing although the other links pass. Abstain from publication.",
+      "stimulus_family": [
+        "The mandate is missing although the other links pass. Abstain from publication."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "weakest_link:low_numeracy",
+      "partition": "sealed",
+      "construct": "weakest_link",
+      "modality": "low_numeracy",
+      "blockers": [
+        "mandate_absent"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "deadline_with_interruptions",
+      "deadline_seconds": 300,
+      "stimulus_text": "The mandate is missing although the other links pass. Abstain from publication.",
+      "stimulus_family": [
+        "The mandate is missing although the other links pass. Abstain from publication."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:weakest_link",
+      "partition": "training",
+      "construct": "weakest_link",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:weakest_link"
+      ],
+      "admissible_actions": [
+        "abstain"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "The practice dispatch has checked inventory and transport but lacks its required supervisor instruction. Abstain from simulated release.",
+      "stimulus_family": [
+        "The practice dispatch has checked inventory and transport but lacks its required supervisor instruction. Abstain from simulated release."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "after_hours:visual_pointer",
+      "partition": "sealed",
+      "construct": "after_hours",
+      "modality": "visual_pointer",
+      "blockers": [
+        "escalation_owner_unavailable"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "after_hours",
+      "deadline_seconds": 300,
+      "stimulus_text": "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger.",
+      "stimulus_family": [
+        "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "after_hours:keyboard_only",
+      "partition": "sealed",
+      "construct": "after_hours",
+      "modality": "keyboard_only",
+      "blockers": [
+        "escalation_owner_unavailable"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "experienced",
+      "environment": "after_hours",
+      "deadline_seconds": 300,
+      "stimulus_text": "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger.",
+      "stimulus_family": [
+        "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    },
+    {
+      "item_id": "after_hours:screen_reader",
+      "partition": "sealed",
+      "construct": "after_hours",
+      "modality": "screen_reader",
+      "blockers": [
+        "escalation_owner_unavailable"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "after_hours",
+      "deadline_seconds": 300,
+      "stimulus_text": "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger.",
+      "stimulus_family": [
+        "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "after_hours:low_numeracy",
+      "partition": "sealed",
+      "construct": "after_hours",
+      "modality": "low_numeracy",
+      "blockers": [
+        "escalation_owner_unavailable"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "reviewer",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "after_hours",
+      "deadline_seconds": 300,
+      "stimulus_text": "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger.",
+      "stimulus_family": [
+        "At 02:10 the escalation owner is unreachable and the deadline is 02:15. Defer, record the missing owner and retain the next review trigger."
+      ],
+      "target_authority_level": "review_without_decision_right"
+    },
+    {
+      "item_id": "training:after_hours",
+      "partition": "training",
+      "construct": "after_hours",
+      "modality": "visual_pointer",
+      "blockers": [
+        "practice:after_hours"
+      ],
+      "admissible_actions": [
+        "defer"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "pass",
+        "override"
+      ],
+      "target_role": "policy_analyst",
+      "authority_level": "candidate_only",
+      "tenure_band": "new",
+      "environment": "practice",
+      "deadline_seconds": 300,
+      "stimulus_text": "In a daytime training drill the review desk is unavailable and its next staffed window is recorded. Defer the simulated escalation with that revisit trigger.",
+      "stimulus_family": [
+        "In a daytime training drill the review desk is unavailable and its next staffed window is recorded. Defer the simulated escalation with that revisit trigger."
+      ],
+      "target_authority_level": "prepare_candidate_advice"
+    }
+  ]
+}

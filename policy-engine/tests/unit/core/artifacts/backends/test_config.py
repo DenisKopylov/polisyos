@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
@@ -12,9 +14,10 @@ from polisyos.core.artifacts.backends.config import (
     infer_artifact_store_config,
     infer_async_artifact_store_config,
 )
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
-from pydantic import ValidationError
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -60,6 +63,26 @@ class TestArtifactStoreConfig:
 
 
 class TestBuildArtifactStore:
+    def test_filesystem_backend_preserves_tenant_and_cell_custody(self, tmp_path: Path):
+        config = ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "cas"))
+        owner = build_artifact_store(config, tenant_id="tenant-a", cell_id="cell-a")
+        reference = owner.put_bytes(
+            b"custodied bytes",
+            ArtifactWriteOptions(kind="test.factory_custody", media_type="application/octet-stream"),
+        )
+        reopened = build_artifact_store(config, tenant_id="tenant-a", cell_id="cell-a")
+        assert reopened.get_bytes(reference.artifact_id) == b"custodied bytes"
+
+        for tenant_id, cell_id in (("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
+            other = build_artifact_store(config, tenant_id=tenant_id, cell_id=cell_id)
+            with pytest.raises(ArtifactOwnershipError):
+                other.get_bytes(reference.artifact_id)
+
+    def test_non_filesystem_backend_rejects_explicit_ownership_scope(self):
+        config = ArtifactStoreConfig(backend="s3", bucket="must-not-open")
+        with pytest.raises(ValueError, match=r"ownership scope.*filesystem"):
+            build_artifact_store(config, tenant_id="tenant-a", cell_id="cell-a")
+
     def test_filesystem_backend(self, tmp_path: Path):
         cfg = ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "cas"))
         store = build_artifact_store(cfg)

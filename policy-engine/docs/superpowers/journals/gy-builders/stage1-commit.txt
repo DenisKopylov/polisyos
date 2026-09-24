@@ -1,0 +1,8 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  check-reduced-motion (skip) no matching staged files
+│  eslint (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  prettier (skip) no files for inspection
+│  Error: files were modified by a hook, and fail_on_changes is enabled

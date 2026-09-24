@@ -109,6 +109,9 @@ a downstream compatibility surface, not a second owner.
 - `corepack pnpm --dir packages/runtime-api-client exec openapi-typescript ../../schemas/runtime_api_v1.openapi.json -o types.ts`
   Canonical schema-type generation; the exact `7.13.0` tool pin is owned by
   this shared package and does not depend on a dashboard-local installation.
+  The package command runs the canonical recursive-type normalizer. Raw standalone
+  generator output is not the committed type contract. Byte agreement does not
+  establish runtime client behavior or endpoint execution.
 
 ## Test And Verification
 

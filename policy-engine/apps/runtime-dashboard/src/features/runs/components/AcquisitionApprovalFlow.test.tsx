@@ -4,10 +4,10 @@ import userEvent from "@testing-library/user-event";
 import type {
   AcquisitionDecisionRequestResponse,
   AcquisitionExecutionResponse,
-  AcquisitionRouteProjection,
 } from "@polisyos/runtime-api-client";
 import { MemoryRouter } from "react-router-dom";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import {
   EpochSemanticsProvider,
@@ -112,9 +112,14 @@ function epoch(status: "current" | "revalidation_required"): EpochSemantics {
   };
 }
 
+type PendingAcquisitionRoute = Extract<
+  AcquisitionRouteProjection,
+  { qualification_status: "pending_epoch_activation" }
+>;
+
 function runRoute(
-  overrides: Partial<AcquisitionRouteProjection> = {},
-): AcquisitionRouteProjection {
+  overrides: Partial<PendingAcquisitionRoute> = {},
+): PendingAcquisitionRoute {
   return {
     authority_badge: "behavioral_fixture_not_production",
     authority_capability: "ready",
@@ -174,7 +179,7 @@ function acceptedExecution(): AcquisitionExecutionResponse {
   };
 }
 
-function routeCapture(route = runRoute()) {
+function routeCapture(route: AcquisitionRouteProjection = runRoute()) {
   return { packet: route, rawPacketBytes: new TextEncoder().encode("{}") };
 }
 

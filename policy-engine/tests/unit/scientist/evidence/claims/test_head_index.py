@@ -2052,6 +2052,274 @@ def test_fixture_authority_finalizes_generation_zero_and_exports_current(
     assert [claim.claim_id for claim in exported.claims] == ["claim-root"]
 
 
+@pytest.fixture
+def packet_bound_owner_case(tmp_path: Path):
+    """Initialize the real owner with explicitly synthetic root prerequisites."""
+    from polisyos.scientist.validation.decision_validity import DecisionValidityService
+
+    store = FileSystemCAS(tmp_path / "cas")
+    owner, prepared, packet_ref, initial = _build_packet_bound_owner_case(
+        store=store,
+        head_index_root=tmp_path / "heads",
+        completed_batches=DecisionValidityService(store),
+        claim_metadata={"retained_context": ["first", {"second": False}]},
+    )
+    return store, owner, prepared, packet_ref, initial
+
+
+def _build_packet_bound_owner_case(
+    *,
+    store: FileSystemCAS,
+    head_index_root: Path,
+    completed_batches: head_index_module.EpochValidityCompletedBatchEvidenceDenominator,
+    claim_metadata: dict[str, object] | None = None,
+) -> tuple[
+    _RepositoryClaimLedgerOwner,
+    PreparedClaimLedgerInitialization,
+    ArtifactRef,
+    ClaimLedgerHeadAdvanced,
+]:
+    """Build a configured synthetic owner using the caller's CAS and real denominator."""
+    policy = _fixture_policy(store)
+    owner = _RepositoryClaimLedgerOwner(
+        store=store,
+        policy_resolver=_FixturePolicyResolver(policy),
+        root_issuer=_FixtureRootIssuer(store),
+        issuance_verifier=_FixtureIssuanceVerifier(store),
+        head_index_root=head_index_root,
+        decision_packets=ArtifactStoreDecisionPacketRootRepository(
+            store=store,
+            verifier_provenance_ref=policy.verifier_provenance_ref,
+        ),
+        independent_walk=FilesystemArtifactStoreClaimRootWalk(
+            store=store,
+            artifact_root=store.root,
+        ),
+        completed_batches=completed_batches,
+    )
+    evidence_ref = store.put_bytes(
+        b"Explicitly synthetic evidence for the owner snapshot witness.",
+        ArtifactWriteOptions(kind="fixture.claim_evidence", media_type="text/plain"),
+    )
+    ledger = ClaimLedger(
+        run_id="packet-snapshot",
+        claims=[
+            ClaimRecord(
+                claim_id="snapshot-claim",
+                run_id="packet-snapshot",
+                claim_type=ClaimType.FACTUAL,
+                text="The synthetic source contains this assertion.",
+                support_status=ClaimSupportStatus.SUPPORTED,
+                publishability=ClaimPublishability.PUBLISHABLE,
+                readiness_level=DecisionReadiness.RESEARCH_ARTIFACT,
+                evidence_refs=[evidence_ref],
+                source_attribution=["explicitly synthetic source"],
+                metadata=claim_metadata or {},
+            )
+        ],
+    )
+    prepared, packet_ref, initial = _initialize_owner_from_ledger(
+        owner=owner, store=store, ledger=ledger
+    )
+    return owner, prepared, packet_ref, initial
+
+
+def test_packet_bound_snapshot_preserves_raw_ledger_and_public_eligibility(
+    packet_bound_owner_case,
+) -> None:
+    store, owner, prepared, packet_ref, initial = packet_bound_owner_case
+
+    snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+
+    assert isinstance(snapshot, head_index_module.PacketBoundClaimLedgerSnapshot)
+    assert snapshot.decision_packet_ref == packet_ref
+    assert snapshot.decision_packet_content_hash == str(packet_ref.artifact_id)
+    assert snapshot.head == initial.new_head
+    assert snapshot.ledger == _load_append_only_claim_ledger(store, prepared.initial_ledger_ref)
+    assert to_canonical_bytes(snapshot.ledger, CanonSpec(forbid_floats=False)) == store.get_bytes(
+        snapshot.head.statement.ledger_artifact_ref.artifact_id
+    )
+    assert snapshot.ledger.current_claims[0].metadata == {
+        "retained_context": ["first", {"second": False}]
+    }
+    assert snapshot.ledger.events[0].action is ClaimLifecycleAction.CREATED
+    assert snapshot.ledger.events[0].reason
+    assert snapshot.ledger.events[0].metadata["publishability"] == "publishable"
+    assert snapshot.public_export.audience is ClaimExportAudience.PUBLIC
+    assert snapshot.public_export.claims[0].visible
+    assert snapshot.public_export.metadata["lifecycle_events"] == []
+    assert snapshot.current_head_projection.head_ref == snapshot.head.head_ref
+    assert snapshot.current_head_projection.claim_currentness == "current"
+
+
+@pytest.mark.parametrize("source", ["candidate", "prepared", "unbound_packet", "wrong_profile"])
+def test_packet_bound_snapshot_rejects_sources_without_an_exact_root(
+    packet_bound_owner_case, source: str
+) -> None:
+    store, owner, _, packet_ref, initial = packet_bound_owner_case
+    if source == "wrong_profile":
+        requested = packet_ref.model_copy(update={"kind": "fixture.foreign_profile"})
+    else:
+        if source == "unbound_packet":
+            ledger_ref = initial.new_head.statement.ledger_artifact_ref
+        else:
+            candidate_ref = owner.persist_candidate_ledger(ledger=_claim_ledger())
+            if source == "candidate":
+                ledger_ref = candidate_ref
+            else:
+                preparation = owner.prepare_initial_ledger(
+                    base_claims_ref=candidate_ref, source_artifact_refs=()
+                )
+                assert isinstance(preparation, PreparedClaimLedgerInitialization)
+                ledger_ref = preparation.initial_ledger_ref
+        requested = store.put_json(
+            {"claim_ledger_v2_ref": ledger_ref.model_dump(mode="json"), "unbound": source},
+            ArtifactWriteOptions(kind="scientist.decision_packet", media_type="application/json"),
+        )
+
+    result = owner.resolve_current_for_packet(decision_packet_ref=requested)
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.code == "claim_head_absent"
+
+
+def test_packet_bound_snapshot_unappointed_owner_rejects_a_real_root(
+    packet_bound_owner_case,
+) -> None:
+    store, _, _, packet_ref, _ = packet_bound_owner_case
+
+    result = UnappointedClaimLedgerOwner(store=store).resolve_current_for_packet(
+        decision_packet_ref=packet_ref
+    )
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.code == "claim_head_absent"
+
+
+def test_packet_bound_snapshot_reverifies_source_bytes(packet_bound_owner_case) -> None:
+    store, owner, _, packet_ref, _ = packet_bound_owner_case
+    blob_path, _ = store.get_paths(packet_ref.artifact_id)
+    blob_path.write_bytes(blob_path.read_bytes() + b" ")
+
+    result = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.code == "claim_head_content_mismatch"
+
+
+def test_packet_bound_snapshot_rejects_a_borrowed_owner_key(packet_bound_owner_case) -> None:
+    store, owner, _, packet_ref, initial = packet_bound_owner_case
+    other_packet = store.put_json(
+        {**json.loads(store.get_bytes(packet_ref.artifact_id)), "unissued_packet": True},
+        ArtifactWriteOptions(kind="scientist.decision_packet", media_type="application/json"),
+    )
+    root = _read_profiled_statement(
+        store=store,
+        record="claim_ledger_root",
+        ref=initial.new_head.statement.root_receipt_ref,
+        model=ClaimLedgerRootStatement,
+    )
+    basis = _read_profiled_statement(
+        store=store,
+        record="claim_ledger_root_basis",
+        ref=root.basis_ref,
+        model=ClaimLedgerRootBasisStatement,
+    )
+    _persist_profiled_statement(
+        store=store,
+        record="claim_ledger_root_basis",
+        value=basis.model_copy(
+            update={
+                "decision_packet_ref": other_packet,
+                "decision_packet_content_hash": str(other_packet.artifact_id),
+            }
+        ),
+    )
+
+    result = owner.resolve_current_for_packet(decision_packet_ref=other_packet)
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.code == "claim_head_content_mismatch"
+    assert isinstance(
+        owner.resolve_current_for_packet(decision_packet_ref=packet_ref),
+        head_index_module.PacketBoundClaimLedgerSnapshot,
+    )
+
+
+def test_historical_packet_snapshot_replays_the_real_owner(packet_bound_owner_case) -> None:
+    store, owner, _, packet_ref, _ = packet_bound_owner_case
+    snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+
+    verified = owner.verify_historical_packet_snapshot(snapshot=snapshot)
+
+    assert verified == _load_append_only_claim_ledger(
+        store, snapshot.head.statement.ledger_artifact_ref
+    )
+    assert isinstance(
+        UnappointedClaimLedgerOwner(store=store).verify_historical_packet_snapshot(
+            snapshot=snapshot
+        ),
+        ClaimLedgerHeadResolutionNonReceipt,
+    )
+
+
+@pytest.mark.parametrize("forgery", ["packet", "head", "ledger", "public_eligibility"])
+def test_historical_packet_snapshot_cannot_borrow_authority(
+    packet_bound_owner_case, forgery: str
+) -> None:
+    store, owner, _, packet_ref, _ = packet_bound_owner_case
+    if forgery == "public_eligibility":
+        _, packet_ref, _ = _initialize_owner_from_ledger(
+            owner=owner, store=store, ledger=_claim_ledger()
+        )
+    snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    if forgery == "packet":
+        other_packet = store.put_json(
+            {"borrowed": True},
+            ArtifactWriteOptions(kind="scientist.decision_packet", media_type="application/json"),
+        )
+        snapshot = snapshot.model_copy(
+            update={
+                "decision_packet_ref": other_packet,
+                "decision_packet_content_hash": str(other_packet.artifact_id),
+            }
+        )
+    elif forgery == "head":
+        snapshot = snapshot.model_copy(
+            update={
+                "head": snapshot.head.model_copy(
+                    update={
+                        "head_ref": _ref("a", kind="scientist.claims.ledger_head"),
+                    }
+                )
+            }
+        )
+    elif forgery == "ledger":
+        ledger = snapshot.ledger.model_copy(update={"current_claims": []})
+        snapshot = snapshot.model_copy(update={"ledger": ledger})
+    else:
+        published = snapshot.public_export.claims[0].model_copy(
+            update={
+                "visible": True,
+                "text": snapshot.ledger.current_claims[0].text,
+                "publishability": "publishable",
+                "omission_reason": None,
+            }
+        )
+        export = snapshot.public_export.model_copy(
+            update={
+                "claims": [published],
+                "omitted_claim_ids": [],
+            }
+        )
+        snapshot = snapshot.model_copy(update={"public_export": export})
+
+    refused = owner.verify_historical_packet_snapshot(snapshot=snapshot)
+
+    assert isinstance(refused, ClaimLedgerHeadResolutionNonReceipt)
+    assert refused.status == "rejected"
+
+
 def test_crash_after_dv_completion_keeps_claim_bridge_pending_public_freeze(
     tmp_path: Path,
 ) -> None:
@@ -2343,6 +2611,9 @@ def test_verified_epoch_batch_advances_one_closed_head_with_stale_event(
     assert rejected.code == "claim_batch_evidence_rejected"
     assert owner.resolve_current(owner_key=prepared.owner_key) == initial.new_head
 
+    prior_snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    assert isinstance(prior_snapshot, head_index_module.PacketBoundClaimLedgerSnapshot)
+
     advanced = owner.advance_verified_batch(
         verified_batch=verified_batch,
         decision_packet_ref=packet_ref,
@@ -2509,6 +2780,15 @@ def test_verified_epoch_batch_advances_one_closed_head_with_stale_event(
     )
     assert next_ledger.events[-1].claim_id == "claim-root"
     assert next_ledger.events[-1].action is ClaimLifecycleAction.MARKED_STALE
+    current_snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    assert isinstance(current_snapshot, head_index_module.PacketBoundClaimLedgerSnapshot)
+    assert current_snapshot.head == advanced.head_advance.new_head
+    assert current_snapshot.head != prior_snapshot.head
+    assert current_snapshot.ledger == next_ledger
+    assert current_snapshot.ledger.events[:-1] == prior_snapshot.ledger.events
+    assert current_snapshot.current_head_projection.head_ref == current_snapshot.head.head_ref
+    assert not current_snapshot.public_export.claims[0].visible
+    assert owner.verify_historical_packet_snapshot(snapshot=prior_snapshot) == prior_snapshot.ledger
 
 
 def test_mixed_target_outcomes_stay_distinct_append_only(tmp_path: Path) -> None:

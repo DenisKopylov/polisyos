@@ -4232,6 +4232,7 @@ ci = [
 ]
 dev = [
     { name = "libcst" },
+    { name = "policy-engine", extra = ["test"] },
 ]
 
 [package.metadata]
@@ -4412,7 +4413,10 @@ ci = [
     { name = "pillow", specifier = ">=12" },
     { name = "regex", specifier = ">=2026.9.3" },
 ]
-dev = [{ name = "libcst", specifier = ">=1.5.0" }]
+dev = [
+    { name = "libcst", specifier = ">=1.5.0" },
+    { name = "policy-engine", extras = ["test"] },
+]
 
 [[package]]
 name = "pre-commit"

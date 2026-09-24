@@ -184,3 +184,81 @@ def test_successful_baseline_cannot_hide_artifact_corruption(
         path.write_text(json.dumps(manifest))
     warm = _run(station, "--check", *hint)
     assert _findings(warm, station) == {artifact}
+
+
+def test_missing_required_model_is_unrun_with_no_artifact_verdict(station: Path) -> None:
+    """A required import failure is not evidence that snapshots agree or differ."""
+    (station / "src/dependency.py").write_text("import apparatus_unavailable_dependency\n")
+    result = _run(station, "--check")
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "UNRUN" in result.stderr
+    assert "apparatus_unavailable_dependency" in result.stderr
+    assert "snapshot check passed" not in result.stdout
+    assert "snapshot check failed" not in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_empty_required_catalog_is_not_a_vacuous_pass(station: Path) -> None:
+    """No selected measurements cannot certify the required snapshot check."""
+    driver = DRIVER.replace("(entry,)", "()")
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", driver, str(station), "--check"],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=120,
+    )
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "UNRUN" in result.stderr
+
+
+@pytest.mark.parametrize("error_type", ["RuntimeError", "ValueError"])
+@pytest.mark.parametrize("nested", [False, True])
+def test_schema_hook_failure_is_unrun_without_comparing_artifacts(
+    station: Path, error_type: str, nested: bool
+) -> None:
+    """Both direct and dependency schema producers must finish before comparison."""
+    source = station / "src" / ("dependency.py" if nested else "envelope.py")
+    source.write_text(
+        source.read_text()
+        + "    @classmethod\n"
+        + "    def __get_pydantic_json_schema__(cls, core_schema, handler):\n"
+        + f"        raise {error_type}('schema-producer-unavailable-witness')\n"
+    )
+    before = {p: p.read_bytes() for p in (station / "schemas").rglob("*.json")}
+    result = _run(station, "--check")
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "UNRUN" in result.stderr
+    assert error_type in result.stderr
+    assert "schema-producer-unavailable-witness" in result.stderr
+    assert "snapshot check passed" not in result.stdout
+    assert "snapshot check failed" not in result.stdout
+    assert "Traceback" not in result.stderr
+    assert all(path.read_bytes() == data for path, data in before.items())
+
+
+def test_reference_producer_failure_is_unrun_without_completed_verdict(station: Path) -> None:
+    """A sibling producer exception uses the same orchestration boundary."""
+    driver = DRIVER.replace(
+        "raise SystemExit(g.main(",
+        "def unavailable_reference(*args, **kwargs):\n"
+        "    raise RuntimeError('reference-producer-unavailable-witness')\n"
+        "g.generate_reference_docs = unavailable_reference\n"
+        "raise SystemExit(g.main(",
+    )
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", driver, str(station), "--check"],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=120,
+    )
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "UNRUN" in result.stderr
+    assert "RuntimeError" in result.stderr
+    assert "reference-producer-unavailable-witness" in result.stderr
+    assert "snapshot check passed" not in result.stdout
+    assert "snapshot check failed" not in result.stdout
+    assert "Traceback" not in result.stderr

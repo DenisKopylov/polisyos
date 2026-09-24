@@ -16,6 +16,7 @@ from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.runtime.quality.acquisition_executor import (
     LiveAcquisitionExecutionError,
     LiveCatalogExecutionConstraints,
+    SemanticEpochAdmissionResolutionError,
     execute_live_catalog_acquisition,
     require_live_catalog_constraints_within_authority_scope,
 )
@@ -28,6 +29,14 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+        AcquisitionWorldGrowthReceipt,
+    )
+    from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+    from polisyos.runtime.quality.semantic_epoch import PersistedSemanticEpochProductionReceipt
+
 
 class _CanonicalAcquisitionAuthority(Protocol):
     registry_path: Path
@@ -83,18 +92,16 @@ class _StrictModel(BaseModel):
 class WorldBankWDIRouteExecutionBinding(_StrictModel):
     """One content-bound route, authority entry, and provisioned live attempt."""
 
-    schema_version: Literal[
+    schema_version: Literal["polisyos.runtime.world_bank_wdi_route_execution_binding.v1"] = (
         "polisyos.runtime.world_bank_wdi_route_execution_binding.v1"
-    ] = "polisyos.runtime.world_bank_wdi_route_execution_binding.v1"
+    )
     binding_id: str = Field(pattern=r"^acquisition-route-binding:sha256:[0-9a-f]{64}$")
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
     route_id: str = Field(pattern=_SHA256_PATTERN)
     target_variable: str = Field(min_length=1)
-    authority_entry_id: str = Field(
-        pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$"
-    )
+    authority_entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
     authority_provision_id: str = Field(
         pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
     )
@@ -119,9 +126,7 @@ class WorldBankWDIRouteExecutionBinding(_StrictModel):
         """Return the projection defining this exact executable binding."""
 
         return {
-            key: value
-            for key, value in self.model_dump(mode="json").items()
-            if key != "binding_id"
+            key: value for key, value in self.model_dump(mode="json").items() if key != "binding_id"
         }
 
 
@@ -245,8 +250,7 @@ def resolve_world_bank_wdi_route_execution_bindings(
             WorldBankWDIRouteExecutionBinding(
                 **payload,
                 binding_id=(
-                    "acquisition-route-binding:"
-                    + fabric_data_plane.content_sha256(payload)
+                    "acquisition-route-binding:" + fabric_data_plane.content_sha256(payload)
                 ),
             )
         )
@@ -264,8 +268,7 @@ def _require_live_variable_route(closure: VerifiedAcquisitionRouteClosure) -> st
     if (
         gap_type != "data_snapshot_release"
         or record.requirement_family != "data_requirement"
-        or record.requirement_schema_version
-        != "policyos.runtime.l1_variable_availability_gap.v1"
+        or record.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
         or recommended_strategy != "production_snapshot_build"
     ):
         raise LiveAcquisitionExecutionError("live_route_requirement_shape_invalid")
@@ -320,6 +323,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         provision_content_sha256: str,
         runtime_state_root: Path,
         executor: Callable[..., _LiveSourceExecutionEvidence] | None = None,
+        world_growth_bridge: AcquisitionWorldGrowthBridge | None = None,
     ) -> None:
         catalog_api: Any = data_forge_read_api.catalog
         if type(authority) is not catalog_api.CanonicalAcquisitionAuthority:
@@ -339,9 +343,17 @@ class WorldBankWDIAcquisitionExecutionPort:
         self._provision_content_sha256 = provision_content_sha256
         self._runtime_state_root = root
         self._executor = executor
+        if world_growth_bridge is not None:
+            from polisyos.runtime.quality.acquisition_world_growth import (
+                AcquisitionWorldGrowthBridge,
+            )
+
+            if type(world_growth_bridge) is not AcquisitionWorldGrowthBridge:
+                raise TypeError("acquisition world growth bridge must be production-owned")
+        self._world_growth_bridge = world_growth_bridge
 
     def require_route_ready(self, closure: VerifiedAcquisitionRouteClosure) -> None:
-        """Resolve the binding and require an unconsumed attempt without touching a provider."""
+        """Require a fresh live attempt or verified deferred evidence without side effects."""
 
         bindings = resolve_world_bank_wdi_route_execution_bindings(
             closure=closure,
@@ -350,9 +362,13 @@ class WorldBankWDIAcquisitionExecutionPort:
             provision=self._provision,
             provision_content_sha256=self._provision_content_sha256,
         )
+        bridge = self._world_growth_bridge
+        if bridge is not None and bridge.has_admission_attempt(closure):
+            if bridge.has_deferred_admission(closure):
+                return
+            self._raise_attempt_exhausted()
         if any(
-            not self._lease_path(binding).exists()
-            or self._reserved_binding_is_reusable(binding)
+            not self._lease_path(binding).exists() or self._reserved_binding_is_reusable(binding)
             for binding in bindings
         ):
             return
@@ -361,6 +377,14 @@ class WorldBankWDIAcquisitionExecutionPort:
         )
 
         raise AcquisitionActionServiceError("acquisition_live_attempt_exhausted")
+
+    def prepare_route_execution(self, closure: VerifiedAcquisitionRouteClosure) -> None:
+        """Reserve fresh transport only; deferred admission requires a new action authority."""
+        self.require_route_ready(closure)
+        bridge = self._world_growth_bridge
+        if bridge is not None and bridge.has_admission_attempt(closure):
+            return
+        self.reserve_route_binding(closure)
 
     def reserve_route_binding(
         self,
@@ -381,11 +405,20 @@ class WorldBankWDIAcquisitionExecutionPort:
         self,
         closure: VerifiedAcquisitionRouteClosure,
     ) -> AcquisitionOwnerExecutionResult:
-        """Resolve, lease, and execute without admitting observations or growing the world."""
+        """Execute one bound attempt and admit only native, activated observation growth."""
 
+        self.require_route_ready(closure)
+        bridge = self._world_growth_bridge
+        if bridge is not None and bridge.has_admission_attempt(closure):
+            owner_refs, growth = bridge.resume_deferred_admission(closure)
+            return self._admission_result(closure, owner_refs, growth)
         binding = self.reserve_route_binding(closure)
         self._claim_reserved_binding(binding)
         journal_path, cas_root = self._governed_paths(binding)
+        extra_executor_args = {}
+        if bridge is not None and bridge.selection(closure) is not None:
+            cas_root = bridge.artifact_store.root
+            extra_executor_args["artifact_store"] = bridge.artifact_store
         evidence: _LiveSourceExecutionEvidence
         if self._executor is None:
             evidence = execute_live_catalog_acquisition(
@@ -395,6 +428,7 @@ class WorldBankWDIAcquisitionExecutionPort:
                 constraints=binding.constraints,
                 journal_path=journal_path,
                 cas_root=cas_root,
+                **extra_executor_args,
             )
         else:
             evidence = self._executor(
@@ -404,6 +438,7 @@ class WorldBankWDIAcquisitionExecutionPort:
                 constraints=binding.constraints,
                 journal_path=journal_path,
                 cas_root=cas_root,
+                **extra_executor_args,
             )
         owner_receipt_refs = tuple(
             dict.fromkeys(
@@ -415,35 +450,121 @@ class WorldBankWDIAcquisitionExecutionPort:
                 )
             )
         )
+        growth = None
+        if bridge is not None:
+            try:
+                growth = bridge.admit(
+                    closure=closure,
+                    binding_id=binding.binding_id,
+                    target_variable=binding.target_variable,
+                    evidence=evidence,
+                    owner_receipt_refs=owner_receipt_refs,
+                )
+            except SemanticEpochAdmissionResolutionError:
+                # Resolution absence cannot promote fetched data into admitted membership.
+                growth = None
+        return self._admission_result(closure, owner_receipt_refs, growth)
+
+    def _admission_result(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        owner_receipt_refs: tuple[str, ...],
+        growth: AcquisitionWorldGrowthReceipt | PersistedSemanticEpochProductionReceipt | None,
+    ) -> AcquisitionOwnerExecutionResult:
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionOwnerExecutionResult,
         )
+        from polisyos.runtime.quality.semantic_epoch import (
+            PersistedSemanticEpochProductionReceipt,
+        )
 
+        if isinstance(growth, PersistedSemanticEpochProductionReceipt):
+            owner_receipt_refs = (*owner_receipt_refs, str(growth.receipt_ref.artifact_id))
+            growth = None
+        if growth is not None:
+            bridge = self._world_growth_bridge
+            if bridge is None:
+                self._raise_reentry_not_admitted()
+            growth_ref = bridge.persist_growth(closure, growth)
+            return AcquisitionOwnerExecutionResult(
+                disposition="world_committed",
+                owner_receipt_refs=(*owner_receipt_refs, growth_ref),
+                admitted_observation_delta=growth.admitted_observation_delta,
+                overlay_admission_receipt_ref=str(
+                    growth.activation.overlay_admission_receipt_ref.artifact_id
+                ),
+                post_epoch_event_ref=str(
+                    growth.activation.semantic_epoch_production_receipt_ref.artifact_id
+                ),
+                authority_badge="native_owner_verified",
+            )
         return AcquisitionOwnerExecutionResult(
             disposition="quarantined_no_growth",
             owner_receipt_refs=owner_receipt_refs,
             admitted_observation_delta=0,
         )
 
+    def recover_owned_result(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> AcquisitionOwnerExecutionResult:
+        """Recover only already-active native evidence; never retry a live effect."""
+        bridge = self._world_growth_bridge
+        if bridge is None:
+            self._raise_reentry_not_admitted()
+        growth = bridge.recover_admission(closure)
+        growth_ref = bridge.persist_growth(closure, growth)
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionOwnerExecutionResult,
+        )
+
+        return AcquisitionOwnerExecutionResult(
+            disposition="world_committed",
+            owner_receipt_refs=(*growth.live_evidence_refs, growth_ref),
+            admitted_observation_delta=growth.admitted_observation_delta,
+            overlay_admission_receipt_ref=str(
+                growth.activation.overlay_admission_receipt_ref.artifact_id
+            ),
+            post_epoch_event_ref=str(
+                growth.activation.semantic_epoch_production_receipt_ref.artifact_id
+            ),
+            authority_badge="native_owner_verified",
+        )
+
+    def project_world_growth(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> AcquisitionWorldGrowthReceipt | None:
+        """Reverify native admission for the exact route's public projection."""
+        bridge = self._world_growth_bridge
+        return None if bridge is None else bridge.project_growth(closure)
+
     def reenter(
         self,
         closure: VerifiedAcquisitionRouteClosure,
         result: AcquisitionOwnerExecutionResult,
     ) -> str:
-        """Refuse world re-entry because N13b evidence remains quarantined."""
+        """Re-enter only after current native admission revalidation."""
 
-        del closure, result
-        self._raise_reentry_not_admitted()
+        if (
+            result.disposition != "world_committed"
+            or self._world_growth_bridge is None
+            or self._world_growth_bridge.selection(closure) is None
+        ):
+            self._raise_reentry_not_admitted()
+        return self._world_growth_bridge.resume(closure, result.owner_receipt_refs)
 
     def resume_reentry(
         self,
         closure: VerifiedAcquisitionRouteClosure,
         owner_receipt_refs: tuple[str, ...],
     ) -> str:
-        """Refuse re-entry recovery because this port cannot activate an epoch."""
+        """Recover re-entry from verified active owner receipts without refetching."""
 
-        del closure, owner_receipt_refs
-        self._raise_reentry_not_admitted()
+        if (
+            self._world_growth_bridge is None
+            or self._world_growth_bridge.selection(closure) is None
+        ):
+            self._raise_reentry_not_admitted()
+        return self._world_growth_bridge.resume(closure, owner_receipt_refs)
 
     def _reserve_first_fresh(
         self,
@@ -454,10 +575,13 @@ class WorldBankWDIAcquisitionExecutionPort:
         for binding in bindings:
             lease_path = self._lease_path(binding)
             lease = _WorldBankWDIAttemptLease(binding=binding)
-            encoded = canon.to_canonical_bytes(
-                lease.model_dump(mode="json"),
-                canon.CanonSpec(forbid_floats=False),
-            ) + b"\n"
+            encoded = (
+                canon.to_canonical_bytes(
+                    lease.model_dump(mode="json"),
+                    canon.CanonSpec(forbid_floats=False),
+                )
+                + b"\n"
+            )
             try:
                 descriptor = os.open(
                     lease_path,
@@ -529,8 +653,7 @@ class WorldBankWDIAcquisitionExecutionPort:
 
     def _lease_path(self, binding: WorldBankWDIRouteExecutionBinding) -> Path:
         token = hashlib.sha256(
-            b"polisyos.world-bank-wdi-attempt-lease.v1\0"
-            + binding.attempt_id.encode("utf-8")
+            b"polisyos.world-bank-wdi-attempt-lease.v1\0" + binding.attempt_id.encode("utf-8")
         ).hexdigest()
         return self._runtime_state_root / _RUNTIME_SUBTREE / "attempt-leases" / f"{token}.json"
 
@@ -555,6 +678,14 @@ class WorldBankWDIAcquisitionExecutionPort:
         return route_root / "evidence-journal.jsonl", cas_root
 
     @staticmethod
+    def _raise_attempt_exhausted() -> NoReturn:
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionServiceError,
+        )
+
+        raise AcquisitionActionServiceError("acquisition_live_attempt_exhausted")
+
+    @staticmethod
     def _raise_reentry_not_admitted() -> NoReturn:
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionActionServiceError,
@@ -566,6 +697,8 @@ class WorldBankWDIAcquisitionExecutionPort:
 def build_production_world_bank_wdi_execution_port(
     *,
     control_service: ControlPlaneService,
+    world_growth_config: AcquisitionWorldGrowthConfig | None = None,
+    epoch_deployment: EpochDeployment | None = None,
 ) -> WorldBankWDIAcquisitionExecutionPort | None:
     """Build the canonical port only for a production deployment with all owner files."""
 
@@ -603,7 +736,22 @@ def build_production_world_bank_wdi_execution_port(
         "_AcquisitionAuthorityRegistry",
         catalog_api.AcquisitionAuthorityRegistry.model_validate_json(registry_path.read_bytes()),
     )
+    world_growth_bridge = None
+    if world_growth_config is not None:
+        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+        world_growth_bridge = AcquisitionWorldGrowthBridge(
+            config=world_growth_config,
+            repo_root=repo_root,
+            runtime_root=Path(control_service._cas_root),
+            authority=authority,
+            artifact_store=control_service._artifact_store,
+            event_log=control_service._diagnostic_event_log,
+            epoch_deployment=epoch_deployment,
+            promotion_runtime=control_service._promotion_runtime,
+        )
     return WorldBankWDIAcquisitionExecutionPort(
+        world_growth_bridge=world_growth_bridge,
         authority=authority,
         registry=registry,
         provision=provision,

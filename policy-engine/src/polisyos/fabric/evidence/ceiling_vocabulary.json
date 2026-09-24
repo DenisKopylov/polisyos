@@ -1,0 +1,15 @@
+{
+  "schema_version": "fabric.non_data_acquisition.ceiling_relations.v1",
+  "authority_purpose": "candidate_definition_comparison_only",
+  "institutional_signer": null,
+  "relations": {
+    "population": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "resolved_member_set_containment"},
+    "jurisdiction": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "registered_competence_partial_order"},
+    "purpose_audience": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "purpose_and_audience_subsumption"},
+    "source_target_context": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "current_exact_transport_witness"},
+    "evidence_class": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "registered_evidence_to_claim_mapping"},
+    "maintained_assumptions": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "exact_identity_coverage_and_currentness"},
+    "maximum_claim_strength": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "registered_claim_strength_partial_order"},
+    "maximum_commitment_stage": {"owner": "polisyos.fabric.evidence.ceiling_relations", "relation": "registered_stage_and_load_partial_order"}
+  }
+}

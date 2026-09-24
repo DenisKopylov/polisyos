@@ -1,7 +1,7 @@
 """Owner-qualified composition over the policy-free full-prefix protocol.
 
 This module is production-internal.  It resolves family-owner policy and
-provenance from the one process owner container, then drives the common builder
+provenance from its captured owner registry, then drives the common builder
 and verifier.  It does not create a family producer, accept an anchor, or
 promote the common commitment head into a native authority head.
 """
@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 from typing import NoReturn, Protocol, SupportsIndex
 
-from polisyos.core import build_full_prefix_bundle
+from polisyos.core import artifacts, build_full_prefix_bundle
 from polisyos.core import contracts as core_contracts
 from polisyos.runtime.quality import chronology_proof
 
@@ -174,7 +174,15 @@ def _reconcile_predicates(
 class QualificationConsumer:
     """Resolve owner policy and qualify one candidate through the real verifier."""
 
-    __slots__ = ("_creator_pid", "_generation", "_owner", "_policy_authority_unallocated")
+    __slots__ = (
+        "_creator_pid",
+        "_generation",
+        "_owner",
+        "_policy_authority_unallocated",
+        "_registry",
+        "_runtime_deployment",
+        "_runtime_store",
+    )
 
     def __init__(self) -> None:
         raise TypeError("use QualificationConsumer.from_current_owner_container()")
@@ -189,9 +197,12 @@ class QualificationConsumer:
         registry = chronology_proof._PERSISTENCE_REGISTRY
         owner = registry._resolve_current_owner()
         consumer = object.__new__(cls)
+        consumer._registry = registry
         consumer._owner = owner
         consumer._generation = registry._generation
         consumer._creator_pid = os.getpid()
+        consumer._runtime_deployment = None
+        consumer._runtime_store = None
         consumer._policy_authority_unallocated = False
         return consumer
 
@@ -206,10 +217,42 @@ class QualificationConsumer:
 
         registry = chronology_proof._PERSISTENCE_REGISTRY
         consumer = object.__new__(cls)
+        consumer._registry = registry
         consumer._owner = None
         consumer._generation = registry._generation
         consumer._creator_pid = os.getpid()
+        consumer._runtime_deployment = None
+        consumer._runtime_store = None
         consumer._policy_authority_unallocated = True
+        return consumer
+
+    @classmethod
+    def from_deployment(
+        cls,
+        deployment: object,
+        *,
+        runtime_artifact_store: artifacts.ArtifactStore | None = None,
+    ) -> QualificationConsumer:
+        """Capture the registered owner and its optional runtime custody writer."""
+        from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+
+        if type(deployment) is not EpochDeployment:
+            raise TypeError("qualification requires a factory-produced epoch deployment")
+        store = runtime_artifact_store
+        if store is None:
+            store = deployment._scoped_runtime_artifact_store()
+        if deployment._state().store is None:
+            store = None
+        registry = deployment._state().registry
+        consumer = object.__new__(cls)
+        consumer._registry = registry
+        with deployment.composition_scope(runtime_artifact_store=store):
+            consumer._owner = registry._resolve_current_owner()
+        consumer._generation = registry._generation
+        consumer._creator_pid = os.getpid()
+        consumer._runtime_deployment = deployment if store is not None else None
+        consumer._runtime_store = store
+        consumer._policy_authority_unallocated = consumer._owner is None
         return consumer
 
     def qualify(
@@ -218,8 +261,22 @@ class QualificationConsumer:
         adapter: NativeChronologyAuthorityAdapter,
         request: contract.NativeChronologyQuery,
     ) -> contract.NativeChronologyQualificationResult:
+        """Qualify with the captured writer even after construction scope exits."""
+        if self._runtime_deployment is not None:
+            with self._runtime_deployment.composition_scope(
+                runtime_artifact_store=self._runtime_store
+            ):
+                return self._qualify(adapter=adapter, request=request)
+        return self._qualify(adapter=adapter, request=request)
+
+    def _qualify(
+        self,
+        *,
+        adapter: NativeChronologyAuthorityAdapter,
+        request: contract.NativeChronologyQuery,
+    ) -> contract.NativeChronologyQualificationResult:
         """Qualify one native candidate without taking family authority."""
-        registry = chronology_proof._PERSISTENCE_REGISTRY
+        registry = self._registry
         if self._creator_pid != os.getpid() or self._generation is not registry._generation:
             return _entry_generation_failure(request)
 
@@ -269,7 +326,7 @@ class QualificationConsumer:
                 ),
             )
 
-        artifacts = contract.ChronologyPredicatePolicyArtifacts(store=owner._store)
+        artifacts = contract.ChronologyPredicatePolicyArtifacts(store=owner._policy_store)
         admission = artifacts.load_admission(
             context=context,
             admission_ref=admission_refs[0],
@@ -484,16 +541,40 @@ class QualificationConsumer:
                 proof_result=proof_result,
             )
 
-        # The family-projection producer remains outside Cluster 2.  Cluster 4
-        # invokes this consumer but its absent policy authority returns before
-        # candidate reconciliation; no positive projection receipt is minted.
-        return contract.NativeProjectionCustodyGap(
-            result_kind="projection_custody_gap",
-            status="native_not_established",
-            code="native_projection_custody_gap",
+        projection = owner.project_native_result(
             reconciliation=reconciliation,
             proof_result=proof_result,
-            missing_projection_receipt_role="native_projection_receipt",
+            bundle_bytes=build_result.bundle_bytes,
+        )
+        if projection is None:
+            return contract.NativeProjectionCustodyGap(
+                result_kind="projection_custody_gap",
+                status="native_not_established",
+                code="native_projection_custody_gap",
+                reconciliation=reconciliation,
+                proof_result=proof_result,
+                missing_projection_receipt_role="native_projection_receipt",
+            )
+        persisted = owner.persist(
+            query=request,
+            reconciliation=reconciliation,
+            bundle_bytes=build_result.bundle_bytes,
+            expected_domain=request.domain,
+            expected_prefix=None,
+            expected_bundle_content_hash=build_result.bundle_content_hash,
+        )
+        if isinstance(persisted, contract.ChronologyProofPersistenceFailed):
+            return contract.NativeChronologyPersistenceFailed(
+                result_kind="persistence_failed",
+                reconciliation=reconciliation,
+                failure=persisted.failure,
+            )
+        return contract.NativeChronologyQualified(
+            result_kind="qualified",
+            reconciliation=reconciliation,
+            proof_result=proof_result,
+            persisted_proof=persisted,
+            projection_receipt=projection,
         )
 
 

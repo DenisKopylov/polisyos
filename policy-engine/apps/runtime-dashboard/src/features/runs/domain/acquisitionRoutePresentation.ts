@@ -1,9 +1,10 @@
 import type {
   AcquisitionBacklogProjection,
   AcquisitionGrowthPayload,
-  AcquisitionRouteProjection,
   StructuralRouteProjection,
 } from "@polisyos/runtime-api-client";
+
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 
 export type AcquisitionGrowthPacket = Readonly<{
   absence_reason?: null;

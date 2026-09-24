@@ -1,0 +1,46 @@
+TC003 Move standard library import `collections.abc.Sequence` into a type-checking block
+  --> src/polisyos/runtime/quality/adaptation_transition.py:15:29
+   |
+13 | import importlib
+14 | import sys
+15 | from collections.abc import Sequence
+   |                             ^^^^^^^^
+16 | from datetime import UTC, datetime, timedelta
+17 | from pathlib import Path
+   |
+help: Move into type-checking block
+
+E501 Line too long (103 > 100)
+   --> src/polisyos/runtime/quality/adaptation_transition.py:232:101
+    |
+230 |         row, request = self._read_request(ticket)
+231 |         decision_row, _ = self._read_decision(row, request)
+232 |         if decision_row is None or evidence.prior_decision_ref != decision_row.payload["artifact_ref"]:
+    |                                                                                                     ^^^
+233 |             raise ValueError("restart_decision_mismatch")
+234 |         reference = self._persist(evidence)
+    |
+
+E501 Line too long (101 > 100)
+   --> src/polisyos/runtime/quality/adaptation_transition.py:337:101
+    |
+335 |             missing_role=request.charter.required_signer_role,
+336 |             effective_at=row.created_at,
+337 |             escalate_at=row.created_at + timedelta(seconds=request.charter.escalation_after_seconds),
+    |                                                                                                     ^
+338 |         )
+    |
+
+E501 Line too long (104 > 100)
+   --> src/polisyos/runtime/quality/adaptation_transition.py:390:101
+    |
+388 |     snapshot.add_argument("ticket")
+389 |     args = parser.parse_args(argv)
+390 |     runtime = AdaptationTransitionRuntime.open(root=args.root, tenant_id=args.tenant, cell_id=args.cell)
+    |                                                                                                     ^^^^
+391 |     if args.command == "submit":
+392 |         request = AdaptationTransitionRequest.model_validate_json(args.request_file.read_bytes())
+    |
+
+Found 4 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

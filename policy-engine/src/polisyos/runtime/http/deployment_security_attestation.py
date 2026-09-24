@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from threading import RLock
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, get_args
 from weakref import WeakKeyDictionary
 
 if TYPE_CHECKING:
@@ -18,17 +18,10 @@ DeploymentSecurityComponentName = Literal[
     "step_up_verifier",
     "principal_grants",
     "human_decision_custody",
+    "epoch_deployment",
+    "acquisition_authority",
 ]
-_COMPONENT_NAMES = frozenset(
-    {
-        "identity_provider",
-        "cell_registry",
-        "opa_client",
-        "step_up_verifier",
-        "principal_grants",
-        "human_decision_custody",
-    }
-)
+_COMPONENT_NAMES = frozenset(get_args(DeploymentSecurityComponentName))
 
 
 class DeploymentSecurityAttestationError(RuntimeError):

@@ -13,7 +13,7 @@ from collections.abc import Awaitable, Mapping, Sequence
 from datetime import date, datetime
 from typing import Any, Literal
 
-from polisyos.common.llm_json import extract_llm_json_object
+from polisyos.common.serialization import extract_llm_json_object
 
 SCHEMA_VERSION = "policyos.scientist.citation_faithfulness.v1"
 

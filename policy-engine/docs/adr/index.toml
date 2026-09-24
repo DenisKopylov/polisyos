@@ -1756,6 +1756,50 @@ superseded_by = []
 related = ["0156", "0173", "0174"]
 
 [[adr]]
+id = "0176"
+title = "Epoch validity transition admission predicates"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0176-epoch-validity-transition-admission-predicates.md"
+supersedes = []
+superseded_by = []
+related = ["0175"]
+
+[[adr]]
+id = "0177"
+title = "The governed public record admits a bounded initial-root profile"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0177-governed-public-record-bounded-initial-root-profile.md"
+supersedes = []
+superseded_by = []
+related = ["0176"]
+
+[[adr]]
+id = "0178"
+title = "Promotion admits the S6, S7 and S8 postures only from owner artifacts it resolves and recomputes"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0178-promotion-posture-admission-resolves-owner-artifacts.md"
+supersedes = []
+superseded_by = []
+related = ["0176", "0177"]
+
+[[adr]]
+id = "0179"
+title = "The correspondence vocabularies adopt five meaning principles, and their first profiles stay explicitly open"
+status = "accepted"
+topic = "product-domain"
+package = "polisyos.runtime"
+path = "docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md"
+supersedes = []
+superseded_by = []
+related = []
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

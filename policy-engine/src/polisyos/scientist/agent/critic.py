@@ -9,8 +9,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent._llm_timeouts import resolve_agent_llm_timeout_s

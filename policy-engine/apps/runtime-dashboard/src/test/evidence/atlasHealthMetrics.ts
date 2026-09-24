@@ -1,3 +1,7 @@
+import {
+  parsePersistenceProcessResult,
+  PersistenceExecutionUnrunError,
+} from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -770,7 +774,7 @@ function gitOutput(root: string, args: readonly string[]): string {
 function runHealthSourceValidator(root: string) {
   const repositoryPython = path.join(root, ".venv/bin/python");
   if (!existsSync(repositoryPython)) {
-    throw new TypeError(
+    throw new PersistenceExecutionUnrunError(
       "Atlas health measurement requires the repository-managed Python environment",
     );
   }
@@ -781,12 +785,13 @@ function runHealthSourceValidator(root: string) {
     env: HEALTH_CHILD_ENV,
     maxBuffer: 8 * 1024 * 1024,
   });
-  if (result.status !== 0) {
+  const decoded = parsePersistenceProcessResult(result);
+  if (decoded.status !== 0) {
     throw new TypeError(
       `Atlas health canonical-source validator failed (${String(result.status)}): ${result.stderr}`,
     );
   }
-  return healthSourceProjectionSchema.parse(JSON.parse(result.stdout));
+  return healthSourceProjectionSchema.parse(decoded.value);
 }
 
 function runDs18TimeSemanticsOutcome(root: string) {

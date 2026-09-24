@@ -150,8 +150,7 @@ At base `73c656744f051d9f40667da7f8bc91c61d8b4ebf`, the complete tracked Python 
 ## Direct plan crosswalk
 
 - B12 and LA-046 conflict with GY-N13b and Atlas DS15 while the production ACQ-01 producer is missing: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b`; `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15`. The served WDI bridge is separate and does not count as an ACQ-01 producer.
-- B13 advances GY-PR1: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-PR1`.
 
 No other plan/register relation is asserted here because the available evidence did not establish a direct row-to-task relation.
 
-Validation target: 118 unique finding IDs; a=72, b=16, c=30. This census/drafting pass ran no tests.
+Validation target: 118 unique finding IDs; a=76, b=16, c=26. This census/drafting pass ran no tests.

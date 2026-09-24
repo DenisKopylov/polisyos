@@ -586,6 +586,42 @@ historical serializer that preserves the old projection byte-for-byte. If the co
 owner cannot provide per-view tenant isolation, cross-tenant views remain refused
 rather than sharing ownership by content hash.
 
+**Canonical profile and view-key input (proposed).** Define a versioned
+`cas-view-profile/v1` projection over the complete persisted semantic profile:
+`kind`, `media_type`, `byte_size`, `artifact_schema` (serialized as `schema`),
+`canon`, ordered `inputs`, `producer`, `env`, `governance`, `tenant_context`,
+`same_input_closure`, `authority`, and the ordered typed `warnings` list. Warnings
+are included because they are persisted producer/runtime claims; a changed warning
+must not silently reuse a view whose manifest says otherwise. The current
+`ManifestLifecycle.profile_mismatches` omits `warnings`, so the view owner must
+extend that projection and its write contract to carry them. Canonicalize this
+projection with the manifest serializer's stable JSON rules: JSON-mode fields with
+aliases, `exclude_none=True`, sorted object keys, and list order preserved.
+Derive the qualified view key from a versioned envelope containing the exact
+payload SHA-256, the runtime-resolved tenant/cell owner identity, and the canonical
+profile projection. `artifact_id` is excluded from the profile projection but the
+payload digest remains an outer view-key input so different bytes never alias;
+`created_at` and the `integrity` envelope are excluded because they are
+instance-derived/time-derived and the payload digest is validated separately.
+Include `byte_size` in the profile and recompute it from the exact payload, even
+though equal payload bytes necessarily have equal size. Same-profile retry means
+the same payload digest, resolved owner identity, and byte-exact canonical profile
+projection; it converges on one view record. A required signature binds to that
+view key but is not itself an input to the profile projection. The current manifest
+serializer/projection source is
+`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`;
+warnings are a persisted `ArtifactManifest` field at
+`src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`.
+
+Tenant quota admission must reserve the incremental payload and exact serialized
+primary/view metadata, plus any signature sidecar required by the consuming
+contract, before publishing a view. The current tenant CAS preflight
+checks `len(data) + 4_096`; that fixed allowance is not sufficient evidence that a
+new view sidecar fits. If the transaction cannot reserve all required metadata
+within the tenant allowance, refuse before making the view visible; do not publish
+a blob-only or partially manifested view. The measured implementation is
+`src/polisyos/fabric/storage/tenant_cas.py@d45d8a5856d38fed50f8fe3a1e24e8cb92858164`.
+
 **P37 — gate predicates at admission.**
 
 - Blob identity is SHA-256 over the exact persisted bytes (`recomputed`).
@@ -607,6 +643,14 @@ rather than sharing ownership by content hash.
   fails closed.
 - A qualified view resolves only by its qualified identity. Missing qualified
   metadata cannot fall back to the bare `ArtifactID` primary manifest or signature.
+- The view key is recomputed from the versioned profile projection, payload digest,
+  and runtime-resolved tenant/cell owner. The projection includes warnings so the
+  persisted claim set cannot be silently changed on reuse; this binding does not
+  independently prove the warning claims themselves.
+- Tenant quota admission must recompute/reserve the bytes for the exact primary
+  and view metadata, plus any required signature sidecar, before publication. The
+  current `len(data) + 4_096` estimate is `not_established` as a bound on variable
+  sidecar size; no view may publish until the required incremental bytes are admitted.
 - `ArtifactRef` and `InputRef` are nested in persisted manifests and other hashed
   DTOs. Any qualified-ref extension must preserve historical projections byte
   exactly by versioning the qualified ref or the enclosing schema and serializer.
@@ -618,15 +662,26 @@ views only when each view's exact profile and tenant owner are independently
 resolvable, and when a caller requires a signature, that signature resolves for
 that view. Current implementation: `ArtifactOwnershipIndex` and signature
 operations key only on content `ArtifactID`; the store can therefore confuse
-same-byte tenant views, while CAS signing is optional. Divergent case: two tenant
-views over identical bytes share the ID, so an ID-only ownership/signature check
-cannot tell tenant A's view from tenant B's. The distinguishing probe must create
+same-byte tenant views, while CAS signing is optional. `ManifestLifecycle.profile_mismatches`
+checks the write profile fields but omits persisted `warnings`; two manifests that
+differ only in warning claims can therefore pass the current profile comparison
+(`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`).
+`TenantScopedCAS.put_bytes` preflights `len(data) + 4_096` before
+publication and does not size a proposed view sidecar
+(`src/polisyos/fabric/storage/tenant_cas.py@d45d8a5856d38fed50f8fe3a1e24e8cb92858164`).
+Divergent cases: an ID-only
+ownership/signature check cannot distinguish tenant A from B; a warning-only
+profile change is ignored; and a variable sidecar may exceed the fixed allowance
+used by the current quota predicate. The distinguishing probes must create
 same-byte views under two tenants, sign only view A, and prove that an
 authority-contract read of view B remains unverified and refused; a candidate read
-may resolve only if B has its own exact tenant-bound view. Separately, an unsigned
-candidate control with `SigningConfig(enabled=False, sign_on_put=False)` must
-resolve its exact manifest as candidate content while producing no authority
-result. Both valid candidate views may still resolve to one physical blob.
+may resolve only if B has its own exact tenant-bound view. An unsigned candidate
+control with `SigningConfig(enabled=False, sign_on_put=False)` must resolve its
+exact manifest as candidate content without producing authority. A warning-only
+change must produce a distinct view key; an identical same-profile concurrent retry
+must converge. A quota case with available capacity below the exact sidecar size
+must refuse before publishing the view. Both valid candidate views may still
+resolve to one physical blob.
 
 **Remainder.** This does not claim equal bytes have equal empirical origin,
 authorize changing an existing profile, or decide that all kind and lineage fields
@@ -663,7 +718,14 @@ its manifest/signature intact while removing the qualified view; lookup must ref
 instead of falling back. Preserve the historical primary manifest and signature
 bytes through export/import and historical-reader round-trip byte-exactly. Remove
 tenant metadata while preserving view markers and bytes; the tenant-bound access
-must fail. A `.views/<profile>.manifest.json` sidecar cannot simply reuse today's
+must fail. The profile projection probe changes only `warnings` and requires a
+different view key; the positive retry control holds payload, owner, and every
+projected field fixed across concurrent writes and requires one stable view key.
+Changing only `created_at` must not change that key, while a different payload
+digest must. A quota probe leaves enough capacity for the current `len(data) +
+4_096` estimate but not the exact serialized view and any required signature
+sidecars; the store must refuse before publishing the view. A
+`.views/<profile>.manifest.json` sidecar cannot simply reuse today's
 recursive `*.manifest.json` namespace: the filesystem enumerator parses the basename
 as an `ArtifactID`; the sidecar layout or that shared enumerator must change as one
 owner-level design. View sidecars also count toward the tenant's quota. Caching,

@@ -10,8 +10,8 @@ The path is:
 
 1. `CandidateSummary` is currently declared in `runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a:904-944`.
 2. `CanonicalPromotionOwnerProjection` embeds that current type at `runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4:1963-1971`; its `_projection_hash_is_content_bound` re-dumps the model and computes the owner hash at `:2003-2008`. The legacy owner projection v1 does the same through the current summary type at `:1903-1910,1943-1949`.
-3. V5 and v6 receipt classes subclass the current `CanonicalPromotionReceipt` and do not override its owner-projection type (`promotion_sequence.py:2011-2017,2148-2161`). `parse_canonical_promotion_history_receipt` dispatches to those classes at `:2228-2253`.
-4. The v5/v6 semantic projection helpers parse and then call `receipt.model_dump(mode="json")` before projecting (`promotion_sequence.py:2574-2611`). The projection helpers use the v3 owner model, so the mutable nested summary shape also affects the historical comparison projection.
+3. V5 and v6 receipt classes subclass the current `CanonicalPromotionReceipt` and do not override its owner-projection type (`promotion_sequence.py:2011-2017,2148-2161`). The supported v4 reader is `_LegacyCanonicalPromotionReceiptV4` (`:2164-2171`), which selects owner projection v2 (`:1953-1960`); its dedicated semantic projection helper uses that owner model (`:2554-2571`). The parser dispatches v4/v5/v6 at `:2228-2253`. All these owner models currently embed the mutable `CandidateSummary` type.
+4. The v4/v5/v6 semantic projection helpers parse and then call `receipt.model_dump(mode="json")` before projecting (`promotion_sequence.py:2554-2611`). Thus their historical comparison projections also inherit the current nested summary shape. The v4 class and helper preserve a distinct schema boundary, but no tracked v4 fixture authenticates its complete serialized shape; v4 byte-exact corpus replay is `UNRUN`.
 5. `gy_content_hash` canonicalizes with sorted keys (`pdc/_impl/gy_waist.py@def61a737aa88f06cc3a9856df3c9c3b8b6f9bdc:630-639`). The new keys change the hash input; their order does not. `model_dump_json()` preserves model field order, so the same additions also change the compressed-v5 byte round-trip.
 
 The current schema constants are promotion v7 and owner projection v3 (`promotion_sequence.py:161-166`). The v7 schema was introduced by `4f54c80cc` on Sep 8, before the later `CandidateSummary` additions. `grounding_issue_codes` and `grounding_report_ref` arrived in `875231a8` and `source_content_hash` in `0c65c8122`, both Sep 22, without a promotion schema bump. Existing `grounding_source` and `grounding_disposition` are part of the old profile and must not be dropped.
@@ -20,11 +20,11 @@ The current schema constants are promotion v7 and owner projection v3 (`promotio
 
 `p0`, `p1`, and `p2` name nested `CandidateSummary` **field-shape profiles**. They do not name a cycle index.
 
-| Profile | Serialized key count | Ordered additions relative to p0 | Evidence/status |
+| Profile | Serialized key count | Cumulative post-p0 fields in serialization order | Evidence/status |
 |---|---:|---|---|
 | p0 | 22 | None | Historical summary before the three Sep 22 fields; present in v3/v5/v6 receipts. |
 | p1 | 24 | `grounding_issue_codes`, then `grounding_report_ref`, inserted after `grounding_disposition` | A v7-era serializer shape; no actual v7 receipt found in the searched corpus. |
-| p2 | 25 | `source_content_hash` inserted after `content_hash` | Later v7-era shape and the current CandidateSummary field shape. |
+| p2 | 25 | `source_content_hash` after `content_hash`; `grounding_issue_codes`, then `grounding_report_ref` after `grounding_disposition` | Later v7-era shape and the current CandidateSummary field shape. |
 
 The p0 ordered keys are `candidate_id`, `content_hash`, `cycle_index`, `generation_channel`, `proxy_score`, `voi_estimate`, `grounding_status`, `grounding_source`, `grounding_disposition`, `grounding_score`, `current_valid`, `value_status`, `value_decision_grade`, `value_ref`, `value_blockers`, `certified_by_n9`, `front`, `high_proxy`, `low_grounding`, `quarantine_action`, `adversarial_validation_status`, `counterexample_ref`.
 
@@ -37,6 +37,7 @@ The Phase 0 denominator is **2,867 tracked `.json` paths**, parsed with zero err
 | Outer receipt schema | Embedded summaries | Profile and cycle index |
 |---|---:|---|
 | v3 | 14 | All p0; all `cycle_index=0`. |
+| v4 | 0 tracked receipt nodes | Supported v4/v2-owner reader exists; tracked corpus replay is `UNRUN` because no v4 fixture was found. |
 | v5 | 1 compressed unit-test literal | p0; not a tracked JSON path. |
 | v6 | 20 | All p0 (22 keys); 19 have `cycle_index=0`, one has `cycle_index=1`. |
 | v7 | 0 tracked receipt nodes | Actual profile corpus not established. |
@@ -75,7 +76,7 @@ The searched git-excluded record controls are all under `safe-workspace/polisyos
 
 ## Narrow implementation and verification boundary
 
-Recommended source/test write set, after baseline freeze and R3 lease: `runtime/quality/promotion_sequence.py` and `tests/unit/runtime/quality/test_promotion_sequence.py`. Preserve frozen p0 readers for v3/v5/v6; introduce strict p0/p1/p2 historical readers for v7. Select a v7 structural profile only when the raw projection hash and exact byte round-trip uniquely match that profile. Ambiguous profile selection is `not_established`. Bump the current promotion/input schema to v8 and owner projection to v4; v7 remains history-only and cannot migrate into current authority. A current v8 receipt is freshly issued through the authorized owner path, never produced by retagging or restamping old bytes.
+Recommended source/test write set, after baseline freeze and R3 lease: `runtime/quality/promotion_sequence.py` and `tests/unit/runtime/quality/test_promotion_sequence.py`. Preserve separate versioned reader boundaries for v3/v4/v5/v6, including the v4 owner-projection-v2 path; freeze each nested summary projection from authenticated serializer evidence rather than assuming an absent v4 fixture's shape. Keep v4 corpus replay `UNRUN` until a complete fixture is found. Introduce strict p0/p1/p2 historical readers for v7. Select a v7 structural profile only when the raw projection hash and exact byte round-trip uniquely match that profile. Ambiguous profile selection is `not_established`. Bump the current promotion/input schema to v8 and owner projection to v4; v7 remains history-only and cannot migrate into current authority. A current v8 receipt is freshly issued through the authorized owner path, never produced by retagging or restamping old bytes.
 
 Removal probe: keep receipt schema markers but run p0 receipts through the mutable current summary type; v6 owner-hash replay and v5 byte-exact replay must fail. Positive control: a fresh p2/v8 receipt verifies with all fields bound, while p0 v3/v5/v6 receipts replay historically and still refuse current authority. V7 controls exercise all three frozen shapes, require unique structural matching, and refuse authority in every case; they are parser controls, not evidence of a stored v7 corpus.
 

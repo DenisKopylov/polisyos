@@ -1,33 +1,33 @@
 # Register proposals (draft only)
 
-No DEBT-REGISTER.md or LEDGER.md edits are made. Proposals here name a closure signal and its owner; they are not register changes or test results. The strict crosswalk admits only 11 task edges across 9 findings. All other plan/register relations are `not_established` until the finding and target owner spans are tied directly.
+No DEBT-REGISTER.md or LEDGER.md edits are made. Proposals here name a closure signal and its owner; they are not register changes or test results. The reviewed full-domain crosswalk covers 291 finding/bundle memberships against 75 GY task scopes, 22 Atlas slice scopes, and 74 active register rows (49,761 cells). It admits 23 exact owner-scope edges across 17 findings; the other cells remain `not_established`, not disproved. B201/B202 → DS16 was removed as a false noun-only edge.
 
 ## Conditional appends or residual updates
 
 ### Candidate front door and generation corridor (R1, R2, R4, R5, R11)
 
-Append a measured residual to the owning generation/promotion row only after the four-base P41 replay attributes a pass-to-fail case to this merge and the exact row owner is identified. The crosswalk does not currently assert a direct live-register or plan-row relation for B01–B03. The decision drafts for R1/R2/R5/R11 remain pending the principal.
+Append a measured residual to an owning generation/promotion row only after the four-base P41 replay attributes a pass-to-fail case and the exact row owner is identified. B01–B03 currently have no admitted exact-owner live-register or plan edge. The decision drafts for R1/R2/R5/R11 remain pending the principal.
 
 - Existing positive identity: `tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_plain_language_front_door_calls_real_design_problem_compiler`.
 - Existing authority negative identity: `tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr`.
-- Closure signal: all Appendix A/B named base-pass cases and every touched file are replayed across four bases; the owner resolver consumes existing hash-verified compiled-run/context refs; ordinary candidate computation without owner context remains a positive control and carries a typed unknown. N4's initial owner context is verified, but N7 re-entry currently has only prior handoff refs: S8 authority remains `not_established` and blocked until an owner-issued post-growth context is supplied (possibly by R13). R1 adds no GenCycleRun schema change.
+- Closure signal: all base-pass cases and every touched file are replayed across four bases; ordinary candidate computation without CycleSubstrateContext remains a positive control and carries a typed unknown; protected modes, promotion, publication and S8 authority remain refused while owner context is not established. R1 reuses hash-verified compiled-run/context refs and the owner resolver; it adds no GenCycleRun schema change. N4 owner context is `not_established`: `_build_cycle_substrate_context_from_owner` currently uses a separate `.tmp/gy-s-composed-wmr-cas`, so tenant-bound runtime-store custody and caller provenance are unproven. N7 still lacks an owner-issued post-growth context. A served positive front-door witness must pass through the runtime-supplied tenant-bound store before any owner-bound authority claim.
 - Predicate status: `not_established` until the broker receipt and semantic probes exist. P38 must name the measured implementation predicate and a divergent case. Do not treat the absent N7 post-growth witness as a reason to refuse ordinary candidate computation.
 
 ### ACQ-01 and the N13b/DS15 world-growth corridor (B12, LA-046)
 
-The reviewed crosswalk records the row-level conflict with GY-N13b and Atlas DS15. The R13 proposal confines local FileTabular/acq01_route reconstruction to an explicitly typed, non-authoritative demonstration while preserving the served WDI route through AcquisitionWorldGrowthBridge. Production ACQ-01 remains `producer_missing` until its real producer handshake is established.
+The reviewed crosswalk records conflicts with GY-N13b, Atlas DS15, and both live DS15 register rows. The R13 proposal confines local FileTabular/acq01_route reconstruction to an explicitly typed, non-authoritative demonstration while preserving the served WDI route through AcquisitionWorldGrowthBridge. Production ACQ-01 remains `producer_missing` until its real producer handshake is established.
 
 - Existing tenant-custody witness: `tests/integration/core_runtime/test_acquisition_tenant_custody.py::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry`.
 - Served route identities: `tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_actual_wdi_admits_delta_and_reenters_same_case[False]` and `[True]`.
 - Closure signal: served custody and WDI witnesses pass; removing the bridge while retaining markers turns the witness red; the production request traverses overlay admission, passport, epoch qualification, tenant-bound persistence/readback and same-case re-entry.
-- Predicate status: `not_established` pending those witnesses. A local FileTabular route cannot discharge GY-N13b or DS15.
+- Predicate status: `not_established` pending those witnesses. A local FileTabular route cannot discharge GY-N13b or DS15. Static census receipt `/tmp/policyos-r13-root-store-census.json@sha256:38c3ddd50feceb7fef253bac54569315007a5cc9289d536721c9dd2ff3beb7bf` parsed 2,693/2,693 `src/**/*.py` files with zero errors and found 26 direct `FileSystemCAS` plus 33 root-config `build_artifact_store` constructions (59 total). The five E02 direct-root additions are a subset, not the source denominator; wrapper/path-forwarded and dynamic calls remain unresolved. R13 closure must account for the full 59-call static set, the `.n7-live-cas`/`intervention_substrate.py` wrapper path, runtime-supplied store custody through re-entry, and the still-unmeasured `design_problem_ref` subject vs `design_problem_basis_ref` semantic change against main movement/world-growth checks.
 
-### Candidate-only route and promotion sequencing (B13)
+### Partial-result survival across a later-stage failure (B13)
 
-The row-level P triage relation `B13 advances GY-PR1` is limited to sequencing: candidate-only evidence remains limited and does not create promotion authority.
+B13 source card `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L349` and bundle `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-03.md@git-blob:7325214b92eb9e624c788357588dabe9aa9c3c78#L23-L37` identify completed-result preservation in `AsyncChainExecutor._execute_level`: successful neighbors are collected, but the error raise carries only node errors before `level_results` returns. The owning source is `policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py@git-blob:848f9ed69191d3d349db3e09cd742157d6098df4`. Appendix C's `candidate-only route; artifact authority HOLD` wording and reviewed P triage's GY-PR1 relation do not describe this finding and are withdrawn for B13. No GY-PR1 advance is proposed. RES-03 also lists `runtime/quality/generation_cycle.py` in its candidate write set, but that multi-owner file overlap lacks an exact B13 symbol/call edge and is not counted as a first-promotion register relation. It does not mean B13 supplies a persisted effect, measurement root, independence chain or ValueGateReceipt. The implementation owner is the Foundry AsyncChainExecutor result/lifecycle owner.
 
-- Closure signal: promotion consumes only the admitted typed artifact; a candidate-only input remains refused/limited after removal of an authority marker; the positive case uses independently verified evidence.
-- No GY-PR1 closure is proposed from this record.
+- Proposed closure-signal test identity: `tests/unit/remediation/test_res_03.py::test_successful_neighbor_is_readable_after_later_node_failure` (proposed; the package names the file as a candidate, while this selector is an authored proposal, not an existing test or receipt).
+- Closure signal: after a real producer succeeds and a later independent node fails, the production caller can read the successful result with its scope and exact error; the overall chain remains failed, and a shared-basis failure invalidates dependent results. A property-removal probe and property-preserving independent-neighbor control are required.
 
 ### Historical run validity and deployment identity (R2)
 
@@ -41,8 +41,17 @@ Once the register owner identifies the owning strangle/epoch row, append the mea
 
 ### R4 — governed GY-N6 validator verdict
 
+R4 may touch `_VerificationN9PromotionPort` in `promotion_sequence.py`; if so, it runs after R3 and takes the same file lease. The checker/tests are independent only if that private port is not edited.
+
 - Proposed negative identity: `tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_contract_mutations_turn_red`.
 - Closure signal: `check_layer3_gy_generation_cycle_contract.py --check` returns a typed verdict rather than crashing; valid current fixture passes and a scope-binding mutation returns a typed fail. No governed receipt is restamped.
+
+
+### R11 — `blocked` consumer and positive-N9 promotion gap
+
+The `LoopVOIDecision` consumer census covers the cycle board, promotion, public projection, and recursive routing. A bounded negative that sends `blocked` to one surface is not enough: the positive-N9 blocked-run case currently exposes a promotion-consumer gap, so do not report `blocked` as fully handled until that run is shown to preserve the intended stop/escalate semantics at every consumer. The principal decision remains pending.
+
+- Closure signal: enumerate the runtime consumers from the source of truth; each maps `blocked` to an explicit typed disposition; a real positive-N9 blocked run cannot become promotable or disappear from the projection; a candidate property-preserving control still permits an `escalate`/`stop` outcome. Carry current four-base receipt and removal probe before proposing any register closure.
 
 ### CAS typed views and signatures (R9/R10; Appendix A/B)
 
@@ -59,11 +68,11 @@ The ledger records `closed` within the measured bounded profile after the review
 
 ## No DEBT-register closures proposed
 
-No debt row is proposed for closure from package acceptance, source-path overlap, a triage recommendation, or the LA-021 bounded finding receipt alone. A future register proposal must name the exact row owner, the closure-signal test identity, the removal probe, and the replay receipt that changes the row’s current predicate.
+No debt row is proposed for closure from package acceptance, source-path overlap, a triage recommendation, or the LA-021 bounded finding receipt alone. None of the supported owner-scope edges in `CROSSWALK.md` substitutes for a row closure signal. B13 has no GY-PR1 or first-promotion crosswalk edge; its source card concerns partial-result preservation, and a broad candidate write-path overlap does not establish an exact owner/symbol relation. A future register proposal must name the exact row owner, closure-signal test identity, removal probe, and replay receipt that changes the row’s current predicate.
 
 ## Reissue and R14 evidence
 
-- Phase 0 may need owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs. Record the premise and authorization; never restamp.
+- Phase 0 reissue audit (read-only; no reissue or restamp). The trust posture file `policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json@git-blob:38f8b0b40ca439aa5e52cf39b3c8cda894391db6` already declares `live_repository_freshness: not_established` and accessibility blocked. The Phase 0 audit at HEAD `73c` counted 126 source-inventory paths: 112 digest matches, 14 mismatches, 0 missing. That count was supplied by the Phase 0 audit; no separate raw output path is in this docs worktree, so it is not independently replayable here. `policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@git-blob:c3775ce0a96966fcbc46fa243e5cc03f3a80c84b` constructs the loaded-code manifest in memory at import time; there is no standalone tracked canonical loaded-runtime manifest, and current admission is `UNRUN`. The promotion contract (`policy-engine/architecture/policy_design_case/layer3_gy_promotion_contract.json@git-blob:3a53eb1a73a07ed3c8910854b98d11cc6e67728c`), intervention-substrate contract (`policy-engine/architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json@git-blob:d42bd03aff1573b434348a46859ca3d2a4419800`) and generation-cycle/N11 contract (`policy-engine/architecture/policy_design_case/layer3_gy_generation_cycle_contract.json@git-blob:1bb62940465b1c83d707b87df8f9b59484c28762`) are byte-identical to `main`; the merged-state owner gate is `UNRUN`. The live row `merged-lanes-need-a-reissue-path-neither-lane-declared` (policy-engine/docs/plans/active/DEBT-REGISTER.md@git-blob:2c59d765fd53d8b363ab0a5b96ec121d71b0f727#A-B-live-rows) remains open: after a team-architecture transition ruling, `runtime/quality` must implement the missing fifth authorized merged-state transition with its premise, then the owner gate must reissue and read back the exact bytes. Do not force the writer, reissue epochs or restamp existing pins. Proposed closure-signal identity: `tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_merged_state_reissue_requires_fifth_authorized_transition_and_readback` (proposed; no such test result is claimed).
 - `promotion-comparison-admission-manifest-drift`: append/reopen only if the merged-tree owner checker returns drift. Closure identity is `--check` with zero issues plus a typed corruption case that fails and byte-exact historical receipt replay.
 - `ds15-production-n13b-execution-handshake` and `ds15-fresh-positive-production-route` remain governed by their own closure signals; the local FileTabular route does not close them.
 - R14 has four same-source stale-reference cases: one W5 historic repository reference and three WS-2D release-ledger raw-client references. W5's manifest bytes are immutable but lack an owner-issued admitted Git snapshot; its generation date predates the introducing commit, so the repo-ref predicate is `UNRUN/not_established`. The team-runtime-quality owner must append a sidecar binding manifest SHA to the exact commit and tree; do not restamp W5. Proposed closure identity: `tests/unit/runtime/quality/test_w5_repository_snapshot_sidecar.py::test_historical_manifest_binds_exact_commit_and_tree` (proposed; author with R14).

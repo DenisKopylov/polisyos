@@ -120,8 +120,8 @@ candidate producer to run and an authority consumer to reject the unresolved cas
 ## R2 — CYC-05 strangle proof, deployment identity, and historical replay
 
 **Question.** How should a persisted N6 run retain the claim that production does
-not route through `run_fixture`, without making every replay depend on a live source
-checkout or treating an unrelated edit as run invalidation?
+not route through `run_fixture`, without making historical replay depend on a live
+source checkout or treating current-source drift as proof that history is invalid?
 
 **Options and costs.**
 
@@ -131,13 +131,21 @@ checkout or treating an unrelated edit as run invalidation?
 2. Remove the strangle receipt and stop checking the production-path property. This
    removes false staleness, but the runtime and public projections lose evidence for
    a safety-relevant orchestration boundary.
-3. **Proposed lean:** run a complete source/deployment census as a tooling gate,
-   bind the resulting receipt to the canonical deployment identity (loaded-code
-   manifest plus lock file), and keep historical validity distinct from currentness.
-   A run replays from its immutable recorded identity and versioned historical
-   projection. Current admission separately asks whether that identity is current
-   for the relevant epoch. Tooling and runtime owners pay for the census, stable
-   identity binding, and explicit currentness projection.
+3. **Proposed lean:** keep the complete source/deployment census as a source/deploy-
+   time tooling gate and extend the existing canonical identity owner; do not create
+   a second identity calculation. The owner’s full identity comprises the baseline
+   of `pyproject.toml`, `uv.lock`, every file in the resolved authority import
+   closure, and the Python runtime manifest, combined with the authority import
+   closure and loaded-code manifest. Today this is computed inside private
+   confidence-ledger functions; no public packaged API exposes canonical deployment
+   currentness to `GenerationCycleRun` consumers. Extend that owner and wire a
+   production validation bridge to emit a typed currentness result. Add it in
+   `GenerationCycleRun` v3, with explicit byte-preserving v1 and v2 historical
+   projections that exclude v3 fields. Historical replay then validates the saved
+   projection and receipt without today’s checkout; current admission separately
+   compares the recorded identity to the current admitted identity as a typed epoch
+   fact. The added costs are a public owner API, production bridge, schema migration,
+   and proof that both old projections still replay exactly.
 
 **Premises.** B30’s audit card calls for a controlled source/build slice, distinct
 missing-source, parse-error, and forbidden-caller states, and reuse for an unchanged
@@ -146,10 +154,15 @@ requires a normal stop to retain its epistemic meaning; a structural receipt mus
 turn a bounded successful run into abstention (`B29`). The ratified identity rule
 requires historical provability and makes epochs/staleness the way current claims
 remain honest (`policyos-identity-and-custody-boundary.md` §§1, 4). The canonical
-deployment identity is the confidence ledger’s loaded-code manifest and lock-file
-identity; a source checkout’s mere presence at validation time is not deployment
-identity (the task’s ratified deployment rule and
-`runtime/quality/confidence_ledger.py::_admit_loaded_runtime`). The register’s
+deployment identity is broader than the loaded-code manifest and lock file alone:
+the confidence-ledger owner includes `pyproject.toml`, `uv.lock`, source files in
+the resolved authority import closure, Python runtime identity, the authority
+import closure, and the loaded-code manifest
+(`runtime/quality/confidence_ledger.py::_deployment_relative_paths_from_closure`,
+`_deployment_baseline`, `_deployment_identity_from_baseline`).
+`_admit_loaded_runtime` is private and takes a repository root; the run validator
+has no public packaged currentness API from that owner. A source checkout’s mere
+presence at validation time is not deployment identity. The register’s
 `merged-lanes-need-a-reissue-path-neither-lane-declared` row remains open on its
 engineering reissue path; this proposal does not authorize a reissue or restamp.
 
@@ -157,31 +170,43 @@ At the inspected base, `StrangleReceipt` documents that it does not establish bu
 or deployment identity and admits that alias/dynamic-call completeness is not
 established. It computes a source hash over `src/polisyos`; `verify_current` and
 `validate_generation_cycle_run` require a live `repo_root` and compare the current
-tree during validation (`runtime/quality/generation_cycle.py`). The confidence
-ledger already has a canonical loaded-runtime/deployment identity path
-(`runtime/quality/confidence_ledger.py`).
+tree during validation (`runtime/quality/generation_cycle.py`).
+`GenerationCycleRun` currently accepts v1 and v2; extending it requires v3 plus
+historical projections for both older versions. The confidence ledger already
+computes the canonical loaded-runtime identity internally, but this code path does
+not make that identity a public run-currentness capability or bridge it into the
+generation-cycle consumers.
 
 **Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject to
-principal ruling. The source/deploy-time gate owns the census; runtime consumers
-consume its immutable, deployment-bound receipt. Historical validation proves that
-the stored run and receipt replay under their recorded schema and identity. It does
-not require today’s checkout. A separate typed epoch/currentness result compares the
-recorded deployment identity with the current admitted deployment identity. A
-historically valid run may therefore be stale for current authority while remaining
-valid evidence of what happened. Extending a hashed run model requires a schema
-version bump and a versioned historical serializer that excludes fields added later.
+principal ruling. The source/deploy-time gate owns the census. Extend the canonical
+identity owner to publish a typed identity/currentness contract from its existing
+full inputs, and connect that contract through a production bridge to generation-
+cycle validation. Do not compute a parallel identity in `generation_cycle.py`.
+Persist new identity/currentness evidence in `GenerationCycleRun` v3. Preserve both
+v1 and v2 as byte-exact historical projections excluding all v3-only fields; legacy
+runs without a recorded canonical identity may replay historically but have
+currentness `not_established`. Historical validation uses persisted bytes, version,
+and receipt, not today’s source tree. The separate typed epoch/currentness result
+compares a v3 run’s recorded identity with the identity admitted by the current
+runtime. A historically valid run can therefore be stale for current authority
+while remaining valid evidence of what happened. This extends an existing private
+identity owner; it does not assert that the public API or consumer bridge already
+exists.
 
 **P37 — gate predicates at admission.**
 
 - The strangle census’s declared file/deployment denominator must be derived from
   the actual shipped source/build inputs (`recomputed`); a producer’s claimed count
   or a search-index result is insufficient (`consumer_asserted`).
-- The run’s recorded canonical deployment identity is compared with the stable
-  loaded-code manifest and lock-file identity by the canonical identity owner
-  (`recomputed`). Missing or inconsistent identity is `not_established` and yields
-  no current positive.
+- The canonical identity is recomputed by the confidence-ledger owner from the
+  project and lock files, authority-import-closure files, Python runtime manifest,
+  authority import closure, and loaded-code manifest. The field-level predicate is
+  `recomputed`; exposing it to packaged run consumers through a typed public API and
+  production bridge is currently `bridge_missing`. Until that bridge is wired,
+  generation-cycle currentness is `not_established` and yields no current positive.
 - Historical content, schema version, and receipt binding are recomputed from the
-  persisted artifact (`recomputed`). Historical validity does not imply currentness.
+  persisted artifact (`recomputed`). The v3 serializer must preserve explicit v1
+  and v2 projections byte-exactly. Historical validity does not imply currentness.
 - Direct AST call edges can be recomputed, but reflective/aliased entry paths remain
   `not_established` unless the deployment census independently covers them. That
   limitation must be frozen in the receipt; it cannot be converted to “no callers”
@@ -189,27 +214,44 @@ version bump and a versioned historical serializer that excludes fields added la
 
 **P38 — property and divergence.** Property: the deployed production N6 path does
 not route through `run_fixture`, and a persisted run remains replayable as historical
-evidence. Current implementation: it compares the run’s receipt against a fresh
-hash/census of all `src/polisyos` at consumer time. Divergent case: a comment-only
-edit to `lex/simulator/report.py` changes no production route or recorded deployment
-identity, but makes every historical run stale. A second boundary case is a
-reflective `getattr` route to `run_fixture`: a direct AST-name census can miss the
-forbidden path while still reporting its enumerated source set clean. The future
-gate must either distinguish that path or preserve it as a bounded
-`not_established` limitation; it may not claim complete call-graph proof from the
-direct census alone.
+evidence independent of a live source checkout. Current implementation: the
+consumer calls `StrangleReceipt.verify_current`, which hashes the entire
+`src/polisyos` tree and requires `repo_root`; no public packaged currentness bridge
+from the canonical identity owner is wired to `GenerationCycleRun`. Divergent case:
+a packaged historical run with its persisted receipt but no live checkout cannot be
+replayed by the current validator; it raises
+`generation_cycle_strangle_receipt_currentness_not_established` even though the
+question is historical validity. A comment-only edit to
+`lex/simulator/report.py` changes the broad source receipt, but
+whether that file is in the canonical authority import closure and therefore
+changes deployment identity is unmeasured. That example does not establish that the
+edit is unrelated to deployment identity or that the identity remains fixed. A
+second boundary case is a reflective `getattr` route to `run_fixture`: a direct
+AST-name census can miss the forbidden path while still reporting its enumerated
+source set clean. The future gate must either distinguish that path or preserve it
+as a bounded `not_established` limitation; it may not claim complete call-graph
+proof from the direct census alone.
 
 **Remainder.** This does not authorize changing the canonical deployment identity,
 trust-posture pins, or GY promotion-contract epochs on merge. Any required reissue
 needs its own authorized transition and readback. It also does not decide that all
 dynamic Python dispatch can be statically proven; unresolved dispatch stays an
-explicit limitation and cannot support a stronger authority grade.
+explicit limitation and cannot support a stronger authority grade. The full identity
+includes the project/lock baseline, Python runtime, authority import closure, and
+loaded-code manifest; it is not a manifest-plus-lock-only binding. This proposal
+does not claim currentness is already available to packaged run consumers, nor that
+the `lex/simulator/report.py` comment probe leaves canonical identity unchanged.
 
 **Remainder standing and signatory.** Dynamic/reflective caller completeness is
 `not_established`; no complete-census verifier or signer is identified by this
 record, so the census may not support an authority claim for those paths. The
-source/deployment census is the proposed mechanism; an engineering owner for that
-tooling and any stronger dynamic-dispatch proof remains unallocated until assigned.
+source/deployment census is the proposed mechanism. The existing identity
+calculation belongs to the confidence-ledger owner, but its deployment identity
+helper is private and no public packaged run-currentness API or production bridge
+is identified. Extending that owner is proposed; currentness stays
+`not_established` until the typed owner API and bridge exist. An engineering owner
+for the census and any stronger dynamic-dispatch proof remains unallocated until
+assigned.
 For the merged-epoch register row, the standing rule is already ruled: a transition
 must be declared from the merge base. `runtime/quality` owns the fifth transition
 implementation and its stated premise; the row closes only after the authorized
@@ -219,30 +261,36 @@ authorizes a restamp (`docs/plans/active/DEBT-REGISTER.md`,
 2026-09-10). Denis remains the pending principal signatory for the proposed
 historical/currentness boundary.
 
-**Falsifier / revisit trigger.** Reopen if changing an unrelated file while keeping
-the canonical deployment identity fixed makes historical validation fail, or if a
-changed loaded-code manifest/lock identity is accepted as current without an epoch
-status change. The census removal probe keeps receipt marker fields but removes the
-actual source/deploy check; it must fail. Test a packaged deployment without a live
-checkout. These probes are acceptance requirements, not results recorded by this
-draft.
+**Falsifier / revisit trigger.** Reopen if a packaged historical run with no
+checkout cannot replay from its stored v1/v2 projection or v3 bytes/receipt, or if
+the v3 public currentness bridge accepts a changed canonical identity as current
+without an epoch status change. The identity-drift probe must alter a proved input
+to the canonical identity; the comment-only `lex/simulator/report.py` example is
+not such a probe until its import-closure membership and effect are measured. The
+census removal probe keeps receipt markers but removes the actual source/deploy
+check; it must fail. These probes are acceptance requirements, not results recorded
+by this draft.
 
-**Where it binds.** Source/deploy-time tooling gate in the quality/deployment
-validation owner; canonical identity at
-`runtime/quality/confidence_ledger.py::_admit_loaded_runtime`; persisted run and
-historical projection at `runtime/quality/generation_cycle.py::StrangleReceipt`,
-`GenerationCycleRun`, and `validate_generation_cycle_run`; recursive-leaf validation
-and the public OWR projection that consume run validity. Currentness is a typed epoch
-question at admission, not an incidental source-tree scan.
+**Where it binds.** Source/deploy-time tooling gate; canonical identity owner and
+full input composition in `runtime/quality/confidence_ledger.py::_admit_loaded_runtime`,
+`_deployment_baseline`, and `_deployment_identity_from_baseline`; the proposed
+public owner API and production bridge into generation-cycle consumers; and
+historical/current projections at `runtime/quality/generation_cycle.py::StrangleReceipt`,
+`GenerationCycleRun`, and `validate_generation_cycle_run`. The run schema moves to
+v3 with byte-exact v1/v2 projections. Recursive-leaf validation and public OWR
+projection consume the typed status; currentness is an epoch question at admission,
+not an incidental source-tree scan.
 
 **Pattern pass.** P07/P08/P29/P35/P37/P38/P41. Existing anti-patterns are runtime
 recomputation over an overbroad source denominator and a marker receipt whose
 deployment identity is explicitly absent. Target: one complete source/deploy census,
-one canonical identity binding, and separate historical/current statuses. The
-current source check exists; the deployment-bound producer/consumer bridge is
-`bridge_missing`, and source-check coverage for dynamic calls is
-`not_established`. Acceptance is byte-exact historical replay plus a currentness
-falsifier against a changed canonical identity.
+the existing canonical identity owner extended into a typed public run-currentness
+contract, and separate historical/current statuses. The private identity calculation
+and current source check exist; the public packaged generation-cycle bridge is
+`bridge_missing`, and source-check coverage for dynamic calls is `not_established`.
+Acceptance is byte-exact v1/v2/v3 historical replay plus a currentness falsifier
+against a changed canonical identity. The `lex/simulator/report.py` comment probe
+remains unmeasured for import-closure effect.
 
 ## R5 — EvalSafety context denominator for non-simulation leaves
 

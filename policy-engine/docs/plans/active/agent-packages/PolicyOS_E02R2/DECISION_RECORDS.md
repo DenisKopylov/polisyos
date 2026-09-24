@@ -1146,7 +1146,18 @@ establish that the two candidate payloads are equal. A repeated-candidate predic
 is `not_established` until the actual producer handoff is resolved and canonical
 owner bytes are compared; an unavailable or mismatched handoff must remain typed
 `not_established` and cannot be converted into a repeated-candidate claim from the
-reason marker alone.
+reason marker alone. The existing canonical source owner is
+`GenerationSourceRepository.load(ref, run_id)`: it verifies CAS integrity, exact
+handoff bytes, and run binding, then validates the full `GenerationSourceHandoff`.
+That handoff's source-binding validator recomputes each candidate from the persisted
+producer inputs with `_shadow_candidate_from_grounding` and compares the full typed
+candidate projection; `identities()` enumerates the actual `(problem, candidate,
+atom.content_hash)` denominator. The R11 comparison must load both owner handoffs,
+select through `identities()`, and compare canonical bytes of the recomputed owner
+candidate projections. `GenerationSourceRepository.resolve(...)` may help locate a
+matching summary, but its `GenerationSourceResolution` projection or summary hash
+alone is not the owner-byte equality oracle
+(`src/polisyos/runtime/quality/generation_source.py@9bd65c03be46082edb9d0af4749776085ef5569a`).
 
 A complete AST census walked 2,693 tracked `src/**/*.py` files with zero parse
 errors and recorded 8 direct `LoopVOIDecision` name references, 20 typed direct
@@ -1175,7 +1186,11 @@ or `escalate`. A repeated-candidate reason is admitted only when the producer's 
 canonical candidate bytes independently resolve equal. If those bytes or their owner
 handoff are unavailable, preserve `candidate_identity_not_established` as a typed
 limitation and withhold N9 authority rather than accepting a caller hash or reason
-string. Require the run validator to recompute that any blocked action is the final
+string. Resolve each complete source set with `GenerationSourceRepository.load`, use
+`GenerationSourceHandoff.identities()` to select the exact candidate, and require
+the handoff's candidate-recomputation validator plus canonical candidate-byte
+comparison across both cycles. A summary-only `resolve(...)` result cannot establish
+equality. Require the run validator to recompute that any blocked action is the final
 cycle, has `blocked_no_retry` and `block_candidate`, and agrees with the enclosing
 `terminal_status=blocked` and `blocked_reason`. Require the production N6→N9 path to
 refuse a blocked or identity-not-established run before pre-N9 subjects, admissions,
@@ -1192,10 +1207,13 @@ witness; this draft does not claim the witness has run.
 - The current repeated-candidate gate compares the two stored hash strings
   (`consumer_asserted`). `_candidate_content_hash` may accept a caller object's
   `sha256:` claim or fall back to hashing only its candidate ID; equality of
-  canonical owner bytes is `not_established` until the actual source handoffs and
-  payloads resolve. The repeated-candidate predicate becomes `independently_reconciled`
-  only after that byte comparison; otherwise its outcome remains typed
-  `not_established`.
+  canonical owner bytes is `not_established` until both full source handoffs load
+  and candidate projections recompute from producer inputs. The handoff validator
+  and `identities()` live in `generation_source.py`; compare canonical bytes of the
+  recomputed candidate projections, not just the `GenerationSourceResolution`
+  returned by summary-based `resolve(...)`. The repeated-candidate predicate becomes
+  `independently_reconciled` only after that byte comparison; otherwise its outcome
+  remains typed `not_established`.
 - Blocked-final consistency must be recomputed from every cycle, its typed decision,
   `blocked_no_retry` state, and the enclosing status/reason; a run-level
   `terminal_status` string alone is `consumer_asserted`.
@@ -1210,11 +1228,15 @@ when the advisory scheduler says `advance`. Current implementation: the N6 loop
 compares stored hash strings, `_candidate_content_hash` can trust the candidate's
 claimed `sha256:` or ID fallback, and the loop then unconditionally calls
 `_promote_completed_generation`; the validator lacks blocked-final/terminal
-consistency. Divergent cases: different owner bytes carry the same claimed hash, or
-the last action is `blocked` while N9 runs. The recursive route derives a terminal
-state from the run; it is not a direct `LoopVOIDecision` consumer. S8 revalidates the
-run but does not yet enforce blocked-run refusal. Both state-level paths need
-behavioral witnesses before they can be credited with preserving the block.
+consistency. The existing owner boundary at `GenerationSourceRepository.load` can
+verify the source artifact and recompute candidate projections, but the loop does
+not use those records for equality; `resolve(...)`'s summary projection alone would
+not close this gap. Divergent cases: different owner bytes carry the same claimed
+hash, or the last action is `blocked` while N9 runs. The recursive route derives a
+terminal state from the run; it is not a direct `LoopVOIDecision` consumer. S8
+revalidates the run but does not yet enforce blocked-run refusal. Both state-level
+paths need behavioral witnesses before they can be credited with preserving the
+block.
 
 **Remainder.** This decision covers the repeated-candidate cap and its boundary to
 N9/S8, not a universal mapping for all `blocked` outcomes. The board has no direct
@@ -1253,7 +1275,13 @@ are acceptance criteria; none is claimed as run here.
 `src/polisyos/runtime/quality/generation_cycle.py::GenerationCycleController.run`
 and `::_promote_completed_generation`; run checks at
 `src/polisyos/runtime/quality/generation_cycle.py::validate_generation_cycle_run`;
-refinement/search projections in that module; recursive terminal projection in
+refinement/search projections in that module; canonical candidate identity and
+producer-byte revalidation at `GenerationSourceRepository.load`,
+`GenerationSourceHandoff.identities`, and
+`GenerationSourceHandoff._validate_source_bindings` (which recomputes candidates
+from producer inputs) in
+`src/polisyos/runtime/quality/generation_source.py@9bd65c03be46082edb9d0af4749776085ef5569a`;
+recursive terminal projection in
 `src/polisyos/runtime/quality/recursive_generation_cycle.py`; and normative public
 projection in
 `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py::_generation_disposition`.

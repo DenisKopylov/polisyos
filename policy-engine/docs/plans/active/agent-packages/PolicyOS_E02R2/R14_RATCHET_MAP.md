@@ -1,4 +1,4 @@
-# R14 discovery: Wave 5 historical reference replay (fold into R2)
+# R2 sibling witness found during R14 review: Wave 5 historical reference replay
 
 ## Classification
 
@@ -10,14 +10,14 @@ This is not the R3 projection-serialization defect and not R13 acquisition routi
 
 The exact test key is `tests.repo_quality.tools.test_policy_design_case_capability_ratchet::test_wave5_exit_records_i5_manifest_and_influence_boundaries`. The test file has the same Git blob (`7c4b73fb339f36b21bcc430c1260f35d76a745d6`) on all four bases. The P41 checkpoint records this same key as follows:
 
-| Base | Commit | Same-key result | JUnit receipt recorded in checkpoint |
+| Base | Commit | Same-key result | SHA-verified JUnit artifact path |
 |---|---|---:|---|
-| E02 execution base | `78187878ee188ff6d27442ba1498bd094da9785b` | pass | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T161246Z-93931/cells/e02_execution_base/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 6,451 bytes, SHA-256 `24ac90ee7118270b65ce28bad68a9dc884c9e9a13e763732d6af5a522f8ad86b` |
-| E02 head | `00d946c2b7d052522be092f9c70eb9902f6521c2` | fail | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T161246Z-93931/cells/e02_head/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 12,122 bytes, SHA-256 `13d44f90d391fe6cfa7f1d13471767c41e743848d6383085a5662431384e4542` |
+| E02 execution base | `78187878ee188ff6d27442ba1498bd094da9785b` | pass | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_execution_base/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 6,451 bytes, SHA-256 `24ac90ee7118270b65ce28bad68a9dc884c9e9a13e763732d6af5a522f8ad86b` |
+| E02 head | `00d946c2b7d052522be092f9c70eb9902f6521c2` | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_head/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 12,122 bytes, SHA-256 `13d44f90d391fe6cfa7f1d13471767c41e743848d6383085a5662431384e4542` |
 | main | `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` | pass | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T144020Z-80143/cells/main/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 6,437 bytes, SHA-256 `4aebe1a1e5ed2b8672686870c97fca4b56d7899b95c781b4f2c0d66f58eab140` |
-| Phase 0 merge | `73c656744f051d9f40667da7f8bc91c61d8b4ebf` | fail | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T161246Z-93931/cells/phase0_merge/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 12,128 bytes, SHA-256 `ef86ba29e19625866b81baf79d1d82be4c25fa57323788d3b3fefeb55141b2d4` |
+| Phase 0 merge | `73c656744f051d9f40667da7f8bc91c61d8b4ebf` | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/phase0_merge/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml` — 12,128 bytes, SHA-256 `ef86ba29e19625866b81baf79d1d82be4c25fa57323788d3b3fefeb55141b2d4` |
 
-These are the checkpoint's per-case rows, not suite-level verdicts. The corresponding execution-base, E02-head, and Phase 0 XML files are not present at their recorded paths in the current scratch tree, so their traceback bytes could not be reread. The checkpoint retains the exact case status and JUnit path/hash metadata. Its current mutable receipt is `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T171600Z-23461/checkpoint/progress.jsonl@sha256:e4f10fd937890c9044cd3e85c0cf01f0ff41eb5599f2e5ab63855c49fdf88159`; treat that digest as provisional if the broker appends more rows.
+These are the checkpoint's per-case rows, not suite-level verdicts. I rehashed all four JUnit files at the paths above; each matched the checkpoint's recorded SHA-256. The execution-base, E02-head, and Phase 0 XMLs had moved from scratch into the package's gitignored `raw/` directory; main remains at its direct scratch path. The failing XMLs confirm the same assertion and code described below. The durable relocation inspection is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P41_ARTIFACT_RELOCATION.md@f60fe1b2c44dbc5c6164a06d2f3c326ac174406a` (commit `5376f7847`): it checked 113 checkpoint rows, all 109 JUnit references (61 direct, 48 relocated), four safety skips with no JUnit by construction, and zero unresolved artifacts. It read `progress.jsonl@sha256:868f0cf3aad030a00827dc136f525c73d8af9ee1e700628e0bac4e4709f35317`. Its complete path/SHA remap is `/Users/deniskopylov/.codex/scratch/e02-r2-p41-artifact-remap-20260924.json@sha256:4f0e2848ec8f83079cc9b20bcbb29aeee90c51d73f3b8cb2d616dad4b9b907be`. That receipt is an in-flight snapshot, not the final baseline verdict.
 
 ## Failure and complete input denominator
 
@@ -25,7 +25,7 @@ The test reads `architecture/policy_design_case/wave5_i5_external_consumer_truth
 
 `$.artifacts_produced[0].surface_refs[3]` → `repo://packages/runtime-api-client/runtimeApiClient.ts`
 
-The path exists at the execution base (blob `dfbc37f0ab6aa203cdb4aee4e60434223272306a`) and on main (blob `6bf389e633eacdde0208ee3426e59cc6c3de9262`). E02 deleted it; Phase 0 retains that deletion. `validate_repo_reference` returns issue `capability_repo_ref_file_missing` with “repo reference … points at a missing path,” and `_assert_repo_refs_resolve` asserts that the issue is `None`. This pinpoints the failing assertion without claiming that the unavailable JUnit XML was reread.
+The path exists at the execution base (blob `dfbc37f0ab6aa203cdb4aee4e60434223272306a`) and on main (blob `6bf389e633eacdde0208ee3426e59cc6c3de9262`). E02 deleted it; Phase 0 retains that deletion. `validate_repo_reference` returns issue `capability_repo_ref_file_missing` with “repo reference … points at a missing path,” and `_assert_repo_refs_resolve` asserts that the issue is `None`. The E02-head JUnit confirms the exact assertion: `assert {'code': 'capability_repo_ref_file_missing', 'message': 'repo reference repo://packages/runtime-api-client/runtimeApiClient.ts points at a missing path.', 'path': '$.artifacts_produced[0].surface_refs[3]'} is None`. Phase 0 records the same failure.
 
 The deletion is the only changed input needed to explain the same-key transition: test blob, manifest blob, and validator blob (`1cd361b73a01e7ed7668d18b92a4491e335d8628`) are constant across all four bases. P41 attribution is therefore E02-owned: execution base passes, E02 head fails, and the main control passes. The Phase 0 merge inherits the E02 red; this is not an environmental red.
 

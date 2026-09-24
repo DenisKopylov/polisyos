@@ -452,6 +452,15 @@ the latter must gain the byte-exact v1 oracle. The separate generation-cycle
 contract-byte test is scoped to contract reissue and does not prove run serialization
 (`tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py@6ff8b4691de6250900154aac5e64f3ac7898c605`).
 Currentness is an epoch question at admission, not an incidental source-tree scan.
+The consumer handoff includes `runtime/quality/recursive_generation_cycle.py` and
+`runtime/quality/design_axes/value_choice_provenance.py::_generation_disposition`;
+both currently reject any `validate_generation_cycle_run` issue. Separate historical
+replay validity from packaged currentness so a valid historical run can replay with
+no checkout while its authority projection carries `currentness=not_established`
+and withholds authority. Genuine historical corruption remains a replay failure.
+Witnesses must cover both behaviors in
+`tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@b675681a801cb9a66ec3ca80faf636fd91bc92d9`
+and `tests/unit/runtime/http/test_normative_generation_bridge.py@ef8ec18a438afe790a0b03f35f90b9e90d6288d4`.
 
 **Pattern pass.** P07/P08/P29/P35/P37/P38/P41. Existing anti-patterns are runtime
 recomputation over an overbroad source denominator, a marker receipt without

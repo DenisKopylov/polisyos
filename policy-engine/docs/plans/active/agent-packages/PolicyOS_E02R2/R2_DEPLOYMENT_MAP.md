@@ -112,6 +112,33 @@ is refused, while ordinary candidate N6 proceeds. The missing package path is
 `producer_missing` for owner-issued shipped identity evidence; do not claim
 positive packaged authority until that producer is supplied by the owner.
 
+### Epoch truth and authorized deployment-identity transition
+
+The current Confidence Ledger N12 projection does not establish an epoch:
+`N12EpochReferenceProjection.validity` is literally
+`epoch_not_implemented` (`confidence_ledger.py:1056-1076, 3688-3718`). It carries
+optional epoch/model/rule/schema locators; those fields do not make the epoch
+current. R2 currentness is only the owner's deployment-identity result. If a
+consumer also needs N12 epoch validity, that independent predicate stays
+`not_established` until an epoch owner implements it. Do not turn deployment
+identity equality into an epoch claim.
+
+The existing ledger binds its root to `deployment_identity` and rejects a root
+whose identity differs (`confidence_ledger.py:1719-1822`). A canonical session
+that sees changed code appends `deployment_drift_poison` and treats that poison
+as terminal (`:3075-3134, :2012-2040`). There is no authorized identity-reissue
+or root-transition API in the owner. R2 must not restamp an old root, receipt,
+or trust-posture pin to make it appear current. If the principal and ledger
+owner authorize a future identity transition, its proposed contract is
+append-only: preserve the old root, receipts, and pins under their old
+identity; issue a new owner-bound transition naming predecessor root/receipt
+refs, expected and observed identities, authority, premise, time, and falsifier;
+then issue a new root/receipt linked to that transition. Old signatures remain
+historically replayable and are never rewritten. Until that capability and
+authorization exist, changed identity is `stale` or `not_established`, and
+current authority stays unavailable. This transition is a named owner
+capability gap, not implemented by this map.
+
 ## Versioned run serializer seam
 
 In the inspected tree, `GENERATION_CYCLE_SCHEMA_VERSION` is
@@ -135,6 +162,22 @@ For v1/v2, exact serialization must be compared with historical canonical
 bytes, not just `model_validate` success. For v3, the embedded/ref'd evidence
 must resolve through Confidence Ledger. Currentness belongs to a fresh owner
 projection; a historical payload never self-declares itself current.
+
+The v2 specimen was initially missed because the first census stopped at the
+package and selected test directories. The full tracked-tree correction is
+listed below. Existing `test_generation_source.py`'s
+`test_tracked_owner_epochs_remain_exactly_readable` walks an old v1 report and
+an N9 v6 promotion fixture, then compares parsed leaf values; its model map has
+no v2 GenerationCycleRun and it does not assert byte-exact replay. The N6
+owner's `--check` rederives the current generated report and compares canonical
+report bytes, but does not prove an isolated historical v2 run replays after
+an unrelated edit or without a checkout. Add a focused v2 historical test
+that reads the tracked contract's `generation_cycle_run` object, runs the
+versioned v2 serializer, and compares the canonical run bytes; also show the
+same replay succeeds with no source root and after a source change that makes
+the owner recompute a different deployment identity. Read the existing owner
+artifact as the fixture; do not duplicate its payload into a second checked-in
+fixture.
 
 ## R2 source/deploy census and P38
 
@@ -238,6 +281,19 @@ Mechanism files:
 7. Use the existing GY generation-cycle tooling owner for the source/deploy
    census (`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`)
    or a narrowly owned companion. Do not add another runtime identity owner.
+8. Governed output companions, outside the mechanism count: the N6 owner writes
+   `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json@1bb62940465b1c83d707b87df8f9b59484c28762`;
+   if its run schema or projection changes, regenerate only through
+   `tools.quality.validation.check_layer3_gy_generation_cycle_contract` and
+   inspect the entire delta. The N11 owner writes
+   `architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json@58a81301ba500bf2ff9c5aaed765a4d9365a17b3`;
+   if its owner projection changes, regenerate only through
+   `tools/quality/validation/check_layer3_gy_confidence_ledger.py --write`
+   with the registered catalog and L5 inputs, then inspect the entire delta.
+   Their lifecycle owner and command contracts are pinned by
+   `architecture/generated_artifacts.toml@9c0f1dfdac86dd02f16d3b17c5bd28da4e0f9165` and
+   `tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py@906bbe22b01704bb1528358b52324767d6e48d1e`.
+   R2 does not restamp either artifact merely to clear a gate.
 
 Focused test files:
 
@@ -246,8 +302,9 @@ Focused test files:
 - `tests/unit/runtime/quality/test_generation_cycle.py@4f851cb207267a13877647ef82a2b73f3a24360a` and
   `tests/unit/remediation/test_cyc_05.py@9a9199993498fa60a72a786fcacc45d469324231` — byte-exact versions, no-checkout
   history, N6 candidate control, census removal probe;
-- `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c` — historical v1/v2
-  payload replay;
+- `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c` — existing pinned v1
+  and N9 v6 fixture walk with field-preservation comparison; extend for exact
+  v1 serialization. This file currently has no v2 GenerationCycleRun fixture.
 - `tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@b675681a801cb9a66ec3ca80faf636fd91bc92d9`
   — recursive candidate versus N9 authority;
 - `tests/unit/runtime/http/test_normative_generation_bridge.py@ef8ec18a438afe790a0b03f35f90b9e90d6288d4` — S8 production path;
@@ -321,23 +378,109 @@ not only the version string:
 A fourth complete payload is at
 `I1-ROLLING-WORK-CYCLE-20260922-CYC-05-B29/outputs/E02-J1038-N-CYC05-b15-owner-context-test-only/basetemp/test_http_job_progress_exposes0/.polisyos/artifacts/sha256/b3/67/b3675af191636acaac5d65d4a2728d527e8b8cff36e238d1feb60346477e59bb.blob@sha256:b3675af191636acaac5d65d4a2728d527e8b8cff36e238d1feb60346477e59bb`, but its associated one-test JUnit has one failure, so it is not the primary passing oracle.
 
-Tracked E02 package denominator: 185 files (21 JSON, 160 Markdown, 2 Python,
-1 ZIP, 1 extensionless, 1 `.gitignore`); no exact v2 token in its text files.
-Tracked current R2 package plus `tests/**/*.json`/`*.jsonl` denominator: 577
-files (411 JSON, 160 Markdown, 3 Python, 1 ZIP, 1 extensionless, 1
-`.gitignore`); no exact v2 token in searchable JSON/package files. The single
-ZIP in each tracked set was not inspected internally; ripgrep does not read
-archive contents by default. Binary/non-text records are included in path
-counts but are not asserted to have been text-searched.
+The complete tracked `policy-engine` tree contains 13,342 files, including
+2,866 `.json` and 13 `.jsonl`. Exact v1/v2 schema-token search across every
+tracked file (including binary files) found 14 token-bearing files; only four
+structured architecture JSONs contain GenerationCycleRun objects. Recursive
+parsing of those JSONs found ten complete run objects: nine v1 and one v2.
+The pinned historical owner blob referenced by
+`tests/unit/runtime/quality/historical_artifacts.py@4a8d4bf763b2295da64e5e418f96fbf7c3ddd3c1`
+adds one more complete v1 run. The structured records are:
 
-Conclusion: a complete, E02-produced v2 run byte oracle exists locally in the
-ignored CAS and can support an exact historical serializer comparison. The
-sidecars are content-addressed integrity metadata, not cryptographic signatures;
-this search did not independently recompute every blob hash. The v2 oracle is
-not checked into the repository, so a durable CI regression needs a reviewed,
-safe tracked fixture or a reproducible verifier that can access the cited raw
-artifact. Do not report “no v2 oracle exists”; the correct status is “local
-oracle found, tracked durable oracle still absent.”
+| Tracked record | Object path | Run schema | Complete run fields |
+|---|---|---|---:|
+| `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json@1bb62940465b1c83d707b87df8f9b59484c28762` | `$.generation_cycle_run` | v2 | 18 |
+| `architecture/policy_design_case/layer3_gy_composition_certificates.json@dea255d64e83502b093161825d134366f50c98eb` | `$.recursive_runs[0].nodes[3].cycle_run`, `nodes[4].cycle_run` | v1, v1 | 15 each |
+| `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json@efb75eb36d6731d07ce70e49eb9dda83649b52d6` | `$.proof_recordings/{education,first_vertical,unseen}/{authority_source_migration_receipt/historical_recording,}compiled_run/recursive_run/nodes/0/cycle_run` | v1 × 6 | 15 each |
+| `architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json@f6fc534efd909a1ca311fd9665a03d4ec41e8a8e` | `$.generation_cycle_run` | v1 | 15 |
+| Git blob `adab90797d1d1562ae252c076883bc5af6d77ce6` (183,254 bytes; parsed by the fixture above) | `$.generation_cycle_run` | v1 | 15 |
+
+The N6 v2 contract is a durable tracked specimen, not merely a schema string.
+Its owner builds `generation_cycle_run` from `run.model_dump(mode="json")`
+and the nested `strangle_receipt`, then writes a canonical whole-contract
+projection. The v2 object is under the schema at line 3307 of the tracked
+artifact. The N6 validator's exact-byte rederive is useful current-output
+verification, but it is not the historical replay test described above.
+
+The ignored-record search still found four complete E02 v2 CAS blobs. Three
+are paired with passing JUnit runs (J1044: 1 test/0 failures; J1043: 15/0;
+J1085: 21/0); J1038 contains a complete payload but its one-test JUnit failed.
+Their manifests have matching artifact ID, integrity SHA, and byte size; the
+inspection did not independently recompute every blob hash, and the sidecars
+are not cryptographic signatures. These raw CAS specimens supplement, rather
+than replace, the tracked v2 fixture.
+
+## R2 sibling: historical Wave 5 `repo://` references
+
+The four-base P41 replay found a second instance of the same history/current
+state conflation in a separate owner. Treat it as an R2 sibling for the
+historical-validity/currentness split, but do not claim the GenerationCycleRun
+mechanism itself fixes it. The Wave 5 test is
+`test_policy_design_case_capability_ratchet::test_wave5_exit_records_i5_manifest_and_influence_boundaries`;
+its test, manifest, and validator blobs are unchanged across all four bases.
+The full diagnostic and exact four-base JUnit table are recorded in
+`PolicyOS_E02R2/R14_RATCHET_MAP.md@c13460e67ebf13ba36faf077fb38a7c38fce5631`.
+
+| Base | Outcome | JUnit artifact (`path@sha256`) |
+|---|---|---|
+| E02 execution base `78187878ee188ff6d27442ba1498bd094da9785b` | pass | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_execution_base/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@sha256:24ac90ee7118270b65ce28bad68a9dc884c9e9a13e763732d6af5a522f8ad86b` |
+| E02 head `00d946c2b7d052522be092f9c70eb9902f6521c2` | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/e02_head/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@sha256:13d44f90d391fe6cfa7f1d13471767c41e743848d6383085a5662431384e4542` |
+| main `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` | pass | `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T144020Z-80143/cells/main/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@sha256:4aebe1a1e5ed2b8672686870c97fca4b56d7899b95c781b4f2c0d66f58eab140` |
+| Phase 0 merge `73c656744f051d9f40667da7f8bc91c61d8b4ebf` | fail | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T161246Z-93931/cells/phase0_merge/test_policy_design_case_capability_ratchet-1208f704fe80.junit.xml@sha256:ef86ba29e19625866b81baf79d1d82be4c25fa57323788d3b3fefeb55141b2d4` |
+
+The same results and hashes are recoverable from the remap receipt
+`/Users/deniskopylov/.codex/scratch/e02-r2-p41-artifact-remap-20260924.json@sha256:4f0e2848ec8f83079cc9b20bcbb29aeee90c51d73f3b8cb2d616dad4b9b907be`;
+the relocation inspection counted 113 checkpoint rows, 109 JUnit refs (61
+direct, 48 SHA-exact relocated), four safety skips with no JUnit by
+construction, and zero unresolved artifacts. The tracked inspection is
+`PolicyOS_E02R2/P41_ARTIFACT_RELOCATION.md@f60fe1b2c44dbc5c6164a06d2f3c326ac174406a`.
+This supersedes any apparent missing-JUnit limitation caused by their move
+from the original scratch paths.
+
+The separate owner predicate is
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py@1cd361b73a01e7ed7668d18b92a4491e335d8628:3627-3654`.
+`validate_repo_reference` resolves a `repo://` target against the current
+checkout, tests `target.exists()`, then optionally checks a text anchor. The
+immutable manifest
+`architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json@fa16e56d90fcfb6b90d8de56cb261ae00f69a95d`
+contains 36 references to 30 distinct target paths. Its
+`$.artifacts_produced[0].surface_refs[3]` refers to
+`repo://packages/runtime-api-client/runtimeApiClient.ts`, whose old raw twin
+exists at the execution base and main but is deleted by E02 and absent on the
+Phase 0 merge. That one missing target causes the same-key base/main-pass to
+E02/Phase0-fail transition. The manifest records no path content digest,
+source commit, or as-of identity. Main's file presence therefore passes the
+current-path predicate without proving the historical bytes; E02's deletion
+fails the predicate despite the unchanged historical manifest and the
+canonical `canonicalRuntimeApiClient.ts` export.
+
+P38 divergence: the historical property is replay of the immutable Wave 5
+record against its accepted source evidence, with present path availability
+assessed separately. The implementation tests today's path existence and
+optional anchor, not the source revision/content accepted with the record.
+The four-base witness demonstrates both directions of that divergence.
+The manifest is registered as immutable source-committed historical evidence;
+do not restore the retired raw client or rewrite/restamp the manifest merely
+to turn this gate green. A possible class-level route is an owner-issued,
+as-of content binding/sidecar plus a distinct current-reference check; whether
+the owner can issue that binding is `not_established`. Its separate write/test
+set is the historical `repo://` resolver,
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py@1cd361b73a01e7ed7668d18b92a4491e335d8628`, and its behavioral witness
+`tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py@7c4b73fb339f36b21bcc430c1260f35d76a745d`, plus any owner-issued binding artifact—not the N6 run validator. Preserve the live package route
+`packages/runtime-api-client/canonicalRuntimeApiClient.ts@9227640d31e58a3d05572127c5399bf3e4a4bddd` and its owner README
+`packages/runtime-api-client/README.md@5772d3ab213e8f44a32ceef0de15f6d63d94bacb` as the control. The manifest's immutable source-committed lifecycle is registered in
+`architecture/generated_artifacts.toml@9c0f1dfdac86dd02f16d3b17c5bd28da4e0f9165`; any new binding must go through that record's owner and its delta must be inspected. Recheck the exact four-base attribution before code changes. If the
+principal decides the historical reference must mean current path existence,
+that changed expectation and its cost need a decision record; no implicit
+compatibility exception is authorized here.
+
+Required Wave 5 probes before closure: remove or alter any owner-issued
+as-of/content binding while keeping manifest markers and require historical
+resolution to fail; preserve the current canonical TypeScript export while
+the historical raw twin stays absent and verify ordinary current package use
+still resolves. The first cannot yet be run because no as-of bytes or binding
+exist. This item remains `not_established`, with owner capability
+`producer_missing`, until the principal/owner decision and evidence arrive.
 
 ## Sequencing and design references
 

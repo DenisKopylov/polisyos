@@ -532,16 +532,27 @@ be expressed as `stop` or `escalate`?
    state, but permits a repeated candidate to count as another search cycle and
    violates the loop’s non-repeat discipline.
 
-**Premises.** The phase-0 JUnit stdout for
-`tests/unit/runtime/quality/test_generation_cycle.py::test_controller_runs_counterexample_driven_revision_over_two_real_cycles`
-(lines 160–166) records final `next_action=blocked`,
+**Premises.** The phase-0 JUnit receipts are
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-20260924T084614Z-77175/cells/e02_execution_base/test_generation_cycle.junit.xml@5cc9da821ca9b6940f7bc6e1123f6fb663283b5367002cf12c93d5ad6a1a6588`
+and
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-20260924T084614Z-77175/cells/e02_head/test_generation_cycle.junit.xml@4fc8f811e7a08e4227c6236bd52e3bd1122f984c75d5a904dacf0d962cafc71e`.
+The E02-head failure payload reports final `next_action=blocked`,
 `terminal_kind=search_ceiling_repair_required`, `scheduler_action=advance`, and
-`reason=fake_cycle_same_candidate_repeated`. The accompanying review measured fixture
-candidate hashes of 1 at cycle 0 and 2 at each of cycles 1 and 2; the adjacent repeat
-is what makes the third cycle a repeated-candidate case. The test’s final assertion
-currently expects `stop` or `escalate`. This replay establishes the outcome of that
-fixture and the disagreement with its expectation; it does not establish which
-vocabulary is correct or prove how every production consumer handles `blocked`.
+`reason=fake_cycle_same_candidate_repeated`. The E02-head test source asserts that
+cycle 0 advances and that the final action is `stop` or `escalate`
+(`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@beb20c6bb8e1ed8aa46910fea0d3a4cf7cfabe15`,
+`test_controller_runs_counterexample_driven_revision_over_two_real_cycles`). At E02's
+execution base, the test file is a different blob
+(`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@28682ef61d0cec22f2420794f7e3aa3e396418b4`);
+E02 also added `repo_root` wiring in this test. The two receipts therefore do not
+establish a pass-to-fail change for an unchanged test, and this draft makes no such
+P41 claim. The E02-head implementation compares adjacent
+`selected_candidate_content_hash` fields in `_fake_cycle_reason`
+(`policy-engine/src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`).
+The JUnit receipts do not contain the candidate hash values, so no numeric hash
+sequence or independent runtime observation of that equality is claimed. The receipt
+shows the outcome for this fixture; it does not establish which action vocabulary is
+correct or prove how every production consumer handles `blocked`.
 
 **Proposed choice; principal status.** Recommend option 1, subject to Denis’s
 principal ruling. Define `blocked` as a non-advancing cap for this repeated-candidate
@@ -554,10 +565,11 @@ consume `blocked` safely; none of that consumer proof is claimed here.
 
 **P37 — gate predicates at admission.**
 
-- The repeated-candidate predicate depends on the adjacent candidates’ actual
-  content identities, not a retained reason string or terminal marker. Recomputing
-  equality from persisted candidate bytes is `recomputed`; whether every validator
-  and consumer does so is `not_established` in this draft.
+- E02's `_fake_cycle_reason` compares adjacent
+  `selected_candidate_content_hash` fields (`policy-engine/src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`).
+  Equality of stored fields is `recomputed`; whether each field is bound to the
+  candidate bytes is `not_established` without resolving those bytes. The reason
+  marker alone is `not_established` as evidence of candidate equality.
 - A `blocked` decision must dominate an `advance` scheduler recommendation before
   any additional cycle or authority-bearing action. The JUnit output shows both
   fields but does not prove consumer precedence; downstream composition remains
@@ -577,7 +589,7 @@ not define every use of `blocked` or establish general VOI-consumer behavior. Th
 run validator must reject a non-final blocked cycle. Board, promotion, public
 projection, and recursive-routing composition remain unproven and must not treat this
 draft as proof that a blocked candidate cannot affect current authority. The test
-expectation remains evidence of the old contract, not proof of the correct contract.
+assertion records an expected result, not proof of the correct contract.
 
 **Remainder standing and signatory.** Denis is the pending principal signatory for
 the action vocabulary. `runtime/quality` is the code boundary for the loop decision,

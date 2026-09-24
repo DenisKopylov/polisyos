@@ -171,13 +171,24 @@ an N9 v6 promotion fixture, then compares parsed leaf values; its model map has
 no v2 GenerationCycleRun and it does not assert byte-exact replay. The N6
 owner's `--check` rederives the current generated report and compares canonical
 report bytes, but does not prove an isolated historical v2 run replays after
-an unrelated edit or without a checkout. Add a focused v2 historical test
-that reads the tracked contract's `generation_cycle_run` object, runs the
-versioned v2 serializer, and compares the canonical run bytes; also show the
-same replay succeeds with no source root and after a source change that makes
-the owner recompute a different deployment identity. Read the existing owner
-artifact as the fixture; do not duplicate its payload into a second checked-in
-fixture.
+an unrelated edit or without a checkout. Before current N6 regeneration can
+replace the tracked specimen, extend `historical_artifacts.py` with
+`GENERATION_CYCLE_V2_CONTRACT_BLOB`, set to
+`"1bb62940465b1c83d707b87df8f9b59484c28762"`. Use its existing
+`historical_owner_bytes` Git `cat-file` helper to retrieve and verify those
+immutable whole-contract bytes, parse the historical contract, and extract its
+`generation_cycle_run` object. Do not read the current generated JSON path as
+the v2 historical fixture. The focused test must run the version-dispatched v2
+historical serializer on that exact payload and compare the canonical run bytes
+with the captured v2 projection, while the replay/validator receives no
+`repo_root`; only test-fixture retrieval uses Git. Show replay still succeeds
+without a source checkout and after a source change that makes the owner report
+a different current deployment identity. Once the pinned fixture/test source
+is in place, regenerate the current N6 contract only through its registered
+owner command
+`.venv/bin/python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --write`,
+then inspect the entire generated delta. That regenerated current artifact is
+not the v2 historical fixture and does not replace its pinned Git object.
 
 ## R2 source/deploy census and P38
 
@@ -302,9 +313,13 @@ Focused test files:
 - `tests/unit/runtime/quality/test_generation_cycle.py@4f851cb207267a13877647ef82a2b73f3a24360a` and
   `tests/unit/remediation/test_cyc_05.py@9a9199993498fa60a72a786fcacc45d469324231` — byte-exact versions, no-checkout
   history, N6 candidate control, census removal probe;
-- `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c` — existing pinned v1
-  and N9 v6 fixture walk with field-preservation comparison; extend for exact
-  v1 serialization. This file currently has no v2 GenerationCycleRun fixture.
+- `tests/unit/runtime/quality/historical_artifacts.py@4a8d4bf763b2295da64e5e418f96fbf7c3ddd3c1` and
+  `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c` — pin the v2
+  contract Git blob and read it through `historical_owner_bytes`; test exact
+  v2 serialization from the extracted historical payload without `repo_root`.
+  The existing pinned v1/N9 v6 walk remains separate; extend it for exact v1
+  serialization. The current generated N6 contract is regenerated through its
+  owner only after the historical blob fixture is pinned.
 - `tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@b675681a801cb9a66ec3ca80faf636fd91bc92d9`
   — recursive candidate versus N9 authority;
 - `tests/unit/runtime/http/test_normative_generation_bridge.py@ef8ec18a438afe790a0b03f35f90b9e90d6288d4` — S8 production path;
@@ -378,11 +393,19 @@ not only the version string:
 A fourth complete payload is at
 `I1-ROLLING-WORK-CYCLE-20260922-CYC-05-B29/outputs/E02-J1038-N-CYC05-b15-owner-context-test-only/basetemp/test_http_job_progress_exposes0/.polisyos/artifacts/sha256/b3/67/b3675af191636acaac5d65d4a2728d527e8b8cff36e238d1feb60346477e59bb.blob@sha256:b3675af191636acaac5d65d4a2728d527e8b8cff36e238d1feb60346477e59bb`, but its associated one-test JUnit has one failure, so it is not the primary passing oracle.
 
-The complete tracked `policy-engine` tree contains 13,342 files, including
-2,866 `.json` and 13 `.jsonl`. Exact v1/v2 schema-token search across every
-tracked file (including binary files) found 14 token-bearing files; only four
+At the candidate-tree checkpoint commit
+`b4bcdc2539b25948c58b9e69757109cf33c34641` (tree
+`1fc58b7c2feb614ce9ff546ea5c18cd177175778`), the complete tracked
+`policy-engine` tree contains 13,336 files, including 2,866 `.json` and 13
+`.jsonl`. The exact v1/v2 schema-token search over every tracked file in that
+same candidate-tree denominator, including binary files, found 13 token-bearing
+files; this is not a count for another base or a later map-writing tree. Only four
 structured architecture JSONs contain GenerationCycleRun objects. Recursive
 parsing of those JSONs found ten complete run objects: nine v1 and one v2.
+The tracked-file denominator is the full output of
+`git ls-tree -r --name-only b4bcdc2539b25948c58b9e69757109cf33c34641 -- policy-engine`;
+the token-file count is the full output of
+`git grep -a -l -e policyos.runtime.generation_cycle_controller.v1 -e policyos.runtime.generation_cycle_controller.v2 b4bcdc2539b25948c58b9e69757109cf33c34641 -- policy-engine`.
 The pinned historical owner blob referenced by
 `tests/unit/runtime/quality/historical_artifacts.py@4a8d4bf763b2295da64e5e418f96fbf7c3ddd3c1`
 adds one more complete v1 run. The structured records are:
@@ -399,8 +422,14 @@ The N6 v2 contract is a durable tracked specimen, not merely a schema string.
 Its owner builds `generation_cycle_run` from `run.model_dump(mode="json")`
 and the nested `strangle_receipt`, then writes a canonical whole-contract
 projection. The v2 object is under the schema at line 3307 of the tracked
-artifact. The N6 validator's exact-byte rederive is useful current-output
-verification, but it is not the historical replay test described above.
+artifact blob `1bb62940465b1c83d707b87df8f9b59484c28762`; the existing
+`historical_owner_bytes` helper can pin and verify that Git blob before the
+owner regenerates the current JSON. The exact v2 replay test must read the
+historical object from that immutable blob, not from the mutable generated path.
+The N6 validator's exact-byte rederive is useful current-output verification,
+but it is not the historical replay test described above. After the v2 blob is
+pinned, any current-schema output refresh must use the registered N6 owner
+command and its full delta must be inspected.
 
 The ignored-record search still found four complete E02 v2 CAS blobs. Three
 are paired with passing JUnit runs (J1044: 1 test/0 failures; J1043: 15/0;

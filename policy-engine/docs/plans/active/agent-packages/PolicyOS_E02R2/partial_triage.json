@@ -1,0 +1,2533 @@
+{
+  "title": "E02-R2 partial-finding triage",
+  "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
+  "denominator": 118,
+  "counts": {
+    "engineering_a": 69,
+    "principal_b": 16,
+    "typed_blocker_c": 33
+  },
+  "triage_rule": {
+    "a": "Engineering can close now in the plans direction.",
+    "b": "Principal decision required; prepare options and costs before code.",
+    "c": "Typed blocker: data record, owner appointment, external institution, or smallest missing capability."
+  },
+  "source_refs": {
+    "B_findings": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "LA_findings": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "E02_residuals": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c",
+    "GY_plan": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5",
+    "Atlas_plan": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725"
+  },
+  "rows": [
+    {
+      "finding_id": "B01",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Runtime HTTP composition and generation-cycle owner",
+      "blocker_kind": null,
+      "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
+      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B01",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B01"
+        }
+      ]
+    },
+    {
+      "finding_id": "B02",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Runtime HTTP composition and generation-cycle owner",
+      "blocker_kind": null,
+      "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
+      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B02",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B02"
+        }
+      ]
+    },
+    {
+      "finding_id": "B03",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Runtime HTTP composition and generation-cycle owner",
+      "blocker_kind": null,
+      "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
+      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B03",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B03"
+        }
+      ]
+    },
+    {
+      "finding_id": "B12",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
+      "blocker_kind": null,
+      "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
+      "next_step": "Route the production in-cycle arm through the canonical bridge, overlay admission, passport and native epoch; use the runtime-supplied tenant-bound store and prove same-case re-entry custody.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B12",
+      "direct_relations": [
+        {
+          "relation": "advances",
+          "target": "GY-D1/N13b",
+          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-D1-N13b"
+        },
+        {
+          "relation": "touches-code-named-by",
+          "target": "Atlas DS15",
+          "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
+        }
+      ],
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B12"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-046",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
+      "blocker_kind": null,
+      "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
+      "next_step": "Route the production in-cycle arm through the canonical bridge, overlay admission, passport and native epoch; use the runtime-supplied tenant-bound store and prove same-case re-entry custody.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-046",
+      "direct_relations": [
+        {
+          "relation": "advances",
+          "target": "GY-D1/N13b",
+          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-D1-N13b"
+        },
+        {
+          "relation": "touches-code-named-by",
+          "target": "Atlas DS15",
+          "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
+        }
+      ],
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-046"
+        }
+      ]
+    },
+    {
+      "finding_id": "B15",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Generation-cycle deployment identity owner",
+      "blocker_kind": null,
+      "e02_residual": "CYC-05: bounded limits; arbitrary recursion/dynamic-call completeness not claimed",
+      "next_step": "Move source census to a source/deployment-time gate bound to canonical loaded-code identity; persist historical-valid separately from currentness and prove replay without a live checkout.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B15",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B15"
+        }
+      ]
+    },
+    {
+      "finding_id": "B18",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Simulation orchestration owner",
+      "blocker_kind": null,
+      "e02_residual": "SIM-02: full closure not claimed",
+      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B18",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B18"
+        }
+      ]
+    },
+    {
+      "finding_id": "B20",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Simulation orchestration owner",
+      "blocker_kind": null,
+      "e02_residual": "SIM-02: full closure not claimed",
+      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B20",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B20"
+        }
+      ]
+    },
+    {
+      "finding_id": "B22",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Simulation orchestration owner",
+      "blocker_kind": null,
+      "e02_residual": "SIM-02: full closure not claimed",
+      "next_step": "Complete the individual, pairwise and joint simulation contract with consuming-path witnesses and counterfactual removals.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B22",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B22"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-014",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "SearchService caller and migration owner",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "SRV-01: SearchService consumer/cutover not established",
+      "next_step": "Name and appoint the production SearchService consumer and cutover owner; then verify lifecycle, rollback and historical-reader behavior before migration closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-014",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-014"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-015",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "SearchService lifecycle owner",
+      "blocker_kind": null,
+      "e02_residual": "SRV-03: caller lifecycle, retained-history readers open",
+      "next_step": "Migrate the named live caller and exercise create/read/retain/replay lifecycle, including retained-history readers.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-015",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-015"
+        }
+      ]
+    },
+    {
+      "finding_id": "B125",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Control and RL-wrapper owner",
+      "blocker_kind": null,
+      "e02_residual": "CTL-02: RL wrapper RNG outside lease; B125–B127 routes open",
+      "next_step": "Bring wrapper RNG state under the same lease as B125–B127 routes and prove replay under shared leased state.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B125",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B125"
+        }
+      ]
+    },
+    {
+      "finding_id": "B126",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Control and RL-wrapper owner",
+      "blocker_kind": null,
+      "e02_residual": "CTL-02: RL wrapper RNG outside lease; B125–B127 routes open",
+      "next_step": "Bring wrapper RNG state under the same lease as B125–B127 routes and prove replay under shared leased state.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B126",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B126"
+        }
+      ]
+    },
+    {
+      "finding_id": "B122",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "STP-01: near-zero scale / non-finite policy residual",
+      "next_step": "Decide the accepted near-zero-scale and non-finite policy, with options, costs, a falsifier and where the rule binds.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B122",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B122"
+        }
+      ]
+    },
+    {
+      "finding_id": "B127",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Optimization route owner",
+      "blocker_kind": null,
+      "e02_residual": "OPT-02: direct B125–B127 replay open",
+      "next_step": "Add direct B125–B127 replay through the production route and prove deterministic state and output.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B127",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B127"
+        }
+      ]
+    },
+    {
+      "finding_id": "B116",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "OPT-04: legacy suite binding, protocol, pointer compatibility open",
+      "next_step": "Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B116",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B116"
+        }
+      ]
+    },
+    {
+      "finding_id": "B117",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "OPT-04: legacy suite binding, protocol, pointer compatibility open",
+      "next_step": "Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B117",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B117"
+        }
+      ]
+    },
+    {
+      "finding_id": "B164",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Generic owner-callback capability owner",
+      "blocker_kind": "smallest_missing_capability",
+      "e02_residual": "FUN-03: generic owner callback residual",
+      "next_step": "Confirm whether the repository has a generic typed owner-callback bridge; if absent, specify and appoint that smallest capability before adding another instance-specific callback.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B164",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B164"
+        }
+      ]
+    },
+    {
+      "finding_id": "B128",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer runtime owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
+      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B128",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B128"
+        }
+      ]
+    },
+    {
+      "finding_id": "B130",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer runtime owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
+      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B130",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B130"
+        }
+      ]
+    },
+    {
+      "finding_id": "B131",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer runtime owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
+      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B131",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B131"
+        }
+      ]
+    },
+    {
+      "finding_id": "B132",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer runtime owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-01: TRN-01 smoke does not establish full transfer",
+      "next_step": "Exercise the complete transfer producer→artifact→consumer chain with typed authority, interruption and replay witnesses beyond smoke coverage.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B132",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B132"
+        }
+      ]
+    },
+    {
+      "finding_id": "B129",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer compatibility owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-02: legacy zero-vector fallback, live metadata, distributed atomicity open",
+      "next_step": "Remove the legacy zero-vector fallback from the live path and prove typed metadata admission and refusal behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B129",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B129"
+        }
+      ]
+    },
+    {
+      "finding_id": "B133",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "TRN-02: legacy zero-vector fallback, live metadata, distributed atomicity open",
+      "next_step": "Choose the required distributed atomicity and compatibility guarantee, including bounded alternatives and cost; issue a falsifier for the chosen guarantee.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B133",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B133"
+        }
+      ]
+    },
+    {
+      "finding_id": "B134",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Transfer metadata issuer / data owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "TRN-02: legacy zero-vector fallback, live metadata, distributed atomicity open",
+      "next_step": "Obtain an owner-issued live metadata record for a real transfer and verify provenance, scope and freshness before claiming this slice.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B134",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B134"
+        }
+      ]
+    },
+    {
+      "finding_id": "B135",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer replay and custody owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
+      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B135",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B135"
+        }
+      ]
+    },
+    {
+      "finding_id": "B136",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer replay and custody owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
+      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B136",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B136"
+        }
+      ]
+    },
+    {
+      "finding_id": "B137",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Transfer replay and custody owner",
+      "blocker_kind": null,
+      "e02_residual": "TRN-03: witness gaps (tenant timestamp, no-side-effect, CAS/index parity)",
+      "next_step": "Add the missing tenant-timestamp, no-side-effect and CAS/index parity behavioral witnesses on the real transfer path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B137",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B137"
+        }
+      ]
+    },
+    {
+      "finding_id": "B16",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "EMP scope and CAS graph-bridge owner",
+      "blocker_kind": null,
+      "e02_residual": "EMP-01: non-country scopes, multi-dataset refusal, untyped unit remain; positive CAS graph bridge untested/HOLD",
+      "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B16",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B16"
+        }
+      ]
+    },
+    {
+      "finding_id": "B33",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "EMP scope and CAS graph-bridge owner",
+      "blocker_kind": null,
+      "e02_residual": "EMP-01: non-country scopes, multi-dataset refusal, untyped unit remain; positive CAS graph bridge untested/HOLD",
+      "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B33",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B33"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-052",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "PCL producer and consumer owner",
+      "blocker_kind": null,
+      "e02_residual": "PCL-01: mixed valid/empty, skipped-level identity open",
+      "next_step": "Implement mixed-valid/empty handling and prove the same typed identity is preserved through producer and consumer.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-052",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-052"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-053",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "PCL-01: mixed valid/empty, skipped-level identity open",
+      "next_step": "Decide skipped-level identity semantics and the compatibility cost; record which identity binds and what evidence would falsify the decision.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-053",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-053"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-051",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Forecast calibration orchestration owner",
+      "blocker_kind": "smallest_missing_capability",
+      "e02_residual": "FRC-02: predictive_only; implemented_but_not_orchestrated/bridge_pending",
+      "next_step": "Name the compatible calibration producer and S10 production caller; if the bridge is absent, appoint its owner and bind report/version, observations, rule and times end to end.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-051",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-051"
+        }
+      ]
+    },
+    {
+      "finding_id": "B166",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Scientist historical-input owner",
+      "blocker_kind": "smallest_missing_capability",
+      "e02_residual": "BKT-01: BKT-01 accepted but findings remain open",
+      "next_step": "Establish the missing consumer binding that sends the actual masked immutable historical view and its identity to the Scientist backend; prove post-cutoff sources cannot reach the request.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B166",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B166"
+        }
+      ]
+    },
+    {
+      "finding_id": "B169",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "BKT-01: BKT-01 accepted but findings remain open",
+      "next_step": "Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B169",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B169"
+        }
+      ]
+    },
+    {
+      "finding_id": "B170",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "BKT-01: BKT-01 accepted but findings remain open",
+      "next_step": "Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B170",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B170"
+        }
+      ]
+    },
+    {
+      "finding_id": "B167",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Backtesting comparison owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-02: remain bounded",
+      "next_step": "Close the BKT-02 bounded comparison residuals with behavioral coverage for completeness, nominal coverage and micro/macro aggregation.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B167",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B167"
+        }
+      ]
+    },
+    {
+      "finding_id": "B168",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Backtesting comparison owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-02: remain bounded",
+      "next_step": "Close the BKT-02 bounded comparison residuals with behavioral coverage for completeness, nominal coverage and micro/macro aggregation.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B168",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B168"
+        }
+      ]
+    },
+    {
+      "finding_id": "B171",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "BKT-02: remain bounded",
+      "next_step": "Decide the accepted BKT-02 profile boundary and compatibility cost; state what observed case would reopen it.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B171",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B171"
+        }
+      ]
+    },
+    {
+      "finding_id": "B172",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Backtesting trust projection owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-03: only descriptive/degraded trust",
+      "next_step": "Wire producer-backed typed trust evidence into the consumer so it can distinguish descriptive/degraded from admissible statistical evidence.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B172",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B172"
+        }
+      ]
+    },
+    {
+      "finding_id": "B173",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Backtesting trust projection owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-03: only descriptive/degraded trust",
+      "next_step": "Wire producer-backed typed trust evidence into the consumer so it can distinguish descriptive/degraded from admissible statistical evidence.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B173",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B173"
+        }
+      ]
+    },
+    {
+      "finding_id": "B174",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Bootstrap and split-selection owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-04: bounded stop; partial observations",
+      "next_step": "Complete partial-observation semantics and bounded stopping with negative and positive consumer witnesses.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B174",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B174"
+        }
+      ]
+    },
+    {
+      "finding_id": "B175",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Bootstrap and split-selection owner",
+      "blocker_kind": null,
+      "e02_residual": "BKT-04: bounded stop; partial observations",
+      "next_step": "Complete partial-observation semantics and bounded stopping with negative and positive consumer witnesses.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B175",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B175"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-003",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Forecast model, calibration and caller owners",
+      "blocker_kind": null,
+      "e02_residual": "FRY-03: model/calibration/caller applicability open",
+      "next_step": "Exercise actual model and calibration profiles through named callers; encode applicability boundaries and verify each admitted profile end to end.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-003",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-003"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-004",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open",
+      "next_step": "Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-004",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-004"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-035",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "ECO-01: fiscal/labor profiles non-equivalent; optimizer/caller retirement open",
+      "next_step": "Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-035",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-035"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-022",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Plugin verification owner",
+      "blocker_kind": null,
+      "e02_residual": "PLG-01: verification_missing",
+      "next_step": "Add the missing verification producer/consumer witness and demonstrate that a forged or absent verification signal is refused.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-022",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-022"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-023",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "PLG-03: cross-domain, RNG/continuation, retirement open",
+      "next_step": "Decide cross-domain scope, RNG/continuation compatibility and retirement boundary with costs and a falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-023",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-023"
+        }
+      ]
+    },
+    {
+      "finding_id": "B47",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Name-resolution owner",
+      "blocker_kind": null,
+      "e02_residual": "CMP-03: global exact-name preference residual",
+      "next_step": "Bind exact-name resolution to typed context rather than a global preference and add an adversarial cross-context collision test.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B47",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B47"
+        }
+      ]
+    },
+    {
+      "finding_id": "B74",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Checkpoint and recovery owner",
+      "blocker_kind": null,
+      "e02_residual": "RES-04: not generic/distributed checkpoint closure",
+      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B74",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B74"
+        }
+      ]
+    },
+    {
+      "finding_id": "B75",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Checkpoint and recovery owner",
+      "blocker_kind": null,
+      "e02_residual": "RES-04: not generic/distributed checkpoint closure",
+      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B75",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B75"
+        }
+      ]
+    },
+    {
+      "finding_id": "B76",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Checkpoint and recovery owner",
+      "blocker_kind": null,
+      "e02_residual": "RES-04: not generic/distributed checkpoint closure",
+      "next_step": "Complete the generic distributed checkpoint/recovery path and prove replay, fault recovery and consumer-visible state.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B76",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B76"
+        }
+      ]
+    },
+    {
+      "finding_id": "B185",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Calibration schedule owner",
+      "blocker_kind": null,
+      "e02_residual": "CAL-05: mixed per-row schedules unsupported",
+      "next_step": "Support heterogeneous per-row schedules and prove mixed schedules through the consuming calibration path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B185",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B185"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-007",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Packaging and external-loader owner",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "GRF-01: cleanup done; packaging/external-loader proof deferred",
+      "next_step": "Name the external loader and its owner, then produce an installed-package/import receipt proving the cleaned path is the one consumed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-007",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-007"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-019",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Packaging and external-loader owner",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "GRF-01: cleanup done; packaging/external-loader proof deferred",
+      "next_step": "Name the external loader and its owner, then produce an installed-package/import receipt proving the cleaned path is the one consumed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-019",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-019"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-020",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Public API and documentation owner",
+      "blocker_kind": null,
+      "e02_residual": "API-01: caller/docs residual",
+      "next_step": "Enumerate live callers, migrate them to the canonical API and align the public documentation with observed behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-020",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-020"
+        }
+      ]
+    },
+    {
+      "finding_id": "B207",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Causal-analysis data owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "CAU-02: not full staggered-DiD closure",
+      "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B207",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B207"
+        }
+      ]
+    },
+    {
+      "finding_id": "B208",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Causal-analysis data owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "CAU-02: not full staggered-DiD closure",
+      "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B208",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B208"
+        }
+      ]
+    },
+    {
+      "finding_id": "B209",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Causal-analysis data owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "CAU-02: not full staggered-DiD closure",
+      "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B209",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B209"
+        }
+      ]
+    },
+    {
+      "finding_id": "B210",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "CAU-03: not full RDD closure",
+      "next_step": "Decide the RDD assumption/scope boundary and its costs; name a falsifying case before claiming broader closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B210",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B210"
+        }
+      ]
+    },
+    {
+      "finding_id": "B211",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "RDD causal-analysis owner",
+      "blocker_kind": null,
+      "e02_residual": "CAU-03: not full RDD closure",
+      "next_step": "Implement the remaining bounded RDD behavior and add a distinguishing test for the declared assumptions and refusal boundary.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B211",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B211"
+        }
+      ]
+    },
+    {
+      "finding_id": "B212",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "DoWhy adapter and causal-analysis owner",
+      "blocker_kind": null,
+      "e02_residual": "CAU-04: native DoWhy behavior not established",
+      "next_step": "Exercise native DoWhy behavior through the production owner adapter with a served end-to-end witness and a negative unsupported-case control.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B212",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B212"
+        }
+      ]
+    },
+    {
+      "finding_id": "B213",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "DoWhy adapter and causal-analysis owner",
+      "blocker_kind": null,
+      "e02_residual": "CAU-04: native DoWhy behavior not established",
+      "next_step": "Exercise native DoWhy behavior through the production owner adapter with a served end-to-end witness and a negative unsupported-case control.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B213",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B213"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-016",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Native causal caller owner",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "CAU-05: adapter/replay slice only",
+      "next_step": "Name and appoint the production caller for the native causal route, then establish consumer lifecycle and replay before extending the adapter-only slice.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-016",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-016"
+        }
+      ]
+    },
+    {
+      "finding_id": "B52",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Execution profile owner",
+      "blocker_kind": null,
+      "e02_residual": "EXE-01: bounded B52 only",
+      "next_step": "Enumerate the remaining declared execution profile and close it through a real producer/consumer witness; keep the bounded B52 claim precise.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B52",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B52"
+        }
+      ]
+    },
+    {
+      "finding_id": "B63",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Temporal/Ray runtime and state owners",
+      "blocker_kind": "external_institution",
+      "e02_residual": "RES-01: live Temporal/Ray + external-state sufficiency unverified",
+      "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B63",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B63"
+        }
+      ]
+    },
+    {
+      "finding_id": "B70",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Temporal/Ray runtime and state owners",
+      "blocker_kind": "external_institution",
+      "e02_residual": "RES-01: live Temporal/Ray + external-state sufficiency unverified",
+      "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B70",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B70"
+        }
+      ]
+    },
+    {
+      "finding_id": "B71",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Temporal/Ray runtime and state owners",
+      "blocker_kind": "external_institution",
+      "e02_residual": "RES-01: live Temporal/Ray + external-state sufficiency unverified",
+      "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B71",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B71"
+        }
+      ]
+    },
+    {
+      "finding_id": "B13",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Generation-cycle candidate-route owner",
+      "blocker_kind": null,
+      "e02_residual": "RES-03: candidate-only route; artifact authority HOLD",
+      "next_step": "Keep the route candidate-grade until typed artifact authority is admitted, then prove the serving consumer cannot promote from candidate-only evidence.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B13",
+      "direct_relations": [
+        {
+          "relation": "advances",
+          "target": "GY plan GY-PR1",
+          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-PR1"
+        }
+      ],
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B13"
+        }
+      ]
+    },
+    {
+      "finding_id": "B14",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Run-profile producer and replay owner",
+      "blocker_kind": null,
+      "e02_residual": "RUN-01: broader closure not claimed; characterization only",
+      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B14",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B14"
+        }
+      ]
+    },
+    {
+      "finding_id": "B40",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Run-profile producer and replay owner",
+      "blocker_kind": null,
+      "e02_residual": "RUN-01: broader closure not claimed; characterization only",
+      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B40",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B40"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-057",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Run-profile producer and replay owner",
+      "blocker_kind": null,
+      "e02_residual": "RUN-01: broader closure not claimed; characterization only",
+      "next_step": "Expand characterization to the named producer and retained-history reader paths; record exact profile boundaries and replay behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-057",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-057"
+        }
+      ]
+    },
+    {
+      "finding_id": "B37",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Custody ledger lifecycle owner",
+      "blocker_kind": null,
+      "e02_residual": "DUR-01: ledger lifecycle obligations open",
+      "next_step": "Implement the remaining ledger lifecycle obligations through the owning lifecycle path and prove expiry, revalidation and replay transitions.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B37",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B37"
+        }
+      ]
+    },
+    {
+      "finding_id": "B38",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Live Ray/Temporal and exactly-once owners",
+      "blocker_kind": "external_institution",
+      "e02_residual": "DUR-02: live Ray/Temporal + external exactly-once unverified",
+      "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B38",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B38"
+        }
+      ]
+    },
+    {
+      "finding_id": "B78",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Live Ray/Temporal and exactly-once owners",
+      "blocker_kind": "external_institution",
+      "e02_residual": "DUR-02: live Ray/Temporal + external exactly-once unverified",
+      "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B78",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B78"
+        }
+      ]
+    },
+    {
+      "finding_id": "B153",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Artifact store lifecycle owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "CAS-01: in-process locks only",
+      "next_step": "Measure the production FileSystemCAS lifetime and distinct-ID cardinality to establish whether the conditional long-lived-store threshold applies; if it does, implement fixed lock striping and same-key exclusion without claiming distributed locking.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B153",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B153"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-033",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Report migration owner",
+      "blocker_kind": null,
+      "e02_residual": "REP-01: no more specific residual text in Appendix C",
+      "next_step": "Complete REP-01 against its named callers and prove report provenance and historical replay on the canonical owner path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-033",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-033"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-048",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Migration owner for MIG-02",
+      "blocker_kind": null,
+      "e02_residual": "MIG-02: no more specific residual text in Appendix C",
+      "next_step": "Apply the MIG-02 move through the canonical owner and enumerate all readers/importers before retiring the legacy path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-048",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-048"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-050",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "ManifestRegistry and corpus migration owner",
+      "blocker_kind": null,
+      "e02_residual": "MIG-04: ManifestRegistry/corpus migration",
+      "next_step": "Complete ManifestRegistry/corpus migration with reader compatibility and source-bound replay evidence.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-050",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-050"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-047",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "MOVE-14 migration owner",
+      "blocker_kind": null,
+      "e02_residual": "MIG-05: MOVE-14 not applied",
+      "next_step": "Apply MOVE-14 through the owner, then verify imports and all live callers resolve to the canonical module.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-047",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-047"
+        }
+      ]
+    },
+    {
+      "finding_id": "B147",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Observation and mutation owner",
+      "blocker_kind": null,
+      "e02_residual": "OBS-02: concurrent mutation, D2 fault injection",
+      "next_step": "Add concurrent mutation and D2 fault-injection behavioral witnesses and prove the emitted observation is reconciled against the mutated source.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B147",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B147"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-029",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "UDF server lifecycle owner",
+      "blocker_kind": null,
+      "e02_residual": "UDF-04: server lifecycle",
+      "next_step": "Close the server lifecycle consumer path and prove start, shutdown, failure and restart against its owner contract.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-029",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-029"
+        }
+      ]
+    },
+    {
+      "finding_id": "B138",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Federation counterpart institutions and protocol owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "FED-01: findings remain open",
+      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B138",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B138"
+        }
+      ]
+    },
+    {
+      "finding_id": "B140",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Federation counterpart institutions and protocol owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "FED-01: findings remain open",
+      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B140",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B140"
+        }
+      ]
+    },
+    {
+      "finding_id": "B141",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Federation counterpart institutions and protocol owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "FED-01: findings remain open",
+      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B141",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B141"
+        }
+      ]
+    },
+    {
+      "finding_id": "B145",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Federation counterpart institutions and protocol owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "FED-01: findings remain open",
+      "next_step": "Obtain counterpart-issued federation evidence for the open protocol and operating behavior; until then keep claims bounded to the existing profile.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B145",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B145"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-028",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Data Forge kit owner",
+      "blocker_kind": null,
+      "e02_residual": "DFK-02: no more specific residual text in Appendix C",
+      "next_step": "Close DFK-02 through the canonical kit owner and a served consumer witness.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-028",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-028"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-038",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "DFI CLI facade owner",
+      "blocker_kind": null,
+      "e02_residual": "DFI-02: CLI facade, override concurrency",
+      "next_step": "Complete the CLI facade and prove override concurrency under the canonical configuration owner.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-038",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-038"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-039",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Embedding generation and reader owner",
+      "blocker_kind": null,
+      "e02_residual": "EMB-02: generation/reader not fully closed",
+      "next_step": "Exercise embedding generation through retained-history readers and close the full generation/read lifecycle.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-039",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-039"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-040",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Lex store owner",
+      "blocker_kind": null,
+      "e02_residual": "EMB-03: lex store still consumes legacy",
+      "next_step": "Move the live Lex store consumer to the canonical embedding artifact and prove legacy bytes are not read on the served path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-040",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-040"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-041",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "DFI source-corpus and performance owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "DFI-03: source completeness, partiality, perf",
+      "next_step": "Obtain the complete admitted source-corpus manifest and measured completeness/partiality/performance record before asserting corpus-wide closure.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-041",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-041"
+        }
+      ]
+    },
+    {
+      "finding_id": "B79",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Ingestion verification owner",
+      "blocker_kind": null,
+      "e02_residual": "ING-01: verification_missing bounded residual",
+      "next_step": "Provide the missing bounded verification artifact and prove its consumer rejects absent or mismatched verification.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B79",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B79"
+        }
+      ]
+    },
+    {
+      "finding_id": "B81",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Native ingestion runtime and external state owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
+      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B81",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B81"
+        }
+      ]
+    },
+    {
+      "finding_id": "B82",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Native ingestion runtime and external state owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
+      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B82",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B82"
+        }
+      ]
+    },
+    {
+      "finding_id": "B85",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Native ingestion runtime and external state owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
+      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B85",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B85"
+        }
+      ]
+    },
+    {
+      "finding_id": "B86",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Ingestion modes owner",
+      "blocker_kind": null,
+      "e02_residual": "ING-03: modes schema characterization only",
+      "next_step": "Turn schema characterization into mode-specific runtime behavior tests at the actual ingestion consumer.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B86",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B86"
+        }
+      ]
+    },
+    {
+      "finding_id": "B87",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Live transport lifecycle owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
+      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B87",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B87"
+        }
+      ]
+    },
+    {
+      "finding_id": "B89",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Live transport lifecycle owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
+      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B89",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B89"
+        }
+      ]
+    },
+    {
+      "finding_id": "B90",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Live transport lifecycle owner",
+      "blocker_kind": "external_institution",
+      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
+      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B90",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B90"
+        }
+      ]
+    },
+    {
+      "finding_id": "B93",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Network predicate owner",
+      "blocker_kind": null,
+      "e02_residual": "NET-02: typed duck-predicate residual",
+      "next_step": "Replace the duck predicate with a typed contract and test malformed, present-but-fake and valid predicate cases.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B93",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B93"
+        }
+      ]
+    },
+    {
+      "finding_id": "B17",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Scope and network admission owner",
+      "blocker_kind": null,
+      "e02_residual": "SCL-01: no SSRF/DNS closure",
+      "next_step": "Close SSRF/DNS behavior for resolution, rebinding and scope changes through the actual request path, with a control that must remain allowed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B17",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B17"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-024",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Scope and network admission owner",
+      "blocker_kind": null,
+      "e02_residual": "SCL-01: no SSRF/DNS closure",
+      "next_step": "Close SSRF/DNS behavior for resolution, rebinding and scope changes through the actual request path, with a control that must remain allowed.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-024",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-024"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-025",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "SCL producer handshake owner",
+      "blocker_kind": null,
+      "e02_residual": "SCL-03: producer_handshake_gap",
+      "next_step": "Wire the producer handshake to its consumer and prove typed identity, authority and lifecycle on the admitted path.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-025",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-025"
+        }
+      ]
+    },
+    {
+      "finding_id": "B182",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Calibration preflight owner",
+      "blocker_kind": null,
+      "e02_residual": "CAL-02: preflight scaling compatibility debt",
+      "next_step": "Measure the compatibility scale boundary and close it with a real mixed-size preflight witness.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B182",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B182"
+        }
+      ]
+    },
+    {
+      "finding_id": "B195",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Calibration pass owner",
+      "blocker_kind": null,
+      "e02_residual": "CAL-03: single-pass portion only",
+      "next_step": "Carry the single-pass capability through the complete required consumer path and prove both reuse and invalidation semantics.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B195",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B195"
+        }
+      ]
+    },
+    {
+      "finding_id": "B199",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Uncertainty evidence owner",
+      "blocker_kind": null,
+      "e02_residual": "UQS-01: not full uncertainty capability",
+      "next_step": "Complete the uncertainty evidence capability and its consumer composition beyond the bounded E02 slice, with adversarial missing/contested inputs.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B199",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B199"
+        }
+      ]
+    },
+    {
+      "finding_id": "B200",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Uncertainty evidence owner",
+      "blocker_kind": null,
+      "e02_residual": "UQS-01: not full uncertainty capability",
+      "next_step": "Complete the uncertainty evidence capability and its consumer composition beyond the bounded E02 slice, with adversarial missing/contested inputs.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B200",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B200"
+        }
+      ]
+    },
+    {
+      "finding_id": "B106",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "STR-01: empirical completeness",
+      "next_step": "Decide the empirical completeness profile, cost and limits; require a falsifier for any claimed complete population.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B106",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "B106"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-056",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "DDM schema and applicability owner",
+      "blocker_kind": null,
+      "e02_residual": "DDM-01: schema/reversed-window compat, applicability out of scope",
+      "next_step": "Make schema and reversed-window compatibility executable and state applicability boundaries in consumer behavior.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-056",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-056"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-054",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Deployment and live-feed data owner",
+      "blocker_kind": "data_record",
+      "e02_residual": "DDM-02: deployment/live feed not claimed",
+      "next_step": "Obtain an admitted deployment/live-feed data record with provenance, time and consumer identity before claiming this capability.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-054"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-055",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "DDM-02: deployment/live feed not claimed",
+      "next_step": "Decide whether deployment/live-feed applicability is an in-scope promise and cost the evidence and maintenance obligation.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-055",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-055"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-008",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Lex factlog downstream consumer owners",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "HYG-02: Lex factlog facade; _shim retirement; aliases retained",
+      "next_step": "Name the actual downstream factlog and shim consumers and cutover owner; prove the canonical consumer path before retiring aliases.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-008",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-008"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-009",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Lex factlog downstream consumer owners",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "HYG-02: Lex factlog facade; _shim retirement; aliases retained",
+      "next_step": "Name the actual downstream factlog and shim consumers and cutover owner; prove the canonical consumer path before retiring aliases.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-009",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-009"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-018",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "HYG-02: Lex factlog facade; _shim retirement; aliases retained",
+      "next_step": "Decide the compatibility lifetime for retained aliases and the cost of preserving or retiring them; state the falsifier.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-018",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-018"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-011",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Wrapper downstream caller owners",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "HYG-04: wrappers retained",
+      "next_step": "Name the live wrapper callers and their migration owner; produce a cutover record before retiring wrappers.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-011",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-011"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-012",
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "Wrapper downstream caller owners",
+      "blocker_kind": "owner_appointment",
+      "e02_residual": "HYG-04: wrappers retained",
+      "next_step": "Name the live wrapper callers and their migration owner; produce a cutover record before retiring wrappers.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-012",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-012"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-043",
+      "bucket": "b",
+      "disposition": "principal",
+      "owner": "Principal (Denis)",
+      "blocker_kind": null,
+      "e02_residual": "CLI-01: full client LA not closed",
+      "next_step": "Decide the public compatibility promise for the full legacy client surface and the cost of removal or ongoing support.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-043",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-043"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-044",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Runtime API client package owner",
+      "blocker_kind": null,
+      "e02_residual": "CLI-01: full client LA not closed",
+      "next_step": "Complete the bounded client migration through package-owned generation; typecheck every workspace and prove consumers use the generated canonical client.",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-044",
+      "e02_residual_source_refs": [
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
+          "sha256": "b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c"
+        },
+        {
+          "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md",
+          "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
+          "finding_id": "LA-044"
+        }
+      ]
+    }
+  ]
+}

@@ -875,6 +875,163 @@ not appoint the issuer; and it authorizes no trust-posture, confidence-ledger,
 loaded-runtime, or GY promotion-epoch reissue. Later change requires an appended,
 dated principal decision naming this record and the evidence that moved it.
 
+### R2 scope addendum — historical replay now; release handoff future (2026-09-25)
+
+**Status and relation to the issuer draft.** The independent review gives a
+conditional GO for the historical/currentness split and a NO-GO for making the
+full release-attestation pipeline a prerequisite to the measured R2 regression
+repairs. This lane scope proposal follows that review. It supersedes the preceding
+issuer supplement's “proceed now” wording only as a recommendation for E02-R2's
+regression-repair scope. It does not withdraw engineering permission under the
+identity boundary, appoint an issuer, or replace the still-pending issuer options
+above. The question of who can establish installed N9 current authority remains
+for Denis and the authorized security owner.
+
+**Question.** Should E02-R2 require the full release-attestation verifier and
+exact-wheel evidence handoff to repair historical-run invalidation, or close the
+historical/currentness split first and leave that larger authority capability for
+a separately selected scope?
+
+**Options and costs.**
+
+1. **Narrow E02-R2 to historical replay and a typed currentness split.** Remove
+   checkout discovery and eager checkout reads from package import; validate old
+   run bytes, versioned historical projections, and recursive/compiled parents
+   without today's source. Assess currentness separately against the canonical
+   deployment identity and admitted epoch; without sufficient evidence return
+   `not_established`. Keep the N6 route census in its source/deploy tool owner.
+   Candidate computation and historical replay continue under unknown currentness;
+   N9 current authority remains withheld. Keep source/development and verification
+   test contexts distinct from installed-production authority so absent issuer
+   evidence does not blanket-refuse those measured consumers. The runtime-quality
+   and Confidence Ledger owners carry the validator/bootstrap changes, while the
+   affected consumers and test owners carry their typed-result wiring and four-base
+   replay cost. This addresses the measured historical regression but does not
+   establish a positive installed N9 currentness path.
+2. **Expand E02-R2 to the full release-attestation receiver and exact-wheel
+   handoff.** Add or extend the receiver verifier, approved trust policy, immutable
+   evidence provider, archive/member reconciliation, release transport and a
+   source-free served N9 witness. The security/release and runtime deployment
+   owners carry a broad capability and operational-retention cost. It does not
+   follow from the historical replay regression, and the issuer, provider, and
+   exact subject policy remain unappointed or unselected.
+3. **Defer all R2 work until an issuer is appointed.** This avoids a later currentness
+   integration step, but leaves the measured unrelated-source invalidation and
+   checkout-dependent replay in place and risks refusing valid candidate/history
+   work. The runtime-quality owner and users of replay/candidate paths bear that
+   delay. The review does not recommend this option.
+
+**Premises.** The independent review finds the measured R2 red is historical-run
+replay invalidated by present source drift. Historical validity can be computed
+from the persisted versioned bytes and parent hashes without claiming that the run
+is current. At the reviewed source, `StrangleReceipt.verify_current()` requires a
+repository root and recomputes today's census; `validate_generation_cycle_run()`
+without a root reports `strangle_receipt_currentness_not_established`, which its
+recursive caller treats as a validity issue. That conflates historical replay with
+current authority. Conversely, a positive installed N9 currentness claim still
+needs an admitted identity/route evidence handoff and authorized epoch; no issuer
+policy or source-free runtime verifier exists. The v3 design's exact-wheel path is
+therefore a possible future authority capability, not a prerequisite for the
+historical fix. Evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-v3-independent-review-20260925.md@sha256:b25ad02dfda13e1cb1c0481dabdce560477b5e70b3ef289918b27d86f5f15e1c`;
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-package-handoff-design-v3-20260925.md@sha256:7fc188cebe92e2a5e94ab14b367296d4b54c014b73d7ed8d150e14f55c305a8f`;
+`docs/system-design-decisions/policyos-identity-and-custody-boundary.md@sha256:f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce` §§8–9.7;
+`docs/system-design-decisions/stage0-custody-kernel-ratification.md@sha256:a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7` §4.3.
+
+The source seam and consumers at the reviewed target are
+`src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e`,
+`src/polisyos/runtime/quality/recursive_generation_cycle.py@sha256:6ec061ec348ef27e807b760bd09af7cb25155389a9d3694cb8b19e69f0b702f9`,
+and `src/polisyos/runtime/quality/confidence_ledger.py@sha256:67c9eead466478377a15b27261005992d48e0aff1b783ac4913242c781d9c1c4`.
+
+**Proposed choice; principal status.** The E02-R2 lane proposes option 1 for the
+measured regression scope. The historical validator must decide replay from the
+run's own frozen versioned content and parent bindings; currentness is a separate
+typed result and cannot contaminate historical validity. In installed mode with no
+admitted currentness evidence, return `not_established` and withhold N9 authority;
+ordinary candidate work and historically valid replay remain available. Keep the
+full receiver/wheel handoff as a future capability proposal pending selection by
+the principal and named release/security/runtime owners, not as work this R2
+regression repair must build now. No principal choice has been made, and this
+proposal does not select among issuer options A/B/C above.
+
+**Engineering permission and selected lane scope.** The institution's absence
+limits the authority claim, not permission to develop a verifier. The existing
+design's test-only protocol work remains technically buildable; that permission is
+not a lane assignment. A future capability scope may select and assign the receiver
+and handoff owners, subject, evidence provider, and test policy. Production
+admission still requires the principal/security owner's issuer and trust-root
+decision. This E02-R2 scope proposal defers that receiver/wheel path and does not
+make it an acceptance prerequisite for historical replay. The source-free
+bootstrap and versioned historical serializer remain in the narrowed R2 scope; a
+test-only issuer policy does not create production authority.
+
+**P37 — predicates at admission.** Historical validity is recomputed from the
+persisted run schema/projection, exact content, and recursive/compiled parent
+hashes; it says only that the record replays under its historical rules. Current
+deployment identity/route coverage and its epoch are separate predicates. Without
+the owner-admitted identity, N6 census result, and authorized currentness transition,
+installed currentness is `not_established`; a checkout path, package self-hash, or
+field marker cannot supply it. Missing currentness does not change a successful
+historical verdict or itself refuse candidate work; it withholds N9 authority.
+
+**P38 — property and divergence.** Property: historical records replay byte-exactly
+without consulting the receiving deployment's current source, while N9 authority
+is admitted only on a separately established current deployment/route predicate.
+The reviewed implementation checks `repo_root` source census as part of
+`validate_generation_cycle_run()` and exposes a missing-root currentness issue that
+the recursive consumer treats as historical invalidity
+(`src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e`,
+`src/polisyos/runtime/quality/recursive_generation_cycle.py@sha256:6ec061ec348ef27e807b760bd09af7cb25155389a9d3694cb8b19e69f0b702f9`). An unrelated
+source edit, or a packaged reader with no checkout, can therefore refuse a
+historically intact run. Moving currentness into the historical predicate would
+continue that divergence; accepting a package self-hash as issuer would create the
+opposite divergence by granting current authority without an admitted source.
+
+**Remainder and standing.** The production issuer, evidence provider, trust-root
+rotation source, and currentness epoch transition remain undecided and
+`not_established`; this scope proposal does not authorize a restamp. The exact
+future attestation subject is also open: a whole-wheel archive hash is not itself
+the canonical Confidence Ledger identity. A later owner must justify whether its
+verifier needs the archive or a signed loaded-code/resource manifest plus the N6
+receipt. Authentic N6 v2 historical bytes remain a named data-record gap and stay
+`UNRUN`; do not synthesize them. P41 replay of every touched file remains a
+prerequisite to code changes and closure, including the previously incomplete
+generation-cycle, recursive-gate, normative-bridge, and Confidence Ledger paths.
+The review also identifies that
+`CanonicalN9PromotionPort._open_confidence_ledger_session()` in
+`src/polisyos/runtime/quality/promotion_sequence.py@sha256:0a8aea760583e596d4e9198102b1e11b122d8d82224670d39446c28a58041173`
+rebuilds a CAS through `ConfidenceLedgerSession.from_repo()` although
+`PromotionRuntime.store` already exists. Carry that existing-store handoff in the
+shared R2/R13 custody lease; it predates E02's execution base and is not an
+E02-introduced regression. The Confidence Ledger `state_root` is a separate
+persistence-owner question, not established merely by reusing the CAS.
+
+**Falsifier / revisit trigger.** Keep historical run and parent bytes fixed while
+changing an unrelated current source file: the historical validator must still
+replay them byte-exactly. Change an N6 route-relevant input while retaining its
+receipt markers: the source/deploy gate must fail or return `UNRUN` /
+`not_established`, and N9 must remain withheld. With currentness/issuer evidence
+absent, ordinary candidate work and a valid historical replay must succeed; if
+either is refused, the gate is too broad. If N9 becomes current from a
+self-consistent package manifest/receipt alone, the gate is too weak. Reopen the
+future issuer/handoff scope when the principal and authorized owners name the exact
+issuer policy, evidence provider, route subject, and epoch transition that can be
+tested against those falsifiers.
+
+**Where it binds.** This scope proposal binds the separation between historical
+validation and currentness assessment in
+`src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e` and its recursive consumer in
+`src/polisyos/runtime/quality/recursive_generation_cycle.py@sha256:6ec061ec348ef27e807b760bd09af7cb25155389a9d3694cb8b19e69f0b702f9`; source-free bootstrap
+under the sole Confidence Ledger identity owner at
+`src/polisyos/runtime/quality/confidence_ledger.py@sha256:67c9eead466478377a15b27261005992d48e0aff1b783ac4913242c781d9c1c4`; the existing N6 route census
+tool owner at
+`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py@sha256:9d8ee91dd4aa7c35b20d4ed6d302f38e61b491fa8f62205fcd14d772d149a264`; and the pre-N9 authority boundary. The existing store reuse in
+`CanonicalN9PromotionPort._open_confidence_ledger_session()` is shared with
+R13/P27/P31. This addendum does not bind or authorize the full receiver/wheel
+handoff as current R2 work, alter the issuer choices above, change R9, or edit the
+register/plans. The review is design evidence only; no repair or behavioral witness
+is claimed here.
+
 ### Wave5 historical `repo://` reference sibling (P41)
 
 **Question.** How should the immutable Wave5 manifest's historical `repo://`

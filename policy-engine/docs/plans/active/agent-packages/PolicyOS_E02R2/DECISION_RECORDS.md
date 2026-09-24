@@ -996,7 +996,9 @@ different, truthful typed profiles for those bytes?
    avoids caller-specific exceptions, but callers that use identical payload bytes
    for distinct legitimate views pay with a refusal until the store can represent
    that view. Existing simulation, deployment, and promotion consumers remain
-   limited at that boundary.
+   limited at that boundary. Every backend must still compare the stored winner's
+   complete profile before returning a legacy ref; an unsupported backend may
+   refuse a conflicting write, but cannot return a ref for an unheld profile.
 2. Return a ref for the newly requested kind while leaving the first manifest in
    place. This avoids immediate caller failures, but the returned ref lies about
    the persisted profile and pushes integrity failures onto every later reader.
@@ -1018,7 +1020,17 @@ different, truthful typed profiles for those bytes?
    proven, cross-tenant requests keep a typed refusal. Costs include profile and
    authority-reference migration for every affected reader, versioned refs and
    transfer, per-view ownership/signatures, backend and adapter work, and a complete
-   producer/ref-lowering/consumer census before the write set can be called complete.
+   path-scoped source inventory plus semantic consumer classification before the
+   write set can be called complete.
+   The backend boundary has two costed shapes: support typed views across every
+   configured backend and adapter before exposing selection, which has the broadest
+   implementation and migration cost; or begin with the runtime-supplied filesystem
+   owner for the served ProgramGraph and deployed epoch-evidence corridors, while
+   unsupported stores/adapters return a typed `artifact_view_unsupported` result.
+   The scoped path is smaller but cannot serve a view when the runtime's actual
+   owner is outside that boundary. Neither shape permits a primary, sibling, or
+   bare-ID fallback. Even outside the selected-view scope, legacy writes must refuse
+   a stored-winner profile mismatch.
 
 **Premises.** B150’s distinguishing case is identical bytes under profile A and
 profile B: the first manifest is preserved, but the second `ArtifactRef` advertises
@@ -1074,6 +1086,80 @@ qualified URI in `authority` while hashing the whole object creates a cycle; the
 complete eight-file consumer census and a versioned acyclic self-link rule are
 pre-code gates, not implementation details to infer from the failing test.
 
+**Complete static boundary census and production-caller delta.** The read-only
+P35 census is pinned to Phase 0 merge `73c656744f051d9f40667da7f8bc91c61d8b4ebf`:
+all 2,693 tracked Python source files parsed with zero syntax failures, and all 23
+tracked package TypeScript files were enumerated. Its overlapping counts are files,
+not call totals: 35 store/adapter boundaries, 6 ProgramGraph path files, 17
+epoch/authority path files, 8 `cas-manifest://` files, and 10 signed-evidence API
+producer/consumer files; 461 files contain typed artifact/reference/manifest names,
+328 dereference `artifact_id`, and 250 lower it to a string. The scan found no
+`ArtifactViewRef`/`view_id` selector in Python or TypeScript. The receipt, scanner,
+and full path/blob/site inventory are
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-boundary-map-20260924.md@sha256:6015ffa95eccc6513a74c122d1663e2f55b1caec8829179b16eaa56be352cf6f`,
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-boundary-census-20260924.py@sha256:709a324d7fe3d0d470b82a8efca67c91fb011158bc06273d6a1cfac6920f06bb`, and
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-boundary-census-20260924.json@sha256:22a59f33ec11451820bcb3bb8512d4155633fcf4b8676db6b7ef3aa831836c20`.
+These overlapping syntactic categories are not a 461-file implementation list;
+the AST census does not establish runtime reachability, dynamic dispatch, or that
+each candidate method is a CAS call.
+
+The current artifact HTTP routes select by `artifact_id` and provide no view
+selector; the three TypeScript files with artifact-ID tokens include a generated
+type assertion, not a production view caller. Public view selection is outside the
+initial filesystem-only boundary. If a selected view must cross HTTP, add it to the
+owned versioned API schema and regenerate the client through its owner; do not let
+the route discard a selector or resolve it as the primary manifest
+(`src/polisyos/runtime/http/routes/artifacts.py@f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3`,
+`schemas/runtime_api_v1.openapi.json@21fd390c0d67340c380c5e8c4ea3b0666d9b5680`,
+`packages/runtime-api-client/types.ts@06ec886c1f2eaeda0edfc044ac2e8cedd83f5438`).
+
+The regression reaches a served caller: `JointSimulationController.run_once`
+passes the selected plan's refs and atom parameters to `execute_program_graph` for
+each horizon step
+(`src/polisyos/runtime/quality/joint_simulation_horizon.py@e74fa941d673b98b51e3b90934db666ecfa6467c`).
+The executor reduces `ArtifactRef | ArtifactID | str` to a bare ID and rebuilds
+output lineage as ID-only `InputRef`s; a selector added only to the ref model would
+be lost before persisted state, metrics, and reports
+(`src/polisyos/foundry/execute/_internal/models/__init__.py@f4502d42c8ba7b57096bd8d7b8e5c0e681dcc77d`,
+`src/polisyos/foundry/execute/_internal/graph/__init__.py@c771be51959fe826f197b77f88afadf3a6833c16`).
+Compiler and patching paths also lower refs, as enumerated in the census inventory.
+The exact ProgramGraph artifact ID and the two colliding input profiles remain
+`UNRUN`; this confirms the production corridor, not the reported collision.
+
+The deployed epoch corridor is a consumer of externally signed evidence, not a
+proven local signed-evidence producer. `RuntimeContainer.install()` configures the
+deployed intake; `EpochDeployment` captures its `ArtifactStore`, resolves signed
+records through `FileSystemSignedArtifactEvidenceRepository.read_exact`, and
+verifies their bytes/signatures under the configured trust role before the
+transition bridge and cascade consume them
+(`src/polisyos/runtime/http/container.py@d960e207accd81fa98187c96ce0fd9e5458bb369`,
+`src/polisyos/runtime/quality/epoch_deployment.py@bc9edd50e2bdb52b9a259547a296bcb87c625b08`,
+`src/polisyos/runtime/quality/epoch_transition_verification.py@cd2cb26e4e253f402d7cdca851bbd5bfff9698d3`).
+The tracked-source census finds no direct production call to
+`FileSystemSignedArtifactEvidenceRepository.persist_signed`; a view design must
+preserve exact selected-manifest/signature resolution without claiming that this
+deployed chain locally issues the admitted signature.
+
+The backend census adds concrete fail-closed obligations. S3 and GCS name objects
+by `ArtifactID`; when the manifest already exists, their write paths can skip
+comparing the winner profile and return a ref labeled with the new caller's kind
+or media type. This is the false-profile case from option 2 and must be fixed even
+if those backends report typed view support as unavailable
+(`src/polisyos/core/artifacts/backends/s3_store.py@26c85746a028674cc7b3f62617d4efeaf21b1976`,
+`src/polisyos/core/artifacts/backends/gcs_store.py@ab91a7412b3249fcc368da1741e403d661dce562`).
+The cache's bare-ID backfill omits `tenant_context`, `same_input_closure`, and
+`authority`; it must preserve those fields or return typed unsupported, never
+resolve a reduced cache entry as the requested primary view
+(`src/polisyos/core/artifacts/backends/caching_store.py@346d899a4632e185f1afa77ab7efb576b1efdbd8`).
+Signatures use one `<hex>.sig` path and bind exact manifest bytes; ownership is
+indexed by `ArtifactID`, so neither signature nor ownership may transfer across
+two views of one blob. Legacy v1 transfer enumerates only `.blob`, `.manifest.json`,
+and `.sig`; view transfer must be additive, explicitly enumerate exact view
+manifest/signature bytes, and import them into the destination runtime owner's
+custody. Namespace and async adapters expose ID-only APIs, and the IR package has a
+second ID/ref contract that also lowers to strings; they are outside an initial
+filesystem-only support boundary until their selectors are carried end to end.
+
 The Appendix A discriminator is
 `quality.test_joint_simulation_horizon::test_program_graph_plan_loops_real_shared_state_executor`
 (`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py@8ed265c0b1fd980c1a189866d17166c05f7e188b`).
@@ -1108,9 +1194,15 @@ return a typed refusal. Preserve historical manifest, signature, and v1 transfer
 bytes exactly; keep legacy `ArtifactRef` and `InputRef` unchanged and version any
 qualified-reference DTO and its hashed enclosing projections.
 
-Before code, freeze P41 outcomes and complete the P35 census of profile readers,
-authority URI producers/validators, ref-lowering paths, adapters, and transfers. For
-`integrity.optional`, choose and test one owner rule: include its exact persisted
+Before code, freeze P41 outcomes and complete the semantic classification of the
+P35 census of profile readers, authority URI producers/validators, ref-lowering
+paths, adapters, and transfers. The static denominator and URI/adapter inventory
+are now recorded in the census cited above; before calling a scoped write set
+complete, classify every selected producer,
+lowering, backend, and consumer in that inventory and resolve dynamic/DI call paths
+for the chosen corridors. Do not expand this into a blanket conversion of all 461
+files with typed-reference names. For `integrity.optional`, choose and test one owner
+rule: include its exact persisted
 value in the view key, or define the exact permitted schema, recompute permitted
 values, and reject all other values before publication. Recompute `integrity.sha256`
 from payload bytes. For `authority.manifest_ref`, choose one acyclic contract: derive
@@ -1154,7 +1246,8 @@ one blob. Do not add an optional selector to `InputRef`, and do not lower
 `ArtifactViewRef` to its bare `artifact_id` before a view-aware read, write, or
 lineage record. The v2 serializer and importer must round-trip the qualified view
 selector and role; v1 serializers and primary-only history remain byte-exact. A
-complete caller census is a closure gate. Existing lowering surfaces that need
+complete static source census is attached above; dynamic/reachable caller
+classification remains a closure gate. Existing lowering surfaces that need
 explicit selector-preservation review include ProgramGraph input construction in
 `src/polisyos/foundry/execute/_internal/graph/__init__.py@c771be51959fe826f197b77f88afadf3a6833c16`,
 Foundry execute artifact lineage in
@@ -1262,7 +1355,8 @@ validators use `cas-manifest://<ArtifactID>`, which resolves only the primary vi
 and cannot identify `(ArtifactID, view_id)`; putting a qualified URI into the hashed
 authority object also creates a self-reference cycle unless the derived pointer
 alone is projected out and then checked. The URI occurs in 8/2,693 source files;
-the full set must be enumerated before code. `TenantScopedCAS.put_bytes` preflights
+the complete static set is recorded in the boundary census above, but its consumers
+still require classification for the selected view scope. `TenantScopedCAS.put_bytes` preflights
 `len(data) + 4_096` and does not size a proposed view sidecar
 (`src/polisyos/fabric/storage/tenant_cas.py@d45d8a5856d38fed50f8fe3a1e24e8cb92858164`).
 
@@ -1282,16 +1376,30 @@ unimplemented and `UNRUN`.
 **Remainder.** This proposal does not claim equal bytes have equal empirical
 origin, authorize changing an existing profile, or decide that the CAS can verify
 empirical meaning of kind, warnings, or lineage. Consumers retain their own source
-and semantic evidence duties. P41 JUnit results, the exact ProgramGraph artifact ID
-and both colliding input manifests, the complete caller census, principal ruling,
-owner assignment, and every new witness are still pending; none is a closure
-receipt. Per-view concurrency, quota and cross-backend compatibility remain
-implementation obligations. Cross-tenant views stay refused until view-level
+and semantic evidence duties. The complete static source census closes the earlier
+enumeration gap, but P41 JUnit results, the exact ProgramGraph artifact ID and both
+colliding input manifests, semantic/dynamic caller classification for the chosen
+scope, principal ruling, owner assignment, and every new witness are still pending;
+none is a closure receipt. Per-view concurrency and quota remain implementation
+obligations. Cross-tenant views stay refused until view-level
 ownership isolation and any contract-required signature binding are proven. The
 shared content hash never substitutes for tenant custody. If the optional-integrity
 or authority self-link rule cannot preserve all consumer distinctions and historical
 checks, the bounded residual is primary-only authority/profile use; do not publish a
 view that silently conflates those claims.
+
+The initial backend/API boundary is also unresolved pending principal choice. A
+filesystem-only rollout must return `artifact_view_unsupported` from S3, GCS,
+caching, async, IR, namespace, and other unwired adapters; it must not infer primary
+selection from a missing selector. The legacy S3/GCS profile-mismatch path still
+needs a full stored-winner comparison and typed refusal even when view support is
+unsupported. A full-backend option must additionally prove view identity, ownership,
+signature, transfer, and quota behavior in each backend. No public HTTP selector or
+generated TypeScript support is proposed until its owned schema and route are
+versioned. The static census also did not establish a production caller of
+`FileSystemSignedArtifactEvidenceRepository.persist_signed`; deployed epoch evidence
+is consumed and verified, while local view-signature production remains
+`not_established`.
 
 **Remainder standing and signatory.** The CAS has no standing to prove empirical
 origin or consumer-specific lineage; those predicates remain `not_established` by
@@ -1307,18 +1415,23 @@ pending principal signatory for the semantic choice to support honest typed view
 The independent review
 `/Users/deniskopylov/.codex/scratch/e02-r2-r9-independent-review-20260924.md@sha256:e32d6dff6dda46fb67ba4b586bdc693a438acb32591531877f8fcd18876530df`
 returned NO-GO to implementation of the prior option-3 wording. This correction
-addresses its optional-integrity and self-link gaps; it does not close the full
-producer/consumer census, measure the exact ProgramGraph profiles, or replace the
+addresses its optional-integrity and self-link gaps and adds the complete static
+boundary census; it does not classify every consumer semantically, measure the
+exact ProgramGraph profiles, establish dynamic reachability, or replace the
 principal's ruling.
 
 **Falsifier / revisit trigger.** Reopen if any backend returns a view ref whose
 resolved manifest differs from it, if concurrent same-profile retries create
 divergent duplicate view records, if a tampered view can point at a different
 blob/profile while retaining a green verification result, or if a signature for
-tenant A's view verifies tenant B's same-byte view. The acceptance signal is the
-A/B same-bytes witness through filesystem, S3, GCS, and caching-store contracts:
-both view manifests resolve only under their own tenant and exact profile; signing
-only A cannot satisfy a contract-required signature check for B. A distinct
+tenant A's view verifies tenant B's same-byte view. Under the all-backend option,
+the acceptance signal is the A/B same-bytes witness through filesystem, S3, GCS,
+and caching-store contracts: both view manifests resolve only under their own
+tenant and exact profile; signing only A cannot satisfy a contract-required
+signature check for B. Under the filesystem-only option, the filesystem owner gets
+that positive witness and each unsupported backend/adapter returns typed
+`artifact_view_unsupported` with no fallback; its legacy conflicting-profile write
+must still refuse rather than return the new caller's ref. A distinct
 positive control stores and resolves unsigned candidate content under
 `SigningConfig(enabled=False, sign_on_put=False)` without producing an authority
 result. A qualified-reference removal probe keeps the bare primary artifact and
@@ -1377,6 +1490,16 @@ ProgramGraph lowering at
 `src/polisyos/foundry/compile/trinity_compiler.py@c2ef2b5acb787b17d253750c612d1f2ed3c5900f`;
 and transfer at
 `src/polisyos/core/artifacts/_transfer_ops.py@ea6697559933d3eb74c70aec978948297c6c8e52`.
+The actual served callers are
+`src/polisyos/runtime/quality/joint_simulation_horizon.py@e74fa941d673b98b51e3b90934db666ecfa6467c`
+and the deployed epoch chain in
+`src/polisyos/runtime/quality/epoch_deployment.py@bc9edd50e2bdb52b9a259547a296bcb87c625b08`,
+`src/polisyos/runtime/quality/epoch_transition_verification.py@cd2cb26e4e253f402d7cdca851bbd5bfff9698d3`,
+and `src/polisyos/runtime/http/container.py@d960e207accd81fa98187c96ce0fd9e5458bb369`.
+The scoped store boundary also includes tenant quota and adapter mediation in
+`src/polisyos/fabric/storage/tenant_cas.py@d45d8a5856d38fed50f8fe3a1e24e8cb92858164`,
+`src/polisyos/core/security/namespace.py@b939e5a1bd44e6870dc18a56dcd2a8b05f615b18`,
+and `src/polisyos/runtime/quality/non_data_acquisition.py@f437ce1cf10d1f5bdbfdb7e9566ae45e40303e47`.
 No caller may
 construct an envelope to compensate for a missing CAS view API or tenant-bound
 signature owner.
@@ -1386,14 +1509,16 @@ set is the five production files named in the premises. The current authority UR
 writer is `src/polisyos/runtime/http/services/control/artifacts.py@63eaad653c6a3627fe9e99873100829facefd1e7`;
 validators include `src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`
 and `src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`.
-The URI census found 8 source files / 2,693 Python files, including
-`runtime/http/routes/artifacts.py`, `core/artifacts/cas_integrity_report.py`,
+The URI census found 8 source files / 2,693 Python files: the writer, two
+validators, and `runtime/http/routes/artifacts.py`, `core/artifacts/cas_integrity_report.py`,
+`runtime/quality/data_forge_binding.py`,
 `runtime/quality/proving_ground/proof_carrying_analytics_search.py`, and
 `scientist/governance/continuous/monitors.py` (exact blobs are listed in the
-premises). Before code, enumerate all eight URI producers/readers and all other
-profile readers from the pinned source set, classify which consume the selected
-manifest versus the primary manifest, and attach the complete path@sha output to
-the lease map. Current examples are not a complete caller census.
+premises and the full census JSON). The static census enumerates all eight URI
+sites; before code, classify each producer/reader and the other profile readers as
+selected-view or primary-only, resolve dynamic dispatch on the chosen routes, and
+attach the path@sha output to the lease map. The syntactic inventory is complete;
+semantic consumer coverage is not established by that count.
 
 
 **Pattern pass.** P05/P27/P31/P32/P37/P38. The instance symptom is a CAS conflict;
@@ -1403,8 +1528,12 @@ consumer-specific exceptions. A second R9 symptom is a boundary loss of the view
 selector; it remains the same P40 class because every escape is a consumer of the
 same artifact-view identity. Multi-view refs/artifacts are `artifact_missing` and
 consumer resolution is `consumer_missing` until manifests, required-signature
-semantics, quota accounting, every backend/adapter, historical replay, and the
-positive/negative witnesses are wired.
+semantics, quota accounting, historical replay, and the selected support boundary
+are wired. A filesystem-only rollout requires positive producer/consumer witnesses
+on the served corridors and typed unsupported behavior with no fallback on every
+unwired backend/adapter; all-backend support requires positive witnesses across each
+configured backend. Neither rollout makes the 461-file syntactic reference set a
+blanket conversion list.
 
 ## R11 — CYC-04 blocked repeated candidate must not reach N9
 

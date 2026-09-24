@@ -1844,8 +1844,13 @@ def _move_completed_byproducts_to_trash(
     }
 
 
-def _profile_light(job: Job, profiles: dict[tuple[str, str], dict[str, Any]]) -> bool:
-    profile = profiles.get((job.test_path, job.test_blob_oid))
+def _profile_key(job: Job) -> tuple[str, str, str]:
+    """Keep resource evidence scoped to the pinned runtime revision as well as the test bytes."""
+    return (job.revision_key, job.test_path, job.test_blob_oid)
+
+
+def _profile_light(job: Job, profiles: dict[tuple[str, str, str], dict[str, Any]]) -> bool:
+    profile = profiles.get(_profile_key(job))
     if profile is None or job.exclusive_native or job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS:
         return False
     return (
@@ -1859,14 +1864,14 @@ def _profile_light(job: Job, profiles: dict[tuple[str, str], dict[str, Any]]) ->
 
 def _can_admit_profiled_job(
     job: Job,
-    profiles: dict[tuple[str, str], dict[str, Any]],
+    profiles: dict[tuple[str, str, str], dict[str, Any]],
     scratch_root: Path,
     baseline_swap_used_bytes: int,
 ) -> tuple[bool, str | None, bool]:
     """Check one staggered launch against current aggregate load and reserve."""
-    profile = profiles.get((job.test_path, job.test_blob_oid))
+    profile = profiles.get(_profile_key(job))
     if profile is None or not _profile_light(job, profiles):
-        return False, "job has no exact-blob measured-light profile", False
+        return False, "job has no exact-runtime/test measured-light profile", False
     snapshot, hard_reason = _machine_admission_state(scratch_root, baseline_swap_used_bytes)
     if hard_reason is not None or snapshot is None:
         return False, hard_reason or "resource inspection did not return a sample", True
@@ -1937,7 +1942,7 @@ def _schedule(
     scratch_root: Path,
     baseline_swap_used_bytes: int,
     workers: int,
-    light_profiles: dict[tuple[str, str], dict[str, Any]] | None = None,
+    light_profiles: dict[tuple[str, str, str], dict[str, Any]] | None = None,
     on_complete: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
     global _SCHEDULER_HALT_REASON
@@ -2037,7 +2042,7 @@ def _schedule(
                             scratch_root,
                             baseline_swap_used_bytes,
                             ready,
-                            profiles.get((job.test_path, job.test_blob_oid)) if is_profiled else None,
+                            profiles.get(_profile_key(job)) if is_profiled else None,
                         )
                         if not ready.wait(PROCESS_GROUP_STARTUP_SECONDS) and not future.done():
                             halt_reason = (
@@ -2091,7 +2096,7 @@ def _schedule(
                         completed_job = pending.pop(future)
                         record_future(future, completed_job)
 
-    # Up to five exact-blob measured-light groups may overlap. Every launch is
+    # Up to five exact-runtime/test measured-light groups may overlap. Every launch is
     # staggered and re-sampled against live aggregate CPU/RSS, with 35% free
     # memory at admission and a projected 30% hard reserve. Unknown, native,
     # and measured-heavy jobs run alone; red or unavailable guards yield
@@ -2115,7 +2120,7 @@ def _schedule(
             execute_batch([job])
             continue
         candidate_batch = pending_light + [job]
-        candidate_profiles = [profiles[(item.test_path, item.test_blob_oid)] for item in candidate_batch]
+        candidate_profiles = [profiles[_profile_key(item)] for item in candidate_batch]
         batch_fits = (
             len(candidate_batch) <= min(workers, MAX_PROCESS_GROUPS)
             and sum(
@@ -2153,8 +2158,8 @@ def _schedule(
 
 def _measured_light_profiles(
     runs: list[dict[str, Any]],
-) -> dict[tuple[str, str], dict[str, Any]]:
-    profiles: dict[tuple[str, str], dict[str, Any]] = {}
+) -> dict[tuple[str, str, str], dict[str, Any]]:
+    profiles: dict[tuple[str, str, str], dict[str, Any]] = {}
     for row in runs:
         metrics = row.get("resource_metrics")
         if (
@@ -2186,7 +2191,9 @@ def _measured_light_profiles(
             and profile["peak_process_group_cpu_percent_sum"] <= ADAPTIVE_MAX_GROUP_CPU_PERCENT
             and profile["swap_growth_bytes"] == 0
         ):
-            profiles[(row["test_path"], row["test_blob_oid"])] = profile
+            # The same test blob can consume several GiB more after a runtime
+            # change. A profile from main never admits its E02/merge sibling.
+            profiles[(row["revision_key"], row["test_path"], row["test_blob_oid"])] = profile
     return profiles
 
 
@@ -2375,6 +2382,13 @@ def _verified_reuse_rows(
                 continue
             current_revision = revisions.get(key[0])
             _require(current_revision is not None, f"reuse cell has unknown revision: {key}")
+            if row.get("commit") != current_revision["commit"]:
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"cell runtime commit differs from its pinned revision for {key}",
+                )
+                continue
             current_file = current_revision["files"].get(key[1])
             if not current_file or current_file.get("status") != "PRESENT" or current_file.get("git_blob_oid") != row.get("test_blob_oid"):
                 continue
@@ -3010,8 +3024,11 @@ def _write_report(
         f"{HARD_MEMORY_RESERVE_PERCENT}% hard reserve. "
         f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
         f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
-        "remaining below seven CPU cores. Unprofiled, native, measured-heavy and resource-exclusive "
-        "groups run alone and are scheduled after bounded ordinary cells. Each child is sampled "
+        "remaining below seven CPU cores. Profiles are scoped to the pinned runtime revision and "
+        "test blob. Each revision/path cell in this matrix is unique; completed exact cells "
+        "are reused rather than dispatched again. This pre-repair scope has no safe profiled "
+        "overlap. Unprofiled, native, measured-heavy and resource-exclusive groups run alone "
+        "and are scheduled after bounded ordinary cells. Each child is sampled "
         "every five seconds. A red or unavailable guard "
         "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
         "stop event; active workers terminate only their own PGID, and the scheduler drains and "
@@ -3037,7 +3054,19 @@ def _write_report(
         "",
         f"The four-base matrix has {report['matrix_cell_count']} cells: {report['present_cell_count']} present and executed or explicitly UNRUN, {report['missing_cell_count']} verified missing. Missing means the exact path is absent from that revision's tracked Git tree; it is not a pass. The whole-file SHA is retained as context; per-case attribution uses the exact test AST and statically resolved test-input closure.",
         "",
-        f"Shared runner: Python {report['runtime']['python']}, pytest {report['runtime']['pytest']}; CPU JAX. Main-revision timing pilots use three times a previously controlled duration for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); other bases use three times the larger of the measured main and previously controlled whole-file durations, with a {MIN_MEASURED_ALARM_SECONDS}s floor when the pilot has cases. If the pilot has no cases, sibling alarms include its alarm and use at least {BOOTSTRAP_ALARM_SECONDS}s and the previous controlled ceiling, if any; the pilot's actual status is recorded separately. Once a main pilot is checkpointed, same-blob older-base cells enter a global ready queue; the first measured member of any other exact-blob group also profiles later siblings.",
+        (
+            f"Shared runner: Python {report['runtime']['python']}, "
+            f"pytest {report['runtime']['pytest']}; CPU JAX. "
+            "Main-revision timing pilots use three times a previously controlled duration "
+            f"for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); "
+            "other bases use three times the larger of the measured main and previously "
+            f"controlled whole-file durations, with a {MIN_MEASURED_ALARM_SECONDS}s floor "
+            "when the pilot has cases. If the pilot has no cases, sibling alarms include "
+            f"its alarm and use at least {BOOTSTRAP_ALARM_SECONDS}s and the previous "
+            "controlled ceiling, if any; the pilot's actual status is recorded separately. "
+            "Runtime revisions cannot share a light profile merely because test bytes "
+            "match; each unprofiled sibling runs alone."
+        ),
         "",
         f"Production data input: `{report['data_root']}/manifest.json` SHA-256 `{report['data_manifest_sha256']}`. The path resolved identically from all four checkouts; preflight also verifies that the production_data root and manifest have no write bits (the per-checkout mode and read-only verdict are in `results.json`). Environment values were allowlisted; `.env` loading was disabled and no environment values are recorded.",
         "",
@@ -3545,10 +3574,9 @@ def run_matrix(args: argparse.Namespace) -> int:
             if _SCHEDULER_HALT_REASON is not None:
                 break
 
-    # Run each unmeasured main pilot alone. As soon as its exact-file result is
-    # checkpointed, use its measured profile to fill available groups with
-    # older-base cells that have the same test blob. Changed test blobs remain
-    # exclusive until another exact-blob profile is available.
+    # Run each unmeasured main pilot alone to establish its timing bound.
+    # Same-blob siblings at other runtime revisions still run alone unless
+    # that exact revision/test cell has independent measured-light evidence.
     remaining_jobs: list[Job] = []
     for test_path in REQUESTED_TEST_PATHS:
         if test_path in DECLARED_SAFETY_SKIPS:

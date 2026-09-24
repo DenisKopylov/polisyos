@@ -1419,8 +1419,8 @@ existing `AcquisitionWorldGrowthBridge`; do not add a second production producer
 or change that working bridge. ACQ-01 may be reconsidered for production only after
 an actual producer and its typed request, authority/journal, overlay, passport,
 native-epoch, tenant-store persistence/readback, and served consumer handshake are
-demonstrated end to end. This is a proposed deviation, not a principal decision or
-an implementation claim.
+demonstrated end to end. This is the proposed choice within the assignment lean,
+pending the principal decision; it is not an implementation claim.
 
 **P37 — gate predicates at admission.**
 

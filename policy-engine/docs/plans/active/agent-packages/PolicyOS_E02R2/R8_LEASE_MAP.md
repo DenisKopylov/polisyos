@@ -30,8 +30,11 @@ are not part of the proposed write set.
 or expires, that worker cannot write terminal state or progress over the new
 owner's job. A worker holding the live attempt can complete normally.
 
-1. RunLifecycleService.__init__ constructs ControlPlaneStore and wraps it
-   with guard_runtime_control_store(...) when no store is injected
+1. RuntimeContainer.startup lazily constructs ControlPlaneService when the
+   container has no supplied control service
+   (src/polisyos/runtime/http/container.py:347–373). ControlPlaneService.__init__
+   constructs ControlPlaneStore and wraps it with guard_runtime_control_store(...)
+   when no store is injected
    (src/polisyos/runtime/http/services/control/run_lifecycle.py:1403–1416).
    In embedded-worker mode it passes that same proxy to ControlWorker, with
    _process_control_job as the handler (:1565–1572).

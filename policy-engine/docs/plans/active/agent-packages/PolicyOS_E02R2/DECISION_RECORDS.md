@@ -125,9 +125,12 @@ current repo-root fallback as proof of tenant-store custody. An ordinary request
 with no established context may return candidate work and carry an explicit typed
 unknown; it must not invent a WMR, catalog entry, or concrete scope. If that unknown
 prevents a valid N5 world simulation, retain a typed pending/limited result. S8 may
-emit a ranked recommendation only after `GenerationSourceRepository.resolve` returns
-the real, persisted N4 handoff with its embedded `CycleSubstrateContext`, bound to
-the exact problem and candidate identities. The handoff's owner profile must bind
+emit a ranked recommendation only after it loads and verifies the real, persisted N4
+handoff with its embedded `CycleSubstrateContext`, bound to the exact problem and
+candidate identities. `GenerationSourceRepository.load(ref, run_id)` returns the
+full `GenerationSourceHandoff`; `resolve(...)` returns a `GenerationSourceResolution`
+projection, not the full handoff. S8 must use `load` or a strict owner extension
+that verifies the full handoff. The handoff's owner profile must bind
 `tenant_context`; do not make a second artifact for the embedded context. The
 existing `build_production_data_state_world_model_record(store, ...)` is the named
 WMR producer to wire through the runtime-supplied store under R13. It owns WMR
@@ -151,9 +154,11 @@ and witness.
   and `may_not_use_for` limit are part of the typed content; neither establishes
   tenant custody.
 - The existing `GenerationSourceHandoff` is the durable post-N4 record and embeds
-  its `CycleSubstrateContext`; its `GenerationSourceRepository` resolver already
-  verifies the source profile and exact content. Its current write profile lacks
-  explicit `tenant_context`, so the tenant binding remains `not_established`. The
+  its `CycleSubstrateContext`. `GenerationSourceRepository.load(ref, run_id)` returns
+  the full handoff for source-profile and content replay; `resolve(...)` returns only
+  a `GenerationSourceResolution` projection, and S8 does not currently call `load`.
+  Its current write profile lacks explicit `tenant_context`, so the tenant binding
+  remains `not_established`. The
   repo-root WMR fallback is not tenant-context-custodied. No separate pre-N4
   tenant-context persistence/resolver owner is identified; if one is required,
   leave it `not_established` until an existing owner is named rather than adding a
@@ -165,11 +170,13 @@ and witness.
   They do not establish explicit tenant-context binding. The N4 handoff write
   profile omits `tenant_context`, so tenant ownership of the consumed root context is
   `not_established` despite ambient CAS custody and source-preservation success.
-- The existing `GenerationSourceRepository` handoff can be replayed to recompute N4
-  source consumption and exact candidate identity, but S8 does not currently resolve
-  that handoff. Use its embedded context as the durable post-N4 record; do not
-  duplicate it. Missing refs, mismatched context, duplicate identities, or absent
-  post-growth handoff block S8.
+- The existing `GenerationSourceRepository` persists the full
+  `GenerationSourceHandoff`. `load(ref, run_id)` returns it for replay and
+  content/profile/problem/candidate verification; `resolve(...)` returns a
+  `GenerationSourceResolution` projection, not the full handoff. S8 does not
+  currently load that handoff. Use its embedded context as the durable post-N4
+  record; do not duplicate it. Missing refs, mismatched context, duplicate
+  identities, or absent post-growth handoff block S8.
 - Context currentness is separate from custody and content replay. `CycleSubstrateContext`
   has no typed epoch/currentness gate; after content replay, whether the context
   remains current against its WMR and tenant scope is `not_established`. A stale or
@@ -202,9 +209,11 @@ typed context currentness, a
 stale-context probe retains the source handoff while that owner reports its embedded
 context stale/unknown; S8 must block with typed limitation. The served
 positive control must carry an actual N4 candidate through HTTP →
-`DesignGenerationOrganRun` → `GenerationSourceRepository.persist/resolve` → S8,
-including tenant binding on the embedded context and currentness from an existing
-owner. Separately, a
+`DesignGenerationOrganRun` → `GenerationSourceRepository.persist` →
+`GenerationSourceRepository.load(ref, run_id)` → S8, including tenant binding on the
+embedded context and currentness from an existing owner. `resolve(...)` currently
+returns a `GenerationSourceResolution` projection, so it is not by itself a
+full-handoff witness. Separately, a
 served ordinary request without context must still return candidate work while N5/S8
 remain limited or blocked.
 
@@ -212,8 +221,9 @@ remain limited or blocked.
 world store, or convert an LLM candidate into evidence. The HTTP root builder is a
 production caller but is not a compliant tenant-store owner path; its storage fix
 belongs to R13's shared owner work. The existing `GenerationSourceRepository`
-already persists and resolves the embedded post-N4 context; its write profile still
-needs tenant binding, and context currentness must come from an existing owner. No
+persists the full handoff containing the embedded post-N4 context, but S8 still needs
+to load it; its write profile needs tenant binding, and context currentness must come
+from an existing owner. No
 separate pre-N4 context artifact/resolver owner is identified, so that requirement
 remains `not_established` unless an existing owner is demonstrated. No S8 positive
 claim is supported by the current `[authorized]` fixture alone. Its
@@ -285,7 +295,8 @@ an authority prerequisite leaking into candidate reachability and authority bein
 granted without source-consumption/custody evidence. The target is typed unknown
 for ordinary candidate work and complete owner-backed evidence at authority gates.
 The HTTP caller and a best-effort repo-root context builder exist. The existing
-handoff persists and resolves its embedded context, but its write profile lacks
+handoff persists the embedded context; `load` returns the full handoff, while
+`resolve` returns a projection and S8 does not yet load it. Its write profile lacks
 explicit tenant binding; context currentness is also `not_established`. No separate
 pre-N4 context artifact/resolver owner is identified, so do not invent one. Current
 fixtures have `verification_missing` for real N4 source consumption, explicit
@@ -554,6 +565,109 @@ comment probe remains unmeasured for import-closure effect. The P41 four-base JU
 receipt for this regression class is pending the broker; this draft does not claim
 the base-passing test set has been replayed or restored.
 
+## R4 — GY-N6 contract validator must return a verdict
+
+**Question.** When the governed GY-N6 validator cannot bind its verification ledger
+to the final N9 design-problem basis, should it create an authorized ledger
+transition, weaken the binding comparison, or return an honest validation verdict?
+
+**Options and costs.**
+
+1. Permit an in-place or silently rebased ledger for the revised basis. This lets
+   the promotion proceed, but can discard prior cumulative spend and requires an
+   authority-bearing transition the current ledger owner has not authorized.
+2. Compare only stable `scope_id` and ignore the changed full risk-scope binding.
+   This avoids the exception, but makes a same-ID basis change indistinguishable
+   from the previously admitted risk scope and can bypass spend lineage.
+3. **Proposed choice:** keep production N9 fail-closed on an unadmitted revised
+   basis. Repair the validator as a verifier: create its isolated verification
+   session lazily from the final N9 binding inside its existing
+   `TemporaryDirectory`; report an expected semantic mismatch as `fail`, and
+   return typed `UNRUN` (exit 2 with measured/not-measured disclosure) only when
+   inspection cannot reach a verdict. Do not authorize a ledger transition, mutate
+   a committed receipt, or turn an unexpected mismatch into green. This restores a
+   trustworthy gate result without claiming production promotion is admissible.
+
+**Premises.** The current checker creates `ConfidenceLedgerSession._for_verification`
+from a pre-controller `N9DesignProblemBinding` in
+`_build_live_payload_in_verification_namespace`; the later N9 receipt is validated
+against `confidence_risk_scope_for_problem(replay_input.design_problem_binding)`.
+N9 binds the full risk-scope projection and raises on inequality, even when the
+stable scope identifier is unchanged. At the execution base the validator returns
+a typed fail with three issues; at the current head `--check` raises an unexpected
+`ValueError` instead of returning a verdict. The ledger anchors the full
+scope and persisted receipts/events witness cumulative spend; an owner transition
+cannot be inferred from a stable identifier alone. Existing tests refuse unrelated
+scope binding and prevent deleting ledger events from resetting spend
+(`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py@b8134aeffe3b96760e7fd9663ae9670e85391160`,
+`src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`,
+`src/polisyos/runtime/quality/confidence_ledger.py@c3775ce0a96966fcbc46fa243e5cc03f3a80c84b`,
+`tests/unit/runtime/quality/test_promotion_sequence.py@fd72907d54b287a2d22031786e6cfd955a40c4d1`,
+`tests/unit/runtime/quality/test_confidence_ledger.py@1537ea3e9984fd9599d4d95b3c9e95c040af6fbf`).
+The named validator tests are
+`test_generation_cycle_contract_mutations_turn_red` and
+`test_generation_cycle_contract_write_refuses_stale_comparison_admission`
+(`tests/unit/runtime/quality/test_generation_cycle.py@4f851cb207267a13877647ef82a2b73f3a24360a`).
+The current P41 four-base receipts and exact command output for this failure remain
+pending broker citation; this draft makes no test-pass claim.
+
+**Proposed choice; principal status.** Recommend option 3 for the checker. At
+verification time, derive the exact risk scope from the final N9-bound problem and
+open the verification-only session in the isolated temporary namespace. When an
+observed receipt and the final binding differ, return a typed `fail` with the
+specific binding issue. If creation/replay itself raises an unexpected mismatch or
+the inspection is incomplete, return `UNRUN`, exit 2, and disclose what was and was
+not measured. The production N9 owner continues to reject a revised basis until the
+ConfidenceLedger owner and principal authorize an append-only same-scope basis
+transition that preserves cumulative spend and auditable lineage. No current
+authorization for that transition was found; no ledger receipt is reissued here.
+
+**P37 — gate predicates at admission.** The final N9 design-problem binding and its
+full `ConfidenceRiskBudgetScope` are recomputed from the promotion input. Ledger
+events, receipt witness, and spend lineage must be independently resolved from the
+owner; matching `scope_id` is only an identifier, not proof of basis equality or
+continuity. An observed mismatch is `fail`; an inspection exception is `UNRUN`, not
+a product refusal and not a pass. Any basis-transition authority is
+`institutionally_supplied` by the ledger owner and principal, and is
+`not_established` until recorded.
+
+**P38 — property and divergence.** Property: the validator returns a three-valued
+verdict about the final N9 binding and the ledger projection, while production N9
+never accepts a revised basis without an authorized, spend-preserving transition.
+Current implementation seeds a verification session before the controller's final
+binding and can let a later scope mismatch escape as `ValueError`; weakening the
+comparison to `scope_id` would instead test a proxy and could admit a different
+basis. Divergent case: the final binding has the same identifier but a changed
+basis while its ledger transition is absent; a crash is not a verdict, and the
+identifier alone cannot prove continuity.
+
+**Remainder and signatory.** This draft authorizes no production basis transition,
+ledger restamp, or cumulative-spend reset. `runtime/quality` owns the typed N9
+binding and validator composition; the ConfidenceLedger owner must propose the
+append-only transition and cumulative-spend rules, and Denis remains the principal
+signatory. Until then, revised-basis N9 admission stays blocked.
+
+**Falsifier / revisit trigger.** Reopen if an unchanged final N9 binding cannot
+produce the ordinary verification verdict, if a same-`scope_id` basis mutation
+passes without an owner transition, if the checker crashes instead of returning
+`fail` or `UNRUN`, or if an authorized transition loses any prior spend/event
+lineage. The marker-preserving negative probe changes only the basis while keeping
+the stable scope ID and existing record markers; production N9 must refuse it. The
+positive control replays the unchanged full binding and returns its expected typed
+verdict from the temporary verification namespace. An unexpected inspection error
+must return `UNRUN`/exit 2. These are acceptance criteria; none is claimed as run.
+
+**Where it binds.** Verification session construction and verdict composition in
+`tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`; exact N9
+binding in `src/polisyos/runtime/quality/promotion_sequence.py`; risk-scope and
+lineage custody in `src/polisyos/runtime/quality/confidence_ledger.py`.
+
+**Pattern pass.** P04/P05/P07/P29/P32/P37/P38/P41. The checker currently crashes
+on a binding mismatch; weakening the full scope to its stable ID would be a proxy
+gate. Target: final-binding verification, exact full-scope replay, and
+pass/fail/UNRUN output; production revised-basis admission remains
+`not_established` until an owner-signed transition exists.
+
 ## R5 — EvalSafety context denominator for non-simulation leaves
 
 **Question.** Which recursive leaf modes require a current EvalSafety context for
@@ -762,6 +876,26 @@ cannot be made backward-compatible by defaulting it to null
 `src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`).
 The legacy `ArtifactRef`/`InputRef` shape and primary manifest/signature byte sequence
 remain the historical contract; the qualified type and v2 envelope are additive.
+
+**Qualified input lineage at consumers (clarification).** A v2 view manifest must
+use a separate strict `ArtifactViewInputRef {view_ref, role}` for each lineage edge;
+the legacy `InputRef {artifact_id, role}` cannot distinguish two qualified views of
+one blob. Do not add an optional selector to `InputRef`, and do not lower
+`ArtifactViewRef` to its bare `artifact_id` before a view-aware read, write, or
+lineage record. The v2 serializer and importer must round-trip the qualified view
+selector and role; v1 serializers and primary-only history remain byte-exact. A
+complete caller census is a closure gate. Existing lowering surfaces that need
+explicit selector-preservation review include ProgramGraph input construction in
+`src/polisyos/foundry/execute/_internal/graph/__init__.py@c771be51959fe826f197b77f88afadf3a6833c16`,
+Foundry execute artifact lineage in
+`src/polisyos/foundry/execute/api.py@0d8aa78d13b69277f9ae35c8083ecfa07c84b19a`,
+and epoch-transition artifact inputs in
+`src/polisyos/runtime/quality/epoch_transition_inputs.py@8a5c44bb231027f156edf9d6dd2977424d714cfd`.
+These examples do not claim to be the complete set: enumerate every producer,
+lowering, transfer, and consumer. A positive v2 round-trip must preserve two refs
+with one blob ID but different view IDs and verify each exact manifest; a
+marker-preserving selector-removal probe must fail rather than silently resolve the
+primary or sibling view. The v1 byte oracle remains a separate required control.
 
 **Canonical profile and view-key input (proposed).** Define a versioned
 `cas-view-profile/v1` projection over the complete persisted semantic profile:
@@ -990,10 +1124,16 @@ unchanged test
 (`tests/unit/runtime/quality/test_generation_cycle.py@beb20c6bb8e1ed8aa46910fea0d3a4cf7cfabe15`;
 `tests/unit/runtime/quality/test_generation_cycle.py@28682ef61d0cec22f2420794f7e3aa3e396418b4`).
 The E02-head `_fake_cycle_reason` compares adjacent
-`selected_candidate_content_hash` fields
-(`src/polisyos/runtime/quality/generation_cycle.py@a17e52cff360f554478dd44844ea3ef27c62c043`);
-the JUnit receipt omits their actual values, so no independent numeric hash sequence
-is claimed.
+`selected_candidate_content_hash` fields. `_candidate_content_hash` accepts an
+object-supplied `sha256:` from the atom, candidate, or provenance without recomputing
+canonical owner bytes, and otherwise hashes only the candidate ID
+(`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`).
+The JUnit receipt omits the selected values and exact source payloads, so it does not
+establish that the two candidate payloads are equal. A repeated-candidate predicate
+is `not_established` until the actual producer handoff is resolved and canonical
+owner bytes are compared; an unavailable or mismatched handoff must remain typed
+`not_established` and cannot be converted into a repeated-candidate claim from the
+reason marker alone.
 
 A complete AST census walked 2,693 tracked `src/**/*.py` files with zero parse
 errors and recorded 8 direct `LoopVOIDecision` name references, 20 typed direct
@@ -1007,22 +1147,28 @@ refinement/search projections map `blocked` to `block_candidate` / `blocked_no_r
 But after the loop, `GenerationCycleController.run` unconditionally calls
 `_promote_completed_generation`; that call does not receive or check blocked-run
 status. `validate_generation_cycle_run` rejects extra cycles after `stop`/`escalate`,
-but does not enforce that `blocked` is final or consistent with `terminal_status`.
-The recursive route consumes the terminal projection rather than the action type;
-public normative projection validates the run and reads N9 without a demonstrated
-blocked-run guard. A direct board consumer is absent from this tracked-source
-census. Therefore the census disproves a broad direct-consumer claim, but does not
-prove those indirect consumers safely enforce `blocked`.
+but does not enforce that `blocked` is final or consistent with `terminal_status` and
+`blocked_reason`. The recursive route consumes the run-derived terminal projection,
+not `LoopVOIDecision` directly; `generation_cycle_terminal_state` maps a blocked run
+to `RECURSIVE_BLOCKED`. The S8 `_generation_disposition` path validates the N6 run
+and reads its fronts, but has no blocked-run predicate before it may call the
+recommendation owner. A direct board consumer is absent from this tracked-source
+census. The census disproves a broad direct-consumer claim; it does not prove that
+state-level consumers enforce the block.
 
 **Proposed choice; principal status.** Recommend option 1, subject to Denis's
-principal ruling. Keep `blocked` for repeated candidate identity; do not map every
-blocked state to `stop` or `escalate`. Require the run validator to recompute that a
-blocked decision occurs only on the final cycle and that the enclosing terminal
-status/kind agree. Require the production N6→N9 path to refuse a blocked run before
-pre-N9 subjects, admissions, or receipts are produced. Any public projection must
-retain a blocked result with no ranked/current recommendation. The current test
-expectation should change only with this behavioral witness; this draft does not
-claim the witness has run.
+principal ruling. Keep `blocked` distinct; do not map every blocked state to `stop`
+or `escalate`. A repeated-candidate reason is admitted only when the producer's exact
+canonical candidate bytes independently resolve equal. If those bytes or their owner
+handoff are unavailable, preserve `candidate_identity_not_established` as a typed
+limitation and withhold N9 authority rather than accepting a caller hash or reason
+string. Require the run validator to recompute that any blocked action is the final
+cycle, has `blocked_no_retry` and `block_candidate`, and agrees with the enclosing
+`terminal_status=blocked` and `blocked_reason`. Require the production N6→N9 path to
+refuse a blocked or identity-not-established run before pre-N9 subjects, admissions,
+or receipts are produced. S8 must also retain the blocked disposition with no ranked
+recommendation. The current test expectation should change only with this behavioral
+witness; this draft does not claim the witness has run.
 
 **P37 — gate predicates at admission.**
 
@@ -1030,33 +1176,41 @@ claim the witness has run.
   files, zero parse errors. Its no-direct-consumer result is `recomputed` for that
   syntax/tree denominator; external, dynamic, and generated consumers remain
   `not_established`.
-- The repeated-candidate predicate compares adjacent selected-candidate content
-  hashes (`recomputed` as stored identity fields). Whether each hash is bound to the
-  actual candidate bytes is `not_established` until those bytes/source handoffs are
-  resolved; the reason marker alone is not evidence of equality.
-- Blocked-final consistency must be recomputed from every cycle and its typed
-  decision; a run-level `terminal_status` string alone is `consumer_asserted`.
+- The current repeated-candidate gate compares the two stored hash strings
+  (`consumer_asserted`). `_candidate_content_hash` may accept a caller object's
+  `sha256:` claim or fall back to hashing only its candidate ID; equality of
+  canonical owner bytes is `not_established` until the actual source handoffs and
+  payloads resolve. The repeated-candidate predicate becomes `independently_reconciled`
+  only after that byte comparison; otherwise its outcome remains typed
+  `not_established`.
+- Blocked-final consistency must be recomputed from every cycle, its typed decision,
+  `blocked_no_retry` state, and the enclosing status/reason; a run-level
+  `terminal_status` string alone is `consumer_asserted`.
 - N9 eligibility must be independently reconciled against the validated run and
   refuse any blocked terminal before authority-bearing work. A missing or stale
   guard is `not_established` and cannot produce an N9-positive result.
 
-**P38 — property and divergence.** Property: a repeated candidate cannot be
-reinterpreted as progress or reach N9/current authority, even when the advisory
-scheduler says `advance`. Current implementation: the N6 loop breaks on `blocked`,
-but then unconditionally calls `_promote_completed_generation`; the validator also
-lacks a blocked-final/terminal-consistency rule. Divergent case: a final cycle has
-`next_action=blocked`, `terminal_kind=search_ceiling_repair_required`, while its
-scheduler field says `advance`; N6 stops another cycle, but N9 promotion still runs.
-The public projection and recursive terminal path also need behavioral witnesses
-before they can be credited with preserving the block.
+**P38 — property and divergence.** Property: only producer-resolved equality of
+canonical candidate bytes may count as a repeated candidate; an unavailable identity
+is `not_established`, and a blocked run cannot reach N9/S8 current authority even
+when the advisory scheduler says `advance`. Current implementation: the N6 loop
+compares stored hash strings, `_candidate_content_hash` can trust the candidate's
+claimed `sha256:` or ID fallback, and the loop then unconditionally calls
+`_promote_completed_generation`; the validator lacks blocked-final/terminal
+consistency. Divergent cases: different owner bytes carry the same claimed hash, or
+the last action is `blocked` while N9 runs. The recursive route derives a terminal
+state from the run; it is not a direct `LoopVOIDecision` consumer. S8 revalidates the
+run but does not yet enforce blocked-run refusal. Both state-level paths need
+behavioral witnesses before they can be credited with preserving the block.
 
 **Remainder.** This decision covers the repeated-candidate cap and its boundary to
-N9, not a universal mapping for all `blocked` outcomes. The board has no direct
-`LoopVOIDecision` consumer in the measured source set; its indirect authority path is
-`not_established` until named and witnessed. The recursive router and public
-projection consume derived run/terminal outputs, not this decision type directly;
-their safe behavior is not established by the N6 break. No general claim that every
-consumer handles `blocked` is made here.
+N9/S8, not a universal mapping for all `blocked` outcomes. The board has no direct
+`LoopVOIDecision` consumer in the measured source set; any indirect board path is
+`not_established` until named and witnessed. The recursive router consumes the
+run-derived terminal state, while S8 consumes the validated run/fronts and signed
+authorization path; neither is a direct action consumer. Their safe handling is not
+established by the N6 loop break or AST census. No general claim that every consumer
+handles `blocked` is made here.
 
 **Remainder standing and signatory.** Denis is the pending principal signatory for
 the action vocabulary. `runtime/quality` owns the typed loop decision and final N9
@@ -1065,17 +1219,22 @@ appointed for any external or dynamic consumer; those paths remain
 `unallocated/not_established`. This proposal does not appoint an external actor or
 create authority through the action label.
 
-**Falsifier / revisit trigger.** Reopen if a served run with repeated adjacent
-candidate bytes is not blocked, if the marker alone blocks after the bytes differ,
-if a blocked decision is followed by another cycle, if blocked is not the final
-cycle with a matching blocked terminal, or if a blocked run reaches N9 or emits a
-ranked/current recommendation. The decisive negative probe supplies an otherwise
-N9-eligible blocked run with valid positive N9 evidence; it must produce no N9
-subject, admitted batch, promotion receipt, or public recommendation. A removal
-probe keeps `fake_cycle_same_candidate_repeated` but changes the actual source-bound
-candidate bytes; it must no longer produce that block. The preserved control uses
-an ordinary `stop` or `escalate` run and keeps its existing terminal projection.
-These are acceptance criteria; none is claimed as run here.
+**Falsifier / revisit trigger.** Reopen if two owner-resolved handoffs with equal
+canonical candidate bytes fail to produce a final `blocked` action, or if a blocked
+action permits another cycle, lacks `blocked_no_retry`/`block_candidate`, disagrees
+with the enclosing blocked terminal, reaches N9, or emits an S8 ranked/current
+recommendation. The decisive negative probe supplies an otherwise N9-eligible
+blocked run with valid positive N9 evidence; it must produce no N9 subject, admitted
+batch, promotion receipt, or public recommendation. The marker-preserving removal
+probe keeps `fake_cycle_same_candidate_repeated` and a caller-supplied identical
+`sha256:` claim but changes one handoff's canonical owner bytes; equality must no
+longer be established, so the reason marker cannot create the repeated-candidate
+block. If either owner handoff is unavailable, the outcome must instead be typed
+`candidate_identity_not_established` with N9 withheld. A positive distinct-byte
+control resolves both handoffs, keeps the repeated-reason marker, supplies otherwise
+valid N9 evidence, and must not classify the candidates as repeated; ordinary
+`stop`/`escalate` controls must retain their existing terminal projections. These
+are acceptance criteria; none is claimed as run here.
 
 **Where it binds.** Loop and post-loop N9 owner at
 `src/polisyos/runtime/quality/generation_cycle.py::GenerationCycleController.run`
@@ -1091,8 +1250,9 @@ No direct board consumer is named by this proposal.
 followed by an unconditional N9 call and a validator that does not enforce blocked
 terminal consistency. Target: recomputed final-block consistency and one N9 guard
 before authority work. The existing fixture records the block but not the N9
-non-promotion witness; the closure state is `verification_missing` until the blocked
-run, marker-removal, and preserved terminal controls pass.
+non-promotion witness; the closure state is `verification_missing` until equal-byte
+owner-handoff, marker-removal, distinct-byte candidate-preserving, blocked-run,
+N9/S8 non-promotion, and preserved-terminal controls pass.
 
 ## R13 — one world-growth path and runtime store custody
 

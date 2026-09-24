@@ -27,7 +27,7 @@
       "owner": "Runtime HTTP composition and generation-cycle owner",
       "blocker_kind": null,
       "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
-      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "next_step": "Through the HTTP process_nl_job/plain-language production entrypoint, an ordinary request without CycleSubstrateContext must return candidate computation with a typed unknown limitation to its consumer. Keep a separate protected-action control that still refuses at the authority band. Assert both visible outcomes on the served path and record the exact caller and test identity.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B01",
       "e02_residual_source_refs": [
         {
@@ -48,7 +48,7 @@
       "owner": "Runtime HTTP composition and generation-cycle owner",
       "blocker_kind": null,
       "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
-      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "next_step": "Through the HTTP process_nl_job/plain-language production entrypoint, an ordinary request without CycleSubstrateContext must return candidate computation with a typed unknown limitation to its consumer. Keep a separate protected-action control that still refuses at the authority band. Assert both visible outcomes on the served path and record the exact caller and test identity.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B02",
       "e02_residual_source_refs": [
         {
@@ -69,7 +69,7 @@
       "owner": "Runtime HTTP composition and generation-cycle owner",
       "blocker_kind": null,
       "e02_residual": "CYC-01: owner-bridge prerequisite only; HTTP→N5→CAS and B01–B03 core remain open",
-      "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
+      "next_step": "Through the HTTP process_nl_job/plain-language production entrypoint, an ordinary request without CycleSubstrateContext must return candidate computation with a typed unknown limitation to its consumer. Keep a separate protected-action control that still refuses at the authority band. Assert both visible outcomes on the served path and record the exact caller and test identity.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B03",
       "e02_residual_source_refs": [
         {
@@ -288,7 +288,7 @@
       "owner": "SearchService lifecycle owner",
       "blocker_kind": null,
       "e02_residual": "SRV-03: caller lifecycle, retained-history readers open",
-      "next_step": "Migrate the named live caller and exercise create/read/retain/replay lifecycle, including retained-history readers.",
+      "next_step": "Identify the exact live SearchService caller by module/function and name the retained-history reader. Migrate that caller and exercise create, read, retain, and replay through the real path; assert the retained reference and replayed result preserve identity. Record the caller and test identity rather than referring to an unnamed caller.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-015",
       "e02_residual_source_refs": [
         {
@@ -501,7 +501,7 @@
       "owner": "Level6 promotion-stage and effect-capable runner owner",
       "blocker_kind": null,
       "e02_residual": "FUN-03: generic owner callback residual",
-      "next_step": "Check no_promotion, reduced_judge, and auto_cap before invoking any effect-capable runner; the commit owner must independently recheck current ticket generation, authority, and operation constraints immediately before commit. Preserve the prepared-payload read path and prove the normal callback still runs once.",
+      "next_step": "Through the existing Level6 promotion-stage caller, record the exact production function/path and exercise no_promotion, reduced_judge, and auto_cap separately; each must prevent the effect-capable runner from being invoked. Change ticket generation or authority after preparation and prove the commit owner rechecks and refuses; preserve the prepared-payload read path and an allowed callback that runs exactly once. This closes only the callback/commit gate, not GY-PR1 or Atlas DS12/DS13.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B164",
       "e02_residual_source_refs": [
         {
@@ -607,7 +607,7 @@
       "owner": "Transfer compatibility owner",
       "blocker_kind": null,
       "e02_residual": "TRN-02: legacy zero-vector fallback, live metadata, distributed atomicity open",
-      "next_step": "Remove the legacy zero-vector fallback from the live path and prove typed metadata admission and refusal behavior.",
+      "next_step": "Name the production transfer entrypoint and its consuming warm-start/runner path. With valid typed transfer metadata, prove the selected score reaches that consumer; with missing, legacy zero-vector, or malformed metadata, require a typed refusal and prove no fallback score is consumed. Keep a valid-metadata positive control and report the refusal state observed at the consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B129",
       "e02_residual_source_refs": [
         {
@@ -755,7 +755,7 @@
       "owner": "EMP scope and CAS graph-bridge owner",
       "blocker_kind": null,
       "e02_residual": "EMP-01: non-country scopes, multi-dataset refusal, untyped unit remain; positive CAS graph bridge untested/HOLD",
-      "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
+      "next_step": "Use the existing EMP-to-CAS graph-bridge production caller (name its module/function in the receipt). Send a non-country scope with two dataset references and explicit units through the bridge; assert typed scope, unit meaning, tenant, and provenance survive into the consumed graph artifact. Missing units or an unsupported scope must produce a typed limitation/refusal. Keep a supported single-dataset control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B16",
       "e02_residual_source_refs": [
         {
@@ -776,7 +776,7 @@
       "owner": "EMP scope and CAS graph-bridge owner",
       "blocker_kind": null,
       "e02_residual": "EMP-01: non-country scopes, multi-dataset refusal, untyped unit remain; positive CAS graph bridge untested/HOLD",
-      "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
+      "next_step": "Use the existing EMP-to-CAS graph-bridge production caller (name its module/function in the receipt). Send a non-country scope with two dataset references and explicit units through the bridge; assert typed scope, unit meaning, tenant, and provenance survive into the consumed graph artifact. Missing units or an unsupported scope must produce a typed limitation/refusal. Keep a supported single-dataset control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B33",
       "e02_residual_source_refs": [
         {
@@ -797,7 +797,7 @@
       "owner": "PCL producer and consumer owner",
       "blocker_kind": null,
       "e02_residual": "PCL-01: mixed valid/empty, skipped-level identity open",
-      "next_step": "Implement mixed-valid/empty handling and prove the same typed identity is preserved through producer and consumer.",
+      "next_step": "Name the PCL producer and live consumer. Send mixed valid and empty levels, including a skipped hierarchy level; assert which evidence rows survive and that the same typed identity is preserved rather than collapsed or reassigned across the producer-consumer hop. Keep all-valid and all-empty controls and assert their distinct outcomes.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-052",
       "e02_residual_source_refs": [
         {
@@ -861,7 +861,7 @@
       "owner": "Generation-cycle S10 and existing calibration producer owners",
       "blocker_kind": null,
       "e02_residual": "FRC-02: predictive_only; implemented_but_not_orchestrated/bridge_pending",
-      "next_step": "Wire a compatible real calibration producer and named S10 consumer through the existing calibration/S10 owners; bind observed numerator/denominator, report/rule version, scope and times. If no compatible producer is found, keep the result explicitly predictive-only/bridge-pending under FRC-01 instead of manufacturing coverage.",
+      "next_step": "First identify the compatible in-repository calibration producer and exact S10 consumer. Through that existing producer-to-consumer path, bind observed numerator and denominator, rule/report version, scope, and times, then assert the consumer sees those same values. If no compatible producer exists, record that census result and retain predictive_only/bridge_pending under FRC-01; do not manufacture coverage.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-051",
       "e02_residual_source_refs": [
         {
@@ -1160,7 +1160,7 @@
       "owner": "Forecast model, calibration and caller owners",
       "blocker_kind": null,
       "e02_residual": "FRY-03: model/calibration/caller applicability open",
-      "next_step": "Exercise actual model and calibration profiles through named callers; encode applicability boundaries and verify each admitted profile end to end.",
+      "next_step": "Select and name one in-repository model/calibration profile that applies and one that does not, with each production caller. Run both through the actual caller and consumer: the applicable profile must retain its calibration basis in the result, while the non-applicable profile remains typed as unavailable/limited. Record the profile and test identities.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-003",
       "e02_residual_source_refs": [
         {
@@ -1267,7 +1267,7 @@
       "owner": "Plugin verification owner",
       "blocker_kind": null,
       "e02_residual": "PLG-01: verification_missing",
-      "next_step": "Add the missing verification producer/consumer witness and demonstrate that a forged or absent verification signal is refused.",
+      "next_step": "Name the plugin-verification producer, admission consumer, and production caller. Prove an owner-issued verification signal is consumed for a valid plugin; absent and present-but-forged signals must be refused by that same consumer. Preserve the valid case as a positive control and assert the consumer-visible status, not only signal fields.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-022",
       "e02_residual_source_refs": [
         {
@@ -1478,7 +1478,7 @@
       "owner": "Public API and documentation owner",
       "blocker_kind": null,
       "e02_residual": "API-01: caller/docs residual",
-      "next_step": "Enumerate live callers, migrate them to the canonical API and align the public documentation with observed behavior.",
+      "next_step": "Enumerate all live callers of the canonical API from a complete tracked-path/import census, report its denominator, and name the callers being migrated. Exercise a real caller through the canonical API and assert the observed response matches the public documentation; verify no live caller still depends on the retired contract.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-020",
       "e02_residual_source_refs": [
         {
@@ -1951,7 +1951,7 @@
       "owner": "Report migration owner",
       "blocker_kind": null,
       "e02_residual": "REP-01: no more specific residual text in Appendix C",
-      "next_step": "Complete REP-01 against its named callers and prove report provenance and historical replay on the canonical owner path.",
+      "next_step": "Name the REP-01 report producer and every live report reader from a complete caller census. Persist a representative report through the canonical owner, then replay its retained reference and assert provenance binding and byte-exact historical content at the actual reader. Record the caller, artifact identity, and test receipt.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-033",
       "e02_residual_source_refs": [
         {
@@ -1972,7 +1972,7 @@
       "owner": "Migration owner for MIG-02",
       "blocker_kind": null,
       "e02_residual": "MIG-02: no more specific residual text in Appendix C",
-      "next_step": "Apply the MIG-02 move through the canonical owner and enumerate all readers/importers before retiring the legacy path.",
+      "next_step": "State the exact MIG-02 source and canonical destination modules, then enumerate every reader/importer with a complete tracked-path denominator. Move through the canonical owner; prove a representative production reader preserves its observable contract and retained-history identity, and confirm no live reader imports the legacy path before retiring it.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-048",
       "e02_residual_source_refs": [
         {
@@ -1993,7 +1993,7 @@
       "owner": "ManifestRegistry and corpus migration owner",
       "blocker_kind": null,
       "e02_residual": "MIG-04: ManifestRegistry/corpus migration",
-      "next_step": "Complete ManifestRegistry/corpus migration with reader compatibility and source-bound replay evidence.",
+      "next_step": "Name the ManifestRegistry producer and corpus reader APIs, and enumerate all live readers. Migrate through that owner, then read a source-bound historical corpus reference through a real reader and assert content identity and replay remain valid; include a new-reference control and record the reader/test identities.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-050",
       "e02_residual_source_refs": [
         {
@@ -2014,7 +2014,7 @@
       "owner": "MOVE-14 migration owner",
       "blocker_kind": null,
       "e02_residual": "MIG-05: MOVE-14 not applied",
-      "next_step": "Apply MOVE-14 through the owner, then verify imports and all live callers resolve to the canonical module.",
+      "next_step": "Name the MOVE-14 source and destination modules and enumerate all production callers. Apply the move through the canonical owner, exercise one representative caller to verify its behavior is unchanged, and verify the complete caller/import census has no live legacy-module references before retiring the shim.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-047",
       "e02_residual_source_refs": [
         {
@@ -2035,7 +2035,7 @@
       "owner": "Observation and mutation owner",
       "blocker_kind": null,
       "e02_residual": "OBS-02: concurrent mutation, D2 fault injection",
-      "next_step": "Add concurrent mutation and D2 fault-injection behavioral witnesses and prove the emitted observation is reconciled against the mutated source.",
+      "next_step": "Name the production observation entrypoint and the source it observes. Inject a concurrent source mutation and the D2 failure at a stated point; the real consumer must receive an observation bound to the post-mutation source or a typed stale/unreconciled result, never a green marker for stale bytes. Keep an unchanged-source control and a marker-preserving removal probe.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B147",
       "e02_residual_source_refs": [
         {
@@ -2056,7 +2056,7 @@
       "owner": "UDF server lifecycle owner",
       "blocker_kind": null,
       "e02_residual": "UDF-04: server lifecycle",
-      "next_step": "Close the server lifecycle consumer path and prove start, shutdown, failure and restart against its owner contract.",
+      "next_step": "Name the production UDF server entrypoint and its request consumer. Exercise start, successful request, shutdown, injected failure, and restart through that caller; assert the expected unavailable/failure state during interruption and a fresh valid response after restart. Record the lifecycle owner contract and test identity.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-029",
       "e02_residual_source_refs": [
         {
@@ -2161,7 +2161,7 @@
       "owner": "Data Forge kit owner",
       "blocker_kind": null,
       "e02_residual": "DFK-02: no more specific residual text in Appendix C",
-      "next_step": "Close DFK-02 through the canonical kit owner and a served consumer witness.",
+      "next_step": "Name the DFK-02 kit producer, the production route that invokes it, and the served consumer. Follow one valid input through producer, persisted output, and consumer-visible result; then remove or corrupt the decisive artifact while keeping status markers and prove the consumer refuses. Cite the resulting test identity and keep the claim limited to DFK-02.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-028",
       "e02_residual_source_refs": [
         {
@@ -2182,7 +2182,7 @@
       "owner": "DFI CLI facade owner",
       "blocker_kind": null,
       "e02_residual": "DFI-02: CLI facade, override concurrency",
-      "next_step": "Complete the CLI facade and prove override concurrency under the canonical configuration owner.",
+      "next_step": "Name the DFI CLI command and canonical configuration owner. Invoke the command concurrently with two distinct overrides and prove each result uses only its own override, with no shared-state bleed; keep the default configuration control. Record the effective configuration source and assert it in the command result or consumer.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-038",
       "e02_residual_source_refs": [
         {
@@ -2203,7 +2203,7 @@
       "owner": "Embedding generation and reader owner",
       "blocker_kind": null,
       "e02_residual": "EMB-02: generation/reader not fully closed",
-      "next_step": "Exercise embedding generation through retained-history readers and close the full generation/read lifecycle.",
+      "next_step": "Name the embedding-generation producer and retained-history reader. Generate a new embedding version through the production path, prove the live reader resolves that version, then read an older retained reference and verify its historical bytes/version remain unchanged. Record both artifact identities and the consumer test.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-039",
       "e02_residual_source_refs": [
         {
@@ -2481,7 +2481,7 @@
       "owner": "Scope and network admission owner",
       "blocker_kind": null,
       "e02_residual": "SCL-01: no SSRF/DNS closure",
-      "next_step": "Close SSRF/DNS behavior for resolution, rebinding and scope changes through the actual request path, with a control that must remain allowed.",
+      "next_step": "Name the production request entrypoint and test public-to-private DNS resolution, DNS rebinding between authorization and connection, and a scope change. Assert no request reaches the forbidden address and the refusal is visible to the consumer; keep an in-scope public destination as the allowed control.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-024",
       "e02_residual_source_refs": [
         {
@@ -2523,7 +2523,7 @@
       "owner": "Calibration preflight owner",
       "blocker_kind": null,
       "e02_residual": "CAL-02: preflight scaling compatibility debt",
-      "next_step": "Measure the compatibility scale boundary and close it with a real mixed-size preflight witness.",
+      "next_step": "Name the calibration preflight caller and measure the existing compatibility boundary before changing it. Exercise mixed-size inputs just below, at, and above that boundary through the caller; assert the expected accepted/refused rows and resource behavior, with a small-size control. Record the measured threshold and its source.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B182",
       "e02_residual_source_refs": [
         {
@@ -2905,7 +2905,7 @@
       "owner": "Runtime API client package owner",
       "blocker_kind": null,
       "e02_residual": "CLI-01: full client LA not closed",
-      "next_step": "Complete the bounded client migration through package-owned generation; typecheck every workspace and prove consumers use the generated canonical client.",
+      "next_step": "Enumerate all Runtime API client imports/callers across workspaces with a complete denominator and name the live consumers being migrated. Use package-owned generation, typecheck every workspace, and exercise a real consumer request against the runtime contract with a typed response. Confirm the caller census has no live raw-client imports; typecheck alone is not the behavioral witness.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-044",
       "e02_residual_source_refs": [
         {

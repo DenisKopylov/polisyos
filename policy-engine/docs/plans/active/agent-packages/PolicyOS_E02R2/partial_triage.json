@@ -90,16 +90,16 @@
       "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
       "blocker_kind": null,
       "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
-      "next_step": "Route the production in-cycle arm through the canonical bridge, overlay admission, passport and native epoch; use the runtime-supplied tenant-bound store and prove same-case re-entry custody.",
+      "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B12",
       "direct_relations": [
         {
-          "relation": "advances",
-          "target": "GY-D1/N13b",
-          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-D1-N13b"
+          "relation": "conflicts",
+          "target": "GY-N13b",
+          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b"
         },
         {
-          "relation": "touches-code-named-by",
+          "relation": "conflicts",
           "target": "Atlas DS15",
           "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
         }
@@ -114,6 +114,17 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B12"
         }
+      ],
+      "production_residual": {
+        "status": "producer_missing",
+        "detail": "The complete tracked-path census found no production ACQ-01 route producer; only the test fixture emits the structured acq01_route payload. The local route is not production world growth."
+      },
+      "classification_rationale": "Bucket a covers engineering available now: fence the local route as typed non-authoritative demonstration and restore/verify served WDI custody. The production producer remains an explicit producer_missing residual.",
+      "acquisition_route_census_ref": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
+        "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
+        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
       ]
     },
     {
@@ -123,16 +134,16 @@
       "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
       "blocker_kind": null,
       "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
-      "next_step": "Route the production in-cycle arm through the canonical bridge, overlay admission, passport and native epoch; use the runtime-supplied tenant-bound store and prove same-case re-entry custody.",
+      "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-046",
       "direct_relations": [
         {
-          "relation": "advances",
-          "target": "GY-D1/N13b",
-          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-D1-N13b"
+          "relation": "conflicts",
+          "target": "GY-N13b",
+          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b"
         },
         {
-          "relation": "touches-code-named-by",
+          "relation": "conflicts",
           "target": "Atlas DS15",
           "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
         }
@@ -147,6 +158,17 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-046"
         }
+      ],
+      "production_residual": {
+        "status": "producer_missing",
+        "detail": "The complete tracked-path census found no production ACQ-01 route producer; only the test fixture emits the structured acq01_route payload. The local route is not production world growth."
+      },
+      "classification_rationale": "Bucket a covers engineering available now: fence the local route as typed non-authoritative demonstration and restore/verify served WDI custody. The production producer remains an explicit producer_missing residual.",
+      "acquisition_route_census_ref": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
+        "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
+        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
       ]
     },
     {
@@ -2529,5 +2551,24 @@
         }
       ]
     }
-  ]
+  ],
+  "acquisition_route_producer_census": {
+    "basis_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
+    "tracked_python_denominators": {
+      "policy-engine/src": 2693,
+      "policy-engine/tests": 2722,
+      "policy-engine/tools": 445
+    },
+    "enumeration": "git ls-files -z at basis_commit; count tracked .py by policy-engine/src/, policy-engine/tests/, policy-engine/tools/",
+    "producer_query": "git grep -n -E '\"acq01_route\"[[:space:]]*:' -- tracked Python files under policy-engine/src, tests, tools",
+    "producer_result": "No tracked production ACQ-01 route producer. The structured acq01_route payload field is emitted only by a test fixture. Production source contains a local N7 route-context rebuild helper, not an admitted production producer.",
+    "production_status": "producer_missing",
+    "served_wdi_status": "Canonical AcquisitionWorldGrowthBridge is wired by the served WDI execution port and receives the runtime-supplied artifact store.",
+    "source_refs": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
+      "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
+      "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
+      "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
+    ]
+  }
 }

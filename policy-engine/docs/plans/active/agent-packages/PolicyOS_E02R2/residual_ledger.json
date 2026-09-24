@@ -12902,24 +12902,24 @@
       "appendix_c_status": "partial",
       "status": "partial",
       "appendix_c_comparison": {
-        "relation": "not_measured",
-        "detail": "Residual transcribed; current behavior not independently measured."
+        "relation": "disagrees",
+        "detail": "Appendix C copies ACQ-01 local FileTabular custody wording, which describes B12/ACQ-01 package residual rather than LA-046 source property. LA-046 is one finding: r06 concerns construct inference and implicit scenario profile; r08 is its N7 handoff addendum. Keep partial; do not assign R13 or infer a DS15/N13b relation from package membership."
       },
-      "residual": "Appendix C residual: local FileTabular custody only; not live acquisition; REQ-01 stage + local fixture only; finding-level replay not established.",
+      "residual": "LA-046 is one finding spanning the r06 compiler property and its r08 actual N7 handoff. The r06 card distinguishes opaque scenario IDs and negated topic text that historically entered required-construct matching, implicit UA jurisdiction and 2022-02-01 start defaults, and an adapter that ignored text and appended annual. The r08 addendum traced GenerationCycleController._n7_data_requirement_specs calling the scenario compiler with scenario_id/text/domain and family hints but, at that audited source, no resolver; text/domain were lost, annual was added, and empty specs returned before acquisition while legacy-family specs could enter the closed loop. Current source inspection shows the required-construct helper ignores scenario_id and keeps lexical constructs as candidate proposals; jurisdiction and dates read a supplied profile; _scenario_text accepts text/request; and the current N7 caller supplies text, domain, scope_profile and a resolver. These source changes have not been behaviorally replayed. The current N7 default profile is synthesized from DesignProblem identity/jurisdiction/time, and the capability query still sets authority_level=\"governed_pilot\"; their adequacy as explicit, versioned, authority-bound profile inputs is not established. Real grammar, resolver, consumer and acquisition/admission behavior remains UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
-        "name": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
-        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+        "name": "DataRequirementCompiler owner for the original compiler/profile semantics; GenerationCycleController N7 requirement-composition and resolver owner for the r08 handoff",
+        "appointment_status": "owner roles follow the named source paths; no individual appointment is established"
       },
-      "r_class": "R13",
+      "r_class": null,
       "p_triage": {
         "class": "a",
         "disposition": "engineering",
-        "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
+        "owner": "DataRequirementCompiler owner (r06 compiler/profile semantics) and GenerationCycleController N7 requirement-composition/resolver owner (r08 handoff)",
         "blocker_kind": null,
-        "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
-        "scope": "Reviewed next-step triage only; it does not supply a behavioral verdict or close this finding.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b07ccbc1e3b587efd1cae483c6eb18fecb25c81f#LA-046"
+        "next_step": "Keep explicit construct-frontier identity separate from lexical candidate proposals. Require generic geography/period to remain jurisdiction/time unknown unless an explicit named profile supplies them; retain a positive explicit pilot-profile control, and bind governed_pilot query authority to an explicit typed profile or record the bounded contract. Verify text/request and domain at the actual N7 caller, with the caller-supplied resolver; absent resolver or empty specs must not become an acquisition success. Add a real-controller test with renamed opaque IDs, negated topic text, generic versus explicit pilot scope/time, explicit construct controls, resolver present/absent, and downstream acquisition recording. Preserve a served N7 positive control. All current-head behavior and production admission remain UNRUN pending four-base replay and a real caller witness.",
+        "scope": "One LA-046 source finding with the r08 addendum; separates compiler semantics from N7 handoff behavior and does not claim package acceptance or source inspection as closure.",
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3034-L3068;#L3818-L3841"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12927,15 +12927,34 @@
           "identity": "source_record_inspection:LA-046",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/LA-046",
           "behavioral_verdict": "UNRUN",
-          "scope": "per-ID source-card and mapping inspection; package selectors, when listed, are not finding-level proof",
-          "package_test_selector_groups": [
-            "bundle_test_selectors/REQ-01"
-          ]
+          "scope": "source-card/mapping inspection only; historical r06/r08 local probes and package test selectors are not current-head behavioral proof"
         },
+        "source_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3034-L3068",
+        "source_addendum_same_finding": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3818-L3841",
+        "current_source_observations": [
+          "policy-engine/src/polisyos/data_requirement/compiler.py@git-blob:d91823b593427fe275b4b0b6d4f14c499a12aa2d#L836-L900;#L976-L1000;#L1129-L1155;#L1298-L1326;#L1382-L1388: scenario_id does not supply required constructs; text/request is accepted; jurisdiction and dates come from scope_profile; capability query still uses authority_level=\"governed_pilot\".",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:65d830f71dccd9c3b1e943e5e132678f7221ed8a#L4317-L4358;#L4400-L4429: actual N7 caller supplies problem text/domain, scope profile and resolver; default profile is composed from problem identity/jurisdiction/time."
+        ],
+        "existing_test_identities_unrun": [
+          "policy-engine/tests/unit/data_requirement/test_compiler.py@git-blob:9b97bf857a45cd1a18f7e6a380087d1bf130d03e::test_opaque_scenario_id_is_not_semantic_input",
+          "policy-engine/tests/unit/data_requirement/test_compiler.py@git-blob:9b97bf857a45cd1a18f7e6a380087d1bf130d03e::test_negated_topic_does_not_become_required_construct",
+          "policy-engine/tests/unit/data_requirement/test_compiler.py@git-blob:9b97bf857a45cd1a18f7e6a380087d1bf130d03e::test_generic_scope_does_not_infer_pilot_jurisdiction_or_start",
+          "policy-engine/tests/unit/data_requirement/test_compiler.py@git-blob:9b97bf857a45cd1a18f7e6a380087d1bf130d03e::test_explicit_constructs_are_not_replaced_by_semantic_proposals",
+          "policy-engine/tests/unit/data_requirement/test_compiler.py@git-blob:9b97bf857a45cd1a18f7e6a380087d1bf130d03e::test_scenario_adapter_accepts_text_request_and_domain_context",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:4f851cb207267a13877647ef82a2b73f3a24360a::test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters"
+        ],
+        "proposed_real_n7_test": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py::test_n7_requirement_handoff_uses_explicit_profile_and_resolver_through_real_controller (proposed; not present as an existing selector and not run)",
+        "property_removal_probe": "With markers retained, mutate only an opaque scenario ID and replace positive topic words with negated text; required constructs must not change or appear. Then remove explicit profile binding while retaining geography/period labels; UA/2022-02-01 must not be synthesized.",
+        "property_preserving_control": "Explicit construct frontier and named pilot scope/time continue to produce their declared requirement/query; a genuine resolver and a real N7 request with valid typed specs still reach the normal downstream path.",
         "package_record": "e02_package_projection",
-        "reported_test_catalog": "R13",
+        "reported_test_catalog": null,
         "finding_test_status": "UNRUN"
-      }
+      },
+      "source_line_spans": [
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3034-L3068",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3818-L3841"
+      ],
+      "r_class_rationale": "No R1-R14 regression class is assigned. LA-046 is about typed requirement content/profile and its N7 handoff; R12 concerns canonical N7 re-entry identity and R13 concerns alternate world-growth/root-store custody. Shared N7 vocabulary or file context does not establish the same property, and P41 attribution is not recorded."
     },
     {
       "id": "LA-047",

@@ -323,18 +323,23 @@ source checkout or treating current-source drift as proof that history is invali
 2. Remove the strangle receipt and stop checking the production-path property. This
    removes false staleness, but the runtime and public projections lose evidence for
    a safety-relevant orchestration boundary.
-3. **Proposed lean:** keep the complete source/deployment census as a source/deploy-
-   time tooling gate and extend the existing canonical identity owner; do not create
-   a second identity calculation. The owner’s full identity comprises the baseline
-   of `pyproject.toml`, `uv.lock`, every file in the resolved authority import
-   closure, and the Python runtime manifest, combined with the authority import
+3. **Proposed lean:** keep the census over its declared source/build inputs as a
+   source/deploy-time tooling gate. Extend the existing canonical identity owner to
+   expose a typed deployment-identity projection for run-start and pre-N9 admission;
+   do not create a second identity calculation. The owner’s full identity comprises
+   the baseline of `pyproject.toml`, `uv.lock`, every file in the resolved authority
+   import closure, and the Python runtime manifest, combined with the authority import
    closure and loaded-code manifest. Capture that already-admitted census receipt
    and the loaded deployment identity at N6 run start. Before N9 invokes promotion,
    require the run-start identity, the census-bound identity, and the currently
    loaded canonical identity to match exactly, with the census verdict passing.
    Missing evidence yields `not_established`; mismatch yields `stale`; either
    withholds N9 authority while ordinary candidate computation continues. The
-   current identity is computed inside private confidence-ledger functions; no
+   direct AST call census is not complete call-path proof: aliased or reflective
+   dispatch, and any blanket caller allowlist, remain `not_established` unless
+   independently reconciled. A declaration alone cannot turn an unresolved path
+   green. The current identity is computed inside private confidence-ledger
+   functions; no
    public packaged API exposes this pre-N9 admission gate. Extend that owner and
    wire the gate before N9. Persist its decision in `GenerationCycleRun` v3 for
    later replay, but a v3 field constructed after N9 cannot authorize the N9 call
@@ -355,7 +360,8 @@ deployment identity is broader than the loaded-code manifest and lock file alone
 the confidence-ledger owner includes `pyproject.toml`, `uv.lock`, source files in
 the resolved authority import closure, Python runtime identity, the authority
 import closure, and the loaded-code manifest
-(`runtime/quality/confidence_ledger.py::_deployment_relative_paths_from_closure`,
+(`src/polisyos/runtime/quality/confidence_ledger.py@c3775ce0a96966fcbc46fa243e5cc03f3a80c84b`,
+`runtime/quality/confidence_ledger.py::_deployment_relative_paths_from_closure`,
 `_deployment_baseline`, `_deployment_identity_from_baseline`).
 `_admit_loaded_runtime` is private and takes a repository root; the run validator
 has no public packaged currentness API from that owner. A source checkout’s mere
@@ -370,6 +376,13 @@ using `source_root.rglob('*.py')`; non-Python files are outside that denominator
 `verify_current` and `validate_generation_cycle_run` require a live `repo_root` and
 compare those current Python files during validation
 (`runtime/quality/generation_cycle.py`).
+The classifier recognizes only direct AST calls whose final callee name is
+`run_fixture`. It also exempts every direct caller under
+`src/polisyos/runtime/quality/workspace/loop.py:` by path prefix; that exception is
+not proof that each exempt caller is unreachable from production. An alias such as
+`fixture = loop.run_fixture; fixture()` or reflective `getattr(loop, name)()` is
+outside the observed direct-call predicate. Those cases can leave the `strangled`
+marker green while violating the production-path property.
 `GenerationCycleRun` currently accepts v1 and v2; extending it requires v3 plus
 historical projections for both older versions. The confidence ledger already
 computes the canonical loaded-runtime identity internally, but this code path does
@@ -451,7 +464,8 @@ already present.
 - Direct AST call edges can be recomputed, but reflective/aliased entry paths remain
   `not_established` unless the deployment census independently covers them. That
   limitation must be frozen in the receipt; it cannot be converted to “no callers”
-  by a declared allowlist.
+  by a declared allowlist. A path-prefix exemption remains consumer-asserted until
+  behavioral production reachability is independently reconciled.
 
 **P38 — property and divergence.** Property: the deployed production N6 path does
 not route through `run_fixture`, the exact admitted deployment identity is current
@@ -473,7 +487,13 @@ therefore changes deployment identity is unmeasured. That example does not estab
 that the edit is unrelated to deployment identity or that identity remains fixed.
 A reflective `getattr` route to `run_fixture` also remains a bounded
 `not_established` class unless the census covers it; a clean direct AST census is
-not complete call-graph proof
+not complete call-graph proof. More specifically, `_call_name` recognizes only
+`Name` and `Attribute` call targets, while `_is_allowed_fixture_caller` exempts all
+direct callers beneath one `workspace/loop.py` path prefix. An aliased call can be
+missed and an unexpected production call within that prefix can be blanket-exempted;
+both can leave the `strangled` status green while the actual production-reachability
+property is false. Neither a direct-caller list nor that prefix is an independently
+reconciled production call graph
 (`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
 `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c`).
 
@@ -486,6 +506,9 @@ includes the project/lock baseline, Python runtime, authority import closure, an
 loaded-code manifest; it is not a manifest-plus-lock-only binding. This proposal
 does not claim currentness is already available to packaged run consumers, nor that
 the `lex/simulator/report.py` comment probe leaves canonical identity unchanged.
+It also does not treat the current `workspace/loop.py` path-prefix exemption or a
+clean direct-call AST scan as evidence that aliased or reflective dispatch is absent
+from the production path.
 
 **Remainder standing and signatory.** Dynamic/reflective caller completeness is
 `not_established`; no complete-census verifier or signer is identified by this
@@ -520,9 +543,17 @@ replayable with currentness `not_established`. V2 byte replay remains `UNRUN` un
 its historical owner supplies the original payload and byte oracle; no current
 producer-generated replacement counts. The `lex/simulator/report.py` comment probe
 is not an identity-drift probe until import-closure membership and effect are
-measured. These are acceptance requirements, not results recorded by this draft.
+measured. For the strangle predicate, keep the `strangled` marker and direct-census
+receipt but introduce an aliased or reflective production call to `run_fixture`; the
+census must fail or return `not_established`, and N9 must remain withheld. A direct
+call inside the currently exempt path must also fail unless a behavioral reachability
+check independently establishes that exact caller as non-production. No blanket
+path-prefix allowlist is an acceptable positive control. These are acceptance
+requirements, not results recorded by this draft.
 
 **Where it binds.** Source/deploy-time census and run-start identity capture; the
+strangle classifier at `runtime/quality/generation_cycle.py::_collect_strangle_source_census`,
+`::_call_name`, and `::_is_allowed_fixture_caller`; the
 canonical identity owner and full input composition in
 `runtime/quality/confidence_ledger.py::_admit_loaded_runtime`,
 `_deployment_baseline`, and `_deployment_identity_from_baseline`; and a live typed
@@ -1352,21 +1383,36 @@ reconciles reads against the expected tenant
 `GenerationCycleController._rebuild_n7_acq01_route_context` reads a route-provided
 `capture_store_root`, reconstructs `FileSystemCAS`, and can build a fresh WMR/context
 from a local route snapshot without the canonical bridge’s overlay/passport/epoch
-chain (`runtime/quality/generation_cycle.py`).
+chain (`runtime/quality/generation_cycle.py`). The canonical served bridge’s
+existence does not fence this second arm: the production N7 caller invokes the local
+helper without an execution-scope or contract-testing guard, and the helper itself
+does not require one. A route payload can therefore reach the local reconstruction
+from the production N7 path. The missing tracked production producer is not the
+safety boundary; the reachable helper must be structurally refused in production or
+its input must be admitted through the canonical bridge
+(`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
+`src/polisyos/runtime/http/services/acquisition_surface_execution.py@74bfe81aa16b00561c7650032593bd2be722d67e`;
+`src/polisyos/runtime/quality/acquisition_world_growth.py@e5caf4ccb42af91418472269bb052b8cf4db71fc`).
 
 Root-rebuilt store repairs are a separate mandatory custody obligation and are not
-discharged by choosing option 2: route acquisition-planner persistence through its
-runtime-supplied store (including `.n7-live-cas` and `FileSystemCAS(cas_root)`);
-replace generation-cycle `_joint_simulation_result_store`, the
-`.tmp/gy-s-composed-wmr-cas` read, and route-store reconstruction with the supplied
-store; and repair `foundry/plugins/training_adapter.py` to use the runtime-owned
-store where its artifacts cross that boundary. Contract fixtures may use isolated
-test stores only while explicitly non-authoritative.
+discharged by choosing option 2. The five constructor sites to route through the
+runtime-supplied store are: (1) `generation_cycle.py::_joint_simulation_result_store`
+(`.polisyos/cas`); (2) the composed-WMR NCM read (`.tmp/gy-s-composed-wmr-cas`);
+(3) `generation_cycle.py::_rebuild_n7_acq01_route_context` (route-provided
+`capture_store_root`); (4) `acquisition_planner.py`'s `FileSystemCAS(cas_root)`
+used with `.n7-live-cas`; and (5) `foundry/plugins/training_adapter.py`'s
+`FileSystemCAS(output_dir / "artifacts")`. Contract fixtures may use isolated test
+stores only while explicitly non-authoritative. The count is the five tracked
+`FileSystemCAS` constructor sites in these R13 write-set modules; it is not a claim
+that every use of file-backed storage repository-wide is a root-rebuild defect
+(`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
+`src/polisyos/runtime/quality/acquisition_planner.py@7e2e5a189da71145dbcbc347c04ee92e6be0aaa1`;
+`src/polisyos/foundry/plugins/training_adapter.py@c97231729436ec2a44ae1c3b6d7b79dafb9a1de9`).
 
-**Proposed choice; principal status.** Deviate from the assignment lean to route
-ACQ-01 into the bridge: its premise that a production ACQ-01 producer exists is not
-established by the complete tracked-source census. Adopt option 2 as the lane
-proposal, pending Denis’s principal ruling. Confine the local route to explicitly
+**Proposed choice; principal status.** Choose the confinement arm of the assignment
+lean, pending Denis’s principal ruling. The served WDI bridge exists, but tracked
+source does not establish a separate production ACQ-01 producer and its caller
+handshake that can be wired to that bridge. Confine the local route to explicitly
 non-authoritative contract-testing/demonstration and prevent it from minting a
 production WMR or re-entering production N7. Keep the served WDI path on the
 existing `AcquisitionWorldGrowthBridge`; do not add a second production producer
@@ -1404,12 +1450,18 @@ using the runtime’s tenant-bound store. Current implementation: the tracked
 production source has one call to `_rebuild_n7_acq01_route_context`, while the only
 tracked `acq01_route` producer is a test fixture; the helper accepts
 `capture_store_root`, constructs a new `FileSystemCAS`, and rebuilds local route
-context. Divergent case: a fixture-produced route payload supplied to a production
+context, with no execution-scope/contract-testing guard at the production call or in
+the helper. Divergent case: a fixture-produced route payload supplied to a production
 N7 run can create a WMR and re-enter the cycle without overlay admission, passport,
 epoch receipt, or the runtime store’s tenant guard. The route’s production producer
 being absent from tracked source does not remove this reachable bypass. A production
 tenant-transfer probe must also fail through the guarded store, not only through a
-raw filesystem store.
+raw filesystem store. Separately, E02’s split between stable
+`design_problem_ref` and revised `design_problem_basis_ref` is not closure evidence:
+its effect on main’s same-case world-growth and movement semantics has not been
+measured. A stable subject label can coexist with a changed basis, and this draft
+does not establish that every movement/re-entry consumer preserves the intended
+subject while validating the revised basis.
 
 **Remainder.** This does not make PolicyOS the owner of external licenses, data
 collection, or institutional authority. Those remain integrated typed inputs owned
@@ -1435,6 +1487,19 @@ B27; bundle `CYC-03.md`). Until that transition producer is identified
 equality strict, do not synthetically rebind P0 evidence, and allow a later-cycle
 served request to remain limited or blocked until a valid P1 context exists. This
 draft does not claim a stable-subject/current-basis receipt alone closes B27.
+The semantic change introduced by keeping `design_problem_ref` stable while
+advancing `design_problem_basis_ref` has not been measured against main's movement
+and world-growth closure checks. Re-establish the four-base behavior for
+`test_actual_wdi_admits_delta_and_reenters_same_case` (both parameter values),
+`test_actual_acquisition_producers_preserve_tenant_custody_through_reentry`, and
+`test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board`
+(`tests/integration/core_runtime/test_acquisition_world_growth_chain.py@c101c5d2a2f25da0bce6cf6a265eff4a99a2bdc2`,
+`tests/integration/core_runtime/test_acquisition_tenant_custody.py@3b8d25a171a6f8a6f30de50401027967f53656ed`,
+`tests/unit/runtime/quality/test_acquisition_movement_positive.py@e2516e48fd58b3bfab2a271cb9423fc1405c1472`). Until then, the stable-subject/current-basis
+split is `not_established` as preserving these closure semantics; no result in this
+draft credits the refactor with that closure. The split and context equality are in
+`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`
+and `src/polisyos/runtime/quality/cycle_substrate.py@f24fcc8ded61aa07c0c4145ea27f929995533f11`.
 
 **Remainder standing and signatory.** A source institution signs its own license,
 collection, and institutional-authority acts; where no source owner or signer is

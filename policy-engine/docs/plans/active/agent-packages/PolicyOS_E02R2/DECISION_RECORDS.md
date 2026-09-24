@@ -1000,18 +1000,25 @@ different, truthful typed profiles for those bytes?
 2. Return a ref for the newly requested kind while leaving the first manifest in
    place. This avoids immediate caller failures, but the returned ref lies about
    the persisted profile and pushes integrity failures onto every later reader.
-3. **Proposed lean:** preserve immutable bytes and physical content deduplication,
-   while adding independently persisted typed view records/manifests bound to the
-   content hash, full profile, and tenant ownership. A returned view must resolve
-   its own exact manifest/profile and tenant binding. Signature verification is
-   required only where the caller or authority contract requires signed custody;
-   unsigned candidate bytes remain valid CAS content. When required, signatures and
-   ownership resolve by the typed view identity, never by content `ArtifactID` alone.
-   Permit cross-tenant views only if view records and any required signatures remain
-   isolated per tenant; until the shared owner can prove that isolation, keep the
-   existing typed refusal for cross-tenant view requests. CAS/API owners pay for
-   tenant-scoped metadata, versioned refs, import/export and signature handling;
-   callers do not need envelope hacks or duplicate payloads.
+3. **Conditional multi-view proposal; principal ruling pending:** preserve
+   immutable bytes and physical content deduplication while adding independently
+   persisted, qualified view records. Each view must bind the exact blob, every
+   consumer-visible immutable profile claim, and its runtime-resolved tenant/cell
+   owner. `integrity.optional` must either participate in the versioned profile
+   projection or be constrained to an exact owner-recomputed schema that rejects
+   unsupported values before publication; the derived `integrity.sha256` is always
+   recomputed against the bytes. The authority self-link must also be view-aware and
+   acyclic: either omit only the derived `authority.manifest_ref` pointer from the
+   view-key projection and then verify it equals the selected qualified-view URI, or
+   carry it in a separate versioned reference contract. In either design, the
+   existing bare `cas-manifest://<ArtifactID>` remains primary-view-only and cannot
+   resolve an authority-bearing qualified view. Unsigned candidate bytes remain
+   usable as candidate data; only contracts that require signed custody verify a
+   signature bound to that exact view and tenant. Until per-view tenant isolation is
+   proven, cross-tenant requests keep a typed refusal. Costs include profile and
+   authority-reference migration for every affected reader, versioned refs and
+   transfer, per-view ownership/signatures, backend and adapter work, and a complete
+   producer/ref-lowering/consumer census before the write set can be called complete.
 
 **Premises.** B150’s distinguishing case is identical bytes under profile A and
 profile B: the first manifest is preserved, but the second `ArtifactRef` advertises
@@ -1031,6 +1038,42 @@ and `src/polisyos/core/artifacts/_signature_ops.py@793c4faea145ca25522860836ecab
 The source recommendation preserves honest refs and byte deduplication; it does not
 license tenant identity to collapse into the byte hash.
 
+The independent R9 review found a second profile-binding premise: `IntegrityInfo.optional`
+is defined as `dict[str, str] | None` and is inspected by five production files in
+the complete 2,693-file Python source denominator. Those readers distinguish its
+value and require `None`; excluding the whole integrity envelope would therefore let
+consumer-distinguishable manifests share one view key. The five readers are
+`src/polisyos/core/contracts/c4_persisted_profiles.py@59623501f71f545276f132f42d6d343cdbd41187`,
+`src/polisyos/runtime/quality/data_forge_binding.py@3c5635a52efc4660a2dcd27f5c2fad96b70bf810`,
+`src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`,
+`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`,
+and
+`src/polisyos/runtime/quality/open_world_risk.py@ba17f9bc0ea55873af99f97db2bdbe9b642e0a3d`;
+the field is declared at
+`src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`.
+The smallest sound choices are to bind the exact optional claim or reject/recompute
+values outside an owner-defined schema; `integrity.sha256` remains a derived byte
+check, not a caller-supplied view claim.
+
+The authority reference is another unresolved identity premise. The production
+writer builds `ArtifactAuthorityInfo.manifest_ref` as
+`cas-manifest://<ArtifactID>` at
+`src/polisyos/runtime/http/services/control/artifacts.py@63eaad653c6a3627fe9e99873100829facefd1e7`,
+and validators in
+`src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`
+and `src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`
+require that bare-ID form. A complete `rg` census found this URI in 8 files of the
+same 2,693-file Python denominator; named route/report/monitor consumers include
+`src/polisyos/runtime/http/routes/artifacts.py@f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3`,
+`src/polisyos/core/artifacts/cas_integrity_report.py@c0ecac7e433443ebdce04272b7e8412c3e560477`,
+`src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py@2fddba3f792e94f9d43e1dd3e1ef77278e0fd1ae`,
+and
+`src/polisyos/scientist/governance/continuous/monitors.py@8fe83d14dda67a91b5655761ca3be3f5eb11f6d6`.
+A qualified `(ArtifactID, view_id)` cannot be selected by that URI. Embedding a
+qualified URI in `authority` while hashing the whole object creates a cycle; the
+complete eight-file consumer census and a versioned acyclic self-link rule are
+pre-code gates, not implementation details to infer from the failing test.
+
 The Appendix A discriminator is
 `quality.test_joint_simulation_horizon::test_program_graph_plan_loops_real_shared_state_executor`
 (`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py@8ed265c0b1fd980c1a189866d17166c05f7e188b`).
@@ -1047,27 +1090,39 @@ The four-base P41 JUnit row receipts for these test identities are pending the
 baseline broker at
 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/r9-p41-cas-view-tests.junit.xml@PENDING_SHA256`;
 the Appendix A/B comparisons remain hypotheses until those outcomes, flags, and
-test blob identities are recorded.
+test blob identities are recorded. The reported ProgramGraph `inputs` conflict
+does not yet establish the artifact ID or the two persisted input profiles; capture
+both from the frozen P41 run before designing against that collision. These tests
+and the profile/self-link probes below remain `UNRUN`.
 
-**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
-to principal ruling. Keep blob identity as the hash of exact bytes, but define typed
-view identity to include its full immutable profile and tenant ownership. A view is
-usable only after resolving its exact persisted manifest and recomputing the byte,
-profile, and tenant binding through the runtime-supplied store. Keep bare
-`ArtifactID` as the primary legacy reference to the historical manifest; a
-qualified view reference must resolve its own view record and must never fall back
-to the bare ID, primary manifest, or their signature when that view is missing.
-Unsigned candidate artifacts may be stored and resolved without a signature, but
-they carry no authority. Verify a signature only where the consuming contract
-requires one, and then bind it to that exact qualified view and tenant; never reuse
-an ID-only or other-view signature. If that required signature is absent or
-unverifiable, the authority consumer returns a typed refusal. Preserve historical manifest and signature
-bytes byte-exactly. If a qualified reference changes `ArtifactRef` or `InputRef`
-nested in hashed DTOs, use a separately versioned qualified reference with
-historical serializers that exclude it, or bump the enclosing schema and add a
-historical serializer that preserves the old projection byte-for-byte. If the common
-owner cannot provide per-view tenant isolation, cross-tenant views remain refused
-rather than sharing ownership by content hash.
+**Conditional proposal; principal status.** Option 3 remains a lane proposal, not
+an adopted design, principal ruling, implementation authorization, or claim that
+multi-view support exists. If Denis selects honest typed views, keep `ArtifactID`
+as the hash of exact bytes and introduce a separate strict qualified view identity
+whose resolution recomputes the selected manifest, blob, full profile, and
+runtime-bound tenant/cell ownership. Never resolve a missing view through the bare
+ID, primary manifest, sibling view, or their signature. Unsigned candidate views
+may resolve as candidate data without authority; a consuming contract that requires
+signed custody must verify a signature for that exact view and tenant, otherwise
+return a typed refusal. Preserve historical manifest, signature, and v1 transfer
+bytes exactly; keep legacy `ArtifactRef` and `InputRef` unchanged and version any
+qualified-reference DTO and its hashed enclosing projections.
+
+Before code, freeze P41 outcomes and complete the P35 census of profile readers,
+authority URI producers/validators, ref-lowering paths, adapters, and transfers. For
+`integrity.optional`, choose and test one owner rule: include its exact persisted
+value in the view key, or define the exact permitted schema, recompute permitted
+values, and reject all other values before publication. Recompute `integrity.sha256`
+from payload bytes. For `authority.manifest_ref`, choose one acyclic contract: derive
+the view key from all authority fields except only this computed self-pointer, then
+store and verify the pointer against the exact qualified view URI; or add a separate
+versioned authority-view reference and migrate every reader. In either case, retain
+all other authority fields in the profile key and make the legacy bare-ID URI
+primary-only. If affected consumers cannot be migrated without weakening historical
+or authority checks, keep that authority profile on the primary-only path and leave
+multi-view authority support open. The exact ProgramGraph `ArtifactID` and colliding
+`inputs` manifests, principal choice, code, and all behavior witnesses remain
+pending.
 
 **Legacy reference and chronology-hash boundary (clarification).** Preserve the
 existing `ArtifactRef` and `InputRef` field sets and serialized forms. Do not add an
@@ -1116,27 +1171,35 @@ primary or sibling view. The v1 byte oracle remains a separate required control.
 `cas-view-profile/v1` projection over the complete persisted semantic profile:
 `kind`, `media_type`, `byte_size`, `artifact_schema` (serialized as `schema`),
 `canon`, ordered `inputs`, `producer`, `env`, `governance`, `tenant_context`,
-`same_input_closure`, `authority`, and the ordered typed `warnings` list. Warnings
-are included because they are persisted producer/runtime claims; a changed warning
-must not silently reuse a view whose manifest says otherwise. The current
+`same_input_closure`, ordered typed `warnings`, all consumer-visible `authority`
+fields, and `integrity.optional` unless the owner instead enforces an exact
+recomputed schema and rejects unsupported values before publication. Warnings and
+optional integrity claims are persisted distinctions: changing one must either
+change the view key or be refused/recomputed by that explicit schema. The current
 `ManifestLifecycle.profile_mismatches` omits `warnings`, so the view owner must
-extend that projection and its write contract to carry them. Canonicalize this
-projection with the manifest serializer's stable JSON rules: JSON-mode fields with
-aliases, `exclude_none=True`, sorted object keys, and list order preserved.
-Derive the qualified view key from a versioned envelope containing the exact
-payload SHA-256, the runtime-resolved tenant/cell owner identity, and the canonical
-profile projection. `artifact_id` is excluded from the profile projection but the
-payload digest remains an outer view-key input so different bytes never alias;
-`created_at` and the `integrity` envelope are excluded because they are
-instance-derived/time-derived and the payload digest is validated separately.
-Include `byte_size` in the profile and recompute it from the exact payload, even
-though equal payload bytes necessarily have equal size. Same-profile retry means
-the same payload digest, resolved owner identity, and byte-exact canonical profile
-projection; it converges on one view record. A required signature binds to that
-view key but is not itself an input to the profile projection. The current manifest
-serializer/projection source is
-`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`;
-warnings are a persisted `ArtifactManifest` field at
+extend its projection and write contract. Do not exclude the entire integrity
+envelope: recompute `integrity.sha256` against the exact payload and never accept it
+as a caller claim.
+
+For authority, exclude only the derived `manifest_ref` self-pointer from key
+computation, while retaining every other authority field; after the view key is
+derived, store the qualified pointer and verify that it equals the selected view
+URI. If this cannot be made compatible with all readers, use a separate versioned
+authority-view reference instead. The old bare-ID `cas-manifest://` URI continues
+to resolve only the primary manifest. Canonicalize this versioned projection with
+the manifest serializer's stable JSON rules: JSON-mode fields with aliases,
+`exclude_none=True`, sorted object keys, and list order preserved. Derive the view
+key from a versioned envelope containing exact payload SHA-256, runtime-resolved
+tenant/cell owner identity, and the canonical projection. `artifact_id` is excluded
+from the projection but the payload digest remains an outer key input;
+`created_at` is excluded as instance-time metadata. Same-profile retry means the
+same payload digest, resolved owner, and byte-exact canonical projection and must
+converge on one view record. A required signature binds to that view key but is not
+a profile-key input. The serializer, optional-integrity schema, self-pointer
+derivation, and consumer URI agreement are proposed contracts, not implemented or
+validated here. The current projection sources are
+`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`
+and
 `src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`.
 
 Tenant quota admission must reserve the incremental payload and exact serialized
@@ -1170,9 +1233,11 @@ a blob-only or partially manifested view. The measured implementation is
 - A qualified view resolves only by its qualified identity. Missing qualified
   metadata cannot fall back to the bare `ArtifactID` primary manifest or signature.
 - The view key is recomputed from the versioned profile projection, payload digest,
-  and runtime-resolved tenant/cell owner. The projection includes warnings so the
-  persisted claim set cannot be silently changed on reuse; this binding does not
-  independently prove the warning claims themselves.
+  and runtime-resolved tenant/cell owner. It includes warnings and either includes
+  `integrity.optional` or enforces the declared exact schema/recompute/refusal rule;
+  `integrity.sha256` is recomputed from the blob. It includes every authority field
+  except only the derived self-pointer, which must validate against the selected
+  qualified URI; this binding does not prove empirical origin or warning truth.
 - Tenant quota admission must recompute/reserve the bytes for the exact primary
   and view metadata, plus any required signature sidecar, before publication. The
   current `len(data) + 4_096` estimate is `not_established` as a bound on variable
@@ -1183,39 +1248,50 @@ a blob-only or partially manifested view. The measured implementation is
 - Equal bytes never imply equal lineage or provenance. Any absent lineage relation
   remains `not_established` rather than inferred from the shared blob hash.
 
-**P38 — property and divergence.** Property: content may have multiple typed
-views only when each view's exact profile and tenant owner are independently
-resolvable, and when a caller requires a signature, that signature resolves for
-that view. Current implementation: `ArtifactOwnershipIndex` and signature
-operations key only on content `ArtifactID`; the store can therefore confuse
-same-byte tenant views, while CAS signing is optional. `ManifestLifecycle.profile_mismatches`
-checks the write profile fields but omits persisted `warnings`; two manifests that
-differ only in warning claims can therefore pass the current profile comparison
-(`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`).
-`TenantScopedCAS.put_bytes` preflights `len(data) + 4_096` before
-publication and does not size a proposed view sidecar
+**P38 — property and divergence.** Property: content may have multiple typed views
+only when each view's exact profile and tenant owner are independently resolvable,
+and when a caller requires a signature, that signature resolves for that view.
+Current implementation: `ArtifactOwnershipIndex` and signature operations key only
+on content `ArtifactID`; the store can therefore confuse same-byte tenant views,
+while CAS signing is optional. `ManifestLifecycle.profile_mismatches` omits persisted
+`warnings` (`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d`)
+and the proposed key would also be wrong if it excluded all integrity metadata:
+`IntegrityInfo.optional` is read by five consumers in the complete 2,693-file Python
+denominator and can alter their classification. The authority producer and two
+validators use `cas-manifest://<ArtifactID>`, which resolves only the primary view
+and cannot identify `(ArtifactID, view_id)`; putting a qualified URI into the hashed
+authority object also creates a self-reference cycle unless the derived pointer
+alone is projected out and then checked. The URI occurs in 8/2,693 source files;
+the full set must be enumerated before code. `TenantScopedCAS.put_bytes` preflights
+`len(data) + 4_096` and does not size a proposed view sidecar
 (`src/polisyos/fabric/storage/tenant_cas.py@d45d8a5856d38fed50f8fe3a1e24e8cb92858164`).
-Divergent cases: an ID-only
-ownership/signature check cannot distinguish tenant A from B; a warning-only
-profile change is ignored; and a variable sidecar may exceed the fixed allowance
-used by the current quota predicate. The distinguishing probes must create
-same-byte views under two tenants, sign only view A, and prove that an
-authority-contract read of view B remains unverified and refused; a candidate read
-may resolve only if B has its own exact tenant-bound view. An unsigned candidate
-control with `SigningConfig(enabled=False, sign_on_put=False)` must resolve its
-exact manifest as candidate content without producing authority. A warning-only
-change must produce a distinct view key; an identical same-profile concurrent retry
-must converge. A quota case with available capacity below the exact sidecar size
-must refuse before publishing the view. Both valid candidate views may still
-resolve to one physical blob.
 
-**Remainder.** This does not claim equal bytes have equal empirical origin,
-authorize changing an existing profile, or decide that all kind and lineage fields
-can be verified by the CAS itself. Consumers that need source independence still
-require their own evidence. Per-view concurrency and cross-backend compatibility
-remain implementation obligations. Cross-tenant view creation stays refused until
-per-view ownership isolation and any contract-required signature binding are proven;
-the shared content hash never substitutes for tenant custody.
+Divergent cases: ID-only ownership/signature cannot distinguish tenant A from B;
+a warning-only or consumer-visible `integrity.optional` change can reuse one key;
+a bare-ID authority URI can select the primary rather than the selected view; a
+self-referential qualified URI cannot be hashed as part of itself; and a variable
+sidecar may exceed the fixed quota allowance. Probe each distinction while keeping
+view markers fixed: reject or change the key for warning/optional-integrity changes;
+refuse bare-primary or sibling resolution; and reject an altered self-pointer. A
+positive derivation must produce the same qualified self-pointer from the same
+acyclic key inputs and validate it on read. Same-byte tenant views, signature
+isolation, unsigned candidate behavior, exact quota refusal, and idempotent retry
+remain required controls. The full-profile mechanism and all these controls are
+unimplemented and `UNRUN`.
+
+**Remainder.** This proposal does not claim equal bytes have equal empirical
+origin, authorize changing an existing profile, or decide that the CAS can verify
+empirical meaning of kind, warnings, or lineage. Consumers retain their own source
+and semantic evidence duties. P41 JUnit results, the exact ProgramGraph artifact ID
+and both colliding input manifests, the complete caller census, principal ruling,
+owner assignment, and every new witness are still pending; none is a closure
+receipt. Per-view concurrency, quota and cross-backend compatibility remain
+implementation obligations. Cross-tenant views stay refused until view-level
+ownership isolation and any contract-required signature binding are proven. The
+shared content hash never substitutes for tenant custody. If the optional-integrity
+or authority self-link rule cannot preserve all consumer distinctions and historical
+checks, the bounded residual is primary-only authority/profile use; do not publish a
+view that silently conflates those claims.
 
 **Remainder standing and signatory.** The CAS has no standing to prove empirical
 origin or consumer-specific lineage; those predicates remain `not_established` by
@@ -1228,6 +1304,12 @@ engineering owner/signatory for the multi-view contract and cross-backend
 implementation is not established by that package README or this draft; that
 assignment remains `unallocated/not_established` until made. Denis remains the
 pending principal signatory for the semantic choice to support honest typed views.
+The independent review
+`/Users/deniskopylov/.codex/scratch/e02-r2-r9-independent-review-20260924.md@sha256:e32d6dff6dda46fb67ba4b586bdc693a438acb32591531877f8fcd18876530df`
+returned NO-GO to implementation of the prior option-3 wording. This correction
+addresses its optional-integrity and self-link gaps; it does not close the full
+producer/consumer census, measure the exact ProgramGraph profiles, or replace the
+principal's ruling.
 
 **Falsifier / revisit trigger.** Reopen if any backend returns a view ref whose
 resolved manifest differs from it, if concurrent same-profile retries create
@@ -1244,24 +1326,29 @@ its manifest/signature intact while removing the qualified view; lookup must ref
 instead of falling back. Preserve the historical primary manifest and signature
 bytes through export/import and historical-reader round-trip byte-exactly. Remove
 tenant metadata while preserving view markers and bytes; the tenant-bound access
-must fail. The profile projection probe changes only `warnings` and requires a
-different view key; the positive retry control holds payload, owner, and every
-projected field fixed across concurrent writes and requires one stable view key.
-Changing only `created_at` must not change that key, while a different payload
-digest must. A quota probe leaves enough capacity for the current `len(data) +
-4_096` estimate but not the exact serialized view and any required signature
-sidecars; the store must refuse before publishing the view. A
-`.views/<profile>.manifest.json` sidecar cannot simply reuse today's
-recursive `*.manifest.json` namespace: the filesystem enumerator parses the basename
-as an `ArtifactID`; the sidecar layout or that shared enumerator must change as one
-owner-level design. View sidecars also count toward the tenant's quota. Caching,
-async, IR, and ProgramGraph paths must preserve the qualified selector and complete
-write profile end-to-end. `CachingArtifactStore` currently addresses manifests by
-bare `ArtifactID` and reconstructs cache-population `PutOptions` without
-`tenant_context`, `same_input_closure`, or `authority`; async/IR adapters and the
-current `LoweredIRRef`/`ProgramGraphRef` likewise have no qualified selector, and
-ProgramGraph lowering reconstructs refs from the bare ID. No such run is claimed
-here.
+must fail. Change only `warnings` and only `integrity.optional` while retaining the
+view marker: each must change the recomputed view identity or be rejected/recomputed
+by the declared exact schema; recompute `integrity.sha256` from bytes. Change the
+authority self-pointer to a bare primary URI and then a sibling-view URI with all
+other markers intact; both must refuse. The positive self-link control derives a
+stable qualified URI from acyclic inputs and validates it on read. Concurrent
+retries with the same payload, owner, and complete profile must converge on one
+view; changing only `created_at` must not change it, while different bytes must.
+After P41, capture the actual ProgramGraph artifact ID and both colliding input
+profiles. The quota probe leaves enough capacity for current `len(data) + 4_096`
+but not the exact serialized view and required signature sidecars; refuse before
+publication. A `.views/<profile>.manifest.json` sidecar cannot simply reuse today's
+recursive `*.manifest.json` namespace because the filesystem enumerator parses its
+basename as an `ArtifactID`; change that layout or the shared enumerator as one
+owner-level design. View sidecars count toward tenant quota. Caching, async, IR, and
+ProgramGraph paths must preserve the selector and complete write profile;
+`CachingArtifactStore` currently addresses manifests by bare `ArtifactID` and omits
+`tenant_context`, `same_input_closure`, and `authority` when reconstructing cache
+`PutOptions`. The current `LoweredIRRef`/`ProgramGraphRef` has no qualified selector,
+and ProgramGraph lowering reconstructs refs from the bare ID. All these probes, the
+Appendix regressions, and the ProgramGraph collision details are `UNRUN` /
+unmeasured; no principal choice or implementation is claimed.
+
 
 **Where it binds.** Shared contract
 `src/polisyos/core/artifacts/protocol.py@cc012c638b833e52d9658b91364398f81b7dd741::ArtifactStore`;
@@ -1293,6 +1380,21 @@ and transfer at
 No caller may
 construct an envelope to compensate for a missing CAS view API or tenant-bound
 signature owner.
+
+**Additional consumer bindings and census gate.** The `integrity.optional` reader
+set is the five production files named in the premises. The current authority URI
+writer is `src/polisyos/runtime/http/services/control/artifacts.py@63eaad653c6a3627fe9e99873100829facefd1e7`;
+validators include `src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`
+and `src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`.
+The URI census found 8 source files / 2,693 Python files, including
+`runtime/http/routes/artifacts.py`, `core/artifacts/cas_integrity_report.py`,
+`runtime/quality/proving_ground/proof_carrying_analytics_search.py`, and
+`scientist/governance/continuous/monitors.py` (exact blobs are listed in the
+premises). Before code, enumerate all eight URI producers/readers and all other
+profile readers from the pinned source set, classify which consume the selected
+manifest versus the primary manifest, and attach the complete path@sha output to
+the lease map. Current examples are not a complete caller census.
+
 
 **Pattern pass.** P05/P27/P31/P32/P37/P38. The instance symptom is a CAS conflict;
 the class is the mismatch between a content key and a single semantic view. Target:

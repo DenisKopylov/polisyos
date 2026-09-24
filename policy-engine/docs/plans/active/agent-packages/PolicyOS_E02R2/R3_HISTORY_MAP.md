@@ -32,7 +32,7 @@ The current declaration inserts `source_content_hash` between `content_hash` and
 
 ## Phase 0 corpus and denominator
 
-The Phase 0 denominator is **2,867 tracked `.json` paths**, parsed with zero errors. The historical CandidateSummary corpus is:
+The Phase 0 denominator is **2,867 tracked `.json` paths**, parsed with zero errors; this whole-repository count includes the unrelated `.github/renovate.json`. The `policy-engine/` product subtree has 2,866 tracked JSON paths. A recursive receipt walk distinguishes actual receipts from enclosing contract nodes: it found 14 v3 and 20 v6 receipts with embedded `CandidateSummary` (all p0), and zero v4/v5/v7 receipt nodes in tracked JSON. A raw schema-marker count is not the receipt denominator: it also sees 7 v1 nodes and 17 v3 nodes, three of the latter being comparison-contract envelopes without an owner projection. The historical CandidateSummary corpus is:
 
 | Outer receipt schema | Embedded summaries | Profile and cycle index |
 |---|---:|---|
@@ -52,6 +52,57 @@ The 14 v3 p0 summaries occur in `architecture/policy_design_case/layer3_gy_depth
 - `tests/repo_quality/tools/fixtures/layer3_gy_promotion_contract_credal_v1.json@0c75c962b68baf72ca49ddeb4b14ace442340c73` (3).
 
 My earlier independent traversal reported 2,869 JSON paths because it ran on the later `codex/e02-r2-ledger` tree at `c34fa756`. `git diff 73c656744 c34fa756 -- '*.json'` shows exactly two added package files, `PolicyOS_E02R2/finding_record_probe.json` and `PolicyOS_E02R2/residual_ledger.json`; no JSON modifications or deletions. Thus 2,869 is the later tree count (`2,867 + 2`), not a contradictory Phase 0 denominator. Use 2,867 for the historical corpus.
+
+The count is reproducible from the Phase 0 worktree by walking Git's complete tracked JSON set and parsing every member (not a `rg` sample):
+
+```sh
+python3 - <<'PY'
+import json
+import subprocess
+from pathlib import Path
+
+root = Path("/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos")
+tracked = subprocess.run(
+    ["git", "-C", str(root), "ls-files", "-z", "--", "*.json"],
+    check=True,
+    capture_output=True,
+).stdout.split(b"\0")
+paths = [root / item.decode() for item in tracked if item]
+errors = []
+versions, profiles = {}, {}
+for path in paths:
+    try:
+        document = json.loads(path.read_bytes())
+    except Exception as exc:
+        errors.append((str(path.relative_to(root)), type(exc).__name__))
+        continue
+    stack = [document]
+    while stack:
+        value = stack.pop()
+        if isinstance(value, dict):
+            version = value.get("schema_version")
+            owner = value.get("owner_projection")
+            summary = owner.get("candidate_summary") if isinstance(owner, dict) else None
+            if isinstance(version, str) and "n9_promotion.v" in version:
+                versions[version] = versions.get(version, 0) + 1
+            if isinstance(version, str) and isinstance(summary, dict):
+                keys = set(summary)
+                profile = (
+                    "p0" if not keys & {"source_content_hash", "grounding_issue_codes", "grounding_report_ref"}
+                    else "p1" if "source_content_hash" not in keys else "p2"
+                )
+                key = (version, profile, len(summary))
+                profiles[key] = profiles.get(key, 0) + 1
+            stack.extend(value.values())
+        elif isinstance(value, list):
+            stack.extend(value)
+print(f"tracked_json={len(paths)} parsed={len(paths) - len(errors)} parse_errors={len(errors)}")
+print("schema_nodes=", dict(sorted(versions.items())))
+print("receipt_summary_profiles=", dict(sorted(profiles.items())))
+PY
+```
+
+The observed output is `tracked_json=2867 parsed=2867 parse_errors=0`, 14 v3 p0 summaries, and 20 v6 p0 summaries. The v5 compressed test literal is outside this Git JSON walk.
 
 The v5 oracle is embedded in `tests/unit/runtime/quality/test_promotion_sequence.py@fd72907d54b287a2d22031786e6cfd955a40c4d1:531-617`. Decompression yields 48,568 bytes with SHA-256 `dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9`; the stored p0 summary has the 22 fields above. Existing exact tests are `test_frozen_v6_capture_preserves_history_and_refuses_current_admission` (`:531`), `test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority` (`:584`), and `test_round1_v5_authority_receipt_cannot_enter_historical_comparison` (`:603`). The v6 test currently walks the comparison manifest inside one fixture; it does not enumerate all 20 tracked v6 nodes across all four files.
 
@@ -76,7 +127,9 @@ The searched git-excluded record controls are all under `safe-workspace/polisyos
 
 ## Narrow implementation and verification boundary
 
-Recommended source/test write set, after baseline freeze and R3 lease: `runtime/quality/promotion_sequence.py` and `tests/unit/runtime/quality/test_promotion_sequence.py`. Preserve separate versioned reader boundaries for v3/v4/v5/v6, including the v4 owner-projection-v2 path; freeze each nested summary projection from authenticated serializer evidence rather than assuming an absent v4 fixture's shape. Keep v4 corpus replay `UNRUN` until a complete fixture is found. Introduce strict p0/p1/p2 historical readers for v7. Select a v7 structural profile only when the raw projection hash and exact byte round-trip uniquely match that profile. Ambiguous profile selection is `not_established`. Bump the current promotion/input schema to v8 and owner projection to v4; v7 remains history-only and cannot migrate into current authority. A current v8 receipt is freshly issued through the authorized owner path, never produced by retagging or restamping old bytes.
+Recommended core source/test write set, after baseline freeze and R3 lease: `runtime/quality/promotion_sequence.py` and `tests/unit/runtime/quality/test_promotion_sequence.py`. Preserve separate versioned reader boundaries for v3/v4/v5/v6, including the v4 owner-projection-v2 path; freeze each nested summary projection from authenticated serializer evidence rather than assuming an absent v4 fixture's shape. Keep v4 corpus replay `UNRUN` until a complete fixture is found. Introduce strict p0/p1/p2 historical readers for v7. Select a v7 structural profile only when the raw projection hash and exact byte round-trip uniquely match that profile. Ambiguous profile selection is `not_established`. Bump the current promotion/input schema to v8 and owner projection to v4; v7 remains history-only and cannot migrate into current authority. A current v8 receipt is freshly issued through the authorized owner path, never produced by retagging or restamping old bytes.
+
+**The two-file list is not the complete consumer write set when the schema bump lands.** `tools/quality/validation/check_layer3_gy_promotion_contract.py@16dd37b38fddcc7b5f182d041ed7e520311c3ab8` has a hard-coded `_N9_V7_EPOCH`, guards the current input against v7, and implements the authorized v6-to-current transition in `_translate_n9_v6_receipt_epoch`. Its output schema, rule refs, and current owner schema must target v8/v4 when the owner version advances. Update and replay its test `tests/repo_quality/tools/test_layer3_gy_promotion_contract.py@9941ce2d12db1b9329f515b7e7d867c4e0a3394d::test_n9_writer_reissues_the_governed_v6_source_scope_epoch`. This updates the explicit transition implementation and its test only; do not run its `--write` path or modify the frozen JSON contract/fixture as part of R3. A persisted epoch/receipt reissue remains a separate authorized transition and must not be simulated by restamping.
 
 Removal probe: keep receipt schema markers but run p0 receipts through the mutable current summary type; v6 owner-hash replay and v5 byte-exact replay must fail. Positive control: a fresh p2/v8 receipt verifies with all fields bound, while p0 v3/v5/v6 receipts replay historically and still refuse current authority. V7 controls exercise all three frozen shapes, require unique structural matching, and refuse authority in every case; they are parser controls, not evidence of a stored v7 corpus.
 

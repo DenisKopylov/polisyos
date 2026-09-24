@@ -1785,8 +1785,9 @@ correcting the producer-owned profiles while preserving strict CAS semantics?
 3. **Add a typed use/provenance record if an existing run/evidence owner cannot
    preserve the relation.** This can keep one physical blob and one truthful
    manifest while recording separate event uses. It costs a typed producer,
-   persistence, replay and consumer path only if the existing owner is insufficient.
-   No complete generic use-record owner or served caller requiring this record is
+   persistence, replay and consumer path only if the existing owner is insufficient;
+   the artifact owner and affected runtime consumer owner carry that work. No
+   complete generic use-record owner or served caller requiring this record is
    established; do not create an envelope without that witness.
 4. **Return a ref for a requested profile that the store does not hold — rejected.**
    It avoids the immediate exception but makes the ref claim a false kind or input
@@ -1816,17 +1817,18 @@ actually required. Evidence:
 `/Users/deniskopylov/.codex/scratch/e02-r2-r9-p41-collision-capture-20260925.md@sha256:3356a5c5d2309274d27276332be69f4819326c2e0ebcc7d2cdc97b49bfd8d396`;
 `PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@36bcff0953c8b8e010f66ad7a0b355458b0f640d`.
 
-**Proposed choice; principal status and deviation.** Propose option 1 for the
-observed regression repairs: strict CAS, a truthful output-specific ProgramGraph
-constraint-report profile, and a fixture-specific `policy.admission` initial kind.
-This explicitly deviates from the original R9 lean in §7.1, which asked to support
-multiple honest typed views of one blob. The P41 evidence explains the deviation:
-these two conflicts have producer-side causes and do not demonstrate that multiple
-semantic profiles must be selected concurrently. Do not interpret this proposal as
-principal approval or as proof that the proposed fixes work. Keep the broader
-view/use decision pending; the current generic multi-view producer/consumer chain
-and a complete typed use-record owner are `not_established`. No production signer,
-authority view, API selector, or backend-wide support is proposed here.
+**Proposed choice; principal status and deviation.** The E02-R2 lane proposes
+option 1 for the observed regression repairs: strict CAS, a truthful output-specific
+ProgramGraph constraint-report profile, and a fixture-specific `policy.admission`
+initial kind. This explicitly deviates from the original R9 lean in §7.1, which
+asked to support multiple honest typed views of one blob. The P41 evidence explains
+the deviation: these two conflicts have producer-side causes and do not demonstrate
+that multiple semantic profiles must be selected concurrently. This remains a lane
+proposal for principal consideration, not principal approval and not proof that the
+proposed fixes work. Keep the broader view/use decision pending; the current generic
+multi-view producer/consumer chain and a complete typed use-record owner are
+`not_established`. No production signer, authority view, API selector, or
+backend-wide support is proposed here.
 
 **P37 — predicates at admission.** CAS recomputes exact byte identity and whether
 the requested profile equals the stored manifest (`recomputed`). It does not

@@ -32,11 +32,13 @@ evidence must exist before S8 may emit a ranked recommendation?
 3. **Proposed lean:** let ordinary requests produce candidate work while carrying
    typed `not_established` context as a limitation. Keep N5, promotion, publication,
    protected modes, and S8 authority gated on their own owner evidence. S8 requires
-   both tenant-bound root-context evidence and a complete, real N4 source handoff
-   that binds that context to the exact problem and candidate bytes. This preserves
-   candidate access, while S8 ranking from the current HTTP path remains blocked
-   until its root-context owner, explicit tenant binding, and currentness gate exist.
-4. Add a new root-context owner inside R1. This could supply positive evidence sooner,
+   a real N4 source handoff that embeds the consumed `CycleSubstrateContext`, binds
+   the exact problem/candidate bytes, and carries explicit tenant binding in its
+   owner profile. Context currentness must come from an existing owner; if none can
+   establish it, S8 remains `not_established`. This preserves candidate access
+   without creating a separate context artifact.
+4. **Rejected option:** add a new root-context owner inside R1. This could
+   supply positive evidence sooner,
    but would overlap R13's runtime-store repair and risk a second WMR/context owner.
    The existing WMR producer already accepts a supplied store; wiring that owner is
    the narrower route.
@@ -85,11 +87,11 @@ store write set and requires its shared lease. R1 must not build a competing own
 authority. No independent pre-N4 owner persists and resolves a tenant-bound root
 context. The compiled wrapper records `cycle_substrate_context_ref` as a
 content-hash string, not an `ArtifactRef` or tenant-bound manifest. The current
-`GenerationSourceRepository` persists an actual `DesignGenerationOrganRun` and
-context through the runtime store,
-then validates its owner profile, CAS bytes, problem, candidate, and context on
-replay. This existing handoff is the durable N4 source record to resolve at S8; do
-not add a parallel source record. The runtime CAS's ambient owner index provides
+`GenerationSourceRepository` persists an actual `DesignGenerationOrganRun` and its
+context through the runtime store, then validates its owner profile, CAS bytes,
+problem, candidate, and context on replay. This existing handoff is the durable N4
+source record to resolve at S8; do not add a parallel source record. The runtime
+CAS's ambient owner index provides
 artifact-store custody, but the handoff's `ArtifactWriteOptions` omit explicit
 `tenant_context`. Ambient store custody does not establish which tenant-owned root
 context the producer consumed, nor the separate signed-value permission S8 consumes.
@@ -123,19 +125,22 @@ current repo-root fallback as proof of tenant-store custody. An ordinary request
 with no established context may return candidate work and carry an explicit typed
 unknown; it must not invent a WMR, catalog entry, or concrete scope. If that unknown
 prevents a valid N5 world simulation, retain a typed pending/limited result. S8 may
-emit a ranked recommendation only after an existing owner resolves a persisted
-root-context artifact/receipt from the runtime store, and both context and N4
-handoff manifests carry explicit `tenant_context` in `ArtifactWriteOptions`. Reuse
-`GenerationSourceRepository` and its `DesignGenerationOrganRun` handoff as the
-durable source record; do not create a parallel handoff. The consumer must resolve
-the complete per-cycle handoff set and bind its context and exact candidate
-identities. Add a separate typed currentness/epoch result for the root context; an
-ambient CAS owner index or byte-valid handoff does not establish currentness. A
-matching hash or caller-injected context is insufficient. An N7 re-entry's prior
-handoff does not prove its post-growth context; until a complete post-growth witness
-exists, S8 remains blocked for that source. R13 owns the root-store/context-persistence
-correction. The principal choice between fixture options A and B remains open. No
-fixture may be counted as positive S8 evidence before that ruling and witness.
+emit a ranked recommendation only after `GenerationSourceRepository.resolve` returns
+the real, persisted N4 handoff with its embedded `CycleSubstrateContext`, bound to
+the exact problem and candidate identities. The handoff's owner profile must bind
+`tenant_context`; do not make a second artifact for the embedded context. The
+existing `build_production_data_state_world_model_record(store, ...)` is the named
+WMR producer to wire through the runtime-supplied store under R13. It owns WMR
+production; no separate pre-N4 tenant-context persistence/resolution owner is
+identified. If that capability proves necessary, it remains `not_established` until
+an existing owner is demonstrated, and R1 does not create one. Context currentness
+must likewise be established by an existing owner or remain `not_established`; ambient
+CAS custody and content-valid handoff replay alone do not prove it. A matching hash or
+caller-injected context is insufficient. An N7 re-entry's prior handoff does not
+prove its post-growth context; until a complete post-growth witness exists, S8
+remains blocked for that source. The principal choice between fixture options A and
+B remains open. No fixture may be counted as positive S8 evidence before that ruling
+and witness.
 
 **P37 — gate predicates at admission.**
 
@@ -145,12 +150,14 @@ fixture may be counted as positive S8 evidence before that ruling and witness.
   registry projection, and content hashes (`recomputed`). Its candidate-only purpose
   and `may_not_use_for` limit are part of the typed content; neither establishes
   tenant custody.
-- A pre-N4 owner that persists/resolves a tenant-bound root context is
-  `artifact_missing` / `bridge_missing`: the compiled wrapper stores only a hash,
-  and no owner reopens a context artifact with explicit tenant metadata. The
-  repo-root WMR fallback is not tenant-context-custodied. Directly supplied
-  contexts are `consumer_asserted` until an owner resolves tenant-bound manifests;
-  neither predicate may grant S8 authority.
+- The existing `GenerationSourceHandoff` is the durable post-N4 record and embeds
+  its `CycleSubstrateContext`; its `GenerationSourceRepository` resolver already
+  verifies the source profile and exact content. Its current write profile lacks
+  explicit `tenant_context`, so the tenant binding remains `not_established`. The
+  repo-root WMR fallback is not tenant-context-custodied. No separate pre-N4
+  tenant-context persistence/resolver owner is identified; if one is required,
+  leave it `not_established` until an existing owner is named rather than adding a
+  second context artifact owner.
 - Runtime CAS ambient owner-index/profile/content checks can establish custody of
   stored bytes (`independently_reconciled` for the configured store, after the
   expected tenant/cell is resolved; see
@@ -160,8 +167,9 @@ fixture may be counted as positive S8 evidence before that ruling and witness.
   `not_established` despite ambient CAS custody and source-preservation success.
 - The existing `GenerationSourceRepository` handoff can be replayed to recompute N4
   source consumption and exact candidate identity, but S8 does not currently resolve
-  that handoff. Use it as the durable source record; do not duplicate it. Missing refs,
-  mismatched context, duplicate identities, or absent post-growth handoff block S8.
+  that handoff. Use its embedded context as the durable post-N4 record; do not
+  duplicate it. Missing refs, mismatched context, duplicate identities, or absent
+  post-growth handoff block S8.
 - Context currentness is separate from custody and content replay. `CycleSubstrateContext`
   has no typed epoch/currentness gate; after content replay, whether the context
   remains current against its WMR and tenant scope is `not_established`. A stale or
@@ -169,38 +177,46 @@ fixture may be counted as positive S8 evidence before that ruling and witness.
   own owner verifier and current epoch evidence (`independently_reconciled`).
 
 **P38 — property and divergence.** Property: ordinary requests retain candidate
-reachability under unknown context, while S8 ranking requires a tenant-owned root
-context, complete producer evidence that N4 consumed it for the exact candidates,
-and currentness evidence for that context. Current HTTP implementation: it raises
+reachability under unknown context, while S8 ranking requires the context embedded
+in a real N4 handoff to be tenant-bound, matched to the exact candidates, and current
+according to an existing owner. Current HTTP implementation: it raises
 when an explicit `root_n4_generation_port` meets missing context, so the refusal
 keys on injection style; the default fallback builds a WMR through a repo-root
 `.tmp` store. The compiled wrapper retains only `cycle_substrate_context_ref` as a
 hash. The runtime CAS's ambient owner index supplies store custody, but neither the
 local `.tmp` WMR nor ambient storage alone proves tenant-context binding or
-currentness. Current N4 has a durable `GenerationSourceRepository` handoff with
-content/profile/problem/candidate replay, but its write profile has no explicit
-`tenant_context`; current S8 reloads the leaf `GenerationCycleRun` and checks its
-compiled/frontier binding without resolving that source handoff or a context epoch.
+currentness. Current N4 has a durable `GenerationSourceRepository` handoff embedding
+the consumed `CycleSubstrateContext`, with content/profile/problem/candidate replay,
+but its write profile has no explicit `tenant_context`; current S8 reloads the leaf
+`GenerationCycleRun` and checks its compiled/frontier binding without resolving that
+source handoff or a context epoch.
 Divergent case: shape/content-valid context and `_CgfGenerationPort` output can
 appear sufficient without proving real N4 consumption, tenant ownership, or a
 current context. The five normative fixtures fail closed as `blocked` against their
 `authorized` expectations, but their fake N4 result does not establish the missing
 real owner path. The current-head report is 17/22 pass; four-base P41 evidence remains
 pending. A removal probe retains signed-frontier and candidate markers but removes
-or mismatches the tenant-bound artifact/handoff; S8 must block with zero
-recommendations. A stale-context probe retains the source handoff while the owner
-reports its context stale/unknown; S8 must block with typed limitation. The served
+or mismatches the embedded context in the handoff, its tenant binding, or its WMR
+linkage; S8 must block with zero recommendations. Once an existing owner exposes
+typed context currentness, a
+stale-context probe retains the source handoff while that owner reports its embedded
+context stale/unknown; S8 must block with typed limitation. The served
 positive control must carry an actual N4 candidate through HTTP →
 `DesignGenerationOrganRun` → `GenerationSourceRepository.persist/resolve` → S8,
-including owner-resolved tenant-bound and current context evidence. Separately, a
+including tenant binding on the embedded context and currentness from an existing
+owner. Separately, a
 served ordinary request without context must still return candidate work while N5/S8
 remain limited or blocked.
 
 **Remainder.** This decision does not appoint a WMR/catalog owner, create a second
 world store, or convert an LLM candidate into evidence. The HTTP root builder is a
 production caller but is not a compliant tenant-store owner path; its storage fix
-and the missing persisted-context resolver belong to R13's shared owner work. No S8
-positive claim is supported by the current `[authorized]` fixture alone. Its
+belongs to R13's shared owner work. The existing `GenerationSourceRepository`
+already persists and resolves the embedded post-N4 context; its write profile still
+needs tenant binding, and context currentness must come from an existing owner. No
+separate pre-N4 context artifact/resolver owner is identified, so that requirement
+remains `not_established` unless an existing owner is demonstrated. No S8 positive
+claim is supported by the current `[authorized]` fixture alone. Its
 signed-frontier semantics must remain covered. For the five normative fixtures, the
 principal must choose whether to upgrade their base-pass authorization expectations
 to real served N4/handoff/context-currentness witnesses or allow them to remain
@@ -215,10 +231,10 @@ canonical owner path supplies a complete witness.
 **Remainder standing and signatory.** An absent or unmatched substrate fact has
 standing `not_established`; that does not put the ordinary request or candidate
 capability on hold. The registered source owner signs any source fact it supplies.
-If the tenant-bound root-context owner is not established, that fact remains
-`unallocated/not_established` until the owner boundary names its signer; R13 may
-wire the existing WMR owner and context artifact boundary but does not appoint an
-institution. The HTTP/runtime composition owns carrying the typed unknown and
+If a separate pre-N4 tenant-context owner proves necessary, it remains
+`unallocated/not_established` until an existing owner is named; R13 may wire the
+existing WMR producer to the runtime store and use the existing N4 handoff boundary,
+but does not appoint a separate context owner or institution. The HTTP/runtime composition owns carrying the typed unknown and
 gating authority, not signing source facts. Denis, as principal, remains the pending
 signatory for this proposed candidate/authority boundary; this draft is not
 ratification.
@@ -227,16 +243,21 @@ ratification.
 candidate work when context is absent, or if a candidate with `not_established`
 substrate evidence reaches N5 as a grounded simulation, promotion, publication, or
 S8 authority output. The S8 negative probe retains valid signed-frontier bytes and
-candidate markers while removing or mismatching the tenant-bound context artifact
-or N4 handoff; it must return blocked with no ranked recommendations. The positive
-control uses a served HTTP request with a real N4 organ, complete source-preservation
-receipt, and a persisted root-context artifact reopened by its owner from the
-runtime-supplied store; both artifact profiles explicitly bind `tenant_context`, and
-the owner verifies the tenant manifest before S8 projection. Mere store location or
-content hash does not satisfy this control. A distinct stale-context probe retains
-the handoff but changes the owner's context-currentness result to stale/unknown; S8
-must carry that limitation and withhold recommendation authority. That probe remains
-unrunnable until the missing typed context-currentness capability exists.
+candidate markers while removing or mismatching the embedded context in the N4
+handoff, its tenant binding, or its WMR linkage; it must return blocked with no ranked
+recommendations. The positive control uses a served HTTP request with a real N4
+organ, complete source-preservation receipt, and a persisted `GenerationSourceHandoff`
+that embeds the consumed context and is reopened by `GenerationSourceRepository` from
+the runtime-supplied store. The handoff's owner profile explicitly binds
+`tenant_context`; an existing owner must provide typed context/WMR currentness before
+S8 projection. Do not create a separate context artifact for this control. If no
+existing owner can provide that predicate, it remains `not_established` and the
+positive control cannot pass. Mere store location or content hash does not satisfy
+it. Once an existing owner exposes typed context currentness, a distinct
+stale-context probe retains the handoff but changes that owner's currentness result
+to stale/unknown; S8 must carry that limitation and withhold recommendation
+authority. That probe remains unrunnable until the missing typed context-currentness
+capability exists.
 The N7 control changes the post-growth context while preserving only prior handoff
 refs; it must remain blocked. The ordinary candidate control uses a served request
 without context and observes candidate work with N5/S8 appropriately limited. These
@@ -263,10 +284,12 @@ The proposal does not alter external catalog vocabulary or appoint a WMR owner.
 an authority prerequisite leaking into candidate reachability and authority being
 granted without source-consumption/custody evidence. The target is typed unknown
 for ordinary candidate work and complete owner-backed evidence at authority gates.
-The HTTP caller and a best-effort repo-root context builder exist; a persisted
-tenant-bound context artifact/resolver and context-currentness gate are
-`artifact_missing` / `bridge_missing`. Current fixtures have `verification_missing`
-for real N4 source consumption, explicit tenant-context admission, and currentness.
+The HTTP caller and a best-effort repo-root context builder exist. The existing
+handoff persists and resolves its embedded context, but its write profile lacks
+explicit tenant binding; context currentness is also `not_established`. No separate
+pre-N4 context artifact/resolver owner is identified, so do not invent one. Current
+fixtures have `verification_missing` for real N4 source consumption, explicit
+tenant-context admission, and currentness.
 Acceptance requires a served ordinary candidate control and a separate served
 real-candidate S8 positive, with S8 rejecting absent, foreign, stale, or
 post-growth-mismatched owner proof. The five existing normative authorization

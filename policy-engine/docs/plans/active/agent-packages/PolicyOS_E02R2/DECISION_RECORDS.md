@@ -1758,14 +1758,23 @@ bootstrap-registration subproperty with role-aware analysis, and prove the actua
 production N7 strangle through a real controller witness. Removing the local N7
 route must not delete the deterministic persisted-entry verification.
 
-The read-only acquisition-flow audit also found a separate possible DS15 movement
-projection defect: the Cycle Board requests at most 1,000 append-ordered run events
-and treats a full page as `invalid_source` before finding a row's receipt. A valid
-receipt beyond that prefix is a concrete P38 divergence, but production reachability
-and the four-base attribution are `UNRUN`. Keep this outside R13; after the source
-census, measure complete production run-event denominators and the owner paging API.
-If reachable, plan it as a separately named DS15 movement-source-completeness item;
-do not increase the cap or call it an E02 regression without P41 evidence.
+**Correction from the subsequent read-only Cycle Board audit.** The 1,000-event
+boundary is an explicit typed refusal, not silent loss: `AcquisitionMovementService.project_row`
+returns `status="invalid_source"` with reason `movement_event_window_incomplete`
+when the bounded page is full, before searching for a row receipt
+(`policy-engine/src/polisyos/runtime/quality/acquisition_movement.py@d82db7baa318ad8003c2fe03b26e41afd7997eca`);
+the Cycle Board carries that typed result as `movement_status`
+(`policy-engine/src/polisyos/runtime/http/services/cycle_board_projection.py@440d9a1e0cd5acf1c52757ed13a8908371185e8c`).
+This supersedes the earlier characterization of that Cycle Board boundary as a P38
+divergence; no Cycle Board DS15 item is proposed on this evidence. The separate,
+adjacent question is pending: `AcquisitionRouteLoop._resolve_terminal_event` calls
+`list_events(run_id=..., job_id=...)` without a limit
+(`policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py@8d2aecd29b71bfc43af45d4d8ff89f2683916d1a`),
+and that reader defaults to 500 (`policy-engine/src/polisyos/runtime/quality/event_log.py@8eb1c070a157b82c7d98e38d0f803ae4096f73d0`).
+Whether that default can truncate required route history is not established; audit
+that adjacent path and its consumers before naming any finding or DS15 item. The
+Cycle Board behavior is source-audited only; the behavioral witness, production
+reachability census, and four-base attribution remain `UNRUN`.
 
 
 **Proposed choice; principal status.** The bounded-strangle option is the
@@ -1906,12 +1915,19 @@ have not been behaviorally verified. All R13 probes remain `UNRUN`; no closure i
 claimed. Root-based stores and authority fallback listed above remain residuals
 until every affected producer and reader uses its exact owner store or is refused.
 
-The source audit additionally identified a separate DS15 candidate: a 1,000-event
-append-window cap may refuse a valid row movement receipt beyond the prefix. Its
-production reachability and P41 attribution remain `UNRUN`; it is not folded into
-R13. After this census, measure the complete run-event denominator and owner paging
-contract, then draft a separate bounded DS15 item if the boundary is reachable. Do
-not raise the cap as an instance fix or report it as an E02 regression yet.
+The earlier Cycle Board candidate is withdrawn: its full-page condition produces
+the typed `invalid_source` / `movement_event_window_incomplete` result, as shown by
+`policy-engine/src/polisyos/runtime/quality/acquisition_movement.py@d82db7baa318ad8003c2fe03b26e41afd7997eca`,
+which the Cycle Board retains as `movement_status`
+(`policy-engine/src/polisyos/runtime/http/services/cycle_board_projection.py@440d9a1e0cd5acf1c52757ed13a8908371185e8c`).
+No Cycle Board DS15 residual is proposed. The adjacent `AcquisitionRouteLoop`
+terminal-event lookup uses the event-log reader's implicit default of 500
+(`policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py@8d2aecd29b71bfc43af45d4d8ff89f2683916d1a`;
+`policy-engine/src/polisyos/runtime/quality/event_log.py@8eb1c070a157b82c7d98e38d0f803ae4096f73d0`).
+Its completeness and consumer behavior remain an unaudited, `UNRUN` adjacent
+question; establish whether that boundary is reachable and divergent before
+classifying a finding or proposing a separate DS15 item. No P41 attribution is
+claimed.
 
 **B27 remainder / smallest missing capability.** Separating
 `GenerationCycleRecord.design_problem_ref` from
@@ -2101,8 +2117,18 @@ producer status is `producer_missing` only for the enumerated literal-source set
 external/dynamic producer existence is `not_established`. The same-class receipt
 hash and store handoff escape is widened under P40, not repaired site by site.
 Missing capability labels include `bridge_missing`/`verification_missing` for the
-production admission, store, and receipt witnesses; the DS15 1,000-event candidate
-is separate and remains unmeasured. Closure requires all R13 negative probes and
+production admission, store, and receipt witnesses. Correction: the Cycle Board's
+1,000-event boundary returns typed `invalid_source` with
+`movement_event_window_incomplete`
+(`policy-engine/src/polisyos/runtime/quality/acquisition_movement.py@d82db7baa318ad8003c2fe03b26e41afd7997eca`),
+and carries it as row `movement_status`
+(`policy-engine/src/polisyos/runtime/http/services/cycle_board_projection.py@440d9a1e0cd5acf1c52757ed13a8908371185e8c`),
+so it is not asserted here as a DS15 gap. Separately, the adjacent
+`AcquisitionRouteLoop` terminal-event lookup's implicit 500-event default remains
+unaudited (`policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py@8d2aecd29b71bfc43af45d4d8ff89f2683916d1a`;
+`policy-engine/src/polisyos/runtime/quality/event_log.py@8eb1c070a157b82c7d98e38d0f803ae4096f73d0`);
+its behavior is `not_established` and its tests are `UNRUN`, with no DS15 item
+proposed pending that audit. Closure requires all R13 negative probes and
 preserving controls above, exact production-store identity through actual container
 composition, byte-exact v1/v2 replay plus current v3 admission, and all touched-file
 four-base results. This draft claims none of those tests has run.

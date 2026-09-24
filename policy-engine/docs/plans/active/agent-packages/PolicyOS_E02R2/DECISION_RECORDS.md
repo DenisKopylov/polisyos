@@ -1,0 +1,602 @@
+# E02-R2 decision record drafts
+
+**Status:** proposals for the principal; none is ratified by this file. Repeating a
+lane lean does not make it a principal decision. The principal’s ruling, signer, and
+date remain pending for R1, R2, R5, R9, and R13.
+
+**Prepared:** 2026-09-24. **Code inspected:** candidate base
+`73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
+disposition and its evidence. They do not assert that a repair or probe has run.
+
+Each draft follows the visibility fields in
+`docs/system-design-decisions/policyos-identity-and-custody-boundary.md` §9.7:
+question, options and costs, premises, proposed choice and decision-maker status,
+remainder, falsifier, and binding seam. Predicate labels and implementation/property
+divergences follow P37 and P38 in
+`docs/reference/policy-design-case-failure-patterns.md`.
+
+## R1 — CYC-01 ordinary N4 entry without owner-bound context
+
+**Question.** When an ordinary plain-language request has no established
+`CycleSubstrateContext`, may the HTTP composition run N4 candidate computation, and
+where must it stop?
+
+**Options and costs.**
+
+1. Require an owner-bound context before any N4 computation. This keeps the N4 input
+   contract simple, but the user and candidate-generation path pay for missing owner
+   data with a total refusal. New jurisdictions and cases begin with unknowns, so this
+   also makes ordinary entry depend on pre-enumerated owner state.
+2. Remove the context and binding checks. This restores reachability quickly, but
+   runtime and policy consumers would bear the risk of caller-owned or mismatched
+   world state being treated as grounded.
+3. **Proposed lean:** keep content binding and revalidation when the canonical owner
+   context exists; when it does not, permit candidate computation and carry a typed
+   `not_established` substrate limitation. Only an existing owner bridge may fill
+   that context. The candidate remains ineligible for actions whose authority needs
+   that grounding. The runtime owner pays for carrying the limitation through the
+   run and its projections; the user keeps access to candidate work.
+
+**Premises.** B01–B03 describe ordinary request entry and the need to carry data/model
+context through the actual HTTP → N4 → N5 path; their criterion is a real ordinary
+request, not a manually assembled Python context (`PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md`, B01–B03; bundle `CYC-01.md`). S0-K06’s binding application says fail-closed binds protected actions, published claims, and custody facts, while candidate work may carry a declared unknown (`stage0-custody-kernel-ratification.md` §4.3). The identity ruling makes typed absence behavior PolicyOS’s contract, while the external owner remains owner of its function (`policyos-identity-and-custody-boundary.md` §5). The product’s ordinary front door must remain usable as the causal model grows (`policy-design-causal-operating-system-north-star.md` §§5–6).
+
+At the inspected base, `compile_plain_language_recursive_generation_cycle` already
+tries `_build_cycle_substrate_context_from_owner` and revalidates a supplied context,
+but then raises `cycle_substrate_context_not_established` whenever an explicit N4
+port is present without that context. The owner builder only composes registered
+substrate entries and an existing WMR; it does not establish arbitrary missing
+substrate facts (`runtime/http/services/control/generation_cycle.py`).
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject to
+principal ruling. Keep the existing content-hash and revalidation checks. Do not
+manufacture a WMR, catalog entry, or concrete scope to satisfy N4. An ordinary
+request can proceed through candidate computation with an explicit unknown. If that
+unknown prevents a valid N5 world simulation, preserve a typed pending/limited N5
+result rather than claim a simulation. Promotion, publication, protected modes, and
+the S8 authority grade remain gated on the owner evidence they require. The lane has
+not made this decision for the principal.
+
+**P37 — gate predicates at admission.**
+
+- The raw request is caller supplied and supports candidate generation only; it is
+  not a predicate establishing policy authority.
+- A present `CycleSubstrateContext` is admitted only after its problem binding,
+  registered-entry projection, WMR identity, and content hashes are recomputed by
+  the typed context validator (`recomputed`).
+- If the owner context is absent, its scope is `not_established`; the declaration of
+  absence stays a limitation and cannot satisfy an authority gate.
+- Any later authority decision must use the relevant existing owner verifier and
+  current epoch evidence (`independently_reconciled`). A missing or stale verifier
+  result is `not_established` and blocks that authority action.
+
+**P38 — property and divergence.** Property: an ordinary request can yield candidate
+work without owner context, while unknown substrate facts cannot support an
+authority-grade output. Current implementation: the HTTP compiler raises whenever
+an explicit `root_n4_generation_port` meets a missing context
+(`runtime/http/services/control/generation_cycle.py::compile_plain_language_recursive_generation_cycle`).
+Divergent case: a plain request has no catalog-owned context but has the configured
+N4 producer; the candidate computation is refused even though its output could be
+marked limited. The converse probe must also hold: a candidate carrying this
+limitation cannot pass promotion or publication with the limitation removed only
+from a display projection.
+
+**Remainder.** No decision here grants authority to guess a jurisdiction, create a
+second world store, or convert an LLM candidate into evidence. Where valid owner
+data is absent, the next step is an owner/data record or the smallest missing owner
+capability, not a synthetic context. The system continues to own the absence
+contract and the authority gate.
+
+**Remainder standing and signatory.** An absent or unmatched substrate fact has
+standing `not_established`; that does not put the ordinary request or candidate
+capability on hold. The registered source owner signs any source fact it supplies.
+If a particular source owner is not registered, that fact remains
+`unallocated/not_established` until the source boundary names its signer; this draft
+does not make that appointment. The HTTP/runtime composition owns carrying the
+typed unknown and gating authority, not signing source facts. Denis, as principal,
+remains the pending signatory for this proposed candidate/authority boundary; this
+draft is not ratification.
+
+**Falsifier / revisit trigger.** Reopen if a served ordinary request cannot produce
+candidate work when the context is absent, or if a candidate with `not_established`
+substrate evidence can reach N5 as a grounded simulation, promotion, publication, or
+S8 authority output. The acceptance witness is the plain-language front door and
+NL-job tenant-scope path; the authority control is a negative promotion/publication
+case with the same absent context. Neither witness is claimed as run here.
+
+**Where it binds.** The HTTP composition at
+`runtime/http/services/control/generation_cycle.py::compile_plain_language_recursive_generation_cycle`
+and `_build_cycle_substrate_context_from_owner`; `CycleSubstrateContext` validation
+at `runtime/quality/cycle_substrate.py`; the recursive N4/N5 orchestration and
+downstream promotion/S8 authority gates. This proposal does not alter the external
+catalog or WMR owners.
+
+**Pattern pass.** P04/P05/P10/P15. The observed defect is an authority prerequisite
+leaking into candidate reachability; the target is one explicit typed limitation
+that survives all projections. The owner builder exists, but the ordinary missing
+context route remains `implemented_but_not_orchestrated`; acceptance requires the
+candidate producer to run and an authority consumer to reject the unresolved case.
+
+## R2 — CYC-05 strangle proof, deployment identity, and historical replay
+
+**Question.** How should a persisted N6 run retain the claim that production does
+not route through `run_fixture`, without making every replay depend on a live source
+checkout or treating an unrelated edit as run invalidation?
+
+**Options and costs.**
+
+1. Re-hash the full `src/polisyos` tree at every consumer replay. This is simple to
+   understand, but every consumer and packaged deployment pays for live source
+   access; unrelated edits can invalidate old runs.
+2. Remove the strangle receipt and stop checking the production-path property. This
+   removes false staleness, but the runtime and public projections lose evidence for
+   a safety-relevant orchestration boundary.
+3. **Proposed lean:** run a complete source/deployment census as a tooling gate,
+   bind the resulting receipt to the canonical deployment identity (loaded-code
+   manifest plus lock file), and keep historical validity distinct from currentness.
+   A run replays from its immutable recorded identity and versioned historical
+   projection. Current admission separately asks whether that identity is current
+   for the relevant epoch. Tooling and runtime owners pay for the census, stable
+   identity binding, and explicit currentness projection.
+
+**Premises.** B30’s audit card calls for a controlled source/build slice, distinct
+missing-source, parse-error, and forbidden-caller states, and reuse for an unchanged
+deployment (`source/B_r19_original.md`, B30; bundle `CYC-05.md`). B29 separately
+requires a normal stop to retain its epistemic meaning; a structural receipt must not
+turn a bounded successful run into abstention (`B29`). The ratified identity rule
+requires historical provability and makes epochs/staleness the way current claims
+remain honest (`policyos-identity-and-custody-boundary.md` §§1, 4). The canonical
+deployment identity is the confidence ledger’s loaded-code manifest and lock-file
+identity; a source checkout’s mere presence at validation time is not deployment
+identity (the task’s ratified deployment rule and
+`runtime/quality/confidence_ledger.py::_admit_loaded_runtime`). The register’s
+`merged-lanes-need-a-reissue-path-neither-lane-declared` row remains open on its
+engineering reissue path; this proposal does not authorize a reissue or restamp.
+
+At the inspected base, `StrangleReceipt` documents that it does not establish build
+or deployment identity and admits that alias/dynamic-call completeness is not
+established. It computes a source hash over `src/polisyos`; `verify_current` and
+`validate_generation_cycle_run` require a live `repo_root` and compare the current
+tree during validation (`runtime/quality/generation_cycle.py`). The confidence
+ledger already has a canonical loaded-runtime/deployment identity path
+(`runtime/quality/confidence_ledger.py`).
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject to
+principal ruling. The source/deploy-time gate owns the census; runtime consumers
+consume its immutable, deployment-bound receipt. Historical validation proves that
+the stored run and receipt replay under their recorded schema and identity. It does
+not require today’s checkout. A separate typed epoch/currentness result compares the
+recorded deployment identity with the current admitted deployment identity. A
+historically valid run may therefore be stale for current authority while remaining
+valid evidence of what happened. Extending a hashed run model requires a schema
+version bump and a versioned historical serializer that excludes fields added later.
+
+**P37 — gate predicates at admission.**
+
+- The strangle census’s declared file/deployment denominator must be derived from
+  the actual shipped source/build inputs (`recomputed`); a producer’s claimed count
+  or a search-index result is insufficient (`consumer_asserted`).
+- The run’s recorded canonical deployment identity is compared with the stable
+  loaded-code manifest and lock-file identity by the canonical identity owner
+  (`recomputed`). Missing or inconsistent identity is `not_established` and yields
+  no current positive.
+- Historical content, schema version, and receipt binding are recomputed from the
+  persisted artifact (`recomputed`). Historical validity does not imply currentness.
+- Direct AST call edges can be recomputed, but reflective/aliased entry paths remain
+  `not_established` unless the deployment census independently covers them. That
+  limitation must be frozen in the receipt; it cannot be converted to “no callers”
+  by a declared allowlist.
+
+**P38 — property and divergence.** Property: the deployed production N6 path does
+not route through `run_fixture`, and a persisted run remains replayable as historical
+evidence. Current implementation: it compares the run’s receipt against a fresh
+hash/census of all `src/polisyos` at consumer time. Divergent case: a comment-only
+edit to `lex/simulator/report.py` changes no production route or recorded deployment
+identity, but makes every historical run stale. A second boundary case is a
+reflective `getattr` route to `run_fixture`: a direct AST-name census can miss the
+forbidden path while still reporting its enumerated source set clean. The future
+gate must either distinguish that path or preserve it as a bounded
+`not_established` limitation; it may not claim complete call-graph proof from the
+direct census alone.
+
+**Remainder.** This does not authorize changing the canonical deployment identity,
+trust-posture pins, or GY promotion-contract epochs on merge. Any required reissue
+needs its own authorized transition and readback. It also does not decide that all
+dynamic Python dispatch can be statically proven; unresolved dispatch stays an
+explicit limitation and cannot support a stronger authority grade.
+
+**Remainder standing and signatory.** Dynamic/reflective caller completeness is
+`not_established`; no complete-census verifier or signer is identified by this
+record, so the census may not support an authority claim for those paths. The
+source/deployment census is the proposed mechanism; an engineering owner for that
+tooling and any stronger dynamic-dispatch proof remains unallocated until assigned.
+For the merged-epoch register row, the standing rule is already ruled: a transition
+must be declared from the merge base. `runtime/quality` owns the fifth transition
+implementation and its stated premise; the row closes only after the authorized
+reissue succeeds and readback matches. This draft neither reopens that ruling nor
+authorizes a restamp (`docs/plans/active/DEBT-REGISTER.md`,
+`merged-lanes-need-a-reissue-path-neither-lane-declared`, standing decision ruled
+2026-09-10). Denis remains the pending principal signatory for the proposed
+historical/currentness boundary.
+
+**Falsifier / revisit trigger.** Reopen if changing an unrelated file while keeping
+the canonical deployment identity fixed makes historical validation fail, or if a
+changed loaded-code manifest/lock identity is accepted as current without an epoch
+status change. The census removal probe keeps receipt marker fields but removes the
+actual source/deploy check; it must fail. Test a packaged deployment without a live
+checkout. These probes are acceptance requirements, not results recorded by this
+draft.
+
+**Where it binds.** Source/deploy-time tooling gate in the quality/deployment
+validation owner; canonical identity at
+`runtime/quality/confidence_ledger.py::_admit_loaded_runtime`; persisted run and
+historical projection at `runtime/quality/generation_cycle.py::StrangleReceipt`,
+`GenerationCycleRun`, and `validate_generation_cycle_run`; recursive-leaf validation
+and the public OWR projection that consume run validity. Currentness is a typed epoch
+question at admission, not an incidental source-tree scan.
+
+**Pattern pass.** P07/P08/P29/P35/P37/P38/P41. Existing anti-patterns are runtime
+recomputation over an overbroad source denominator and a marker receipt whose
+deployment identity is explicitly absent. Target: one complete source/deploy census,
+one canonical identity binding, and separate historical/current statuses. The
+current source check exists; the deployment-bound producer/consumer bridge is
+`bridge_missing`, and source-check coverage for dynamic calls is
+`not_established`. Acceptance is byte-exact historical replay plus a currentness
+falsifier against a changed canonical identity.
+
+## R5 — EvalSafety context denominator for non-simulation leaves
+
+**Question.** Which recursive leaf modes require a current EvalSafety context for
+every leaf, and may another context type or a custom controller factory substitute
+for that requirement?
+
+**Options and costs.**
+
+1. Keep the existing conditional denominator check. The recursive controller stays
+   permissive, but callers and users bear a path-dependent safety boundary; a custom
+   factory or an empty map can bypass the check.
+2. Require an EvalSafety context for every mode, including `simulate_only`. This is
+   straightforward, but ordinary pure computation pays an authority-band cost and
+   loses the inexpensive candidate path required by S0-K06.
+3. **Proposed lean:** every leaf in `retrospective`, `measurement_audit`,
+   `sandbox_pilot`, `field_pilot`, or `deployment` must have a canonical, current
+   EvalSafety context verified for that exact leaf. The complete context-key set
+   must equal the recomputed leaf set even when it is empty. Only `simulate_only`
+   may omit EvalSafety, and that choice is declared as candidate computation; it
+   cannot authorize promotion, publication, or deployment. Runtime and EvalSafety
+   owners pay for a single structural guard and current-head verification.
+
+**Premises.** The public mode vocabulary distinguishes `simulate_only` from
+`retrospective`, `measurement_audit`, `sandbox_pilot`, `field_pilot`, and `deployment`
+(`pdc/_impl/evaluation_safety.py::EvaluationMode`). The evaluation-safety consumer
+verifier already recomputes bindings, validity windows, evidence heads, and the
+unique revision head (`runtime/quality/evaluation_safety.py::verify_evaluation_safety_consumer_admission`).
+The recursive controller currently checks contexts only under
+`if self._cycle_controller_factory is None`, and only checks the denominator when
+`evaluation_contexts_by_node` is truthy; it also permits a nonempty substrate-context
+map to satisfy the “context established” branch (`runtime/quality/recursive_generation_cycle.py`).
+S0-K06 keeps cheap candidate computation open while binding authority actions to
+verified scope; ADR-0179 principle 4 calls over-refusal a defect
+(`docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`).
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
+to principal ruling. Use the already-owned EvalSafety verifier, not a new parallel
+gate. Compute the recursive leaf set from the validated graph, require exact
+denominator equality for every non-simulation mode on every controller path, and
+refuse authority-grade work if any leaf’s current safety head is absent, stale,
+mismatched, or unresolved. A `CycleSubstrateContext` is not an EvalSafety context.
+Pure `simulate_only` retains candidate computation with its mode declared; that does
+not create an exception for any other mode.
+
+**P37 — gate predicates at admission.**
+
+- Leaf membership is recomputed from the validated recursive graph (`recomputed`).
+- Canonical mode is taken from the verified mode-resolution owner (`recomputed`);
+  the request’s mode token alone is `consumer_asserted` and cannot downgrade a
+  non-simulation request.
+- Context-map completeness is the equality of the exact context keys and graph leaf
+  refs, including the empty-map case (`recomputed`).
+- A supplied `EvaluationExecutionContext` is only caller input until the EvalSafety
+  owner verifies its exact binding, valid time, current evidence, and revision head
+  (`independently_reconciled`). Missing verification is `not_established` and blocks
+  non-simulation execution.
+- Substrate context may support candidate/world binding but never stands in for
+  EvalSafety (`not_established` for the safety predicate).
+
+**P38 — property and divergence.** Property: no non-simulation recursive leaf runs
+without its own current EvalSafety head, regardless of factory or context map shape.
+Current implementation: the denominator guard is inside the no-factory branch and
+skips equality for an empty context mapping. Divergent case: a graph with one leaf
+and `evaluation_contexts_by_node={}` does not raise the denominator mismatch; a
+controller factory also bypasses the guard. The property fails while the present
+predicate can be green.
+
+**Remainder.** This does not make a `simulate_only` result safe for promotion or
+publication. Its authority remains separately gated. Any future relaxation for
+ordinary candidate computation applies only to the typed `simulate_only` mode and
+must remain visible in the run record.
+
+**Remainder standing and signatory.** Missing, stale, or mismatched EvalSafety
+evidence has standing `not_established` and blocks every non-simulation mode. The
+existing consumer-admission verifier in
+`runtime/quality/evaluation_safety.py` owns the software check; its module explicitly
+does not make an institutional appointment, and this record names no external
+evidence signer. The recursive runtime owns enforcing the denominator, but cannot
+sign EvalSafety evidence. Denis remains the pending principal signatory for this
+proposed mode boundary; any later expansion of the `simulate_only` exception needs
+a separate principal decision.
+
+**Falsifier / revisit trigger.** Reopen if any non-simulation leaf proceeds with a
+missing, empty, incomplete, stale, or foreign EvalSafety context; repeat with a
+custom controller factory. The positive control is an ordinary `simulate_only`
+candidate that proceeds without an EvalSafety certificate but cannot cross an
+authority gate. These are required tests; none is claimed as run here.
+
+**Where it binds.** Structural check in
+`runtime/quality/recursive_generation_cycle.py::RecursiveGenerationCycleController.run`;
+mode, context currentness, and revision-head admission in
+`runtime/quality/evaluation_safety.py::verify_evaluation_safety_consumer_admission`;
+promotion/publication consumers retain their own authority checks.
+
+**Pattern pass.** P04/P05/P37/P38. The existing failure is a conditional guard whose
+implementation checks a proxy for “context provided” instead of exact current
+coverage. Target: graph-derived denominator plus the canonical current-head owner.
+The verifier exists; structural coverage over all controller paths is
+`verification_missing` until the empty-map/factory falsifiers and the
+`simulate_only` control pass.
+
+## R9 — CAS supports several honest typed views of one blob
+
+**Question.** How can the CAS deduplicate identical bytes while representing two
+different, truthful typed profiles for those bytes?
+
+**Options and costs.**
+
+1. Keep one first-writer profile and return a bounded, typed profile-conflict
+   refusal when a caller asks for a different view. This preserves honest refs and
+   avoids caller-specific exceptions, but callers that use identical payload bytes
+   for distinct legitimate views pay with a refusal until the store can represent
+   that view. Existing simulation, deployment, and promotion consumers remain
+   limited at that boundary.
+2. Return a ref for the newly requested kind while leaving the first manifest in
+   place. This avoids immediate caller failures, but the returned ref lies about
+   the persisted profile and pushes integrity failures onto every later reader.
+3. **Proposed lean:** preserve immutable bytes and physical content deduplication,
+   while adding independently persisted, typed view records/manifests that bind a
+   view identity to the content hash and full profile. A returned view ref resolves
+   only when its own persisted profile exists and verifies. Implement the contract
+   through the common `ArtifactStore` owner for filesystem, S3, GCS, and caching
+   backends. CAS and API owners pay for additional metadata, versioned references,
+   import/export and signature handling; callers do not need envelope hacks or
+   duplicate payloads.
+
+**Premises.** B150’s distinguishing case is identical bytes under profile A and
+profile B: the first manifest is preserved, but the second `ArtifactRef` advertises
+profile B. Its source recommendation requires that a ref match actual persisted
+semantics and preserve byte deduplication (`source/B_r19_original.md`, B150; bundle
+`CAS-01.md`). The class lean preserves the honesty E02 bought: never return a ref
+whose profile the store does not hold. At the inspected base, `ArtifactRef` holds
+content ID, kind, and media type, while `ArtifactManifest` is a single sidecar per
+content-addressed blob; `FileSystemCAS._put_blob_and_manifest_once` validates the
+one existing profile and refuses a mismatch (`core/artifacts/manifest.py`,
+`core/artifacts/store.py`). The store factory exposes filesystem, S3, GCS, and cached
+variants (`core/artifacts/backends/config.py`).
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
+to principal ruling. Keep blob identity as the hash of exact bytes. Give each typed
+view its own stable identity and immutable profile binding; do not make kind or
+inputs mutable on the blob’s first manifest. Resolve and verify the view through
+the runtime-supplied store. A profile that is absent, malformed, or mismatched
+returns a typed refusal. Preserve historical single-profile refs by versioned
+readers; any added hash-bound view fields require a schema/version bump and
+historical projection rules.
+
+**P37 — gate predicates at admission.**
+
+- Blob identity is SHA-256 over the exact persisted bytes (`recomputed`).
+- A typed view exists only if the store resolves its immutable view record and
+  recomputes its binding to that blob (`recomputed`). The requested kind/schema/
+  inputs are consumer assertions (`consumer_asserted`); persisted producer and
+  authority semantics are `not_established` by the CAS alone and require the
+  relevant owner contract before carrying authority.
+- Where a view carries authority, signature, tenant, event, and input closure must
+  be resolved and checked through the existing owner/verifier (`independently_reconciled`).
+  A missing view or verifier is `not_established` and cannot receive a positive
+  authority result.
+- Equal bytes never imply equal lineage or provenance. Any absent lineage relation
+  remains `not_established` rather than inferred from the shared blob hash.
+
+**P38 — property and divergence.** Property: content can be reused across multiple
+typed meanings only when each meaning is explicitly stored and verifiable. Current
+implementation: a single content-addressed manifest is the semantic profile, and a
+conflicting profile raises. That refusal preserves honesty but rejects a valid
+second view; a workaround that returns the new ref without a second persisted view
+would diverge in the opposite direction by claiming a profile the store lacks. The
+distinguishing case is one byte-identical payload requested once as profile A and
+once as profile B: both views must resolve to their own manifests while both still
+resolve to the same blob bytes.
+
+**Remainder.** This does not claim equal bytes have equal empirical origin, authorize
+changing an existing profile, weaken signature/tenant verification, or decide that
+all kind and lineage fields can be verified by the CAS itself. Consumers that need
+source independence still require their own evidence. Per-view concurrency and
+cross-backend compatibility remain implementation obligations.
+
+**Remainder standing and signatory.** The CAS has no standing to prove empirical
+origin or consumer-specific lineage; those predicates remain `not_established` by
+the CAS alone, and each consuming owner must sign or independently reconcile its
+own evidence. The `polisyos.core.artifacts` package owns artifact IDs, manifests,
+signatures, and the CAS boundary (`src/polisyos/core/artifacts/README.md`). A named
+engineering owner/signatory for the multi-view contract and cross-backend
+implementation is not established by that package README or this draft; that
+assignment remains `unallocated/not_established` until made. Denis remains the
+pending principal signatory for the semantic choice to support honest typed views.
+
+**Falsifier / revisit trigger.** Reopen if any backend returns a view ref whose
+resolved manifest differs from it, if same-profile retries create a second view,
+or if a tampered view can point at a different blob/profile while retaining a green
+verification result. The acceptance signal is the A/B same-bytes witness through
+filesystem, S3, GCS, and caching-store contracts, plus the existing first-writer
+and corrupted-blob negatives. No such run is claimed here.
+
+**Where it binds.** Shared contract `core/artifacts/protocol.py::ArtifactStore`;
+typed references and historical projections in `core/artifacts/manifest.py`;
+manifest lifecycle and `FileSystemCAS` in `core/artifacts/_manifest_lifecycle.py`
+and `core/artifacts/store.py`; configured remote/cache implementations under
+`core/artifacts/backends/`; artifact import/export and signature paths. No caller may
+construct an envelope to compensate for a missing CAS view API.
+
+**Pattern pass.** P05/P27/P31/P32/P37/P38. The instance symptom is a CAS conflict;
+the class is the mismatch between a content key and a single semantic view. Target:
+one generic, typed multi-view contract implemented by the shared owner, not
+consumer-specific exceptions. Multi-view refs/artifacts are `artifact_missing` and
+consumer resolution is `consumer_missing` until the shared contract, every backend,
+and a mismatch-negative witness are wired.
+
+## R13 — one world-growth path and runtime store custody
+
+**Question.** May the in-cycle ACQ-01 route mint a world-model record from a local
+FileTabular/CAS snapshot, or must production N7 re-entry use the existing Data Forge
+overlay, passport, and native epoch admission path?
+
+**Options and costs.**
+
+1. Keep the local route as production authority. This is the least wiring, but
+   policy users and Data Forge owners pay for two definitions of world growth, with
+   one path lacking overlay admission, passport, native epoch, and the runtime’s
+   tenant-bound store.
+2. Confine the local route to an explicitly non-authoritative contract-test or
+   demonstration lane with typed marking. The old fixture remains useful, but any
+   served N7 request without the canonical owner route stays pending and cannot
+   change the authoritative world.
+3. **Proposed lean:** route the production N7 re-entry through the existing
+   `AcquisitionWorldGrowthBridge`, its acquisition movement/executor and semantic
+   epoch owners, and pass the runtime-supplied artifact store and event log through
+   the whole chain. Strangle the parallel local route from production. Replace
+   root-rebuilt runtime stores with the supplied store; any truly local demo output
+   must be explicitly non-authoritative and cannot feed world growth. Runtime and
+   Data Forge owners pay for orchestration and tenant-custody witnesses; users get
+   one admitted world-growth path.
+
+**Premises.** B12 requires the real chain from typed requirement through authorized
+job, owner acceptance, re-entry, and recomputation; a plan or unaccepted response is
+not world growth (`source/B_r19_original.md`, B12; bundle `ACQ-01.md`). LA-046 remains
+an explicit handoff into ACQ-01, not permission for another compiler or data owner
+(`source/LA_r09_original.md`, LA-046; bundle `ACQ-01.md`). The North Star says
+acquisition is VOI-driven demand paging into the growing causal world model
+(`policy-design-causal-operating-system-north-star.md` §5). GY Rev 16 / N13b and
+the acquisition frontier require Data Forge overlay admission, passport, and native
+epoch qualification. Storage custody requires the store supplied by the runtime;
+rebuilding `FileSystemCAS` from a path loses the guarded tenant context.
+
+At the inspected base, a served WDI path already composes
+`AcquisitionWorldGrowthBridge` with `control_service._artifact_store`, the event
+log, and epoch deployment (`runtime/http/services/acquisition_surface_execution.py`).
+The bridge selects an exact tenant/cell/run/route, uses the existing native
+admission owner, persists authority receipts through the supplied store with
+tenant/cell/run/job binding, and reconciles reads against the expected tenant
+(`runtime/quality/acquisition_world_growth.py`). In contrast,
+`GenerationCycleController._rebuild_n7_acq01_route_context` reads a route-provided
+`capture_store_root`, reconstructs `FileSystemCAS`, and builds a fresh WMR/context
+from that local route snapshot without the canonical bridge’s overlay/passport/
+epoch chain (`runtime/quality/generation_cycle.py`).
+The R13 call sites named in the task also include acquisition-planner persistence,
+N5 result persistence and composed-WMR loading, and the Foundry training adapter.
+Those inspected call sites must be classified as runtime-owned or explicitly
+non-authoritative before they are retained; this draft does not claim a complete
+repository-wide `FileSystemCAS` census.
+
+**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
+to principal ruling. The production N7 caller is present in the integrated runtime,
+so route ACQ-01 through the existing canonical bridge. Do not create a parallel
+world-growth record. Re-entry reads the admitted receipt through the same
+tenant-bound runtime store that wrote it and proves the resulting overlay/passport
+and epoch binding before it changes the dependent calculation. The local route is
+strangled from production. Any demonstrator left behind is typed as non-authoritative
+and has no path into the admitted world.
+
+**P37 — gate predicates at admission.**
+
+- Route selection is an exact comparison of a verified closure’s
+  `(tenant, cell, run, route, design_problem)` with configured typed selection
+  (`recomputed` against `institutionally_supplied` deployment configuration).
+  Configuration selects a route; it does not establish acquisition authority.
+- Live evidence is admitted only after the existing catalog/authority, budget,
+  owner receipt, native epoch, and passport chain is resolved and reconciled
+  (`independently_reconciled`). A URL, plan, caller-owned CAS snapshot, or route
+  declaration alone is `consumer_asserted` and cannot admit data.
+- Before/after overlay membership and the positive admitted delta are read from the
+  owner’s catalog projection (`recomputed`). If the canonical owner or expected
+  tenant cannot be verified, growth is `not_established` and the route stays
+  pending/deferred.
+- Receipt tenant custody must be verified through the runtime store and durable
+  event reconciliation (`independently_reconciled`); a manifest tenant field by
+  itself is not proof.
+
+**P38 — property and divergence.** Property: every production world-growth write
+enters through Data Forge overlay admission, passport, and native epoch qualification
+using the runtime’s tenant-bound store. Current implementation: the ACQ-01 re-entry
+route accepts a `capture_store_root`, constructs a new `FileSystemCAS`, and rebuilds
+local route context. Divergent case: a valid local snapshot can create a WMR and
+re-enter the cycle without an overlay admission, passport, epoch receipt, or the
+runtime store’s tenant guard; it changes the purported world while bypassing the
+property. A production tenant-transfer probe must also fail through the guarded
+store, not only through a raw filesystem store.
+
+**Remainder.** This does not make PolicyOS the owner of external licenses, data
+collection, or institutional authority. Those remain integrated typed inputs owned
+by their source institutions/Data Forge; PolicyOS owns admission, receipt, re-entry,
+and the truth of its resulting world-growth claim. An unavailable external owner
+means a typed limitation or blocker, never a local authority substitute. This draft
+does not close the merge-related authorized-epoch reissue register row.
+
+**Remainder standing and signatory.** A source institution signs its own license,
+collection, and institutional-authority acts; where no source owner or signer is
+identified, that input remains `unallocated/not_established` and cannot be replaced
+by a PolicyOS signature. The PolicyOS world-growth claim is owned by the existing
+`runtime/quality/acquisition_world_growth.py` admission and re-entry path, together
+with `runtime/quality/acquisition_movement.py`,
+`runtime/quality/acquisition_epoch_admission.py`, and
+`runtime/quality/semantic_epoch_qualification.py`; these owners must verify typed
+source evidence and tenant custody. For the merged-epoch register row, the
+merge-base transition rule is already ruled; `runtime/quality` owns the fifth
+transition and must state its premise, perform the authorized reissue, and verify
+matching readback (`docs/plans/active/DEBT-REGISTER.md`,
+`merged-lanes-need-a-reissue-path-neither-lane-declared`). No reissue is authorized
+by this draft. Denis remains the pending principal signatory for this proposed
+single-world-growth boundary.
+
+**Falsifier / revisit trigger.** Reopen if a production caller can mutate the
+authoritative world through a path other than the canonical bridge, if the bridge
+reconstructs a store from a root instead of receiving the runtime store, or if a
+guarded-store re-entry lets a stale/foreign tenant read or attach another tenant’s
+receipt. The served witness is authorized WDI evidence → overlay delta → passport
+and epoch receipt → same-case re-entry under the same tenant; the negative is a
+foreign or unresolved tenant/case. A candidate computation with no admitted data is
+the property-preserving control. These runs are required for implementation; none
+is claimed here.
+
+**Where it binds.** Production composition in
+`runtime/http/services/acquisition_surface_execution.py`; the bridge and durable
+admission/readback in `runtime/quality/acquisition_world_growth.py`; ACQ-01
+orchestration and local route strangle in
+`runtime/quality/generation_cycle.py::_rebuild_n7_acq01_route_context`; the store
+boundary in `runtime/quality/acquisition_planner.py` and runtime-owned Foundry
+writers. N5 result persistence and composed-WMR reads must also consume the supplied
+store where their artifacts cross the runtime custody boundary.
+
+**Pattern pass.** P01/P02/P05/P07/P08/P27/P31/P32/P37/P38. The observed classes are
+parallel world-growth ownership and root-rebuilt stores that bypass tenant custody.
+Target: one orchestrated bridge with typed persisted evidence and verified re-entry.
+The canonical producer and served WDI path exist; production N7 through that bridge
+is `implemented_but_not_orchestrated`, while the legacy local route still reaches
+the cycle. The acceptance signal is the full served chain plus the guarded tenant
+negative and a grep/census showing no production caller can reach the legacy write.
+
+## Closeout note
+
+These five drafts are proposals only. The lane has not recorded a principal’s
+acceptance, implemented the proposed repairs, run their falsifiers, or authorized
+any governed reissue. A principal ruling should be appended with its date, named
+decision, evidence that moved it, and any changed remainder; it should not be
+backfilled as though already granted.

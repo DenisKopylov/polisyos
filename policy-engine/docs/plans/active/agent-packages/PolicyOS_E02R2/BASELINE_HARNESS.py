@@ -38,6 +38,7 @@ import stat
 import subprocess
 import threading
 import time
+import traceback
 import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import asdict, dataclass
@@ -1351,6 +1352,46 @@ def _unrun_before_process_admission(
     }
 
 
+def _unrun_after_worker_exception(
+    job: Job,
+    revision: dict[str, Any],
+    exc: Exception,
+) -> dict[str, Any]:
+    """Record an unknown execution state without inventing resource evidence."""
+    reason = f"scheduler worker failed without a valid verdict: {type(exc).__name__}: {exc}"
+    return {
+        "revision_key": job.revision_key,
+        "revision_label": revision["label"],
+        "commit": revision["commit"],
+        "test_path": job.test_path,
+        "cell_presence": "PRESENT",
+        "test_blob_oid": job.test_blob_oid,
+        "timeout_seconds": job.timeout_seconds,
+        "timeout_basis": "planned alarm recorded; whether it fired is not established",
+        "exclusive_native": job.exclusive_native,
+        "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
+        "resource_group_live_after_exit": None,
+        "command": [],
+        "command_status": "planned command was not recovered from the failed worker",
+        "environment_keys": [],
+        "pythonpath_roots": [],
+        "cwd": str(Path(revision["checkout"]) / "policy-engine"),
+        "returncode": None,
+        "timed_out": None,
+        "resource_guard": None,
+        "resource_guard_kind": None,
+        "resource_guard_code": None,
+        "elapsed_seconds": None,
+        "suite_status": "UNRUN",
+        "inspection_error": reason,
+        "worker_error": type(exc).__name__,
+        "worker_traceback": "".join(traceback.format_exception(exc)),
+        "case_counts": {},
+        "cases": [],
+        "artifacts": {},
+    }
+
+
 def _run_job(
     job: Job,
     revision: dict[str, Any],
@@ -1929,16 +1970,17 @@ def _schedule(
             try:
                 row = future.result()
             except Exception as exc:
-                row = _unrun_before_process_admission(
-                    job,
-                    by_revision[job.revision_key],
-                    f"scheduler worker failed before a valid verdict: {type(exc).__name__}: {exc}",
-                )
+                row = _unrun_after_worker_exception(job, by_revision[job.revision_key], exc)
             profiles.update(_measured_light_profiles([row]))
             completed.append(row)
             if on_complete is not None:
                 on_complete(row)
-            if row.get("resource_group_live_after_exit"):
+            if row.get("worker_error"):
+                halt_reason = (
+                    f"scheduler paused after worker error at {row['revision_key']}:{row['test_path']}: "
+                    f"{row['inspection_error']}"
+                )
+            elif row.get("resource_group_live_after_exit"):
                 halt_reason = (
                     f"scheduler stopped after {row['revision_key']}:{row['test_path']} left live descendants "
                     "after targeted SIGTERM/SIGKILL"
@@ -2957,7 +2999,8 @@ def _write_report(
             f"minimum scratch free space {resource_metrics['minimum_scratch_volume_free_bytes']} bytes."
         )
     resource_policy = (
-        f"Resource dispatch caps at {MAX_PROCESS_GROUPS} process groups (CLI default {DEFAULT_PROCESS_GROUPS}). "
+        f"This invocation admits at most {report['environment_policy']['max_process_groups']} "
+        f"pytest process groups (harness maximum {MAX_PROCESS_GROUPS}; CLI default {DEFAULT_PROCESS_GROUPS}). "
         f"A light profile must finish within 60 seconds, use {ADAPTIVE_MIN_GROUP_RSS_KIB}–"
         f"{ADAPTIVE_MAX_GROUP_RSS_KIB} KiB RSS and at most {ADAPTIVE_MAX_GROUP_CPU_PERCENT}% CPU, "
         "with zero swap growth. Each launch is staggered by 0.5 seconds and rechecked against "
@@ -2968,7 +3011,8 @@ def _write_report(
         f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
         f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
         "remaining below seven CPU cores. Unprofiled, native, measured-heavy and resource-exclusive "
-        "groups run alone. Each child is sampled every five seconds. A red or unavailable guard "
+        "groups run alone and are scheduled after bounded ordinary cells. Each child is sampled "
+        "every five seconds. A red or unavailable guard "
         "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
         "stop event; active workers terminate only their own PGID, and the scheduler drains and "
         "checkpoints active and unstarted cells as UNRUN. Live descendants left after the leader "
@@ -2993,7 +3037,7 @@ def _write_report(
         "",
         f"The four-base matrix has {report['matrix_cell_count']} cells: {report['present_cell_count']} present and executed or explicitly UNRUN, {report['missing_cell_count']} verified missing. Missing means the exact path is absent from that revision's tracked Git tree; it is not a pass. The whole-file SHA is retained as context; per-case attribution uses the exact test AST and statically resolved test-input closure.",
         "",
-        f"Shared runner: Python {report['runtime']['python']}, pytest {report['runtime']['pytest']}; CPU JAX. Main-revision timing pilots use three times a previously controlled duration for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); other bases use three times measured main duration with a {MIN_MEASURED_ALARM_SECONDS}s floor. Once a main pilot is checkpointed, same-blob older-base cells enter a global ready queue; the first measured member of any other exact-blob group also profiles later siblings. Missing or timed-out pilot cells remain explicit UNRUN.",
+        f"Shared runner: Python {report['runtime']['python']}, pytest {report['runtime']['pytest']}; CPU JAX. Main-revision timing pilots use three times a previously controlled duration for known long files (or an explicit {BOOTSTRAP_ALARM_SECONDS}s pilot ceiling); other bases use three times the larger of the measured main and previously controlled whole-file durations, with a {MIN_MEASURED_ALARM_SECONDS}s floor when the pilot has cases. If the pilot has no cases, sibling alarms include its alarm and use at least {BOOTSTRAP_ALARM_SECONDS}s and the previous controlled ceiling, if any; the pilot's actual status is recorded separately. Once a main pilot is checkpointed, same-blob older-base cells enter a global ready queue; the first measured member of any other exact-blob group also profiles later siblings.",
         "",
         f"Production data input: `{report['data_root']}/manifest.json` SHA-256 `{report['data_manifest_sha256']}`. The path resolved identically from all four checkouts; preflight also verifies that the production_data root and manifest have no write bits (the per-checkout mode and read-only verdict are in `results.json`). Environment values were allowlisted; `.env` loading was disabled and no environment values are recorded.",
         "",
@@ -3535,26 +3579,38 @@ def run_matrix(args: argparse.Namespace) -> int:
                 continue
             if (revision["key"], test_path) in reuse_cells:
                 continue
+            measured_prior = PREMEASURED_WALL_SECONDS.get(test_path)
             if pilot and pilot.get("elapsed_seconds") is not None and pilot.get("cases"):
+                measured_main = float(pilot["elapsed_seconds"])
+                measured_ceiling = max(measured_main, measured_prior or 0.0)
                 timeout_seconds = max(
                     MIN_MEASURED_ALARM_SECONDS,
-                    math.ceil(pilot["elapsed_seconds"] * TIMEOUT_MULTIPLIER),
+                    math.ceil(measured_ceiling * TIMEOUT_MULTIPLIER),
                 )
-                timeout_basis = f"3x measured main duration {pilot['elapsed_seconds']}s; minimum 120s"
+                timeout_basis = (
+                    f"3x max(measured main {measured_main}s, previously controlled "
+                    f"{measured_prior or 0.0}s); minimum {MIN_MEASURED_ALARM_SECONDS}s"
+                )
             else:
-                measured_prior = PREMEASURED_WALL_SECONDS.get(test_path)
                 if measured_prior is not None:
+                    pilot_alarm = int(pilot.get("timeout_seconds") or 0) if pilot else 0
                     timeout_seconds = max(
-                        MIN_MEASURED_ALARM_SECONDS,
+                        BOOTSTRAP_ALARM_SECONDS,
+                        pilot_alarm,
                         math.ceil(measured_prior * TIMEOUT_MULTIPLIER),
                     )
                     timeout_basis = (
-                        f"3x previously controlled whole-file duration {measured_prior}s; "
+                        f"max({BOOTSTRAP_ALARM_SECONDS}s, main pilot alarm {pilot_alarm}s, "
+                        f"3x previously controlled whole-file duration {measured_prior}s); "
                         "main pilot did not yield measurable cases"
                     )
                 else:
-                    timeout_seconds = BOOTSTRAP_ALARM_SECONDS
-                    timeout_basis = "1800s explicit fallback; main pilot did not yield measurable cases"
+                    pilot_alarm = int(pilot.get("timeout_seconds") or 0) if pilot else 0
+                    timeout_seconds = max(BOOTSTRAP_ALARM_SECONDS, pilot_alarm)
+                    timeout_basis = (
+                        f"max({BOOTSTRAP_ALARM_SECONDS}s explicit fallback, main pilot alarm "
+                        f"{pilot_alarm}s); main pilot did not yield measurable cases"
+                    )
             candidate = Job(
                 revision_key=revision["key"],
                 test_path=test_path,
@@ -3571,6 +3627,17 @@ def run_matrix(args: argparse.Namespace) -> int:
             ready_sibling_jobs.extend(same_blob_jobs)
             dispatch_ready_siblings()
     dispatch_ready_siblings(flush=True)
+    # Preserve the full denominator while doing bounded ordinary work before
+    # long native/resource-exclusive cells that may stop admission on failure.
+    remaining_jobs.sort(
+        key=lambda job: (
+            job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
+            job.exclusive_native,
+            job.timeout_seconds,
+            job.test_path,
+            job.revision_key,
+        )
+    )
     runs.extend(
         row for (revision_key, _), row in reuse_cells.items()
         if revision_key != "main"

@@ -1,6 +1,6 @@
 # Register proposals (draft only)
 
-No DEBT-REGISTER.md or LEDGER.md edits are made. Proposals here name a closure signal and its owner; they are not register changes or test results. The reviewed full-domain crosswalk covers 291 finding/bundle memberships against 75 GY task scopes, 22 Atlas slice scopes, and 74 active register rows (49,761 cells). It admits 32 exact owner-scope edges across 25 findings; the other cells remain `not_established`, not disproved. B201/B202 → DS16 was removed as a false noun-only edge, and LA-046's unsupported N13b/DS15 edges were withdrawn.
+No DEBT-REGISTER.md or LEDGER.md edits are made. Proposals here name a closure signal and its owner; they are not register changes or test results. The reviewed full-domain crosswalk covers 291 finding/bundle memberships against 77 standing GY task scopes, 22 Atlas slice scopes, and 74 active register rows: 50,343 membership-target audit opportunities, representing 48,786 distinct finding-target pairs. It admits 33 exact owner-scope edges across 27 findings; the other cells remain `not_established`, not disproved. B201/B202 → DS16 was removed as a false noun-only edge, and LA-046's unsupported N13b/DS15 edges were withdrawn.
 
 ## Conditional appends or residual updates
 

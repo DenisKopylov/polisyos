@@ -1874,8 +1874,8 @@ def _can_admit_profiled_job(
         return False, f"already at {MAX_PROCESS_GROUPS} active pytest process groups", False
     if snapshot["system_memory_free_percent"] < ADAPTIVE_MIN_MEMORY_FREE_PERCENT:
         return False, f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory", False
-    if snapshot["system_swap_used_bytes"] != baseline_swap_used_bytes:
-        return False, "swap changed since the run baseline; concurrent admission paused", False
+    # The hard resource guard already caps swap growth; a change within that
+    # bound, including a decrease, is not a separate admission failure.
 
     projected_rss_kib = math.ceil(
         profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER

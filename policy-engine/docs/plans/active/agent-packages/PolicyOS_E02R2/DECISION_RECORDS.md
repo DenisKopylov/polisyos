@@ -34,8 +34,15 @@ evidence must exist before S8 may emit a ranked recommendation?
    protected modes, and S8 authority gated on their own owner evidence. S8 requires
    a real N4 source handoff that embeds the consumed `CycleSubstrateContext`, binds
    the exact problem/candidate bytes, and carries explicit tenant binding in its
-   owner profile. Context currentness must come from an existing owner; if none can
-   establish it, S8 remains `not_established`. This preserves candidate access
+   owner profile. Persist a typed context-limitation result as `not_established`
+   when context is absent or tenant/currentness predicates lack owner evidence, in
+   the existing content-hashed `CompiledRecursiveGenerationCycleRun` wrapper.
+   Version it as schema v2 with a byte-exact historical v1 projection; S8 must
+   consume the limitation so signed evidence alone cannot rank when context is
+   `not_established`. The cost is wrapper versioning, exact v1 replay, and an S8
+   consumer bridge; this adds no owner evidence. Context currentness must come from
+   an existing owner; if none can establish it, S8 remains `not_established`. This
+   preserves candidate access
    without creating a separate context artifact.
 4. **Rejected option:** add a new root-context owner inside R1. This could
    supply positive evidence sooner,
@@ -70,7 +77,14 @@ product’s ordinary front door must remain usable as the causal model grows
 
 The HTTP function calls `_build_cycle_substrate_context_from_owner` whenever its
 ordinary caller supplies no context; this is a production path, including the
-`RunLifecycleService` worker, not only a test fallback. However, the helper calls
+`RunLifecycleService` worker, not only a test fallback. The
+`root_n4_generation_port` argument defaults to `None`; the early refusal occurs
+only when context is absent and a caller explicitly injects that port. The default
+production route omits the explicit port, so removing that refusal can reach the
+default N6 `grammar_fallback` candidate path. That path does not itself create a
+real N4 `DesignGenerationOrganRun` or persisted `GenerationSourceHandoff`, and
+therefore is not a B01–B03 served HTTP→N4→N5 witness. The ordinary candidate
+control proves only candidate reachability. The helper calls
 `production_composed_world_model_record(repo_root)`, whose implementation creates
 `build_artifact_store(ArtifactStoreConfig(... root=.tmp/gy-s-composed-wmr-cas))`,
 and separately builds a registry from repo-root catalogs. That path does not use
@@ -86,7 +100,11 @@ store write set and requires its shared lease. R1 must not build a competing own
 `authority_purpose` is `cycle_input_candidate_only`, and `may_not_use_for` excludes
 authority. No independent pre-N4 owner persists and resolves a tenant-bound root
 context. The compiled wrapper records `cycle_substrate_context_ref` as a
-content-hash string, not an `ArtifactRef` or tenant-bound manifest. The current
+content-hash string, not an `ArtifactRef` or tenant-bound manifest, and currently
+has no typed field preserving an absent context as `not_established`. Extend this
+same hashed wrapper to schema v2 with that typed limitation and an exact v1
+historical projection; S8 must load/consume the v2 limitation alongside signed
+evidence. The current
 `GenerationSourceRepository` persists an actual `DesignGenerationOrganRun` and its
 context through the runtime store, then validates its owner profile, CAS bytes,
 problem, candidate, and context on replay. This existing handoff is the durable N4
@@ -182,32 +200,46 @@ and witness.
   remains current against its WMR and tenant scope is `not_established`. A stale or
   unknown context blocks S8 authority. Signed-value decisions still require their
   own owner verifier and current epoch evidence (`independently_reconciled`).
+- When context is absent, or tenant binding/currentness lacks owner evidence,
+  persist a typed `not_established` substrate-context limitation in the existing
+  content-hashed compiled wrapper v2, with a byte-exact v1 historical projection
+  that excludes the new field. S8 must consume this limitation alongside signed
+  evidence; signed-frontier validity cannot establish tenant binding or context
+  currentness, which remain `not_established` until their existing owners provide
+  those predicates.
 
 **P38 — property and divergence.** Property: ordinary requests retain candidate
-reachability under unknown context, while S8 ranking requires the context embedded
-in a real N4 handoff to be tenant-bound, matched to the exact candidates, and current
-according to an existing owner. Current HTTP implementation: it raises
-when an explicit `root_n4_generation_port` meets missing context, so the refusal
-keys on injection style; the default fallback builds a WMR through a repo-root
-`.tmp` store. The compiled wrapper retains only `cycle_substrate_context_ref` as a
-hash. The runtime CAS's ambient owner index supplies store custody, but neither the
-local `.tmp` WMR nor ambient storage alone proves tenant-context binding or
-currentness. Current N4 has a durable `GenerationSourceRepository` handoff embedding
-the consumed `CycleSubstrateContext`, with content/profile/problem/candidate replay,
-but its write profile has no explicit `tenant_context`; current S8 reloads the leaf
-`GenerationCycleRun` and checks its compiled/frontier binding without resolving that
-source handoff or a context epoch.
-Divergent case: shape/content-valid context and `_CgfGenerationPort` output can
-appear sufficient without proving real N4 consumption, tenant ownership, or a
-current context. The five normative fixtures fail closed as `blocked` against their
+reachability under unknown context, while S8 ranking requires a real N4 handoff,
+owner-backed tenant/currentness predicates, and consumption of any typed
+`not_established` limitation. The explicit-port refusal is conditioned on missing
+context plus an injected `root_n4_generation_port`; the default production route
+omits that argument and can reach N6 `grammar_fallback`. Removing the early refusal
+therefore restores only candidate reachability; it does not produce a real N4 organ,
+persist a `GenerationSourceHandoff`, or satisfy B01–B03's served HTTP→N4→N5
+criterion. The compiled wrapper currently retains only `cycle_substrate_context_ref`
+as a hash and loses the typed limitation for absent context or unestablished
+tenant/currentness. The runtime CAS's ambient owner index supplies store custody, but
+neither the local `.tmp` WMR nor ambient storage alone proves tenant-context binding
+or currentness. Current N4 has a durable
+`GenerationSourceRepository` handoff embedding the consumed `CycleSubstrateContext`,
+with content/profile/problem/candidate replay, but its write profile has no explicit
+`tenant_context`; current S8 reloads the leaf `GenerationCycleRun` and checks its
+compiled/frontier binding without resolving that source handoff, a context epoch,
+or an outer wrapper limitation.
+Divergent case: shape/content-valid context, `_CgfGenerationPort` output, or valid
+signed-frontier evidence can appear sufficient without proving real N4 consumption,
+tenant ownership, currentness, or the absence of a typed `not_established` wrapper
+limitation. The five normative fixtures fail closed as `blocked` against their
 `authorized` expectations, but their fake N4 result does not establish the missing
 real owner path. The current-head report is 17/22 pass; four-base P41 evidence remains
 pending. A removal probe retains signed-frontier and candidate markers but removes
 or mismatches the embedded context in the handoff, its tenant binding, or its WMR
-linkage; S8 must block with zero recommendations. Once an existing owner exposes
-typed context currentness, a
-stale-context probe retains the source handoff while that owner reports its embedded
-context stale/unknown; S8 must block with typed limitation. The served
+linkage; S8 must block with zero recommendations. A separate hashed-wrapper probe
+removes the typed `not_established` limitation while leaving signed evidence and
+markers intact; S8 must still refuse ranking when the source context is absent. Once
+an existing owner exposes typed context currentness, a stale-context probe retains
+the source handoff while that owner reports its embedded context stale/unknown; S8
+must block with typed limitation. The served
 positive control must carry an actual N4 candidate through HTTP →
 `DesignGenerationOrganRun` → `GenerationSourceRepository.persist` →
 `GenerationSourceRepository.load(ref, run_id)` → S8, including tenant binding on the
@@ -223,7 +255,9 @@ production caller but is not a compliant tenant-store owner path; its storage fi
 belongs to R13's shared owner work. The existing `GenerationSourceRepository`
 persists the full handoff containing the embedded post-N4 context, but S8 still needs
 to load it; its write profile needs tenant binding, and context currentness must come
-from an existing owner. No
+from an existing owner. The typed absent-context limitation must also persist in the
+content-hashed compiled wrapper v2; its v1 historical projection must preserve old
+bytes, and S8 must consume the limitation. No
 separate pre-N4 context artifact/resolver owner is identified, so that requirement
 remains `not_established` unless an existing owner is demonstrated. No S8 positive
 claim is supported by the current `[authorized]` fixture alone. Its
@@ -271,7 +305,10 @@ capability exists.
 The N7 control changes the post-growth context while preserving only prior handoff
 refs; it must remain blocked. The ordinary candidate control uses a served request
 without context and observes candidate work with N5/S8 appropriately limited. These
-are acceptance criteria; none is claimed as run here.
+are acceptance criteria; none is claimed as run here. A removal probe that omits the
+typed wrapper limitation but preserves signed-frontier bytes must not produce an S8
+ranked recommendation. The schema-v2 hashed wrapper must retain its new limitation,
+while historical schema-v1 replays serialize to their exact prior projection.
 
 **Where it binds.** HTTP entry at
 `src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`
@@ -288,11 +325,15 @@ N7 post-growth re-entry at
 `src/polisyos/runtime/quality/recursive_generation_cycle.py@ddff9abd228378166bce8437862ebe487ae00149`;
 and S8 replay at
 `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py@83ec53fefe0cc036480bb3d164ebcb44225a6ed9::_generation_disposition`.
-The proposal does not alter external catalog vocabulary or appoint a WMR owner.
+The wrapper seam is `CompiledRecursiveGenerationCycleRun` in
+`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`;
+it needs v2 hashing plus v1 historical projection and an S8 consumer bridge for the
+typed limitation. The proposal does not alter external catalog vocabulary or appoint
+a WMR owner.
 
-**Pattern pass.** P04/P05/P10/P15/P27/P31/P32/P37/P38. The observed defect is both
-an authority prerequisite leaking into candidate reachability and authority being
-granted without source-consumption/custody evidence. The target is typed unknown
+**Pattern pass.** P04/P05/P07/P10/P15/P27/P31/P32/P37/P38. The observed defect is
+both an authority prerequisite leaking into candidate reachability and authority
+being granted without source-consumption/custody evidence. The target is typed unknown
 for ordinary candidate work and complete owner-backed evidence at authority gates.
 The HTTP caller and a best-effort repo-root context builder exist. The existing
 handoff persists the embedded context; `load` returns the full handoff, while
@@ -303,9 +344,11 @@ fixtures have `verification_missing` for real N4 source consumption, explicit
 tenant-context admission, and currentness.
 Acceptance requires a served ordinary candidate control and a separate served
 real-candidate S8 positive, with S8 rejecting absent, foreign, stale, or
-post-growth-mismatched owner proof. The five existing normative authorization
-expectations remain a principal choice between real-producer upgrade and bounded
-blocked outcome; the 17/22 current-head result is not a four-base P41 verdict.
+post-growth-mismatched owner proof and consuming the typed wrapper limitation.
+The hashed wrapper's v2 field must preserve exact v1 historical bytes. The five
+existing normative authorization expectations remain a principal choice between
+real-producer upgrade and bounded blocked outcome; the 17/22 current-head result is
+not a four-base P41 verdict.
 
 ## R2 — CYC-05 strangle proof, deployment identity, and historical replay
 

@@ -2,7 +2,7 @@
 
 ## Result
 
-**PASS (exit 0).** The pinned historical Core and IR implementations and the current Core and IR facades agreed on the exhaustive tracked-JSON selector and the fixed codec vectors, except for four recorded historical malformed-tag encoder differences. The measurement took 115.944 seconds on Python 3.14.0 / Pydantic 2.12.5 / macOS.
+**PASS (exit 0).** Parity was measured within each profile: current Core preserved historical Core behavior, and current IR preserved historical IR behavior across the exhaustive tracked-JSON selector and fixed codec vectors. Core and IR retain distinct tag profiles: Core accepts `float_hex`, `bytes_hex`, and `array_digest`; IR rejects them. Four historical malformed-tag encoder error-class changes are recorded separately. The measurement took 115.944 seconds on Python 3.14.0 / Pydantic 2.12.5 / macOS.
 
 The deciding output is `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/la021-canonicalization-20260924.log@12796e7177e20ee23c49619c34c866305e060fcdfbe2941ec4ae7061b6f63974`. Its SHA-256 was read back and matched. The instrument is [check_la021_canonicalization.py](tools/check_la021_canonicalization.py) at commit `0b71f037cd83785c0b62244dad861dcaaf8c21ed` (blob SHA-256 `f2b49f190c8cdb687aed57c2285dd20b5cdbfefc475714f0abbf39bfd8ba36f8`).
 

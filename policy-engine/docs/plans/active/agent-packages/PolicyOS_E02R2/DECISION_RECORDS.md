@@ -1352,6 +1352,92 @@ This proposal does not decide that any S8-positive fixture lacks owner context. 
 **Where it binds.** Server intent resolution before dispatch in `runtime/http/routes/control.py` and `runtime/http/services/control/run_lifecycle.py::ControlPlaneService.launch_nl_run`; the proposed typed intent in the existing persisted job payload and its binding in the existing `job_created` event/outbox; transaction or fail-closed recovery and readback in `ControlPlaneStore.create_job`; worker replay in `_process_control_job`; band propagation through `runtime/http/services/control/generation_cycle.py`; graph-leaf equality before controller-factory dispatch in `runtime/quality/recursive_generation_cycle.py`; canonical mode resolution in `runtime/quality/evaluation_modes.py` and current evidence verification in `runtime/quality/evaluation_safety.py`. R1 owns the compiled-wrapper v2 limitation and historical serializer. Promotion, publication, and S8 consumers continue to enforce their own authority boundary.
 
 **Pattern pass.** P04/P05/P07/P12/P29/P31/P32/P37/P38/P41. Existing failure: optional worker attempt plus conditional denominator, no durable run-intent bridge, and a non-atomic job/event/outbox sequence. Target: one server-selected typed intent in the existing persisted payload, bound by the `job_created` event/outbox and reconciled before replay; atomic persistence or explicit idempotent recovery; exact graph-derived non-simulation denominator on all supported controller paths; and a separately named pure `simulate_only_attempt`. Missing capability labels: `bridge_missing`, `verification_missing`, and `semantic_test_missing` until payload/event readback, served consumer, and removal probe pass.
+
+### R1/R5 addendum — refresh evidence for each active basis (2026-09-25)
+
+**Question.** When N6 revises `current_problem`, may N4/N5 continue using the
+root-bound substrate context or EvalSafety head, and how does the ordinary
+candidate route remain useful while that basis-specific evidence is unknown?
+
+**Options and costs.**
+
+1. Reuse the root context/head or remove the equality check. This avoids a new
+   owner call, but turns a correct stale-context refusal into false grounding for
+   `B != S` and can carry a root EvalSafety admission into a different problem.
+2. Refuse all work when per-basis context is unavailable. This prevents stale
+   evidence from reaching protected consumers, but also closes ordinary
+   candidate computation under an explicitly unknown scope.
+3. **Proposed lane choice, pending Denis:** after N6 selects the typed
+   `current_problem`, resolve its recomputed full basis hash `B` through the
+   existing context/world owners immediately before N4 and N5. Thread one
+   immutable, owner-validated `CycleSubstrateContext(B, WMR)` to those consumers.
+   For each protected non-simulation leaf (`sandbox_pilot`, `field_pilot`, and
+   `deployment`), separately obtain and verify a fresh `EvaluationExecutionContext`
+   for that exact `B` before N4 through the existing EvalSafety owner; retain the
+   second independent fresh challenge at N8. A cycle-substrate context is not an
+   EvalSafety context and cannot issue, retag, or stand in for one. This costs an
+   owner-first per-basis resolution seam, exact-basis admission, and served
+   removal/preserving witnesses. It reuses existing owners and does not add a
+   second registry or mode resolver.
+
+**Premises.** N6 advances the problem from the preceding revision, while the
+recursive controller currently retains one root context across cycles. N4 and N5
+check context/problem equality; that check is sound but its operand becomes stale
+after a revision. The existing EvalSafety leaf preflight does not itself prove a
+fresh head for every later basis. The owner/dataflow evidence and design are
+recorded in
+`/Users/deniskopylov/.codex/scratch/e02-r2-r1-r5-per-basis-context-owner-design-20260925.md@sha256:9c7063755f9b6c99a1c50e7dd04d1b2c27c3be6b728337f9dbfc2dde7b30fd79`.
+
+**Proposed choice; principal status.** Prefer option 3 as the R1/R5 engineering
+direction; Denis's principal ruling remains pending. If context resolution is
+`not_established`, an explicitly admitted `candidate_only` run may still persist
+proposal-only N4 with R1's typed unknown-context limitation. It does not claim a
+WMR-grounded atom or effect and does not enter N5/N8, N9, S8 authority grading,
+publication, or normative replay on that unknown. `simulate_only` may simulate
+only with a valid current-basis context and skips N9 otherwise. Every protected
+mode remains fail-closed before N4 if its exact-B context or fresh EvalSafety
+admission is absent, stale, foreign, ambiguous, or mismatched. A supplied corrupt
+or foreign context is invalid evidence, not an unknown to swallow.
+
+**P37/P38.** The active basis `B = hash(current_problem)` is recomputed at each
+cycle; context currentness against `B` and the active world epoch is
+`not_established` until the owner resolves it. Protected EvalSafety admission for
+each `B` must be independently verified. The implementation/property divergence
+is that consumers compare context to the exact problem correctly, but the
+producer supplies the root context `S` after N6 advances to `B`; removing the
+comparison would admit stale evidence. The gate must test owner refresh, not just
+retain the equality marker.
+
+**Remainder.** The context provider for a post-admission overlay W1 is a
+separately confirmed R13 capability gap; this addendum does not claim it exists.
+Until resolved, carry the candidate limitation and withhold protected work that
+requires current W1. The per-basis EvalSafety refresh, context refresh and
+consumer boundaries remain `verification_missing`/`bridge_missing`; all proposed
+tests and probes are `UNRUN`. Historical hashed contexts and compiled-run
+records remain replayable under their old projections; any added hashed fields
+require a schema bump and historical serializer.
+
+**Falsifier / revisit trigger.** Reopen if any `B != S` N4/N5 consumes the root
+context, if a protected mode enters N4 without a fresh exact-B EvalSafety head, or
+if an unknown candidate reaches N9/S8 authority/publication. The removal probe
+keeps run/context/cycle markers valid while removing the per-basis refresh; a
+two-cycle `S != B` witness must turn red. The preserving control removes owner
+context for an ordinary admitted candidate request and requires proposal-only N4
+plus the typed limitation, with no authority path. Test every protected mode with
+both an exact current-B positive control and missing/stale/foreign/mismatched
+negative cases; preserve N8's distinct fresh challenge. These are proposed
+acceptance signals, not run receipts. Retain the Appendix A witness
+`tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head`; add the
+per-basis removal/preserving tests in the changed whole-file P41 denominator.
+
+**Where it binds.** N6's `current_problem` transition and N4/N5 context threading
+bind in `runtime/quality/generation_cycle.py`; per-basis context construction and
+validation bind in `runtime/quality/cycle_substrate.py` and the existing HTTP
+context owner `runtime/http/services/control/generation_cycle.py`. Exact-leaf
+protected admission binds at `runtime/quality/recursive_generation_cycle.py` and
+`runtime/quality/evaluation_safety.py`. N9, S8, promotion, and publication readers
+must consume the resulting typed status and retain their own authority checks.
+
 ## R9 — CAS supports several honest typed views of one blob
 
 **Question.** How can the CAS deduplicate identical bytes while representing two
@@ -2789,6 +2875,116 @@ proposed pending that audit. Closure requires all R13 negative probes and
 preserving controls above, exact production-store identity through actual container
 composition, byte-exact v1/v2 replay plus current v3 admission, and all touched-file
 four-base results. This draft claims none of those tests has run.
+
+### R13 addendum — exact source occurrence and active-overlay basis (2026-09-25)
+
+**Question.** What evidence must bind a selected acquisition cycle to the exact
+N4 source problem it used, and may re-entry claim a current post-admission world
+when the canonical owner chain cannot produce that world?
+
+**Options and costs.**
+
+1. Keep using the compiled root and one-time context, or drop the basis equality.
+   This avoids extending owners, but either rejects legitimate revised cycles or
+   treats root/source bytes as the revised basis and risks a confidently wrong
+   re-entry.
+2. Refuse every revised-cycle route until a production-qualified W1 provider is
+   appointed. This withholds unsupported authority, but also prevents the lane
+   from building and testing the already-authorized receiver and evidence
+   handoff.
+3. **Proposed lane choice, pending Denis:** extend the existing
+   `GenerationSourceRepository` and canonical Data Forge → data-state/world-model
+   owners. Resolve one typed source handoff for exact `(run_id, cycle_index)`;
+   reconcile its full `DesignProblem` basis `B`, candidate/atom identity set, and
+   predecessor revision; preserve stable route subject `S` separately. After the
+   existing passport/overlay/epoch admission `E`, resolve W1 from that exact
+   admitted overlay through the runtime-supplied guarded store, then provide the
+   existing N4/N5/re-entry consumers a context bound to `(B, W1)`. Costs are the
+   owner-chain extension, exact source and tenant custody checks, typed
+   subject/basis evidence, historical-schema preservation if receipts change,
+   and the four-base witness set. Preserve `GenerationSourceRepository.load`
+   integrity/profile validation and cycle-agnostic payload identity; add exact
+   occurrence as a separate predicate. This does not add a second world-growth
+   path or reconstruct a store from a root.
+
+**Premises.** For cycle 0, `B = S`; for later cycle `i`, `B` is the exact
+`revision_request.revised_problem` from cycle `i-1`. The source witness must be
+the unique N4 handoff for that same run and cycle, with its typed `problem` hash
+equal to B and its complete candidate identities reconciled to that cycle. The
+existing `source_identity_hash()` excludes cycle index, so it cannot prove the
+occurrence by itself. Keep the three world references distinct: source W0,
+admitted overlay/epoch E, and post-admission W1. The independent v2 review
+confirmed the exact occurrence gap and that the canonical composer does not
+materialize the selected active overlay into a runtime-store-custodied W1:
+`/Users/deniskopylov/.codex/scratch/e02-r2-subject-basis-reentry-v2-independent-review-20260925.md@sha256:ec361a1378a6fcb7d5bf2cd6e2bc0d690ccbf1b63c8016673bd570e53fdb00f0`.
+
+**Proposed choice; principal and engineering status.** Prefer option 3 as the
+R13 design, pending Denis's ruling on the decision record. That pending principal
+ruling does not require owner approval to perform already-authorized engineering
+on the existing repository and canonical owners. The implementation must retain
+R1/R5's bands: if a context is unknown, ordinary candidate work may carry a typed
+limitation and produce proposal-only N4; N5/N8/N9, S8 authority grading and
+publication cannot treat that as grounded. Protected modes refuse before N4
+without current exact-B context and fresh exact-B EvalSafety admission. If the
+canonical owner cannot resolve W1 after E, positive re-entry/movement is
+`not_established` and stops. The fixture may prove consumer mechanics only.
+Native positive production qualification remains `absent/unallocated` under
+DS15; this proposal neither appoints its issuer nor claims DS15 closure.
+
+**P37/P38.** The run, source occurrence, typed problem bytes, complete candidate
+set, predecessor edge, and current W1 must be recomputed or independently
+reconciled at admission; a cycle index field or outer self-hash alone is
+`consumer_asserted`. Today a route can retain a basis marker without joining the
+typed N4 source and predecessor, and the WMR composer lacks the selected overlay
+and runtime store. The property is exact `(run, cycle, B, E, W1)` source-to-
+re-entry custody; the implementation's root subject and one-time context are the
+wrong operands when `S != B`. Removing equality would convert a false negative
+into stale-world false admission.
+
+**Remainder.** The smallest missing capability is a canonical provider that
+resolves post-admission W1 from the exact admitted Data Forge overlay using the
+runtime-supplied guarded store and issues a content-bound `CycleSubstrateContext`
+for `(B, W1)` to existing N4/N5/re-entry owners. Source-level inspection
+confirmed this provider is absent; this is an engineering capability to add,
+not an unspecified owner-appointment blocker. The native production epoch
+qualification/issuer remains separately unallocated. Do not mint W1 from the
+legacy local FileTabular route, `.tmp/gy-s-composed-wmr-cas`, a root-rebuilt
+store, or a stale W0. Any durable basis fields require additive schema versions
+and byte-exact historical serializers; do not restamp history. Exact source
+selection and active-overlay production evidence remain `bridge_missing`,
+`producer_missing`/`not_established` until witnessed. No DS15 closure is claimed.
+
+**Falsifier / revisit trigger.** Reopen if two handoffs with the same
+cycle-agnostic source identity can satisfy the selected cycle, if a handoff's
+problem differs from B or its predecessor revision while markers remain intact,
+if the route loses tenant/guarded-store custody, or if any positive re-entry
+labels W0 as W1 without resolving the admitted overlay E. The removal probe
+preserves run/cycle/route markers and outer hashes while changing only exact
+source occurrence or predecessor basis; route resolution must refuse. The
+context probe runs a revised `S != B` route with a valid W1 provider, then removes
+only per-basis/overlay refresh; stale S/W0 must fail the witness. The preserving
+control resolves exact `(run, cycle, B)`, current E/W1 and same tenant through
+the runtime store, then advances one cycle under B while keeping row identity S.
+Retain the whole-file P41 witnesses
+`tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_actual_wdi_admits_delta_and_reenters_same_case` (both parameter values),
+`tests/integration/core_runtime/test_acquisition_tenant_custody.py::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry`, and
+`tests/unit/runtime/quality/test_acquisition_movement_positive.py::test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board`.
+All these probes, controls, and tests remain `UNRUN` pending P41 replay; a fixture
+control is not a production authority receipt.
+
+**Where it binds.** Exact occurrence and typed handoff loading bind in
+`runtime/quality/generation_source.py` through the same runtime-supplied
+`ArtifactStore`; selection and predecessor reconciliation bind in
+`runtime/quality/acquisition_route_loop.py`. Passport/overlay/epoch admission
+remains in `runtime/quality/acquisition_world_growth.py`, with current W1
+resolution extending the canonical data-state/world-model owners
+(`runtime/quality/data_state_substrate.py` and
+`runtime/quality/intervention_substrate.py`). Re-entry basis and any versioned
+receipt bind in `runtime/quality/generation_cycle.py`; movement must keep S as
+row identity and validate B/E/W1 separately in
+`runtime/quality/acquisition_movement.py`. Candidate, protected, N9, S8 and
+publication reader boundaries remain those stated in the R1/R5 per-basis
+addendum above.
 
 ## R14 — historical W5 references and current WS-2D client evidence
 

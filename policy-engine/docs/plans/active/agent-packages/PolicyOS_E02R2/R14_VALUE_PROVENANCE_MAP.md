@@ -90,7 +90,7 @@ but it does not explain the string `.hex` exception.
 The production caller exists: HTTP `POST /runs/{run_id}/normative-evidence`
 in `runtime/http/routes/control.py:443-460`
 (`@f1331c7da27c1d65688d484539063bda66b9357b`) invokes
-`RunLifecycleService.submit_normative_evidence`. That service calls
+`ControlPlaneService.submit_normative_evidence`. That service calls
 `resolve_generation_value_choices` (`run_lifecycle.py:1635-1658`,
 `@a3827ed1677df17f09827d479db7510ffdb70e6e`), which builds the normative
 owner and produces/replays S8 dispositions through

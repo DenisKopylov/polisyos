@@ -417,6 +417,17 @@ source checkout or treating current-source drift as proof that history is invali
    byte oracle. The costs are a public owner API, pre-N9 bridge, schema migration,
    and historical payload/serializer evidence for each version.
 
+   Identity coverage is a precondition, not implied by exporting the current ledger
+   digest. First enumerate whether the frozen confidence-ledger import/deployment
+   closure actually contains the production N6 route and the source/deploy gate
+   result. If it does not, either extend this same identity owner to bind the N6
+   route's relevant loaded-code closure and gate result, or make the owner issue a
+   typed gate receipt atomically bound to the exact canonical identity. The first
+   keeps one authority identity but changes its input/schema and may require an
+   authorized reissue; the second avoids widening the identity inputs but adds a
+   second bound record and consumer choreography. A bare ledger identity that does
+   not establish N6 route coverage is insufficient for `current`.
+
 **Premises.** B30’s audit card calls for a controlled source/build slice, distinct
 missing-source, parse-error, and forbidden-caller states, and reuse for an unchanged
 deployment (`source/B_r19_original.md`, B30; bundle `CYC-05.md`). B29 separately
@@ -436,6 +447,15 @@ has no public packaged currentness API from that owner. A source checkout’s me
 presence at validation time is not deployment identity. The register’s
 `merged-lanes-need-a-reissue-path-neither-lane-declared` row remains open on its
 engineering reissue path; this proposal does not authorize a reissue or restamp.
+
+The read-only identity census confirms that the current canonical closure is rooted
+in `confidence_ledger` and does not automatically cover the N6 route. Exact frozen
+closure membership remains `UNRUN`; the census found no direct
+confidence-ledger-to-generation-cycle import. The existing ledger digest alone is
+therefore not evidence that the N6 production route or its source/deploy gate is
+covered. Bind the gate to the canonical identity only after measuring membership,
+or extend the canonical owner to include the N6 route/gate inputs. Evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-identity-census-20260924.md@sha256:7cd9dfc6378ff929c21016cc507633f75f05ecbcf4f5ad4c2f8aaf685f06903a`.
 
 At the inspected base, `StrangleReceipt` documents that it does not establish build
 or deployment identity and admits that alias/dynamic-call completeness is not
@@ -483,7 +503,12 @@ stand in for either historical record.
 **Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
 to principal ruling. The source/deploy-time gate owns the census. Extend the canonical
 identity owner to publish a typed identity/currentness contract from its existing
-full inputs; do not compute a parallel identity in `generation_cycle.py`. At N6 run
+full inputs; do not compute a parallel identity in `generation_cycle.py`. Before
+using its digest, establish that the canonical closure covers the production N6
+route and that the source/deploy gate result is bound to that identity. If the
+closure omits either, extend the same owner to cover it or bind an owner-produced
+gate receipt to the exact canonical ID; the current bare ledger digest alone cannot
+yield `current`. At N6 run
 start, capture the owner-produced canonical loaded-deployment identity and the
 passing census receipt bound to that exact identity. Before
 `_promote_completed_generation` admits N9, require an exact match among the run-start
@@ -522,6 +547,10 @@ already present.
   run-start, census-bound, and currently loaded identities before N9. A v3 field
   created after promotion is too late; missing evidence is `not_established` and
   mismatch is `stale`, either with no N9 authority while candidate work continues.
+  Whether the current closure contains the production N6 route and source/deploy
+  gate is `not_established` until the frozen closure is enumerated. A ledger digest
+  without that coverage cannot establish N6 currentness; the existing owner must
+  extend the closure or bind a typed gate receipt to that exact identity.
 - Historical validity is a separate predicate from packaged currentness. The v1
   pinned bytes exist, but current `GenerationCycleRun` validation compares parsed
   leaves rather than serialized bytes, so exact v1 replay is `not_established` until
@@ -561,7 +590,12 @@ direct callers beneath one `workspace/loop.py` path prefix. An aliased call can 
 missed and an unexpected production call within that prefix can be blanket-exempted;
 both can leave the `strangled` status green while the actual production-reachability
 property is false. Neither a direct-caller list nor that prefix is an independently
-reconciled production call graph
+reconciled production call graph. The confidence-ledger import/deployment closure
+may also omit N6 route code because it is rooted in the ledger's own dependencies;
+the live N6 closure membership is `UNRUN`. If a route change lies outside that
+closure while the gate compares only the bare ledger identity, it can remain
+`current` for a changed N6 path. This is the P38 divergence the owner extension or
+identity-bound gate receipt must falsify; exporting the ledger digest alone cannot.
 (`src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a`;
 `tests/unit/runtime/quality/test_generation_source.py@dfbffbf32f90920a0b67310e4dd1d94b45e9308c`).
 
@@ -577,6 +611,20 @@ the `lex/simulator/report.py` comment probe leaves canonical identity unchanged.
 It also does not treat the current `workspace/loop.py` path-prefix exemption or a
 clean direct-call AST scan as evidence that aliased or reflective dispatch is absent
 from the production path.
+
+**Separate adjacent lead; not the R2 N6 predicate.** The read-only source audit
+found that `LegacyPromotionStrangleReceipt.recompute` is used by three N9 promotion
+builders and treats an absent `src/polisyos` directory as an empty caller set, then
+reports `strangled`. Its property is the N9 predecessor-promotion strangle, not the
+N6 `run_fixture` route. The existing promotion test checks the current checkout's
+positive state; the missing-root/parse-error behavioral probe is `UNRUN`. Keep this
+as a separate P37/P38 candidate, and classify it independently before opening or
+closing a finding under P40; it is not automatically the same class as R2's N6
+`run_fixture` predicate and does not widen this fix. Evidence:
+`src/polisyos/runtime/quality/promotion_sequence.py@dc8beab981b714e80e54bef22ba83bc66ab3ffd4`,
+`tests/unit/runtime/quality/test_promotion_sequence.py@fd72907d54b287a2d22031786e6cfd955a40c4d1`,
+and the read-only census receipt
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-identity-census-20260924.md@sha256:7cd9dfc6378ff929c21016cc507633f75f05ecbcf4f5ad4c2f8aaf685f06903a`.
 
 **Remainder standing and signatory.** Dynamic/reflective caller completeness is
 `not_established`; no complete-census verifier or signer is identified by this
@@ -601,8 +649,11 @@ historical/currentness boundary.
 remove the actual owner-captured identity or census evidence from the live pre-N9
 admission. The call must return typed `not_established`, ordinary candidate work may
 continue, and N9 promotion and its authority effects must not occur; a marker-only
-green result falsifies the gate. In a separate stale probe, change a proven canonical
-identity input between run start and pre-N9 admission: the status must be `stale` and
+green result falsifies the gate. Keep the bare confidence-ledger digest and all N6
+receipt markers fixed, but remove the measured N6-route coverage or its identity-bound
+gate result; the verdict must be `not_established`, never `current`. In a separate
+stale probe, change a proven canonical identity input between run start and pre-N9
+admission: the status must be `stale` and
 N9 must remain withheld. A preserving control supplies the unchanged, owner-admitted
 identity and passing census at both points; if independent N9 gates pass, promotion
 must proceed. Historical replay of the pinned v1 fixture must compare serialized
@@ -654,10 +705,13 @@ recomputation over an overbroad source denominator, a marker receipt without
 deployment identity, and post-promotion persistence mistaken for a pre-promotion
 gate. Target: one complete source/deploy census, the existing canonical identity
 owner extended into a typed run-start/pre-N9 contract, and separate historical
-validity from packaged `current | stale | not_established`. The private identity
+validity from packaged `current | stale | not_established`. The canonical identity
+must cover the production N6 route and source/deploy gate; if its existing closure
+does not, extend that same owner or bind an owner-issued gate receipt to the exact
+canonical identity. A bare ledger digest is insufficient. The private identity
 calculation and current source check exist; the public packaged identity bridge and
-pre-N9 gate are `bridge_missing`, while dynamic-call coverage remains
-`not_established`. Acceptance requires marker-preserving removal and unchanged-
+pre-N9 gate are `bridge_missing`, while closure membership and dynamic-call coverage
+remain `not_established`. Acceptance requires marker-preserving removal and unchanged-
 identity controls, byte-exact v1 replay, and an explicit `UNRUN` v2 result until an
 original payload and byte oracle are owner-captured. The `lex/simulator/report.py`
 comment probe remains unmeasured for import-closure effect. The P41 four-base JUnit

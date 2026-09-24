@@ -73,6 +73,44 @@ Append to a shared artifact-owner row only after the full replay confirms which 
 - Existing positive identities: `tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor`; `tests/unit/runtime/http/test_human_decision_guarded_custody.py::test_guarded_store_custodies_record_and_recovers_signed_orphan[True]`.
 - Closure signal: all Appendix B CAS consumers pass; a second honest typed view of the same bytes resolves with its own profile; forged profiles remain refused; all 28 direct signature-call expressions and the retrieved-callable invocation at `policy-engine/src/polisyos/runtime/quality/promotion_safety.py:231–242` reach the normalized public boundary or are explicitly scoped out with owner evidence. Proposed discriminator: `tests/unit/runtime/quality/test_promotion_safety.py::test_string_artifact_id_is_normalized_for_direct_and_retrieved_signature_verifiers` (proposed, `UNRUN`), with malformed-ID refusal as the negative and well-formed `str`/`ArtifactID` equivalence as the preserving control.
 
+## Proposed new row: E02R2-FWC-01 / R15 — finite-window completeness
+
+This is a proposal for an inherited/latent event-window completeness residual, not a confirmed E02
+regression or production incident. No `DEBT-REGISTER.md` or `LEDGER.md` edit is made. The source audit
+is `/Users/deniskopylov/.codex/scratch/e02-r2-cycleboard-denominator-audit-20260924.md@sha256:95584f99da20551965c71a5682db2a0b61f43f823cb05e7a39b1096d2b1b1dee`. The candidate task
+The initial `FWC-01_TASK.md@sha256:aedeffea5b4704ccc76feaf6bf8313b4fbcee0b683ad49c00dcb02501c35a0c0` was committed on
+`codex/e02-r2-partial-triage` at `b61b7104b2040f04330129ac712bf92e25c4425f`; its independent document review
+`/Users/deniskopylov/.codex/scratch/e02-r2-fwc01-review-20260924.md@sha256:7152839b664242976e7563f18c025326943300af253a67b0cb3831b72db5d34a` is `GO` for that candidate-task
+version only, not implementation authorization. After the semantics review below, the task was corrected on
+the same branch at `df41697294892bdad36f9b00d3728479f87c66ea`; latest task SHA-256 is
+`8c16f8c79eeceee4a2857752f10dec0edd00456a7b17f35a59e74ec0dfebfd79`. No separate review of this corrected
+version or behavior result is claimed here.
+
+- **Proposed owner:** `ControlPlaneStore.list_diagnostic_events` and `RuntimeDiagnosticEventLog`
+  own stable pagination/completeness metadata; `AcquisitionRouteLoop` and `AcquisitionMovementService`
+  consume it. Reuse this owner; do not add another event store or merely raise a cap.
+- **Relation:** advances the DS15 acquisition-route and CycleBoard/GY-GAP6 movement surfaces. It
+  does not close catalog-bound acquisition, N13b world growth, or a GY/Atlas plan task.
+- **Proposed closure-signal identities** (new selectors; not present or run):
+  `tests/integration/core_runtime/test_finite_event_window_completeness.py::test_served_route_loop_distinguishes_500_501_event_windows`
+  exercises complete positive/negative cases at 500 and 501 rows, including the eligible terminal
+  event at row 501; `::test_served_cycle_board_distinguishes_1000_1001_event_windows` exercises a valid
+  movement at row 1,000 and row 1,001, complete no-match outcomes, and typed incompleteness before a
+  scan completes. Both witnesses must use the production composition and retain exact tenant/cell/
+  run/job/ref bindings.
+- **Removal probe:** retain cursor/completeness markers and valid event bytes but disable page
+  advancement or falsely report the first page complete. The 501st RouteLoop terminal event and
+  1,001st CycleBoard movement must no longer resolve; both served selectors must turn red. A
+  page-budget stop stays explicitly incomplete, never true absence.
+- **Preserving controls:** a correctly bound in-window event still resolves; complete true absence
+  remains distinct from an incomplete page; wrong-binding, malformed, and duplicate evidence retain
+  their refusal/ambiguity behavior; CycleBoard remains non-exhaustive for row enumeration and
+  register closure.
+- **Semantics correction from independent review:** `/Users/deniskopylov/.codex/scratch/e02-r2-fwc-partial-semantics-review-20260924.md@sha256:9fbe2fe3aa184d0d244c7776456293a9d941f719e8a3ed8b436385c1ade8cc30` recommends preserving an exact, individually GY-admitted positive movement as typed `partial` when the query is incomplete, while keeping population completion, absence, latest/unique status, and full-set authority unresolved. Keep evidence and scan coverage as separate dimensions; no principal decision is needed for this narrow candidate-grade contract. The owner must settle the pagination and output vocabulary before coding. A principal decision would be needed only to use incomplete coverage for protected authority or whole-set absence/uniqueness/currentness claims.
+- **RouteLoop uniqueness correction:** a page-one matching terminal event is not a verified closure. Continue through the query high-water mark because a later matching terminal can make the result ambiguous. A budget stop after a match remains typed incomplete and cannot emit `VerifiedAcquisitionRouteClosure`. CycleBoard may surface the exact admitted movement with a partial-scan limitation, but may not claim complete history, absence, or an admitted aggregate while a row scan is incomplete. The review also identifies the row presenter dropping `movement_status`; keep the limitation visible at the row/source surface.
+- **Unresolved / admission:** production threshold occurrence and supported-volume reachability,
+  served witnesses, removal probe, and four-base P41 attribution are `UNRUN`. Correct the candidate task to the reviewed semantics before any implementation lease. Do not classify this candidate as an E02 regression unless P41 supplies that attribution. If the schema/projection changes, apply the required schema-version and historical-serializer treatment, then regenerate owned surfaces through their owners and inspect every delta.
+
 ## Finding-level bounded closure record
 
 ### LA-021 (CAN-01)

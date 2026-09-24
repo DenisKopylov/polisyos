@@ -135,7 +135,8 @@
       "blocker_kind": null,
       "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
       "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
-      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-046",
+      "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3818",
+      "source_occurrence_note": "This row maps to the N7 handoff card at line 3818; the separate DataRequirementCompiler construct/profile card at line 3034 has the same ID and is not the card mapped to this row.",
       "direct_relations": [
         {
           "relation": "conflicts",
@@ -1765,18 +1766,17 @@
       "finding_id": "B13",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Generation-cycle candidate-route owner",
+      "owner": "AsyncChainExecutor partial-result and downstream result-consumer owner",
       "blocker_kind": null,
-      "e02_residual": "RES-03: candidate-only route; artifact authority HOLD",
-      "next_step": "Keep the route candidate-grade until typed artifact authority is admitted, then prove the serving consumer cannot promote from candidate-only evidence.",
+      "e02_residual": "RES-03: candidate-only route / artifact-authority HOLD (does not describe B13's cited property; reconcile separately)",
+      "next_step": "Prove partial-result persistence through the existing chain and consumer path: after a simulation succeeds and a later stage fails, the served consumer can read the successful result with its scope and the later failure. Removing the retained result reference while status markers remain must turn the witness red. Do not classify B13 as promotion authority or a candidate-only route.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B13",
-      "direct_relations": [
-        {
-          "relation": "advances",
-          "target": "GY plan GY-PR1",
-          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-PR1"
-        }
-      ],
+      "direct_relations": [],
+      "production_residual": {
+        "status": "not_established",
+        "detail": "No served behavioral witness is recorded here for preserving a completed result when a later independent stage fails. The B13 source card states that criterion; the E02 candidate-route residual is a separate mismatch."
+      },
+      "classification_rationale": "Engineering can strengthen the existing chain's partial-result representation without a principal decision. B13 is about retained successful artifacts and the later failure; it does not concern promotion authority or GY-PR1. Reconcile the unrelated E02 RES-03 residual separately.",
       "e02_residual_source_refs": [
         {
           "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
@@ -1856,10 +1856,10 @@
       "finding_id": "B37",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Custody ledger lifecycle owner",
+      "owner": "Existing FileBudgetLedger and BudgetMiddleware owner",
       "blocker_kind": null,
-      "e02_residual": "DUR-01: ledger lifecycle obligations open",
-      "next_step": "Implement the remaining ledger lifecycle obligations through the owning lifecycle path and prove expiry, revalidation and replay transitions.",
+      "e02_residual": "DUR-01: policy-justification ledger lifecycle obligations open (separate E02 residual; not evidence of B37 atomicity)",
+      "next_step": "On the existing FileBudgetLedger path, publish complete snapshots atomically and synchronize readers. Prove concurrent readers never see an empty or partial snapshot, an interrupted write leaves a valid old or new snapshot, and a corrupt existing ledger cannot be treated as a new zero ledger. This is budget-accounting integrity, not policy-justification custody.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B37",
       "e02_residual_source_refs": [
         {
@@ -1871,7 +1871,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B37"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "not_remeasured",
+        "detail": "The B37 card records local interrupted-write/read and malformed-JSON probes; production behavior has not been remeasured in this triage. DUR-01 concerns a different policy-justification ledger lifecycle."
+      }
     },
     {
       "finding_id": "B38",
@@ -2255,11 +2259,12 @@
       "finding_id": "B79",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Ingestion verification owner",
+      "owner": "Fabric run_batch_incremental owner and served RunLifecycleService.run_data_ingestion caller",
       "blocker_kind": null,
       "e02_residual": "ING-01: verification_missing bounded residual",
-      "next_step": "Provide the missing bounded verification artifact and prove its consumer rejects absent or mismatched verification.",
+      "next_step": "After R13 freezes, test through POST /data/ingest with execution_mode=batch_incremental: a persisted, admitted source cursor must reach the real connector request as incremental_since, and only confirmed source progress may advance. Negative: an unverified legacy cursor sends no hint and does not advance. Removing cursor injection while retaining the markers must make the served positive fail. Add a source change in the existing modes.py owner only if the served witness exposes a defect.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B79",
+      "current_source_ref": "policy-engine/src/polisyos/fabric/data_plane/modes.py@sha256:527c3951caadc0c40b0fde79317921e20f885bb49f423415cc7e76045dfdf065",
       "e02_residual_source_refs": [
         {
           "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
@@ -2270,7 +2275,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B79"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "served_positive_not_established",
+        "detail": "modes.py has cursor injection, but this triage has no positive served /data/ingest witness. R13 must classify the route's root-built store path before any source change; the minimal next step is the served cursor-positive/negative pair and removal probe through the existing owner."
+      }
     },
     {
       "finding_id": "B81",

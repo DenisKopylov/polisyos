@@ -740,6 +740,29 @@ historical serializer that preserves the old projection byte-for-byte. If the co
 owner cannot provide per-view tenant isolation, cross-tenant views remain refused
 rather than sharing ownership by content hash.
 
+**Legacy reference and chronology-hash boundary (clarification).** Preserve the
+existing `ArtifactRef` and `InputRef` field sets and serialized forms. Do not add an
+optional view selector to either legacy type. Introduce a separate strict, versioned
+`ArtifactViewRef` carrying the blob `ArtifactID` and immutable full-profile ID, and
+provide explicit view-aware store APIs; any persisted DTO that must carry this ref
+uses a new v2 schema while its v1 serializer remains byte-exact and primary-only.
+Legacy v1 import/export transports only the primary manifest and its exact signature
+bytes. A separately versioned view-transfer inventory carries each qualified view's
+exact manifest bytes and, when signed custody is required, its signature bytes bound
+to that view; it cannot reinterpret or replace the primary manifest. A qualified read
+or signature lookup has no fallback to the primary view.
+This split is required because chronology's `_raw_model_mapping` enumerates model
+fields into canonical bytes with `exclude_none=False`; persisted chronology objects
+and the v1 signed-evidence record therefore change their bytes and hashes if a nullable
+field is added to a nested legacy ref. `SignedArtifactEvidenceRecord` includes several
+`ArtifactRef` fields, and its bytes are framed and content-hashed, so a new field
+cannot be made backward-compatible by defaulting it to null
+(`src/polisyos/core/contracts/chronology.py@a2853507e54a339fb5cfc70c5c5a699e2859c10f`,
+`src/polisyos/core/artifacts/signed_evidence.py@917909c44ed187cf16e0bd8a466b279039dcbd12`,
+`src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`).
+The legacy `ArtifactRef`/`InputRef` shape and primary manifest/signature byte sequence
+remain the historical contract; the qualified type and v2 envelope are additive.
+
 **Canonical profile and view-key input (proposed).** Define a versioned
 `cas-view-profile/v1` projection over the complete persisted semantic profile:
 `kind`, `media_type`, `byte_size`, `artifact_schema` (serialized as `schema`),

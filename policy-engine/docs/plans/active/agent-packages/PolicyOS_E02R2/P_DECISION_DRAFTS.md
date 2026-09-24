@@ -52,17 +52,19 @@ Every draft names its premise, at least two options and their costs, residual, f
 
 **Premise.** Atomic replacement of one pointer does not serialize the predecessor comparison. A stale writer can overwrite a stronger result; the repository card does not establish production multi-process demand.
 
+**Owner-scope constraint.** Neither option presumes that one current publication owner covers every publisher. Require a complete caller census and source-backed proof. If no current owner covers all paths, an explicit owner appointment or the smallest missing owner capability is a separate prerequisite; choosing an option here does not make that appointment.
+
 **Options and costs.**
 
-1. **Conditional publish through the store owner.** Publish only if the predecessor version/digest still matches, then re-read and re-compare on conflict. Keep expensive evaluation outside the transaction. Cost: Medium to high: requires a conditional-write primitive from the actual store and explicit conflict handling; supports concurrent writers.
+1. **Conditional publish through the store owner.** Use the actual store owner's conditional-write primitive only if a complete caller census and source-backed trace prove that owner covers every publisher. Then publish only if the predecessor version/digest still matches, re-read and re-compare on conflict, and keep expensive evaluation outside the transaction. Cost: Medium to high: requires the conditional-write primitive and explicit conflict handling; if no owner covers every publisher, the separate appointment/capability prerequisite applies.
 
-2. **One serialized publication owner.** Route all compare-and-publish operations through one existing writer/lock owner; reject or queue other publishers. Cost: Medium: simpler storage contract, but adds throughput and availability limits and must prove every writer uses the owner.
+2. **One serialized publication owner.** Route all compare-and-publish operations through one writer/lock owner only if a complete caller census proves that owner covers every publisher. Otherwise this option requires a separately authorized owner appointment or the smallest missing capability; this draft does not presume or make that appointment. Reject or queue bypassing publishers. Cost: Medium if an existing owner covers all callers; higher if an appointment/capability must be established, plus throughput and availability limits.
 
 **Residual.** Crash durability and multi-host behavior remain unclaimed unless the selected store primitive and deployment mode establish them.
 
 **Revisit falsifier.** Reopen if a controlled B(score 2)/C(score 3) schedule leaves score 2 current, or if a second process can bypass the chosen serialization owner.
 
-**Binding seam.** ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition.
+**Binding seam.** ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition, conditioned on proven publisher coverage by the actual store or a separately authorized serialization owner.
 
 **Source.** `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B117`
 **JSON cross-reference.** `partial_triage.json`, finding_id `B117`, `principal_decision_draft_ref: #b117`.
@@ -245,17 +247,19 @@ Every draft names its premise, at least two options and their costs, residual, f
 
 **Premise.** The inspected train body collects rollout rewards but leaves actor parameters unchanged and makes zero trainer calls; a separate training owner exists.
 
+**Owner-scope constraint.** The separate training owner's existence does not establish its appointment, scope, or authority for PolisySimulator or any domain. Trainer integration is conditional on a separate explicit appointment and contract for the chosen domain; selecting this option does not make that appointment or grant training authority.
+
 **Options and costs.**
 
 1. **Relabel current behavior as rollout evaluation.** Return a typed evaluation result and make no learning claim until parameters change; retain rollout/reward collection as a useful capability. Cost: Low implementation cost; CLI and callers lose the current train-shaped success surface and still need a trainer for learning.
 
-2. **Integrate the existing trainer for one compatible domain.** Route through the appointed trainer, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics. Cost: High implementation and compute cost; requires a compatible state contract and artifact lifecycle.
+2. **Integrate the existing trainer for one compatible domain.** Only after a separate explicit appointment and contract establish the training owner's scope for that domain, route through that owner, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics. This technical option does not make the appointment or confer training authority. Cost: High implementation and compute cost, plus owner appointment/scope agreement; requires a compatible state contract and artifact lifecycle.
 
-**Residual.** A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.
+**Residual.** Until the separate appointment/contract and compatible state contract exist, trainer integration remains unavailable. A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.
 
 **Revisit falsifier.** Reopen the evaluation-only choice if a caller requires learned state and a compatible trainer can demonstrate parameter and subsequent-action change; reopen trainer integration if it only collects rewards.
 
-**Binding seam.** PolisySimulator.train contract, CLI result semantics, trainer orchestration, and persisted learned-state artifact.
+**Binding seam.** PolisySimulator.train contract, domain-scoped owner appointment/contract, trainer orchestration, and persisted learned-state artifact.
 
 **Source.** `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-023`
 **JSON cross-reference.** `partial_triage.json`, finding_id `LA-023`, `principal_decision_draft_ref: #la-023`.

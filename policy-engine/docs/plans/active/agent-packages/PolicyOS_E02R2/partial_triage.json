@@ -479,19 +479,19 @@
         "options": [
           {
             "name": "Conditional publish through the store owner",
-            "choice": "Publish only if the predecessor version/digest still matches, then re-read and re-compare on conflict. Keep expensive evaluation outside the transaction.",
-            "cost": "Medium to high: requires a conditional-write primitive from the actual store and explicit conflict handling; supports concurrent writers."
+            "choice": "Use the actual store owner's conditional-write primitive only if a complete caller census and source-backed trace prove that owner covers every publisher. Then publish only if the predecessor version/digest still matches, re-read and re-compare on conflict, and keep expensive evaluation outside the transaction.",
+            "cost": "Medium to high: requires the conditional-write primitive and explicit conflict handling; if no owner covers every publisher, the separate appointment/capability prerequisite applies."
           },
           {
             "name": "One serialized publication owner",
-            "choice": "Route all compare-and-publish operations through one existing writer/lock owner; reject or queue other publishers.",
-            "cost": "Medium: simpler storage contract, but adds throughput and availability limits and must prove every writer uses the owner."
+            "choice": "Route all compare-and-publish operations through one writer/lock owner only if a complete caller census proves that owner covers every publisher. Otherwise this option requires a separately authorized owner appointment or the smallest missing capability; this draft does not presume or make that appointment. Reject or queue bypassing publishers.",
+            "cost": "Medium if an existing owner covers all callers; higher if an appointment/capability must be established, plus throughput and availability limits."
           }
         ],
         "residual": "Crash durability and multi-host behavior remain unclaimed unless the selected store primitive and deployment mode establish them.",
         "revisit_falsifier": "Reopen if a controlled B(score 2)/C(score 3) schedule leaves score 2 current, or if a second process can bypass the chosen serialization owner.",
-        "binding_seam": "ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition.",
-        "scope_note": null
+        "binding_seam": "ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition, conditioned on proven publisher coverage by the actual store or a separately authorized serialization owner.",
+        "scope_note": "Neither option presumes that one current publication owner covers every publisher. Require a complete caller census and source-backed proof. If no current owner covers all paths, an explicit owner appointment or the smallest missing owner capability is a separate prerequisite; choosing an option here does not make that appointment."
       }
     },
     {
@@ -1314,14 +1314,14 @@
           },
           {
             "name": "Integrate the existing trainer for one compatible domain",
-            "choice": "Route through the appointed trainer, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics.",
-            "cost": "High implementation and compute cost; requires a compatible state contract and artifact lifecycle."
+            "choice": "Only after a separate explicit appointment and contract establish the training owner's scope for that domain, route through that owner, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics. This technical option does not make the appointment or confer training authority.",
+            "cost": "High implementation and compute cost, plus owner appointment/scope agreement; requires a compatible state contract and artifact lifecycle."
           }
         ],
-        "residual": "A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.",
+        "residual": "Until the separate appointment/contract and compatible state contract exist, trainer integration remains unavailable. A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.",
         "revisit_falsifier": "Reopen the evaluation-only choice if a caller requires learned state and a compatible trainer can demonstrate parameter and subsequent-action change; reopen trainer integration if it only collects rewards.",
-        "binding_seam": "PolisySimulator.train contract, CLI result semantics, trainer orchestration, and persisted learned-state artifact.",
-        "scope_note": null
+        "binding_seam": "PolisySimulator.train contract, domain-scoped owner appointment/contract, trainer orchestration, and persisted learned-state artifact.",
+        "scope_note": "The separate training owner's existence does not establish its appointment, scope, or authority for PolisySimulator or any domain. Trainer integration is conditional on a separate explicit appointment and contract for the chosen domain; selecting this option does not make that appointment or grant training authority."
       }
     },
     {

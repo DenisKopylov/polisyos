@@ -12068,13 +12068,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. The accepted read-only held review narrows the blocker to the item-specific condition above; no behavior or semantic absence is claimed. Review citation: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B219."
+        "detail": "Appendix C held status retained. The new H14 blocker audit shows that NetworkX execution is environment-admitted; the previous external-institution blocker is unsupported. Reclassify the remaining discriminator-specific need as a data record: accepted exporter/consumer round-trip across parallel edge identities. Behavioral witness and semantic-absence verdict remain UNRUN."
       },
-      "residual": "NetworkX dependency/environment is not established for the governed operator; a lexically absent direct MultiDiGraph spelling cannot prove semantic absence because aliases/dynamic paths remain unreviewed. Blocker is the external environment/dependency record plus an actual accepted multigraph constructor/probe, not a new internal capability claim. Bounded exact-selector witness UNRUN.",
+      "residual": "NetworkX execution is environment-admitted under the held review's cached-archive note, so no external-institution blocker is established. The remaining blocker is an accepted data record through the actual `CausalGraph.to_networkx()` and ID-engine consumer showing two same-endpoint edges with distinct mark/lag/metadata survive round-trip and insertion permutations; ordinary single-edge export is the control. The zero direct MultiDiGraph spelling census does not establish repository-wide semantic absence because aliases/dynamic paths remain unresolved. The distinguishing behavioral witness remains UNRUN.",
       "residual_owner": {
-        "kind": "external_institution",
-        "name": "Execution environment owner for admitted NetworkX dependency and graph owner for accepted operator witness",
-        "appointment_status": "reviewed blocker owner role; no individual appointment or behavioral closure is claimed"
+        "kind": "data_record",
+        "name": "CausalGraph exporter and ID-engine graph consumer evidence owner",
+        "appointment_status": "source paths and data-record owner role identified; no individual appointment or behavioral closure is claimed"
       },
       "r_class": null,
       "p_triage": null,
@@ -12093,14 +12093,16 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py@git-blob:b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
-        "blocker_path_scope": "Current ADMG operations path; graph-export absence remains provisional pending held-audit receipt.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "blocker_path_scope": "Current ADMG operations path to inspect in the accepted exporter/consumer round-trip; this does not establish semantic capability absence.",
+        "held_audit_receipt_status": "read-only H14 audit confirms data_record blocker; held status and semantic UNRUN remain unchanged",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B219",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:d1e21e27ffaee96aafc330516725c31364c828a4#B219",
           "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
-        }
+          "scope": "Blocker refinement only; H14 audit identifies an evidence/data record as the remaining blocker. No behavioral closure or repository-wide semantic absence is claimed."
+        },
+        "blocker_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-20260924.md@sha256:70047d13784b61630f99ab921aedd13368aac37351f50cf5b10e1fb39637153e",
+        "blocker_audit_scope": "Full 14/14 held-row audit: 4 owner-decision blockers, 10 data-record blockers, 0 external-institution blockers, 0 justified missing-capability claims; semantic absence remains UNRUN."
       }
     },
     {

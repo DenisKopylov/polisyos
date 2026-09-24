@@ -4122,7 +4122,7 @@
         "relation": "aligned_refined",
         "detail": "Appendix C keeps B79 partial: verification_missing. A cursor-positive lookup is only an intermediate fact. Source-card inspection says the helper computes cursors but does not pass them to run_orchestrated_ingestion; the served path also builds its store from cas_root before constructing CursorStore, which intersects R13. Request propagation and runtime-store custody remain UNRUN."
       },
-      "residual": "A cursor-positive lookup is not the finding discriminator: B79 requires the resolved cursor to affect the delegated source request. The source card says run_batch_incremental computes incremental_cursors but calls run_orchestrated_ingestion without them or an equivalent manifest/request change. The served path also calls _build_filesystem_store(cas_root) and constructs CursorStore from that store; runtime-supplied tenant-store custody is not established (R13). Keep B79 partial until a served connector witness proves the cursor changes the request and result, the absent-cursor control honestly permits full load, and B80 legacy advancement remains safe.",
+      "residual": "A cursor-positive lookup is not the finding discriminator: B79 requires the resolved cursor to affect the delegated source request. The source card says `run_batch_incremental` computes `incremental_cursors` but calls `run_orchestrated_ingestion` without them or an equivalent manifest/request change. The served path also calls `_build_filesystem_store(cas_root)` and constructs `CursorStore` from that store; runtime-supplied tenant-store custody is not established (R13). A content-bound confirmed-cursor verifier must bind the cursor to connector, dataset and partition identity, the effective source request, source offset/event-time policy, and the committed artifact/result; lookup or persisted marker alone cannot authorize advancement. Keep B79 partial until a served connector witness proves cursor-to-request propagation and result, an absent-cursor control honestly permits full load, and B80's per-source confirmation remains safe: A may advance to 9 while B is unfinished, and a late B event before local `now` is retained under that connector's cursor policy. B80 remains a separate partial finding. Four-base replay and runtime-store custody are UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Fabric batch-incremental ingestion and CursorStore owner; runtime-supplied store owner for R13 custody",
@@ -4144,7 +4144,7 @@
           "identity": "source_record_inspection:B79",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B79",
           "behavioral_verdict": "UNRUN",
-          "scope": "source-card and owner-path inspection only; cursor lookup-to-request propagation, current tenant-store custody, and B80 interaction were not behaviorally replayed",
+          "scope": "Source-card/owner-path inspection only; cursor lookup-to-request propagation, content-bound confirmed-cursor verification, B80 late-event interaction, current tenant-store custody, and served behavior were not behaviorally replayed.",
           "package_test_selector_groups": [
             "bundle_test_selectors/ING-01"
           ]

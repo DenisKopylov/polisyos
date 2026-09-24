@@ -16,6 +16,33 @@ The second is a gate that misclassifies one integrity-recomputation call while
 failing to measure the local world-growth route. Do not create a separate R12
 repair mechanism beside the R13 controller/owner work.
 
+### E02-versus-main boundary
+
+At both the execution base and main, the older `_reenter_cycle_after_n7_acquisition`
+replayed an N7 receipt and updated grounding/cycle history. It synthesized a
+reduced candidate projection from the receipt's source slots and world ref;
+it did not look up or rebind the prior candidate's actual atom, nor rerun the
+existing N5/N8 nodes. E02 commit `0c65c8122` added candidate/hash lookup,
+receipt-to-candidate binding, and the `InterventionAtomBinding` prerequisite.
+E02 commit `da8c5a3cd` then added `_rebuild_n7_acq01_route_context`, which
+loads the route's local CAS and mints a new WMR/context during that in-cycle
+re-entry. The root-rebuilt route helper and the error string do not occur in
+the pinned main source (`5fd3ebcc1`); main's in-cycle re-entry remains the
+older history/grounding update.
+
+Main also has the distinct `AcquisitionWorldGrowthBridge` production path. It
+performs native overlay/epoch admission and calls
+`reenter_after_active_acquisition_overlay` after successful admission; that
+method's contract says it cannot fetch, activate, mutate the prior run, or
+enter through either legacy acquisition arm (`src/polisyos/runtime/quality/acquisition_world_growth.py:184-205,283-328,779-808`;
+`src/polisyos/runtime/quality/generation_cycle.py:3801-3936`). E02's generic
+`GenerationCycleController.run` still chooses the older local N7 arm when
+planner routing returns no report (`generation_cycle.py:3727-3757,4242-4272`),
+and the E02-specific context rebuild makes that arm a second WMR writer. This
+is the R13 delta: preserve the existing history-only behavior only where it
+cannot admit world growth, and route production growth through the main
+bridge's overlay/passport/native-epoch chain.
+
 ## Symptom 1: `n7_reentry_candidate_atom_not_canonical`
 
 ### Property and root cause

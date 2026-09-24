@@ -519,10 +519,12 @@ different, truthful typed profiles for those bytes?
    the persisted profile and pushes integrity failures onto every later reader.
 3. **Proposed lean:** preserve immutable bytes and physical content deduplication,
    while adding independently persisted typed view records/manifests bound to the
-   content hash, full profile, and tenant ownership. Signatures and ownership resolve
-   by the typed view identity, never by content `ArtifactID` alone. A returned view
-   ref resolves only when its own profile, tenant, and signature binding exist and
-   verify. Permit cross-tenant views only if the view records and signatures remain
+   content hash, full profile, and tenant ownership. A returned view must resolve
+   its own exact manifest/profile and tenant binding. Signature verification is
+   required only where the caller or authority contract requires signed custody;
+   unsigned candidate bytes remain valid CAS content. When required, signatures and
+   ownership resolve by the typed view identity, never by content `ArtifactID` alone.
+   Permit cross-tenant views only if view records and any required signatures remain
    isolated per tenant; until the shared owner can prove that isolation, keep the
    existing typed refusal for cross-tenant view requests. CAS/API owners pay for
    tenant-scoped metadata, versioned refs, import/export and signature handling;
@@ -546,17 +548,43 @@ and `src/polisyos/core/artifacts/_signature_ops.py@793c4faea145ca25522860836ecab
 The source recommendation preserves honest refs and byte deduplication; it does not
 license tenant identity to collapse into the byte hash.
 
+The Appendix A discriminator is
+`quality.test_joint_simulation_horizon::test_program_graph_plan_loops_real_shared_state_executor`
+(`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py@8ed265c0b1fd980c1a189866d17166c05f7e188b`).
+The Appendix B discriminators are
+`unit.runtime.http.test_runtime_deployment_security::test_epoch_privileged_source_ports_are_captured_and_attested`,
+`unit.runtime.quality.test_epoch_deployment::test_configured_policy_exchange_reaches_native_verifier_limitation`,
+`unit.runtime.quality.test_epoch_deployment::test_privileged_native_verifier_is_operational_and_deployment_local`,
+and
+`unit.runtime.quality.test_promotion_epoch_deployment::test_configured_positive_carrier_still_hits_unchanged_ep_d03_refusal`
+(`policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py@aa8d8bad3537b1ef16e43f8f0816112e9c8cec73`,
+`policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py@e2ffe8167bc3c4a702d31a7c823ed25555fff194`,
+`policy-engine/tests/unit/runtime/quality/test_promotion_epoch_deployment.py@270187cb4598dd61d54bc6d7b9a2ec2d6143d008`).
+The four-base P41 JUnit row receipts for these test identities are pending the
+baseline broker at
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/r9-p41-cas-view-tests.junit.xml@PENDING_SHA256`;
+the Appendix A/B comparisons remain hypotheses until those outcomes, flags, and
+test blob identities are recorded.
+
 **Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
 to principal ruling. Keep blob identity as the hash of exact bytes, but define typed
-view identity to include its full immutable profile and tenant ownership. Ownership
-and signatures must bind to that view identity and tenant, not only the shared
-content `ArtifactID`; a signature for one view cannot admit another view. Resolve
-and verify each view through the runtime-supplied store. A missing tenant binding,
-view, or signature returns a typed refusal. If the common owner cannot provide
-per-view tenant and signature isolation, cross-tenant views remain refused rather
-than sharing ownership by content hash. Preserve historical single-profile refs by
-versioned readers; any added hash-bound view fields require a schema/version bump
-and historical projection rules.
+view identity to include its full immutable profile and tenant ownership. A view is
+usable only after resolving its exact persisted manifest and recomputing the byte,
+profile, and tenant binding through the runtime-supplied store. Keep bare
+`ArtifactID` as the primary legacy reference to the historical manifest; a
+qualified view reference must resolve its own view record and must never fall back
+to the bare ID, primary manifest, or their signature when that view is missing.
+Unsigned candidate artifacts may be stored and resolved without a signature, but
+they carry no authority. Verify a signature only where the consuming contract
+requires one, and then bind it to that exact qualified view and tenant; never reuse
+an ID-only or other-view signature. If that required signature is absent or
+unverifiable, the authority consumer returns a typed refusal. Preserve historical manifest and signature
+bytes byte-exactly. If a qualified reference changes `ArtifactRef` or `InputRef`
+nested in hashed DTOs, use a separately versioned qualified reference with
+historical serializers that exclude it, or bump the enclosing schema and add a
+historical serializer that preserves the old projection byte-for-byte. If the common
+owner cannot provide per-view tenant isolation, cross-tenant views remain refused
+rather than sharing ownership by content hash.
 
 **P37 — gate predicates at admission.**
 
@@ -568,74 +596,125 @@ and historical projection rules.
 - Tenant ownership must resolve from explicit tenant-bound view metadata and the
   owning tenant store/context (`independently_reconciled`). A missing tenant binding
   is `not_established`; a matching content `ArtifactID` is not tenant evidence.
-- A signature must bind to the exact view identity and tenant, not just the blob
-  `ArtifactID` (`independently_reconciled`). The current ID-only signature index is
-  insufficient to distinguish cross-tenant views; cross-tenant access is
+- Signature verification is a required predicate only when the caller or
+  authority contract requires signed custody. Candidate CAS storage with
+  `SigningConfig(enabled=False, sign_on_put=False)` does not assert or require a
+  signature. When required, a signature must bind to the exact view identity and
+  tenant (`independently_reconciled`); the current ID-only signature index is
+  insufficient to distinguish cross-tenant views, so the required signature is
   `not_established` unless separately stored view-bound signature evidence exists.
+  If that required signature is absent or unverifiable, the authority decision
+  fails closed.
+- A qualified view resolves only by its qualified identity. Missing qualified
+  metadata cannot fall back to the bare `ArtifactID` primary manifest or signature.
+- `ArtifactRef` and `InputRef` are nested in persisted manifests and other hashed
+  DTOs. Any qualified-ref extension must preserve historical projections byte
+  exactly by versioning the qualified ref or the enclosing schema and serializer.
 - Equal bytes never imply equal lineage or provenance. Any absent lineage relation
   remains `not_established` rather than inferred from the shared blob hash.
 
 **P38 — property and divergence.** Property: content may have multiple typed
-views only when each view's profile, tenant owner, and signature are independently
-resolvable. Current implementation: `ArtifactOwnershipIndex` and signature
-operations key only on content `ArtifactID`. Divergent case: two tenant views over
-identical bytes share that ID, so `has_signature(aid)` may treat tenant A's signature
-as tenant B's evidence. A profile-only per-view record would still diverge if its
-signature and owner index remained keyed by the shared ID. The distinguishing probe
-must create same-byte views under two tenants, sign only view A, and prove that view
-B remains unverified and inaccessible until it has its own tenant-bound view and
-signature; both allowed views may still resolve to one physical blob.
+views only when each view's exact profile and tenant owner are independently
+resolvable, and when a caller requires a signature, that signature resolves for
+that view. Current implementation: `ArtifactOwnershipIndex` and signature
+operations key only on content `ArtifactID`; the store can therefore confuse
+same-byte tenant views, while CAS signing is optional. Divergent case: two tenant
+views over identical bytes share the ID, so an ID-only ownership/signature check
+cannot tell tenant A's view from tenant B's. The distinguishing probe must create
+same-byte views under two tenants, sign only view A, and prove that an
+authority-contract read of view B remains unverified and refused; a candidate read
+may resolve only if B has its own exact tenant-bound view. Separately, an unsigned
+candidate control with `SigningConfig(enabled=False, sign_on_put=False)` must
+resolve its exact manifest as candidate content while producing no authority
+result. Both valid candidate views may still resolve to one physical blob.
 
 **Remainder.** This does not claim equal bytes have equal empirical origin,
 authorize changing an existing profile, or decide that all kind and lineage fields
 can be verified by the CAS itself. Consumers that need source independence still
 require their own evidence. Per-view concurrency and cross-backend compatibility
 remain implementation obligations. Cross-tenant view creation stays refused until
-per-view ownership and signature binding are proven; the shared content hash never
-substitutes for tenant custody.
+per-view ownership isolation and any contract-required signature binding are proven;
+the shared content hash never substitutes for tenant custody.
 
 **Remainder standing and signatory.** The CAS has no standing to prove empirical
 origin or consumer-specific lineage; those predicates remain `not_established` by
 the CAS alone, and each consuming owner must sign or independently reconcile its
-own evidence. The `polisyos.core.artifacts` package owns artifact IDs, manifests,
-signatures, and the CAS boundary (`src/polisyos/core/artifacts/README.md`). A named
+own evidence. Candidate artifact storage need not create a signature; authority
+consumers retain their own signed-custody requirement where their contract says so.
+The `polisyos.core.artifacts` package owns artifact IDs, manifests, signatures, and
+the CAS boundary (`src/polisyos/core/artifacts/README.md@7b4cc0bb5ae7dd9c4602fcf1b6ff1186881bfc4c`). A named
 engineering owner/signatory for the multi-view contract and cross-backend
 implementation is not established by that package README or this draft; that
 assignment remains `unallocated/not_established` until made. Denis remains the
 pending principal signatory for the semantic choice to support honest typed views.
 
 **Falsifier / revisit trigger.** Reopen if any backend returns a view ref whose
-resolved manifest differs from it, if same-profile retries create a second view,
-if a tampered view can point at a different blob/profile while retaining a green
-verification result, or if a signature for tenant A's view verifies tenant B's
-same-byte view. The acceptance signal is the A/B same-bytes witness through
-filesystem, S3, GCS, and caching-store contracts, with each view independently
-bound to tenant ownership and signatures. Remove tenant metadata while preserving
-view markers and bytes; access and signature verification must fail. If cross-tenant
-views cannot satisfy this, the typed refusal is the required result. No such run is
-claimed here.
+resolved manifest differs from it, if concurrent same-profile retries create
+divergent duplicate view records, if a tampered view can point at a different
+blob/profile while retaining a green verification result, or if a signature for
+tenant A's view verifies tenant B's same-byte view. The acceptance signal is the
+A/B same-bytes witness through filesystem, S3, GCS, and caching-store contracts:
+both view manifests resolve only under their own tenant and exact profile; signing
+only A cannot satisfy a contract-required signature check for B. A distinct
+positive control stores and resolves unsigned candidate content under
+`SigningConfig(enabled=False, sign_on_put=False)` without producing an authority
+result. A qualified-reference removal probe keeps the bare primary artifact and
+its manifest/signature intact while removing the qualified view; lookup must refuse
+instead of falling back. Preserve the historical primary manifest and signature
+bytes through export/import and historical-reader round-trip byte-exactly. Remove
+tenant metadata while preserving view markers and bytes; the tenant-bound access
+must fail. A `.views/<profile>.manifest.json` sidecar cannot simply reuse today's
+recursive `*.manifest.json` namespace: the filesystem enumerator parses the basename
+as an `ArtifactID`; the sidecar layout or that shared enumerator must change as one
+owner-level design. View sidecars also count toward the tenant's quota. Caching,
+async, IR, and ProgramGraph paths must preserve the qualified selector and complete
+write profile end-to-end. `CachingArtifactStore` currently addresses manifests by
+bare `ArtifactID` and reconstructs cache-population `PutOptions` without
+`tenant_context`, `same_input_closure`, or `authority`; async/IR adapters and the
+current `LoweredIRRef`/`ProgramGraphRef` likewise have no qualified selector, and
+ProgramGraph lowering reconstructs refs from the bare ID. No such run is claimed
+here.
 
-**Where it binds.** Shared contract `src/polisyos/core/artifacts/protocol.py::ArtifactStore`;
+**Where it binds.** Shared contract
+`src/polisyos/core/artifacts/protocol.py@cc012c638b833e52d9658b91364398f81b7dd741::ArtifactStore`;
 typed references and historical projections in
 `src/polisyos/core/artifacts/manifest.py@ecac478bce792c8451919e30d82bb25ba99662c7`;
 manifest lifecycle and `FileSystemCAS` in
-`src/polisyos/core/artifacts/_manifest_lifecycle.py` and
+`src/polisyos/core/artifacts/_manifest_lifecycle.py@0681605eed226b2638dce4cb9d7b9e710491323d` and
 `src/polisyos/core/artifacts/store.py@775d9811ae8fc3fd075845400b7a0b452600e387`;
-configured remote/cache implementations under `src/polisyos/core/artifacts/backends/`;
+configured S3/GCS implementations at
+`src/polisyos/core/artifacts/backends/s3_store.py@26c85746a028674cc7b3f62617d4efeaf21b1976`
+and `src/polisyos/core/artifacts/backends/gcs_store.py@ab91a7412b3249fcc368da1741e403d661dce562`;
 ownership index at
 `src/polisyos/core/artifacts/ownership.py@95dc77f264b38dc40d658cfb2c9b153265e7a99b`;
 signature operations at
 `src/polisyos/core/artifacts/_signature_ops.py@793c4faea145ca25522860836ecab93747a732f5`;
-artifact import/export and signature paths. No caller may
+signing configuration at
+`src/polisyos/core/artifacts/signing.py@cc3082cdf613707d6df284266fc8c97e565bba84`;
+caching boundary at
+`src/polisyos/core/artifacts/backends/caching_store.py@346d899a4632e185f1afa77ab7efb576b1efdbd8`;
+async/IR adapters at
+`src/polisyos/core/artifacts/async_store.py@cfab46e12fe8c42af84b391e852da9ca91d33f08`
+and `src/polisyos/core/artifacts/ir_adapter.py@ea124f8447af2bb7fc68d8887e3d47c080ee29ef`;
+Foundry refs at
+`src/polisyos/core/contracts/foundry.py@70d0c344fe8418314ffd634bf40b3ead3484f49f`;
+ProgramGraph lowering at
+`src/polisyos/foundry/compile/trinity_compiler.py@c2ef2b5acb787b17d253750c612d1f2ed3c5900f`;
+and transfer at
+`src/polisyos/core/artifacts/_transfer_ops.py@ea6697559933d3eb74c70aec978948297c6c8e52`.
+No caller may
 construct an envelope to compensate for a missing CAS view API or tenant-bound
 signature owner.
 
 **Pattern pass.** P05/P27/P31/P32/P37/P38. The instance symptom is a CAS conflict;
 the class is the mismatch between a content key and a single semantic view. Target:
 one generic, typed multi-view contract implemented by the shared owner, not
-consumer-specific exceptions. Multi-view refs/artifacts are `artifact_missing` and
-consumer resolution is `consumer_missing` until the shared contract, every backend,
-and a mismatch-negative witness are wired.
+consumer-specific exceptions. A second R9 symptom is a boundary loss of the view
+selector; it remains the same P40 class because every escape is a consumer of the
+same artifact-view identity. Multi-view refs/artifacts are `artifact_missing` and
+consumer resolution is `consumer_missing` until manifests, required-signature
+semantics, quota accounting, every backend/adapter, historical replay, and the
+positive/negative witnesses are wired.
 
 ## R11 — CYC-04 blocked repeated candidate must not reach N9
 

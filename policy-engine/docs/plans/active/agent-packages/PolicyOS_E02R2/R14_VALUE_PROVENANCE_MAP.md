@@ -28,7 +28,10 @@ The corresponding append-only checkpoint rows are currently
 `/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-pre-repair-20260924T171600Z-23461/checkpoint/progress.jsonl:76-79`.
 The broker is still running, so this checkpoint path is mutable; use the final
 results/checkpoint digest when the baseline wave closes. The four JUnit hashes
-above identify these completed cells independently.
+above identify these completed cells independently. The execution-base cell
+used the 1800-second alarm; the E02-head, main, and Phase 0 cells used
+120-second alarms. All four completed without a timeout, so this difference
+does not change the reported outcomes.
 
 The 13 direct signature/admission failures are:
 
@@ -69,8 +72,11 @@ In the E02 and Phase 0 source,
 `self._store.verify_signature` (lines 662-667). The E02 version of
 `policy-engine/src/polisyos/core/artifacts/store.py`
 `@775d9811ae8fc3fd075845400b7a0b452600e387` routes verification through
-`load_snapshot=self._load_verified_snapshot` (lines 569-585). That loader
-expects `ArtifactID` and resolves the path using `.hex` (lines 1166-1175).
+`load_snapshot=self._load_verified_snapshot` (lines 569-585). The loader
+expects `ArtifactID` and calls `self._paths(artifact_id)` (line 1170); `_paths`
+delegates to `CASPathLayout.paths` (store.py line 224; `_layout.py` line 20),
+where `.hex` is read. Thus the relevant boundary is the typed storage path
+lookup, not the loader's declaration alone.
 `_verify_signature` catches the resulting `AttributeError` and returns
 `SignatureVerificationStatus.ERROR`; the E02 JUnit shows
 `"str" object has no attribute "hex"`, which the owner maps to

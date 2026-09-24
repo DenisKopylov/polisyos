@@ -1264,10 +1264,10 @@
       "finding_id": "LA-022",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Plugin verification owner",
+      "owner": "PLG-01 verification owner; Foundry DomainPlugin discovery owner for LA-022",
       "blocker_kind": null,
       "e02_residual": "PLG-01: verification_missing",
-      "next_step": "Adapt legacy DomainPlugin discovery to the existing shared discovery primitives while preserving the DomainPlugin contract. Through the Foundry production route, cover installed entry points, built-ins, declared development plugins, duplicate IDs, import/dependency failures, unload and deterministic order; compare resolved components and errors. Do not treat FoundryMethodPlugin discovery as an equivalent contract.",
+      "next_step": "Keep PLG-01 verification under its verification owner: the admission consumer accepts an owner-issued signal for a valid plugin and refuses absent or present-but-forged signals. For original LA-022, identify the Foundry DomainPlugin discovery owner separately and adapt discovery through existing shared primitives while preserving the DomainPlugin contract. Through the production route cover installed entry points, built-ins, declared development plugins, duplicate IDs, import/dependency failures, unload and reproducible order; compare resolved components and errors. Then invoke an actual economic model through its former DomainPlugin ABI and verify its initial state, mechanism, reward, objective, observation builder and lifecycle hooks remain available. Record both callers and test identities.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-022",
       "e02_residual_source_refs": [
         {
@@ -2089,7 +2089,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B138"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "semantic_test_missing",
+        "detail": "A complete read-only census of all 2,693 tracked Python files under policy-engine/src/ found 18 textual DataComposer references and zero in-repository production constructions or calls; the references are definitions, re-exports, imports, or class-internal helpers. Direct unit probes: policy-engine/tests/unit/fabric/connectors/test_federation.py@ae762a91201fd82ab969f3e516bc3c44323588b0 and policy-engine/tests/unit/remediation/test_fed_02.py@eea50470fb55d3c1bcfc30c524f15b828ec5ba91. These direct probes do not establish an ordinary production caller/served-consumer witness. Census receipt: /Users/deniskopylov/.codex/scratch/e02-r2-partial-triage-review-d25e6d0cf-20260924.md@sha256:a8b78443016e37905cc1fb552bc225b9a553fb5a9bac4e745e11c7676d123dae. The missing witness is per-cell source metadata selection and provenance readback through a production consumer; external FED-01 counterpart-protocol evidence remains separate."
+      }
     },
     {
       "finding_id": "B140",
@@ -2110,7 +2114,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B140"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "semantic_test_missing",
+        "detail": "A complete read-only census of all 2,693 tracked Python files under policy-engine/src/ found 18 textual DataComposer references and zero in-repository production constructions or calls; the references are definitions, re-exports, imports, or class-internal helpers. Direct unit probes: policy-engine/tests/unit/fabric/connectors/test_federation.py@ae762a91201fd82ab969f3e516bc3c44323588b0 and policy-engine/tests/unit/remediation/test_fed_02.py@eea50470fb55d3c1bcfc30c524f15b828ec5ba91. These direct probes do not establish an ordinary production caller/served-consumer witness. Census receipt: /Users/deniskopylov/.codex/scratch/e02-r2-partial-triage-review-d25e6d0cf-20260924.md@sha256:a8b78443016e37905cc1fb552bc225b9a553fb5a9bac4e745e11c7676d123dae. The missing witness is declared join-cardinality and unknown/null-key semantics through a production consumer; external FED-01 counterpart-protocol evidence remains separate."
+      }
     },
     {
       "finding_id": "B141",
@@ -2131,7 +2139,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B141"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "semantic_test_missing",
+        "detail": "A complete read-only census of all 2,693 tracked Python files under policy-engine/src/ found 18 textual DataComposer references and zero in-repository production constructions or calls; the references are definitions, re-exports, imports, or class-internal helpers. Direct unit probes: policy-engine/tests/unit/fabric/connectors/test_federation.py@ae762a91201fd82ab969f3e516bc3c44323588b0 and policy-engine/tests/unit/remediation/test_fed_02.py@eea50470fb55d3c1bcfc30c524f15b828ec5ba91. These direct probes do not establish an ordinary production caller/served-consumer witness. Census receipt: /Users/deniskopylov/.codex/scratch/e02-r2-partial-triage-review-d25e6d0cf-20260924.md@sha256:a8b78443016e37905cc1fb552bc225b9a553fb5a9bac4e745e11c7676d123dae. The missing witness is collision-safe namespace behavior preserving real input columns through a production consumer; external FED-01 counterpart-protocol evidence remains separate."
+      }
     },
     {
       "finding_id": "B145",
@@ -2152,7 +2164,11 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "B145"
         }
-      ]
+      ],
+      "production_residual": {
+        "status": "semantic_test_missing",
+        "detail": "A complete read-only census of all 2,693 tracked Python files under policy-engine/src/ found 18 textual DataComposer references and zero in-repository production constructions or calls; the references are definitions, re-exports, imports, or class-internal helpers. Direct unit probes: policy-engine/tests/unit/fabric/connectors/test_federation.py@ae762a91201fd82ab969f3e516bc3c44323588b0 and policy-engine/tests/unit/remediation/test_fed_02.py@eea50470fb55d3c1bcfc30c524f15b828ec5ba91. These direct probes do not establish an ordinary production caller/served-consumer witness. Census receipt: /Users/deniskopylov/.codex/scratch/e02-r2-partial-triage-review-d25e6d0cf-20260924.md@sha256:a8b78443016e37905cc1fb552bc225b9a553fb5a9bac4e745e11c7676d123dae. The missing witness is finite consensus coercion and truthful accepted/excluded contributor counts through a production consumer; external FED-01 counterpart-protocol evidence remains separate."
+      }
     },
     {
       "finding_id": "LA-028",

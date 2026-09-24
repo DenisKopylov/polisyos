@@ -54,28 +54,36 @@ before reaching this fallback (`policy-engine/src/polisyos/runtime/quality/gener
 
 ## Production caller
 
-The production path is wired, not test-only:
+The production composition path is wired, but the existing cited test only
+reaches its seam; it does not prove the served production N4 route end to end:
 
-1. `RunLifecycleService` delegates the run request to
+1. `ControlPlaneService` delegates the run request to
    `compile_and_run_recursive_generation_cycle`
-   (`policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@a3827ed1677df17f09827d479db7510ffdb70e6e:1598-1628,3297-3322`).
-2. The HTTP composition builds or accepts the owner-bound context and passes
-   it into `build_default_recursive_generation_cycle_controller`, then into
-   the recursive leaf route
-   (`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a:558-595,638-670`; `policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py@ddff9abd228378166bce8437862ebe487ae00149:685-700,855-913`).
-3. A `GenerationCycleController` owns a default `JointSimulationPort`; the
+   (`policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@a3827ed1677df17f09827d479db7510ffdb70e6e:1319-1327,1598-1628,3297-3322`).
+2. The HTTP composition uses a supplied recursive controller if one was
+   provided, otherwise builds the default controller; it then invokes
+   `resolved_controller.run(...)` with the owner context in
+   `cycle_substrate_contexts_by_node`; the recursive controller reads that
+   per-node mapping when it constructs the leaf run
+   (`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a:638-670`; `policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py@ddff9abd228378166bce8437862ebe487ae00149:685-700,755-765,824-860,855-913`).
+3. The leaf's `GenerationCycleController` owns a default
+   `JointSimulationPort`; the
    generation result's non-binding grounding dispositions are projected into
    `_DispositionCandidate` values carrying a validated refusal, then the
    selected candidate reaches `_joint_value_node` and N5
    (`policy-engine/src/polisyos/runtime/quality/generation_cycle.py@65d830f71dccd9c3b1e943e5e132678f7221ed8a:3416-3436,3470-3480,5510-5587,8416-8467,5659-5709`).
 
-An existing served-path witness demonstrates HTTP → recursive leaf → N5 with
-one owner context, but its candidate is atom-bound and its N5 block is for a
-missing NCM spec; it is not an R6 foreign-refusal witness
+The existing test
+`test_http_recursive_route_carries_one_context_to_n5_owner_block` calls this
+composition seam directly, monkeypatches the NL compiler, and injects a
+fixture N4 port. Its candidate is atom-bound and its N5 block is for a missing
+NCM spec. It proves context propagation through the seam, not an HTTP-served
+production-N4 run and not the R6 foreign-refusal behavior
 (`policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@b675681a801cb9a66ec3ca80faf636fd91bc92d9:1211-1312`).
-Add an adversarial served-path case there if the class repair is implemented;
-the direct port regression alone does not prove the live route carries the
-candidate disposition unchanged.
+Add an adversarial endpoint-level served-path witness through
+`ControlPlaneService`, the default recursive controller, and the production N4
+route if the class repair is implemented; the direct port test and current
+composition-seam witness do not prove that complete path.
 
 ## Smallest class-wide fix
 
@@ -95,9 +103,12 @@ The test write set is:
 - `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`: retain
   and strengthen the foreign-context regression and marker-preserving removal
   probe; retain the same-context positive control.
-- `policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py`:
-  add the served HTTP → leaf → N5 foreign-refusal witness using the production
-  composition.
+- Add an endpoint-level/API integration witness through the served
+  `ControlPlaneService` path, default recursive controller, production N4 route,
+  and N5, using a foreign-context refusal. Place it in the appropriate
+  integration/API test suite when implementing; do not count the current
+  `test_recursive_generation_cycle_epoch_gate.py` composition-seam test as
+  that served witness.
 
 No resolver, N4, HTTP composition, or WMR builder edit is indicated by this
 trace. These are proposed writes only; no source or test files were changed in

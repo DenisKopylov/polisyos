@@ -29,26 +29,45 @@ evidence must exist before S8 may emit a ranked recommendation?
 2. Remove context, source, and binding checks. This restores reachability quickly,
    but runtime and policy consumers bear the risk that caller-owned or mismatched
    world state is treated as grounded.
-3. **Proposed lean:** let ordinary requests produce candidate work while carrying
-   typed `not_established` context as a limitation. Keep N5, promotion, publication,
-   protected modes, and S8 authority gated on their own owner evidence. S8 requires
-   a real N4 source handoff that embeds the consumed `CycleSubstrateContext`, binds
-   the exact problem/candidate bytes, and carries explicit tenant binding in its
-   owner profile. Persist a typed context-limitation result as `not_established`
-   when context is absent or tenant/currentness predicates lack owner evidence, in
-   the existing content-hashed `CompiledRecursiveGenerationCycleRun` wrapper.
-   Version it as schema v2 with a byte-exact historical v1 projection; S8 must
-   consume the limitation so signed evidence alone cannot rank when context is
-   `not_established`. The cost is wrapper versioning, exact v1 replay, and an S8
-   consumer bridge; this adds no owner evidence. Context currentness must come from
-   an existing owner; if none can establish it, S8 remains `not_established`. This
-   preserves candidate access
-   without creating a separate context artifact.
-4. **Rejected option:** add a new root-context owner inside R1. This could
-   supply positive evidence sooner,
-   but would overlap R13's runtime-store repair and risk a second WMR/context owner.
-   The existing WMR producer already accepts a supplied store; wiring that owner is
-   the narrower route.
+3. **Preferred lane proposal — bind server-selected intent through the existing
+   payload and job-created event/outbox.** The authenticated ordinary NL action
+   selects candidate-only; request-body markers cannot select or upgrade authority.
+   Put one strict typed intent in the already persisted control-job payload, then
+   bind its digest, exact payload ref, job/run identity, and authenticated action
+   in the existing job-created event/outbox. Before worker/N4 dispatch, load and
+   reconcile the job, event/outbox, and payload bytes. Missing, legacy, conflicting,
+   or mismatched evidence is non-runnable and refuses before dispatch. A retry keeps
+   the immutable intent and payload; validate the current lease/attempt at dispatch
+   rather than minting a per-retry successor artifact. If creation is not atomic,
+   any partially written row must remain unleaseable or fail closed before N4.
+
+   Recognized EvalSafety/protected intent still goes through its existing owner and
+   current checks; malformed or refused protected intent cannot fall through to
+   candidate execution. If this endpoint is meant to accept protected work without
+   a declared server-recognizable action or mode, name an explicit server-owned
+   selector; neither `execution_profile` nor caller context is that selector.
+   For candidate-only work, try the existing canonical producer with absent context
+   typed `not_established`. Candidate computation may proceed without claiming N5
+   simulation or authority. Persist the typed unknown in the existing
+   content-hashed `CompiledRecursiveGenerationCycleRun` as schema v2 and preserve
+   byte-exact historical v1 serialization. S8 remains blocked/limited until it
+   loads the real persisted N4 handoff and existing owners establish tenant binding
+   and context currentness. Cost: payload/event binding, dispatch reconciliation,
+   and v2/v1 replay. This reuses the job payload, event/outbox, CAS, and
+   `GenerationSourceRepository`; it adds no standalone admission artifact, public
+   status DTO, or second context owner.
+4. **Conditional only — add a standalone CAS admission artifact or retry-successor
+   chain.** These duplicate intent already bound by the payload and event/outbox and
+   add artifact lifecycle, read paths, and retry machinery. Consider a separate CAS
+   record only if a focused race/owner test proves option 3 cannot make a partial
+   creation unleaseable or fail closed before dispatch. A retry chain is warranted
+   only if a concrete retry can change the immutable intent or payload in place.
+   The present evidence establishes neither condition; these mechanisms are not in
+   the preferred write set.
+5. **Rejected option:** add a new root-context owner inside R1. This could supply
+   positive evidence sooner, but would overlap R13's runtime-store repair and risk
+   a second WMR/context owner. The existing WMR producer accepts a supplied store;
+   wiring that owner is the narrower route.
 
 **Principal choice on the five existing normative fixtures.**
 
@@ -138,15 +157,20 @@ these five returning `blocked`; this is not yet the four-base P41/JUnit receipt
 (`tests/unit/runtime/http/test_normative_generation_bridge.py@ef8ec18a438afe790a0b03f35f90b9e90d6288d4`).
 
 **Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
-to principal ruling. Preserve context content validation, but do not treat the
-current repo-root fallback as proof of tenant-store custody. An ordinary request
-with no established context may return candidate work and carry an explicit typed
-unknown; it must not invent a WMR, catalog entry, or concrete scope. If that unknown
-prevents a valid N5 world simulation, retain a typed pending/limited result. S8 may
-emit a ranked recommendation only after it loads and verifies the real, persisted N4
-handoff with its embedded `CycleSubstrateContext`, bound to the exact problem and
-candidate identities. `GenerationSourceRepository.load(ref, run_id)` returns the
-full `GenerationSourceHandoff`; `resolve(...)` returns a `GenerationSourceResolution`
+to Denis's ruling. Its preferred mechanism is one server-selected typed intent
+carried in the existing persisted payload and bound by the existing job-created
+event/outbox, with readback reconciliation before dispatch. A standalone CAS
+admission artifact remains conditional on a focused test showing that this existing
+binding cannot fail closed across partial creation; no such evidence is established
+here. Preserve context content validation, but do not treat the current repo-root
+fallback as proof of tenant-store custody. An ordinary request with no established
+context may return candidate work and carry an explicit typed unknown; it must not
+invent a WMR, catalog entry, or concrete scope. If that unknown prevents a valid N5
+world simulation, retain a typed pending/limited result. S8 may emit a ranked
+recommendation only after it loads and verifies the real, persisted N4 handoff with
+its embedded `CycleSubstrateContext`, bound to the exact problem and candidate
+identities. `GenerationSourceRepository.load(ref, run_id)` returns the full
+`GenerationSourceHandoff`; `resolve(...)` returns a `GenerationSourceResolution`
 projection, not the full handoff. S8 must use `load` or a strict owner extension
 that verifies the full handoff. The handoff's owner profile must bind
 `tenant_context`; do not make a second artifact for the embedded context. The
@@ -155,13 +179,14 @@ WMR producer to wire through the runtime-supplied store under R13. It owns WMR
 production; no separate pre-N4 tenant-context persistence/resolution owner is
 identified. If that capability proves necessary, it remains `not_established` until
 an existing owner is demonstrated, and R1 does not create one. Context currentness
-must likewise be established by an existing owner or remain `not_established`; ambient
-CAS custody and content-valid handoff replay alone do not prove it. A matching hash or
-caller-injected context is insufficient. An N7 re-entry's prior handoff does not
-prove its post-growth context; until a complete post-growth witness exists, S8
-remains blocked for that source. The principal choice between fixture options A and
-B remains open. No fixture may be counted as positive S8 evidence before that ruling
-and witness.
+must likewise be established by an existing owner or remain `not_established`;
+ambient CAS custody and content-valid handoff replay alone do not prove it. A
+matching hash or caller-injected context is insufficient. An N7 re-entry's prior
+handoff does not prove its post-growth context; until a complete post-growth witness
+exists, S8 remains blocked for that source. The principal choice between fixture
+options A and B remains open. Four-base fixture replay and the comparability choice
+remain pending/UNRUN; no fixture may be counted as positive S8 evidence before that
+ruling and witness.
 
 **P37 — gate predicates at admission.**
 

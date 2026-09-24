@@ -529,11 +529,15 @@ NATIVE_MARKERS: tuple[str, ...] = (
 # These whole-file cases have measured high memory use or contain large
 # runtime-bridge fixtures. Keep them exclusive even if an operator explicitly
 # requests two workers. The native marker census remains a separate signal.
+# Two resumed four-group waves exhausted the 256 MiB swap-growth budget while
+# normative evidence intake and epoch verification properties ran together.
 RESOURCE_EXCLUSIVE_TEST_PATHS = frozenset(
     {
         "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
         "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
         "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_verification_properties.py",
         "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
     }
 )

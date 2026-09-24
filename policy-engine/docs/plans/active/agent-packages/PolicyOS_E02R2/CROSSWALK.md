@@ -1,76 +1,323 @@
 # E02-R2 finding crosswalk to live plans and register rows
 
-## Census and inclusion rule
+## Census and rule
 
-The join walked all **282 findings (225 B + 57 LA)**, mapped them through all **127 E02 bundle entries**, and compared every bundle `write_paths`, `read_paths`, `lease_paths`, and `test_paths` entry with the three tracked owner documents below. It emitted a path edge only on a verbatim path-string match after stripping the `policy-engine/` repository prefix (217 unique E02 queue selectors are separately recorded in `finding_record_probe.json`; they are not semantic evidence). For the DEBT register, terminal `closed` rows were filtered out; six such rows had path matches and are named in the scope note. The live-target join is complete over the declared path inputs, not a semantic dependency census or an actual changed-file diff.
+The input census covers all 282 findings (225 B + 57 LA) against the complete 127-entry E02 bundle catalog: 35,814 possible finding/bundle cells, with 291 declared membership edges across 282 findings and 127 unique bundles. Eight findings require more than one bundle. Each row below carries its complete declared bundle set; absent matrix cells mean “not declared,” not a semantic conclusion.
 
-Plan/register inputs: `DEBT-REGISTER.md@2c59d765fd53d8b363ab0a5b96ec121d71b0f727`; `GY-engine-subordination.md@9d510e2ee43fd017028542f180008cd2c2aacb37`; `POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@21002cfb2805f718ef7e906e8df1c4ecb30c015d`. Direct row relations also cite `partial_triage.json@git-blob:e9fbc52b70cd019d797787242e6e1e2ad84cf8b3`; those triage relations are recommendations, not closure signals. Finding and bundle input coverage is independently enumerated by `finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063`.
+A plan/register relation is admitted only when an exact finding-to-bundle mapping leads to a bundle/record owner span that names the same production owner or scope in a specific live GY task or Atlas slice, or when a reviewed row-level triage explicitly names the relation. A whole-document path-string hit, nearby narrative, or shared domain noun is insufficient. `touches code named by` states owner-scope overlap only; `advances` and `conflicts` retain their literal meaning. No relation here claims task completion or register closure.
 
-`touches code named by` means only that an E02 bundle’s declared path overlaps the referenced live register row or plan/slice source text; the table does not assert that the referenced task is currently executable or complete. `conflicts` is used only for the R13 ACQ-01 route contradiction recorded in the assignment. B13 has the single `advances` relation explicitly recorded by the row-level P triage: its candidate-only limitation supports GY-PR1 sequencing without establishing authority. No `discharges` relation is claimed. Manual frontier joins below are restricted to task relations explicitly named by the assignment, parent owner audit, or row-level P triage.
+Inputs: bundle catalog `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json@git-blob:130ba865f6df9b1e7cd3bec5ce868df85e9b918c`; B mapping `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/finding_to_bundle.json@git-blob:a6d76fefcca9519962e50684d4377d4eec2aa12c`; LA mapping `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@git-blob:329f101acca8dac6708b4e557cd07fd58f5facb7`; GY plan `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@git-blob:9d510e2ee43fd017028542f180008cd2c2aacb37`; Atlas master `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@git-blob:21002cfb2805f718ef7e906e8df1c4ecb30c015d`. The reviewed partial triage, held audit, and bundle/task owner spans are cited for each admitted edge below.
 
-## Complete declared-path and explicit-frontier edges
+## Discrepancies first
 
-| Finding IDs | Bundle | Live target | Relation | Evidence and limit |
+- The prior draft’s 79/282 linked and 203/282 unmatched counts are withdrawn. It used normalized whole-document path joins, which admitted false targets such as GY-DEF12 and an incidental LA-021 → GY-AS1 import-policy overlap.
+- No DEBT-register row relation is asserted from path coincidence. An exact B/LA-identifier search in the current DEBT-REGISTER.md and LEDGER.md returns no matches; that absence does not prove no dependency, so all unlinked finding/register pairs remain `not_established` until an exact owner-span mapping is supplied.
+- LA-021 has no live-plan edge from the architecture import-policy file. Its bounded closure evidence is the CAN-01 parity re-check in the residual ledger; that does not itself close a GY or Atlas task.
+- B01–B03 do not receive a plan edge from general CYC-01 wording. R1 can use the existing hash-verified compiled-run/context references and owner resolver; N4 initial context is verified, but N7 re-entry lacks an owner-issued post-growth context. That S8 authority predicate remains `not_established` pending a canonical post-growth witness, potentially through R13, while ordinary candidate computation proceeds with a typed limitation.
+
+## Supported direct relations
+
+| Finding ID | Bundle declaration | Target | Relation | Exact basis and limit |
 |---|---|---|---|---|
-| B01, B02, B03 | CYC-01 | GY `GY-DEF12` (path mention at line 3703) | touches code named by | read_paths: `policy-engine/src/polisyos/foundry/methods/selection/advisor.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B01, B02, B03 | CYC-01 | GY-N6; GY-PR1; Atlas DS12; Atlas DS13 | touches code named by | Assignment §3.3 ties the ordinary front door and owner bridge to generation/promotion and the DS12→DS13 surface sequence; candidate work may carry typed unknown context while authority gates remain. |
-| B04, B05, B08 | CYC-02 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B10, B11 | CYC-04 | GY-N6 | touches code named by | R11 names LoopVOIDecision consumers in the generation-cycle route; current consumer handling is still UNRUN. |
-| B116, B117 | OPT-04 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B12, LA-046 | ACQ-01 | GY-N13b; Atlas DS15 | conflicts | Assignment §7.1/R13 and `partial_triage.json` identify the local FileTabular/acq01 route as non-authoritative and production `producer_missing`; the served path must use the canonical bridge, overlay admission, passport and native epoch. Source: `partial_triage.json@git-blob:e9fbc52b70cd019d797787242e6e1e2ad84cf8b3#B12,LA-046`. |
-| B129, B133, B134 | TRN-02 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B13 | RES-03 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | read_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B13 | RES-03 | GY-PR1 | advances | `partial_triage.json` directly relates the candidate-only route to GY-PR1 while preserving the typed limitation; no authority promotion is inferred. Source: `partial_triage.json@git-blob:e9fbc52b70cd019d797787242e6e1e2ad84cf8b3#B13`. |
-| B148, B149 | CAS-02 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B15, B29, B30 | CYC-05 | GY-N6; GY-CR custody runtime | touches code named by | Assignment R2 preserves historical replay and binds currentness to canonical deployment identity; this is the generation-cycle/custody corridor. |
-| B150, B151, B153 | CAS-01 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | write_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; lease_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B152, B154, B155 | CAS-03 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B16, B33 | EMP-01 | GY-D1 | touches code named by | P triage routes the scope/unit and candidate-graph boundary through data acquisition/measurement-root ownership. This is a next-step link, not a claim of GY-D1 completion. |
-| B186, B189, B190, B191 | UQP-01 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | write_paths: `policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py`; lease_paths: `policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B187, B188, B192 | UQP-02 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | read_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B19, B21, B23, B26 | SIM-03 | GY-N5 | touches code named by | Parent’s direct owner-path audit identifies `joint_simulation_horizon`; no DS12/DS13 or ParetoPromoter relation is inferred. |
-| B193, B194 | UQP-03 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | read_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B197, B198 | CAL-06 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | read_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B199, B200, B201, B202 | UQS-01 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | write_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; lease_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B201, B202 | UQS-01 | Atlas DS16 value/uncertainty grammar body | touches code named by | Held public-IR versioning for posterior summaries touches DS16’s stated value/uncertainty grammar scope; the version decision remains open. |
-| B212, B213 | CAU-04 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | read_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B221, B222 | SCM-01 | GY `GY-DEF12` (path mention at line 3704) | touches code named by | read_paths: `policy-engine/src/polisyos/ir/analytics/uncertainty.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B34, B35, B36 | SEL-01 | GY `GY-DEF12` (path mention at line 3703) | touches code named by | write_paths: `policy-engine/src/polisyos/foundry/methods/selection/advisor.py`; lease_paths: `policy-engine/src/polisyos/foundry/methods/selection/advisor.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B37 | DUR-01 | GY-CR1 Phase 8 custody runtime / epoch transition | touches code named by | P triage calls for atomic ledger lifecycle semantics; the assignment names Phase 8 as the custody runtime. No epoch closure is claimed. |
-| B38, B78 | DUR-02 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | read_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B57, B58, B59 | STA-01 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | read_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B63, B70, B71 | RES-01 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | write_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; lease_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B72, B73 | RES-02 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | write_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; lease_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B74, B75, B76 | RES-04 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B77 | EXE-02 | GY `GY-DEF3` (path mention at line 3248) | touches code named by | read_paths: `policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| B81, B82, B85 | ING-02 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-021 | CAN-01 | GY `GY-AS1` (path mention at line 1801) | touches code named by | read_paths: `policy-engine/architecture/imports/policy.toml`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-022 | PLG-01 | GY `GY-DEF6` (path mention at line 3421) | touches code named by | read_paths: `policy-engine/src/polisyos/core/components/discovery.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-025 | SCL-03 | DEBT `calibration-report-fixture-blanket-fields` (line 684) | touches code named by | read_paths: `policy-engine/src/polisyos/core/artifacts/store.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-028 | DFK-02 | Atlas `DS20-B` (path mention at line 731) | touches code named by | read_paths: `policy-engine/src/polisyos/fabric/retrieval/service.py`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-043, LA-044 | CLI-01 | Atlas `DS16` (path mention at line 1164); Atlas `DS7` (path mention at line 727) | touches code named by | write_paths: `policy-engine/architecture/generated_artifacts.toml`; write_paths: `policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh`; lease_paths: `policy-engine/architecture/generated_artifacts.toml`; lease_paths: `policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
-| LA-043, LA-044 | CLI-01 | GY `GY-M1` (path mention at line 2172) | touches code named by | write_paths: `policy-engine/architecture/generated_artifacts.toml`; lease_paths: `policy-engine/architecture/generated_artifacts.toml`; exact normalized path-string join against the tracked plan/register. Declared E02 path overlap only; no current diff or closure inferred. |
+| B12 | ACQ-01 | GY-N13b; Atlas DS15 | conflicts | PARTIAL_TRIAGE.md@git-blob:b07ccbc1e3b587efd1cae483c6eb18fecb25c81f#B12; ACQ-01/N13b and DS15 owner scope; R13 requires the served bridge and admission/passport/epoch chain; production producer remains missing. |
+| LA-046 | REQ-01, ACQ-01 | GY-N13b; Atlas DS15 | conflicts | PARTIAL_TRIAGE.md@git-blob:b07ccbc1e3b587efd1cae483c6eb18fecb25c81f#LA-046; ACQ-01/N13b and DS15 owner scope; same ACQ-01 production-route conflict, preserving the typed producer-missing boundary. |
+| B13 | RES-03 | GY-PR1 | advances | PARTIAL_TRIAGE.md@git-blob:b07ccbc1e3b587efd1cae483c6eb18fecb25c81f#B13; row-level typed candidate-only advancement; the typed candidate-only limitation advances sequencing and does not create authority. |
+| B19, B21, B23, B26 | SIM-03 | GY-N5 | touches code named by | bundles/SIM-03.md@git-blob:3cdd86c9e9cabe23dbaf4b9f9770fbffabd889cb; GY-engine-subordination.md@git-blob:9d510e2ee43fd017028542f180008cd2c2aacb37#GY-N5 (joint-simulation horizon); joint_simulation_horizon.py@git-blob:e74fa941d673b98b51e3b90934db666ecfa6467c; direct joint-simulation owner path only; no ParetoPromoter or Atlas DS12/DS13 edge is inferred. |
+| B201, B202 | UQS-01 | Atlas DS16 | touches code named by | Held review and the DS16 scope name value/uncertainty grammar and public IR versioning; owner decision remains pending. HELD_REVIEW.md@git-blob:69aaa5293cd33c34f592d5e400592ee9305c7d23#B201; Atlas master@git-blob:21002cfb2805f718ef7e906e8df1c4ecb30c015d#DS16; DS16 slice@git-blob:442a19e8921fd1aed903f136c744be144c7652b2 |
 
+Supported set: 9 unique finding IDs, 11 finding-to-target edges. The direct-relation set is intentionally narrow; every omitted target remains `not_established`, not disproved.
 
-## Complete join denominator
+## Complete finding-to-bundle declaration crosswalk
 
-The final table contains **79 of 282** IDs with at least one supported live-register, GY-task, Atlas-slice, or explicitly supplied frontier edge. The other **203 IDs** had no supported direct edge under the stated join/inclusion rule; this is `not_established`, not evidence that no runtime dependency exists. Complete unmatched ID set:
+| Finding | Complete E02 bundle declaration(s) | Supported plan relation(s) | Otherwise |
+|---|---|---|---|
+| B01 | CYC-01 | — | not_established: no exact owner-span edge admitted. |
+| B02 | CYC-01 | — | not_established: no exact owner-span edge admitted. |
+| B03 | CYC-01 | — | not_established: no exact owner-span edge admitted. |
+| B04 | CYC-02 | — | not_established: no exact owner-span edge admitted. |
+| B05 | CYC-02 | — | not_established: no exact owner-span edge admitted. |
+| B06 | SIM-01 | — | not_established: no exact owner-span edge admitted. |
+| B07 | SIM-01 | — | not_established: no exact owner-span edge admitted. |
+| B08 | CYC-02 | — | not_established: no exact owner-span edge admitted. |
+| B09 | CYC-03 | — | not_established: no exact owner-span edge admitted. |
+| B10 | CYC-04 | — | not_established: no exact owner-span edge admitted. |
+| B11 | CYC-04 | — | not_established: no exact owner-span edge admitted. |
+| B12 | ACQ-01 | GY-N13b + Atlas DS15: conflicts | No additional plan/register relation established. |
+| B13 | RES-03 | GY-PR1: advances | No additional plan/register relation established. |
+| B14 | RUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B15 | CYC-05 | — | not_established: no exact owner-span edge admitted. |
+| B16 | EMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B17 | SCL-01 | — | not_established: no exact owner-span edge admitted. |
+| B18 | SIM-02 | — | not_established: no exact owner-span edge admitted. |
+| B19 | SIM-03 | GY-N5: touches code named by | No additional plan/register relation established. |
+| B20 | SIM-02 | — | not_established: no exact owner-span edge admitted. |
+| B21 | SIM-03 | GY-N5: touches code named by | No additional plan/register relation established. |
+| B22 | SIM-02 | — | not_established: no exact owner-span edge admitted. |
+| B23 | SIM-03 | GY-N5: touches code named by | No additional plan/register relation established. |
+| B24 | RUN-02 | — | not_established: no exact owner-span edge admitted. |
+| B25 | SIM-03 | — | not_established: no exact owner-span edge admitted. |
+| B26 | SIM-03 | GY-N5: touches code named by | No additional plan/register relation established. |
+| B27 | CYC-03 | — | not_established: no exact owner-span edge admitted. |
+| B28 | CYC-03 | — | not_established: no exact owner-span edge admitted. |
+| B29 | CYC-05 | — | not_established: no exact owner-span edge admitted. |
+| B30 | CYC-05 | — | not_established: no exact owner-span edge admitted. |
+| B31 | EMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B32 | FRC-01 | — | not_established: no exact owner-span edge admitted. |
+| B33 | EMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B34 | SEL-01 | — | not_established: no exact owner-span edge admitted. |
+| B35 | SEL-01 | — | not_established: no exact owner-span edge admitted. |
+| B36 | SEL-01 | — | not_established: no exact owner-span edge admitted. |
+| B37 | DUR-01 | — | not_established: no exact owner-span edge admitted. |
+| B38 | DUR-02 | — | not_established: no exact owner-span edge admitted. |
+| B39 | RUN-03 | — | not_established: no exact owner-span edge admitted. |
+| B40 | RUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B41 | STP-01 | — | not_established: no exact owner-span edge admitted. |
+| B42 | CMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B43 | CMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B44 | CMP-01 | — | not_established: no exact owner-span edge admitted. |
+| B45 | CMP-02 | — | not_established: no exact owner-span edge admitted. |
+| B46 | CMP-02 | — | not_established: no exact owner-span edge admitted. |
+| B47 | CMP-03 | — | not_established: no exact owner-span edge admitted. |
+| B48 | CMP-03 | — | not_established: no exact owner-span edge admitted. |
+| B49 | JIT-01 | — | not_established: no exact owner-span edge admitted. |
+| B50 | JIT-01 | — | not_established: no exact owner-span edge admitted. |
+| B51 | EXE-01 | — | not_established: no exact owner-span edge admitted. |
+| B52 | EXE-01 | — | not_established: no exact owner-span edge admitted. |
+| B53 | JIT-01 | — | not_established: no exact owner-span edge admitted. |
+| B54 | FIT-01 | — | not_established: no exact owner-span edge admitted. |
+| B55 | EXE-01 | — | not_established: no exact owner-span edge admitted. |
+| B56 | FIT-01 | — | not_established: no exact owner-span edge admitted. |
+| B57 | STA-01 | — | not_established: no exact owner-span edge admitted. |
+| B58 | STA-01 | — | not_established: no exact owner-span edge admitted. |
+| B59 | STA-01 | — | not_established: no exact owner-span edge admitted. |
+| B60 | STA-02 | — | not_established: no exact owner-span edge admitted. |
+| B61 | STA-02 | — | not_established: no exact owner-span edge admitted. |
+| B62 | STA-02 | — | not_established: no exact owner-span edge admitted. |
+| B63 | RES-01 | — | not_established: no exact owner-span edge admitted. |
+| B64 | LLM-01 | — | not_established: no exact owner-span edge admitted. |
+| B65 | LLM-01 | — | not_established: no exact owner-span edge admitted. |
+| B66 | LLM-01 | — | not_established: no exact owner-span edge admitted. |
+| B67 | LLM-02 | — | not_established: no exact owner-span edge admitted. |
+| B68 | LLM-02 | — | not_established: no exact owner-span edge admitted. |
+| B69 | RUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B70 | RES-01 | — | not_established: no exact owner-span edge admitted. |
+| B71 | RES-01 | — | not_established: no exact owner-span edge admitted. |
+| B72 | RES-02 | — | not_established: no exact owner-span edge admitted. |
+| B73 | RES-02 | — | not_established: no exact owner-span edge admitted. |
+| B74 | RES-04 | — | not_established: no exact owner-span edge admitted. |
+| B75 | RES-04 | — | not_established: no exact owner-span edge admitted. |
+| B76 | RES-04 | — | not_established: no exact owner-span edge admitted. |
+| B77 | EXE-02 | — | not_established: no exact owner-span edge admitted. |
+| B78 | DUR-02 | — | not_established: no exact owner-span edge admitted. |
+| B79 | ING-01 | — | not_established: no exact owner-span edge admitted. |
+| B80 | ING-01 | — | not_established: no exact owner-span edge admitted. |
+| B81 | ING-02 | — | not_established: no exact owner-span edge admitted. |
+| B82 | ING-02 | — | not_established: no exact owner-span edge admitted. |
+| B83 | ING-03 | — | not_established: no exact owner-span edge admitted. |
+| B84 | ING-03 | — | not_established: no exact owner-span edge admitted. |
+| B85 | ING-02 | — | not_established: no exact owner-span edge admitted. |
+| B86 | ING-03 | — | not_established: no exact owner-span edge admitted. |
+| B87 | NET-01 | — | not_established: no exact owner-span edge admitted. |
+| B88 | ING-01 | — | not_established: no exact owner-span edge admitted. |
+| B89 | NET-01 | — | not_established: no exact owner-span edge admitted. |
+| B90 | NET-01 | — | not_established: no exact owner-span edge admitted. |
+| B91 | NET-02 | — | not_established: no exact owner-span edge admitted. |
+| B92 | NET-02 | — | not_established: no exact owner-span edge admitted. |
+| B93 | NET-02 | — | not_established: no exact owner-span edge admitted. |
+| B94 | WIRE-01 | — | not_established: no exact owner-span edge admitted. |
+| B95 | RUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B96 | RUN-03 | — | not_established: no exact owner-span edge admitted. |
+| B97 | DOE-01 | — | not_established: no exact owner-span edge admitted. |
+| B98 | DOE-01 | — | not_established: no exact owner-span edge admitted. |
+| B99 | DOE-01 | — | not_established: no exact owner-span edge admitted. |
+| B100 | DOE-02 | — | not_established: no exact owner-span edge admitted. |
+| B101 | DOE-02 | — | not_established: no exact owner-span edge admitted. |
+| B102 | DOE-03 | — | not_established: no exact owner-span edge admitted. |
+| B103 | DOE-03 | — | not_established: no exact owner-span edge admitted. |
+| B104 | DOE-03 | — | not_established: no exact owner-span edge admitted. |
+| B105 | DOE-03 | — | not_established: no exact owner-span edge admitted. |
+| B106 | STR-01 | — | not_established: no exact owner-span edge admitted. |
+| B107 | STR-01 | — | not_established: no exact owner-span edge admitted. |
+| B108 | OPT-01 | — | not_established: no exact owner-span edge admitted. |
+| B109 | OPT-01 | — | not_established: no exact owner-span edge admitted. |
+| B110 | OPT-01 | — | not_established: no exact owner-span edge admitted. |
+| B111 | OPT-01 | — | not_established: no exact owner-span edge admitted. |
+| B112 | OPT-02 | — | not_established: no exact owner-span edge admitted. |
+| B113 | OPT-02 | — | not_established: no exact owner-span edge admitted. |
+| B114 | OPT-03 | — | not_established: no exact owner-span edge admitted. |
+| B115 | OPT-03 | — | not_established: no exact owner-span edge admitted. |
+| B116 | OPT-04 | — | not_established: no exact owner-span edge admitted. |
+| B117 | OPT-04 | — | not_established: no exact owner-span edge admitted. |
+| B118 | CTL-01 | — | not_established: no exact owner-span edge admitted. |
+| B119 | CTL-01 | — | not_established: no exact owner-span edge admitted. |
+| B120 | CTL-03 | — | not_established: no exact owner-span edge admitted. |
+| B121 | CTL-03 | — | not_established: no exact owner-span edge admitted. |
+| B122 | STP-01 | — | not_established: no exact owner-span edge admitted. |
+| B123 | CTL-03 | — | not_established: no exact owner-span edge admitted. |
+| B124 | CTL-02 | — | not_established: no exact owner-span edge admitted. |
+| B125 | CTL-02 | — | not_established: no exact owner-span edge admitted. |
+| B126 | CTL-02 | — | not_established: no exact owner-span edge admitted. |
+| B127 | OPT-02 | — | not_established: no exact owner-span edge admitted. |
+| B128 | TRN-01 | — | not_established: no exact owner-span edge admitted. |
+| B129 | TRN-02 | — | not_established: no exact owner-span edge admitted. |
+| B130 | TRN-01 | — | not_established: no exact owner-span edge admitted. |
+| B131 | TRN-01 | — | not_established: no exact owner-span edge admitted. |
+| B132 | TRN-01 | — | not_established: no exact owner-span edge admitted. |
+| B133 | TRN-02 | — | not_established: no exact owner-span edge admitted. |
+| B134 | TRN-02 | — | not_established: no exact owner-span edge admitted. |
+| B135 | TRN-03 | — | not_established: no exact owner-span edge admitted. |
+| B136 | TRN-03 | — | not_established: no exact owner-span edge admitted. |
+| B137 | TRN-03 | — | not_established: no exact owner-span edge admitted. |
+| B138 | FED-01 | — | not_established: no exact owner-span edge admitted. |
+| B139 | FED-02 | — | not_established: no exact owner-span edge admitted. |
+| B140 | FED-01 | — | not_established: no exact owner-span edge admitted. |
+| B141 | FED-01 | — | not_established: no exact owner-span edge admitted. |
+| B142 | FED-02 | — | not_established: no exact owner-span edge admitted. |
+| B143 | FED-02 | — | not_established: no exact owner-span edge admitted. |
+| B144 | FED-02 | — | not_established: no exact owner-span edge admitted. |
+| B145 | FED-01 | — | not_established: no exact owner-span edge admitted. |
+| B146 | OBS-01 | — | not_established: no exact owner-span edge admitted. |
+| B147 | OBS-02 | — | not_established: no exact owner-span edge admitted. |
+| B148 | CAS-02 | — | not_established: no exact owner-span edge admitted. |
+| B149 | CAS-02 | — | not_established: no exact owner-span edge admitted. |
+| B150 | CAS-01 | — | not_established: no exact owner-span edge admitted. |
+| B151 | CAS-01 | — | not_established: no exact owner-span edge admitted. |
+| B152 | CAS-03 | — | not_established: no exact owner-span edge admitted. |
+| B153 | CAS-01 | — | not_established: no exact owner-span edge admitted. |
+| B154 | CAS-03 | — | not_established: no exact owner-span edge admitted. |
+| B155 | CAS-03 | — | not_established: no exact owner-span edge admitted. |
+| B156 | FUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B157 | FUN-02 | — | not_established: no exact owner-span edge admitted. |
+| B158 | FUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B159 | FUN-01 | — | not_established: no exact owner-span edge admitted. |
+| B160 | FUN-02 | — | not_established: no exact owner-span edge admitted. |
+| B161 | FUN-03 | — | not_established: no exact owner-span edge admitted. |
+| B162 | FUN-02 | — | not_established: no exact owner-span edge admitted. |
+| B163 | FUN-03 | — | not_established: no exact owner-span edge admitted. |
+| B164 | FUN-03 | — | not_established: no exact owner-span edge admitted. |
+| B165 | FUN-02 | — | not_established: no exact owner-span edge admitted. |
+| B166 | BKT-01 | — | not_established: no exact owner-span edge admitted. |
+| B167 | BKT-02 | — | not_established: no exact owner-span edge admitted. |
+| B168 | BKT-02 | — | not_established: no exact owner-span edge admitted. |
+| B169 | BKT-01 | — | not_established: no exact owner-span edge admitted. |
+| B170 | BKT-01 | — | not_established: no exact owner-span edge admitted. |
+| B171 | BKT-02 | — | not_established: no exact owner-span edge admitted. |
+| B172 | BKT-03 | — | not_established: no exact owner-span edge admitted. |
+| B173 | BKT-03 | — | not_established: no exact owner-span edge admitted. |
+| B174 | BKT-04 | — | not_established: no exact owner-span edge admitted. |
+| B175 | BKT-04 | — | not_established: no exact owner-span edge admitted. |
+| B176 | CAL-01 | — | not_established: no exact owner-span edge admitted. |
+| B177 | CAL-01 | — | not_established: no exact owner-span edge admitted. |
+| B178 | CAL-01 | — | not_established: no exact owner-span edge admitted. |
+| B179 | CAL-02 | — | not_established: no exact owner-span edge admitted. |
+| B180 | CAL-02 | — | not_established: no exact owner-span edge admitted. |
+| B181 | CAL-02 | — | not_established: no exact owner-span edge admitted. |
+| B182 | CAL-02 | — | not_established: no exact owner-span edge admitted. |
+| B183 | CAL-03 | — | not_established: no exact owner-span edge admitted. |
+| B184 | CAL-04 | — | not_established: no exact owner-span edge admitted. |
+| B185 | CAL-05 | — | not_established: no exact owner-span edge admitted. |
+| B186 | UQP-01 | — | not_established: no exact owner-span edge admitted. |
+| B187 | UQP-02 | — | not_established: no exact owner-span edge admitted. |
+| B188 | UQP-02 | — | not_established: no exact owner-span edge admitted. |
+| B189 | UQP-01 | — | not_established: no exact owner-span edge admitted. |
+| B190 | UQP-01 | — | not_established: no exact owner-span edge admitted. |
+| B191 | UQP-01 | — | not_established: no exact owner-span edge admitted. |
+| B192 | UQP-02 | — | not_established: no exact owner-span edge admitted. |
+| B193 | UQP-03 | — | not_established: no exact owner-span edge admitted. |
+| B194 | UQP-03 | — | not_established: no exact owner-span edge admitted. |
+| B195 | CAL-03 | — | not_established: no exact owner-span edge admitted. |
+| B196 | CAL-04 | — | not_established: no exact owner-span edge admitted. |
+| B197 | CAL-06 | — | not_established: no exact owner-span edge admitted. |
+| B198 | CAL-06 | — | not_established: no exact owner-span edge admitted. |
+| B199 | UQS-01 | — | not_established: no exact owner-span edge admitted. |
+| B200 | UQS-01 | — | not_established: no exact owner-span edge admitted. |
+| B201 | UQS-01 | Atlas DS16: touches code named by | No additional plan/register relation established. |
+| B202 | UQS-01 | Atlas DS16: touches code named by | No additional plan/register relation established. |
+| B203 | CAL-04 | — | not_established: no exact owner-span edge admitted. |
+| B204 | CAU-01 | — | not_established: no exact owner-span edge admitted. |
+| B205 | CAU-01 | — | not_established: no exact owner-span edge admitted. |
+| B206 | CAU-01 | — | not_established: no exact owner-span edge admitted. |
+| B207 | CAU-02 | — | not_established: no exact owner-span edge admitted. |
+| B208 | CAU-02 | — | not_established: no exact owner-span edge admitted. |
+| B209 | CAU-02 | — | not_established: no exact owner-span edge admitted. |
+| B210 | CAU-03 | — | not_established: no exact owner-span edge admitted. |
+| B211 | CAU-03 | — | not_established: no exact owner-span edge admitted. |
+| B212 | CAU-04 | — | not_established: no exact owner-span edge admitted. |
+| B213 | CAU-04 | — | not_established: no exact owner-span edge admitted. |
+| B214 | GRF-03 | — | not_established: no exact owner-span edge admitted. |
+| B215 | SCM-02 | — | not_established: no exact owner-span edge admitted. |
+| B216 | GRF-01 | — | not_established: no exact owner-span edge admitted. |
+| B217 | GRF-01 | — | not_established: no exact owner-span edge admitted. |
+| B218 | GRF-03 | — | not_established: no exact owner-span edge admitted. |
+| B219 | GRF-02 | — | not_established: no exact owner-span edge admitted. |
+| B220 | GRF-02 | — | not_established: no exact owner-span edge admitted. |
+| B221 | SCM-01 | — | not_established: no exact owner-span edge admitted. |
+| B222 | SCM-01 | — | not_established: no exact owner-span edge admitted. |
+| B223 | SCM-02 | — | not_established: no exact owner-span edge admitted. |
+| B224 | SCM-03 | — | not_established: no exact owner-span edge admitted. |
+| B225 | SCM-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-001 | FRY-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-002 | FRY-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-003 | FRY-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-004 | ECO-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-005 | DFK-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-006 | DFK-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-007 | GRF-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-008 | HYG-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-009 | HYG-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-010 | MIG-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-011 | HYG-04 | — | not_established: no exact owner-span edge admitted. |
+| LA-012 | HYG-04 | — | not_established: no exact owner-span edge admitted. |
+| LA-013 | HYG-04 | — | not_established: no exact owner-span edge admitted. |
+| LA-014 | SRV-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-015 | CTL-01, SRV-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-016 | CAU-01, CAU-05 | — | not_established: no exact owner-span edge admitted. |
+| LA-017 | LEX-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-018 | HYG-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-019 | GRF-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-020 | API-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-021 | CAN-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-022 | PLG-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-023 | PLG-02, PLG-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-024 | SCL-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-025 | SCL-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-026 | DFK-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-027 | DFK-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-028 | DFK-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-029 | UDF-04 | — | not_established: no exact owner-span edge admitted. |
+| LA-030 | UDF-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-031 | OBS-01, UDF-01, UDF-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-032 | UDF-05 | — | not_established: no exact owner-span edge admitted. |
+| LA-033 | REP-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-034 | BER-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-035 | ECO-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-036 | BER-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-037 | FRY-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-038 | DFI-01, DFI-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-039 | EMB-01, EMB-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-040 | EMB-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-041 | DFI-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-042 | EMB-03 | — | not_established: no exact owner-span edge admitted. |
+| LA-043 | CLI-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-044 | CLI-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-045 | REQ-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-046 | REQ-01, ACQ-01 | GY-N13b + Atlas DS15: conflicts | No additional plan/register relation established. |
+| LA-047 | MIG-05 | — | not_established: no exact owner-span edge admitted. |
+| LA-048 | MIG-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-049 | MIG-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-050 | MIG-04 | — | not_established: no exact owner-span edge admitted. |
+| LA-051 | FRC-01, FRC-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-052 | PCL-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-053 | PCL-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-054 | DDM-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-055 | DDM-02 | — | not_established: no exact owner-span edge admitted. |
+| LA-056 | DDM-01 | — | not_established: no exact owner-span edge admitted. |
+| LA-057 | RUN-01 | — | not_established: no exact owner-span edge admitted. |
 
-  B06 B07 B09 B14 B17 B18 B20 B22 B24 B25 B27 B28 B31 B32 B39 B40 B41 B42 B43 B44 B45 B46 B47 B48
-  B49 B50 B51 B52 B53 B54 B55 B56 B60 B61 B62 B64 B65 B66 B67 B68 B69 B79 B80 B83 B84 B86 B87 B88
-  B89 B90 B91 B92 B93 B94 B95 B96 B97 B98 B99 B100 B101 B102 B103 B104 B105 B106 B107 B108 B109 B110 B111 B112
-  B113 B114 B115 B118 B119 B120 B121 B122 B123 B124 B125 B126 B127 B128 B130 B131 B132 B135 B136 B137 B138 B139 B140 B141
-  B142 B143 B144 B145 B146 B147 B156 B157 B158 B159 B160 B161 B162 B163 B164 B165 B166 B167 B168 B169 B170 B171 B172 B173
-  B174 B175 B176 B177 B178 B179 B180 B181 B182 B183 B184 B185 B195 B196 B203 B204 B205 B206 B207 B208 B209 B210 B211 B214
-  B215 B216 B217 B218 B219 B220 B223 B224 B225 LA-001 LA-002 LA-003 LA-004 LA-005 LA-006 LA-007 LA-008 LA-009 LA-010 LA-011 LA-012 LA-013 LA-014 LA-015
-  LA-016 LA-017 LA-018 LA-019 LA-020 LA-023 LA-024 LA-026 LA-027 LA-029 LA-030 LA-031 LA-032 LA-033 LA-034 LA-035 LA-036 LA-037 LA-038 LA-039 LA-040 LA-041 LA-042 LA-045
-  LA-047 LA-048 LA-049 LA-050 LA-051 LA-052 LA-053 LA-054 LA-055 LA-056 LA-057
+## Complete-set reading
 
-## Unresolved scope
+The complete 282-row table covers every declared B and LA finding and all 291 bundle membership edges; the bundle catalog contains 127 unique bundle entries. The row table is the denominator for this crosswalk. The 273 rows without an admitted task edge are explicitly `not_established`; they are not described as having no runtime dependency.
 
-- Six exact DEBT-register path matches were excluded because their rows are terminal: `ci-red-inventory-on-20082e545` (line 527), `import-policy-ratify-candidates` (638), `import-policy-governance-runtime-pdc-search-iteration` (639), `prohibited-register-input-makes-two-gates-unrunnable` (426), `gy-m1-phase0-hard-gate-is-unmet-while-gy-artifacts-are-committed` (435), and `core-observability-canonical-interface-contract-drift` (1121). The LA-052/LA-053 truthfulness path appears only in the latter closed row and therefore creates no live register edge.
-- The 282-row join cannot discover runtime edges absent from E02 package declarations or plan text. Those edges remain `not_established` rather than asserted absent.
-- A path match does not prove a finding is the reason the path appears in a register or plan. The rows state the intersecting path and limit; overlap alone does not discharge a task.
-- The N/OPT/SIM rows B19, B21, B23, and B26 are linked only to GY-N5 by the direct `joint_simulation_horizon` owner path. No ParetoPromoter or Atlas DS12/DS13 edge is inferred.
-- LA-021 (CAN-01) is joined to register/GY entries only where its declared `architecture/imports/policy.toml` read path occurs. That import-policy path overlap does not substantiate canonical-byte equivalence; the missing 418-input receipt keeps LA-021 partial.
-- All behavior remains UNRUN at this ledger census. Current status changes require a finding-level witness and four-base attribution under the decision revision rule in `RESIDUAL_LEDGER.md`.
+The DEBT register contains its own live/terminal owner records, but this crosswalk does not bind a finding to one through a shared path string. The 74 currently live/open-or-blocked rows and terminal rows remain owned by the register maintainer; a future relation needs the finding’s scoped owner evidence and the register row’s own owner span. Do not sync or close any register row from this crosswalk.
+
+Pattern pass: P27/P31 (canonical owner), P32/P35 (substance and full denominator), P36 (authority by adjacency), P37/P38 (gate predicate and proxy divergence), P40/P41 (class and attribution). The relation test asks whether the finding’s named owner span and the task’s owner span meet; a path mention elsewhere in a document fails that test.

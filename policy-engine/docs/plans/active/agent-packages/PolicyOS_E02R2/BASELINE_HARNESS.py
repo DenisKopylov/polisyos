@@ -1604,6 +1604,79 @@ def _artifact(path: Path) -> dict[str, Any]:
     return {"path": str(path), "sha256": _sha256(path), "bytes": path.stat().st_size}
 
 
+def _retained_artifact_path(
+    artifact_ref: str,
+    expected_sha: str,
+    package_dir: Path,
+) -> Path | None:
+    """Resolve a checkpoint artifact after its run was moved to package raw.
+
+    Only the exact ``p41-*/cells/...`` location may be relocated. The recorded
+    digest, not the path shape, decides whether the retained file is usable.
+    """
+    path = Path(artifact_ref)
+    original = path if path.is_absolute() else INTEGRATION_CHECKOUT / path
+    durable_root = (package_dir / "raw").resolve()
+    if original.is_file() and original.resolve().is_relative_to(durable_root):
+        durable_parts = original.resolve().relative_to(durable_root).parts
+        if (
+            len(durable_parts) >= 4
+            and durable_parts[0].startswith("p41-")
+            and durable_parts[1] == "cells"
+            and _sha256(original) == expected_sha
+        ):
+            return original
+        return None
+    for ancestor in original.parents:
+        if not ancestor.name.startswith("p41-"):
+            continue
+        relative = original.relative_to(ancestor)
+        if (
+            len(relative.parts) < 3
+            or relative.parts[0] != "cells"
+            or any(part in {".", ".."} for part in relative.parts)
+        ):
+            continue
+        retained = durable_root / ancestor.name / relative
+        return (
+            retained
+            if retained.is_file()
+            and retained.resolve().is_relative_to(durable_root / ancestor.name / "cells")
+            and _sha256(retained) == expected_sha
+            else None
+        )
+    return None
+
+
+def _canonicalize_published_artifact_paths(
+    runs: list[dict[str, Any]],
+    external_run_dir: Path,
+    destination: Path,
+    package_dir: Path,
+) -> None:
+    """Record the exact retained path of every byte-bearing output before publish."""
+    for row in runs:
+        for artifact in row.get("artifacts", {}).values():
+            expected_sha = artifact.get("sha256")
+            if expected_sha is None:
+                continue
+            original = Path(artifact["path"])
+            if original.is_relative_to(external_run_dir):
+                _require(
+                    original.is_file() and _sha256(original) == expected_sha,
+                    f"current run artifact is absent or changed: {original}",
+                )
+                resolved = destination / original.relative_to(external_run_dir)
+            else:
+                resolved = _retained_artifact_path(artifact["path"], expected_sha, package_dir)
+                _require(resolved is not None, f"reused artifact is absent or changed: {original}")
+            artifact["path"] = (
+                resolved.relative_to(INTEGRATION_CHECKOUT).as_posix()
+                if resolved.is_relative_to(INTEGRATION_CHECKOUT)
+                else str(resolved)
+            )
+
+
 def _verify_published_artifacts(
     runs: list[dict[str, Any]],
     integration_checkout: Path,
@@ -2294,15 +2367,8 @@ def _verified_reuse_rows(
             if not junit_ref:
                 _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"JUnit path is absent for {key}")
                 continue
-            junit_path = Path(junit_ref)
-            if not junit_path.is_absolute():
-                junit_path = INTEGRATION_CHECKOUT / junit_path
-            if not junit_path.is_file():
-                raw_run_dir = result_path if result_path.is_dir() else result_path.parent
-                published_cell = raw_run_dir.parent / "cells" / key[0] / Path(junit_ref).name
-                if published_cell.is_file():
-                    junit_path = published_cell
-            if not junit_path.is_file() or _sha256(junit_path) != junit.get("sha256"):
+            junit_path = _retained_artifact_path(junit_ref, junit.get("sha256"), package_dir)
+            if junit_path is None:
                 _reject_invalid_checkpoint_cell(
                     result_path,
                     strict_checkpoint,
@@ -3701,12 +3767,9 @@ def run_matrix(args: argparse.Namespace) -> int:
         run_id,
         package_raw,
     )
-    for row in report["runs"]:
-        for artifact in row.get("artifacts", {}).values():
-            artifact_path = Path(artifact["path"])
-            if artifact_path.is_relative_to(external_run_dir):
-                relative_path = artifact_path.relative_to(external_run_dir).as_posix()
-                artifact["path"] = f"{report['raw_package_path']}/{relative_path}"
+    _canonicalize_published_artifact_paths(
+        report["runs"], external_run_dir, destination, package_dir
+    )
     (external_run_dir / "results.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -3933,12 +3996,9 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         run_id,
         package_dir / "raw",
     )
-    for row in report["runs"]:
-        for artifact in row.get("artifacts", {}).values():
-            artifact_path = Path(artifact["path"])
-            if artifact_path.is_relative_to(external_run_dir):
-                relative_path = artifact_path.relative_to(external_run_dir).as_posix()
-                artifact["path"] = f"{report['raw_package_path']}/{relative_path}"
+    _canonicalize_published_artifact_paths(
+        report["runs"], external_run_dir, destination, package_dir
+    )
     (external_run_dir / "results.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     published = _run(["mv", str(external_run_dir), str(destination)])
     _require(published.returncode == 0, f"could not publish timeout rerun: {published.stderr.strip()}")

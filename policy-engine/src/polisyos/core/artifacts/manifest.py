@@ -17,6 +17,7 @@ from pydantic import (
     field_serializer,
     field_validator,
     model_serializer,
+    model_validator,
 )
 
 from ..components.ids import ComponentId
@@ -289,6 +290,17 @@ class ArtifactManifest(BaseModel):
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
         return str(value)
+
+    @model_validator(mode="after")
+    def _require_v2_for_selected_input_views(self) -> ArtifactManifest:
+        """Require the schema marker that versions selected-input hash bytes."""
+        if self.manifest_schema_version == "v1" and any(
+            input_ref.manifest_profile_sha256 is not None for input_ref in self.inputs
+        ):
+            raise ValueError(
+                "manifest_schema_version v2 is required for selected input manifest views"
+            )
+        return self
 
 
 def _is_manifest_profile_sha256(value: str) -> bool:

@@ -586,6 +586,42 @@ class FileSystemCAS:
                 self._metrics.artifact_cache_misses_total.add(1, {"kind": "existence_check"})
         return exists
 
+    def has_manifest_view(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> bool:
+        """Return whether an exact manifest view is present and owned by this store.
+
+        This optional cache-admission probe does not infer metadata access from
+        shared blob ownership.
+        """
+        aid = (
+            ArtifactID.model_validate(artifact_id)
+            if isinstance(artifact_id, str)
+            else artifact_id
+        )
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        blob_path, _default_manifest_path = self._paths(aid)
+        view_manifest_path = self._layout.view_manifest_path(aid, manifest_profile_sha256)
+        if not blob_path.is_file() or not view_manifest_path.is_file():
+            return False
+        try:
+            self._require_blob_owner(aid, operation="has_manifest_view")
+            self._require_manifest_view_owner(
+                aid,
+                manifest_profile_sha256,
+                operation="has_manifest_view",
+            )
+        except ArtifactOwnershipError:
+            return False
+        manifest = self._manifests.read(view_manifest_path)
+        _validate_manifest_identity(aid, manifest)
+        if self._manifests.profile_sha256(manifest) != manifest_profile_sha256:
+            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+        return True
+
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
 

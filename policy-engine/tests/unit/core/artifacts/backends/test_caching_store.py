@@ -74,19 +74,21 @@ class TestCachingArtifactStore:
         with pytest.raises(OSError, match="cache disk unavailable"):
             store.get_bytes(_FAKE_ID)
 
-    def test_put_bytes_write_through(self):
-        """Write-through: writes to both local and remote."""
-        local = MagicMock()
-        remote = MagicMock()
-        local.put_bytes.return_value = _make_ref()
-        remote.put_bytes.return_value = _make_ref()
-
+    def test_put_bytes_write_through(self, tmp_path: Path) -> None:
+        """Write-through: both owners persist the same typed view and payload."""
+        local = FileSystemCAS(tmp_path / "local-write-through")
+        remote = FileSystemCAS(tmp_path / "remote-write-through")
         store = CachingArtifactStore(remote=remote, local=local, write_through=True)
         opts = PutOptions(kind="test", media_type="text/plain")
-        store.put_bytes(b"data", opts)
+        ref = store.put_bytes(b"data", opts)
 
-        local.put_bytes.assert_called_once()
-        remote.put_bytes.assert_called_once()
+        assert local.get_bytes(ref) == b"data"
+        assert remote.get_bytes(ref) == b"data"
+        assert store.get_manifest(ref).kind == "test"
+        assert (
+            ManifestLifecycle.profile_sha256(local.get_manifest(ref))
+            == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
+        )
 
     def test_put_bytes_no_write_through(self):
         """write_through=False: only writes to local."""
@@ -101,14 +103,84 @@ class TestCachingArtifactStore:
         local.put_bytes.assert_called_once()
         remote.put_bytes.assert_not_called()
 
-    def test_has_local_true(self):
+    def test_write_through_false_keeps_local_store_as_default_owner(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "local-only")
+        remote = FileSystemCAS(tmp_path / "unused-remote")
+        store = CachingArtifactStore(remote=remote, local=local, write_through=False)
+        options = PutOptions(
+            kind="cache.local-only",
+            media_type="text/plain",
+            producer=ProducerInfo(component="tests.cache", version="local-only"),
+        )
+
+        ref = store.put_bytes(b"local-only artifact", options)
+
+        assert remote.iter_artifact_ids() == []
+        assert store.has(ref) is True
+        assert store.iter_artifact_ids() == [ref.artifact_id]
+        assert store.get_manifest(ref).producer.version == "local-only"
+        assert store.verify(ref).ok is True
+
+    def test_write_through_selectorless_has_uses_remote_default_owner(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "cache-only")
+        remote = FileSystemCAS(tmp_path / "durable-owner")
+        local_ref = local.put_bytes(
+            b"local-only orphan",
+            PutOptions(
+                kind="cache.default-owner",
+                media_type="text/plain",
+                producer=ProducerInfo(component="tests.cache", version="cache-only"),
+            ),
+        )
+        local_manifest = local.get_manifest(local_ref)
+        selected_local_view = ArtifactRef(
+            artifact_id=local_ref.artifact_id,
+            kind=local_manifest.kind,
+            media_type=local_manifest.media_type,
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(local_manifest),
+        )
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        assert store.has(local_ref.artifact_id) is False
+        assert store.has(selected_local_view) is True
+        assert store.get_manifest(selected_local_view).producer.version == "cache-only"
+        assert store.verify(selected_local_view).ok is True
+
+    def test_write_through_inventory_omits_cache_only_default_orphans(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "cache-only-inventory")
+        remote = FileSystemCAS(tmp_path / "durable-inventory")
+        local.put_bytes(
+            b"local-only inventory orphan",
+            PutOptions(kind="cache.inventory", media_type="text/plain"),
+        )
+        remote_ref = remote.put_bytes(
+            b"durable inventory artifact",
+            PutOptions(kind="cache.inventory", media_type="text/plain"),
+        )
+
+        assert CachingArtifactStore(remote=remote, local=local).iter_artifact_ids() == [
+            remote_ref.artifact_id
+        ]
+
+    def test_has_selector_free_delegates_to_remote_default_owner(self):
         local = MagicMock()
         remote = MagicMock()
         local.has.return_value = True
+        remote.has.return_value = False
 
         store = CachingArtifactStore(remote=remote, local=local)
-        assert store.has(_FAKE_ID) is True
-        remote.has.assert_not_called()
+        assert store.has(_FAKE_ID) is False
+        remote.has.assert_called_once_with(_FAKE_ID)
+        local.has.assert_not_called()
 
     def test_has_local_false_remote_true(self):
         local = MagicMock()
@@ -119,16 +191,36 @@ class TestCachingArtifactStore:
         store = CachingArtifactStore(remote=remote, local=local)
         assert store.has(_FAKE_ID) is True
 
-    def test_verify_delegates_to_local(self):
+    def test_verify_selector_free_delegates_to_remote(self):
+        local = MagicMock()
+        remote = MagicMock()
+        local.has.return_value = True
+        expected = MagicMock(ok=True)
+        remote.verify.return_value = expected
+
+        store = CachingArtifactStore(remote=remote, local=local)
+        report = store.verify(_FAKE_ID)
+        assert report.ok is True
+        remote.verify.assert_called_once_with(_FAKE_ID)
+        local.verify.assert_not_called()
+
+    def test_verify_selected_view_uses_local_when_cached(self):
         local = MagicMock()
         remote = MagicMock()
         local.has.return_value = True
         expected = MagicMock(ok=True)
         local.verify.return_value = expected
+        selected_ref = ArtifactRef(
+            artifact_id=_FAKE_ID,
+            kind="test",
+            media_type="text/plain",
+            manifest_profile_sha256="sha256:" + "bb" * 32,
+        )
 
-        store = CachingArtifactStore(remote=remote, local=local)
-        report = store.verify(_FAKE_ID)
-        assert report.ok is True
+        report = CachingArtifactStore(remote=remote, local=local).verify(selected_ref)
+
+        assert report is expected
+        local.verify.assert_called_once_with(selected_ref)
         remote.verify.assert_not_called()
 
     def test_remote_population_preserves_the_complete_selected_manifest_profile(
@@ -187,6 +279,8 @@ class TestCachingArtifactStore:
 
         assert store.get_manifest(remote_ref).producer.version == "remote-first"
         assert store.get_manifest(remote_ref.artifact_id).producer.version == "remote-first"
+        assert store.has(remote_ref.artifact_id) is True
+        assert store.iter_artifact_ids() == [remote_ref.artifact_id]
         # Payload reads and byte-integrity reports remain valid because the blob ID is shared.
         assert store.get_bytes(remote_ref) == payload
         assert store.verify(remote_ref).ok is True

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from pydantic import ValidationError
 
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
@@ -14,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
     InputRef,
+    IntegrityInfo,
     ProducerInfo,
     SchemaInfo,
 )
@@ -172,6 +174,27 @@ def test_selectorless_refs_keep_the_historical_serialized_projection() -> None:
         "artifact_id": str(artifact_id),
         "role": "legacy_input",
     }
+
+
+def test_selected_input_view_requires_manifest_schema_v2() -> None:
+    with pytest.raises(ValidationError, match="manifest_schema_version v2"):
+        ArtifactManifest.model_validate(
+            {
+                "manifest_schema_version": "v1",
+                "artifact_id": ArtifactID.from_sha256_hex("d" * 64),
+                "kind": "cas.selected_input",
+                "media_type": "application/json",
+                "byte_size": len(PAYLOAD),
+                "inputs": [
+                    InputRef(
+                        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+                        role="selected_basis",
+                        manifest_profile_sha256="sha256:" + "1" * 64,
+                    )
+                ],
+                "integrity": IntegrityInfo(sha256="d" * 64),
+            }
+        )
 
 
 def test_view_resolution_removal_fails_with_both_sidecars_present(

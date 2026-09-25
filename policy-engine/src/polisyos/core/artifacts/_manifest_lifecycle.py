@@ -31,31 +31,31 @@ class ManifestLifecycle:
         sha: str,
         opts: ArtifactWriteOptions,
     ) -> ArtifactManifest:
-        manifest = ArtifactManifest.model_validate(
-            {
-                "artifact_id": artifact_id,
-                "kind": opts.kind,
-                "media_type": opts.media_type,
-                "byte_size": len(data),
-                "schema": opts.schema,
-                "canon": opts.canon,
-                "inputs": list(opts.inputs or []),
-                "producer": opts.producer,
-                "env": opts.env,
-                "governance": getattr(opts, "governance", None),
-                "tenant_context": getattr(opts, "tenant_context", None),
-                "same_input_closure": getattr(opts, "same_input_closure", None),
-                "authority": getattr(opts, "authority", None),
-                "integrity": IntegrityInfo(sha256=sha),
-                "warnings": list(opts.warnings or []),
-            }
-        )
+        input_refs = list(opts.inputs or [])
+        manifest_payload = {
+            "artifact_id": artifact_id,
+            "kind": opts.kind,
+            "media_type": opts.media_type,
+            "byte_size": len(data),
+            "schema": opts.schema,
+            "canon": opts.canon,
+            "inputs": input_refs,
+            "producer": opts.producer,
+            "env": opts.env,
+            "governance": getattr(opts, "governance", None),
+            "tenant_context": getattr(opts, "tenant_context", None),
+            "same_input_closure": getattr(opts, "same_input_closure", None),
+            "authority": getattr(opts, "authority", None),
+            "integrity": IntegrityInfo(sha256=sha),
+            "warnings": list(opts.warnings or []),
+        }
         # v1 omits the version marker and remains byte-compatible with historical
         # manifests. The selector is a hashed-model extension only when an input
         # explicitly names a selected manifest view, so bump that projection alone.
-        if any(input_ref.manifest_profile_sha256 is not None for input_ref in manifest.inputs):
-            return manifest.model_copy(update={"manifest_schema_version": "v2"})
-        return manifest
+        # Set the marker before model validation so v1 cannot accept new hashed bytes.
+        if any(input_ref.manifest_profile_sha256 is not None for input_ref in input_refs):
+            manifest_payload["manifest_schema_version"] = "v2"
+        return ArtifactManifest.model_validate(manifest_payload)
 
     @staticmethod
     def to_bytes(manifest: ArtifactManifest) -> bytes:

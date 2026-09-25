@@ -2,6 +2,10 @@
 
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
+## Additional four-base obligation-coverage replay (2026-09-25)
+
+The whole `tests/unit/runtime/quality/test_obligation_coverage.py` file has **4/4 present, completed cells and 0 `UNRUN`**. Its identical test blob at all four bases contains 15 cases: the E02 execution base and main pass 15/15 each; E02 head and the Phase 0 merge pass 6/15 and fail 9/15 each. The harness recorded nine same-source pass-to-fail cases for each relevant comparison; their production cause and exact repair class remain under investigation, so owner attribution is `UNRESOLVED`. No test source or product source was edited during this replay. One pytest process group ran at a time; peak CPU was 100%, peak RSS was 788,160 KiB, minimum free memory was 73%, and swap growth was zero. Complete JUnit, import-origin, per-case and resource evidence: `raw/p41-custom-20260925T070822Z-59483/results.json@sha256:2e77adddf2fe347690c1ecc24470dea532fae826fb8988d3ee1794978896c9da`. This closes this additional pre-repair four-base denominator for R10 caller tracing, but the nine failures require classification before repair attribution.
+
 ## Additional four-base control API replay (2026-09-25)
 
 The exact `tests/unit/runtime/http/test_control_api.py` source blob `bdc6eaa159cce3a82d354f016c7dbef804fd7085` passed **63/63 tests at each of the four pinned bases** (4 present cells, 0 missing, 0 `UNRUN`). One process group ran at a time; peak group RSS was 1,282,000 KiB, peak CPU 102%, minimum measured free memory 64%, zero swap growth, and minimum volume free space 13,070,868,480 bytes. The current P41 verdict for this file is `SAME`, with no pass-to-fail case. Complete command, import origins, JUnit identities and resource samples: `raw/p41-custom-20260925T050338Z-88064/results.json@sha256:2259b569c1a5d97ff224f24cad7f9d2d141d21d1791471c6d80e031f47fe83d5`. This does not exercise the proposed TCS-01 foreign-owner cases; those remain `UNRUN`.

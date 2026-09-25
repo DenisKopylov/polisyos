@@ -5351,12 +5351,37 @@ async def test_k_sim_does_not_shrink_k_world() -> None:
 
 
 @pytest.mark.asyncio
-async def test_generation_cycle_contract_mutations_turn_red(tmp_path: Path) -> None:
+async def test_generation_cycle_contract_mutations_turn_red(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    census_count = 0
+    collect_census = generation_cycle_module._collect_strangle_source_census
+
+    def count_census(repo_root: Path) -> Any:
+        nonlocal census_count
+        census_count += 1
+        return collect_census(repo_root)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "_collect_strangle_source_census",
+        count_census,
+    )
     payload, replay_context = await contract._build_live_payload_in_verification_namespace(
         REPO_ROOT,
         state_root=tmp_path,
     )
+    assert census_count == 1
+    strangle_mutation = next(
+        item
+        for item in payload["behavioral_mutations"]
+        if item["mutation_id"] == "single_pass_fixture_survives_as_production_cycle"
+    )
+    assert strangle_mutation["status"] == "red"
+    assert "strangle_receipt_stale" in strangle_mutation["issue_codes"]
     report = contract.validate_payload(payload, repo_root=REPO_ROOT)
+    assert census_count == 2
 
     assert report["status"] == "pass", report["issues"]
     assert len(replay_context.run.cycles) >= 2
@@ -5684,6 +5709,29 @@ def test_generation_cycle_strangle_receipt_counts_new_production_caller(tmp_path
     assert receipt.production_single_pass_callers == (
         "src/polisyos/runtime/http/services/control/production_single_pass_probe.py:2",
     )
+
+
+def test_generation_cycle_strangle_receipt_rechecks_comment_edit_on_later_invocation(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "src" / "polisyos" / "runtime.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("def run():\n    return None\n", encoding="utf-8")
+
+    earlier = StrangleReceipt.recompute(tmp_path)
+    source.write_text(
+        "def run():\n    return None\n\n# harmless later source edit\n",
+        encoding="utf-8",
+    )
+    later = StrangleReceipt.recompute(tmp_path)
+
+    assert earlier.status == later.status == "strangled"
+    assert earlier.source_content_hash != later.source_content_hash
+    with pytest.raises(
+        GenerationCycleError,
+        match="generation_cycle_strangle_receipt_stale",
+    ):
+        earlier.verify_current(tmp_path)
 
 
 def test_generation_cycle_contract_check_maps_temporary_workspace_oserror_to_unrun(

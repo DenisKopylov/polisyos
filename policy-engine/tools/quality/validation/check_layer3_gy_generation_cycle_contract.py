@@ -76,6 +76,8 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
     PendingN8ValuePort,
     PolicyGroundingPort,
+    StrangleReceipt,
+    _validate_generation_cycle_run_with_current_source_receipt,
     enforce_no_retry_without_new_grammar,
     validate_generation_cycle_run,
 )
@@ -641,7 +643,11 @@ async def _build_live_payload_in_verification_namespace(
             "non_cached_run_visibility": "writer_and_check_rederive_from_live_owners",
         },
     }
-    payload["fail_closed_probes"] = _fail_closed_reports(payload, repo_root=repo_root)
+    payload["fail_closed_probes"] = _fail_closed_reports(
+        payload,
+        repo_root=repo_root,
+        current_strangle_receipt=run.strangle_receipt,
+    )
     revalidation_issues, admissions = _embedded_promotion_comparison_admissions(
         run,
         repo_root=repo_root,
@@ -659,7 +665,12 @@ async def _build_live_payload_in_verification_namespace(
             ),
         )
     plan = build_gy_comparison_projection_plan(payload, admissions=admissions)
-    payload["behavioral_mutations"] = _mutation_reports(payload, plan, repo_root=repo_root)
+    payload["behavioral_mutations"] = _mutation_reports(
+        payload,
+        plan,
+        repo_root=repo_root,
+        current_strangle_receipt=run.strangle_receipt,
+    )
     payload["capture_wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
     _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
@@ -1057,6 +1068,7 @@ def _validate_payload_core(
     payload: dict[str, Any],
     *,
     repo_root: Path | None = None,
+    current_strangle_receipt: StrangleReceipt | None = None,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if payload.get("schema_version") != GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION:
@@ -1092,7 +1104,15 @@ def _validate_payload_core(
                     "error": str(exc),
                 }
             )
-    issues.extend(validate_generation_cycle_run(run, repo_root=repo_root))
+    if current_strangle_receipt is None:
+        issues.extend(validate_generation_cycle_run(run, repo_root=repo_root))
+    else:
+        issues.extend(
+            _validate_generation_cycle_run_with_current_source_receipt(
+                run,
+                current_strangle_receipt=current_strangle_receipt,
+            )
+        )
     positive = payload.get("positive_gate")
     if not isinstance(positive, dict):
         issues.append({"code": "positive_gate_missing"})
@@ -1459,6 +1479,7 @@ def _mutation_reports(
     plan: GyComparisonProjectionPlan,
     *,
     repo_root: Path,
+    current_strangle_receipt: StrangleReceipt,
 ) -> list[dict[str, Any]]:
     mutations = {
         "revision_not_terminal_driven": _mutate_revision_not_terminal_driven,
@@ -1480,7 +1501,11 @@ def _mutation_reports(
         mutator(mutated)
         _set_comparison_identity(mutated, plan)
         mutated["contract_content_hash"] = _contract_content_hash(mutated)
-        report = _validate_payload_core(mutated, repo_root=repo_root)
+        report = _validate_payload_core(
+            mutated,
+            repo_root=repo_root,
+            current_strangle_receipt=current_strangle_receipt,
+        )
         reports.append(
             {
                 "mutation_id": mutation_id,
@@ -1587,7 +1612,12 @@ def _mutate_full_denominator_subset(payload: dict[str, Any]) -> None:
     ]
 
 
-def _fail_closed_reports(payload: dict[str, Any], *, repo_root: Path) -> list[dict[str, Any]]:
+def _fail_closed_reports(
+    payload: dict[str, Any],
+    *,
+    repo_root: Path,
+    current_strangle_receipt: StrangleReceipt,
+) -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
     try:
         CandidateGroundingObservation.model_validate(
@@ -1629,7 +1659,11 @@ def _fail_closed_reports(payload: dict[str, Any], *, repo_root: Path) -> list[di
     )
     if any(
         issue.get("code") == "unknown_voi_action_not_fail_closed"
-        for issue in _validate_payload_core(unknown_voi, repo_root=repo_root)
+        for issue in _validate_payload_core(
+            unknown_voi,
+            repo_root=repo_root,
+            current_strangle_receipt=current_strangle_receipt,
+        )
     ):
         reports.append({"probe_id": "unknown_voi_action", "status": "fail_closed"})
     return reports

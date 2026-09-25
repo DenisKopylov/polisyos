@@ -9,9 +9,9 @@
   },
   "status_counts": {
     "closed": 0,
-    "partial": 265,
+    "partial": 268,
     "held": 12,
-    "open": 5
+    "open": 2
   },
   "appendix_c_counts": {
     "closed_bounded": 132,
@@ -35,7 +35,10 @@
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
     "R13 static root-store census: 2,693/2,693 src Python files parsed with zero parse errors; 26 direct FileSystemCAS constructors plus 33 root-config build_artifact_store calls = 59 static calls. Five E02 direct constructors are a subset, not a complete denominator; path-forwarded wrappers and dynamic runtime calls remain unresolved. Receipt is policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/policyos-r13-root-store-census.json@sha256:38c3ddd50feceb7fef253bac54569315007a5cc9289d536721c9dd2ff3beb7bf.",
     "R14 same-source review identifies four stale-reference cases (one W5 historical repo reference and three WS-2D release-ledger raw-client references). W5 manifest bytes are immutable, but no owner-issued admitted Git snapshot binds them to the introducing commit/tree; the repo-ref predicate is UNRUN/not_established because the manifest date precedes the commit. Closure needs an append-only team-runtime-quality sidecar binding manifest SHA to exact commit and tree; never restamp W5. The three WS-2D live ledger refs are repairable by their release-ledger owner. P41 attribution and B/LA binding remain pending.",
-    "B111 remains open at source review: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. Registry-boundary NaN/infinity negative, finite positive control and four-base replay remain UNRUN."
+    "B111 remains open at source review: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. Registry-boundary NaN/infinity negative, finite positive control and four-base replay remain UNRUN.",
+    "R3 bounded historical-replay census: 42 complete receipt instances (8 v1, 16 v3, 1 compressed v5, 17 v6; 33 unique canonical contents) from 2,870 tracked JSON files, one compressed v5 fixture, and five pinned Git JSON carriers found by a 6,381-file tracked-Python source-reference census. Corpus/pinned inventories: /Users/deniskopylov/.codex/scratch/e02-r2-r3-receipt-corpus-20260925.json@sha256:f8473042678669c2d28e5c46b2af269e9f1456dac8d3b116f28f9a428f4c9702; /Users/deniskopylov/.codex/scratch/e02-r2-r3-pinned-n9-carriers-20260925.json@sha256:39086967490651bf1dd3ad8d3e731dab80b0c4b3eb565e5b1e1445286edb6c2a. R3_REPAIR: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R3_REPAIR.md@sha256:aed54118934c744e71bccf3a8fdcece7ccc065abc687280f4091fb05e6e2d3b4. No B/LA row is assigned to R3 by adjacency; no status or register closure follows from this class receipt.",
+    "R12/R13 bounded repair at committed da41f2e8c: the production N7 receiver refuses route-shaped local FileTabular growth before route context/WMR/N5; ACQ-01 suite 20/20, nonroute control 3/3, marker-preserving removal red, planner 70 pass/1 intentional skip, two N7 selectors 2/2, and direct bridge fixture 1/1. Boundary/evidence: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R12_R13_BOUNDARY.md@sha256:a4d7312f2ccd40d777839d25b2e9565c332f06ca62330cf092bb10327682d3f1. This does not establish a production ACQ-01 authority/journal producer, served WDI, tenant-bound guarded-store custody, post-admission W1 context, or full four-base replay. B12 stays partial/R13 because its admitted-data-impact discriminator remains UNRUN; the R13 option-3 principal ruling is pending and DS15 positive qualification remains absent/unallocated. No new crosswalk edge or register closure.",
+    "R4 bounded class result at committed 2012dd84b: the governed N6 `--check` returns structured fail/exit 1 with one final N9 callback/session and four measured issues (strangle_receipt_stale, two embedded_promotion_open_world_reissue_required, and generation_cycle_comparison_admission_manifest_drift), not a traceback. Postcommit receipt: /Users/deniskopylov/.codex/scratch/e02-r4-candidate-20260925/r4-integrated-validator-postcommit.stdout.json@sha256:f587c01f945a4142b8ca1be13b959ee445bf4703d9600da06ddabe1aa550c9b2; repair record: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R4_REPAIR.md@sha256:036465b973830246d4fde26f607e06fd13882f24025b1e8040419dff3342a8fe. This proves typed verdict delivery, not a green contract or full R4 closure: the full repository-quality checker is UNRUN, four-base postrepair replay remains pending, and authorized reissue remains required. No B/LA row discriminator mapping was established, so no finding-row status/evidence change is assigned to R4."
   ],
   "citation_catalog": {
     "B_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
@@ -230,11 +233,11 @@
       },
       "r_class": "R1",
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Through the served HTTP process_nl_job/plain-language entrypoint, ordinary input without a manually created Python context must reach allowed computation; build the exact simulation context from the actual N5 result. Keep protected actions gated. Test a foreign candidate, foreign model, unresolved data and protected action as refusals, and assert the ordinary candidate result plus any declared unknown limitation at the consumer. Record the production caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
-        "blocker_kind": null,
-        "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B01"
       },
@@ -283,11 +286,11 @@
       },
       "r_class": "R1",
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Carry the same owner-resolved CycleSubstrateContext through the real HTTP → recursion → leaf N6 → N4/N5/N8 path, using existing context builders and identity checks. Prove each stage consumes the same bindings; changing DesignProblem, WMR or catalog version must cause a concrete refusal. Keep an absent production source absent rather than filling it with a test bundle; record the served caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
-        "blocker_kind": null,
-        "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B02"
       },
@@ -336,11 +339,11 @@
       },
       "r_class": "R1",
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "At the real N5 path, build a serializable joint-simulation request from the actual candidate, related intervention atoms, WMR, required outcomes, horizon and authorized budget, resolving artifact references server-side and invoking the existing suitable engine method. Prove an ordinary request reaches that method and a changed material binding refuses; keep unknown parameters as typed gaps rather than defaults. Record the production caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
-        "blocker_kind": null,
-        "next_step": "Restore ordinary candidate computation when CycleSubstrateContext is absent, carry the unknown as a typed limitation, and retain authority-band refusals; prove a served front-door witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B03"
       },
@@ -671,12 +674,12 @@
       "closure_owner": "CYC-03",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "open",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "source_review_refines_no_record",
-        "detail": "Appendix C had no per-finding record. The source review classifies the admitted-data continuation seam as open; the named candidate tests have not run, so this is not a behavioral failure result."
+        "detail": "Appendix C accurately records that E02 had no finding-level record. The later N finding-level matrix supports only partial status for B09; it does not claim closure or package acceptance as finding evidence. Current R6 whole-file selectors show the bounded B09 basis/no-progress controls pass; the two-cycle and acquisition re-entry reds are owned by R11 and R12 respectively, not B09. Residual admitted-data overlay re-entry remains.",
+        "relation": "source_review_refines_no_record"
       },
-      "residual": "B09 requires the same candidate to be reconsidered when its admitted evidence basis changes, while a renamed candidate on unchanged inputs is stopped as no progress; occurrence identity and source/revised problem binding must remain explicit. The inspected `enforce_no_retry_without_new_grammar` path uses grammar growth as the progress signal. Existing selectors cover grammar progress, renamed no-progress, and same-cycle fixture re-entry but not a changed, served Data Forge-admitted basis. Next step: exercise changed admitted data through overlay, passport and epoch admission; retain the renamed unchanged-input refusal. P38: the grammar-only predicate can refuse genuinely new evidence while its marker remains intact. Provisional source-review classification is open; selectors and four-base replay are UNRUN.",
+      "residual": "B09 requires the same candidate to be reconsidered when its admitted evidence basis changes, while a renamed candidate on unchanged inputs is stopped as no progress; occurrence identity and source/revised problem binding must remain explicit. The inspected `enforce_no_retry_without_new_grammar` path uses grammar growth as the progress signal. Existing selectors cover grammar progress, renamed no-progress, and same-cycle fixture re-entry but not a changed, served Data Forge-admitted basis. Next step: exercise changed admitted data through overlay, passport and epoch admission; retain the renamed unchanged-input refusal. P38: the grammar-only predicate can refuse genuinely new evidence while its marker remains intact. Provisional source-review classification is open; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): No served Data Forge overlay + passport/native epoch re-entry proving new real data, new occurrence/current front, old-history retention, and the updated next validator.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "GenerationCycleController owner; Data Forge overlay/passport/epoch admission owner for the served changed-basis witness",
@@ -709,7 +712,27 @@
           "kind": "implementation_owner",
           "summary": "B09 requires the same candidate to be reconsidered when its admitted evidence basis changes, while a renamed candidate on unchanged inputs is stopped as no progress; occurrence identity and source/revised problem binding must remain explicit. The inspected `enforce_no_retry_without_new_grammar` path uses grammar growth as the progress signal. Existing selectors cover grammar progress, renamed no-progress, and same-cycle fixture re-entry but not a changed, served Data Forge-admitted basis. Next step: exercise changed admitted data through overlay, passport and epoch admission; retain the renamed unchanged-input refusal. P38: the grammar-only predicate can refuse genuinely new evidence while its marker remains intact. Provisional source-review classification is open; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B09",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B09.json@sha256:2d3b8d5b0055cc548483f65c26558c9f5e13f56e94cb158980064dd24d04c08e#B09",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "4 passed, 2 failed, exit 1",
+            "identity": "B09 current replay snapshot 6baa2e21db5ac1962cd5a09895a58e25941c36f4",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/cyc03/current-head.junit.xml@sha256:4cb1f9667388b96964596c4e9fb4b77174899889a8731f26e8be58846c4f940d",
+            "scope": "Pre-R6 snapshot: shared branch later advanced to 79fac987eebc3fc6078cbd88438f05c9fcdbd3d5 and modified generation_cycle.py plus test_generation_cycle.py; not a post-R6 current-head replay."
+          },
+          {
+            "behavioral_verdict": "MIXED_BOUNDED_SELECTOR_OUTCOMES",
+            "identity": "R6 committed full-file selector outcomes:B09",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r6-foreign-context-20260925/R6-current-full.junit.xml@sha256:e75d29a5020769cff4da76cdf2146f0002db31e304d7b46d95860b20c7c63174",
+            "scope": "Exact selected test outcomes are enumerated in this scratch delta; whole test_generation_cycle.py had 105 tests/7 failures. Not a four-base replay."
+          }
+        ]
       }
     },
     {
@@ -882,6 +905,21 @@
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B12",
           "behavioral_verdict": "UNRUN",
           "scope": "Review found only a test fixture emitting the structured acq01_route payload; production ACQ-01 remains producer_missing. This is source census, not a runtime execution receipt."
+        },
+        "r13_bounded_receiver_fence": {
+          "identity": "R13 production N7 receiver route-fence (20/20 ACQ-01 suite)",
+          "reconciliation_basis": "Separate R13 evidence append outside the reviewed 57-row proposal delta; counted as the 45th changed row (44 delta rows + B12).",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-r13-integration-acq01-full-green-20260925.junit.xml@sha256:42ddbc65b8174b22f59b2a19187b8ae7510ad38637a459ce86cda5cce6fd5510",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Includes test_production_n7_acq01_route_is_limited_before_route_cas_and_n5 and a synthetic N5-preserving control. This is the R13 receiver-negative only; the B12 card discriminator (admitted data changes the same-case dependent result through a served production bridge) remains UNRUN. B12 remains partial and finding_test_status remains UNRUN.",
+          "supporting_receipts": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-r13-nonroute-receiver-20260925.junit.xml@sha256:3e5f71c4374c8c789c88e43a44fb98d37cdb3b88ce85343c207353c54ffe6ebe",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-r13-removal-probe-20260925.junit.xml@sha256:4334132993d8103f76318eac0e1fcff2409807559695f391ac110c0ddc8fb153",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-r13-integration-planner-full-20260925.junit.xml@sha256:bcc261f08ed3f4bf38ce0f1b63b6d9ae8c161ec382c922e33e02845cd2df709f",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-r13-integration-n7-rerun-20260925.junit.xml@sha256:544b0e49125942154d2c48fe93e71e8f5cf0a90a3e3b470428b3ead0b4a41a05",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-r13-integrated-bridge-positive-20260925.junit.xml@sha256:76e1f745ced3a65540ca54d40b728a28d0472852eb9b8307852d03c498a27fdd",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R12_R13_BOUNDARY.md@sha256:a4d7312f2ccd40d777839d25b2e9565c332f06ca62330cf092bb10327682d3f1"
+          ]
         }
       }
     },
@@ -1070,11 +1108,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Pass task scope and measurement semantics to the existing L1 profile loader before sorting, LIMIT and aggregation. With unrelated scopes that sort earlier, prove matching rows survive; do not average mixed units without a declared rule; do not present a genuinely small sample as complete. Changing scope must change the consumed row set and its identity. Keep a supported profile control and record the caller/test identity.",
         "owner": "EMP scope and CAS graph-bridge owner",
-        "blocker_kind": null,
-        "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B16"
       },
@@ -1226,7 +1264,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C says no finding-level record. The source review refines the residual to absent-comparator/no-op semantics; candidate selectors are UNRUN and no closure is inferred."
       },
-      "residual": "B19 requires a no-op to stay at zero when the comparator is absent; missing comparator must not be substituted with zero, and the selected baseline must bind consistently to factual evidence and joint interaction. Existing local tests represent the baseline/comparator arithmetic, but the full horizon caller chain is not established. Next step: run those selectors and use a served joint-simulation request with the same declared model, horizon, comparator and factual evidence. P38: a correct local selected-baseline fixture does not prove each production runner binds comparator and factual evidence separately. Partial; all selectors and four-base replay are UNRUN.",
+      "residual": "B19 requires a no-op to stay at zero when the comparator is absent; missing comparator must not be substituted with zero, and the selected baseline must bind consistently to factual evidence and joint interaction. Existing local tests represent the baseline/comparator arithmetic, but the full horizon caller chain is not established. Next step: run those selectors and use a served joint-simulation request with the same declared model, horizon, comparator and factual evidence. P38: a correct local selected-baseline fixture does not prove each production runner binds comparator and factual evidence separately. Partial; all selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Current replay plus served comparator bound to same model/horizon/scope, independent factual evidence, and coherent interaction baseline.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "JointSimulationHorizonController and NCM evidence-baseline owner",
@@ -1259,7 +1297,15 @@
           "kind": "implementation_owner",
           "summary": "B19 requires a no-op to stay at zero when the comparator is absent; missing comparator must not be substituted with zero, and the selected baseline must bind consistently to factual evidence and joint interaction. Existing local tests represent the baseline/comparator arithmetic, but the full horizon caller chain is not established. Next step: run those selectors and use a served joint-simulation request with the same declared model, horizon, comparator and factual evidence. P38: a correct local selected-baseline fixture does not prove each production runner binds comparator and factual evidence separately. Partial; all selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B19",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B19.json@sha256:703eae707c9f1d9a7508cc183740da4979fa793bb684192af2aeb03938e8c3ef#B19",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          }
+        ]
       }
     },
     {
@@ -1333,7 +1379,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C says no finding-level record. The source review identifies replicate count/seed/standard-error semantics; candidate selectors are UNRUN."
       },
-      "residual": "B21 requires the requested replicate count to determine actual work or produce an explicit limitation; count, distinct seeds and numerical uncertainty must agree, and one stochastic draw cannot be reported as an exact estimate. Next step: run the selectors and trace request → selected method → returned count/seed set on a served caller, preserving the one-draw limitation. P38: request-level replication checks do not prove every downstream sampler honors the requested count. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B21 requires the requested replicate count to determine actual work or produce an explicit limitation; count, distinct seeds and numerical uncertainty must agree, and one stochastic draw cannot be reported as an exact estimate. Next step: run the selectors and trace request → selected method → returned count/seed set on a served caller, preserving the one-draw limitation. P38: request-level replication checks do not prove every downstream sampler honors the requested count. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Served two-replication case with actual count, seeds, numerical error, and separate world-model uncertainty.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "JointSimulationHorizonController replication planner/executor owner",
@@ -1366,7 +1412,15 @@
           "kind": "implementation_owner",
           "summary": "B21 requires the requested replicate count to determine actual work or produce an explicit limitation; count, distinct seeds and numerical uncertainty must agree, and one stochastic draw cannot be reported as an exact estimate. Next step: run the selectors and trace request → selected method → returned count/seed set on a served caller, preserving the one-draw limitation. P38: request-level replication checks do not prove every downstream sampler honors the requested count. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B21",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B21.json@sha256:1c60e92a9849155767b759d5b7a3fa6980127a49065b4b71703d35a3a0626321#B21",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          }
+        ]
       }
     },
     {
@@ -1440,7 +1494,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C says no finding-level record. The source review supplies the cache/role-reference discriminator; selectors are UNRUN."
       },
-      "residual": "B23 requires one deterministic physical run to be reused across one or two atom roles without a second computation, while each role retains its own reference. A changed seed or parameter must not produce a false cache hit. Next step: run the selectors and add a distinct-seed negative control through both actual role consumers. P38: a common helper run ref does not prove role projections retain distinct references. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B23 requires one deterministic physical run to be reused across one or two atom roles without a second computation, while each role retains its own reference. A changed seed or parameter must not produce a false cache hit. Next step: run the selectors and add a distinct-seed negative control through both actual role consumers. P38: a common helper run ref does not prove role projections retain distinct references. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): False cache hit negative for changed seed/physical parameter; both role refs persisted; separate experiments get separate run identity.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "JointSimulationHorizonController physical-spec cache and role-reference owner",
@@ -1473,7 +1527,15 @@
           "kind": "implementation_owner",
           "summary": "B23 requires one deterministic physical run to be reused across one or two atom roles without a second computation, while each role retains its own reference. A changed seed or parameter must not produce a false cache hit. Next step: run the selectors and add a distinct-seed negative control through both actual role consumers. P38: a common helper run ref does not prove role projections retain distinct references. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B23",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B23.json@sha256:dfdd3077243ee90ac89916ab6607f05e5400a98b5a338203326b1387f4cc7b69#B23",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          }
+        ]
       }
     },
     {
@@ -1552,7 +1614,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C says no finding-level record. The source review refines the criterion to required metric-set binding and missing-metric non-improvement; selectors are UNRUN."
       },
-      "residual": "B25 requires removal of a required metric to never improve candidate fitness on the same task; differing data/metric sets must be declared incomparable or compared only under an explicit rule. Next step: run the selectors and bind the required metric set at both the real SMM producer and selection consumer. P38: a helper can enforce its declared set correctly while a production profile supplies a different or incomplete set. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B25 requires removal of a required metric to never improve candidate fitness on the same task; differing data/metric sets must be declared incomparable or compared only under an explicit rule. Next step: run the selectors and bind the required metric set at both the real SMM producer and selection consumer. P38: a helper can enforce its declared set correctly while a production profile supplies a different or incomplete set. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Production SMM producer to persisted metric-set identity to consumer; same-task missing metric cannot win and all-required-output improvement still can.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "SMM metric-set producer and candidate-selection consumer owner",
@@ -1585,7 +1647,15 @@
           "kind": "implementation_owner",
           "summary": "B25 requires removal of a required metric to never improve candidate fitness on the same task; differing data/metric sets must be declared incomparable or compared only under an explicit rule. Next step: run the selectors and bind the required metric set at both the real SMM producer and selection consumer. P38: a helper can enforce its declared set correctly while a production profile supplies a different or incomplete set. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B25",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B25.json@sha256:35404e02bca6fd1a1800a7f7158596446a5fba1e4b3a9b808c1eee979c626644#B25",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          }
+        ]
       }
     },
     {
@@ -1605,7 +1675,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C says no finding-level record. The source review identifies higher-order interaction visibility as the discriminator; selectors are UNRUN."
       },
-      "residual": "B26 requires a three-atom multiplicative example to expose a nonzero higher-order residual instead of claiming global additivity, while genuinely additive independent effects retain the expected result in the tested domain. Next step: run the selectors and verify the board/consumer exposes interaction order and residual. P38: pairwise-zero classification does not test a three-way residual, and a downstream surface could still render it as global additivity. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B26 requires a three-atom multiplicative example to expose a nonzero higher-order residual instead of claiming global additivity, while genuinely additive independent effects retain the expected result in the tested domain. Next step: run the selectors and verify the board/consumer exposes interaction order and residual. P38: pairwise-zero classification does not test a three-way residual, and a downstream surface could still render it as global additivity. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Current replay; paired additive control and consumer showing tested-order/residual without global additivity claim.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "JointSimulationHorizonController interaction-residual producer and board consumer owner",
@@ -1638,7 +1708,15 @@
           "kind": "implementation_owner",
           "summary": "B26 requires a three-atom multiplicative example to expose a nonzero higher-order residual instead of claiming global additivity, while genuinely additive independent effects retain the expected result in the tested domain. Next step: run the selectors and verify the board/consumer exposes interaction order and residual. P38: pairwise-zero classification does not test a three-way residual, and a downstream surface could still render it as global additivity. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B26",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B26.json@sha256:a1bd442da86fe612ee76893727f73e69b67234ae0d2b5fba6bf81512e6342bbd#B26",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          }
+        ]
       }
     },
     {
@@ -1653,12 +1731,12 @@
       "closure_owner": "CYC-03",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "open",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "source_review_refines_no_record",
-        "detail": "Appendix C had no finding-level record. The source review identifies the missing owner-issued revised context seam as open; tests and replay are UNRUN."
+        "detail": "Appendix C accurately records that E02 had no finding-level record. The later N finding-level matrix supports only partial status for B27; it does not claim closure or package acceptance as finding evidence. Current R6 whole-file selectors show the direct changed-population/model and revised-occurrence checks pass. Full positive second-cycle promotion/consumer and other residuals remain.",
+        "relation": "source_review_refines_no_record"
       },
-      "residual": "B27 requires an allowed second iteration to receive a context consistent with the revised DesignProblem, while a changed subject, population or model cannot reuse prior evidence bindings and both requests remain in common saved history. `_problem_ref` hashes the full problem model including runtime hints, while the controller carries prior cycle context into revision. Next step: exercise a permitted runtime-metadata revision with owner-issued revised basis/context; negative controls reject reuse after population/model/subject changes. P38: hashing a non-substantive runtime-hint change as a new subject can coexist with retaining stale context for the revised subject. Provisional source-review status is open; selectors and four-base replay are UNRUN.",
+      "residual": "B27 requires an allowed second iteration to receive a context consistent with the revised DesignProblem, while a changed subject, population or model cannot reuse prior evidence bindings and both requests remain in common saved history. `_problem_ref` hashes the full problem model including runtime hints, while the controller carries prior cycle context into revision. Next step: exercise a permitted runtime-metadata revision with owner-issued revised basis/context; negative controls reject reuse after population/model/subject changes. P38: hashing a non-substantive runtime-hint change as a new subject can coexist with retaining stale context for the revised subject. Provisional source-review status is open; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): After R2 source-currentness fix, replay two actual recursive iterations with revised owner context and shared saved history; show changed subject/population/model rebind N5/N7 evidence and preserve old run.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "GenerationCycleController owner and owner-issued revised-context producer",
@@ -1691,7 +1769,27 @@
           "kind": "implementation_owner",
           "summary": "B27 requires an allowed second iteration to receive a context consistent with the revised DesignProblem, while a changed subject, population or model cannot reuse prior evidence bindings and both requests remain in common saved history. `_problem_ref` hashes the full problem model including runtime hints, while the controller carries prior cycle context into revision. Next step: exercise a permitted runtime-metadata revision with owner-issued revised basis/context; negative controls reject reuse after population/model/subject changes. P38: hashing a non-substantive runtime-hint change as a new subject can coexist with retaining stale context for the revised subject. Provisional source-review status is open; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B27",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B27.json@sha256:0a9d384570cbd49a4f0f9ce0273c5ea686a8efd84d015e0c339d8a7e8094f7d6#B27",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "4 passed, 2 failed, exit 1",
+            "identity": "B27 current replay snapshot 6baa2e21db5ac1962cd5a09895a58e25941c36f4",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/cyc03/current-head.junit.xml@sha256:4cb1f9667388b96964596c4e9fb4b77174899889a8731f26e8be58846c4f940d",
+            "scope": "Pre-R6 snapshot: shared branch later advanced to 79fac987eebc3fc6078cbd88438f05c9fcdbd3d5 and modified generation_cycle.py plus test_generation_cycle.py; not a post-R6 current-head replay."
+          },
+          {
+            "behavioral_verdict": "MIXED_BOUNDED_SELECTOR_OUTCOMES",
+            "identity": "R6 committed full-file selector outcomes:B27",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r6-foreign-context-20260925/R6-current-full.junit.xml@sha256:e75d29a5020769cff4da76cdf2146f0002db31e304d7b46d95860b20c7c63174",
+            "scope": "Exact selected test outcomes are enumerated in this scratch delta; whole test_generation_cycle.py had 105 tests/7 failures. Not a four-base replay."
+          }
+        ]
       }
     },
     {
@@ -1711,7 +1809,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. The source review narrows the residual to occurrence/front binding across two versions; candidate selectors are UNRUN."
       },
-      "residual": "B28 requires one candidate across two data versions to retain history without duplicating the current front, and the second attempt result must not be assigned to the first; downstream must receive the correct occurrence. Next step: run the existing selectors and add an owner-bound two-occurrence witness. P38: a front indexed by candidate IDs cannot distinguish which occurrence backs downstream promotion. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B28 requires one candidate across two data versions to retain history without duplicating the current front, and the second attempt result must not be assigned to the first; downstream must receive the correct occurrence. Next step: run the existing selectors and add an owner-bound two-occurrence witness. P38: a front indexed by candidate IDs cannot distinguish which occurrence backs downstream promotion. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): No successful downstream consumer after persisting/reopening both occurrences; second occurrence selection and immutable first occurrence are not end-to-end proved.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "GenerationCycleController occurrence/front and downstream promotion owner",
@@ -1744,7 +1842,27 @@
           "kind": "implementation_owner",
           "summary": "B28 requires one candidate across two data versions to retain history without duplicating the current front, and the second attempt result must not be assigned to the first; downstream must receive the correct occurrence. Next step: run the existing selectors and add an owner-bound two-occurrence witness. P38: a front indexed by candidate IDs cannot distinguish which occurrence backs downstream promotion. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B28",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B28.json@sha256:72e774b96533150355acbac89cb4c39f3670e68da057d6cde6c41c875ad42955#B28",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "4 passed, 2 failed, exit 1",
+            "identity": "B28 current replay snapshot 6baa2e21db5ac1962cd5a09895a58e25941c36f4",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/cyc03/current-head.junit.xml@sha256:4cb1f9667388b96964596c4e9fb4b77174899889a8731f26e8be58846c4f940d",
+            "scope": "Pre-R6 snapshot: shared branch later advanced to 79fac987eebc3fc6078cbd88438f05c9fcdbd3d5 and modified generation_cycle.py plus test_generation_cycle.py; not a post-R6 current-head replay."
+          },
+          {
+            "behavioral_verdict": "MIXED_BOUNDED_SELECTOR_OUTCOMES",
+            "identity": "R6 committed full-file selector outcomes:B28",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r6-foreign-context-20260925/R6-current-full.junit.xml@sha256:e75d29a5020769cff4da76cdf2146f0002db31e304d7b46d95860b20c7c63174",
+            "scope": "Exact selected test outcomes are enumerated in this scratch delta; whole test_generation_cycle.py had 105 tests/7 failures. Not a four-base replay."
+          }
+        ]
       }
     },
     {
@@ -1882,13 +2000,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held is retained. The 2026-09-25 follow-up supersedes the earlier H-card owner_decision classification and corrects its duplicate current-disposition metadata in held_audit_receipt_status and h_n_review_disposition: the current blocker is a smallest_missing_capability, specifically a production-positive N8 estimator-result to typed uncertainty receipt bridge. Additional ValueOuterSet constructors exist; no production statistical-uncertainty receipt, served positive consumer, behavior witness, P41, or closure is established."
       },
-      "residual": "Owner decision remains the one blocker: define how existing identification bounds bind to statistical/model uncertainty, estimand, and units (linked UncertaintyEnvelope versus a versioned composite). The N8 result-to-receipt production and served-consumer chain is not established. The complete 2,693-file direct-call census does not exclude aliases, dynamic deserialization, external producers, or other ValueOuterSet paths. Distinguishing served witness and controls remain UNRUN.",
+      "residual": "Smallest missing capability: a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt bridge. The served FoundryValuePort path currently refuses before an estimator result; no production ValueGateReceipt emitter or served positive consumer is established. Reuse GY-N8/Foundry for estimator-to-receipt, GY-N-V for identification-set semantics, and DS16 only as consumer; do not fabricate a result or add a second uncertainty owner. Behavioral witness and P41 remain UNRUN.",
       "residual_owner": {
-        "kind": "owner_decision",
-        "name": "Runtime Value Gate / ValueOuterSet and IR uncertainty contract owners; principal decision required",
-        "appointment_status": "Decision pending; no semantic binding rule or served production chain is admitted."
+        "appointment_status": "Owner paths are identified; the production-positive bridge is absent. No individual appointment or principal semantic decision is claimed.",
+        "kind": "smallest_missing_capability",
+        "name": "GY-N8/Foundry estimator-to-receipt owner; GY-N-V identification-set owner; DS16 surface owner as consumer only"
       },
       "r_class": null,
       "p_triage": null,
@@ -1905,8 +2023,8 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@git-blob:e73454e6b50624acc69627f48172a7612c9ccd9c",
-        "blocker_path_scope": "Existing owner contract locus; H14 source census is literal-call evidence only and does not establish producer absence.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "Existing owner contract locus. Follow-up read-only source/call-path census found additional ValueOuterSet constructors but no production statistical-uncertainty ValueGateReceipt emitter or served positive consumer. This is bounded source evidence, not a behavioral proof of semantic absence; production witness, removal/control, and P41 remain UNRUN.",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; earlier owner_decision classification is superseded by the 2026-09-25 B31 source follow-up; current blocker is one smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B31",
@@ -1926,8 +2044,16 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "owner_decision",
-          "Decide identification-set bounds separately from statistical/model uncertainty and bind the choice to estimand and unit; then demonstrate served producer→persisted ValueGateReceipt→consumer behavior."
+          "smallest_missing_capability",
+          "Build and behaviorally demonstrate a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt to served-consumer bridge. Keep identification-set bounds distinct from statistical/model uncertainty and bind both to the estimand and unit. This source review is not a behavior witness; positive, removal/control, and P41 checks remain UNRUN."
+        ],
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "B31 production N8 uncertainty bridge source investigation",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-emp01-held-investigation-20260925.md@sha256:a012e839dbbab3b4e5eb59accfac04b2aa6c5808df0d642e418cf944a1f5a459",
+            "scope": "Read-only owner/call-path census; no test, removal probe, served positive result, or P41 closure."
+          }
         ]
       }
     },
@@ -2015,11 +2141,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Supply the selection diagram from a named causal model or identification plan; a name-based template may be an explicit research hypothesis but must not issue a universal transport certificate. Compare two models with identical variable names and marginals but different causal links: they must not receive the same certificate from the template. Missing structural evidence stays unresolved rather than being inferred from variable names.",
         "owner": "EMP scope and CAS graph-bridge owner",
-        "blocker_kind": null,
-        "next_step": "Implement non-country and multi-dataset typed scope behavior and units, then exercise a positive CAS graph bridge with tenant and provenance bindings.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B33"
       },
@@ -3314,7 +3440,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. The source review supplies the unrelated-field/cache-hit discriminator; selectors are UNRUN."
       },
-      "residual": "B57 requires a warm cached result for `y=4` to preserve an independently changed `unrelated=\"new\"`, never resurrect a deletion, and retain an explicit write of the prior value. Next step: run the selectors and add cache-hit executor witnesses for deleted-field non-resurrection and explicit same-value write intent. P38: low-level mutation replay distinguishes delete/null/no-write, but the executor cache path may still replay a stale whole outcome. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B57 requires a warm cached result for `y=4` to preserve an independently changed `unrelated=\"new\"`, never resurrect a deletion, and retain an explicit write of the prior value. Next step: run the selectors and add cache-hit executor witnesses for deleted-field non-resurrection and explicit same-value write intent. P38: low-level mutation replay distinguishes delete/null/no-write, but the executor cache path may still replay a stale whole outcome. Partial; selectors and four-base replay are UNRUN.\n\nN18 read-only residual addendum (UNRUN): No existing end-to-end executor cache test combines same-value replay and preservation of current unrelated fields.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Executor cache replay and state-mutation outcome owner",
@@ -3347,7 +3473,15 @@
           "kind": "implementation_owner",
           "summary": "B57 requires a warm cached result for `y=4` to preserve an independently changed `unrelated=\"new\"`, never resurrect a deletion, and retain an explicit write of the prior value. Next step: run the selectors and add cache-hit executor witnesses for deleted-field non-resurrection and explicit same-value write intent. P38: low-level mutation replay distinguishes delete/null/no-write, but the executor cache path may still replay a stale whole outcome. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B57",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B57",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -3367,7 +3501,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. The source review distinguishes permitted temp deletion from protected-index deletion and unresolved caller coverage; selectors are UNRUN."
       },
-      "residual": "B58 requires an allowed temporary-field deletion to behave identically through direct, parallel and cached paths; deleting a protected index is refused. Deleting an absent field and conflicting operations need explicit semantics. Next step: run the merge selectors and add parallel/cache caller coverage. P38: helper tombstone semantics do not show that executor/cache consumers route all deletion paths through the helper. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B58 requires an allowed temporary-field deletion to behave identically through direct, parallel and cached paths; deleting a protected index is refused. Deleting an absent field and conflicting operations need explicit semantics. Next step: run the merge selectors and add parallel/cache caller coverage. P38: helper tombstone semantics do not show that executor/cache consumers route all deletion paths through the helper. Partial; selectors and four-base replay are UNRUN.\n\nN18 read-only residual addendum (UNRUN): No current executor-cache deletion witness; direct/parallel merge tests do not prove cached caller behavior.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "StateMerge and executor/cache deletion-routing owner",
@@ -3400,7 +3534,15 @@
           "kind": "implementation_owner",
           "summary": "B58 requires an allowed temporary-field deletion to behave identically through direct, parallel and cached paths; deleting a protected index is refused. Deleting an absent field and conflicting operations need explicit semantics. Next step: run the merge selectors and add parallel/cache caller coverage. P38: helper tombstone semantics do not show that executor/cache consumers route all deletion paths through the helper. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B58",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B58",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -3420,7 +3562,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. The source review identifies nested branch isolation and failed-branch nonleakage; selector is UNRUN."
       },
-      "residual": "B59 requires edits inside a declared subtree to remain invisible to the base and sibling until commit, with failed/cancelled branch changes leaving no state behind. Next step: run the nested-isolation selector and exercise the canonical branching caller with a sibling and a failed/cancelled branch. P38: deep isolation of a `branch_state` input does not prove every actual node mutation goes through the isolated branch. Partial; selector and four-base replay are UNRUN.",
+      "residual": "B59 requires edits inside a declared subtree to remain invisible to the base and sibling until commit, with failed/cancelled branch changes leaving no state behind. Next step: run the nested-isolation selector and exercise the canonical branching caller with a sibling and a failed/cancelled branch. P38: deep isolation of a `branch_state` input does not prove every actual node mutation goes through the isolated branch. Partial; selector and four-base replay are UNRUN.\n\nN18 read-only residual addendum (UNRUN): Current test is helper-level only. Scratch executor witness checks base isolation but does not yet include a sibling reader; sibling observation must be added or explicitly left unestablished.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "StateBranching and canonical branch-execution caller owner",
@@ -3453,7 +3595,15 @@
           "kind": "implementation_owner",
           "summary": "B59 requires edits inside a declared subtree to remain invisible to the base and sibling until commit, with failed/cancelled branch changes leaving no state behind. Next step: run the nested-isolation selector and exercise the canonical branching caller with a sibling and a failed/cancelled branch. P38: deep isolation of a `branch_state` input does not prove every actual node mutation goes through the isolated branch. Partial; selector and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B59",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B59",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -4133,7 +4283,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. Source review classifies the persisted width/resume seam as open; an existing single-skip selector is partial evidence only and UNRUN."
       },
-      "residual": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.",
+      "residual": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.\n\nN18 read-only residual addendum (UNRUN): The worker returns bytes for state only; merge reconstructs status ok for every result. Local tests also use a fake hook, not durable CAS.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "AsyncWorkflowExecutor and checkpoint completed-set owner",
@@ -4168,7 +4318,15 @@
           "kind": "implementation_owner",
           "summary": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B72",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B72",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -4188,7 +4346,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. Source review identifies the legacy per-alias publication divergence; no crash/reopen behavior is claimed. Existing selectors and proposed fault witness are UNRUN."
       },
-      "residual": "B73 requires process stop after the first possible A/B publication to restore a semantically matching state and full completion set, without applying B’s increment twice; separately cover A=ok/B=fail under fail-fast and continue. Native tier-complete checkpointing exists, but a production-reachable legacy per-alias callback can publish merged tier state with only a prefix completion set. Next step: fault after publication, reopen persisted checkpoint, and verify state plus full occurrence set commit atomically and B increments once; cover failure policy, compensation, output cache, seed refs, and legacy hook if retained. P38: the native atomic-tier hook does not establish atomicity on the legacy per-node callback. Partial; existing selectors and the proposed crash witness are UNRUN.",
+      "residual": "B73 requires process stop after the first possible A/B publication to restore a semantically matching state and full completion set, without applying B’s increment twice; separately cover A=ok/B=fail under fail-fast and continue. Native tier-complete checkpointing exists, but a production-reachable legacy per-alias callback can publish merged tier state with only a prefix completion set. Next step: fault after publication, reopen persisted checkpoint, and verify state plus full occurrence set commit atomically and B increments once; cover failure policy, compensation, output cache, seed refs, and legacy hook if retained. P38: the native atomic-tier hook does not establish atomicity on the legacy per-node callback. Partial; existing selectors and the proposed crash witness are UNRUN.\n\nN18 read-only residual addendum (UNRUN): Distributed path merges all tier results before checkpointing per alias. No crash/restart, distributed fail-fast/continue, compensation, cache-seed, or exact-once witness.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "RES-02 async tier checkpoint state-and-metadata owner",
@@ -4241,7 +4399,15 @@
           "kind": "implementation_owner",
           "summary": "B73 requires process stop after the first possible A/B publication to restore a semantically matching state and full completion set, without applying B’s increment twice; separately cover A=ok/B=fail under fail-fast and continue. Native tier-complete checkpointing exists, but a production-reachable legacy per-alias callback can publish merged tier state with only a prefix completion set. Next step: fault after publication, reopen persisted checkpoint, and verify state plus full occurrence set commit atomically and B increments once; cover failure policy, compensation, output cache, seed refs, and legacy hook if retained. P38: the native atomic-tier hook does not establish atomicity on the legacy per-node callback. Partial; existing selectors and the proposed crash witness are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B73",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B73",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -5046,7 +5212,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. Source review narrows the discriminator to no egress/delegate on a real missing/corrupt fixture; existing selectors are UNRUN and do not establish the live transport boundary."
       },
-      "residual": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.\n\nN18 read-only residual addendum (UNRUN): Existing egress tests mock the live delegate. Native transport egress is unestablished. Both success/failure route responses currently project request mode, so replay may report batch_full.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "fabric data-plane replay-mode owner and ordinary delegate/transport egress owner",
@@ -5079,7 +5245,15 @@
           "kind": "implementation_owner",
           "summary": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "N18 read-only source/caller audit:B88",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B88",
+            "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          }
+        ]
       }
     },
     {
@@ -6177,7 +6351,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. Source review supplies absent/null/sign/alias/nonfinite/unit distinctions; selectors are UNRUN."
       },
-      "residual": "B108 requires equivalent balance/deficit encodings to score equally; zero is present evidence, while absent, explicit null, conflicting aliases, non-finite values and incompatible units remain distinct. In particular, absent `gov_balance` must not be collapsed with explicit-null `budget_deficit`. Next step: run the four extractor selectors and exercise a real search caller consuming `BudgetDeficitObjective`, including the absent-vs-null control. P38: extractor behavior alone does not prove the optimizer reports missing/incomparable outcomes as unusable. Partial; selectors and four-base replay are UNRUN.",
+      "residual": "B108 requires equivalent balance/deficit encodings to score equally; zero is present evidence, while absent, explicit null, conflicting aliases, non-finite values and incompatible units remain distinct. In particular, absent `gov_balance` must not be collapsed with explicit-null `budget_deficit`. Next step: run the four extractor selectors and exercise a real search caller consuming `BudgetDeficitObjective`, including the absent-vs-null control. P38: extractor behavior alone does not prove the optimizer reports missing/incomparable outcomes as unusable. Partial; selectors and four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Incompatible units typed distinctly and actual producer-to-search path prevents invalid metric from gaining numeric advantage.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "BudgetDeficitObjective metric extractor and optimizer candidate-consumer owner",
@@ -6210,7 +6384,21 @@
           "kind": "implementation_owner",
           "summary": "B108 requires equivalent balance/deficit encodings to score equally; zero is present evidence, while absent, explicit null, conflicting aliases, non-finite values and incompatible units remain distinct. In particular, absent `gov_balance` must not be collapsed with explicit-null `budget_deficit`. Next step: run the four extractor selectors and exercise a real search caller consuming `BudgetDeficitObjective`, including the absent-vs-null control. P38: extractor behavior alone does not prove the optimizer reports missing/incomparable outcomes as unusable. Partial; selectors and four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B108",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B108.json@sha256:f79cee2088eed891ceb958368af9c00f151921125474345697912e2e87cdf7c0#B108",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "35 passed, 0 failed, exit 0",
+            "identity": "B108 current replay snapshot None",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/opt01/current-head.junit.xml@sha256:47b5ceb5f5a8894b321a47bcee6b93f6297fc3137ef38c3458013467f14122d9",
+            "scope": "Current replay scope as recorded by the N matrix."
+          }
+        ]
       }
     },
     {
@@ -6230,7 +6418,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level B109 record. The N no-record audit recommends the exact card discriminator as closed bounded from whole-file 8/25/8/25 totals, but this overstates the selector evidence: BASELINES exact 2D/3D selector rows are NOT_PRESENT at 78187878e and 5fd3ebcc1 and passed only at 00d946c2b and 73c656744 (lines 416–417, 589–590, 804–805). No base-equivalent distinguishing probe, current-head exact selector run, or marker-retaining removal probe is recorded. Keep partial; the separate served hierarchical-frontier/ParetoRegistry residual also remains."
       },
-      "residual": "The exact equal-secondary 2D/3D selectors are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass only at E02 head 00d946c2b and Phase 0 73c656744 (BASELINES lines 416–417, 589–590, 804–805). The test_pareto.py totals 8/25/8/25 are whole-file counts and do not establish these exact selectors on all four bases. The optimistic N audit claim that this exact card discriminator is closed bounded is therefore not accepted. A base-equivalent distinguishing probe, current-head selector outcome, and marker-retaining property-removal probe remain UNRUN. Separately, RunHierarchicalPolicySearchNode rebuilds global_frontier from feasible candidates rather than using the existing ParetoRegistry snapshot; the default adapter passes no registry, the node persists its own report, and the output builder reads pareto_registry_snapshot although the source census found no production writes to that field or production ParetoRegistry construction. Keep partial. Route the served tenant/cell/loop path through the typed ParetoRegistry and bind its same snapshot to the report/output, preserving ordinary candidate search with unknown transfer scope carried as a typed limitation. Served dominance witness, same-vector preserving control, marker-retaining bypass probe, and five off-matrix whole-file P41 replays remain UNRUN.",
+      "residual": "The exact equal-secondary 2D/3D selectors are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass only at E02 head 00d946c2b and Phase 0 73c656744 (BASELINES lines 416–417, 589–590, 804–805). The test_pareto.py totals 8/25/8/25 are whole-file counts and do not establish these exact selectors on all four bases. The optimistic N audit claim that this exact card discriminator is closed bounded is therefore not accepted. A base-equivalent distinguishing probe, current-head selector outcome, and marker-retaining property-removal probe remain UNRUN. Separately, RunHierarchicalPolicySearchNode rebuilds global_frontier from feasible candidates rather than using the existing ParetoRegistry snapshot; the default adapter passes no registry, the node persists its own report, and the output builder reads pareto_registry_snapshot although the source census found no production writes to that field or production ParetoRegistry construction. Keep partial. Route the served tenant/cell/loop path through the typed ParetoRegistry and bind its same snapshot to the report/output, preserving ordinary candidate search with unknown transfer scope carried as a typed limitation. Served dominance witness, same-vector preserving control, marker-retaining bypass probe, and five off-matrix whole-file P41 replays remain UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Complete bounded 1–4D input permutation × direction × tie matrix; verify downstream selection lineage.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "ParetoFront exact comparator owner (bounded local selector) plus RunHierarchicalPolicySearchNode/global-frontier producer and ParetoRegistry snapshot/output consumer owners (served residual)",
@@ -6266,7 +6454,7 @@
           "scope": "Task plan only; no producer/consumer closure."
         },
         "p41_selector_matrix": {
-          "evidence": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:a27f0b956e2c6f61c53dbda6db24fb84fd082197830dd96ada3fba7ea4f4cd7d",
+          "evidence": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:33bf0fc4c809104a1ffb323947a079c08377b00ca2ebdd25c39eaef593643980",
           "selector_ids": [
             "TestParetoFront.test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
             "TestParetoFront.test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group"
@@ -6312,6 +6500,20 @@
           "The 8/25/8/25 values are whole-file case counts, not exact-selector four-base outcomes.",
           "Correct the residual’s claim that the equal-secondary case has four-base passing evidence. Keep partial pending a base-equivalent distinguishing probe, current-head behavior plus marker-retaining removal probe, and the separate served hierarchical frontier consumer work.",
           "Clarify residual owner to include RunHierarchicalPolicySearchNode/ParetoRegistry served snapshot owner, with ParetoFront local comparator owner as bounded scope."
+        ],
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B109",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B109.json@sha256:095d777ca28028187d30e8b3a9315d547b9f8eb70ab60094ed0a1f63ddf63792#B109",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "35 passed, 0 failed, exit 0",
+            "identity": "B109 current replay snapshot None",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/opt01/current-head.junit.xml@sha256:47b5ceb5f5a8894b321a47bcee6b93f6297fc3137ef38c3458013467f14122d9",
+            "scope": "Current replay scope as recorded by the N matrix."
+          }
         ]
       }
     },
@@ -6386,12 +6588,12 @@
       "closure_owner": "OPT-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "open",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "source_review_refines_no_record",
-        "detail": "Appendix C had no finding-level record. Owner-path review finds a plausible registry genesis gap but no runtime witness; the row is provisionally open, not behaviorally failed."
+        "detail": "Appendix C accurately records that E02 had no finding-level record. The later N finding-level matrix supports only partial status for B111; it does not claim closure or package acceptance as finding evidence. Current R6 whole-file selectors show the direct changed-population/model and revised-occurrence checks pass. Full positive second-cycle promotion/consumer and other residuals remain.",
+        "relation": "source_review_refines_no_record"
       },
-      "residual": "B111 requires input permutations not to change the numeric Pareto front; invalid entries retain their reason; reference-point/hypervolume values are finite or explicitly unavailable; first-champion genesis and later promotion never publish undefined scores. Ordinary evaluator persistence rejects non-finite JSON, but `ChampionRegistry` genesis checks for `None` and can skip comparison. A raw/legacy typed-ref bypass is plausible, not runtime-proven. Next step: run the Pareto selectors and add a native-store registry-boundary NaN/±infinity test before genesis, with finite positive control; trace raw/legacy ref admission through that boundary. P38: Pareto filtering does not guard the separate registry promotion path. Provisional source-review status is open; all selectors/four-base replay are UNRUN.",
+      "residual": "B111 requires input permutations not to change the numeric Pareto front; invalid entries retain their reason; reference-point/hypervolume values are finite or explicitly unavailable; first-champion genesis and later promotion never publish undefined scores. Ordinary evaluator persistence rejects non-finite JSON, but `ChampionRegistry` genesis checks for `None` and can skip comparison. A raw/legacy typed-ref bypass is plausible, not runtime-proven. Next step: run the Pareto selectors and add a native-store registry-boundary NaN/±infinity test before genesis, with finite positive control; trace raw/legacy ref admission through that boundary. P38: Pareto filtering does not guard the separate registry promotion path. Provisional source-review status is open; all selectors/four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Preserve invalid reason through native CAS and upstream guard; no genesis or champion change publishes undefined metric/hypervolume.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "scientist/methods/autotune ChampionRegistry admission and genesis-promotion owner",
@@ -6437,7 +6639,21 @@
           "kind": "implementation_owner",
           "summary": "B111 requires input permutations not to change the numeric Pareto front; invalid entries retain their reason; reference-point/hypervolume values are finite or explicitly unavailable; first-champion genesis and later promotion never publish undefined scores. Ordinary evaluator persistence rejects non-finite JSON, but `ChampionRegistry` genesis checks for `None` and can skip comparison. A raw/legacy typed-ref bypass is plausible, not runtime-proven. Next step: run the Pareto selectors and add a native-store registry-boundary NaN/±infinity test before genesis, with finite positive control; trace raw/legacy ref admission through that boundary. P38: Pareto filtering does not guard the separate registry promotion path. Provisional source-review status is open; all selectors/four-base replay are UNRUN.",
           "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
-        }
+        },
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "PARTIAL",
+            "identity": "N finding-level matrix:B111",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-unrecorded-behavior-matrix-20260925/B111.json@sha256:7bfaa8f927411061daaa45b0da4f01a498982e71633c24032fbe58ece7fde9fd#B111",
+            "scope": "Finding-level bounded classification; package acceptance is not closure."
+          },
+          {
+            "behavioral_verdict": "35 passed, 0 failed, exit 0",
+            "identity": "B111 current replay snapshot None",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-matrix-20260925/opt01/current-head.junit.xml@sha256:47b5ceb5f5a8894b321a47bcee6b93f6297fc3137ef38c3458013467f14122d9",
+            "scope": "Current replay scope as recorded by the N matrix."
+          }
+        ]
       }
     },
     {
@@ -7389,11 +7605,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Carry the verified ArtifactRef and version returned by index discovery into the history reader. In an index with more than 1,000 distractors, read the selected history without a second ANN; changing discovery top_k must not change addressability. A corrupt or unavailable reference must not be replaced by similar history; distinguish absent, unavailable, corrupt and schema-incompatible outcomes. Exercise the real reader/consumer and record its test identity.",
         "owner": "Transfer compatibility owner",
-        "blocker_kind": null,
-        "next_step": "Remove the legacy zero-vector fallback from the live path and prove typed metadata admission and refusal behavior.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B129"
       },
@@ -8378,11 +8594,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "On the production observation path, inject failure before the first yield, after the first block and between metric frames within a block. Accepted observations must appear exactly once: continue only from a confirmed cursor on the same immutable snapshot, or withdraw unpublished draft outputs before replay. Check downstream shards and final counts, not only generator values; a new snapshot must not be mixed in. Keep unchanged-source and typed schema/access-failure controls.",
         "owner": "Observation and mutation owner",
-        "blocker_kind": null,
-        "next_step": "Add concurrent mutation and D2 fault-injection behavioral witnesses and prove the emitted observation is reconciled against the mutated source.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B147"
       },
@@ -9378,11 +9594,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Through the existing Level6 promotion-stage caller, record the exact production function/path and exercise no_promotion, reduced_judge, and auto_cap separately; each must prevent the effect-capable runner from being invoked. Change ticket generation or authority after preparation and prove the commit owner rechecks and refuses; preserve the prepared-payload read path and an allowed callback that runs exactly once. This closes only the callback/commit gate, not GY-PR1 or Atlas DS12/DS13.",
         "owner": "Level6 promotion-stage and effect-capable runner owner",
-        "blocker_kind": null,
-        "next_step": "Check no_promotion, reduced_judge, and auto_cap before invoking any effect-capable runner; the commit owner must independently recheck current ticket generation, authority, and operation constraints immediately before commit. Preserve the prepared-payload read path and prove the normal callback still runs once.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Classification basis: Engineering can move the existing policy check before the callback and retain the owner-side commit check; no external institution, data record, or owner appointment is required.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B164"
       },
@@ -10375,11 +10591,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "On the selected compiler/scale path, compute scale from the valid observed support and allowed training partition. Adding dates to an independent target must not change target A’s scale or loss at the same support unless that coupling is declared; preserve true zero versus missing placeholder and give absent support its own status. Keep a shared-time-axis control and record the caller/test identity.",
         "owner": "Calibration preflight owner",
-        "blocker_kind": null,
-        "next_step": "Measure the compatibility scale boundary and close it with a real mixed-size preflight witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B182"
       },
@@ -13029,11 +13245,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "For registered IncomeTax/TaxSubsidy and LaborMarketMechanism, either retain an explicitly named baseline profile or relocate only under the existing Foundry execution owner. Preserve method IDs/class paths and PatchMap ABI. Verify registry/spec creation, fixed-input patches and PRNG-key progression, active/target masks, fiscal balance, employer IDs and labor counts through compiler/replay and existing fiscal/labor tests. Any changed model law needs a separate version.",
         "owner": "Forecast model, calibration and caller owners",
-        "blocker_kind": null,
-        "next_step": "Exercise actual model and calibration profiles through named callers; encode applicability boundaries and verify each admitted profile end to end.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-003"
       },
@@ -13720,11 +13936,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "At the live autotune/runtime SearchController caller, characterize current traces and migrate through the existing search owner without changing strategy. Compare new and resumed runs for stopping/budget, warm history, empty proposal, sentinel roles, evaluator failure, and matching final result/history/frontier on known scenarios. Preserve serialized histories and import names for the agreed compatibility window; record caller and test identities.",
         "owner": "SearchService lifecycle owner",
-        "blocker_kind": null,
-        "next_step": "Migrate the named live caller and exercise create/read/retain/replay lifecycle, including retained-history readers.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-015"
       },
@@ -13993,11 +14209,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "For the causal_engine and interference package facades, inventory supported exports and consumers, then replace incidental reflection with an explicit compatible surface. Verify direct and star imports, documentation generation, object identity, monkeypatch targets and serialized FQNs. An added internal import must not silently expand public exports. Retain supported test-facing names until the owner resolves their compatibility window; record the complete caller denominator.",
         "owner": "Public API and documentation owner",
-        "blocker_kind": null,
-        "next_step": "Enumerate live callers, migrate them to the canonical API and align the public documentation with observed behavior.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-020"
       },
@@ -14039,7 +14255,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C listed no finding-level record. The earlier CAN-01 probe plus supplemental corpus receipt establish bounded data-level parity for the explicitly enumerated Git-tree inputs: earlier 2,867 Phase-0 JSON path occurrences/2,833 unique blobs and 27 codec/16 raw-hash vectors; supplemental 4,891 records (17 old-main JSON versions plus 4,874 shared JSONL lines) and 19,768 direct encoded-byte outputs with zero unexpected differences. This is measured bounded evidence, not full finding closure. The exact 418 selector and 140 all-base caller-file replays remain UNRUN; persisted/runtime/production-data values and alternate formats/environments remain unresolved. Keep partial."
       },
-      "residual": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.",
+      "residual": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.\n\nOwn-corpus follow-up UNRUN: only 427/2,887 JSON rows spooled; the worker did not complete and E02-R2 worker did not start. This is not a parity result.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CAN-01 canonicalization owner to recover or explicitly replace the missing historical selector; E02-R2 broker for the 140-test four-base replay",
@@ -14121,6 +14337,20 @@
           "Change appendix_c_comparison.relation from not_measured to source_review_refines_no_record, because the bounded corpus was measured while full finding closure remains unestablished.",
           "Keep the independent supplemental review’s P38 caveats: 12-character HEAD prefix check, manually enumerated owner module list/import-origin path-prefix proxy, and parity-only final predicate; this observed receipt is bounded, not a complete gate.",
           "The earlier 7,758-input bounded comparison’s four logical raw output files are losslessly preserved in two verified zstd archives; storage receipt maps the byte-identical main/Phase-0 pairs to those archives. This preserves evidence, not a new closure scope."
+        ],
+        "r2_ledger_reconciliation_additions": [
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "LA-021 own-corpus attempt",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-418-preparation-20260925/LA021_OWN_CORPUS_RUN_RESULT.md@sha256:47714582f74104456a156425b6982a8a6e26d9df832652b0ee5b649e75852450",
+            "scope": "Only 427/2,887 JSON rows spooled on Main; worker did not complete and E02-R2 worker did not start. No comparison result."
+          },
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "LA-021 own-corpus machine receipt",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-corpus-ac638704b20864e425de7fe225cfe0ad84895474-rsscap/receipt.json@sha256:4d4fb478c13a4380220bb602a4c34e2a36585678eb67088d6cfb0e7992f7af21",
+            "scope": "Stop reason attribution unavailable; partial spool is not parity evidence."
+          }
         ]
       }
     },
@@ -14149,11 +14379,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
-        "owner": "Plugin verification owner",
-        "blocker_kind": null,
-        "next_step": "Add the missing verification producer/consumer witness and demonstrate that a forged or absent verification signal is refused.",
+        "next_step": "Keep PLG-01 verification under its verification owner: the admission consumer accepts an owner-issued signal for a valid plugin and refuses absent or present-but-forged signals. For original LA-022, identify the Foundry DomainPlugin discovery owner separately and adapt discovery through existing shared primitives while preserving the DomainPlugin contract. Through the production route cover installed entry points, built-ins, declared development plugins, duplicate IDs, import/dependency failures, unload and reproducible order; compare resolved components and errors. Then invoke an actual economic model through its former DomainPlugin ABI and verify its initial state, mechanism, reward, objective, observation builder and lifecycle hooks remain available. Record both callers and test identities.",
+        "owner": "PLG-01 verification owner; Foundry DomainPlugin discovery owner for LA-022",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-022"
       },
@@ -14258,11 +14488,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Route both Scholar seed-fetch and search-fetch through one existing-owner raw transport while preserving bytes, final URL, headers and redirect history. Test allowed URLs, blocked initial and redirect targets, loops, timeout, oversize, MIME, license and raw hash through both real callers. Keep DNS/SSRF admission as a separate unresolved property; a fetcher test alone does not establish it.",
         "owner": "Scope and network admission owner",
-        "blocker_kind": null,
-        "next_step": "Close SSRF/DNS behavior for resolution, rebinding and scope changes through the actual request path, with a control that must remain allowed.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-024"
       },
@@ -14496,11 +14726,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "At the production catalog caller, use one versioned source registry as the authority for ordered IDs, filters, asset contracts and seed closure. Compare module and registry selection for enabled sources with enabled, disabled or missing seeds; distinguish an explicit empty module list from None/default; cover custom registries, cycles and profiles without introducing I/O on contract-only import. Keep any DFK-02 kit producer/consumer residual separately named; this step does not close it.",
         "owner": "Data Forge kit owner",
-        "blocker_kind": null,
-        "next_step": "Close DFK-02 through the canonical kit owner and a served consumer witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-028"
       },
@@ -14550,11 +14780,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Move the Ukraine provision/repository-gate command through the existing ops-runner owner and pass the verified product/workspace root from CLI composition. At the real caller compare command, cwd, environment, exit/skipped semantics and explicit override; preserve environment safeguards and gate results. In an installed package without a checkout, report the repository check unavailable instead of inferring a root with parents[N]. Record the caller and test identity.",
         "owner": "UDF server lifecycle owner",
-        "blocker_kind": null,
-        "next_step": "Close the server lifecycle consumer path and prove start, shutdown, failure and restart against its owner contract.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-029"
       },
@@ -14806,11 +15036,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Switch supported internal source, string and benchmark consumers from the compatibility transit module to the canonical Scientist replay owner, updating the dynamic-import inventory while preserving lazy Runtime root exports and object identity. Exercise CLI check-only, bundle import/export, replay/resume, docs and import budget; verify historical bytes, monkeypatch targets and FQN consumers. Keep the old path until its supported compatibility window is resolved.",
         "owner": "Report migration owner",
-        "blocker_kind": null,
-        "next_step": "Complete REP-01 against its named callers and prove report provenance and historical replay on the canonical owner path.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-033"
       },
@@ -15073,11 +15303,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Through the production batch/pipeline caller, make dependencies explicit at the actual core_sources_ingest leaf boundary. Prove a canonical leaf works without pre-importing the legacy facade, a sibling call cannot overwrite its globals, and requests/writes/errors/counts and coroutine signatures remain stable; cover safe concurrent dependency substitution. Replace broadcast synchronization only with the finite supported bindings identified by a complete cross-leaf/monkeypatch census. Keep DFI CLI override isolation as a separate control.",
         "owner": "DFI CLI facade owner",
-        "blocker_kind": null,
-        "next_step": "Complete the CLI facade and prove override concurrency under the canonical configuration owner.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-038"
       },
@@ -15130,11 +15360,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Through both Catalog and Academic production wrappers, publish a complete version-bound generation of IDs, vectors and HNSW basis for each domain’s own text projection. Empty input must not relabel a stale index as a new generation; failure between NPZ and HNSW writes must leave either the old complete generation or the new complete generation. The live reader must select one matching generation. Cover empty/nonempty, reordered rows, model change, partial-write failure and retained-history readback.",
         "owner": "Embedding generation and reader owner",
-        "blocker_kind": null,
-        "next_step": "Exercise embedding generation through retained-history readers and close the full generation/read lifecycle.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-039"
       },
@@ -15405,11 +15635,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Resolve openapi-typescript through the Runtime API client package or an existing shared build owner at the locked version, not through the dashboard consumer. After frozen dependency installation, run package and dashboard generation from the same schema and compare the selected output contract while preserving the dashboard’s own formatting stage. Typecheck all workspaces and verify freshness in the isolated probe environment without loading dashboard runtime dependencies.",
         "owner": "Runtime API client package owner",
-        "blocker_kind": null,
-        "next_step": "Complete the bounded client migration through package-owned generation; typecheck every workspace and prove consumers use the generated canonical client.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-044"
       },
@@ -15582,11 +15812,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Consolidate only the shared linear migration executor behind explicit Common and IR facade profiles. Verify input copy/no-op identity, nested callback mutation on success and failure, returned-version stamping versus refusal, input-version typing, duplicate registration, cycle/missing-edge and exception semantics. Exercise the actual DatasetManifest converter and IR callbacks plus supported historical inputs; keep IR schema negotiation/rules at the IR owner.",
         "owner": "MOVE-14 migration owner",
-        "blocker_kind": null,
-        "next_step": "Apply MOVE-14 through the owner, then verify imports and all live callers resolve to the canonical module.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-047"
       },
@@ -15636,11 +15866,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "For the actual run_manifest migration CLI, preserve the addressable source artifact and bytes; never replace an unresolved path with its basename. Test internal absolute and nested relative paths, same-basename collisions, distinct roots, existing run_root/relative_path, missing objects, symlink/escape and repeat runs through the Runtime reader. Define or explicitly reject --to for path-only normalization; do not claim relocation unless files were explicitly moved and verified.",
         "owner": "Migration owner for MIG-02",
-        "blocker_kind": null,
-        "next_step": "Apply the MIG-02 move through the canonical owner and enumerate all readers/importers before retiring the legacy path.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-048"
       },
@@ -15754,11 +15984,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "Move the DatasetManifest-specific converter to the Fabric identity/schema owner only after confirming historical formats; keep the Common runner generic. Through the operational CLI and real DatasetManifest validator, cover legacy/current aliases alone and together (equal and conflicting), unknown/missing fields, supported versions, JSON/YAML, default target, input isolation and error types. Preserve historical-profile handling where formats differ; do not invent raw_hash/provenance or treat parse success as admission.",
         "owner": "ManifestRegistry and corpus migration owner",
-        "blocker_kind": null,
-        "next_step": "Complete ManifestRegistry/corpus migration with reader compatibility and source-bound replay evidence.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-050"
       },
@@ -15809,11 +16039,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "First identify the compatible in-repository calibration producer and exact S10 consumer. Through that existing producer-to-consumer path, bind observed numerator and denominator, rule/report version, scope, and times, then assert the consumer sees those same values. If no compatible producer exists, record that census result and retain predictive_only/bridge_pending under FRC-01; do not manufacture coverage.",
         "owner": "Generation-cycle S10 and existing calibration producer owners",
-        "blocker_kind": null,
-        "next_step": "Wire a compatible real calibration producer and named S10 consumer through the existing calibration/S10 owners; bind observed numerator/denominator, report/rule version, scope and times. If no compatible producer is found, keep the result explicitly predictive-only/bridge-pending under FRC-01 instead of manufacturing coverage.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Classification basis: The source names existing S10/calibration owners and a production-named gateway; census and owner-routed integration are engineering work, not an established external blocker.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-051"
       },
@@ -15863,11 +16093,11 @@
       },
       "r_class": null,
       "p_triage": {
+        "blocker_kind": null,
         "class": "a",
         "disposition": "engineering",
+        "next_step": "On the real curve → continuous evaluation → diagnostics report → truthfulness receipt path, cover empty intervals and observations, absent intervals, mismatched lengths, unmatched levels/sets, fully missing and partially usable data, positive/negative coverage and the small-sample downgrade. Carry the actual number of interval comparison points and distinguish not-evaluated/incomplete from a positive calibration label. Preserve valid curve mathematics; record the end-to-end test identity.",
         "owner": "PCL producer and consumer owner",
-        "blocker_kind": null,
-        "next_step": "Implement mixed-valid/empty handling and prove the same typed identity is preserved through producer and consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-052"
       },

@@ -90,6 +90,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     confidence_risk_scope_for_problem,
     parse_canonical_promotion_history_receipt,
 )
+from tools.lib.fs import measure_file_reads, measured_read_bytes
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
@@ -103,6 +104,16 @@ _COMPARISON_IDENTITY_FIELDS = {
     "comparison_projection_schema_version",
     "comparison_rule_version",
 }
+
+
+class _PromotionContractReconciliationDriftError(ValueError):
+    """A completed live replay rejected frozen comparison custody."""
+
+    def __init__(self, code: str, *, details: dict[str, Any]) -> None:
+        super().__init__(code)
+        self.code = code
+        self.details = details
+
 
 _SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_no_self_promotion_guard",
@@ -515,26 +526,146 @@ def validate(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     path = repo_root / OUTPUT_PATH
-    if not path.is_file():
-        return {
-            "status": "fail",
-            "issues": [{"code": "promotion_contract_missing", "path": OUTPUT_PATH}],
-            "wall_time_seconds": round(time.monotonic() - started, 6),
-        }
-    committed_json = path.read_text(encoding="utf-8")
-    report = validate_payload(json.loads(committed_json))
-    expected_json = build_contract_json_for_write(repo_root)
-    if committed_json != expected_json:
-        report["issues"].append(
-            {
-                "code": "promotion_contract_canonical_drift",
-                "expected_hash": gy_content_hash(json.loads(expected_json)),
-                "actual_hash": gy_content_hash(json.loads(committed_json)),
+    with measure_file_reads(repo_root) as reads:
+
+        def finish(report: dict[str, Any]) -> dict[str, Any]:
+            report["verdict"] = {
+                "pass": "PASS",
+                "fail": "FAIL",
+                "unrun": "UNRUN",
+            }.get(report.get("status"), "UNRUN")
+            report["wall_time_seconds"] = round(time.monotonic() - started, 6)
+            measurement = reads.snapshot(complete_verdict=report.get("status") != "unrun")
+            issue_codes = {
+                str(issue.get("code"))
+                for issue in report.get("issues", [])
+                if isinstance(issue, dict)
             }
-        )
-        report["status"] = "fail"
-    report["wall_time_seconds"] = round(time.monotonic() - started, 6)
-    return report
+            if report.get("status") == "unrun":
+                verdict_scope = (
+                    "No complete artifact/replay verdict was reached because the required "
+                    "input or live replay was unavailable."
+                )
+                finding_coverage = "partial frozen-artifact reconciliation"
+            elif "promotion_contract_frozen_payload_invalid" in issue_codes:
+                verdict_scope = (
+                    "Frozen bytes were read and rejected as invalid JSON; the owner replay "
+                    "was not run and no reconciliation result was reached."
+                )
+                finding_coverage = "frozen artifact JSON syntax only"
+            elif "promotion_comparison_admission_manifest_drift" in issue_codes:
+                verdict_scope = (
+                    "Frozen artifact validation and the canonical owner replay reached a "
+                    "typed owner reconciliation refusal; byte equality was not established."
+                )
+                finding_coverage = "frozen-artifact validation and typed owner refusal"
+            else:
+                verdict_scope = (
+                    "Frozen artifact validation and exact byte comparison with one canonical "
+                    "owner replay in this checkout completed."
+                )
+                finding_coverage = "frozen artifact and canonical replay byte comparison"
+            verdict_scope += (
+                " This does not establish complete source, import, or data-input closure "
+                "or production-wide truth."
+            )
+            measurement["finding_coverage"] = finding_coverage
+            measurement["verdict_scope"] = verdict_scope
+            measurement["complete_verdict_scope"] = (
+                verdict_scope if measurement["complete_verdict"] else None
+            )
+            measurement["selection_status"] = "partial"
+            measurement["selectors"] = {
+                "frozen_output": OUTPUT_PATH,
+                "live_replay": "build_contract_json_for_write(repo_root)",
+                "comparison_custody": sorted(_COMPARISON_IDENTITY_FIELDS),
+            }
+            measurement["unresolved_by_construction"].extend(
+                [
+                    "Live owner replay imports and implicit filesystem reads outside the "
+                    "measured frozen-output read are not operation-instrumented.",
+                    "The complete loaded-code and data-input denominator for the live replay "
+                    "is not established by this receipt.",
+                ]
+            )
+            report["measurement"] = measurement
+            return report
+
+        try:
+            frozen_bytes = measured_read_bytes(path)
+        except FileNotFoundError:
+            return finish(
+                {
+                    "status": "unrun",
+                    "issues": [{"code": "promotion_contract_input_missing", "path": OUTPUT_PATH}],
+                }
+            )
+        except OSError as exc:
+            return finish(
+                {
+                    "status": "unrun",
+                    "issues": [
+                        {
+                            "code": "promotion_contract_input_unreadable",
+                            "path": OUTPUT_PATH,
+                            "error_type": type(exc).__name__,
+                            "error": str(exc),
+                        }
+                    ],
+                }
+            )
+
+        try:
+            frozen_payload = json.loads(frozen_bytes)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            return finish(
+                {
+                    "status": "fail",
+                    "issues": [
+                        {
+                            "code": "promotion_contract_frozen_payload_invalid",
+                            "path": OUTPUT_PATH,
+                            "error_type": type(exc).__name__,
+                            "error": str(exc),
+                        }
+                    ],
+                }
+            )
+
+        try:
+            report = validate_payload(frozen_payload)
+            expected_json = build_contract_json_for_write(repo_root)
+        except _PromotionContractReconciliationDriftError as exc:
+            report = locals().get("report", {"issues": []})
+            report["issues"].append({"code": exc.code, "details": exc.details})
+            report["status"] = "fail"
+            return finish(report)
+        except Exception as exc:
+            partial_issues = locals().get("report", {}).get("issues", [])
+            return finish(
+                {
+                    "status": "unrun",
+                    "issues": [
+                        {
+                            "code": "promotion_contract_replay_unrun",
+                            "error_type": type(exc).__name__,
+                            "error": str(exc),
+                        }
+                    ],
+                    "partial_issues": partial_issues,
+                }
+            )
+
+        if frozen_bytes != expected_json.encode("utf-8"):
+            report["issues"].append(
+                {
+                    "code": "promotion_contract_canonical_drift",
+                    "expected_hash": gy_content_hash(json.loads(expected_json)),
+                    "actual_hash": gy_content_hash(frozen_payload),
+                }
+            )
+            report["status"] = "fail"
+        return finish(report)
 
 
 def rederive_audit(repo_root: Path) -> dict[str, Any]:
@@ -946,12 +1077,55 @@ def _reconcile_frozen_contract(
     if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
         raise ValueError("promotion_legacy_contract_content_hash_drift")
     if not _frozen_comparison_identity_admissible(frozen, plan):
-        raise ValueError("promotion_comparison_admission_manifest_drift")
+        raise _PromotionContractReconciliationDriftError(
+            "promotion_comparison_admission_manifest_drift",
+            details={
+                "stage": "frozen_identity",
+                "frozen_manifest": frozen.get("comparison_admission_manifest"),
+                "live_manifest": plan.manifest,
+                "frozen_comparison_identity": {
+                    field: frozen.get(field)
+                    for field in _COMPARISON_IDENTITY_FIELDS
+                },
+                "frozen_comparison_content_hash": frozen.get("comparison_content_hash"),
+            },
+        )
     if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
-        if _is_authorized_v6_source_scope_epoch_reissue(frozen, live, plan):
+        v6_source_scope_reissue = _is_authorized_v6_source_scope_epoch_reissue(
+            frozen, live, plan
+        )
+        if v6_source_scope_reissue:
             return live
-        if not _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest):
-            raise ValueError("promotion_comparison_admission_manifest_drift")
+        v3_to_v6_reissue = _is_authorized_v3_to_v6_comparison_reissue(
+            frozen, live, plan.manifest
+        )
+        if not v3_to_v6_reissue:
+            receipt_keys = (
+                "contract_lane_anytime_refusal",
+                "production_honest_shadow",
+                "non_promotable_contract_stamp",
+            )
+            raise _PromotionContractReconciliationDriftError(
+                "promotion_comparison_admission_manifest_drift",
+                details={
+                    "stage": "unauthorized_manifest_epoch_transition",
+                    "frozen_manifest": frozen.get("comparison_admission_manifest"),
+                    "live_manifest": plan.manifest,
+                    "frozen_receipt_schema_versions": {
+                        key: (frozen.get(key) or {}).get("schema_version")
+                        for key in receipt_keys
+                    },
+                    "live_receipt_schema_versions": {
+                        key: (live.get(key) or {}).get("schema_version")
+                        for key in receipt_keys
+                    },
+                    "authorized_transition_predicates": {
+                        "v6_source_scope_reissue": v6_source_scope_reissue,
+                        "v3_to_v6_comparison_reissue": v3_to_v6_reissue,
+                    },
+                    "live_source_modules": live.get("source_modules", []),
+                },
+            )
         return live
     if _is_authorized_credal_input_epoch_reissue(frozen, live, plan):
         return live
@@ -2403,9 +2577,11 @@ def main(argv: list[str] | None = None) -> int:
             "PASS layer3_gy_promotion_contract "
             f"wall_time_seconds={report.get('wall_time_seconds', 0)}"
         )
+    elif report["status"] == "unrun":
+        print(json.dumps(report, indent=2, sort_keys=True), file=sys.stderr)
     else:
         print(json.dumps(report, indent=2, sort_keys=True), file=sys.stderr)
-    return 0 if report["status"] == "pass" else 1
+    return {"pass": 0, "fail": 1, "unrun": 2}.get(report.get("status"), 2)
 
 
 if __name__ == "__main__":

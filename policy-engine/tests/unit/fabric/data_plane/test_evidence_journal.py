@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -196,6 +197,60 @@ def test_live_execution_authorization_builder_binds_exact_carrier_and_request() 
             max_response_bytes=65_536,
             max_decompressed_bytes=65_536,
         )
+
+
+@pytest.mark.parametrize("error_type", [RuntimeError, asyncio.CancelledError])
+def test_live_acquire_permit_scope_revokes_unconsumed_permit_on_baseexception_exit(
+    tmp_path: Path,
+    error_type: type[BaseException],
+) -> None:
+    journal = AppendOnlyEvidenceJournal(tmp_path / "scoped-permit.jsonl")
+    attempt_id = "n13b-worldbank-cpi-001"
+    request = _authorization_request()
+    schema_contract = {"columns": ["country_code", "year", "value"]}
+    assert request["schema_contract"] == schema_contract
+    source_profile = _source_profile()
+    family_receipt = _harness_receipt()
+    baseline_sha256 = "sha256:" + "f" * 64
+    authorization = build_live_execution_authorization(
+        attempt_id=attempt_id,
+        connector_id="worldbank.wdi",
+        request_dataset_id="FP.CPI.TOTL",
+        request=request,
+        schema_contract=schema_contract,
+        source_profile=source_profile,
+        baseline_sha256=baseline_sha256,
+        family_receipt=family_receipt,
+        max_response_bytes=65_536,
+        max_decompressed_bytes=65_536,
+    )
+    request_ref = journal.append_request(attempt_id=attempt_id, request=request)
+    scope_arguments = {
+        "authorization": authorization,
+        "request_ref": request_ref,
+        "connector_id": "worldbank.wdi",
+        "request_dataset_id": "FP.CPI.TOTL",
+        "request": request,
+        "schema_contract": schema_contract,
+        "source_profile": source_profile,
+        "baseline_sha256": baseline_sha256,
+        "family_receipt": family_receipt,
+        "timeout_cap_seconds": 15.0,
+        "heartbeat_cap_seconds": 5.0,
+        "max_response_bytes": 65_536,
+        "max_decompressed_bytes": 65_536,
+    }
+    yielded_permits: list[object] = []
+
+    with pytest.raises(error_type):
+        with journal.live_acquire_permit_scope(**scope_arguments) as permit:
+            yielded_permits.append(permit)
+            issued = AppendOnlyEvidenceJournal._live_acquire_permits.get(permit)
+            assert issued is not None and issued[1] == "issued"
+            raise error_type("leave the unconsumed permit scope")
+
+    assert len(yielded_permits) == 1
+    assert yielded_permits[0] not in AppendOnlyEvidenceJournal._live_acquire_permits
 
 
 def test_http_budget_is_derived_from_profile_and_enforces_response_ceiling() -> None:

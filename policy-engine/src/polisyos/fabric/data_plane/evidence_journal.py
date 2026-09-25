@@ -15,7 +15,8 @@ import math
 import os
 import re
 import threading
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
@@ -1497,6 +1498,51 @@ class AppendOnlyEvidenceJournal:
     def _current_journal_sha256(self) -> str:
         payload = self.path.read_bytes() if self.path.is_file() else b""
         return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+    @contextmanager
+    def live_acquire_permit_scope(
+        self,
+        *,
+        authorization: LiveExecutionAuthorization,
+        request_ref: JournalEventRef,
+        connector_id: str,
+        request_dataset_id: str,
+        request: Mapping[str, Any],
+        schema_contract: Mapping[str, Any],
+        source_profile: SourceProfile,
+        baseline_sha256: str,
+        family_receipt: object,
+        timeout_cap_seconds: float,
+        heartbeat_cap_seconds: float,
+        max_response_bytes: int,
+        max_decompressed_bytes: int,
+    ) -> Iterator[object]:
+        """Yield an opaque permit bound to this journal's authorized request.
+
+        The journal validates and registers the one-use identity before yielding.
+        The ingestion owner must consume it unchanged; any unconsumed permit is
+        revoked when this scope exits. The concrete permit type remains private.
+        """
+
+        permit = self._issue_live_acquire_permit(
+            authorization=authorization,
+            request_ref=request_ref,
+            connector_id=connector_id,
+            request_dataset_id=request_dataset_id,
+            request=request,
+            schema_contract=schema_contract,
+            source_profile=source_profile,
+            baseline_sha256=baseline_sha256,
+            family_receipt=family_receipt,
+            timeout_cap_seconds=timeout_cap_seconds,
+            heartbeat_cap_seconds=heartbeat_cap_seconds,
+            max_response_bytes=max_response_bytes,
+            max_decompressed_bytes=max_decompressed_bytes,
+        )
+        try:
+            yield permit
+        finally:
+            self._revoke_live_acquire_permit(permit)
 
     def _issue_live_acquire_permit(
         self,

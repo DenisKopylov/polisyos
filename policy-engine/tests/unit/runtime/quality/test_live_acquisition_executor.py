@@ -7,8 +7,9 @@ import hashlib
 import json
 import socket
 import threading
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -81,6 +82,46 @@ _PARAMS = {
     "page": "1",
     "per_page": "1000",
 }
+
+
+def _spy_on_journal_permit_scope(
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[list[tuple[str, str, str]], list[object]]:
+    """Observe the production owner's permit scope and delegate unchanged."""
+
+    original_scope = getattr(
+        AppendOnlyEvidenceJournal,
+        "live_acquire_permit_scope",
+        None,
+    )
+    if not callable(original_scope):
+        pytest.fail("AppendOnlyEvidenceJournal must expose its public permit scope")
+    entered: list[tuple[str, str, str]] = []
+    yielded_permits: list[object] = []
+
+    @contextmanager
+    def _observed_scope(
+        journal: AppendOnlyEvidenceJournal,
+        **kwargs: Any,
+    ) -> Iterator[object]:
+        authorization = kwargs["authorization"]
+        entered.append(
+            (
+                str(authorization.attempt_id),
+                str(kwargs["connector_id"]),
+                str(kwargs["request_dataset_id"]),
+            )
+        )
+        with original_scope(journal, **kwargs) as permit:
+            yielded_permits.append(permit)
+            yield permit
+
+    monkeypatch.setattr(
+        AppendOnlyEvidenceJournal,
+        "live_acquire_permit_scope",
+        _observed_scope,
+    )
+    return entered, yielded_permits
 
 
 def _family_receipt(*, scenario: str = "success") -> dict[str, object]:
@@ -1240,6 +1281,8 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
 
     from polisyos.fabric.connectors.pool import ConnectionPool
 
+    scope_entries, scoped_permits = _spy_on_journal_permit_scope(monkeypatch)
+    pool_permits: list[object] = []
     repo_root = tmp_path / "repo"
     entry = _entry()
     receipt = _family_receipt()
@@ -1272,6 +1315,7 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
         connector_id: str,
         dataset_id: str,
     ) -> Any:
+        pool_permits.append(permit)
         issued = AppendOnlyEvidenceJournal._live_acquire_permits.get(permit)
         assert issued is not None and issued[1] == "issued"
         binding = issued[0]
@@ -1366,6 +1410,9 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     )
 
     assert transport_calls == [("GET", _URL, _PARAMS)]
+    assert scope_entries == [(_ATTEMPT_ID, _CONNECTOR_ID, _INDICATOR_ID)]
+    assert len(scoped_permits) == len(pool_permits) == 1
+    assert scoped_permits[0] is pool_permits[0]
     assert health_checks == []
     assert evidence.call_count == 1
     assert evidence.variable_count == 1
@@ -1717,6 +1764,7 @@ def test_live_executor_blocks_out_of_authority_country_before_http_transport(
     import aiohttp
 
     authority, entry = _resolved_live_worldbank_authority(tmp_path)
+    scope_entries, _scoped_permits = _spy_on_journal_permit_scope(monkeypatch)
     transport_calls: list[tuple[str, str]] = []
 
     async def _intercept_unexpected_request(
@@ -1754,6 +1802,7 @@ def test_live_executor_blocks_out_of_authority_country_before_http_transport(
         )
 
     assert exc_info.value.code == "live_transport_request_drift"
+    assert scope_entries == [(_ATTEMPT_ID, _CONNECTOR_ID, _INDICATOR_ID)]
     assert transport_calls == []
     events = _journal_events(journal_path)
     attempts = [event for event in events if event["event_kind"] == "transport_attempt"]

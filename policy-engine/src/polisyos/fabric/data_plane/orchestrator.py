@@ -43,7 +43,6 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.fabric.connectors import RawHTTPResponseObserver
-    from polisyos.fabric.data_plane.evidence_journal import _LiveAcquirePermit
     from polisyos.fabric.ingestion import IngestionDependencies, PreTransformFetchResultSink
 
 logger = get_logger(__name__)
@@ -519,7 +518,7 @@ def run_orchestrated_ingestion(
     ingestion_dependencies: IngestionDependencies | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
-    _live_acquire_permit: _LiveAcquirePermit | None = None,
+    _live_acquire_permit: object | None = None,
 ) -> IngestionResult:
     """Run ingestion and optionally produce a DataSnapshot.
 

@@ -62,7 +62,6 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
-    from polisyos.fabric.data_plane.evidence_journal import _LiveAcquirePermit
 
 logger = get_logger(__name__)
 TransformPipelineFactory = Callable[[], Any]
@@ -677,7 +676,7 @@ def _sync_fetch(
     *,
     connection_config: Any | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
-    _live_acquire_permit: _LiveAcquirePermit | None = None,
+    _live_acquire_permit: object | None = None,
 ) -> FetchResult[Any]:
     async def _do_fetch() -> FetchResult[Any]:
         config = connection_config
@@ -842,7 +841,7 @@ def run_connectors_ingestion(
     dependencies: IngestionDependencies | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
-    _live_acquire_permit: _LiveAcquirePermit | None = None,
+    _live_acquire_permit: object | None = None,
 ) -> EvidenceBundleRef | None:
     """Run connector ingestion with optional HTTP and normalized-result witnesses.
 

@@ -659,8 +659,28 @@ def _inspect_integration_checkout() -> dict[str, Any]:
     dirty_paths = list(_checkout_status(INTEGRATION_CHECKOUT))
     changed_paths = sorted(set(committed.stdout.splitlines()) | set(dirty_paths))
     allowed_prefix = INTEGRATION_PACKAGE_RELATIVE + "/"
-    unexpected = [path for path in changed_paths if path != INTEGRATION_PACKAGE_RELATIVE and not path.startswith(allowed_prefix)]
-    _require(not unexpected, f"integration tree differs from Phase 0 outside the baseline package: {unexpected}")
+    raw_ignore_path = "policy-engine/.gitignore"
+    if raw_ignore_path in changed_paths:
+        original_ignore = _git(INTEGRATION_CHECKOUT, "show", f"{phase0_commit}:{raw_ignore_path}")
+        _require(original_ignore.returncode == 0, "Phase 0 gitignore inspection failed")
+        marker = "docs/superpowers/journals/**/raw/\n"
+        _require(original_ignore.stdout.count(marker) == 1, "Phase 0 raw-ignore insertion point changed")
+        expected_ignore = original_ignore.stdout.replace(
+            marker,
+            "docs/plans/active/agent-packages/PolicyOS_E02R2/raw/\n" + marker,
+        )
+        _require(
+            (INTEGRATION_CHECKOUT / raw_ignore_path).read_text() == expected_ignore,
+            "integration gitignore differs from the single E02R2 raw-output rule",
+        )
+    unexpected = [
+        path
+        for path in changed_paths
+        if path != INTEGRATION_PACKAGE_RELATIVE
+        and not path.startswith(allowed_prefix)
+        and path != raw_ignore_path
+    ]
+    _require(not unexpected, f"integration tree differs from Phase 0 outside the baseline package and raw ignore: {unexpected}")
     return {
         "checkout": str(INTEGRATION_CHECKOUT),
         "branch": branch.stdout.strip(),
@@ -3082,7 +3102,7 @@ def _write_report(
         "",
         "## Revision and environment identity",
         "",
-        f"The report/output checkout is `{report['output_checkout']['checkout']}` on `{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` (postflight `{report['output_checkout']['postflight_head']}`). Its complete tracked/dirty path delta from Phase 0 is confined to `{INTEGRATION_PACKAGE_RELATIVE}`; the tested Phase 0 checkout remains the separate exact 73c worktree. The integration checkout's product source, tests, and schema therefore match Phase 0 for this measurement.",
+        f"The report/output checkout is `{report['output_checkout']['checkout']}` on `{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` (postflight `{report['output_checkout']['postflight_head']}`). Its complete tracked/dirty path delta from Phase 0 is confined to `{INTEGRATION_PACKAGE_RELATIVE}` and one byte-checked `policy-engine/.gitignore` rule for that package's ignored `raw/` outputs; the tested Phase 0 checkout remains the separate exact 73c worktree. The integration checkout's product source, tests, and schema therefore match Phase 0 for this measurement.",
         "",
         "| Revision | Commit | Branch | Worktree | Tracked test `.py` paths / `test_*.py` modules | Requested present | Data root mode | pytest.ini blob |",
         "|---|---|---|---|---:|---:|---:|---|",

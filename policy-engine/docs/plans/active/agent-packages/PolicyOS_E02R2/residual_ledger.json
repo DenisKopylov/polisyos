@@ -9,8 +9,8 @@
   },
   "status_counts": {
     "closed": 0,
-    "partial": 268,
-    "held": 12,
+    "partial": 269,
+    "held": 11,
     "open": 2
   },
   "appendix_c_counts": {
@@ -29,7 +29,7 @@
     "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
     "The 18 Appendix-C no-record items are reconciled individually: LA-021 is partial after bounded corpus replays were supplemented but the exact 418 selector and caller-file replays remain UNRUN; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial B items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
     "Historical pre-refinement P118 snapshot: 118/118 rows were classified as 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 then moved from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. The current 87/16/15 projection is bound in citation_catalog.partial_triage. Triage is not closure evidence, and no behavior replay was run for the B153 or ten subsequent classification changes.",
-    "Historical H14 partitions are superseded by the complete per-finding audit: 4 owner_decision, 7 data_record and 3 smallest_missing_capability blockers; current statuses are 12 held, LA-010 partial and B219 open. All H14 behavior and P41 witnesses remain UNRUN.",
+    "Historical H14 partitions are superseded by the complete per-finding audit: 2 owner_decision, 8 data_record and 4 smallest_missing_capability blockers; current statuses are 11 held, LA-010 and LA-049 partial, and B219 open. All H14 behavior and P41 witnesses remain UNRUN.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
@@ -38,7 +38,8 @@
     "B111 remains open at source review: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. Registry-boundary NaN/infinity negative, finite positive control and four-base replay remain UNRUN.",
     "R3 bounded historical-replay census: 42 complete receipt instances (8 v1, 16 v3, 1 compressed v5, 17 v6; 33 unique canonical contents) from 2,870 tracked JSON files, one compressed v5 fixture, and five pinned Git JSON carriers found by a 6,381-file tracked-Python source-reference census. Corpus/pinned inventories: /Users/deniskopylov/.codex/scratch/e02-r2-r3-receipt-corpus-20260925.json@sha256:f8473042678669c2d28e5c46b2af269e9f1456dac8d3b116f28f9a428f4c9702; /Users/deniskopylov/.codex/scratch/e02-r2-r3-pinned-n9-carriers-20260925.json@sha256:39086967490651bf1dd3ad8d3e731dab80b0c4b3eb565e5b1e1445286edb6c2a. R3_REPAIR: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R3_REPAIR.md@sha256:aed54118934c744e71bccf3a8fdcece7ccc065abc687280f4091fb05e6e2d3b4. No B/LA row is assigned to R3 by adjacency; no status or register closure follows from this class receipt.",
     "R12/R13 bounded repair at committed da41f2e8c: the production N7 receiver refuses route-shaped local FileTabular growth before route context/WMR/N5; ACQ-01 suite 20/20, nonroute control 3/3, marker-preserving removal red, planner 70 pass/1 intentional skip, two N7 selectors 2/2, and direct bridge fixture 1/1. Boundary/evidence: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R12_R13_BOUNDARY.md@sha256:a4d7312f2ccd40d777839d25b2e9565c332f06ca62330cf092bb10327682d3f1. This does not establish a production ACQ-01 authority/journal producer, served WDI, tenant-bound guarded-store custody, post-admission W1 context, or full four-base replay. B12 stays partial/R13 because its admitted-data-impact discriminator remains UNRUN; the R13 option-3 principal ruling is pending and DS15 positive qualification remains absent/unallocated. No new crosswalk edge or register closure.",
-    "R4 bounded class result at committed 2012dd84b: the governed N6 `--check` returns structured fail/exit 1 with one final N9 callback/session and four measured issues (strangle_receipt_stale, two embedded_promotion_open_world_reissue_required, and generation_cycle_comparison_admission_manifest_drift), not a traceback. Postcommit receipt: /Users/deniskopylov/.codex/scratch/e02-r4-candidate-20260925/r4-integrated-validator-postcommit.stdout.json@sha256:f587c01f945a4142b8ca1be13b959ee445bf4703d9600da06ddabe1aa550c9b2; repair record: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R4_REPAIR.md@sha256:036465b973830246d4fde26f607e06fd13882f24025b1e8040419dff3342a8fe. This proves typed verdict delivery, not a green contract or full R4 closure: the full repository-quality checker is UNRUN, four-base postrepair replay remains pending, and authorized reissue remains required. No B/LA row discriminator mapping was established, so no finding-row status/evidence change is assigned to R4."
+    "R4 bounded class result at committed 2012dd84b: the governed N6 `--check` returns structured fail/exit 1 with one final N9 callback/session and four measured issues (strangle_receipt_stale, two embedded_promotion_open_world_reissue_required, and generation_cycle_comparison_admission_manifest_drift), not a traceback. Postcommit receipt: /Users/deniskopylov/.codex/scratch/e02-r4-candidate-20260925/r4-integrated-validator-postcommit.stdout.json@sha256:f587c01f945a4142b8ca1be13b959ee445bf4703d9600da06ddabe1aa550c9b2; repair record: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R4_REPAIR.md@sha256:036465b973830246d4fde26f607e06fd13882f24025b1e8040419dff3342a8fe. This proves typed verdict delivery, not a green contract or full R4 closure: the full repository-quality checker is UNRUN, four-base postrepair replay remains pending, and authorized reissue remains required. No B/LA row discriminator mapping was established, so no finding-row status/evidence change is assigned to R4.",
+    "Independent LA-010/LA-049 source census correction: the complete tracked Python-blob denominator under policy-engine/src, policy-engine/tools, and policy-engine/tests is 5,861 = 2,693 + 445 + 2,723. The prior 5,855 denominator is incorrect; this source census is not behavioral or P41 evidence."
   ],
   "citation_catalog": {
     "B_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
@@ -14259,9 +14260,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C listed no finding-level record. The earlier CAN-01 probe plus supplemental corpus receipt establish bounded data-level parity for the explicitly enumerated Git-tree inputs: earlier 2,867 Phase-0 JSON path occurrences/2,833 unique blobs and 27 codec/16 raw-hash vectors; supplemental 4,891 records (17 old-main JSON versions plus 4,874 shared JSONL lines) and 19,768 direct encoded-byte outputs with zero unexpected differences. This is measured bounded evidence, not full finding closure. The exact 418 selector and 140 all-base caller-file replays remain UNRUN; persisted/runtime/production-data values and alternate formats/environments remain unresolved. Keep partial."
+        "detail": "Appendix C listed no finding-level record. Bounded CAN-01 data-level evidence includes the earlier instrument and supplemental corpus receipts plus an incremental current-head comparison: the 7,761-row current Main/current union at ffec3598 includes the replaced current residual_ledger.json blob; cumulative executed variants are 7,762 because the superseded ledger blob was also measured. The incremental replacement row had zero unexpected differences. This is bounded data parity, not full finding closure. The exact 418 selector, card exception/depth/import acceptance, and 140 all-base caller-file replays remain UNRUN; persisted/runtime/production-data values and alternate formats/environments remain unresolved. Keep partial."
       },
-      "residual": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.\n\nOwn-corpus follow-up UNRUN: only 427/2,887 JSON rows spooled; the worker did not complete and E02-R2 worker did not start. This is not a parity result.",
+      "residual": "The retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 codec vectors and 16 raw-hash vectors; the supplement compared 4,891 additional records and 19,768 encoded-byte outputs with zero unexpected differences. The incremental current-head receipt measured the one changed current residual_ledger.json blob against Main at ffec3598: the previous 7,761-row current union remains 7,761 rows after replacing the old blob, while cumulative executed unique path/blob-or-line variants are 7,762. Its incremental result is PASS with zero unexpected differences. The prior full-corpus independent review is scoped to pinned head 6baa2e21 and explicitly excluded the newer ledger blob; the separate coverage reconciliation establishes only the one-row extension to ffec3598. The architect’s exact 418-input selector and the card’s full exception/depth/import acceptance remain UNRUN. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Keep LA-021 partial.\n\nOwn-corpus follow-up UNRUN: only 427/2,887 JSON rows spooled; the worker did not complete and E02-R2 worker did not start. This is not a parity result.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CAN-01 canonicalization owner to recover or explicitly replace the missing historical selector; E02-R2 broker for the 140-test four-base replay",
@@ -14277,7 +14278,7 @@
           "instrument_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/tools/check_la021_canonicalization.py@git-blob:40bfe270c844a227ee697b305696936986aa7bed",
           "raw_output_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-baselines/la021-canonicalization-20260924.log@sha256:12796e7177e20ee23c49619c34c866305e060fcdfbe2941ec4ae7061b6f63974",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "PASS_BOUNDED data-level evidence includes the retained 2,867-JSON/2,833-blob + 27 codec/16 hash-vector profile and a supplemental 4,891-record main/Phase-0 comparison with 19,768 direct encoded-byte outputs and zero differences. The exact 418 selector and 140 all-base caller-file replays remain UNRUN; dynamic callers and persisted CAS/production-data inputs remain outside scope."
+          "scope": "PASS_BOUNDED data-level evidence includes the prior 7,761-row corpus, 2,867 JSON path occurrences/2,833 blobs and 27 codec/16 hash vectors, the 4,891-record supplement with 19,768 encoded-byte outputs, and the incremental replacement current ledger row at ffec3598 with zero unexpected differences. Current Main+current union denominator remains 7,761; cumulative executed unique variants are 7,762. The exact 418 selector, card exception/depth/import acceptance, and 140 all-base caller replays remain UNRUN; dynamic callers and persisted CAS/production-data inputs remain outside scope."
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
@@ -14333,10 +14334,19 @@
           "behavioral_verdict": "PASS_BOUNDED_EVIDENCE_PRESERVED",
           "scope": "Maps four logical raw outcomes/encoding artifacts to two verified zstd archives; all originals and decoded archives streamed SHA-256 matched, main/Phase-0 pairs are byte-identical. Parent comparison receipt SHA 3426f2f7...; this is evidence retention, not full LA-021 closure."
         },
+        "current_head_incremental_parity": {
+          "identity": "LA-021 incremental current-head parity for replacement ledger blob",
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-current-complete-corpus-6baa2e21-20260925/output/current-head-incremental-021658-20260925/receipt-incremental-001.json@sha256:e3de1cacdd57840c99338c0e06e3846bb6978f29ff98ff38a2528eb8c04e6ea0",
+          "coverage_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-current-complete-corpus-6baa2e21-20260925/output/current-head-incremental-021658-20260925/coverage-reconciliation-001.json@sha256:5e981fa3c68ebb41f7d866875adeca562eeb830b00625832344d58fe6784c968",
+          "prior_full_corpus_independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-current-complete-corpus-6baa2e21-20260925/LA021_INDEPENDENT_REVIEW.md@sha256:8375fe5a4f2563ae4101654674e11573c78c501cc73196a85b2843f878d343f6",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Receipt compares the changed residual_ledger.json Git blob (d901a897d8210179a90af61aeca8dfd3ee86116c) between Main 5fd3ebcc and current HEAD ffec3598: Main/current identity matches and unexpected_difference_count=0. Prior 7,761-row inventory plus replacement yields 7,762 cumulative unique variants because the superseded ledger blob was also run; the current Main/current union remains 7,761. Coverage reconciliation says this is complete relative to pinned Main and current tracked JSON/JSONL because this was the only changed JSON/JSONL blob since 6baa2e21. The independent review cited here reviews the old 7,761-row corpus at 6baa2e21 and explicitly records the then-missing current ledger blob; it does not review this incremental receipt.",
+          "remaining": "Exact 418 selector and card-level exception/depth/import acceptance remain UNRUN; 140 all-base caller-file replays remain UNRUN. Status stays partial."
+        },
         "h_n_review_disposition": {
           "kind": "verification_owner",
-          "summary": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.",
-          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+          "summary": "The retained instrument and supplement provide bounded parity for the 7,761-row current Main/current union pinned at 6baa2e21. An incremental measurement compared the replacement current residual_ledger.json blob at ffec3598 with zero unexpected differences; it replaces one prior row, so the current union remains 7,761 while cumulative executed unique variants are 7,762. The prior independent review is scoped to 6baa2e21; coverage-reconciliation-001 establishes the single-row extension, not an independent review of that incremental measurement. The exact 418 selector and full card exception/depth/import acceptance remain UNRUN. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Keep LA-021 partial.",
+          "next_step": "Retain partial status. Recover or explicitly replace the exact 418 selector, then run card-level exception identity, depth, typed-tag and import-preservation acceptance plus the enumerated 140 all-base caller files. Do not infer full closure from the bounded data corpus. No finding-level/card acceptance test was run in this reconciliation."
         },
         "h_n_review_notes": [
           "Keep partial. The data-level bounded corpus is measured; 4,891 records and 19,768 encoded-byte outputs had zero unexpected differences, but the unrecovered 418 selector and 140 all-base caller-file replays remain UNRUN.",
@@ -15913,16 +15923,16 @@
       "closure_owner": "MIG-01",
       "mapping_ref": "legacy_to_bundles",
       "appendix_c_status": "held",
-      "status": "held",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "relation": "disagrees",
+        "detail": "Appendix C says held. The independent follow-up review found Denis’s principal-authored commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180 selects current-version Trinity validation at the policy_ir boundary, so the former owner_decision blocker is no longer current. Record an explicit Appendix C disagreement and keep the finding partial for the missing data record: runtime behavior, exception/depth/import acceptance, removal/control probes and P41 remain UNRUN."
       },
-      "residual": "One owner decision: determine whether the policy_ir 1.0→1.0 self-edge is an identity/no-op or must run current-version Trinity validation, without changing generic same-version semantics for every edge. The MIG-01 owner ruling and actual CLI/helper postcondition remain UNRUN.",
+      "residual": "The selected policy_ir 1.0→1.0 boundary validates the current-version Trinity payload through the existing owner; the generic same-version migration runner remains a no-op. Residual is one data record: execute the public wrapper and canonical CLI with native valid/current, incomplete and malformed nested inputs, ready models, JSON/YAML/UTF-8 and legacy markers; assert validator invocation, exception identity, output bytes/return semantics, and valid no-op identity. The reviewer named `test_current_version_migration_runs_the_real_trinity_validator`, `test_current_version_incomplete_mapping_is_not_accepted_as_validated`, and the parameterized full-Trinity control, plus a marker-retaining validation-removal patch. These are candidate selectors only: whole-file `test_mig_01.py`, removal/control probes and four-base P41 replay are UNRUN. Keep generic runner behavior unchanged; do not claim closure.",
       "residual_owner": {
-        "kind": "owner_decision",
-        "name": "MIG-01 migration owner — policy_ir same-version no-op/self-edge postcondition",
-        "appointment_status": "Owner decision pending; current bounded J0678 review does not settle the postcondition."
+        "kind": "data_record",
+        "name": "MIG-01 current-version Trinity validation boundary and canonical CLI compatibility-data owner",
+        "appointment_status": "The principal choice is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; execution/compatibility evidence is absent and no individual owner appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -15940,7 +15950,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:14f1c0319522800ebd7c9023be6177b40ffd16fd",
         "blocker_path_scope": "policy_ir 1.0→1.0 edge and generic migration no-op boundary; separate from LA-010 root CLI delegation.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "Appendix C held label retained; current status partial after explicit disagreement; principal owner decision is selected by commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; one data_record blocker remains; behavior, removal/control and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-049",
@@ -15959,9 +15969,21 @@
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
+        "followup_independent_review": {
+          "identity": "Independent LA-010/LA-049 follow-up review",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la010-la049-followup-20260925/INDEPENDENT_REVIEW.md@sha256:2e0cebacf16eb57794f7dd8d669c3884580260cbb70da348da9becff3dda6f1f",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Source review accepts the held/owner_decision to partial/data_record refinement because principal commit 5e3e30b selects same-version policy_ir validation. The named tests, marker-retaining validation-removal patch and preserving control were inspected as source/candidate artifacts, not executed. Whole-file test_mig_01.py and all four-base/P41 behavior remain UNRUN; no closure is claimed."
+        },
+        "tracked_python_census": {
+          "identity": "LA-010/LA-049 tracked Python source census correction",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la010-la049-followup-20260925/INDEPENDENT_REVIEW.md@sha256:2e0cebacf16eb57794f7dd8d669c3884580260cbb70da348da9becff3dda6f1f",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Independent complete tracked regular .py Git blob census at 021658cd: src=2,693, tools=445, tests=2,723, total=5,861. The previously stated 5,855 is incorrect. This denominator supports only source inventory, not behavioral coverage."
+        },
         "h_n_review_disposition": [
-          "owner_decision",
-          "MIG-01 owner decides whether policy_ir 1.0→1.0 self-edge is identity/no-op or invokes current-version Trinity validation; keep generic same-version behavior unchanged."
+          "data_record",
+          "The principal-selected same-version validation contract is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; collect the missing native CLI/helper compatibility record, exception/depth/import acceptance, marker-retaining removal probe and four-base replay while preserving generic same-version runner semantics."
         ]
       }
     },

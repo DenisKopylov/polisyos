@@ -3,9 +3,9 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 77,
+    "engineering_a": 87,
     "principal_b": 16,
-    "typed_blocker_c": 25
+    "typed_blocker_c": 15
   },
   "triage_rule": {
     "a": "Engineering can close now in the plans direction.",
@@ -1883,12 +1883,14 @@
     },
     {
       "finding_id": "B38",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Live Ray/Temporal and exactly-once owners",
-      "blocker_kind": "external_institution",
-      "e02_residual": "DUR-02: live Ray/Temporal + external exactly-once unverified",
-      "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner.",
+      "blocker_kind": null,
+      "e02_residual": "External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
+      "next_step": "At ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner., implement and exercise this bounded property: A stale worker/attempt cannot overwrite a newer attempt or terminal job through the production GuardedDependencyProxy; current owner can still finish and event/status history remains consistent. Distinguishing discriminator: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. Removal probe: Remove the ContextVar/explicit owner-attempt fence or final SQL predecessor predicate while retaining receipt markers; stale worker writes newer job and the negative turns red. Preserve the non-refusal control: Current worker with matching job/owner/attempt and live lease completes; diagnostic orphan remains inspectable but is not attached as current. Keep the residual separate: External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.", "owner": "Live Ray/Temporal and exactly-once owners"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B38",
       "e02_residual_source_refs": [
         {
@@ -1904,12 +1906,14 @@
     },
     {
       "finding_id": "B78",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Live Ray/Temporal and exactly-once owners",
-      "blocker_kind": "external_institution",
-      "e02_residual": "DUR-02: live Ray/Temporal + external exactly-once unverified",
-      "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "FallbackRunner and its dispatch/result reconciliation owner.",
+      "blocker_kind": null,
+      "e02_residual": "Operated Ray/Temporal guarantees remain an external residual; they do not block the local injected-failure behavior.",
+      "next_step": "At FallbackRunner and its dispatch/result reconciliation owner., implement and exercise this bounded property: Fallback may run only before a primary effect can have occurred; after an ambiguous lost acknowledgement it must reconcile or return typed unknown, never blindly apply a second effect. Distinguishing discriminator: Existing owner suite `tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py` (including primary failure/health cases); add fake effect-log post-dispatch/lost-confirmation selector. Removal probe: Restore catch-all retry after primary side effect but before acknowledgement while preserving degraded/fallback markers; fake effect log increments twice and negative turns red. Preserve the non-refusal control: Healthy primary executes exactly once; an explicit unhealthy/pre-dispatch result may use local fallback once. Keep the residual separate: Operated Ray/Temporal guarantees remain an external residual; they do not block the local injected-failure behavior.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing owner suite `tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py` (including primary failure/health cases); add fake effect-log post-dispatch/lost-confirmation selector. Operated Ray/Temporal guarantees remain an external residual; they do not block the local injected-failure behavior.", "owner": "Live Ray/Temporal and exactly-once owners"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B78",
       "e02_residual_source_refs": [
         {
@@ -2256,12 +2260,14 @@
     },
     {
       "finding_id": "LA-041",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "DFI source-corpus and performance owner",
-      "blocker_kind": "data_record",
-      "e02_residual": "DFI-03: source completeness, partiality, perf",
-      "next_step": "Obtain the complete admitted source-corpus manifest and measured completeness/partiality/performance record before asserting corpus-wide closure.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Data Forge catalog batch checkpoint/pipeline owner",
+      "blocker_kind": null,
+      "e02_residual": "Source completeness cannot rely on mtime/size fingerprints or output-file existence; bind actual bytes, partiality and performance to the selected source. Test same-size/same-mtime content change, incomplete input and output invalidation.",
+      "next_step": "Fix the checkpoint mechanism now: bind input bytes/generation and output generation/receipt, not only path/size/mtime/existence. Through catalog batch pipeline, prove same-size/same-mtime input mutation and output replacement invalidate skip. Keep DFI-03 admitted full-corpus completeness/partiality/performance as a separate data-record limitation; it does not block the local mechanism repair. Distinguishing discriminator: Same-size/same-mtime source byte mutation must invalidate skip; mutate output bytes/replace generation while retaining markers and skip must turn red. Missing/partial source is not a completed stage. Preserve valid unchanged generation as positive control; measure full corpus separately.",
+      "classification_rationale": "Catalog batch pipeline calls checkpoint fingerprint/skip/completion helpers; current fingerprints use path/existence/size/mtime, and skip does not bind output bytes/generation.",
+      "production_residual": {"status": "data_record_missing", "detail": "partial_open_behavioral_witness_not_run: DFI-03 full-corpus source completeness/partiality/performance still needs an admitted data record; this does not block fixing the content-insensitive stage-skip predicate.", "owner": "Source-corpus and performance data owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-041",
       "e02_residual_source_refs": [
         {
@@ -2303,12 +2309,14 @@
     },
     {
       "finding_id": "B81",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Native ingestion runtime and external state owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
-      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "process_stream_dataset, StreamingSourceSession and cursor/checkpoint store in Fabric Data Plane.",
+      "blocker_kind": null,
+      "e02_residual": "Native connector offset/replay semantics and long-lived retention may remain typed residuals; the local no-lost-row contract does not require distributed exactly-once.",
+      "next_step": "At process_stream_dataset, StreamingSourceSession and cursor/checkpoint store in Fabric Data Plane., implement and exercise this bounded property: A processing error after poll/dedupe/raw persistence must not commit an unprocessed source position; restart must replay pending rows at-least-once with idempotent dedupe, never silently skip them. Distinguishing discriminator: Existing in-repo discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_failure_before_chunk_persistence_replays_dedupe_rows and `test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window`; add matrix for each commit boundary. Removal probe: Commit the observed offset/dedupe before durable processed output while retaining checkpoint markers; injected failure after poll must skip an unpersisted row and test goes red. Preserve the non-refusal control: Successful chunks advance the committed frontier once; honest at-least-once replay dedupes without losing rows. Keep the residual separate: Native connector offset/replay semantics and long-lived retention may remain typed residuals; the local no-lost-row contract does not require distributed exactly-once.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing in-repo discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_failure_before_chunk_persistence_replays_dedupe_rows and `test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window`; add matrix for each commit boundary. Native connector offset/replay semantics and long-lived retention may remain typed residuals; the local no-lost-row contract does not require distributed exactly-once.", "owner": "Native ingestion runtime and external state owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B81",
       "e02_residual_source_refs": [
         {
@@ -2324,12 +2332,14 @@
     },
     {
       "finding_id": "B82",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Native ingestion runtime and external state owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
-      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "StreamWindowAccumulator state serializer/restorer and process_stream_dataset checkpoint owner.",
+      "blocker_kind": null,
+      "e02_residual": "Per-connector native replay/retention remains a separate limitation; local persisted operator contract is internally testable.",
+      "next_step": "At StreamWindowAccumulator state serializer/restorer and process_stream_dataset checkpoint owner., implement and exercise this bounded property: Interrupted and uninterrupted processing must emit identical logical COUNT/SESSION/selected sliding windows and lineage, including pending rows, event-time/order/watermark and numbering. Distinguishing discriminator: Existing discriminator in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_interrupted_pending_window_resumes_with_lineage and `test_stream_window_operator_state_round_trips_pending_rows`; add mode matrix for count/session/sliding. Removal probe: Drop pending operator/order state but retain cursor/checkpoint fields; resume with the same source events and require the observed divergent window/lineage to make the test red. Preserve the non-refusal control: Fully closed window passes unchanged and normal restart with complete operator state yields the same logical outputs. Keep the residual separate: Per-connector native replay/retention remains a separate limitation; local persisted operator contract is internally testable.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing discriminator in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_interrupted_pending_window_resumes_with_lineage and `test_stream_window_operator_state_round_trips_pending_rows`; add mode matrix for count/session/sliding. Per-connector native replay/retention remains a separate limitation; local persisted operator contract is internally testable.", "owner": "Native ingestion runtime and external state owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B82",
       "e02_residual_source_refs": [
         {
@@ -2345,12 +2355,14 @@
     },
     {
       "finding_id": "B85",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Native ingestion runtime and external state owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "ING-02: no native rewind/fencing, 24h retention, exactly-once",
-      "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "StreamWindowAccumulator provenance refs and _persist_stream_window_async artifact-manifest writer.",
+      "blocker_kind": null,
+      "e02_residual": "Native source retention guarantees are separate; lineage completeness and local invalidation are in-repo properties.",
+      "next_step": "At StreamWindowAccumulator provenance refs and _persist_stream_window_async artifact-manifest writer., implement and exercise this bounded property: Every emitted multi-chunk window binds all and only chunks that contributed rows, including trigger chunk distinction, final flush and resumed windows; changing one contributor invalidates dependents only. Distinguishing discriminator: Existing discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_window_manifest_contains_all_contributor_chunks and `test_stream_window_lineage_covers_trigger_and_final_flush`. Removal probe: Omit one contributing chunk ref but retain payload/hash/status markers; revoke that source and require dependent-window currentness to fail while unaffected source/control remains valid. Preserve the non-refusal control: Single-chunk window and unchanged second contributor remain current; final flush includes all real inputs. Keep the residual separate: Native source retention guarantees are separate; lineage completeness and local invalidation are in-repo properties.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_window_manifest_contains_all_contributor_chunks and `test_stream_window_lineage_covers_trigger_and_final_flush`. Native source retention guarantees are separate; lineage completeness and local invalidation are in-repo properties.", "owner": "Native ingestion runtime and external state owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B85",
       "e02_residual_source_refs": [
         {
@@ -2387,12 +2399,14 @@
     },
     {
       "finding_id": "B87",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Live transport lifecycle owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
-      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property.",
+      "blocker_kind": null,
+      "e02_residual": "Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
+      "next_step": "At StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property., implement and exercise this bounded property: Connection/stream startup failure or close failure must retain or release ownership so no pool handle/permit is leaked; retry cleanup must finish safely. Distinguishing discriminator: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Removal probe: Remove compensation/owner retention while keeping open/close status markers; injected subscribe/close failure must leak a handle or block later pool reuse, turning negative red. Preserve the non-refusal control: Ordinary create/subscribe/close succeeds; a retry after close error finishes cleanup once. Keep the residual separate: Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.", "owner": "Live transport lifecycle owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B87",
       "e02_residual_source_refs": [
         {
@@ -2408,12 +2422,14 @@
     },
     {
       "finding_id": "B89",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Live transport lifecycle owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
-      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "ConnectionPool.acquire/release/close_all and registry cleanup owner.",
+      "blocker_kind": null,
+      "e02_residual": "Remote connector’s own cancellation semantics remain scoped to its adapter.",
+      "next_step": "At ConnectionPool.acquire/release/close_all and registry cleanup owner., implement and exercise this bounded property: Cancellation/close races conserve each connection permit and cleanup owner exactly once; a closed pool never returns a duplicate/stale handle. Distinguishing discriminator: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Removal probe: Remove reservation/cleanup fencing but keep pool counters; cancel at connect/disconnect and prove a permit leaks, returns twice or is reused before cleanup; negative goes red. Preserve the non-refusal control: Fresh acquisition after cleanup receives one healthy connection; ordinary release returns exactly one permit. Keep the residual separate: Remote connector’s own cancellation semantics remain scoped to its adapter.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Remote connector’s own cancellation semantics remain scoped to its adapter.", "owner": "Live transport lifecycle owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B89",
       "e02_residual_source_refs": [
         {
@@ -2429,12 +2445,14 @@
     },
     {
       "finding_id": "B90",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Live transport lifecycle owner",
-      "blocker_kind": "external_institution",
-      "e02_residual": "NET-01: concurrent disconnect/close-all interleaving unwitnessed",
-      "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "ConnectionPool.acquire lock/reservation path and connector adapter boundary.",
+      "blocker_kind": null,
+      "e02_residual": "No production-latency claim from a fake connector; this checks control/lock semantics, not remote service SLO.",
+      "next_step": "At ConnectionPool.acquire lock/reservation path and connector adapter boundary., implement and exercise this bounded property: Slow network connect/health work must not hold the shared pool metadata lock; unrelated release/acquire must progress within their own deadline, and total acquire timeout covers the whole operation. Distinguishing discriminator: Existing owner pool-contention test `tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py::test_connection_pool_close_release_contention_and_bounded_tracking`; add event-gated slow-connect + independent release/parallel connect deadline discriminator. Removal probe: Move connect/health back under the shared lock or reset deadline after semaphore wait while retaining lock/timeout markers; blocked connector must prevent independent release or exceed total deadline. Preserve the non-refusal control: Fast parallel connects and independent release both complete within an explicit budget. Keep the residual separate: No production-latency claim from a fake connector; this checks control/lock semantics, not remote service SLO.",
+      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
+      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing owner pool-contention test `tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py::test_connection_pool_close_release_contention_and_bounded_tracking`; add event-gated slow-connect + independent release/parallel connect deadline discriminator. No production-latency claim from a fake connector; this checks control/lock semantics, not remote service SLO.", "owner": "Live transport lifecycle owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B90",
       "e02_residual_source_refs": [
         {
@@ -2682,12 +2700,14 @@
     },
     {
       "finding_id": "LA-054",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Deployment and live-feed data owner",
-      "blocker_kind": "data_record",
-      "e02_residual": "DDM-02: deployment/live feed not claimed",
-      "next_step": "Obtain an admitted deployment/live-feed data record with provenance, time and consumer identity before claiming this capability.",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "DDM calibration-audit, monitor and registry-event code owners",
+      "blocker_kind": null,
+      "e02_residual": "DDM rich calibration/report context must survive into `valid_until` and invalidation basis; a permanent pass or unrelated registry record is not enough. Test stale/expired context, changed model/data and same-basis valid control through the consumer.",
+      "next_step": "Fix the typed code chain now: carry CalibrationReport validity expiry, invalidation triggers and check result into CalibrationAudit, monitor, registry and readiness event so currentness remains an epoch fact. Use synthetic typed fixtures to distinguish live code semantics. Keep a real deployment/live-feed record as a separate limitation; do not claim deployment applicability until the data owner supplies it. Distinguishing discriminator: With actual CalibrationReport/Pydantic records, pass an unexpired, expired, changed-model/data and invalidation-trigger case through report→audit→monitor→registry/event; expiry/status must survive and stale approval fail. A valid-current control passes. Separate live deployment data receipt is still needed for production applicability.",
+      "classification_rationale": "CalibrationReport/audit feeds the DDM monitor and model registry/readiness events. check_calibration_validity already has validity data, but expiry/invalidation fields are dropped before those consumers.",
+      "production_residual": {"status": "data_record_missing", "detail": "partial_open_behavioral_witness_not_run: Live deployment/feed applicability still needs a provenance-, time- and consumer-bound record; code-level expiry propagation is engineering now.", "owner": "Deployment and live-feed data owner"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054",
       "e02_residual_source_refs": [
         {

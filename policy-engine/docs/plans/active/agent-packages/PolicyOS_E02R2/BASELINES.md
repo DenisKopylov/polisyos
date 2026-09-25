@@ -2,6 +2,41 @@
 
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
+## Latest normative-bridge reconciliation — v10, 2026-09-25
+
+**Discrepancy and outcome.** With the same pinned checkout, production-data link,
+collection denominator, and pytest flags, the execution base and main passed all
+22/22 normative-bridge tests in their respective whole-file JUnit records. The
+E02-head cell ran for 3,704.371 seconds, then was stopped by SIGINT following the
+principal's instruction to move to code. It has **no JUnit** and its verdict is
+`UNRUN`, not a pass, failure, or wall timeout. The runner reaped its process group;
+Phase 0 was not launched after the E02 `UNRUN`. The earlier isolated E02
+signed-frontier pass is diagnostic only. The complete v10 result is
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/results.json@sha256:20f6f490eceb791ac5fedcfeae9db5bdeecb567f802fb1fc89dcffe292273f58`;
+the separately checked strict-map reconciliation is
+`/Users/deniskopylov/.codex/scratch/p41-v10-unrun-reconciliation-20260925-cancel.json@sha256:f47014d025e55e09287f735fa3e91c5ee85d266f90cf3c34048a76c95e0b569e`.
+
+The complete 21-file × 4-base denominator is **84 cells**: 62 complete, 20
+verified path-missing, and 2 present `UNRUN` (E02 head and Phase 0 for the
+normative bridge). The 74 named Appendix cases remain 42 pass→fail, 12 same, and
+20 `UNRUN`. No `BASELINES_DONE` is claimed. Execution-base JUnit:
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/cells/e02_execution_base-wholefile/receipts/pytest.junit.xml@sha256:9a06a10da70631105a11eb3d9850d58cfea884995730b04e69ca6e3c91b36434`;
+main JUnit:
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/cells/main-wholefile/receipts/pytest.junit.xml@sha256:3c0fba48b7a161d59b9dae4dfd30e5f9c8edf4e069e7e2be2267791ad035447d`.
+The E02 cancellation cell and Phase-0 skip are recorded respectively in
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/cells/e02_head-wholefile/cell-result.json@sha256:e389a7eaf497caa6d6d3485f21fb49a5a817740ade63b8831e2a2ecd1d4a11e9`
+and
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/cells/phase0_merge-wholefile/cell-result.json@sha256:ba5844d75e525809dfc44026199709c7434efa079b3fe56f372c8422430dfffb`.
+
+The resource monitor's minimum free RAM was 35%, maximum group CPU 303.7%, and
+minimum free disk 19,130,953,728 bytes; shared-volume attribution remains
+`not_established`. Its E02 resource samples are
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/cells/e02_head-wholefile/receipts/resource-samples.jsonl@sha256:747aaf56e46b1aebda37c049d86908ed522da2eb25e572e2af39a4356ebc9c76`.
+The principal subsequently directed the lane to begin code and retain only the
+minimal informative tests within the resource reserve. R10 started after the
+runner was quiescent. Complete fresh whole-file replay on the repaired head is
+still required; it cannot retroactively establish the two old-head outcomes.
+
 ## Normative bridge guarded replay v4 (2026-09-25)
 
 The fresh four-base attempt stopped during collection at the E02 execution base, before any JUnit or selected-case result. Its verdict is **`UNRUN` for all 4/4 collection cells and both still-present Appendix A/B file cells**. The resource guard observed two consecutive host-idle samples below 15% (minimum 6.34%) and terminated the collection process. Across 54 samples, the group's sampled `ps %cpu` peaked at 98.1% and RSS at 363,136 KiB; system free memory stayed at least 73%, swap growth was zero, and disk free stayed above 22,545,874,944 bytes. On macOS, `ps %cpu` is a decaying average, so these samples do not measure the group's instantaneous share during the low-idle interval. The source of that brief host-wide burst is `not_established`. The frozen v4 runner and complete admission, sample, cleanup, source-origin and skipped-cell receipt are `/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-20260925T094042Z-21547/results.json@sha256:fe6aa678bf7d3e5f9d57d21b600605add85859e0b74947cb9979fde51b622284`. The runner itself is `/Users/deniskopylov/.codex/scratch/p41_normative_fullfile_runner_v4_frozen.py@sha256:d68ffd412bc07e3efbbd389d806dd075ec23fa94b2457a109c658bd84c382b9d`. No failure of product behavior is inferred from this attempt.

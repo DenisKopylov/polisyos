@@ -1,5 +1,32 @@
 # E02-R2 write leases
 
+## Current code admission after the principal's 2026-09-25 direction
+
+The principal directed the lane to move to code with minimal, informative
+resource-bounded tests. The frozen v10 normative replay was stopped with SIGINT,
+quiesced, and reconciled before the first R10 source edit. Its execution base and
+main passed 22/22 each; E02 head and Phase 0 remain present `UNRUN`, so
+`BASELINES_DONE` is **not** recorded. The 84-cell denominator remains 62 complete,
+20 verified missing, 2 present `UNRUN`; the 74 named cases remain 42 pass→fail,
+12 same, 20 `UNRUN`. This explicit principal direction supersedes the initial
+pre-first-repair freeze described immediately below. Begin with R10 and R2, keep
+the existing one-writer file leases, and retain the two old-head cells as
+`not_established` while completing exact whole-file checks on the repaired head.
+The prior result cannot be recast as a timeout or a negative product verdict.
+
+The terminal runner receipt is
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/results.json@sha256:20f6f490eceb791ac5fedcfeae9db5bdeecb567f802fb1fc89dcffe292273f58`;
+the independent strict-map reconciliation is
+`/Users/deniskopylov/.codex/scratch/p41-v10-unrun-reconciliation-20260925-cancel.json@sha256:f47014d025e55e09287f735fa3e91c5ee85d266f90cf3c34048a76c95e0b569e`.
+R10's first code commit is `6e159767230188b881e3a2ed70ddd0b031e854df` and its
+test-first, removal, control, and full consumer JUnit receipts are in
+`R10_REPAIR.md`. The exact R2-History v10 candidate is **NO-GO**: it routed a
+fresh recursive producer through history-only validation and left the repeated
+S8 source scans in place. Review:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r2-history-sublease-v10-independent-review-20260925.md@sha256:8b5834c75b2063920b5420b8a47fc3674893cada19f92c92a5f63c80bd533e38`.
+
+## Initial pre-repair freeze (superseded by the current code admission above)
+
 This is the coordination map for candidate writers. The `codex/e02-r2` integration worktree stays frozen for source/test edits until the baseline broker closes the strict pre-first-repair gate and records `BASELINES_DONE`: the 21 unique Appendix A/B test files × 4 pinned bases = 84 file/base cells. Current strict-gate census: 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` (the normative-generation bridge at E02 head and Phase 0); both present cells must be resolved before the first source repair. The 74 exact cases reconcile separately to A=15 `PASS_TO_FAIL`, 2 `SAME`, 20 `UNRUN`; B=27 `PASS_TO_FAIL`, 10 `SAME`, 0 `UNRUN` (42/12/20 total). The expanded 100-path/400-cell inventory is historical/additional admission context, not a global first-repair gate. Control API has a separate completed four-base replay (63/63 per base), but this does not complete the strict gate or TCS semantic probes. The broker alone owns `BASELINE_HARNESS.py`, `BASELINES.md`, raw replay metadata and admissions. Repair source/test edits remain frozen until the two present UNRUN cells are resolved and `BASELINES_DONE` is recorded. The strict map is `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-admission-map-20260925-v3.json@sha256:d00e0d7cd566cfb0d23d2f79182472a08b98de945610131be212f96504dc70e5`; runbook `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-runbook-20260925-v3.md@sha256:6e178194b40b3e860a3a1c837f7c865a98e92633e56f58b31207ffc85f38b33a`. Never run simultaneous writers on `runtime/quality/generation_cycle.py`.
 
 The frozen normative v8 replay completed all four fresh collections (22 cases each) but does not close the strict gate. E02-head's one-case JUnit reports a pass for `test_signed_frontier_must_bind_actual_source_not_same_candidate_names`, while the enclosing P41 pilot is `UNRUN` because 270,880,768 bytes of disk loss remained unattributed (2,445,312 bytes beyond the unchanged 256 MiB tolerance); the Phase 0 pilot and both whole-file cells were not launched. This is a diagnostic discrepancy, not an admitted case outcome: preserve the 62/20/2 strict-cell census and 74-case counts above, and do not record `BASELINES_DONE`. The independent disk audit (`/Users/deniskopylov/.codex/scratch/e02-r2-v8-disk-attribution-independent-audit-20260925.md@sha256:2644a58e1eeb8fd64725f00b38b6df1d6a83f8be059ddea21183805942d328d6`) keeps the v8 receipt immutable and recommends that a future versioned runner preserve direct disk-capacity admission/floor checks while recording unexplained shared-volume drift as `not_established` diagnostic state; all other guards and source/checkout checks stay fixed. No later runner or reclassification receipt exists in this note. Receipt `/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-20260925T105323Z-98879/results.json@sha256:8778ccad6ae23f82b659a3b24463a061b6377eeb241d597cf506c9df2c4f6101` and details are in `BASELINES.md` under “Normative bridge guarded replay v8”.

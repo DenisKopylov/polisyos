@@ -3223,14 +3223,6 @@ class ControlPlaneService(
                             capability_manifest_ref=capability_manifest_ref,
                         )
                         return
-                    if evaluation_safety is not None:
-                        if evaluation_safety.execution_context is None:
-                            raise RuntimeError(
-                                "eval_safety_execution_context_not_established"
-                            )
-                        execution_intent = evaluation_safety.execution_context.evaluation_mode
-                    else:
-                        execution_intent = "candidate_only"
                     if (
                         evaluation_safety is not None
                         and evaluation_safety.execution_context is not None
@@ -3301,6 +3293,14 @@ class ControlPlaneService(
                             capability_manifest_ref=capability_manifest_ref,
                         )
                         return
+                    if evaluation_safety is not None:
+                        if evaluation_safety.execution_context is None:
+                            raise RuntimeError(
+                                "eval_safety_execution_context_not_established"
+                            )
+                        execution_intent = evaluation_safety.execution_context.evaluation_mode
+                    else:
+                        execution_intent = "candidate_only"
                     model_rows = payload.get("llm_models")
                     model_name = (
                         str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""

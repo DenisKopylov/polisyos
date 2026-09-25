@@ -791,6 +791,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             assert get_current_tenant_id_or_none() == "tenant-fixture"
             assert get_current_cell_id() == "cell-fixture"
             assert kwargs["raw_request"] == problem.nl_provenance.raw_request
+            assert kwargs["execution_intent"] == "candidate_only"
             assert kwargs["promotion_runtime"] is service._promotion_runtime
             assert service._promotion_runtime.store is service._artifact_store
             return compiled_fixture

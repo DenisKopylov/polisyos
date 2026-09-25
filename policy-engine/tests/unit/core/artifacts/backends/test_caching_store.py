@@ -9,10 +9,12 @@ from unittest.mock import MagicMock
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
+    InputRef,
     ProducerInfo,
 )
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
@@ -188,6 +190,130 @@ class TestCachingArtifactStore:
         # Payload reads and byte-integrity reports remain valid because the blob ID is shared.
         assert store.get_bytes(remote_ref) == payload
         assert store.verify(remote_ref).ok is True
+
+    def test_selectorless_verification_uses_remote_default_when_cache_defaults_diverge(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload = b"verify must follow the composite default owner"
+        local = FileSystemCAS(tmp_path / "verify-local")
+        remote = FileSystemCAS(tmp_path / "verify-remote")
+        local_ref = local.put_bytes(
+            payload,
+            PutOptions(
+                kind="cache.verify-default",
+                media_type="text/plain",
+                producer=ProducerInfo(component="tests.cache", version="local-first"),
+            ),
+        )
+        remote_ref = remote.put_bytes(
+            payload,
+            PutOptions(
+                kind="cache.verify-default",
+                media_type="text/plain",
+                producer=ProducerInfo(component="tests.cache", version="remote-first"),
+            ),
+        )
+        assert local_ref == remote_ref
+        assert local.get_manifest(local_ref).producer.version == "local-first"
+        assert remote.get_manifest(remote_ref).producer.version == "remote-first"
+        assert local.has(remote_ref)
+
+        local_verify = MagicMock(
+            side_effect=AssertionError("selector-free verification used the cache default")
+        )
+        monkeypatch.setattr(local, "verify", local_verify)
+
+        report = CachingArtifactStore(remote=remote, local=local).verify(remote_ref)
+
+        assert report.ok is True
+        local_verify.assert_not_called()
+
+    @pytest.mark.parametrize("operation", ["put_bytes", "put_json"])
+    @pytest.mark.parametrize("seed_local_default", [True, False])
+    def test_write_through_accepts_remote_view_when_cache_defaults_diverge(
+        self,
+        tmp_path: Path,
+        operation: str,
+        seed_local_default: bool,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "write-local")
+        remote = FileSystemCAS(tmp_path / "write-remote")
+        payload = {"shared": "write-through payload"} if operation == "put_json" else b"shared"
+        media_type = "application/json" if operation == "put_json" else "text/plain"
+
+        def options(version: str) -> PutOptions:
+            return PutOptions(
+                kind="cache.write-through-view",
+                media_type=media_type,
+                producer=ProducerInfo(component="tests.cache", version=version),
+            )
+
+        seeded_store = local if seed_local_default else remote
+        if operation == "put_json":
+            seeded_store.put_json(payload, options("existing-default"))
+        else:
+            seeded_store.put_bytes(payload, options("existing-default"))
+
+        store = CachingArtifactStore(remote=remote, local=local)
+        if operation == "put_json":
+            written_ref = store.put_json(payload, options("new-view"))
+        else:
+            written_ref = store.put_bytes(payload, options("new-view"))
+
+        remote_manifest = remote.get_manifest(written_ref)
+        assert remote_manifest.producer.version == "new-view"
+        exact_remote_view = ArtifactRef(
+            artifact_id=written_ref.artifact_id,
+            kind=remote_manifest.kind,
+            media_type=remote_manifest.media_type,
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(remote_manifest),
+        )
+        assert local.get_manifest(exact_remote_view) == remote_manifest
+        assert store.get_manifest(written_ref).producer.version == "new-view"
+        assert store.verify(written_ref).ok is True
+
+    def test_remote_child_read_skips_cache_when_input_view_is_not_locally_admitted(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        remote = FileSystemCAS(tmp_path / "remote", tenant_id="tenant-a")
+        local_root = tmp_path / "local"
+        foreign_local = FileSystemCAS(local_root, tenant_id="tenant-b")
+        local = FileSystemCAS(local_root, tenant_id="tenant-a")
+        parent_options = PutOptions(
+            kind="cache.parent",
+            media_type="application/octet-stream",
+            producer=ProducerInfo(component="tests.cache", version="parent"),
+        )
+        foreign_parent = foreign_local.put_bytes(b"shared parent bytes", parent_options)
+        remote_parent = remote.put_bytes(b"shared parent bytes", parent_options)
+        assert foreign_parent.artifact_id == remote_parent.artifact_id
+
+        child_ref = remote.put_bytes(
+            b"authorized remote child",
+            PutOptions(
+                kind="cache.child",
+                media_type="application/octet-stream",
+                producer=ProducerInfo(component="tests.cache", version="child"),
+                inputs=(InputRef(artifact_id=remote_parent.artifact_id, role="parent"),),
+            ),
+        )
+        # The local index admits the child blob for this reader, but has no local ownership
+        # of the manifest's upstream view. The remote owner remains the authority for the
+        # already-validated child read; cache population must not manufacture parent custody.
+        local._ownership_index.record_blob_reader(
+            child_ref.artifact_id,
+            tenant_id="tenant-a",
+        )
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        assert store.get_bytes(child_ref) == b"authorized remote child"
+        assert not local.has(child_ref)
+        assert not local.has(remote_parent.artifact_id)
+        with pytest.raises(PermissionError):
+            local.get_bytes(remote_parent.artifact_id)
 
     def test_same_default_profile_remains_readable_through_cache(self, tmp_path: Path) -> None:
         payload = b"same default profile remains usable"

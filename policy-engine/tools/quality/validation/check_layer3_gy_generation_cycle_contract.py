@@ -860,9 +860,47 @@ def _inspect_input(operation: Callable[[], Any], *, stage: str) -> Any:
         ) from exc
 
 
+def _inspection_workspace_cleanup_error(
+    prefix: str,
+    cleanup_error: Exception,
+    *,
+    receipts: dict[str, Any] | None = None,
+    primary: BaseException | None = None,
+) -> _N6InputInspectionUnavailableError:
+    """Build a typed UNRUN for cleanup failure without discarding inspection evidence."""
+
+    failure_receipts = dict(receipts or {})
+    if isinstance(primary, _N6InputInspectionUnavailableError):
+        failure_receipts.update(primary.receipts)
+    measurement = getattr(primary, "measurement", None)
+    if isinstance(measurement, dict):
+        failure_receipts.setdefault("n9_replay_measurement", measurement)
+    if primary is not None:
+        primary_failure: dict[str, str] = {"error_type": type(primary).__name__}
+        original = getattr(primary, "original", None)
+        if isinstance(original, BaseException):
+            primary_failure["original_error_type"] = type(original).__name__
+        for field in ("code", "stage"):
+            value = getattr(primary, field, None)
+            if isinstance(value, str):
+                primary_failure[field] = value
+        failure_receipts["primary_failure"] = primary_failure
+    failure_receipts["cleanup_failure"] = {"error_type": type(cleanup_error).__name__}
+    return _N6InputInspectionUnavailableError(
+        stage=f"{prefix}_cleanup",
+        error_type=type(cleanup_error).__name__,
+        code="generation_cycle_contract_inspection_workspace_cleanup_unavailable",
+        receipts=failure_receipts,
+    )
+
+
 @contextmanager
-def _inspection_workspace(prefix: str) -> Iterator[Path]:
-    """Create an isolated workspace and type only its acquisition failure as UNRUN."""
+def _inspection_workspace(
+    prefix: str,
+    *,
+    receipts: dict[str, Any] | None = None,
+) -> Iterator[Path]:
+    """Create an isolated workspace and type acquisition/cleanup failures as UNRUN."""
 
     try:
         temporary_directory = TemporaryDirectory(prefix=prefix)
@@ -876,10 +914,25 @@ def _inspection_workspace(prefix: str) -> Iterator[Path]:
     try:
         yield Path(temp_dir)
     except BaseException as exc:
-        temporary_directory.__exit__(type(exc), exc, exc.__traceback__)
+        try:
+            temporary_directory.__exit__(type(exc), exc, exc.__traceback__)
+        except (OSError, UnicodeError) as cleanup_error:
+            raise _inspection_workspace_cleanup_error(
+                prefix,
+                cleanup_error,
+                receipts=receipts,
+                primary=exc,
+            ) from exc
         raise
     else:
-        temporary_directory.__exit__(None, None, None)
+        try:
+            temporary_directory.__exit__(None, None, None)
+        except (OSError, UnicodeError) as cleanup_error:
+            raise _inspection_workspace_cleanup_error(
+                prefix,
+                cleanup_error,
+                receipts=receipts,
+            ) from cleanup_error
 
 
 def _replay_exception_report(exc: Exception, *, stage: str) -> dict[str, Any]:
@@ -1107,6 +1160,12 @@ def validate(repo_root: Path) -> dict[str, Any]:
             }
             if exc.receipts.get("n9_replay_measurement") is not None:
                 report["n9_replay_measurement"] = exc.receipts["n9_replay_measurement"]
+            if exc.receipts:
+                report["inspection_failure"] = {
+                    "stage": exc.stage,
+                    "error_type": exc.error_type,
+                    "receipts": exc.receipts,
+                }
         except _N6VerificationReplayUnavailableError as exc:
             report = {
                 "status": "UNRUN",
@@ -1230,7 +1289,11 @@ def _validate_committed_contract_text(
         return result
     issues = list(report["issues"])
     n9_measurement: dict[str, Any] | None = None
-    with _inspection_workspace("gy-n6-committed-check-") as temp_dir:
+    inspection_receipts: dict[str, Any] = {}
+    with _inspection_workspace(
+        "gy-n6-committed-check-",
+        receipts=inspection_receipts,
+    ) as temp_dir:
         try:
             expected_payload, context = asyncio.run(
                 _build_live_payload_in_verification_namespace(
@@ -1239,6 +1302,7 @@ def _validate_committed_contract_text(
                 )
             )
             n9_measurement = _verification_replay_measurement(context)
+            inspection_receipts["n9_replay_measurement"] = n9_measurement
             run_payload = committed_payload.get("generation_cycle_run")
             if isinstance(run_payload, dict):
                 try:

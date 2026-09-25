@@ -5489,6 +5489,130 @@ def test_generation_cycle_contract_check_maps_temporary_workspace_oserror_to_unr
     assert report["measurement"]["files"]["complete_verdict"] is False
 
 
+@pytest.mark.parametrize(
+    "scenario",
+    ["normal_cleanup_failure", "exception_cleanup_failure", "successful_cleanup"],
+)
+def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    scenario: str,
+) -> None:
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text("{}", encoding="utf-8")
+    cleanup_calls: list[tuple[type[BaseException] | None, BaseException | None]] = []
+    partial_measurement = {
+        "callback_attempt_count": 1,
+        "status": "partial",
+        "selector_denominator": {"candidate_summaries": 2},
+    }
+    cleanup_fails = scenario != "successful_cleanup"
+
+    class FakeTemporaryDirectory:
+        def __enter__(self) -> str:
+            return str(tmp_path)
+
+        def __exit__(
+            self,
+            error_type: type[BaseException] | None,
+            error: BaseException | None,
+            _traceback: Any,
+        ) -> bool:
+            cleanup_calls.append((error_type, error))
+            if cleanup_fails:
+                raise OSError("temporary workspace cleanup failed")
+            return False
+
+    monkeypatch.setattr(
+        contract,
+        "TemporaryDirectory",
+        lambda **_kwargs: FakeTemporaryDirectory(),
+    )
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload, **_kwargs: {"status": "pass", "issues": []},
+    )
+
+    primary: contract._N6VerificationReplayRaisedError | None = None
+    if scenario == "exception_cleanup_failure":
+        primary = contract._N6VerificationReplayRaisedError(
+            ValueError("primary N9 replay failure"),
+            partial_measurement,
+        )
+
+        def failing_inspection(_repo_root: Path, _text: str) -> dict[str, Any]:
+            with contract._inspection_workspace("cleanup-exception-exit-"):
+                raise primary
+
+        monkeypatch.setattr(contract, "_validate_committed_contract_text", failing_inspection)
+    else:
+
+        async def live_payload(
+            _repo_root: Path,
+            *,
+            state_root: Path,
+        ) -> tuple[dict[str, Any], SimpleNamespace]:
+            assert state_root == tmp_path
+            return {}, SimpleNamespace(comparison_plan=object())
+
+        monkeypatch.setattr(
+            contract,
+            "_build_live_payload_in_verification_namespace",
+            live_payload,
+        )
+        monkeypatch.setattr(
+            contract,
+            "_verification_replay_measurement",
+            lambda _context: partial_measurement,
+        )
+        monkeypatch.setattr(
+            contract,
+            "_canonical_contract_json",
+            lambda _payload, **_kwargs: "{}",
+        )
+
+    exit_code = contract.main(
+        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
+    )
+
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+    if scenario == "normal_cleanup_failure":
+        assert exit_code == 2
+        assert report["status"] == "UNRUN"
+        assert report["issues"][0]["code"] == (
+            "generation_cycle_contract_inspection_workspace_cleanup_unavailable"
+        )
+        assert report["issues"][0]["error_type"] == "OSError"
+        assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == (
+            partial_measurement
+        )
+        assert cleanup_calls == [(None, None)]
+        assert "Traceback" not in captured.out + captured.err
+    elif scenario == "exception_cleanup_failure":
+        assert exit_code == 2
+        assert report["status"] == "UNRUN"
+        assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == (
+            partial_measurement
+        )
+        assert report["inspection_failure"]["receipts"]["primary_failure"] == {
+            "error_type": "_N6VerificationReplayRaisedError",
+            "original_error_type": "ValueError",
+        }
+        assert cleanup_calls == [(type(primary), primary)]
+        assert "Traceback" not in captured.out + captured.err
+    else:
+        assert exit_code == 0
+        assert report["status"] == "pass"
+        assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == (
+            partial_measurement
+        )
+        assert cleanup_calls == [(None, None)]
+
+
 def test_generation_cycle_contract_validator_removal_probe_rejects_stale_factory_scope_at_real_cli_boundary(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

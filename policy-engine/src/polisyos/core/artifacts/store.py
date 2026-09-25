@@ -9,6 +9,8 @@ from contextlib import ExitStack
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from pydantic import ValidationError
+
 from ..canon import content_hash
 from ..canon.canon_json import CanonSpec, to_canonical_bytes
 from ..observability import get_metrics, get_tracer
@@ -95,6 +97,7 @@ from .signing import (
     Ed25519Signer,
     Ed25519Verifier,
     SignatureVerificationResult,
+    SignatureVerificationStatus,
     SigningConfig,
     SigningError,
     load_signer_from_config,
@@ -568,12 +571,21 @@ class FileSystemCAS:
 
     def verify_signature(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | str,
         verifier: Ed25519Verifier,
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
         """Verify content integrity and detached signature trust/revocation/identity state."""
+        if isinstance(artifact_id, str):
+            try:
+                artifact_id = ArtifactID.model_validate(artifact_id)
+            except ValidationError:
+                return SignatureVerificationResult(
+                    status=SignatureVerificationStatus.ERROR,
+                    artifact_id=artifact_id,
+                    message="Malformed artifact ID",
+                )
         return _verify_signature(
             artifact_id=artifact_id,
             verifier=verifier,

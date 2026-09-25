@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
@@ -80,6 +81,88 @@ def test_verify_signature_valid(tmp_path: Path) -> None:
 
     assert result.status == SignatureVerificationStatus.VALID
     assert result.ok
+
+
+@pytest.mark.parametrize(
+    "artifact_id",
+    [
+        "",
+        "not-an-artifact-id",
+        f"sha512:{'a' * 64}",
+        f"sha256:{'a' * 63}",
+        f"sha256:{'g' * 64}",
+    ],
+)
+def test_verify_signature_rejects_malformed_string_before_cas_reads(
+    artifact_id: str, monkeypatch, tmp_path: Path
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    read_attempts: list[str] = []
+
+    def record_forbidden_read(*_args: object, **_kwargs: object) -> None:
+        read_attempts.append("read")
+        raise AssertionError("malformed artifact IDs must be rejected before CAS reads")
+
+    for method_name in (
+        "_load_verified_snapshot",
+        "get_signature",
+        "get_bytes",
+        "get_manifest_bytes",
+    ):
+        monkeypatch.setattr(store, method_name, record_forbidden_read)
+
+    result = store.verify_signature(artifact_id, Ed25519Verifier())
+
+    assert result.status == SignatureVerificationStatus.ERROR
+    assert result.artifact_id == artifact_id
+    assert read_attempts == []
+
+
+def test_verify_signature_string_normalization_is_required_before_snapshot_load(
+    monkeypatch, tmp_path: Path
+) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    ref = store.put_bytes(
+        b"signed",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    store.sign_artifact(ref.artifact_id, signer, signer_identity="test")
+    snapshot_ids: list[ArtifactID] = []
+    load_snapshot = store._load_verified_snapshot
+
+    def record_snapshot_id(artifact_id: ArtifactID):
+        snapshot_ids.append(artifact_id)
+        return load_snapshot(artifact_id)
+
+    monkeypatch.setattr(store, "_load_verified_snapshot", record_snapshot_id)
+    result = store.verify_signature(str(ref.artifact_id), verifier)
+
+    assert result.status == SignatureVerificationStatus.VALID
+    assert len(snapshot_ids) == 1
+    assert type(snapshot_ids[0]) is ArtifactID
+
+
+def test_verify_signature_typed_and_string_ids_are_equivalent(
+    tmp_path: Path,
+) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    ref = store.put_bytes(
+        b"signed",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    store.sign_artifact(ref.artifact_id, signer, signer_identity="test")
+    typed_result = store.verify_signature(ref.artifact_id, verifier)
+    string_result = store.verify_signature(str(ref.artifact_id), verifier)
+    uppercase_id = f"sha256:{ref.artifact_id.hex.upper()}"
+    assert uppercase_id != str(ref.artifact_id)
+    uppercase_result = store.verify_signature(uppercase_id, verifier)
+
+    assert string_result.model_dump(exclude={"checked_at"}) == typed_result.model_dump(
+        exclude={"checked_at"}
+    )
+    assert uppercase_result.model_dump(exclude={"checked_at"}) == typed_result.model_dump(
+        exclude={"checked_at"}
+    )
 
 
 def test_export_import_preserves_signatures(tmp_path: Path) -> None:

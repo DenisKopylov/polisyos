@@ -7,8 +7,11 @@ from typing import TYPE_CHECKING, Any, Literal
 from polisyos.common.logger import get_logger
 from polisyos.core.canon.canon_json import CanonSpec
 
+from .._integrity_ops import ArtifactIntegrityError
+from .._manifest_lifecycle import ManifestLifecycle
 from ..ids import ArtifactID
-from ..manifest import ArtifactManifest, ArtifactRef
+from ..manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
+from ..ownership import ArtifactOwnershipError
 from ..protocol import ArtifactStore
 from ..store import PutOptions, VerificationReport
 
@@ -27,9 +30,12 @@ def _artifact_label(artifact_id: ArtifactID) -> str:
 class CachingArtifactStore:
     """Composes a local CAS (fast) with a remote store (durable).
 
-    * **Reads**: try local first, fall back to remote (download to local on miss).
+    * **Blob reads**: try local first, fall back to remote (download to local on miss).
+    * **Manifest reads**: resolve selector-free defaults at the durable owner (remote for
+      write-through stores, local for local-only stores); exact selected views may be served
+      from local storage.
     * **Writes**: write to local, then replicate to remote (if ``write_through``).
-    * **Verify**: delegates to local if present, otherwise remote.
+    * **Verify**: selector-free defaults use the durable owner; selected views use a local hit.
     """
 
     def __init__(
@@ -49,31 +55,98 @@ class CachingArtifactStore:
 
     # -- ArtifactStore protocol ----------------------------------------
 
-    def has(self, artifact_id: ArtifactID) -> bool:
-        if self._local.has(artifact_id):
+    def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
+        _aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
+        selected = ref or artifact_id
+        if _is_selector_free_default(ref):
+            return bool(self._default_manifest_owner().has(selected))
+        if self._local.has(selected):
             return True
-        return bool(self._remote.has(artifact_id))
+        return bool(self._remote.has(selected))
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes:
-        artifact_label = _artifact_label(artifact_id)
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
+        selected = ref or artifact_id
+        artifact_label = _artifact_label(aid)
         try:
-            return bytes(self._local.get_bytes(artifact_id))
+            return bytes(self._local.get_bytes(selected))
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact cache miss for %s", artifact_label)
+        except PermissionError:
+            raise
         except OSError as exc:
             logger.warning(
                 "Local artifact cache unavailable for %s; falling back to remote store: %s",
                 artifact_label,
                 exc,
             )
-        data = self._remote.get_bytes(artifact_id)
+        data = self._remote.get_bytes(selected)
         # Cache locally for subsequent reads.  We need the original
         # ``PutOptions`` to write to the local store, but since CAS is
         # content-addressed the manifest already exists remotely.
-        # Write raw blob + manifest via the local store's put_bytes with
-        # a generic kind — the manifest will be overwritten below.
+        # Prefer the storage owner's exact-byte transfer seam when available;
+        # simpler stores retain the typed put_bytes fallback below.
         try:
-            manifest = self._remote.get_manifest(artifact_id)
+            raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
+            exact_view_importer = getattr(self._local, "import_exact_view", None)
+            raw_manifest_bytes = (
+                raw_manifest_reader(selected)
+                if callable(raw_manifest_reader)
+                else None
+            )
+            if isinstance(raw_manifest_bytes, bytes) and callable(exact_view_importer):
+                manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
+                if not self._manifest_input_views_match(manifest):
+                    message = (
+                        "Local CAS cannot admit one or more input views for this remote artifact"
+                    )
+                    if self._cache_population_failure_policy == "raise":
+                        raise RuntimeError(message)
+                    logger.warning(
+                        "Skipping local cache population for %s: %s",
+                        artifact_label,
+                        message,
+                    )
+                    return bytes(data)
+                signature_bytes: bytes | None = None
+                signature_reader = getattr(self._remote, "get_signature_bytes", None)
+                if callable(signature_reader):
+                    try:
+                        candidate_signature_bytes = signature_reader(selected)
+                    except FileNotFoundError:
+                        candidate_signature_bytes = None
+                    if isinstance(candidate_signature_bytes, bytes):
+                        signature_bytes = candidate_signature_bytes
+                imported_ref = exact_view_importer(
+                    data,
+                    raw_manifest_bytes,
+                    artifact_id=selected,
+                    signature_bytes=signature_bytes,
+                )
+                if imported_ref.artifact_id != aid:
+                    raise ArtifactIntegrityError(
+                        "Local cache imported an exact manifest view for another artifact"
+                    )
+                if ref is not None and (
+                    ref.manifest_profile_sha256 is not None
+                    and imported_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
+                ):
+                    raise ArtifactIntegrityError(
+                        "Local cache cannot reproduce the selected remote view"
+                    )
+                return bytes(data)
+
+            manifest = self._remote.get_manifest(selected)
+            if not self._manifest_input_views_match(manifest):
+                message = "Local CAS cannot admit one or more input views for this remote artifact"
+                if self._cache_population_failure_policy == "raise":
+                    raise RuntimeError(message)
+                logger.warning(
+                    "Skipping local cache population for %s: %s",
+                    artifact_label,
+                    message,
+                )
+                return bytes(data)
             opts = PutOptions(
                 kind=manifest.kind,
                 media_type=manifest.media_type,
@@ -83,8 +156,19 @@ class CachingArtifactStore:
                 inputs=manifest.inputs,
                 canon=manifest.canon,
                 governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
+                warnings=manifest.warnings,
             )
-            self._local.put_bytes(data, opts)
+            local_ref = self._local.put_bytes(data, opts)
+            local_manifest = self._local.get_manifest(local_ref)
+            if _manifest_view_identity(local_manifest) != _manifest_view_identity(manifest):
+                raise ArtifactIntegrityError(
+                    "Local cache persisted a different manifest profile than the remote view"
+                )
+        except PermissionError:
+            raise
         except (FileNotFoundError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning(
                 "Local artifact cache population failed for %s under policy=%s: %s",
@@ -96,12 +180,58 @@ class CachingArtifactStore:
                 raise
         return bytes(data)
 
-    def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
-        artifact_label = _artifact_label(artifact_id)
+    def _manifest_input_views_match(self, manifest: ArtifactManifest) -> bool:
+        """Check that local cache can resolve the lineage views named by a manifest.
+
+        The durable owner defines selector-free input defaults. The local cache may
+        mirror a child only when it can resolve the same default profile or the exact
+        selected view. An absent or foreign-owned local input is a cache miss, not a
+        reason to replace the remote owner's already-verified child read.
+        """
+        for input_ref in manifest.inputs:
+            if input_ref.manifest_profile_sha256 is None:
+                try:
+                    remote_manifest = self._remote.get_manifest(input_ref.artifact_id)
+                    local_manifest = self._local.get_manifest(input_ref.artifact_id)
+                except (ArtifactOwnershipError, FileNotFoundError, KeyError):
+                    return False
+                if _manifest_view_identity(remote_manifest) != _manifest_view_identity(
+                    local_manifest
+                ):
+                    return False
+                continue
+
+            remote_view_check = getattr(self._remote, "has_manifest_view", None)
+            local_view_check = getattr(self._local, "has_manifest_view", None)
+            if not callable(remote_view_check) or not callable(local_view_check):
+                return False
+            if not remote_view_check(
+                input_ref.artifact_id,
+                input_ref.manifest_profile_sha256,
+            ):
+                return False
+            if not local_view_check(
+                input_ref.artifact_id,
+                input_ref.manifest_profile_sha256,
+            ):
+                return False
+        return True
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
+        selected = ref or artifact_id
+        artifact_label = _artifact_label(aid)
+        if _is_selector_free_default(ref):
+            # A selector-free reference is a store-scoped alias. The owner that
+            # receives the writes defines the composite default; a local-only
+            # store must not ask its deliberately unused remote for the manifest.
+            return self._default_manifest_owner().get_manifest(selected)
         try:
-            return self._local.get_manifest(artifact_id)
+            return self._local.get_manifest(selected)
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact manifest cache miss for %s", artifact_label)
+        except PermissionError:
+            raise
         except OSError as exc:
             logger.warning(
                 "Local artifact manifest cache unavailable for %s; "
@@ -109,12 +239,17 @@ class CachingArtifactStore:
                 artifact_label,
                 exc,
             )
-        return self._remote.get_manifest(artifact_id)
+        return self._remote.get_manifest(selected)
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         ref = self._local.put_bytes(data, opts)
         if self._write_through:
-            self._remote.put_bytes(data, opts)
+            remote_ref = self._remote.put_bytes(data, opts)
+            if not self._same_manifest_view(ref, remote_ref):
+                raise ArtifactIntegrityError(
+                    "Local and remote CAS owners returned different manifest views"
+                )
+            return remote_ref
         return ref
 
     def put_json(
@@ -125,18 +260,44 @@ class CachingArtifactStore:
     ) -> ArtifactRef:
         ref = self._local.put_json(obj, opts, canon_spec)
         if self._write_through:
-            self._remote.put_json(obj, opts, canon_spec)
+            remote_ref = self._remote.put_json(obj, opts, canon_spec)
+            if not self._same_manifest_view(ref, remote_ref):
+                raise ArtifactIntegrityError(
+                    "Local and remote CAS owners returned different manifest views"
+                )
+            return remote_ref
         return ref
 
-    def verify(self, artifact_id: ArtifactID) -> VerificationReport:
-        if self._local.has(artifact_id):
-            return self._local.verify(artifact_id)
-        return self._remote.verify(artifact_id)
+    def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:
+        _aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
+        selected = ref or artifact_id
+        if _is_selector_free_default(ref):
+            return self._default_manifest_owner().verify(selected)
+        if self._local.has(selected):
+            return self._local.verify(selected)
+        return self._remote.verify(selected)
+
+    def _default_manifest_owner(self) -> ArtifactStore:
+        """Return the owner whose writes define selector-free defaults."""
+        return self._remote if self._write_through else self._local
+
+    def _same_manifest_view(
+        self,
+        local_ref: ArtifactRef,
+        remote_ref: ArtifactRef,
+    ) -> bool:
+        """Compare owner-resolved profiles, independent of default selectors."""
+        if local_ref.artifact_id != remote_ref.artifact_id:
+            return False
+        local_manifest = self._local.get_manifest(local_ref)
+        remote_manifest = self._remote.get_manifest(remote_ref)
+        return _manifest_view_identity(local_manifest) == _manifest_view_identity(
+            remote_manifest
+        )
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
-        local_ids = set(self._local.iter_artifact_ids())
-        remote_ids = set(self._remote.iter_artifact_ids())
-        return sorted(local_ids | remote_ids, key=lambda a: a.hex)
+        """List IDs whose selector-free views belong to the configured write owner."""
+        return self._default_manifest_owner().iter_artifact_ids()
 
     def artifact_store_config(self) -> ArtifactStoreConfig | None:
         """Return declarative config needed to rebuild this cached store."""
@@ -167,3 +328,16 @@ class CachingArtifactStore:
                 local_cache_dir=local_config.root,
             )
         return None
+
+
+def _is_selector_free_default(ref: ArtifactRef | None) -> bool:
+    return ref is None or ref.manifest_profile_sha256 is None
+
+
+def _manifest_view_identity(manifest: ArtifactManifest) -> tuple[str, str, str, str]:
+    return (
+        str(manifest.artifact_id),
+        manifest.kind,
+        manifest.media_type,
+        ManifestLifecycle.profile_sha256(manifest),
+    )

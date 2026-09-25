@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactWriteOptions,
     Ed25519Signer,
+    Ed25519Verifier,
     FileSystemCAS,
 )
 
@@ -87,11 +89,53 @@ def test_sidecar_byte_substitution_is_rejected(tmp_path: Path) -> None:
     record = repository.read_exact(evidence_record_ref=persisted.evidence_record_ref)
     import json
 
-    payload = json.loads(record.detached_signature_bytes)
-    artifact_id = ArtifactID.model_validate(payload["artifact_id"])
-    blob_path, _ = store.get_paths(artifact_id)
-    signature_path = blob_path.with_suffix(".sig")
+    framed_length = int.from_bytes(record.persisted.record_bytes[:8], "big")
+    record_payload = json.loads(record.persisted.record_bytes[8 : 8 + framed_length])
+    from polisyos.core.contracts.chronology import SignedArtifactEvidenceRecord
+
+    signed_ref = SignedArtifactEvidenceRecord.model_validate(record_payload).artifact_ref
+    assert signed_ref.manifest_profile_sha256 is None
+    signature_path = store._sig_path(signed_ref.artifact_id)
     signature_path.chmod(0o644)
     signature_path.write_bytes(record.detached_signature_bytes + b"\n")
     with pytest.raises(ValueError, match="sidecar differs"):
         repository.read_exact(evidence_record_ref=persisted.evidence_record_ref)
+
+
+def test_signed_evidence_keeps_the_exact_selected_manifest_view(tmp_path: Path) -> None:
+    """A repeated blob with another profile is signed and replayed as that view."""
+    from polisyos.core.artifacts.signed_evidence import (
+        FileSystemSignedArtifactEvidenceRepository,
+    )
+    from polisyos.core.contracts.chronology import SignedArtifactEvidenceRecord
+
+    store = FileSystemCAS(tmp_path / "cas")
+    repository = FileSystemSignedArtifactEvidenceRepository(store)
+    key = Ed25519PrivateKey.generate()
+    signer = Ed25519Signer(key)
+    payload = b"identical bytes with distinct manifest views"
+    store.put_bytes(
+        payload,
+        ArtifactWriteOptions(kind="prior.view", media_type="application/octet-stream"),
+    )
+    persisted = repository.persist_signed(
+        blob_bytes=payload,
+        write_options=ArtifactWriteOptions(
+            kind="signed.view",
+            media_type="application/octet-stream",
+        ),
+        signer=signer,
+        signing_profile_ref=_ref("signing-profile"),
+        signer_provenance_ref=_ref("signer-provenance"),
+    )
+
+    evidence = repository.read_exact(evidence_record_ref=persisted.evidence_record_ref)
+    framed_length = int.from_bytes(persisted.record_bytes[:8], "big")
+    record_payload = json.loads(persisted.record_bytes[8 : 8 + framed_length])
+    record = SignedArtifactEvidenceRecord.model_validate(record_payload)
+
+    assert record.artifact_ref.manifest_profile_sha256 is not None
+    assert evidence.exact_manifest_bytes == store.get_manifest_bytes(record.artifact_ref)
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key())
+    assert store.verify_signature(record.artifact_ref, verifier).ok is True

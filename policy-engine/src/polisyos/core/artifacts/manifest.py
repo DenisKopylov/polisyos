@@ -8,9 +8,17 @@ runtime APIs, registry bundles, and governance reports.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from ..components.ids import ComponentId
 from .ids import ArtifactID
@@ -190,10 +198,25 @@ class InputRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
+    manifest_profile_sha256: str | None = None
 
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
         return str(value)
+
+    @field_validator("manifest_profile_sha256")
+    @classmethod
+    def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
+        if value is not None and not _is_manifest_profile_sha256(value):
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        return value
+
+    @model_serializer(mode="wrap")
+    def _serialize_historical_input_ref(self, handler: Any) -> dict[str, Any]:
+        payload = handler(self)
+        if self.manifest_profile_sha256 is None:
+            payload.pop("manifest_profile_sha256", None)
+        return payload
 
 
 class ArtifactRef(BaseModel):
@@ -203,10 +226,25 @@ class ArtifactRef(BaseModel):
     artifact_id: ArtifactID
     kind: str
     media_type: str
+    manifest_profile_sha256: str | None = None
 
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
         return str(value)
+
+    @field_validator("manifest_profile_sha256")
+    @classmethod
+    def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
+        if value is not None and not _is_manifest_profile_sha256(value):
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        return value
+
+    @model_serializer(mode="wrap")
+    def _serialize_historical_artifact_ref(self, handler: Any) -> dict[str, Any]:
+        payload = handler(self)
+        if self.manifest_profile_sha256 is None:
+            payload.pop("manifest_profile_sha256", None)
+        return payload
 
 
 class ArtifactManifest(BaseModel):
@@ -219,6 +257,7 @@ class ArtifactManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
+    manifest_schema_version: Literal["v1", "v2"] = "v1"
     artifact_id: ArtifactID
     kind: str
     media_type: str
@@ -241,6 +280,41 @@ class ArtifactManifest(BaseModel):
     integrity: IntegrityInfo
     warnings: list[WarningRecord] = Field(default_factory=list)
 
+    @model_serializer(mode="wrap")
+    def _serialize_historical_manifest(self, handler: Any) -> dict[str, Any]:
+        payload = handler(self)
+        if self.manifest_schema_version == "v1":
+            payload.pop("manifest_schema_version", None)
+        return payload
+
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
         return str(value)
+
+    @model_validator(mode="after")
+    def _require_v2_for_selected_input_views(self) -> ArtifactManifest:
+        """Require the schema marker that versions selected-input hash bytes."""
+        if self.manifest_schema_version == "v1" and any(
+            input_ref.manifest_profile_sha256 is not None for input_ref in self.inputs
+        ):
+            raise ValueError(
+                "manifest_schema_version v2 is required for selected input manifest views"
+            )
+        return self
+
+
+def _is_manifest_profile_sha256(value: str) -> bool:
+    return len(value) == 71 and value.startswith("sha256:") and all(
+        character in "0123456789abcdef" for character in value[7:]
+    )
+
+
+def artifact_reference_parts(
+    value: ArtifactID | ArtifactRef | str,
+) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
+    """Normalize a CAS identity while retaining any exact manifest selector."""
+    if isinstance(value, ArtifactRef):
+        return value.artifact_id, value.manifest_profile_sha256, value
+    if isinstance(value, str):
+        return ArtifactID.model_validate(value), None, None
+    return value, None, None

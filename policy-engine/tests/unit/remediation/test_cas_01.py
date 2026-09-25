@@ -6,16 +6,25 @@ import threading
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from pydantic import ValidationError
 
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
+    InputRef,
+    IntegrityInfo,
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-
+from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
+from polisyos.core.artifacts.store import (
+    ArtifactIntegrityError,
+    FileSystemCAS,
+    PutOptions,
+)
 
 PAYLOAD = b"cas-01-first-writer-payload"
 
@@ -62,10 +71,16 @@ def _assert_manifest_profile(
     assert manifest.authority == options.authority
     assert manifest.integrity.sha256 == manifest.artifact_id.hex
     assert manifest.warnings == []
+    expected_version = (
+        "v2"
+        if any(ref.manifest_profile_sha256 is not None for ref in options.inputs or [])
+        else "v1"
+    )
+    assert manifest.manifest_schema_version == expected_version
 
 
-def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path) -> None:
-    """A content hit cannot silently discard a second schema or producer profile."""
+def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
+    """The same bytes may have multiple exact metadata views without rewriting history."""
     store = FileSystemCAS(tmp_path / "cas")
     first_options = _options(
         "cas.first_writer",
@@ -73,22 +88,56 @@ def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path
         producer_version="first",
         schema_name="cas.first.v1",
     )
+    first_options = first_options.__class__(
+        **{**first_options.__dict__, "inputs": [
+            InputRef(
+                artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+                role="first_basis",
+                manifest_profile_sha256="sha256:" + "1" * 64,
+            )
+        ]}
+    )
     second_options = _options(
-        "cas.first_writer",
-        "application/json",
+        "cas.second_writer",
+        "text/plain",
         producer_version="second",
         schema_name="cas.second.v1",
     )
+    second_options = second_options.__class__(
+        **{**second_options.__dict__, "inputs": [
+            InputRef(
+                artifact_id=ArtifactID.from_sha256_hex("b" * 64),
+                role="second_basis",
+                manifest_profile_sha256="sha256:" + "2" * 64,
+            )
+        ]}
+    )
 
     first_ref = store.put_bytes(PAYLOAD, first_options)
-    first_manifest = store.get_manifest(first_ref.artifact_id)
+    first_manifest = store.get_manifest(first_ref)
+    second_ref = store.put_bytes(PAYLOAD, second_options)
+    second_manifest = store.get_manifest(second_ref)
 
-    with pytest.raises(ValueError):
-        store.put_bytes(PAYLOAD, second_options)
-
+    assert first_ref.artifact_id == second_ref.artifact_id
+    assert first_ref.kind == first_options.kind
+    assert first_ref.media_type == first_options.media_type
+    assert second_ref.kind == second_options.kind
+    assert second_ref.media_type == second_options.media_type
+    assert first_ref.manifest_profile_sha256 is None
+    assert second_ref.manifest_profile_sha256 is not None
+    assert second_ref.manifest_profile_sha256.startswith("sha256:")
+    assert first_manifest != second_manifest
     _assert_manifest_profile(first_manifest, first_options, data=PAYLOAD)
-    # Content identity does not authorize rewriting the complete first manifest.
-    assert store.get_manifest(first_ref.artifact_id) == first_manifest
+    _assert_manifest_profile(second_manifest, second_options, data=PAYLOAD)
+    # ID-only callers retain the historical first-writer view and byte identity.
+    assert store.get_manifest(first_ref.artifact_id).kind == first_options.kind
+    assert store.get_manifest(first_ref.artifact_id).manifest_schema_version == "v2"
+    assert store.get_bytes(first_ref) == PAYLOAD
+    assert store.get_bytes(second_ref) == PAYLOAD
+
+    repeated_ref = store.put_bytes(PAYLOAD, second_options)
+    assert repeated_ref == second_ref
+    assert store.get_manifest(repeated_ref) == second_manifest
 
 
 def test_reuse_with_same_profile_preserves_first_manifest_and_ref(tmp_path: Path) -> None:
@@ -102,11 +151,142 @@ def test_reuse_with_same_profile_preserves_first_manifest_and_ref(tmp_path: Path
     )
 
     first_ref = store.put_bytes(PAYLOAD, options)
-    first_manifest = store.get_manifest(first_ref.artifact_id)
+    first_manifest = store.get_manifest(first_ref)
+    assert first_manifest.manifest_schema_version == "v1"
     second_ref = store.put_bytes(PAYLOAD, options)
 
     assert second_ref == first_ref
-    assert store.get_manifest(first_ref.artifact_id) == first_manifest
+    assert store.get_manifest(first_ref) == first_manifest
+    assert store.get_manifest(first_ref.artifact_id).kind == options.kind
+
+
+def test_selectorless_refs_keep_the_historical_serialized_projection() -> None:
+    artifact_id = ArtifactID.from_sha256_hex("c" * 64)
+    ref = ArtifactRef(artifact_id=artifact_id, kind="legacy.ref", media_type="application/json")
+    input_ref = InputRef(artifact_id=artifact_id, role="legacy_input")
+
+    assert ref.model_dump(mode="json") == {
+        "artifact_id": str(artifact_id),
+        "kind": "legacy.ref",
+        "media_type": "application/json",
+    }
+    assert input_ref.model_dump(mode="json") == {
+        "artifact_id": str(artifact_id),
+        "role": "legacy_input",
+    }
+
+
+def test_selected_input_view_requires_manifest_schema_v2() -> None:
+    with pytest.raises(ValidationError, match="manifest_schema_version v2"):
+        ArtifactManifest.model_validate(
+            {
+                "manifest_schema_version": "v1",
+                "artifact_id": ArtifactID.from_sha256_hex("d" * 64),
+                "kind": "cas.selected_input",
+                "media_type": "application/json",
+                "byte_size": len(PAYLOAD),
+                "inputs": [
+                    InputRef(
+                        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+                        role="selected_basis",
+                        manifest_profile_sha256="sha256:" + "1" * 64,
+                    )
+                ],
+                "integrity": IntegrityInfo(sha256="d" * 64),
+            }
+        )
+
+
+def test_view_resolution_removal_fails_with_both_sidecars_present(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    first = store.put_bytes(PAYLOAD, _options("cas.view.first", "application/json"))
+    second = store.put_bytes(PAYLOAD, _options("cas.view.second", "text/plain"))
+    assert second.manifest_profile_sha256 is not None
+    assert store._layout.view_manifest_path(
+        second.artifact_id,
+        second.manifest_profile_sha256,
+    ).is_file()
+    assert store._paths(second.artifact_id)[1].is_file()
+
+    monkeypatch.setattr(
+        store,
+        "_manifest_path_for_ref",
+        lambda artifact_id, profile_sha256: store._paths(artifact_id)[1],
+    )
+    with pytest.raises(ArtifactIntegrityError, match="Selected manifest profile mismatch"):
+        store.get_manifest(second)
+    assert store.get_manifest(first).kind == "cas.view.first"
+
+
+def test_integrity_verification_uses_the_selected_manifest_view(tmp_path: Path) -> None:
+    """Selected-view verification must reject a corrupt non-default sidecar."""
+    store = FileSystemCAS(tmp_path / "cas")
+    store.put_bytes(PAYLOAD, _options("cas.verify.default", "application/json"))
+    selected = store.put_bytes(PAYLOAD, _options("cas.verify.selected", "text/plain"))
+    assert selected.manifest_profile_sha256 is not None
+
+    selected_path = store._layout.view_manifest_path(
+        selected.artifact_id,
+        selected.manifest_profile_sha256,
+    )
+    selected_path.write_bytes(selected_path.read_bytes().replace(b"cas.verify.selected", b"cas.verify.tampered"))
+
+    report = store.verify(selected)
+
+    assert report.ok is False
+    assert report.error is not None
+    assert "manifest profile mismatch" in report.error.lower()
+
+
+def test_selectorless_historical_signature_replays_after_another_view_is_added(
+    tmp_path: Path,
+) -> None:
+    """Historical ID-only refs keep the original manifest and signature sidecars."""
+    store = FileSystemCAS(tmp_path / "cas")
+    key = Ed25519PrivateKey.generate()
+    signer = Ed25519Signer(key)
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key())
+
+    first_ref = store.put_bytes(PAYLOAD, _options("cas.history.first", "application/json"))
+    legacy_ref = ArtifactRef(
+        artifact_id=first_ref.artifact_id,
+        kind=first_ref.kind,
+        media_type=first_ref.media_type,
+    )
+    original_manifest = store.get_manifest_bytes(legacy_ref)
+    store.sign_artifact(first_ref.artifact_id, signer)
+    original_signature = store.get_signature_bytes(legacy_ref)
+
+    store.put_bytes(PAYLOAD, _options("cas.history.second", "text/plain"))
+
+    assert store.get_manifest_bytes(legacy_ref) == original_manifest
+    assert store.get_signature_bytes(legacy_ref) == original_signature
+    assert store.verify_signature(legacy_ref, verifier).ok is True
+
+
+def test_guarded_store_requires_exact_owner_for_manifest_view(tmp_path: Path) -> None:
+    root_store = FileSystemCAS(tmp_path / "shared")
+    tenant_a = root_store.for_tenant("tenant-a")
+    tenant_b = root_store.for_tenant("tenant-b")
+    first = tenant_a.put_bytes(PAYLOAD, _options("cas.tenant.a", "application/json"))
+    second = tenant_b.put_bytes(PAYLOAD, _options("cas.tenant.b", "text/plain"))
+
+    assert tenant_b.get_manifest(second).kind == "cas.tenant.b"
+    assert tenant_b.get_bytes(second) == PAYLOAD
+    first_manifest = tenant_a.get_manifest(first)
+    first_typed_ref = first.model_copy(
+        update={"manifest_profile_sha256": ManifestLifecycle.profile_sha256(first_manifest)}
+    )
+    with pytest.raises(PermissionError, match="Manifest view"):
+        tenant_b.get_manifest(first_typed_ref)
+    with pytest.raises(PermissionError, match="not owned"):
+        tenant_b.get_manifest(first.artifact_id)
+    with pytest.raises(PermissionError, match="not owned"):
+        tenant_b.get_bytes(first.artifact_id)
 
 
 def test_existing_corrupt_blob_is_not_confirmed_by_successful_retry(tmp_path: Path) -> None:
@@ -199,13 +379,15 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
     assert not second_thread.is_alive()
     assert set(outcomes) == {"cas-first", "cas-second"}
     assert isinstance(outcomes["cas-first"], ArtifactRef)
-    assert isinstance(outcomes["cas-second"], ValueError)
+    assert isinstance(outcomes["cas-second"], ArtifactRef)
 
     first_ref = outcomes["cas-first"]
+    second_ref = outcomes["cas-second"]
     assert isinstance(first_ref, ArtifactRef)
-    artifact_id = first_ref.artifact_id
-    manifest = store.get_manifest(artifact_id)
-    _assert_manifest_profile(manifest, first_options, data=PAYLOAD)
+    assert isinstance(second_ref, ArtifactRef)
+    assert first_ref.artifact_id == second_ref.artifact_id
+    _assert_manifest_profile(store.get_manifest(first_ref), first_options, data=PAYLOAD)
+    _assert_manifest_profile(store.get_manifest(second_ref), second_options, data=PAYLOAD)
 
 
 def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path) -> None:

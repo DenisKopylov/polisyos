@@ -36,17 +36,19 @@ class _ExactFileSystemCAS(Protocol):
 
     def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef: ...
 
-    def get_bytes(self, artifact_id: ArtifactID | str) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactRef | ArtifactID | str) -> bytes: ...
 
-    def get_manifest_bytes(self, artifact_id: ArtifactID | str) -> bytes: ...
+    def get_manifest_bytes(self, artifact_id: ArtifactRef | ArtifactID | str) -> bytes: ...
+
+    def get_signature_bytes(self, artifact_id: ArtifactRef | ArtifactID | str) -> bytes: ...
 
     def put_signature(
-        self, artifact_id: ArtifactID | str, signature: DetachedSignature
+        self, artifact_id: ArtifactRef | ArtifactID | str, signature: DetachedSignature
     ) -> Path: ...
 
     def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]: ...
 
-    def verify(self, artifact_id: ArtifactID | str) -> object: ...
+    def verify(self, artifact_id: ArtifactRef | ArtifactID | str) -> object: ...
 
 
 def supports_signed_evidence_repository(store: object) -> bool:
@@ -61,6 +63,7 @@ def supports_signed_evidence_repository(store: object) -> bool:
         "put_bytes",
         "get_bytes",
         "get_manifest_bytes",
+        "get_signature_bytes",
         "put_signature",
         "get_paths",
         "verify",
@@ -103,6 +106,7 @@ def _signature_options(*, artifact_ref: ArtifactRef) -> ArtifactWriteOptions:
             contract.InputRef(
                 artifact_id=artifact_ref.artifact_id,
                 role="signed_artifact",
+                manifest_profile_sha256=artifact_ref.manifest_profile_sha256,
             )
         ],
     )
@@ -130,12 +134,8 @@ class FileSystemSignedArtifactEvidenceRepository:
         if not supports_signed_evidence_repository(self.store):
             raise TypeError("exact manifest/signature byte ports are required")
 
-    def _sidecar_bytes(self, artifact_id: ArtifactID) -> bytes:
-        blob_path, _ = self.store.get_paths(artifact_id)
-        signature_path = blob_path.with_suffix(".sig")
-        if not signature_path.is_file():
-            raise FileNotFoundError(f"detached signature absent for {artifact_id}")
-        return signature_path.read_bytes()
+    def _sidecar_bytes(self, artifact_ref: ArtifactRef) -> bytes:
+        return self.store.get_signature_bytes(artifact_ref)
 
     def persist_signed(
         self,
@@ -149,15 +149,15 @@ class FileSystemSignedArtifactEvidenceRepository:
         """Persist a blob and an exact, non-self-referential evidence record."""
 
         artifact_ref = self.store.put_bytes(blob_bytes, write_options)
-        manifest_bytes = self.store.get_manifest_bytes(artifact_ref.artifact_id)
+        manifest_bytes = self.store.get_manifest_bytes(artifact_ref)
         signature = signer.sign(
             artifact_ref.artifact_id,
             blob_bytes,
             manifest_bytes,
             signer_identity=None,
         )
-        self.store.put_signature(artifact_ref.artifact_id, signature)
-        signature_bytes = self._sidecar_bytes(artifact_ref.artifact_id)
+        self.store.put_signature(artifact_ref, signature)
+        signature_bytes = self._sidecar_bytes(artifact_ref)
         signature_ref = self.store.put_bytes(
             signature_bytes,
             _signature_options(artifact_ref=artifact_ref),
@@ -179,10 +179,12 @@ class FileSystemSignedArtifactEvidenceRepository:
                     contract.InputRef(
                         artifact_id=artifact_ref.artifact_id,
                         role="signed_artifact",
+                        manifest_profile_sha256=artifact_ref.manifest_profile_sha256,
                     ),
                     contract.InputRef(
                         artifact_id=signature_ref.artifact_id,
                         role="exact_signature_bytes",
+                        manifest_profile_sha256=signature_ref.manifest_profile_sha256,
                     ),
                 ]
             ),
@@ -196,19 +198,19 @@ class FileSystemSignedArtifactEvidenceRepository:
     def read_exact(self, *, evidence_record_ref: ArtifactRef) -> contract.SignedArtifactEvidence:
         """Reload and independently reconcile every raw identity in a record."""
 
-        report = self.store.verify(evidence_record_ref.artifact_id)
+        report = self.store.verify(evidence_record_ref)
         if not bool(getattr(report, "ok", False)):
             raise ValueError("signed evidence record fails CAS verification")
-        record_bytes = self.store.get_bytes(evidence_record_ref.artifact_id)
+        record_bytes = self.store.get_bytes(evidence_record_ref)
         if str(evidence_record_ref.artifact_id) != _raw_hash(record_bytes):
             raise ValueError("signed evidence record CAS identity mismatch")
         record = contract.SignedArtifactEvidenceRecord.model_validate(
             _one_framed_mapping(record_bytes)
         )
-        blob_bytes = self.store.get_bytes(record.artifact_ref.artifact_id)
-        manifest_bytes = self.store.get_manifest_bytes(record.artifact_ref.artifact_id)
-        signature_bytes = self.store.get_bytes(record.signature_artifact_ref.artifact_id)
-        if self._sidecar_bytes(record.artifact_ref.artifact_id) != signature_bytes:
+        blob_bytes = self.store.get_bytes(record.artifact_ref)
+        manifest_bytes = self.store.get_manifest_bytes(record.artifact_ref)
+        signature_bytes = self.store.get_bytes(record.signature_artifact_ref)
+        if self._sidecar_bytes(record.artifact_ref) != signature_bytes:
             raise ValueError("detached signature sidecar differs from retained exact bytes")
         checks = (
             (record.raw_blob_bytes_hash, _raw_hash(blob_bytes), "blob"),
@@ -241,10 +243,10 @@ class FileSystemSignedArtifactEvidenceRepository:
     def read_raw(self, *, artifact_ref: ArtifactRef) -> bytes:
         """Return exact CAS bytes only after the real store verifies identity."""
 
-        report = self.store.verify(artifact_ref.artifact_id)
+        report = self.store.verify(artifact_ref)
         if not bool(getattr(report, "ok", False)):
             raise ValueError("signed-evidence raw artifact fails CAS verification")
-        payload = self.store.get_bytes(artifact_ref.artifact_id)
+        payload = self.store.get_bytes(artifact_ref)
         if str(artifact_ref.artifact_id) != _raw_hash(payload):
             raise ValueError("signed-evidence raw artifact identity mismatch")
         return payload

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING
 
 from polisyos.common.serialization import fast_json_dumps_bytes
@@ -30,24 +31,31 @@ class ManifestLifecycle:
         sha: str,
         opts: ArtifactWriteOptions,
     ) -> ArtifactManifest:
-        return ArtifactManifest.model_validate(
-            {
-                "artifact_id": artifact_id,
-                "kind": opts.kind,
-                "media_type": opts.media_type,
-                "byte_size": len(data),
-                "schema": opts.schema,
-                "canon": opts.canon,
-                "inputs": list(opts.inputs or []),
-                "producer": opts.producer,
-                "env": opts.env,
-                "governance": getattr(opts, "governance", None),
-                "tenant_context": getattr(opts, "tenant_context", None),
-                "same_input_closure": getattr(opts, "same_input_closure", None),
-                "authority": getattr(opts, "authority", None),
-                "integrity": IntegrityInfo(sha256=sha),
-            }
-        )
+        input_refs = list(opts.inputs or [])
+        manifest_payload = {
+            "artifact_id": artifact_id,
+            "kind": opts.kind,
+            "media_type": opts.media_type,
+            "byte_size": len(data),
+            "schema": opts.schema,
+            "canon": opts.canon,
+            "inputs": input_refs,
+            "producer": opts.producer,
+            "env": opts.env,
+            "governance": getattr(opts, "governance", None),
+            "tenant_context": getattr(opts, "tenant_context", None),
+            "same_input_closure": getattr(opts, "same_input_closure", None),
+            "authority": getattr(opts, "authority", None),
+            "integrity": IntegrityInfo(sha256=sha),
+            "warnings": list(opts.warnings or []),
+        }
+        # v1 omits the version marker and remains byte-compatible with historical
+        # manifests. The selector is a hashed-model extension only when an input
+        # explicitly names a selected manifest view, so bump that projection alone.
+        # Set the marker before model validation so v1 cannot accept new hashed bytes.
+        if any(input_ref.manifest_profile_sha256 is not None for input_ref in input_refs):
+            manifest_payload["manifest_schema_version"] = "v2"
+        return ArtifactManifest.model_validate(manifest_payload)
 
     @staticmethod
     def to_bytes(manifest: ArtifactManifest) -> bytes:
@@ -86,6 +94,7 @@ class ManifestLifecycle:
             "tenant_context": getattr(opts, "tenant_context", None),
             "same_input_closure": getattr(opts, "same_input_closure", None),
             "authority": getattr(opts, "authority", None),
+            "warnings": list(opts.warnings or []),
         }
         return tuple(
             field
@@ -106,6 +115,29 @@ class ManifestLifecycle:
         if mismatches:
             fields = ", ".join(mismatches)
             raise ValueError(f"Existing artifact manifest profile conflict: {fields}")
+
+    @staticmethod
+    def profile_projection(manifest: ArtifactManifest) -> dict[str, object]:
+        """Return every immutable typed-view field, including warning evidence."""
+        return manifest.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+            exclude={
+                "artifact_id",
+                "byte_size",
+                "created_at",
+                "integrity",
+            },
+        )
+
+    @classmethod
+    def profile_sha256(cls, manifest: ArtifactManifest) -> str:
+        """Compute a domain-separated digest for one complete persisted view."""
+        projection = cls.profile_projection(manifest)
+        payload = fast_json_dumps_bytes(projection, sort_keys=True)
+        digest = hashlib.sha256(b"polisyos.cas.manifest-profile.v1\0" + payload).hexdigest()
+        return f"sha256:{digest}"
 
     @staticmethod
     def read(path: Path) -> ArtifactManifest:

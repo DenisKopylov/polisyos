@@ -34,7 +34,7 @@ class AsyncArtifactStoreAdapter:
     store: ArtifactStore
     timeout_seconds: float | None = None
 
-    async def has(self, artifact_id: ArtifactID) -> bool:
+    async def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
         return cast(
             "bool",
             await run_blocking_async(
@@ -44,7 +44,7 @@ class AsyncArtifactStoreAdapter:
             ),
         )
 
-    async def get_bytes(self, artifact_id: ArtifactID) -> bytes:
+    async def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
         return cast(
             "bytes",
             await run_blocking_async(
@@ -54,7 +54,7 @@ class AsyncArtifactStoreAdapter:
             ),
         )
 
-    async def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
+    async def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
         return await run_blocking_async(
             self.store.get_manifest,
             artifact_id,
@@ -87,7 +87,7 @@ class AsyncArtifactStoreAdapter:
             timeout_seconds=self.timeout_seconds,
         )
 
-    async def verify(self, artifact_id: ArtifactID) -> VerificationReport:
+    async def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
         return await run_blocking_async(
             self.store.verify,
             artifact_id,
@@ -116,7 +116,7 @@ class AsyncFileSystemArtifactStore:
     store: ArtifactStore
     timeout_seconds: float | None = None
 
-    async def has(self, artifact_id: ArtifactID) -> bool:
+    async def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
         return cast(
             "bool",
             await run_blocking_async(
@@ -126,7 +126,7 @@ class AsyncFileSystemArtifactStore:
             ),
         )
 
-    async def get_bytes(self, artifact_id: ArtifactID) -> bytes:
+    async def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
         return cast(
             "bytes",
             await run_blocking_async(
@@ -136,7 +136,7 @@ class AsyncFileSystemArtifactStore:
             ),
         )
 
-    async def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
+    async def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
         return await run_blocking_async(
             self.store.get_manifest,
             artifact_id,
@@ -169,7 +169,7 @@ class AsyncFileSystemArtifactStore:
             timeout_seconds=self.timeout_seconds,
         )
 
-    async def verify(self, artifact_id: ArtifactID) -> VerificationReport:
+    async def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
         return await run_blocking_async(
             self.store.verify,
             artifact_id,

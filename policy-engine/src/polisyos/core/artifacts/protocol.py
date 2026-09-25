@@ -32,17 +32,20 @@ class ArtifactStore(Protocol):
 
     # -- read ----------------------------------------------------------
 
-    def has(self, artifact_id: ArtifactID) -> bool:  # pragma: no cover - protocol
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:  # pragma: no cover - protocol
         """Return whether both blob and manifest data are available for `artifact_id`."""
         ...
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes:  # pragma: no cover - protocol
+    def get_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> bytes:  # pragma: no cover - protocol
         """Return raw blob bytes for one artifact ID."""
         ...
 
     def get_manifest(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
     ) -> ArtifactManifest:  # pragma: no cover - protocol
         """Return the validated manifest sidecar for one artifact ID."""
         ...
@@ -68,7 +71,10 @@ class ArtifactStore(Protocol):
 
     # -- integrity -----------------------------------------------------
 
-    def verify(self, artifact_id: ArtifactID) -> VerificationReport:  # pragma: no cover - protocol
+    def verify(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> VerificationReport:  # pragma: no cover - protocol
         """Return byte/manifest integrity status for one artifact."""
         ...
 
@@ -83,15 +89,21 @@ class ArtifactStore(Protocol):
 class AsyncArtifactStore(Protocol):
     """Async sibling contract for callers that already run inside an event loop."""
 
-    async def has(self, artifact_id: ArtifactID) -> bool:  # pragma: no cover - protocol
+    async def has(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> bool:  # pragma: no cover - protocol
         ...
 
-    async def get_bytes(self, artifact_id: ArtifactID) -> bytes:  # pragma: no cover - protocol
+    async def get_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> bytes:  # pragma: no cover - protocol
         ...
 
     async def get_manifest(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
     ) -> ArtifactManifest:  # pragma: no cover - protocol
         ...
 
@@ -112,7 +124,7 @@ class AsyncArtifactStore(Protocol):
 
     async def verify(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
     ) -> VerificationReport:  # pragma: no cover - protocol
         ...
 

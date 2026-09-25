@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 import threading
 import time
@@ -77,6 +78,9 @@ from ._transfer_ops import (
     import_subgraph as _import_subgraph,
 )
 from ._transfer_ops import (
+    member_profile_sha256 as _member_profile_sha256,
+)
+from ._transfer_ops import (
     normalize_archive_path as _normalize_archive_path,
 )
 from ._transfer_ops import (
@@ -88,6 +92,9 @@ from .manifest import (
     ArtifactRef,
     CanonInfo,
     InputRef,
+)
+from .manifest import (
+    artifact_reference_parts as _artifact_reference,
 )
 from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from .signing import (
@@ -161,17 +168,6 @@ def _coerce_input_ref(value: object) -> InputRef:
     return InputRef.model_validate({"artifact_id": artifact_id, "role": role})
 
 
-def _artifact_reference(
-    value: ArtifactID | ArtifactRef | str,
-) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
-    """Split a blob identifier or typed reference without discarding its view selector."""
-    if isinstance(value, ArtifactRef):
-        return value.artifact_id, value.manifest_profile_sha256, value
-    if isinstance(value, str):
-        return ArtifactID.model_validate(value), None, None
-    return value, None, None
-
-
 class FileSystemCAS:
     """Store immutable artifacts in a sharded filesystem content-addressed store.
 
@@ -238,9 +234,14 @@ class FileSystemCAS:
     def _paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         return self._layout.paths(artifact_id)
 
-    def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
-        """Return deterministic blob/manifest paths for external CAS tooling."""
-        return self._paths(artifact_id)
+    def get_paths(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> tuple[Path, Path]:
+        """Return deterministic blob and selected-manifest paths for CAS tooling."""
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        blob, _default_manifest = self._paths(aid)
+        return blob, self._manifest_path_for_ref(aid, profile_sha256)
 
     def artifact_store_config(self) -> ArtifactStoreConfig:
         """Return declarative config needed to rebuild this store instance."""
@@ -333,6 +334,11 @@ class FileSystemCAS:
         if manifest_profile_sha256 is not None:
             return self._layout.view_sig_path(artifact_id, manifest_profile_sha256)
         return self._layout.sig_path(artifact_id)
+
+    def _signature_path_for_ref(self, artifact_id: ArtifactID | ArtifactRef | str) -> Path:
+        """Return the signature sidecar selected by a typed or historical ref."""
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        return self._sig_path(aid, profile_sha256)
 
     def _artifact_lock(self, artifact_id: ArtifactID) -> threading.Lock:
         with self._artifact_locks_guard:
@@ -606,7 +612,7 @@ class FileSystemCAS:
                     )
                 span.set_attribute("cas.cache_hit", False)
                 span.set_attribute("cas.duration_seconds", duration)
-                raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+                raise FileNotFoundError(f"Artifact not found: {aid.hex}")
 
             data = self._read_verified_blob(aid, blob, manifest_ref=ref)
             duration = time.perf_counter() - start
@@ -844,7 +850,7 @@ class FileSystemCAS:
         opts: PutOptions,
         aid: ArtifactID,
         sha: str,
-    ) -> tuple[bool, bool, str]:
+    ) -> tuple[bool, str | None]:
         """Persist one blob and its default plus exact typed-view manifests."""
         blob, default_manifest_path = self._paths(aid)
         with self._artifact_lock(aid):
@@ -871,6 +877,7 @@ class FileSystemCAS:
             default_manifest = self._manifests.read(default_manifest_path)
             _validate_manifest_identity(aid, default_manifest)
             _validate_read_integrity(aid, existing_data, default_manifest)
+            default_profile_sha256 = self._manifests.profile_sha256(default_manifest)
 
             view_path = self._layout.view_manifest_path(aid, profile_sha256)
             if not self._files.write_once(view_path, manifest_bytes):
@@ -884,7 +891,26 @@ class FileSystemCAS:
                         f"Manifest profile digest collision for {aid}"
                     )
 
-        return blob_preexisted, default_view_created, profile_sha256
+            # Record the exact view while still holding the per-blob lock. A second
+            # same-tenant writer must observe the first writer's default-view owner
+            # before deciding whether its reference can remain selector-free.
+            self._record_write_owner(aid, default_view_created=default_view_created)
+            self._record_write_view_owner(aid, profile_sha256)
+
+        ref_profile_sha256 = (
+            profile_sha256 if profile_sha256 != default_profile_sha256 else None
+        )
+        if ref_profile_sha256 is None and not default_view_created and self._ownership_enforced:
+            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+            if tenant_id is not None and not self._ownership_index.is_owned_by(
+                aid,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            ):
+                # A selector-free ref resolves through default-view ownership. Keep a typed
+                # selector when this tenant can read only its separately admitted view.
+                ref_profile_sha256 = profile_sha256
+        return blob_preexisted, ref_profile_sha256
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         """Store raw bytes under their content hash and create the immutable manifest sidecar."""
@@ -895,16 +921,14 @@ class FileSystemCAS:
         blob.parent.mkdir(parents=True, exist_ok=True)
 
         if not self._hpc_enabled or self._tracer is None:
-            _deduplicated, default_view_created, profile_sha256 = (
+            _deduplicated, ref_profile_sha256 = (
                 self._put_blob_and_manifest_once(data=data, opts=opts, aid=aid, sha=sha)
             )
-            self._record_write_owner(aid, default_view_created=default_view_created)
-            self._record_write_view_owner(aid, profile_sha256)
             ref = ArtifactRef(
                 artifact_id=aid,
                 kind=opts.kind,
                 media_type=opts.media_type,
-                manifest_profile_sha256=profile_sha256,
+                manifest_profile_sha256=ref_profile_sha256,
             )
             self._maybe_sign_on_put(ref)
             return ref
@@ -921,14 +945,12 @@ class FileSystemCAS:
             },
         ) as span:
             start = time.perf_counter()
-            deduplicated, default_view_created, profile_sha256 = self._put_blob_and_manifest_once(
+            deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
                 data=data,
                 opts=opts,
                 aid=aid,
                 sha=sha,
             )
-            self._record_write_owner(aid, default_view_created=default_view_created)
-            self._record_write_view_owner(aid, profile_sha256)
 
             duration = time.perf_counter() - start
 
@@ -961,7 +983,7 @@ class FileSystemCAS:
                 artifact_id=aid,
                 kind=opts.kind,
                 media_type=opts.media_type,
-                manifest_profile_sha256=profile_sha256,
+                manifest_profile_sha256=ref_profile_sha256,
             )
             self._maybe_sign_on_put(ref)
             return ref
@@ -1032,20 +1054,35 @@ class FileSystemCAS:
 
     def _verify_staged_artifact(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
         staging_root: Path,
     ) -> VerificationReport:
         """Verify one staged pair while retaining this store's failure telemetry."""
-        blob, manifest = self._paths(artifact_id)
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        blob, _default_manifest = self._paths(aid)
+        manifest = self._manifest_path_for_ref(aid, profile_sha256)
         staged_blob = staging_root / blob.relative_to(self.root)
         staged_manifest = staging_root / manifest.relative_to(self.root)
         report = _verify_filesystem_artifact(
-            artifact_id,
+            aid,
             blob_path=staged_blob,
             manifest_path=staged_manifest,
         )
         if not report.ok:
             self._record_integrity_failure(reason=report.error or "verification_failed")
+        if report.ok and ref is not None:
+            try:
+                manifest_model = self._manifests.read(staged_manifest)
+                if self._manifests.profile_sha256(manifest_model) != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+                if ref.kind != manifest_model.kind or ref.media_type != manifest_model.media_type:
+                    raise ArtifactIntegrityError(
+                        f"Artifact reference type does not match selected manifest for {aid}"
+                    )
+            except (OSError, ValueError) as exc:
+                return report.model_copy(update={"ok": False, "error": str(exc)})
         return report
 
     def _prepare_import_destination(self, path: Path, *, member: str) -> None:
@@ -1089,8 +1126,8 @@ class FileSystemCAS:
         staging_root: Path,
         members: set[str],
         artifact_refs: set[str],
-    ) -> None:
-        """Publish one verified import generation through store ownership/locks."""
+    ) -> tuple[ArtifactRef, ...]:
+        """Publish verified default and typed views through store ownership/locks."""
         staged_by_artifact: dict[str, set[str]] = {}
         for member in sorted(members):
             safe_path = _safe_member_path(member)
@@ -1110,26 +1147,23 @@ class FileSystemCAS:
             locks[id(lock)] = lock
 
         created: list[tuple[Path, bytes]] = []
-        plans: list[dict[str, object]] = []
-        new_artifacts: list[ArtifactID] = []
+        writes: dict[Path, tuple[bytes, str]] = {}
+        view_owners: dict[str, set[str]] = {}
+        default_view_created: set[str] = set()
+        published_views: dict[tuple[str, str | None], ArtifactRef] = {}
 
-        def write_once_owned(path: Path, data: bytes, *, member: str) -> None:
-            self._prepare_import_destination(path, member=member)
-            won = self._files.write_once(path, data)
-            if won:
-                created.append((path, data))
-                return
-            if path.is_symlink() or not path.is_file() or path.read_bytes() != data:
-                raise ArtifactIntegrityError(f"Concurrent CAS write conflicts with {member}")
+        def add_write(path: Path, data: bytes, *, member: str) -> None:
+            previous = writes.get(path)
+            if previous is not None and previous[0] != data:
+                raise ArtifactIntegrityError(
+                    f"Transfer contains conflicting immutable views for {member}"
+                )
+            writes[path] = (data, member)
 
         def rollback() -> None:
             for path, data in reversed(created):
                 try:
-                    if (
-                        path.is_file()
-                        and not path.is_symlink()
-                        and path.read_bytes() == data
-                    ):
+                    if path.is_file() and not path.is_symlink() and path.read_bytes() == data:
                         path.unlink()
                 except OSError:
                     continue
@@ -1141,142 +1175,276 @@ class FileSystemCAS:
             for artifact_ref in sorted(artifact_refs):
                 artifact_id = ArtifactID.model_validate(artifact_ref)
                 artifact_members = staged_by_artifact[artifact_ref]
-                blob_member = (
+                prefix = (
                     f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.blob"
+                    f"/{artifact_id.hex}"
                 )
-                manifest_member = (
-                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.manifest.json"
-                )
-                signature_member = (
-                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.sig"
-                )
-                if not {blob_member, manifest_member}.issubset(artifact_members):
+                blob_member = f"{prefix}.blob"
+                if blob_member not in artifact_members:
                     raise ArtifactIntegrityError(
-                        f"Transfer is missing an immutable pair for {artifact_id}"
+                        f"Transfer is missing the immutable blob for {artifact_id}"
+                    )
+                manifest_members = sorted(
+                    member for member in artifact_members if member.endswith(".manifest.json")
+                )
+                if not manifest_members:
+                    raise ArtifactIntegrityError(
+                        f"Transfer is missing every manifest view for {artifact_id}"
                     )
 
                 staged_blob = staging_root / Path(*blob_member.split("/"))
-                staged_manifest = staging_root / Path(*manifest_member.split("/"))
                 staged_blob_data = staged_blob.read_bytes()
-                staged_manifest_data = staged_manifest.read_bytes()
-                staged_manifest_model = ArtifactManifest.model_validate_json(staged_manifest_data)
-                _validate_manifest_identity(artifact_id, staged_manifest_model)
-                _validate_read_integrity(
-                    artifact_id,
-                    staged_blob_data,
-                    staged_manifest_model,
-                )
-
-                blob, manifest = self._paths(artifact_id)
-                signature = self._sig_path(artifact_id)
-                self._prepare_import_destination(blob, member=blob_member)
-                self._prepare_import_destination(manifest, member=manifest_member)
-                self._prepare_import_destination(signature, member=signature_member)
-                blob_exists = blob.exists()
-                manifest_exists = manifest.exists()
-                if blob_exists != manifest_exists:
+                if content_hash(staged_blob_data) != artifact_id.hex:
                     raise ArtifactIntegrityError(
-                        f"Existing CAS generation is incomplete for {artifact_id}"
+                        f"Staged blob content does not match its identity: {artifact_id}"
                     )
 
-                existing_signature = signature.read_bytes() if signature.exists() else None
-                staged_signature = (
-                    staging_root / Path(*signature_member.split("/"))
-                    if signature_member in artifact_members
-                    else None
-                )
-                staged_signature_data = (
-                    staged_signature.read_bytes() if staged_signature is not None else None
-                )
-                if (
-                    existing_signature is not None
-                    and staged_signature_data is not None
-                    and existing_signature != staged_signature_data
-                ):
-                    raise ValueError(
-                        f"Existing detached signature conflicts for {artifact_id}"
-                    )
-
-                if blob_exists:
-                    self._require_artifact_owner(artifact_id, operation="import")
-                    existing_data = blob.read_bytes()
-                    existing_manifest = self._manifests.read(manifest)
-                    _validate_read_integrity(artifact_id, existing_data, existing_manifest)
-                    if self._import_manifest_profile(existing_manifest) != (
-                        self._import_manifest_profile(staged_manifest_model)
-                    ):
-                        raise ValueError(
-                            f"Existing artifact manifest profile conflict for {artifact_id}"
+                blob, default_manifest_path = self._paths(artifact_id)
+                self._prepare_import_destination(blob, member=blob_member)
+                if blob.exists():
+                    persisted_blob_data = blob.read_bytes()
+                    if persisted_blob_data != staged_blob_data:
+                        raise ArtifactIntegrityError(
+                            f"Existing CAS blob conflicts with {blob_member}"
                         )
-                elif self._ownership_enforced:
-                    self._resolve_owner(required=self._ownership_requires_scope)
+                else:
+                    persisted_blob_data = staged_blob_data
+                    add_write(blob, staged_blob_data, member=blob_member)
 
-                plans.append(
-                    {
-                        "artifact_id": artifact_id,
-                        "blob": blob,
-                        "manifest": manifest,
-                        "signature": signature,
-                        "blob_data": staged_blob_data,
-                        "manifest_data": staged_manifest_data,
-                        "signature_data": staged_signature_data,
-                        "existing": blob_exists,
-                    }
-                )
-                if not blob_exists:
-                    new_artifacts.append(artifact_id)
+                source_views: list[dict[str, object]] = []
+                for manifest_member in manifest_members:
+                    staged_manifest = staging_root / Path(*manifest_member.split("/"))
+                    manifest_data = staged_manifest.read_bytes()
+                    manifest = ArtifactManifest.model_validate_json(manifest_data)
+                    _validate_manifest_identity(artifact_id, manifest)
+                    _validate_read_integrity(artifact_id, persisted_blob_data, manifest)
+                    profile_sha256 = self._manifests.profile_sha256(manifest)
+                    encoded_profile = _member_profile_sha256(manifest_member)
+                    if encoded_profile is not None and encoded_profile != profile_sha256:
+                        raise ArtifactIntegrityError(
+                            f"Selected manifest profile mismatch for {artifact_id}"
+                        )
+                    if self._ownership_enforced:
+                        tenant_id, cell_id = self._resolve_owner(
+                            required=self._ownership_requires_scope
+                        )
+                        tenant_context = manifest.tenant_context
+                        if tenant_id is not None and tenant_context is not None and (
+                            tenant_context.tenant_id != tenant_id
+                            or (tenant_context.cell_id or None) != (cell_id or None)
+                        ):
+                            raise ArtifactOwnershipError(
+                                f"Manifest view for {artifact_id} is bound to a different tenant"
+                            )
+
+                    source_sig_member = manifest_member.removesuffix(".manifest.json") + ".sig"
+                    signature_data = None
+                    if source_sig_member in artifact_members:
+                        signature_data = (
+                            staging_root / Path(*source_sig_member.split("/"))
+                        ).read_bytes()
+                    source_views.append(
+                        {
+                            "member": manifest_member,
+                            "manifest": manifest,
+                            "manifest_data": manifest_data,
+                            "profile": profile_sha256,
+                            "signature_data": signature_data,
+                        }
+                    )
+
+                desired_views: dict[Path, dict[str, object]] = {}
+                for source_view in source_views:
+                    manifest = source_view["manifest"]
+                    manifest_data = source_view["manifest_data"]
+                    profile_sha256 = source_view["profile"]
+                    member = source_view["member"]
+                    signature_data = source_view["signature_data"]
+                    if not isinstance(manifest, ArtifactManifest):
+                        raise ArtifactIntegrityError("Invalid staged manifest model")
+                    if not isinstance(manifest_data, bytes) or not isinstance(profile_sha256, str):
+                        raise ArtifactIntegrityError("Invalid staged manifest view")
+                    if not isinstance(member, str):
+                        raise ArtifactIntegrityError("Invalid staged manifest member")
+                    if member == f"{prefix}.manifest.json":
+                        if default_manifest_path.exists():
+                            existing_default = self._manifests.read(default_manifest_path)
+                            _validate_manifest_identity(artifact_id, existing_default)
+                            _validate_read_integrity(
+                                artifact_id,
+                                persisted_blob_data,
+                                existing_default,
+                            )
+                            if self._manifests.profile_sha256(existing_default) == profile_sha256:
+                                destination = default_manifest_path
+                            else:
+                                destination = self._layout.view_manifest_path(
+                                    artifact_id,
+                                    profile_sha256,
+                                )
+                        else:
+                            destination = default_manifest_path
+                    else:
+                        destination = self._layout.view_manifest_path(
+                            artifact_id,
+                            profile_sha256,
+                        )
+
+                    destinations = [destination]
+                    # Current writers return typed refs even for the first view. Preserve that
+                    # ref when importing a legacy ID-only export by materializing an exact-byte
+                    # selector sidecar alongside the historic default path.
+                    if member == f"{prefix}.manifest.json":
+                        destinations.append(
+                            self._layout.view_manifest_path(artifact_id, profile_sha256)
+                        )
+
+                    for destination_path in destinations:
+                        if destination_path.exists():
+                            existing_manifest = self._manifests.read(destination_path)
+                            _validate_manifest_identity(artifact_id, existing_manifest)
+                            _validate_read_integrity(
+                                artifact_id,
+                                persisted_blob_data,
+                                existing_manifest,
+                            )
+                            existing_profile = self._manifests.profile_sha256(existing_manifest)
+                            if existing_profile != profile_sha256:
+                                raise ArtifactIntegrityError(
+                                    f"Existing manifest profile conflicts for {artifact_id}"
+                                )
+                            canonical_data = destination_path.read_bytes()
+                        else:
+                            canonical_data = manifest_data
+
+                        view_entry = desired_views.get(destination_path)
+                        if view_entry is not None and view_entry["manifest_data"] != canonical_data:
+                            raise ArtifactIntegrityError(
+                                f"Transfer contains conflicting immutable views for {artifact_id}"
+                            )
+                        if destination_path not in desired_views:
+                            desired_views[destination_path] = {
+                                "manifest_data": canonical_data,
+                                "profile": profile_sha256,
+                                "signature_data": signature_data,
+                                "source_member": member,
+                            }
+                        elif signature_data is not None:
+                            previous_signature = desired_views[destination_path]["signature_data"]
+                            if previous_signature not in (None, signature_data):
+                                raise ValueError(
+                                    f"Conflicting detached signatures for {artifact_id}"
+                                )
+                            desired_views[destination_path]["signature_data"] = signature_data
+
+                for destination_path, view in desired_views.items():
+                    profile_sha256 = view["profile"]
+                    manifest_data = view["manifest_data"]
+                    signature_data = view["signature_data"]
+                    source_member = view["source_member"]
+                    if not isinstance(profile_sha256, str) or not isinstance(manifest_data, bytes):
+                        raise ArtifactIntegrityError("Invalid immutable view write plan")
+                    if not isinstance(source_member, str):
+                        raise ArtifactIntegrityError("Invalid immutable view member")
+                    is_default_destination = destination_path == default_manifest_path
+                    persisted_manifest = ArtifactManifest.model_validate_json(manifest_data)
+                    selector = None if is_default_destination else profile_sha256
+                    imported_ref = ArtifactRef(
+                        artifact_id=artifact_id,
+                        kind=persisted_manifest.kind,
+                        media_type=persisted_manifest.media_type,
+                        manifest_profile_sha256=selector,
+                    )
+                    published_views[(str(artifact_id), selector)] = imported_ref
+                    signature_path = (
+                        self._sig_path(artifact_id)
+                        if is_default_destination
+                        else self._layout.view_sig_path(artifact_id, profile_sha256)
+                    )
+                    relative_manifest = destination_path.relative_to(self.root).as_posix()
+                    relative_signature = signature_path.relative_to(self.root).as_posix()
+                    self._prepare_import_destination(
+                        destination_path,
+                        member=relative_manifest,
+                    )
+                    self._prepare_import_destination(
+                        signature_path,
+                        member=relative_signature,
+                    )
+                    if destination_path.exists():
+                        if self._ownership_enforced:
+                            if is_default_destination:
+                                self._require_artifact_owner(artifact_id, operation="import")
+                            else:
+                                self._require_blob_owner(artifact_id, operation="import")
+                                self._require_manifest_view_owner(
+                                    artifact_id,
+                                    profile_sha256,
+                                    operation="import_manifest",
+                                )
+                    else:
+                        add_write(
+                            destination_path,
+                            manifest_data,
+                            member=relative_manifest,
+                        )
+                        if is_default_destination:
+                            default_view_created.add(str(artifact_id))
+                        view_owners.setdefault(str(artifact_id), set()).add(profile_sha256)
+
+                    if signature_data is not None:
+                        if not isinstance(signature_data, bytes):
+                            raise ArtifactIntegrityError("Invalid staged signature bytes")
+                        signature = DetachedSignature.model_validate_json(signature_data)
+                        expected_manifest_digest = hashlib.sha256(manifest_data).hexdigest()
+                        if signature.statement.manifest_sha256 != expected_manifest_digest:
+                            raise ValueError(
+                                f"Detached signature does not bind the persisted manifest view "
+                                f"for {artifact_id}"
+                            )
+                        if signature_path.exists():
+                            if signature_path.read_bytes() != signature_data:
+                                raise ValueError(
+                                    f"Existing detached signature conflicts for {artifact_id}"
+                                )
+                        else:
+                            add_write(
+                                signature_path,
+                                signature_data,
+                                member=relative_signature,
+                            )
 
             try:
-                for plan in plans:
-                    artifact_id = plan["artifact_id"]
-                    if not isinstance(artifact_id, ArtifactID):
-                        raise ArtifactIntegrityError("Invalid staged artifact identity")
-                    blob = plan["blob"]
-                    manifest = plan["manifest"]
-                    signature = plan["signature"]
-                    if not isinstance(blob, Path) or not isinstance(manifest, Path):
-                        raise ArtifactIntegrityError("Invalid staged artifact paths")
-                    if not isinstance(signature, Path):
-                        raise ArtifactIntegrityError("Invalid staged signature path")
-                    blob_data = plan["blob_data"]
-                    manifest_data = plan["manifest_data"]
-                    signature_data = plan["signature_data"]
-                    if not isinstance(blob_data, bytes) or not isinstance(manifest_data, bytes):
-                        raise ArtifactIntegrityError("Invalid staged artifact bytes")
-                    if not plan["existing"]:
-                        write_once_owned(
-                            blob,
-                            blob_data,
-                            member=(
-                                f"artifacts/sha256/{artifact_id.hex[:2]}"
-                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.blob"
-                            ),
+                for path, (data, member) in sorted(
+                    writes.items(),
+                    key=lambda item: (item[0].as_posix(), item[1][1]),
+                ):
+                    self._prepare_import_destination(path, member=member)
+                    won = self._files.write_once(path, data)
+                    if won:
+                        created.append((path, data))
+                    elif path.is_symlink() or not path.is_file() or path.read_bytes() != data:
+                        raise ArtifactIntegrityError(
+                            f"Concurrent CAS write conflicts with {member}"
                         )
-                        write_once_owned(
-                            manifest,
-                            manifest_data,
-                            member=(
-                                f"artifacts/sha256/{artifact_id.hex[:2]}"
-                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.manifest.json"
-                            ),
-                        )
-                    if isinstance(signature_data, bytes) and not signature.exists():
-                        write_once_owned(
-                            signature,
-                            signature_data,
-                            member=(
-                                f"artifacts/sha256/{artifact_id.hex[:2]}"
-                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.sig"
-                            ),
-                        )
-                for artifact_id in new_artifacts:
-                    self._record_write_owner(artifact_id)
+                for artifact_ref in sorted(artifact_refs):
+                    artifact_id = ArtifactID.model_validate(artifact_ref)
+                    self._record_write_owner(
+                        artifact_id,
+                        default_view_created=str(artifact_id) in default_view_created,
+                    )
+                    for profile_sha256 in sorted(view_owners.get(str(artifact_id), set())):
+                        self._record_write_view_owner(artifact_id, profile_sha256)
             except Exception:
                 rollback()
                 raise
+        return tuple(
+            published_views[key]
+            for key in sorted(
+                published_views,
+                key=lambda item: (item[0], item[1] or ""),
+            )
+        )
 
     def _atomic_write(self, path: Path, data: bytes) -> None:
         self._files.write_atomic(path, data)
@@ -1309,7 +1477,7 @@ class FileSystemCAS:
 
     def export_subgraph(
         self,
-        artifact_ids: Iterable[ArtifactID],
+        artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
         target: Path,
         *,
         compress: bool = True,
@@ -1318,11 +1486,20 @@ class FileSystemCAS:
         """Export a CAS subgraph to a tarball or directory using the stable CAS layout."""
         artifact_ids = list(artifact_ids)
         for artifact_id in artifact_ids:
-            self._require_artifact_owner(artifact_id, operation="export")
+            aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+            if profile_sha256 is None:
+                self._require_artifact_owner(aid, operation="export")
+            else:
+                self._require_blob_owner(aid, operation="export")
+                self._require_manifest_view_owner(
+                    aid,
+                    profile_sha256,
+                    operation="export_manifest",
+                )
         return _export_subgraph(
             root=self.root,
-            get_paths=self._paths,
-            get_sig_path=self._sig_path,
+            get_paths=self.get_paths,
+            get_sig_path=self._signature_path_for_ref,
             artifact_ids=artifact_ids,
             target=target,
             compress=compress,

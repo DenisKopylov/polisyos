@@ -295,3 +295,14 @@ def _is_manifest_profile_sha256(value: str) -> bool:
     return len(value) == 71 and value.startswith("sha256:") and all(
         character in "0123456789abcdef" for character in value[7:]
     )
+
+
+def artifact_reference_parts(
+    value: ArtifactID | ArtifactRef | str,
+) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
+    """Normalize a CAS identity while retaining any exact manifest selector."""
+    if isinstance(value, ArtifactRef):
+        return value.artifact_id, value.manifest_profile_sha256, value
+    if isinstance(value, str):
+        return ArtifactID.model_validate(value), None, None
+    return value, None, None

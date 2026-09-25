@@ -94,11 +94,8 @@ def test_sidecar_byte_substitution_is_rejected(tmp_path: Path) -> None:
     from polisyos.core.contracts.chronology import SignedArtifactEvidenceRecord
 
     signed_ref = SignedArtifactEvidenceRecord.model_validate(record_payload).artifact_ref
-    assert signed_ref.manifest_profile_sha256 is not None
-    signature_path = store._layout.view_sig_path(
-        signed_ref.artifact_id,
-        signed_ref.manifest_profile_sha256,
-    )
+    assert signed_ref.manifest_profile_sha256 is None
+    signature_path = store._sig_path(signed_ref.artifact_id)
     signature_path.chmod(0o644)
     signature_path.write_bytes(record.detached_signature_bytes + b"\n")
     with pytest.raises(ValueError, match="sidecar differs"):

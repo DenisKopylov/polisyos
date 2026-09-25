@@ -12,7 +12,11 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactTenantContextInfo,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
@@ -328,8 +332,8 @@ def test_signed_export_round_trip_preserves_signature_binding(tmp_path: Path) ->
     assert result.ok
 
 
-def test_import_rejects_same_bytes_with_different_manifest_profile(tmp_path: Path) -> None:
-    """An immutable blob cannot silently acquire a different manifest profile."""
+def test_import_preserves_distinct_manifest_profile_as_selected_view(tmp_path: Path) -> None:
+    """Import keeps the local default and admits the incoming exact typed view."""
     source = FileSystemCAS(tmp_path / "source")
     target = FileSystemCAS(tmp_path / "target")
     source_ref = source.put_bytes(PAYLOAD_A, _options())
@@ -346,11 +350,57 @@ def test_import_rejects_same_bytes_with_different_manifest_profile(tmp_path: Pat
         tmp_path / "profile-conflict.tar.gz",
     )
 
-    with pytest.raises(ValueError, match="manifest profile conflict"):
-        target.import_subgraph(export.output_path, verify_integrity=True)
+    report = target.import_subgraph(export.output_path, verify_integrity=True)
 
+    assert report.verification_failed == []
+    imported_ref = next(
+        ref for ref in report.imported_refs if ref.kind == "tests.cas02.transfer"
+    )
+    assert imported_ref.manifest_profile_sha256 is not None
     assert target.get_manifest_bytes(target_ref.artifact_id) == prior_manifest
     assert target.get_bytes(target_ref.artifact_id) == PAYLOAD_A
+    assert target.get_manifest(imported_ref).kind == "tests.cas02.transfer"
+    assert target.get_manifest(target_ref).kind == "tests.cas02.other-profile"
+    assert target.has(imported_ref)
+
+
+def test_transfer_round_trip_preserves_each_selected_view_and_signature(
+    tmp_path: Path,
+) -> None:
+    """Archive inventory preserves separate manifests and signatures for one blob."""
+    source = FileSystemCAS(tmp_path / "source")
+    target = FileSystemCAS(tmp_path / "target")
+    first = source.put_bytes(PAYLOAD_A, _options())
+    second = source.put_bytes(
+        PAYLOAD_A,
+        PutOptions(
+            kind="tests.cas02.second-view",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.cas02.second-view", version="2"),
+            producer=ProducerInfo(component="tests.cas02", version="2"),
+        ),
+    )
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key_pair.public_key, key_id=key_pair.key_id)
+    source.sign_artifact(second, signer, signer_identity="cas02-second-view")
+
+    export = source.export_subgraph(
+        [first, second],
+        tmp_path / "multi-view.tar.gz",
+    )
+
+    report = target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert report.verification_failed == []
+    assert first in report.imported_refs
+    assert second in report.imported_refs
+    assert target.get_manifest(first).kind == "tests.cas02.transfer"
+    assert target.get_manifest(second).kind == "tests.cas02.second-view"
+    assert target.get_manifest_bytes(second) == source.get_manifest_bytes(second)
+    assert target.get_signature_bytes(second) == source.get_signature_bytes(second)
+    assert target.verify_signature(second, verifier).ok
 
 
 def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -> None:
@@ -369,6 +419,29 @@ def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -> None:
 
     with pytest.raises(PermissionError, match="not owned by tenant"):
         tenant_b.import_subgraph(export.output_path, verify_integrity=True)
+
+
+def test_import_rejects_a_selected_view_bound_to_another_tenant(tmp_path: Path) -> None:
+    """An archive cannot transfer authority-bound tenant metadata by byte possession."""
+    source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-a")
+    source_ref = source.put_bytes(
+        PAYLOAD_A,
+        PutOptions(
+            kind="tests.cas02.tenant-bound",
+            media_type="application/octet-stream",
+            tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a"),
+        ),
+    )
+    export = source.export_subgraph(
+        [source_ref],
+        tmp_path / "tenant-bound-view.tar.gz",
+    )
+    target = FileSystemCAS(tmp_path / "target", tenant_id="tenant-b")
+
+    with pytest.raises(PermissionError, match="bound to a different tenant"):
+        target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert not target.has(source_ref)
 
 
 def test_import_rejects_symlinked_parent_without_touching_external_target(

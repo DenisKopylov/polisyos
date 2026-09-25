@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 
@@ -17,7 +18,9 @@ class _MetricsStub:
 
 class _FakeClientError(Exception):
     def __init__(self, code: str, *, status_code: int | None = None) -> None:
-        http_status = status_code or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
+        http_status = status_code or (
+            404 if code in {"404", "NotFound", "NoSuchKey"} else 403
+        )
         self.response = {
             "Error": {"Code": code},
             "ResponseMetadata": {"HTTPStatusCode": http_status},
@@ -60,6 +63,8 @@ class _FakeS3Client:
         key = str(kwargs["Key"])
         body = bytes(kwargs["Body"])
         self.put_calls.append(key)
+        if kwargs.get("IfNoneMatch") == "*" and key in self.objects:
+            raise _FakeClientError("PreconditionFailed", status_code=412)
         self.objects[key] = body
         return {}
 
@@ -116,3 +121,38 @@ def test_s3_store_accepts_injected_metrics(monkeypatch: pytest.MonkeyPatch) -> N
     store = S3ArtifactStore(bucket="test-bucket", metrics=metrics)
 
     assert store._metrics is metrics
+
+
+def test_s3_store_preserves_each_exact_view_for_identical_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    store._client = _FakeS3Client()
+
+    first = store.put_bytes(
+        b"same remote bytes",
+        PutOptions(kind="first.view", media_type="application/json"),
+    )
+    second = store.put_bytes(
+        b"same remote bytes",
+        PutOptions(kind="second.view", media_type="text/plain"),
+    )
+
+    assert first.artifact_id == second.artifact_id
+    assert first.manifest_profile_sha256 is None
+    assert second.manifest_profile_sha256 is not None
+    assert store.get_manifest(first).kind == "first.view"
+    assert store.get_manifest(second).kind == "second.view"
+    assert store.get_manifest(first.artifact_id).kind == "first.view"
+
+    manifest_key = store._manifest_key
+    monkeypatch.setattr(
+        store,
+        "_manifest_key",
+        lambda artifact_id, profile_sha256=None: manifest_key(
+            artifact_id,
+            None if profile_sha256 is not None else profile_sha256,
+        ),
+    )
+    with pytest.raises(ArtifactIntegrityError, match="Selected manifest profile mismatch"):
+        store.get_manifest(second)

@@ -31,9 +31,8 @@ class ManifestLifecycle:
         sha: str,
         opts: ArtifactWriteOptions,
     ) -> ArtifactManifest:
-        return ArtifactManifest.model_validate(
+        manifest = ArtifactManifest.model_validate(
             {
-                "manifest_schema_version": "v2",
                 "artifact_id": artifact_id,
                 "kind": opts.kind,
                 "media_type": opts.media_type,
@@ -51,6 +50,12 @@ class ManifestLifecycle:
                 "warnings": list(opts.warnings or []),
             }
         )
+        # v1 omits the version marker and remains byte-compatible with historical
+        # manifests. The selector is a hashed-model extension only when an input
+        # explicitly names a selected manifest view, so bump that projection alone.
+        if any(input_ref.manifest_profile_sha256 is not None for input_ref in manifest.inputs):
+            return manifest.model_copy(update={"manifest_schema_version": "v2"})
+        return manifest
 
     @staticmethod
     def to_bytes(manifest: ArtifactManifest) -> bytes:

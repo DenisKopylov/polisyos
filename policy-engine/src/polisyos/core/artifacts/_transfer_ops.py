@@ -16,7 +16,10 @@ from typing import TYPE_CHECKING, Protocol
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
+from ._integrity_ops import ArtifactIntegrityError, validate_read_integrity
+from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
+from .manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
 from .signing import (
     SIGNATURE_ALGORITHM,
     SIGNATURE_FORMAT_VERSION,
@@ -28,10 +31,14 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
 _CAS_EXPORT_MEMBER_RE = re.compile(
-    r"^artifacts/sha256/[0-9a-f]{2}/[0-9a-f]{2}/[0-9a-f]{64}\.(?:blob|manifest\.json|sig)$"
+    r"^artifacts/sha256/[0-9a-f]{2}/[0-9a-f]{2}/[0-9a-f]{64}"
+    r"(?:\.view\.[0-9a-f]{64})?\.(?:blob|manifest\.json|sig)$"
 )
-_CAS_EXPORT_LAYOUT = "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json|sig)"
+_CAS_EXPORT_LAYOUT = "artifacts/sha256/ab/cd/<hex>(.view.<profile>)?.(blob|manifest.json|sig)"
 _CAS_EXPORT_OWNER = "polisyos.filesystem_cas.export"
+_VIEW_MANIFEST_MEMBER_RE = re.compile(
+    r"^(?P<artifact_id>[0-9a-f]{64})\.view\.(?P<profile>[0-9a-f]{64})\.manifest\.json$"
+)
 
 
 class IntegrityVerificationReport(Protocol):
@@ -61,6 +68,7 @@ class ImportReport:
     source: Path
     skipped_entries: list[str]
     verification_failed: list[str]
+    imported_refs: tuple[ArtifactRef, ...] = ()
 
 
 def _member_digest(path: Path) -> tuple[str, int]:
@@ -73,16 +81,20 @@ def _inventory_payload(
     *,
     exported: int,
     requested: int,
+    exported_views: int,
+    requested_views: int,
     members: dict[str, tuple[str, int]],
 ) -> dict[str, object]:
     """Build a deterministic export manifest with a closed member inventory."""
     ordered_members = sorted(members)
     return {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "cas_layout": _CAS_EXPORT_LAYOUT,
         "export_owner": _CAS_EXPORT_OWNER,
         "exported_artifacts": exported,
         "requested_artifacts": requested,
+        "exported_views": exported_views,
+        "requested_views": requested_views,
         "members": ordered_members,
         "member_bindings": [
             {
@@ -319,17 +331,50 @@ def safe_member_path(name: str) -> PurePosixPath | None:
 def artifact_id_from_member(path: str) -> ArtifactID | None:
     """Derive one artifact ID from a stable CAS bundle member path."""
     file_name = Path(path).name
-    if file_name.endswith(".blob"):
-        hex64 = file_name[: -len(".blob")]
-    elif file_name.endswith(".manifest.json"):
-        hex64 = file_name[: -len(".manifest.json")]
-    elif file_name.endswith(".sig"):
-        hex64 = file_name[: -len(".sig")]
-    else:
+    match = re.fullmatch(
+        r"(?P<artifact_id>[0-9a-f]{64})(?:\.view\.[0-9a-f]{64})?"
+        r"\.(?:blob|manifest\.json|sig)",
+        file_name,
+    )
+    if match is None:
         return None
-    if not re.fullmatch(r"[0-9a-f]{64}", hex64):
-        return None
-    return ArtifactID.from_sha256_hex(hex64)
+    return ArtifactID.from_sha256_hex(match.group("artifact_id"))
+
+
+def member_profile_sha256(path: str) -> str | None:
+    """Return the selected profile digest encoded by a secondary-view member."""
+    match = _VIEW_MANIFEST_MEMBER_RE.fullmatch(Path(path).name)
+    return f"sha256:{match.group('profile')}" if match is not None else None
+
+
+def _validate_staged_manifest_views(
+    staging_root: Path,
+    artifact_id: ArtifactID,
+    manifest_members: Iterable[str],
+) -> None:
+    """Validate every staged manifest against the shared blob and its path selector."""
+    blob_path = (
+        staging_root
+        / "artifacts"
+        / "sha256"
+        / artifact_id.hex[:2]
+        / artifact_id.hex[2:4]
+        / f"{artifact_id.hex}.blob"
+    )
+    if not blob_path.is_file() or blob_path.is_symlink():
+        raise ArtifactIntegrityError(f"Transfer is missing the immutable blob for {artifact_id}")
+    blob_bytes = blob_path.read_bytes()
+    for member in manifest_members:
+        manifest_path = staging_root / Path(*PurePosixPath(member).parts)
+        if not manifest_path.is_file() or manifest_path.is_symlink():
+            raise ArtifactIntegrityError(f"Transfer is missing manifest view {member}")
+        manifest = ArtifactManifest.model_validate_json(manifest_path.read_bytes())
+        validate_read_integrity(artifact_id, blob_bytes, manifest)
+        profile_sha256 = member_profile_sha256(member)
+        if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
+            profile_sha256
+        ):
+            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {artifact_id}")
 
 
 def _validate_staged_signatures(
@@ -338,21 +383,19 @@ def _validate_staged_signatures(
     staged_members: set[str],
 ) -> None:
     """Fail closed when an imported signature is malformed or misbound."""
-    for artifact_ref in sorted(imported_artifacts):
-        artifact_id = ArtifactID.model_validate(artifact_ref)
-        sig_member = (
-            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-            f"/{artifact_id.hex}.sig"
-        )
-        if sig_member not in staged_members:
-            continue
+    for sig_member in sorted(member for member in staged_members if member.endswith(".sig")):
+        artifact_id = artifact_id_from_member(sig_member)
+        if artifact_id is None or str(artifact_id) not in imported_artifacts:
+            raise ValueError(f"Invalid signature member path: {sig_member}")
         sig_path = staging_root / Path(*PurePosixPath(sig_member).parts)
-        blob_path = staging_root / Path(
-            *PurePosixPath(sig_member.removesuffix(".sig") + ".blob").parts
+        signature_stem = sig_member.removesuffix(".sig")
+        blob_member = (
+            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+            f"/{artifact_id.hex}.blob"
         )
-        manifest_path = staging_root / Path(
-            *PurePosixPath(sig_member.removesuffix(".sig") + ".manifest.json").parts
-        )
+        manifest_member = f"{signature_stem}.manifest.json"
+        blob_path = staging_root / Path(*PurePosixPath(blob_member).parts)
+        manifest_path = staging_root / Path(*PurePosixPath(manifest_member).parts)
         try:
             signature = DetachedSignature.model_validate_json(sig_path.read_text("utf-8"))
             if signature.version != SIGNATURE_FORMAT_VERSION:
@@ -382,9 +425,9 @@ def _validate_staged_signatures(
 def export_subgraph(
     *,
     root: Path,
-    get_paths: Callable[[ArtifactID], tuple[Path, Path]],
-    get_sig_path: Callable[[ArtifactID], Path],
-    artifact_ids: Iterable[ArtifactID],
+    get_paths: Callable[[ArtifactID | ArtifactRef], tuple[Path, Path]],
+    get_sig_path: Callable[[ArtifactID | ArtifactRef], Path],
+    artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
     compress: bool = True,
     include_manifests: bool = True,
@@ -393,43 +436,65 @@ def export_subgraph(
     missing_artifacts: list[str] = []
     missing_manifests: list[str] = []
     total_bytes = 0
-    exported = 0
     member_bindings: dict[str, tuple[str, int]] = {}
 
-    sorted_ids = sorted(artifact_ids, key=lambda aid: aid.hex)
+    requests_by_key: dict[tuple[str, str], ArtifactID | ArtifactRef] = {}
+    for value in artifact_ids:
+        artifact_id, profile_sha256, ref = artifact_reference_parts(value)
+        request = ref or artifact_id
+        requests_by_key[(artifact_id.hex, profile_sha256 or "default")] = request
+    requests = [
+        requests_by_key[key]
+        for key in sorted(requests_by_key, key=lambda item: (item[0], item[1]))
+    ]
+    requested_ids = {key[0] for key in requests_by_key}
+    exported_ids: set[str] = set()
+    exported_views: set[tuple[str, str]] = set()
+    added_members: set[str] = set()
+
+    def add_archive_member(tar: tarfile.TarFile, path: Path, member: str) -> int:
+        if member in added_members:
+            return 0
+        tar.add(path, arcname=member, recursive=False)
+        member_binding = _member_digest(path)
+        member_bindings[member] = member_binding
+        added_members.add(member)
+        return member_binding[1]
+
     if compress:
         archive_path = normalize_archive_path(target)
         archive_path.parent.mkdir(parents=True, exist_ok=True)
         with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
-            for artifact_id in sorted_ids:
-                blob_path, manifest_path = get_paths(artifact_id)
+            for request in requests:
+                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
+                blob_path, manifest_path = get_paths(request)
                 if not blob_path.exists():
                     missing_artifacts.append(str(artifact_id))
                     continue
                 arc_blob = str(blob_path.relative_to(root))
-                tar.add(blob_path, arcname=arc_blob, recursive=False)
-                member_bindings[arc_blob] = _member_digest(blob_path)
-                total_bytes += member_bindings[arc_blob][1]
+                total_bytes += add_archive_member(tar, blob_path, arc_blob)
 
+                manifest_available = False
                 if include_manifests:
                     if not manifest_path.exists():
                         missing_manifests.append(str(artifact_id))
                     else:
                         arc_manifest = str(manifest_path.relative_to(root))
-                        tar.add(manifest_path, arcname=arc_manifest, recursive=False)
-                        member_bindings[arc_manifest] = _member_digest(manifest_path)
-                        total_bytes += member_bindings[arc_manifest][1]
-                sig_path = get_sig_path(artifact_id)
+                        total_bytes += add_archive_member(tar, manifest_path, arc_manifest)
+                        manifest_available = True
+                sig_path = get_sig_path(request)
                 if sig_path.exists():
                     arc_sig = str(sig_path.relative_to(root))
-                    tar.add(sig_path, arcname=arc_sig, recursive=False)
-                    member_bindings[arc_sig] = _member_digest(sig_path)
-                    total_bytes += member_bindings[arc_sig][1]
-                exported += 1
+                    total_bytes += add_archive_member(tar, sig_path, arc_sig)
+                exported_ids.add(str(artifact_id))
+                if manifest_available:
+                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
 
             meta_payload = _inventory_payload(
-                exported=exported,
-                requested=len(sorted_ids),
+                exported=len(exported_ids),
+                requested=len(requested_ids),
+                exported_views=len(exported_views),
+                requested_views=len(requests),
                 members=member_bindings,
             )
             meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
@@ -446,44 +511,57 @@ def export_subgraph(
             tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent)
         )
         try:
-            for artifact_id in sorted_ids:
-                blob_path, manifest_path = get_paths(artifact_id)
+            for request in requests:
+                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
+                blob_path, manifest_path = get_paths(request)
                 if not blob_path.exists():
                     missing_artifacts.append(str(artifact_id))
                     continue
-                dst_blob = staging_root / blob_path.relative_to(root)
-                dst_blob.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(blob_path, dst_blob)
                 arc_blob = str(blob_path.relative_to(root))
-                member_bindings[arc_blob] = _member_digest(dst_blob)
-                total_bytes += member_bindings[arc_blob][1]
+                if arc_blob not in added_members:
+                    dst_blob = staging_root / blob_path.relative_to(root)
+                    dst_blob.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(blob_path, dst_blob)
+                    member_bindings[arc_blob] = _member_digest(dst_blob)
+                    total_bytes += member_bindings[arc_blob][1]
+                    added_members.add(arc_blob)
 
+                manifest_available = False
                 if include_manifests:
                     if not manifest_path.exists():
                         missing_manifests.append(str(artifact_id))
                     else:
-                        dst_manifest = staging_root / manifest_path.relative_to(root)
-                        dst_manifest.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(manifest_path, dst_manifest)
                         arc_manifest = str(manifest_path.relative_to(root))
-                        member_bindings[arc_manifest] = _member_digest(dst_manifest)
-                        total_bytes += member_bindings[arc_manifest][1]
-                sig_path = get_sig_path(artifact_id)
+                        if arc_manifest not in added_members:
+                            dst_manifest = staging_root / manifest_path.relative_to(root)
+                            dst_manifest.parent.mkdir(parents=True, exist_ok=True)
+                            shutil.copy2(manifest_path, dst_manifest)
+                            member_bindings[arc_manifest] = _member_digest(dst_manifest)
+                            total_bytes += member_bindings[arc_manifest][1]
+                            added_members.add(arc_manifest)
+                        manifest_available = True
+                sig_path = get_sig_path(request)
                 if sig_path.exists():
-                    dst_sig = staging_root / sig_path.relative_to(root)
-                    dst_sig.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(sig_path, dst_sig)
                     arc_sig = str(sig_path.relative_to(root))
-                    member_bindings[arc_sig] = _member_digest(dst_sig)
-                    total_bytes += member_bindings[arc_sig][1]
-                exported += 1
+                    if arc_sig not in added_members:
+                        dst_sig = staging_root / sig_path.relative_to(root)
+                        dst_sig.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(sig_path, dst_sig)
+                        member_bindings[arc_sig] = _member_digest(dst_sig)
+                        total_bytes += member_bindings[arc_sig][1]
+                        added_members.add(arc_sig)
+                exported_ids.add(str(artifact_id))
+                if manifest_available:
+                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
 
             meta_path = staging_root / "export_manifest.json"
             meta_path.write_text(
                 fast_json_dumps(
                     _inventory_payload(
-                        exported=exported,
-                        requested=len(sorted_ids),
+                        exported=len(exported_ids),
+                        requested=len(requested_ids),
+                        exported_views=len(exported_views),
+                        requested_views=len(requests),
                         members=member_bindings,
                     ),
                     sort_keys=True,
@@ -499,7 +577,7 @@ def export_subgraph(
         output_path = target
 
     return ExportReport(
-        exported_artifacts=exported,
+        exported_artifacts=len(exported_ids),
         total_bytes=total_bytes,
         output_path=output_path,
         missing_artifacts=missing_artifacts,
@@ -510,8 +588,8 @@ def export_subgraph(
 def import_subgraph(
     *,
     root: Path,
-    verify_artifact: Callable[[ArtifactID, Path], IntegrityVerificationReport],
-    publish_staged: Callable[[Path, set[str], set[str]], None],
+    verify_artifact: Callable[[ArtifactID | ArtifactRef, Path], IntegrityVerificationReport],
+    publish_staged: Callable[[Path, set[str], set[str]], tuple[ArtifactRef, ...]],
     source: Path,
     verify_integrity: bool = False,
 ) -> ImportReport:
@@ -635,12 +713,60 @@ def import_subgraph(
                     + ", ".join(sorted(missing_members))
                 )
 
+        staged_by_artifact: dict[str, set[str]] = {}
+        for member in staged_members:
+            artifact_id = artifact_id_from_member(member)
+            if artifact_id is not None:
+                staged_by_artifact.setdefault(str(artifact_id), set()).add(member)
+
         if verify_integrity:
             for artifact_ref in sorted(imported_artifacts):
                 artifact_id = ArtifactID.model_validate(artifact_ref)
-                report = verify_artifact(artifact_id, staging_root)
-                if not report.ok:
+                artifact_members = staged_by_artifact.get(artifact_ref, set())
+                blob_member = (
+                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+                    f"/{artifact_id.hex}.blob"
+                )
+                manifest_members = sorted(
+                    member
+                    for member in artifact_members
+                    if member.endswith(".manifest.json")
+                )
+                if blob_member not in artifact_members or not manifest_members:
+                    raise ValueError(
+                        f"Transfer must contain a blob and at least one manifest view for "
+                        f"{artifact_id}"
+                    )
+                try:
+                    _validate_staged_manifest_views(
+                        staging_root,
+                        artifact_id,
+                        manifest_members,
+                    )
+                except (OSError, ValueError, TypeError):
                     verification_failed.append(artifact_ref)
+                    continue
+                for manifest_member in manifest_members:
+                    profile_sha256 = member_profile_sha256(manifest_member)
+                    if profile_sha256 is None:
+                        selected: ArtifactID | ArtifactRef = artifact_id
+                    else:
+                        manifest = ArtifactManifest.model_validate_json(
+                            (
+                                staging_root
+                                / Path(*PurePosixPath(manifest_member).parts)
+                            ).read_bytes()
+                        )
+                        selected = ArtifactRef(
+                            artifact_id=artifact_id,
+                            kind=manifest.kind,
+                            media_type=manifest.media_type,
+                            manifest_profile_sha256=profile_sha256,
+                        )
+                    report = verify_artifact(selected, staging_root)
+                    if not report.ok:
+                        verification_failed.append(artifact_ref)
+                        break
 
         verification_failed = sorted(set(verification_failed) | binding_failures)
         _validate_staged_signatures(staging_root, imported_artifacts, staged_members)
@@ -654,7 +780,7 @@ def import_subgraph(
                 verification_failed=verification_failed,
             )
 
-        publish_staged(staging_root, staged_members, imported_artifacts)
+        imported_refs = publish_staged(staging_root, staged_members, imported_artifacts)
         return ImportReport(
             imported_files=len(staged_members),
             imported_artifacts=len(imported_artifacts),
@@ -662,6 +788,7 @@ def import_subgraph(
             source=source,
             skipped_entries=skipped_entries,
             verification_failed=[],
+            imported_refs=imported_refs,
         )
     finally:
         shutil.rmtree(staging_root, ignore_errors=True)

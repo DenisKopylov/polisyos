@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 _FAKE_ID = "sha256:" + "aa" * 32
 
@@ -119,3 +121,24 @@ class TestCachingArtifactStore:
         report = store.verify(_FAKE_ID)
         assert report.ok is True
         remote.verify.assert_not_called()
+
+    def test_remote_population_preserves_the_complete_selected_manifest_profile(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        remote = FileSystemCAS(tmp_path / "remote")
+        local = FileSystemCAS(tmp_path / "local")
+        selected = remote.put_bytes(
+            b"cache exact-view bytes",
+            PutOptions(
+                kind="cache.selected.view",
+                media_type="application/octet-stream",
+                tenant_context=ArtifactTenantContextInfo(tenant_id="tenant-a"),
+            ),
+        )
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        assert store.get_bytes(selected) == b"cache exact-view bytes"
+
+        assert local.has(selected)
+        assert local.get_manifest(selected) == remote.get_manifest(selected)

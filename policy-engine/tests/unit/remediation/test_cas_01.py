@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -68,7 +69,12 @@ def _assert_manifest_profile(
     assert manifest.authority == options.authority
     assert manifest.integrity.sha256 == manifest.artifact_id.hex
     assert manifest.warnings == []
-    assert manifest.manifest_schema_version == "v2"
+    expected_version = (
+        "v2"
+        if any(ref.manifest_profile_sha256 is not None for ref in options.inputs or [])
+        else "v1"
+    )
+    assert manifest.manifest_schema_version == expected_version
 
 
 def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
@@ -82,7 +88,11 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
     )
     first_options = first_options.__class__(
         **{**first_options.__dict__, "inputs": [
-            InputRef(artifact_id=ArtifactID.from_sha256_hex("a" * 64), role="first_basis")
+            InputRef(
+                artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+                role="first_basis",
+                manifest_profile_sha256="sha256:" + "1" * 64,
+            )
         ]}
     )
     second_options = _options(
@@ -93,7 +103,11 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
     )
     second_options = second_options.__class__(
         **{**second_options.__dict__, "inputs": [
-            InputRef(artifact_id=ArtifactID.from_sha256_hex("b" * 64), role="second_basis")
+            InputRef(
+                artifact_id=ArtifactID.from_sha256_hex("b" * 64),
+                role="second_basis",
+                manifest_profile_sha256="sha256:" + "2" * 64,
+            )
         ]}
     )
 
@@ -107,7 +121,7 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
     assert first_ref.media_type == first_options.media_type
     assert second_ref.kind == second_options.kind
     assert second_ref.media_type == second_options.media_type
-    assert first_ref.manifest_profile_sha256 is not None
+    assert first_ref.manifest_profile_sha256 is None
     assert second_ref.manifest_profile_sha256 is not None
     assert second_ref.manifest_profile_sha256.startswith("sha256:")
     assert first_manifest != second_manifest
@@ -136,6 +150,7 @@ def test_reuse_with_same_profile_preserves_first_manifest_and_ref(tmp_path: Path
 
     first_ref = store.put_bytes(PAYLOAD, options)
     first_manifest = store.get_manifest(first_ref)
+    assert first_manifest.manifest_schema_version == "v1"
     second_ref = store.put_bytes(PAYLOAD, options)
 
     assert second_ref == first_ref
@@ -239,8 +254,12 @@ def test_guarded_store_requires_exact_owner_for_manifest_view(tmp_path: Path) ->
 
     assert tenant_b.get_manifest(second).kind == "cas.tenant.b"
     assert tenant_b.get_bytes(second) == PAYLOAD
+    first_manifest = tenant_a.get_manifest(first)
+    first_typed_ref = first.model_copy(
+        update={"manifest_profile_sha256": ManifestLifecycle.profile_sha256(first_manifest)}
+    )
     with pytest.raises(PermissionError, match="Manifest view"):
-        tenant_b.get_manifest(first)
+        tenant_b.get_manifest(first_typed_ref)
     with pytest.raises(PermissionError, match="not owned"):
         tenant_b.get_manifest(first.artifact_id)
     with pytest.raises(PermissionError, match="not owned"):

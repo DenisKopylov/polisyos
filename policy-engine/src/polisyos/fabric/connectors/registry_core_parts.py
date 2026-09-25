@@ -664,29 +664,44 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         connector_id: str,
         config: ConnectionConfig | None = None,
     ) -> ConnectionHandle:
-        """
-        Get a connection from the pool (or create new pool).
+        """Get a normally validated connection from the configured pool."""
 
-        Connections are pooled per (connector_fqid, config_fingerprint).
+        pool, pool_key = await self._resolve_connection_pool(connector_id, config)
+        handle = await pool.acquire()
+        handle.set_state(_POOL_KEY_STATE_KEY, pool_key)
+        return handle
 
-        Args:
-            connector_id: Short ID or fully qualified ID
-            config: Connection configuration (uses default if not provided)
+    async def _get_connection_with_live_permit(
+        self,
+        connector_id: str,
+        config: ConnectionConfig | None,
+        *,
+        dataset_id: str,
+        permit: object,
+    ) -> ConnectionHandle:
+        """Route one journal-authorized lease through its registered pool owner."""
 
-        Returns:
-            ConnectionHandle from pool
+        pool, pool_key = await self._resolve_connection_pool(connector_id, config)
+        _connector, handle = await pool._acquire_with_live_permit(
+            permit,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+        )
+        handle.set_state(_POOL_KEY_STATE_KEY, pool_key)
+        return handle
 
-        Raises:
-            ConnectorNotFoundError: If connector not registered
-            ConnectorConfigError: If no config available
-        """
+    async def _resolve_connection_pool(
+        self,
+        connector_id: str,
+        config: ConnectionConfig | None,
+    ) -> tuple[ConnectionPool, tuple[str, str, int]]:
+        """Resolve or create the one pool owned for this connector/config/loop."""
+
         from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
 
         fqid = self._resolve_id(connector_id)
-
         with self._instance_lock:
             entry = self._connectors.get(fqid)
-
         if entry is None:
             raise ConnectorNotFoundError(connector_id)
 
@@ -701,7 +716,6 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         with self._instance_lock:
             pool_scope = self._current_pool_scope_locked()
         pool_key = (fqid, fingerprint, pool_scope)
-
         with self._instance_lock:
             pool = self._get_connection_pool_locked(pool_key)
 
@@ -752,9 +766,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             for evicted_pool in evicted_pools:
                 await evicted_pool.close_all()
 
-        handle = await pool.acquire()
-        handle.set_state(_POOL_KEY_STATE_KEY, pool_key)
-        return handle
+        return pool, pool_key
 
     async def release_connection(
         self,

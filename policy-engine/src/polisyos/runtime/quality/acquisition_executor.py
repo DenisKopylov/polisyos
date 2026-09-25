@@ -35,6 +35,7 @@ epoch_contract = contracts.epoch
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.fabric.data_plane.evidence_journal import _LiveAcquirePermit
     from polisyos.runtime.http.services.control_registry_providers import (
         ControlRegistryProviders,
     )
@@ -804,12 +805,13 @@ def execute_live_catalog_acquisition(
         resolved,
         constraints=constraints,
     )
+    schema_contract = entry.schema_projection()
     authorization = fabric_data_plane.build_live_execution_authorization(
         attempt_id=attempt_id,
         connector_id=registration.connector_id,
         request_dataset_id=registration.request_dataset_id,
         request=request,
-        schema_contract=entry.schema_projection(),
+        schema_contract=schema_contract,
         source_profile=profile,
         baseline_sha256=baseline_before_sha256,
         family_receipt=family_receipt,
@@ -864,7 +866,23 @@ def execute_live_catalog_acquisition(
         max_retries=1,
         max_connections=1,
     )
+    permit: _LiveAcquirePermit | None = None
     try:
+        permit = journal._issue_live_acquire_permit(
+            authorization=authorization,
+            request_ref=request_ref,
+            connector_id=registration.connector_id,
+            request_dataset_id=registration.request_dataset_id,
+            request=request,
+            schema_contract=schema_contract,
+            source_profile=profile,
+            baseline_sha256=baseline_before_sha256,
+            family_receipt=family_receipt,
+            timeout_cap_seconds=constraints.timeout_cap_seconds,
+            heartbeat_cap_seconds=constraints.heartbeat_cap_seconds,
+            max_response_bytes=constraints.max_response_bytes,
+            max_decompressed_bytes=constraints.max_decompressed_bytes,
+        )
         evidence = _execute_authorized_live_acquisition(
             authority=authority,
             entry_id=entry_id,
@@ -875,11 +893,13 @@ def execute_live_catalog_acquisition(
             store=store,
             observer=observer,
             authorization=authorization,
+            live_acquire_permit=permit,
             family_receipt=family_receipt,
             manifest=manifest,
             connection_config=connection_config,
             cas_root=cas_root,
         )
+        journal._revoke_live_acquire_permit(permit)
         journal.append_classification(
             attempt_id=attempt_id,
             evidence_ref=evidence.raw_evidence_ref,
@@ -898,6 +918,8 @@ def execute_live_catalog_acquisition(
         )
         return evidence
     except Exception as exc:
+        if permit is not None:
+            journal._revoke_live_acquire_permit(permit)
         failure_code = _live_failure_code(exc)
         try:
             journal.append_failure_terminal(
@@ -930,6 +952,7 @@ def _execute_authorized_live_acquisition(
     store: ArtifactStore,
     observer: _LiveHTTPExecutionObserver,
     authorization: fabric_data_plane.LiveExecutionAuthorization,
+    live_acquire_permit: _LiveAcquirePermit,
     family_receipt: Mapping[str, Any],
     manifest: ConnectorManifestSpec,
     connection_config: fabric_connectors.ConnectionConfig,
@@ -992,6 +1015,7 @@ def _execute_authorized_live_acquisition(
             produce_snapshot=True,
             raw_result_sink=_capture_result,
             raw_http_response_observer=observer,
+            _live_acquire_permit=live_acquire_permit,
             ingestion_dependencies=fabric_ingestion.resolve_ingestion_dependencies(
                 store_factory=_owned_ingestion_store,
             ),

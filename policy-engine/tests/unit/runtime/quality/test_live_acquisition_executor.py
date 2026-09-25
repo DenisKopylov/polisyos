@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import socket
+import threading
 from collections.abc import Mapping
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -30,6 +33,11 @@ from polisyos.fabric.data_plane import (
     content_sha256,
     resolve_journal_event_ref,
     resolve_live_attempt_terminals,
+)
+from polisyos.fabric.data_plane.evidence_journal import (
+    AppendOnlyEvidenceJournal,
+    EvidenceJournalError,
+    _consume_live_acquire_permit,
 )
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
@@ -463,6 +471,23 @@ def _failure_terminal(path: Path):
     terminals = resolve_live_attempt_terminals(path)
     assert len(terminals) == 1
     return terminals[0]
+
+
+def _resolved_live_worldbank_authority(tmp_path: Path) -> tuple[object, object]:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        receipt=_family_receipt(),
+    )
+    authority, entry = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+    return authority, entry
 
 
 def _run(
@@ -1213,6 +1238,8 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
 
     import aiohttp
 
+    from polisyos.fabric.connectors.pool import ConnectionPool
+
     repo_root = tmp_path / "repo"
     entry = _entry()
     receipt = _family_receipt()
@@ -1229,6 +1256,63 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     )
     body = _raw_body(_normalized_rows())
     transport_calls: list[tuple[str, str, dict[str, str]]] = []
+    health_checks: list[str] = []
+    original_health_check = WorldBankConnector.health_check
+
+    async def _track_health_check(self: WorldBankConnector, handle: object):
+        health_checks.append(str(getattr(handle, "session_id", "unknown")))
+        return await original_health_check(self, handle)
+
+    original_acquire = ConnectionPool._acquire_with_live_permit
+
+    async def _attempt_mutation_then_acquire(
+        pool: ConnectionPool,
+        permit: object,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> Any:
+        issued = AppendOnlyEvidenceJournal._live_acquire_permits.get(permit)
+        assert issued is not None and issued[1] == "issued"
+        binding = issued[0]
+        assert binding.journal_path == (tmp_path / "journal.jsonl").as_posix()
+        assert binding.journal.path.as_posix() == binding.journal_path
+        assert binding.attempt_id == _ATTEMPT_ID
+        assert binding.connector_id == _CONNECTOR_ID
+        assert binding.dataset_id == _INDICATOR_ID
+        bound_event = resolve_journal_event_ref(binding.request_ref)
+        assert bound_event["event_kind"] == "request"
+        assert bound_event["attempt_id"] == _ATTEMPT_ID
+        assert bound_event["request_sha256"] == binding.request_sha256
+        assert isinstance(bound_event["request"], Mapping)
+        assert bound_event["request"]["request_dataset_id"] == _INDICATOR_ID
+        forged_fields = {
+            "_journal": object(),
+            "_journal_path": "/tmp/forged-journal.jsonl",
+            "_journal_sha256": "sha256:" + "0" * 64,
+            "_request_ref": object(),
+            "_attempt_id": "forged-attempt",
+            "_connector_id": "forged.connector",
+            "_dataset_id": "forged.dataset",
+            "_request_sha256": "sha256:" + "0" * 64,
+        }
+        for name, value in forged_fields.items():
+            with pytest.raises(AttributeError):
+                object.__setattr__(permit, name, value)
+        assert AppendOnlyEvidenceJournal._live_acquire_permits.get(permit) is issued
+        return await original_acquire(
+            pool,
+            permit,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+        )
+
+    monkeypatch.setattr(
+        ConnectionPool,
+        "_acquire_with_live_permit",
+        _attempt_mutation_then_acquire,
+    )
+    monkeypatch.setattr(WorldBankConnector, "health_check", _track_health_check)
 
     class _InterceptedResponse:
         status = 200
@@ -1282,6 +1366,7 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     )
 
     assert transport_calls == [("GET", _URL, _PARAMS)]
+    assert health_checks == []
     assert evidence.call_count == 1
     assert evidence.variable_count == 1
     assert evidence.transport_trace.raw_evidence_ref == evidence.raw_evidence_ref
@@ -1291,3 +1376,387 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
         FileSystemCAS(tmp_path / "cas"),
     )
     assert reopened.row_count == 2
+
+
+def test_live_executor_recomputes_full_authorization_before_issuing_pool_permit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_builder = acquisition_executor_module.fabric_data_plane.build_live_execution_authorization
+    calls = 0
+
+    def _forge_first_authorization(**kwargs: Any):
+        nonlocal calls
+        authorization = original_builder(**kwargs)
+        calls += 1
+        if calls == 1:
+            return authorization.model_copy(update={"baseline_sha256": "sha256:" + "0" * 64})
+        return authorization
+
+    monkeypatch.setattr(
+        acquisition_executor_module.fabric_data_plane,
+        "build_live_execution_authorization",
+        _forge_first_authorization,
+    )
+    execute_calls = 0
+    original_execute = acquisition_executor_module._execute_authorized_live_acquisition
+
+    def _track_execute(**kwargs: Any):
+        nonlocal execute_calls
+        execute_calls += 1
+        return original_execute(**kwargs)
+
+    monkeypatch.setattr(
+        acquisition_executor_module,
+        "_execute_authorized_live_acquisition",
+        _track_execute,
+    )
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        _run(tmp_path, monkeypatch)
+
+    assert exc_info.value.code == "live_acquire_authorization_mismatch"
+    assert execute_calls == 0
+    terminal = _failure_terminal(tmp_path / "journal.jsonl")
+    assert terminal.failure_code == "live_acquire_authorization_mismatch"
+
+
+def test_live_acquire_permit_rejects_a_reconstructed_copy_before_pool_io(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aiohttp
+
+    from polisyos.fabric.connectors.pool import ConnectionPool
+
+    authority, entry = _resolved_live_worldbank_authority(tmp_path)
+    original_acquire = ConnectionPool._acquire_with_live_permit
+    connection_creations: list[str] = []
+    health_checks: list[str] = []
+    transport_calls: list[tuple[str, str]] = []
+    original_connect = WorldBankConnector.connect
+    original_health_check = WorldBankConnector.health_check
+
+    async def _acquire_with_clone(
+        pool: ConnectionPool,
+        permit: object,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> Any:
+        clone = object.__new__(type(permit))
+        forged_issuer = SimpleNamespace(
+            _consume_live_acquire_permit=lambda **_kwargs: None
+        )
+        forged_fields = {
+            "_journal": forged_issuer,
+            "_journal_path": "/tmp/forged-journal.jsonl",
+            "_journal_sha256": "sha256:" + "0" * 64,
+            "_request_ref": object(),
+            "_attempt_id": "forged-attempt",
+            "_connector_id": "forged.connector",
+            "_dataset_id": "forged.dataset",
+            "_request_sha256": "sha256:" + "0" * 64,
+        }
+        for name, value in forged_fields.items():
+            with pytest.raises(AttributeError):
+                object.__setattr__(clone, name, value)
+        return await original_acquire(
+            pool,
+            clone,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+        )
+
+    async def _track_connect(self: WorldBankConnector, config: Any):
+        connection_creations.append(_CONNECTOR_ID)
+        return await original_connect(self, config)
+
+    async def _track_health_check(self: WorldBankConnector, handle: object):
+        health_checks.append(str(getattr(handle, "session_id", "unknown")))
+        return await original_health_check(self, handle)
+
+    async def _intercept_unexpected_request(
+        _session: object,
+        method: str,
+        url: object,
+        **kwargs: object,
+    ) -> object:
+        del kwargs
+        transport_calls.append((method, str(url)))
+        raise RuntimeError("reconstructed permit reached HTTP transport")
+
+    def _forbid_socket(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("reconstructed permit escaped to a real socket")
+
+    monkeypatch.setattr(ConnectionPool, "_acquire_with_live_permit", _acquire_with_clone)
+    monkeypatch.setattr(WorldBankConnector, "connect", _track_connect)
+    monkeypatch.setattr(WorldBankConnector, "health_check", _track_health_check)
+    monkeypatch.setattr(aiohttp.ClientSession, "_request", _intercept_unexpected_request)
+    monkeypatch.setattr(socket.socket, "connect", _forbid_socket)
+    monkeypatch.setattr(socket.socket, "connect_ex", _forbid_socket)
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            constraints=_constraints(),
+            journal_path=tmp_path / "journal.jsonl",
+            cas_root=tmp_path / "cas",
+        )
+
+    assert exc_info.value.code == "live_acquire_permit_invalid"
+    assert connection_creations == []
+    assert health_checks == []
+    assert transport_calls == []
+    events = _journal_events(tmp_path / "journal.jsonl")
+    request_events = [event for event in events if event["event_kind"] == "request"]
+    assert len(request_events) == 1
+    assert request_events[0]["attempt_id"] == _ATTEMPT_ID
+    assert request_events[0]["request"]["request_dataset_id"] == _INDICATOR_ID
+    assert all(event["event_kind"] != "transport_attempt" for event in events)
+
+
+def test_live_acquire_permit_transition_is_atomic_across_threads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_execute = acquisition_executor_module._execute_authorized_live_acquisition
+    results_seen: list[object] = []
+    simultaneous_registry_reads: list[bool] = []
+
+    def _contend_before_orchestration(**kwargs: Any):
+        permit = kwargs["live_acquire_permit"]
+        rendezvous = threading.Barrier(2)
+
+        class _RendezvousRegistry(dict):
+            def get(self, key: object, default: object = None) -> object:
+                value = super().get(key, default)
+                try:
+                    rendezvous.wait(timeout=0.05)
+                except threading.BrokenBarrierError:
+                    simultaneous_registry_reads.append(False)
+                else:
+                    simultaneous_registry_reads.append(True)
+                return value
+
+        monkeypatch.setattr(
+            AppendOnlyEvidenceJournal,
+            "_live_acquire_permits",
+            _RendezvousRegistry(AppendOnlyEvidenceJournal._live_acquire_permits),
+        )
+        start = threading.Barrier(2)
+
+        def _consume() -> object:
+            start.wait()
+            try:
+                _consume_live_acquire_permit(
+                    permit,
+                    connector_id=_CONNECTOR_ID,
+                    dataset_id=_INDICATOR_ID,
+                )
+            except EvidenceJournalError as exc:
+                return exc
+            return None
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results_seen.extend(executor.map(lambda _index: _consume(), range(2)))
+        return original_execute(**kwargs)
+
+    monkeypatch.setattr(
+        acquisition_executor_module,
+        "_execute_authorized_live_acquisition",
+        _contend_before_orchestration,
+    )
+    _authority, _evidence, stub, _journal_path = _run(tmp_path, monkeypatch)
+
+    assert sum(result is None for result in results_seen) == 1
+    failures = [result for result in results_seen if isinstance(result, EvidenceJournalError)]
+    assert len(failures) == 1
+    assert failures[0].code == "live_acquire_permit_invalid"
+    assert simultaneous_registry_reads and not any(simultaneous_registry_reads)
+    permit = stub.calls[0]["_live_acquire_permit"]
+    with pytest.raises(EvidenceJournalError, match="live_acquire_permit_invalid"):
+        _consume_live_acquire_permit(
+            permit,
+            connector_id=_CONNECTOR_ID,
+            dataset_id=_INDICATOR_ID,
+        )
+
+
+def test_pool_rejects_concurrent_reuse_before_a_second_health_check(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aiohttp
+
+    from polisyos.fabric.connectors.pool import ConnectionPool
+
+    authority, entry = _resolved_live_worldbank_authority(tmp_path)
+    body = _raw_body(_normalized_rows())
+    transport_calls: list[tuple[str, str, dict[str, str]]] = []
+    health_checks: list[str] = []
+    original_acquire = ConnectionPool._acquire_with_live_permit
+    attempted_permits: list[object] = []
+    race_results: list[tuple[int, tuple[str, ...]]] = []
+    original_health_check = WorldBankConnector.health_check
+
+    class _InterceptedResponse:
+        status = 200
+        headers: ClassVar[dict[str, str]] = {"content-type": "application/json"}
+
+        async def __aenter__(self) -> _InterceptedResponse:
+            return self
+
+        async def __aexit__(self, *args: object) -> None:
+            del args
+
+        async def read(self) -> bytes:
+            return body
+
+        def release(self) -> None:
+            return None
+
+        async def wait_for_close(self) -> None:
+            return None
+
+        def close(self) -> None:
+            return None
+
+    async def _race_same_permit(
+        pool: ConnectionPool,
+        permit: object,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> Any:
+        attempted_permits.append(permit)
+        results = await asyncio.gather(
+            original_acquire(
+                pool,
+                permit,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+            ),
+            original_acquire(
+                pool,
+                permit,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+            ),
+            return_exceptions=True,
+        )
+        acquired = [result for result in results if not isinstance(result, BaseException)]
+        failures = tuple(
+            str(getattr(result, "code", type(result).__name__))
+            for result in results
+            if isinstance(result, BaseException)
+        )
+        race_results.append((len(acquired), failures))
+        assert len(acquired) == 1
+        assert failures == ("live_acquire_permit_invalid",)
+        result = acquired[0]
+        assert isinstance(result, tuple)
+        return result
+
+    async def _track_health_check(self: WorldBankConnector, handle: object):
+        health_checks.append(str(getattr(handle, "session_id", "unknown")))
+        return await original_health_check(self, handle)
+
+    async def _intercept_request(
+        _session: object,
+        method: str,
+        url: object,
+        **kwargs: object,
+    ) -> _InterceptedResponse:
+        params = kwargs.get("params")
+        assert isinstance(params, Mapping)
+        transport_calls.append(
+            (method, str(url), {str(key): str(value) for key, value in params.items()})
+        )
+        return _InterceptedResponse()
+
+    def _forbid_socket(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("concurrent permit witness escaped to a real socket")
+
+    monkeypatch.setattr(ConnectionPool, "_acquire_with_live_permit", _race_same_permit)
+    monkeypatch.setattr(WorldBankConnector, "health_check", _track_health_check)
+    monkeypatch.setattr(aiohttp.ClientSession, "_request", _intercept_request)
+    monkeypatch.setattr(socket.socket, "connect", _forbid_socket)
+    monkeypatch.setattr(socket.socket, "connect_ex", _forbid_socket)
+
+    evidence = execute_live_catalog_acquisition(
+        authority=authority,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        constraints=_constraints(),
+        journal_path=tmp_path / "journal.jsonl",
+        cas_root=tmp_path / "cas",
+    )
+
+    assert evidence.call_count == 1
+    assert race_results == [(1, ("live_acquire_permit_invalid",))]
+    assert len(attempted_permits) == 1
+    assert transport_calls == [("GET", _URL, _PARAMS)]
+    assert health_checks == []
+    with pytest.raises(EvidenceJournalError, match="live_acquire_permit_invalid"):
+        _consume_live_acquire_permit(
+            attempted_permits[0],
+            connector_id=_CONNECTOR_ID,
+            dataset_id=_INDICATOR_ID,
+        )
+
+
+def test_live_executor_blocks_out_of_authority_country_before_http_transport(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aiohttp
+
+    authority, entry = _resolved_live_worldbank_authority(tmp_path)
+    transport_calls: list[tuple[str, str]] = []
+
+    async def _intercept_unexpected_request(
+        _session: object,
+        method: str,
+        url: object,
+        **kwargs: object,
+    ) -> object:
+        del kwargs
+        transport_calls.append((method, str(url)))
+        raise RuntimeError("out-of-authority request reached the transport")
+
+    def _forbid_socket(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("out-of-authority probe escaped to a real socket")
+
+    monkeypatch.setattr(aiohttp.ClientSession, "_request", _intercept_unexpected_request)
+    monkeypatch.setattr(socket.socket, "connect", _forbid_socket)
+    monkeypatch.setattr(socket.socket, "connect_ex", _forbid_socket)
+    monkeypatch.setattr(
+        WorldBankConnector,
+        "_parse_countries",
+        staticmethod(lambda _request: "POL"),
+    )
+    journal_path = tmp_path / "journal.jsonl"
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            constraints=_constraints(),
+            journal_path=journal_path,
+            cas_root=tmp_path / "cas",
+        )
+
+    assert exc_info.value.code == "live_transport_request_drift"
+    assert transport_calls == []
+    events = _journal_events(journal_path)
+    attempts = [event for event in events if event["event_kind"] == "transport_attempt"]
+    assert len(attempts) == 1
+    assert "/country/POL/" in attempts[0]["transport_attempt"]["url"]
+    assert all(event["event_kind"] != "raw_response" for event in events)

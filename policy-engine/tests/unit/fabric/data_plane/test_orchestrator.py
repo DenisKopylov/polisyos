@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import sys
+from datetime import UTC, datetime
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 from unittest.mock import patch
 
 import pytest
@@ -20,6 +21,14 @@ from polisyos.core.contracts.fabric import (
 
 if TYPE_CHECKING:
     from pathlib import Path
+from polisyos.fabric.connectors.base import (
+    BaseConnector,
+    ConnectionConfig,
+    ConnectionHandle,
+    HealthStatus,
+)
+from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.types import ValidationResult
 from polisyos.fabric.data_plane.orchestrator import (
     CeleryExecutionBackend,
     DaskExecutionBackend,
@@ -32,6 +41,17 @@ from polisyos.fabric.data_plane.orchestrator import (
 from polisyos.fabric.quality.processing_guarantees import (
     batch_processing_contract,
     processing_contract_snapshot,
+)
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    ConnectorMetadataSpec,
+    DataVersion,
+    FetchRequest,
+    FetchResult,
+    QualityTier,
+    TrustLevel,
+    VersionStrategy,
+    capabilities_from_flags,
 )
 
 
@@ -610,3 +630,104 @@ class TestDistributedExecutionBackends:
 
         assert [result.status for result in results] == ["succeeded", "succeeded"]
         assert calls["count"] >= 2
+
+
+class _PartitionDefaultConnector(BaseConnector[list[dict[str, int]]]):
+    """Small real connector used by the default partition orchestration witness."""
+
+    connector_id: ClassVar[str] = "partition_default"
+    capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
+        connector_id="partition_default",
+        version="1.0.0",
+        namespace="test.partition",
+        source_name="Partition default control",
+        source_organization="PolicyOS tests",
+        trust_level=TrustLevel.MEDIUM,
+        quality_tier=QualityTier.SILVER,
+        capabilities=capabilities_from_flags(ConnectorCapability.FULL_FETCH),
+    )
+    events: ClassVar[list[str]] = []
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return self._create_handle(config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        del handle
+
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        del handle
+        self.events.append("health_check")
+        return HealthStatus(healthy=True, message="healthy")
+
+    async def fetch(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> FetchResult[list[dict[str, int]]]:
+        del handle
+        self.events.append("fetch")
+        fetched_at = datetime.now(UTC)
+        return FetchResult(
+            data=[{"year": 2024}],
+            row_count=1,
+            schema_id="test.partition.default",
+            schema_version="1.0.0",
+            version=DataVersion(
+                strategy=VersionStrategy.TIMESTAMP,
+                value=fetched_at.isoformat(),
+                timestamp=fetched_at,
+            ),
+            fetched_at=fetched_at,
+            completeness=1.0,
+            quality_tier=QualityTier.SILVER,
+        )
+
+    @classmethod
+    def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
+        del config
+        return ValidationResult.success()
+
+
+def test_partition_default_route_retains_active_health_check_and_fetches(
+    tmp_path: Path,
+) -> None:
+    """The default local partition path still checks an ordinary registry lease."""
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    _PartitionDefaultConnector.events.clear()
+    registry.register(
+        _PartitionDefaultConnector,
+        config=ConnectionConfig(url="https://partition.test/data"),
+    )
+    plan = build_partitioned_ingestion_plan(
+        connector_id=_PartitionDefaultConnector.connector_id,
+        dataset_id="dataset.partitioned",
+        partition_key="year",
+        partitions=[{"partition_id": "2024", "bounds": {"year": 2024}}],
+    )
+
+    try:
+        results = run_partitioned_ingestion(
+            plan=plan,
+            connector_manifest={
+                "datasets": [
+                    {
+                        "connector_id": _PartitionDefaultConnector.connector_id,
+                        "dataset_id": "dataset.partitioned",
+                    }
+                ]
+            },
+            source="test.partition.default",
+            license_name="open",
+            cas_root=tmp_path / "cas",
+            backend="local_async",
+        )
+        assert len(results) == 1
+        assert results[0].status == "succeeded"
+        assert _PartitionDefaultConnector.events == ["health_check", "fetch"]
+        pool = next(iter(registry._connection_pools.values()))
+        assert pool._config.validate_on_acquire is True
+    finally:
+        ConnectorRegistry.reset_instance()

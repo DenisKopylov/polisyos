@@ -14,9 +14,11 @@ import json
 import math
 import os
 import re
+import threading
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -1069,6 +1071,23 @@ def _read_verified_journal_event(ref: JournalEventRef) -> dict[str, Any]:
     return event
 
 
+def _consume_live_acquire_permit(
+    permit: object,
+    *,
+    connector_id: str,
+    dataset_id: str,
+) -> None:
+    """Consume a journal-issued permit; reject reconstructed lookalikes."""
+
+    if type(permit) is not _LiveAcquirePermit:
+        raise EvidenceJournalError("live_acquire_permit_invalid", connector_id)
+    AppendOnlyEvidenceJournal._consume_registered_live_acquire_permit(
+        permit,
+        connector_id=connector_id,
+        dataset_id=dataset_id,
+    )
+
+
 def _resolve_linked_request_event(
     ref: JournalEventRef,
     raw_event: Mapping[str, Any],
@@ -1377,6 +1396,56 @@ def require_authorized_execution(
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _LiveAcquirePermitBinding:
+    """Immutable journal-owned snapshot of one permit's admitted authority."""
+
+    journal: AppendOnlyEvidenceJournal
+    journal_path: str
+    journal_sha256: str
+    request_ref_object: JournalEventRef
+    request_journal_path: str
+    request_sequence: int
+    request_event_kind: str
+    request_event_sha256: str
+    request_byte_offset: int
+    request_byte_length: int
+    attempt_id: str
+    connector_id: str
+    dataset_id: str
+    request_sha256: str
+
+    @property
+    def request_ref(self) -> JournalEventRef:
+        """Rebuild the content reference from immutable scalar bindings."""
+
+        return JournalEventRef(
+            journal_path=self.request_journal_path,
+            sequence=self.request_sequence,
+            event_kind=self.request_event_kind,
+            event_sha256=self.request_event_sha256,
+            byte_offset=self.request_byte_offset,
+            byte_length=self.request_byte_length,
+        )
+
+
+class _LiveAcquirePermit:
+    """Opaque one-use identity; authority is held only by the journal owner."""
+
+    __slots__ = ()
+
+    def __copy__(self) -> _LiveAcquirePermit:
+        raise TypeError("live acquire permits are not copyable")
+
+    def __deepcopy__(self, memo: dict[int, object]) -> _LiveAcquirePermit:
+        del memo
+        raise TypeError("live acquire permits are not copyable")
+
+    def __reduce_ex__(self, protocol: int) -> object:
+        del protocol
+        raise TypeError("live acquire permits are not serializable")
+
+
 class AppendOnlyEvidenceJournal:
     """Recurring owner for request, heartbeat, raw evidence, and classification.
 
@@ -1385,6 +1454,14 @@ class AppendOnlyEvidenceJournal:
     This preserves paid evidence across recurring runs without allowing an
     incomplete or edited history to authorize another carrier.
     """
+
+    # A class-owned dispatch table resolves opaque token identity without
+    # following any permit-owned issuer or authority field. Each immutable
+    # binding still points to its exact journal instance and request event.
+    _live_acquire_permit_lock = threading.Lock()
+    _live_acquire_permits: ClassVar[
+        dict[_LiveAcquirePermit, tuple[_LiveAcquirePermitBinding, str]]
+    ] = {}
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -1420,6 +1497,161 @@ class AppendOnlyEvidenceJournal:
     def _current_journal_sha256(self) -> str:
         payload = self.path.read_bytes() if self.path.is_file() else b""
         return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+    def _issue_live_acquire_permit(
+        self,
+        *,
+        authorization: LiveExecutionAuthorization,
+        request_ref: JournalEventRef,
+        connector_id: str,
+        request_dataset_id: str,
+        request: Mapping[str, Any],
+        schema_contract: Mapping[str, Any],
+        source_profile: SourceProfile,
+        baseline_sha256: str,
+        family_receipt: object,
+        timeout_cap_seconds: float,
+        heartbeat_cap_seconds: float,
+        max_response_bytes: int,
+        max_decompressed_bytes: int,
+    ) -> _LiveAcquirePermit:
+        """Recompute authority and bind one lease to this journal's request event."""
+
+        if self._current_journal_sha256() != self._expected_journal_sha256:
+            raise EvidenceJournalError("journal_changed_since_open", self.path.as_posix())
+        expected_authorization = build_live_execution_authorization(
+            attempt_id=authorization.attempt_id,
+            connector_id=connector_id,
+            request_dataset_id=request_dataset_id,
+            request=request,
+            schema_contract=schema_contract,
+            source_profile=source_profile,
+            baseline_sha256=baseline_sha256,
+            family_receipt=family_receipt,
+            timeout_cap_seconds=timeout_cap_seconds,
+            heartbeat_cap_seconds=heartbeat_cap_seconds,
+            max_response_bytes=max_response_bytes,
+            max_decompressed_bytes=max_decompressed_bytes,
+        )
+        if authorization != expected_authorization:
+            raise EvidenceJournalError(
+                "live_acquire_authorization_mismatch",
+                authorization.attempt_id,
+            )
+        attempt_id = authorization.attempt_id
+        if (
+            request_ref.event_kind != "request"
+            or request_ref.journal_path != self.path.as_posix()
+            or self._requests.get(attempt_id) != request_ref
+            or authorization.connector_id != connector_id
+            or authorization.request_variables != (request_dataset_id,)
+            or authorization.request_sha256 != content_sha256(request)
+        ):
+            raise EvidenceJournalError("live_acquire_request_binding_mismatch", attempt_id)
+        event = resolve_journal_event_ref(request_ref)
+        expected_event = {
+            "sequence": request_ref.sequence,
+            "event_kind": "request",
+            "attempt_id": attempt_id,
+            "request": dict(request),
+            "request_sha256": content_sha256(request),
+        }
+        if event != expected_event:
+            raise EvidenceJournalError("live_acquire_request_event_mismatch", attempt_id)
+        journal_sha256 = self._current_journal_sha256()
+        if journal_sha256 != self._expected_journal_sha256:
+            raise EvidenceJournalError("journal_changed_since_open", self.path.as_posix())
+        permit = _LiveAcquirePermit()
+        binding = _LiveAcquirePermitBinding(
+            journal=self,
+            journal_path=self.path.as_posix(),
+            journal_sha256=journal_sha256,
+            request_ref_object=request_ref,
+            request_journal_path=request_ref.journal_path,
+            request_sequence=request_ref.sequence,
+            request_event_kind=request_ref.event_kind,
+            request_event_sha256=request_ref.event_sha256,
+            request_byte_offset=request_ref.byte_offset,
+            request_byte_length=request_ref.byte_length,
+            attempt_id=attempt_id,
+            connector_id=connector_id,
+            dataset_id=request_dataset_id,
+            request_sha256=authorization.request_sha256,
+        )
+        with AppendOnlyEvidenceJournal._live_acquire_permit_lock:
+            AppendOnlyEvidenceJournal._live_acquire_permits[permit] = (binding, "issued")
+        return permit
+
+    @classmethod
+    def _consume_registered_live_acquire_permit(
+        cls,
+        permit: _LiveAcquirePermit,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> None:
+        """Resolve and atomically spend a permit by opaque identity."""
+
+        with cls._live_acquire_permit_lock:
+            issued = cls._live_acquire_permits.get(permit)
+            if issued is None or issued[1] != "issued":
+                raise EvidenceJournalError("live_acquire_permit_invalid", connector_id)
+            binding = issued[0]
+            cls._live_acquire_permits[permit] = (binding, "consuming")
+
+        journal = binding.journal
+        request_ref = binding.request_ref
+        try:
+            if (
+                request_ref.journal_path != binding.journal_path
+                or request_ref.event_kind != "request"
+                or journal.path.as_posix() != binding.journal_path
+                or journal._requests.get(binding.attempt_id) != request_ref
+                or connector_id != binding.connector_id
+                or dataset_id != binding.dataset_id
+                or journal._current_journal_sha256() != binding.journal_sha256
+                or journal._expected_journal_sha256 != binding.journal_sha256
+            ):
+                raise EvidenceJournalError("live_acquire_permit_binding_mismatch", connector_id)
+            event = resolve_journal_event_ref(request_ref)
+            request = event.get("request")
+            if (
+                set(event)
+                != {"sequence", "event_kind", "attempt_id", "request", "request_sha256"}
+                or event.get("attempt_id") != binding.attempt_id
+                or not isinstance(request, Mapping)
+                or request.get("connector_id") != binding.connector_id
+                or request.get("request_dataset_id") != binding.dataset_id
+                or event.get("request_sha256") != binding.request_sha256
+                or content_sha256(request) != binding.request_sha256
+            ):
+                raise EvidenceJournalError(
+                    "live_acquire_request_event_mismatch",
+                    binding.attempt_id,
+                )
+        except BaseException:
+            with cls._live_acquire_permit_lock:
+                current = cls._live_acquire_permits.get(permit)
+                if current is not None and current[0] is binding:
+                    cls._live_acquire_permits.pop(permit, None)
+            raise
+
+        with cls._live_acquire_permit_lock:
+            current = cls._live_acquire_permits.get(permit)
+            if current is None or current[0] is not binding or current[1] != "consuming":
+                raise EvidenceJournalError("live_acquire_permit_invalid", connector_id)
+            cls._live_acquire_permits.pop(permit, None)
+
+    def _revoke_live_acquire_permit(self, permit: object) -> None:
+        """Drop this journal's unconsumed permit without reading token fields."""
+
+        if type(permit) is not _LiveAcquirePermit:
+            return
+        registry = AppendOnlyEvidenceJournal
+        with registry._live_acquire_permit_lock:
+            issued = registry._live_acquire_permits.get(permit)
+            if issued is not None and issued[0].journal is self and issued[1] == "issued":
+                registry._live_acquire_permits.pop(permit, None)
 
     def _reopen_completed_history(self) -> None:
         records = _read_canonical_journal(self.path)

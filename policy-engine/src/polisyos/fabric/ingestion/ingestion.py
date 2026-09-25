@@ -62,6 +62,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
+    from polisyos.fabric.data_plane.evidence_journal import _LiveAcquirePermit
 
 logger = get_logger(__name__)
 TransformPipelineFactory = Callable[[], Any]
@@ -676,6 +677,7 @@ def _sync_fetch(
     *,
     connection_config: Any | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
+    _live_acquire_permit: _LiveAcquirePermit | None = None,
 ) -> FetchResult[Any]:
     async def _do_fetch() -> FetchResult[Any]:
         config = connection_config
@@ -684,7 +686,15 @@ def _sync_fetch(
             if entry.default_config is None:
                 raise ValueError(f"No default_config registered for connector '{connector_id}'")
             config = entry.default_config
-        handle = await registry.get_connection(connector_id, config)
+        if _live_acquire_permit is None:
+            handle = await registry.get_connection(connector_id, config)
+        else:
+            handle = await registry._get_connection_with_live_permit(
+                connector_id,
+                config,
+                dataset_id=request.dataset_id,
+                permit=_live_acquire_permit,
+            )
         remove_observer: Callable[[Any], None] | None = None
         try:
             if raw_http_response_observer is not None:
@@ -832,6 +842,7 @@ def run_connectors_ingestion(
     dependencies: IngestionDependencies | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
+    _live_acquire_permit: _LiveAcquirePermit | None = None,
 ) -> EvidenceBundleRef | None:
     """Run connector ingestion with optional HTTP and normalized-result witnesses.
 
@@ -933,6 +944,7 @@ def run_connectors_ingestion(
                 request,
                 connection_config=connection_config,
                 raw_http_response_observer=raw_http_response_observer,
+                _live_acquire_permit=_live_acquire_permit,
             )
             if raw_result_sink is not None:
                 raw_result_sink(connector_id, dataset_id, request, result)

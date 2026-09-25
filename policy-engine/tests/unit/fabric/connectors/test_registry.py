@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import threading
 from collections.abc import AsyncIterator
+from contextlib import suppress
 from datetime import UTC, datetime
 from typing import ClassVar
 
@@ -1076,10 +1077,8 @@ class TestConnectionPool:
                 ),
             )
             handle = await pool.acquire()
-            try:
+            with suppress(RuntimeError):
                 await pool.release(handle)
-            except RuntimeError:
-                pass
 
             assert connector.disconnect_calls == [handle.session_id]
             with pytest.raises(PoolExhaustedError):
@@ -1125,10 +1124,8 @@ class TestConnectionPool:
             with pytest.raises(asyncio.CancelledError):
                 await release_task
 
-            try:
+            with suppress(RuntimeError):
                 await pool.release(handle)
-            except RuntimeError:
-                pass
             replacement = await pool.acquire()
             assert replacement.session_id != handle.session_id
             assert set(connector.disconnect_calls) == {handle.session_id}
@@ -1371,6 +1368,44 @@ class TestConnectorDiscovery:
 
 class TestRegistryIntegration:
     """Integration tests for registry with pools."""
+
+    def test_ordinary_registry_leases_keep_active_validation_on_create_and_reuse(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Without a journal permit, both new and reused handles stay actively checked."""
+
+        class _CountingHealthConnector(MockConnectorA):
+            def __init__(self) -> None:
+                self.health_check_count = 0
+
+            async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+                self.health_check_count += 1
+                return HealthStatus(healthy=True, message="counted")
+
+        connector = _CountingHealthConnector()
+
+        async def _run() -> None:
+            registry.register(
+                _CountingHealthConnector,
+                config=sample_config,
+                factory=lambda: connector,
+            )
+            first = await registry.get_connection("mock_a")
+            assert connector.health_check_count == 1
+            await registry.release_connection("mock_a", first)
+
+            pool = next(iter(registry._connection_pools.values()))
+            pool._config.health_check_interval_seconds = 0.0
+            second = await registry.get_connection("mock_a")
+            assert second.session_id == first.session_id
+            assert connector.health_check_count == 2
+            assert pool._config.validate_on_acquire is True
+            await registry.release_connection("mock_a", second)
+            await registry.shutdown_async()
+
+        asyncio.run(_run())
 
     def test_pending_startup_cleanup_is_retried_by_shutdown_and_keeps_owner(
         self,

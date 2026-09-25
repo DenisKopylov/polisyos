@@ -314,6 +314,21 @@ class ConnectionPool(Generic[ConnectorT]):
         self._raise_if_circuit_open()
         return await self._acquire_owned()
 
+    async def _acquire_with_live_permit(
+        self,
+        permit: object,
+        *,
+        connector_id: str,
+        dataset_id: str,
+    ) -> tuple[SourceConnector, ConnectionHandle]:
+        """Acquire one governed live handle after consuming its journal permit."""
+
+        return await self._acquire_owned(
+            live_acquire_permit=permit,
+            live_connector_id=connector_id,
+            live_dataset_id=dataset_id,
+        )
+
     def _raise_if_circuit_open(self) -> None:
         """Raise before reserving a pool permit when the circuit is open."""
         if self._circuit_breaker is None or not self._circuit_breaker.is_open():
@@ -328,8 +343,29 @@ class ConnectionPool(Generic[ConnectorT]):
             self._circuit_breaker.config.timeout_seconds,
         )
 
-    async def _acquire_owned(self) -> tuple[SourceConnector, ConnectionHandle]:
+    async def _acquire_owned(
+        self,
+        *,
+        live_acquire_permit: object | None = None,
+        live_connector_id: str | None = None,
+        live_dataset_id: str | None = None,
+    ) -> tuple[SourceConnector, ConnectionHandle]:
         """Acquire and publish one handle while retaining ownership through failures."""
+        if live_acquire_permit is not None:
+            if live_connector_id is None or live_dataset_id is None:
+                raise ValueError("a live acquire permit requires connector and dataset identity")
+            from polisyos.fabric.data_plane.evidence_journal import (
+                _consume_live_acquire_permit,
+            )
+
+            _consume_live_acquire_permit(
+                live_acquire_permit,
+                connector_id=live_connector_id,
+                dataset_id=live_dataset_id,
+            )
+            self._raise_if_circuit_open()
+        elif live_connector_id is not None or live_dataset_id is not None:
+            raise ValueError("live connector and dataset identity require a journal permit")
         start_time = datetime.now(UTC)
         permit_acquired = False
         permit_release = False
@@ -389,7 +425,7 @@ class ConnectionPool(Generic[ConnectorT]):
                     cleanup_attempted = False
                     continue
 
-                if self._config.validate_on_acquire:
+                if self._config.validate_on_acquire and live_acquire_permit is None:
                     healthy = await self._validate_connection(pooled)
                     if not healthy:
                         cleanup_attempted = True

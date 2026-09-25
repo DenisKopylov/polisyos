@@ -90,6 +90,10 @@ EXPECTED_DATA_MANIFEST_SHA256 = (
 INTEGRATION_PACKAGE_RELATIVE = (
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2"
 )
+REVIEWED_RELEASE_FRAGMENT_RELATIVE = (
+    "policy-engine/release-fragments/unreleased/2026-09-24-e02-r2-openapi-integration.toml"
+)
+REVIEWED_RELEASE_FRAGMENT_BLOB_OID = "eb2913a0e63a0d44def5e53a277cd41f9444a4df"
 
 _PROCESS_GROUPS_LOCK = threading.Lock()
 _LIVE_PROCESS_GROUPS: dict[int, dict[str, Any]] = {}
@@ -660,6 +664,41 @@ def _inspect_integration_checkout() -> dict[str, Any]:
     changed_paths = sorted(set(committed.stdout.splitlines()) | set(dirty_paths))
     allowed_prefix = INTEGRATION_PACKAGE_RELATIVE + "/"
     raw_ignore_path = "policy-engine/.gitignore"
+    reviewed_release_fragment = {
+        "path": REVIEWED_RELEASE_FRAGMENT_RELATIVE,
+        "expected_git_blob_oid": REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
+        "status": "not_in_delta",
+        "head_git_blob_oid": None,
+        "worktree_git_blob_oid": None,
+    }
+    if REVIEWED_RELEASE_FRAGMENT_RELATIVE in changed_paths:
+        fragment_head = _git(
+            INTEGRATION_CHECKOUT,
+            "rev-parse",
+            f"HEAD:{REVIEWED_RELEASE_FRAGMENT_RELATIVE}",
+        )
+        fragment_worktree = _git(
+            INTEGRATION_CHECKOUT,
+            "hash-object",
+            "--",
+            REVIEWED_RELEASE_FRAGMENT_RELATIVE,
+        )
+        _require(
+            fragment_head.returncode == 0 and fragment_worktree.returncode == 0,
+            "reviewed release fragment Git identity could not be read",
+        )
+        head_oid = fragment_head.stdout.strip()
+        worktree_oid = fragment_worktree.stdout.strip()
+        _require(
+            head_oid == REVIEWED_RELEASE_FRAGMENT_BLOB_OID
+            and worktree_oid == REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
+            "reviewed release fragment differs from its pinned Git blob",
+        )
+        reviewed_release_fragment.update({
+            "status": "verified_exact_blob",
+            "head_git_blob_oid": head_oid,
+            "worktree_git_blob_oid": worktree_oid,
+        })
     if raw_ignore_path in changed_paths:
         original_ignore = _git(INTEGRATION_CHECKOUT, "show", f"{phase0_commit}:{raw_ignore_path}")
         _require(original_ignore.returncode == 0, "Phase 0 gitignore inspection failed")
@@ -679,16 +718,128 @@ def _inspect_integration_checkout() -> dict[str, Any]:
         if path != INTEGRATION_PACKAGE_RELATIVE
         and not path.startswith(allowed_prefix)
         and path != raw_ignore_path
+        and path != REVIEWED_RELEASE_FRAGMENT_RELATIVE
     ]
-    _require(not unexpected, f"integration tree differs from Phase 0 outside the baseline package and raw ignore: {unexpected}")
+    _require(
+        not unexpected,
+        "integration tree differs from Phase 0 outside the baseline package, "
+        "the exact raw-ignore rule, and the pinned release fragment: "
+        f"{unexpected}",
+    )
+    source_test_schema_tree_delta = [
+        path
+        for path in changed_paths
+        if path not in {INTEGRATION_PACKAGE_RELATIVE, raw_ignore_path, REVIEWED_RELEASE_FRAGMENT_RELATIVE}
+        and not path.startswith(allowed_prefix)
+    ]
+    source_test_schema_matches_phase0 = not source_test_schema_tree_delta
+    _require(
+        source_test_schema_matches_phase0,
+        "product source/test/schema tree differs from Phase 0: "
+        f"{source_test_schema_tree_delta}",
+    )
     return {
         "checkout": str(INTEGRATION_CHECKOUT),
         "branch": branch.stdout.strip(),
         "head": head.stdout.strip(),
         "phase0_commit": phase0_commit,
         "changed_paths_from_phase0": changed_paths,
-        "source_test_schema_tree_matches_phase0": not unexpected,
+        "source_test_schema_tree_delta_paths": source_test_schema_tree_delta,
+        "source_test_schema_tree_matches_phase0": source_test_schema_matches_phase0,
+        "reviewed_release_fragment": reviewed_release_fragment,
     }
+
+
+def _integration_checkout_inspection_inputs(
+    *, stage: str, expected_identity: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    """Declare the local identities and complete deltas used by checkout admission."""
+    phase0_commit = next(
+        revision["commit"] for revision in REVISIONS if revision["key"] == "phase0_merge"
+    )
+    inputs = [
+        {"name": "integration_checkout", "path": str(INTEGRATION_CHECKOUT), "purpose": "Git root and local status"},
+        {"name": "expected_branch", "value": "codex/e02-r2", "purpose": "attached output branch"},
+        {"name": "phase0_commit", "value": phase0_commit, "purpose": "ancestry and complete path-delta base"},
+        {"name": "allowed_package_path", "value": INTEGRATION_PACKAGE_RELATIVE, "purpose": "owned measurement outputs"},
+        {"name": "raw_ignore_path", "value": "policy-engine/.gitignore", "purpose": "exact byte-checked raw-output ignore rule"},
+        {
+            "name": "reviewed_release_fragment",
+            "path": REVIEWED_RELEASE_FRAGMENT_RELATIVE,
+            "expected_git_blob_oid": REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
+            "purpose": "single docs exception; HEAD blob and worktree bytes must match",
+        },
+        {"name": "tracked_delta", "range": f"{phase0_commit}..HEAD", "purpose": "complete committed path delta"},
+        {"name": "worktree_delta", "purpose": "complete porcelain status, including untracked paths"},
+        {"name": "integration_HEAD", "purpose": "current attached output revision"},
+    ]
+    if expected_identity is not None:
+        inputs.append({
+            "name": "preflight_identity",
+            "branch": expected_identity.get("branch"),
+            "head": expected_identity.get("head"),
+            "purpose": "postflight equality guard against branch or HEAD movement",
+        })
+    return [{"stage": stage, **item} for item in inputs]
+
+
+def _inspect_integration_checkout_verdict(
+    *, stage: str, postflight: bool = False, expected_identity: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Return a typed PASS, UNRUN, or INVALIDATED checkout-inspection result."""
+    declared_inputs = _integration_checkout_inspection_inputs(
+        stage=stage, expected_identity=expected_identity
+    )
+    failure_verdict = "INVALIDATED" if postflight else "UNRUN"
+    try:
+        checkout = _inspect_integration_checkout()
+        if expected_identity is not None and (
+            checkout["head"] != expected_identity["head"]
+            or checkout["branch"] != expected_identity["branch"]
+        ):
+            raise RuntimeError("integration output checkout branch or HEAD moved during baseline run")
+    except Exception as exc:
+        return {
+            "verdict": failure_verdict,
+            "inspection_status": failure_verdict,
+            "stage": stage,
+            "inspection_error": f"{type(exc).__name__}: {exc}",
+            "declared_inputs": declared_inputs,
+            "checkout": None,
+        }
+    return {
+        "verdict": "PASS",
+        "inspection_status": "PASS",
+        "stage": stage,
+        "inspection_error": None,
+        "declared_inputs": declared_inputs,
+        "checkout": checkout,
+    }
+
+
+def _invalidate_run_outcomes(
+    runs: list[dict[str, Any]], inspection: dict[str, Any]
+) -> None:
+    """Demote results when postflight cannot establish output-checkout custody."""
+    reason = inspection["inspection_error"]
+    for row in runs:
+        if row.get("cell_presence") == "MISSING":
+            continue
+        row["observed_suite_status_before_invalidation"] = row.get("suite_status", "UNRUN")
+        row["observed_case_statuses_before_invalidation"] = [
+            {"key": case.get("key"), "status": case.get("status")}
+            for case in row.get("cases", [])
+        ]
+        row["suite_status"] = "UNRUN"
+        row["case_counts"] = {}
+        row["cases"] = []
+        row["inspection_error"] = reason
+        row["postflight_invalidation"] = {
+            "verdict": "INVALIDATED",
+            "stage": inspection["stage"],
+            "inspection_error": reason,
+            "declared_inputs": inspection["declared_inputs"],
+        }
 
 
 def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, Any]:
@@ -3102,7 +3253,7 @@ def _write_report(
         "",
         "## Revision and environment identity",
         "",
-        f"The report/output checkout is `{report['output_checkout']['checkout']}` on `{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` (postflight `{report['output_checkout']['postflight_head']}`). Its complete tracked/dirty path delta from Phase 0 is confined to `{INTEGRATION_PACKAGE_RELATIVE}` and one byte-checked `policy-engine/.gitignore` rule for that package's ignored `raw/` outputs; the tested Phase 0 checkout remains the separate exact 73c worktree. The integration checkout's product source, tests, and schema therefore match Phase 0 for this measurement.",
+        f"The report/output checkout is `{report['output_checkout']['checkout']}` on `{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` (postflight `{report['output_checkout']['postflight_head']}`). Its complete tracked/dirty path delta from Phase 0 is confined to `{INTEGRATION_PACKAGE_RELATIVE}`, the one byte-checked `policy-engine/.gitignore` rule for that package's ignored `raw/` outputs, and (when present) the exact reviewed documentation fragment `{REVIEWED_RELEASE_FRAGMENT_RELATIVE}` whose HEAD and worktree Git blob IDs must both equal `{REVIEWED_RELEASE_FRAGMENT_BLOB_OID}`. The `source_test_schema_tree_matches_phase0` predicate is recomputed from the complete tracked-plus-dirty path delta: no changed path may occur outside those named output/docs exceptions; any runtime source, test, generated schema or public-surface path outside them fails preflight. The fragment exception is release metadata only, and the tested Phase 0 checkout remains the separate exact 73c worktree.",
         "",
         "| Revision | Commit | Branch | Worktree | Tracked test `.py` paths / `test_*.py` modules | Requested present | Data root mode | pytest.ini blob |",
         "|---|---|---|---|---:|---:|---:|---|",
@@ -3241,6 +3392,7 @@ def _publish_typed_unrun_receipt(
     environment_keys: list[str],
     resource_snapshot: dict[str, Any] | None = None,
     inspection_inputs: list[dict[str, Any]] | None = None,
+    output_checkout_inspection: dict[str, Any] | None = None,
 ) -> int:
     """Retain a typed UNRUN matrix when admission fails before test execution."""
     destination = package_dir / "raw" / run_id
@@ -3280,11 +3432,11 @@ def _publish_typed_unrun_receipt(
         if test_path in REQUESTED_TEST_PATHS
         for case_key in case_keys
     ]
-    output_checkout: dict[str, Any] | None
-    try:
-        output_checkout = _inspect_integration_checkout()
-    except Exception:
-        output_checkout = None
+    if output_checkout_inspection is None:
+        output_checkout_inspection = _inspect_integration_checkout_verdict(
+            stage="typed_unrun_receipt_output_checkout"
+        )
+    output_checkout = output_checkout_inspection.get("checkout")
     report = {
         "schema": "policyos.e02r2.p41-baseline.v1",
         "verdict": "UNRUN",
@@ -3303,6 +3455,7 @@ def _publish_typed_unrun_receipt(
         "unrun_cell_count": len(cells),
         "source_presence_verdict": "UNRUN",
         "output_checkout": output_checkout,
+        "output_checkout_inspection": output_checkout_inspection,
         "expected_revisions": [
             {
                 "key": revision["key"],
@@ -3324,7 +3477,7 @@ def _publish_typed_unrun_receipt(
         "data_root_status": "UNRUN",
         "data_manifest_expected_sha256": EXPECTED_DATA_MANIFEST_SHA256,
         "resource_start_snapshot": resource_snapshot,
-        "inspection_inputs": inspection_inputs or [],
+        "inspection_inputs": (inspection_inputs or []) + output_checkout_inspection.get("declared_inputs", []),
         "inspection_disclosure": {
             "verdict": "UNRUN",
             "failed_stage": failure_stage,
@@ -3415,7 +3568,21 @@ def run_matrix(args: argparse.Namespace) -> int:
     (external_run_dir / "probe-tmp").mkdir()
 
     try:
-        output_checkout_identity = _inspect_integration_checkout()
+        output_checkout_preflight = _inspect_integration_checkout_verdict(
+            stage="run_matrix_preflight"
+        )
+        if output_checkout_preflight["verdict"] != "PASS":
+            return _publish_typed_unrun_receipt(
+                package_dir=package_dir,
+                external_run_dir=external_run_dir,
+                run_id=run_id,
+                scope=args.scope,
+                failure_stage="integration_checkout_preflight",
+                reason=output_checkout_preflight["inspection_error"],
+                environment_keys=sorted(probe_env),
+                output_checkout_inspection=output_checkout_preflight,
+            )
+        output_checkout_identity = output_checkout_preflight["checkout"]
         appendix_identity_source = _appendix_identity_source_receipt()
         revision_records = [_inspect_checkout(revision, package_dir) for revision in REVISIONS]
         for revision_record in revision_records:
@@ -3742,12 +3909,14 @@ def run_matrix(args: argparse.Namespace) -> int:
         unexpected = sorted(set(status) - allowed)
         _require(not unexpected, f"unexpected post-run dirty paths at {revision['label']}: {unexpected}")
         post_status[revision["key"]] = status
-    output_checkout_postflight = _inspect_integration_checkout()
-    _require(
-        output_checkout_postflight["head"] == output_checkout_identity["head"]
-        and output_checkout_postflight["branch"] == output_checkout_identity["branch"],
-        "integration output checkout branch or HEAD moved during baseline run",
+    output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
+        stage="run_matrix_postflight",
+        postflight=True,
+        expected_identity=output_checkout_identity,
     )
+    output_checkout_postflight = output_checkout_postflight_verdict.get("checkout") or {}
+    if output_checkout_postflight_verdict["verdict"] != "PASS":
+        _invalidate_run_outcomes(runs, output_checkout_postflight_verdict)
 
     case_diffs = _case_diff(runs)
     appendix_case_results = _appendix_case_results(runs)
@@ -3784,9 +3953,16 @@ def run_matrix(args: argparse.Namespace) -> int:
         "data_manifest_sha256": EXPECTED_DATA_MANIFEST_SHA256,
         "output_checkout": {
             **output_checkout_identity,
-            "postflight_head": output_checkout_postflight["head"],
-            "postflight_branch": output_checkout_postflight["branch"],
+            "postflight_head": output_checkout_postflight.get("head"),
+            "postflight_branch": output_checkout_postflight.get("branch"),
+            "postflight_verdict": output_checkout_postflight_verdict["verdict"],
+            "postflight_inspection": output_checkout_postflight_verdict,
         },
+        "measurement_verdict": (
+            "INVALIDATED"
+            if output_checkout_postflight_verdict["verdict"] != "PASS"
+            else "RECORDED"
+        ),
         "resource_start_snapshot": start_snapshot,
         "checkpoint": {
             "manifest_path": "checkpoint/manifest.json",
@@ -3874,6 +4050,7 @@ def run_matrix(args: argparse.Namespace) -> int:
             "Native libraries loaded transitively or dynamically when no direct marker exists in a test module.",
             "Ignored-path mutations produced inside tests.",
             "Owner attribution for reds until retained failure output is reviewed.",
+            "The four non-output pinned-checkout postflight Git identity/status checks still use legacy raising guards; a failure there can interrupt receipt publication before the integration-checkout postflight verdict is reached.",
         ],
     }
 
@@ -3920,7 +4097,78 @@ def run_matrix(args: argparse.Namespace) -> int:
     baselines_path = destination / "BASELINES.md" if args.scope == "custom" else package_dir / "BASELINES.md"
     print(f"BASELINES.md: {baselines_path}")
     print(f"results.json sha256: {_sha256(results_path)}")
-    return 2 if unrun_count else 0
+    return 2 if unrun_count or output_checkout_postflight_verdict["verdict"] != "PASS" else 0
+
+
+def _publish_timeout_rerun_unrun_receipt(
+    *,
+    package_dir: Path,
+    external_run_dir: Path,
+    run_id: str,
+    prior_path: Path,
+    prior_sha256: str,
+    selected_targets: list[tuple[str, str]],
+    prior_cells: dict[tuple[str, str], dict[str, Any]],
+    inspection: dict[str, Any],
+) -> int:
+    """Publish selected timeout-rerun cells as UNRUN after failed admission."""
+    destination = package_dir / "raw" / run_id
+    _require(not destination.exists(), f"refusing to overwrite typed timeout UNRUN receipt: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    runs = []
+    for revision_key, test_path in selected_targets:
+        previous = prior_cells.get((revision_key, test_path), {})
+        runs.append({
+            "revision_key": revision_key,
+            "test_path": test_path,
+            "cell_presence": previous.get("cell_presence", "UNRUN"),
+            "test_blob_oid": previous.get("test_blob_oid"),
+            "prior_suite_status": previous.get("suite_status", "UNRUN"),
+            "suite_status": "UNRUN",
+            "timed_out": False,
+            "command": [],
+            "returncode": None,
+            "cases": [],
+            "artifacts": {},
+            "inspection_error": inspection["inspection_error"],
+        })
+    report = {
+        "schema": "policyos.e02r2.p41-timeout-rerun.v1",
+        "verdict": "UNRUN",
+        "failure_stage": inspection["stage"],
+        "inspection": inspection,
+        "inspection_inputs": inspection["declared_inputs"],
+        "reason": inspection["inspection_error"],
+        "exit_code": 2,
+        "run_id": run_id,
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "harness_sha256": _sha256(Path(__file__).resolve()),
+        "prior_results_path": str(prior_path),
+        "prior_results_sha256": prior_sha256,
+        "requested_cell_count": len(selected_targets),
+        "requested_targets": [
+            {"revision_key": revision_key, "test_path": test_path}
+            for revision_key, test_path in selected_targets
+        ],
+        "unrun_cell_count": len(runs),
+        "runs": runs,
+    }
+    (external_run_dir / "results.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    (external_run_dir / "UNRUN.md").write_text(
+        f"# P41 timeout rerun UNRUN\n\nRun `{run_id}` admitted no test process because integration-checkout inspection failed. "
+        f"All {len(runs)} selected cells remain UNRUN. See `results.json` for the declared inputs and prior-matrix identity.\n",
+        encoding="utf-8",
+    )
+    moved = _run(["mv", str(external_run_dir), str(destination)])
+    _require(moved.returncode == 0, f"could not publish typed timeout UNRUN receipt: {moved.stderr.strip()}")
+    reread = json.loads((destination / "results.json").read_text(encoding="utf-8"))
+    _require(reread.get("verdict") == "UNRUN" and len(reread.get("runs", [])) == len(selected_targets), "typed timeout UNRUN receipt readback failed")
+    print(f"Timeout rerun UNRUN before test admission ({len(runs)} selected cells): {inspection['inspection_error']}")
+    print(f"Raw receipt: {destination.relative_to(INTEGRATION_CHECKOUT)}")
+    print(f"results.json sha256: {_sha256(destination / 'results.json')}")
+    return 2
 
 
 def run_timeout_rerun(args: argparse.Namespace) -> int:
@@ -3961,7 +4209,30 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     probe_tmp.mkdir()
     probe_env = _safe_environment(probe_tmp, home)
 
-    output_checkout_identity = _inspect_integration_checkout()
+    requested_targets: list[tuple[str, str]] = []
+    for target in args.rerun_target or []:
+        revision_key, separator, test_path = target.partition(":")
+        _require(bool(separator) and bool(test_path), f"invalid --rerun-target value: {target!r}")
+        requested_targets.append((revision_key, test_path))
+    selected_targets = requested_targets or sorted(eligible_targets)
+    _require(len(set(selected_targets)) == len(selected_targets), "duplicate --rerun-target")
+    _require(set(selected_targets).issubset(eligible_targets), "--rerun-target must select present cells marked timed-out UNRUN by the prior matrix")
+
+    output_checkout_preflight = _inspect_integration_checkout_verdict(
+        stage="timeout_rerun_preflight"
+    )
+    if output_checkout_preflight["verdict"] != "PASS":
+        return _publish_timeout_rerun_unrun_receipt(
+            package_dir=package_dir,
+            external_run_dir=external_run_dir,
+            run_id=run_id,
+            prior_path=prior_path,
+            prior_sha256=prior_sha256,
+            selected_targets=selected_targets,
+            prior_cells=prior_cells,
+            inspection=output_checkout_preflight,
+        )
+    output_checkout_identity = output_checkout_preflight["checkout"]
     revision_records = [_inspect_checkout(revision, package_dir) for revision in REVISIONS]
     for revision_record in revision_records:
         revision_record["module_import_origins"] = _verify_import_origins(
@@ -3976,17 +4247,6 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
 
     jobs: list[Job] = []
     prior_attempts: list[dict[str, Any]] = []
-    requested_targets: list[tuple[str, str]] = []
-    for target in args.rerun_target or []:
-        revision_key, separator, test_path = target.partition(":")
-        _require(bool(separator) and bool(test_path), f"invalid --rerun-target value: {target!r}")
-        requested_targets.append((revision_key, test_path))
-    selected_targets = requested_targets or sorted(eligible_targets)
-    _require(len(set(selected_targets)) == len(selected_targets), "duplicate --rerun-target")
-    _require(
-        set(selected_targets).issubset(eligible_targets),
-        "--rerun-target must select present cells marked timed-out UNRUN by the prior matrix",
-    )
     for revision_key, test_path in selected_targets:
         previous = prior_cells.get((revision_key, test_path))
         _require(previous is not None, f"initial matrix has no cell for {revision_key}:{test_path}")
@@ -4044,12 +4304,14 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         unexpected = sorted(set(status) - allowed)
         _require(not unexpected, f"unexpected post-rerun dirty paths at {revision['label']}: {unexpected}")
         post_status[revision["key"]] = status
-    output_checkout_postflight = _inspect_integration_checkout()
-    _require(
-        output_checkout_postflight["head"] == output_checkout_identity["head"]
-        and output_checkout_postflight["branch"] == output_checkout_identity["branch"],
-        "integration output checkout branch or HEAD moved during timeout rerun",
+    output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
+        stage="timeout_rerun_postflight",
+        postflight=True,
+        expected_identity=output_checkout_identity,
     )
+    output_checkout_postflight = output_checkout_postflight_verdict.get("checkout") or {}
+    if output_checkout_postflight_verdict["verdict"] != "PASS":
+        _invalidate_run_outcomes(runs, output_checkout_postflight_verdict)
 
     report: dict[str, Any] = {
         "schema": "policyos.e02r2.p41-timeout-rerun.v1",
@@ -4072,9 +4334,16 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         "data_manifest_sha256": EXPECTED_DATA_MANIFEST_SHA256,
         "output_checkout": {
             **output_checkout_identity,
-            "postflight_head": output_checkout_postflight["head"],
-            "postflight_branch": output_checkout_postflight["branch"],
+            "postflight_head": output_checkout_postflight.get("head"),
+            "postflight_branch": output_checkout_postflight.get("branch"),
+            "postflight_verdict": output_checkout_postflight_verdict["verdict"],
+            "postflight_inspection": output_checkout_postflight_verdict,
         },
+        "measurement_verdict": (
+            "INVALIDATED"
+            if output_checkout_postflight_verdict["verdict"] != "PASS"
+            else "RECORDED"
+        ),
         "resource_start_snapshot": start_snapshot,
         "environment_policy": {
             "allowlisted_keys": sorted(probe_env),
@@ -4100,8 +4369,9 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         "post_run_status_paths": post_status,
         "runs": sorted(runs, key=lambda row: (row["revision_key"], row["test_path"])),
         "unresolved_by_construction": [
-            "The rerun settles only the six initially timed-out cells; all other cells remain in the linked initial matrix.",
+            "The rerun settles only the initially selected timed-out cells; all other cells remain in the linked initial matrix.",
             "Native libraries loaded transitively or dynamically without a direct marker remain unresolved by construction.",
+            "Timeout-rerun baseline inspection of the four pinned source checkouts, import origins, runtime versions, and pytest.ini plus the four non-output postflight Git identity/status checks still use legacy raising guards; failures there may interrupt receipt publication before or after the test processes.",
         ],
     }
 
@@ -4139,7 +4409,7 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     print(f"Reran {len(runs)} timed-out whole-file cells; {unrun_count} remain UNRUN.")
     print(f"Raw outputs: {destination.relative_to(integration_checkout)}")
     print(f"results.json sha256: {_sha256(results_path)}")
-    return 2 if unrun_count else 0
+    return 2 if unrun_count or output_checkout_postflight_verdict["verdict"] != "PASS" else 0
 
 
 def _normalize_custom_test_paths(raw_paths: list[str]) -> tuple[str, ...]:

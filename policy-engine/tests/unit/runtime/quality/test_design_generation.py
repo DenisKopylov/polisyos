@@ -3400,6 +3400,47 @@ async def test_gateway_only_model_is_accepted_from_live_catalog() -> None:
 
 
 @pytest.mark.asyncio
+async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real three-organ N4 path may persist a proposal without inventing N2 binding."""
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    problem = contract._design_problem(recording)
+
+    def reject_atom_binding(**_kwargs: Any) -> Any:
+        raise AssertionError("proposal-only N4 must stop before candidate atom binding")
+
+    monkeypatch.setattr(dg, "_content_bound_candidates", reject_atom_binding)
+    produce = dg.generate_design_candidate_proposal_under_a
+    proposal = await produce(
+        problem,
+        model_id=model_id,
+        llm_client=RecordedClientWithCatalog(
+            recording,
+            model_ids=[model_id],
+        ),
+        repo_root=REPO_ROOT,
+    )
+
+    assert proposal.design_problem_ref == contract.gy_content_hash(
+        problem.model_dump(mode="json")
+    )
+    assert proposal.execution_band == "candidate"
+    assert proposal.substrate_status == "unknown"
+    assert proposal.limitation_code == "cycle_substrate_context_unavailable"
+    assert proposal.n5_status == proposal.n8_status == "not_run"
+    assert proposal.n9_status == proposal.s8_status == "not_run"
+    assert proposal.draft.narrative
+    assert proposal.trinity_bundle.policy_spec.interventions
+    assert proposal.critique.verdict
+    assert proposal.drafter_path == proposal.formalizer_path == proposal.critic_path == (
+        "model_generated"
+    )
+    assert len(proposal.llm_calls) >= 3
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("bad_role", "reason"),
         [

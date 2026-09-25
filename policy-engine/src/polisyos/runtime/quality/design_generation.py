@@ -1,9 +1,11 @@
-"""Shadow-only design generation under A using the existing LLM organs.
+"""Candidate-only design generation under A using the existing LLM organs.
 
 N4 is a proposer bridge, not an authority path. It calls the real Scientist
 drafter/formalizer/critic organs, content-binds their Trinity output to N2
 ``InterventionAtomBinding`` candidates, and fails closed whenever generation
 degrades to fixtures, unsupported models, untyped JSON, or unbound content.
+When substrate scope is unavailable, the served candidate path can preserve the
+three real organ outputs without attempting atom binding.
 """
 
 from __future__ import annotations
@@ -26,6 +28,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.serialization import extract_llm_json
+from polisyos.ir import TrinityBundle  # noqa: TC001 - Pydantic resolves the persisted field type
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
     NodeIntervention,
@@ -85,9 +88,12 @@ from polisyos.scientist.agent.formalizer import (
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
+from polisyos.scientist.agent.protocols import (  # noqa: TC001 - Pydantic resolves field types
+    CritiqueReport,
+    DraftResult,
+)
 
 if TYPE_CHECKING:
-    from polisyos.ir.trinity import TrinityBundle
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
@@ -193,6 +199,46 @@ class ModelProfilePreflight(_StrictModel):
     supported_model_ids: tuple[str, ...] = ()
     live_model_ids: tuple[str, ...] = ()
     reason: str = ""
+
+
+class N4CandidateProposalSource(_StrictModel):
+    """Three-organ N4 output preserved as a candidate under unknown substrate scope."""
+
+    schema_version: Literal["policyos.runtime.quality.n4_candidate_proposal.v1"] = (
+        "policyos.runtime.quality.n4_candidate_proposal.v1"
+    )
+    authority_purpose: Literal["candidate_proposal"] = "candidate_proposal"
+    execution_band: Literal["candidate"] = "candidate"
+    status: Literal["candidate_limited"] = "candidate_limited"
+    stage: Literal["n4_proposal_only"] = "n4_proposal_only"
+    substrate_status: Literal["unknown"] = "unknown"
+    limitation_code: Literal["cycle_substrate_context_unavailable"] = (
+        "cycle_substrate_context_unavailable"
+    )
+    n5_status: Literal["not_run"] = "not_run"
+    n8_status: Literal["not_run"] = "not_run"
+    n9_status: Literal["not_run"] = "not_run"
+    s8_status: Literal["not_run"] = "not_run"
+    design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    model_id: str = Field(..., min_length=1)
+    preflight: ModelProfilePreflight
+    drafter_path: Literal["model_generated"]
+    formalizer_path: Literal["model_generated"]
+    critic_path: Literal["model_generated"]
+    draft: DraftResult
+    trinity_bundle: TrinityBundle
+    critique: CritiqueReport
+    llm_calls: tuple[LLMGenerationCall, ...]
+
+    @model_validator(mode="after")
+    def _proposal_is_candidate_only(self) -> N4CandidateProposalSource:
+        if self.preflight.status != "supported":
+            raise ValueError("n4_candidate_proposal_model_preflight_not_supported")
+        if len(self.llm_calls) < 3:
+            raise ValueError("n4_candidate_proposal_organ_call_provenance_incomplete")
+        if self.critique.metadata.get("generator_path") != self.critic_path:
+            raise ValueError("n4_candidate_proposal_critic_path_mismatch")
+        return self
 
 
 class GenerationCandidateProvenance(_StrictModel):
@@ -895,6 +941,70 @@ async def generate_design_candidate_bundle_under_a(
 ) -> DesignGenerationOrganRun:
     """Run the canonical N4 organ path and own any gateway client it creates."""
 
+    result = await _run_design_generation_under_a(
+        design_problem,
+        model_id=model_id,
+        llm_client=llm_client,
+        repo_root=repo_root,
+        min_diverse_candidates=min_diverse_candidates,
+        data_context=data_context,
+        world_model_record_ref=world_model_record_ref,
+        cycle_substrate_context=cycle_substrate_context,
+        grounding_run_budget=grounding_run_budget,
+        candidate_proposal_only=False,
+    )
+    if not isinstance(result, DesignGenerationOrganRun):
+        raise DesignGenerationError("n4_candidate_bundle_result_not_organ_run")
+    return result
+
+
+async def generate_design_candidate_proposal_under_a(
+    design_problem: DesignProblem,
+    *,
+    model_id: str,
+    llm_client: object | None = None,
+    repo_root: Path | None = None,
+    data_context: dict[str, Any] | None = None,
+) -> N4CandidateProposalSource:
+    """Run real N4 organs and preserve their output before unknown-scope atom binding."""
+
+    result = await _run_design_generation_under_a(
+        design_problem,
+        model_id=model_id,
+        llm_client=llm_client,
+        repo_root=repo_root,
+        min_diverse_candidates=3,
+        data_context=data_context,
+        world_model_record_ref=None,
+        cycle_substrate_context=None,
+        grounding_run_budget=None,
+        candidate_proposal_only=True,
+    )
+    if isinstance(result, N4CandidateProposalSource):
+        return result
+    reason = (
+        result.result.degraded_artifacts[0].reason
+        if result.result.degraded_artifacts
+        else result.result.status
+    )
+    raise DesignGenerationError("n4_candidate_proposal_organs_unavailable", str(reason))
+
+
+async def _run_design_generation_under_a(
+    design_problem: DesignProblem,
+    *,
+    model_id: str,
+    llm_client: object | None,
+    repo_root: Path | None,
+    min_diverse_candidates: int,
+    data_context: dict[str, Any] | None,
+    world_model_record_ref: str | None,
+    cycle_substrate_context: CycleSubstrateContext | None,
+    grounding_run_budget: GroundingRunBudget | None,
+    candidate_proposal_only: bool,
+) -> DesignGenerationOrganRun | N4CandidateProposalSource:
+    """Own one gateway client while selecting the canonical N4 output boundary."""
+
     owned_llm_client: object | None = None
     if llm_client is None:
         from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
@@ -916,11 +1026,16 @@ async def generate_design_candidate_bundle_under_a(
             world_model_record_ref=world_model_record_ref,
             cycle_substrate_context=cycle_substrate_context,
             grounding_run_budget=grounding_run_budget,
+            candidate_proposal_only=candidate_proposal_only,
         )
-        return replace(
-            organ_run,
-            cycle_substrate_context=organ_run.cycle_substrate_context or cycle_substrate_context,
-        )
+        if isinstance(organ_run, DesignGenerationOrganRun):
+            return replace(
+                organ_run,
+                cycle_substrate_context=(
+                    organ_run.cycle_substrate_context or cycle_substrate_context
+                ),
+            )
+        return organ_run
     finally:
         await _close_owned_generation_client(owned_llm_client)
 
@@ -947,7 +1062,8 @@ async def _generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None,
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None = None,
-) -> DesignGenerationOrganRun:
+    candidate_proposal_only: bool = False,
+) -> DesignGenerationOrganRun | N4CandidateProposalSource:
     """Execute N4 with an already resolved caller- or owner-supplied client."""
 
     repo_root = (repo_root or Path.cwd()).resolve()
@@ -1223,6 +1339,20 @@ async def _generate_design_candidate_bundle_under_a(
             lever_space_prompt_slice=lever_space_prompt_slice,
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run(draft=draft, trinity_bundle=bundle, critique=critique)
+
+    if candidate_proposal_only:
+        return N4CandidateProposalSource(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            drafter_path=draft_path,
+            formalizer_path=formalizer_path,
+            critic_path=critic_path,
+            draft=draft,
+            trinity_bundle=bundle,
+            critique=critique,
+            llm_calls=tuple(recording_client.calls),
+        )
 
     source_capture = _N4SourceCapture()
     try:
@@ -4156,6 +4286,7 @@ __all__ = [
     "GroundingDispositionKind",
     "LLMGenerationCall",
     "ModelProfilePreflight",
+    "N4CandidateProposalSource",
     "RecordingLLMClient",
     "ShadowGeneratedCandidate",
     "SurrogateRanking",
@@ -4163,6 +4294,7 @@ __all__ = [
     "design_generation_strangle_receipts",
     "firewall_issues_for_result",
     "generate_design_candidate_bundle_under_a",
+    "generate_design_candidate_proposal_under_a",
     "generate_design_candidates_under_a",
     "measure_generation_diversity",
     "preflight_model_profile",

@@ -34,6 +34,11 @@ if TYPE_CHECKING:
 SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
 SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
+N4_CANDIDATE_PROPOSAL_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v1"
+N4_CANDIDATE_PROPOSAL_KIND = "runtime.quality.n4_candidate_proposal"
+N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA = (
+    "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
+)
 Identity = tuple[str, str, str]
 ExecutionScope = Literal["production", "contract_testing"]
 _SOURCE_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
@@ -49,7 +54,26 @@ def _source_write_options() -> artifacts.ArtifactWriteOptions:
 
 
 def _has_source_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
-    options = _source_write_options()
+    return _has_owner_profile(manifest, _source_write_options())
+
+
+def _n4_candidate_proposal_write_options() -> artifacts.ArtifactWriteOptions:
+    return artifacts.ArtifactWriteOptions(
+        kind=N4_CANDIDATE_PROPOSAL_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_SCHEMA, version="1.0"),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+    )
+
+
+def _has_n4_candidate_proposal_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
+    return _has_owner_profile(manifest, _n4_candidate_proposal_write_options())
+
+
+def _has_owner_profile(
+    manifest: artifacts.ArtifactManifest,
+    options: artifacts.ArtifactWriteOptions,
+) -> bool:
     actual = {
         field.alias or name: getattr(manifest, name)
         for name, field in type(manifest).model_fields.items()
@@ -67,6 +91,78 @@ def _has_source_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
 
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class N4CandidateProposalRecord(_StrictModel):
+    """Persist one tenant-bound N4 proposal with an explicit authority limitation."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_proposal_record.v1"
+    ] = N4_CANDIDATE_PROPOSAL_SCHEMA
+    authority_purpose: Literal["candidate_proposal"] = "candidate_proposal"
+    status: Literal["candidate_limited"] = "candidate_limited"
+    execution_band: Literal["candidate"] = "candidate"
+    stage: Literal["n4_proposal_only"] = "n4_proposal_only"
+    limitation_code: Literal["cycle_substrate_context_unavailable"] = (
+        "cycle_substrate_context_unavailable"
+    )
+    n5_status: Literal["not_run"] = "not_run"
+    n8_status: Literal["not_run"] = "not_run"
+    n9_status: Literal["not_run"] = "not_run"
+    s8_status: Literal["not_run"] = "not_run"
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    request_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    problem: DesignProblem
+    proposal: n4.N4CandidateProposalSource
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _candidate_proposal_bindings(self) -> N4CandidateProposalRecord:
+        payload = self.model_dump(mode="python", exclude={"content_hash"})
+        if self.content_hash != _source_content_hash(payload):
+            raise ValueError("n4_candidate_proposal_content_hash_mismatch")
+        problem_ref = gy_content_hash(self.problem.model_dump(mode="json"))
+        if self.design_problem_ref != problem_ref:
+            raise ValueError("n4_candidate_proposal_problem_ref_mismatch")
+        if self.proposal.design_problem_ref != problem_ref:
+            raise ValueError("n4_candidate_proposal_source_problem_mismatch")
+        expected_request_hash = "sha256:" + hashlib.sha256(
+            self.problem.nl_provenance.raw_request.encode("utf-8")
+        ).hexdigest()
+        if self.request_hash != expected_request_hash:
+            raise ValueError("n4_candidate_proposal_request_binding_mismatch")
+        if self.proposal.execution_band != self.execution_band:
+            raise ValueError("n4_candidate_proposal_band_mismatch")
+        if self.proposal.limitation_code != self.limitation_code:
+            raise ValueError("n4_candidate_proposal_limitation_mismatch")
+        if any(
+            status != "not_run"
+            for status in (self.n5_status, self.n8_status, self.n9_status, self.s8_status)
+        ):
+            raise ValueError("n4_candidate_proposal_crossed_unrun_stage")
+        return self
+
+
+class N4CandidateProposalLocator(_StrictModel):
+    """Versioned job pointer retaining the Core CAS manifest-view selector."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
+    ] = N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA
+    artifact_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _proposal_owner_view(self) -> N4CandidateProposalLocator:
+        if (
+            self.artifact_ref.kind != N4_CANDIDATE_PROPOSAL_KIND
+            or self.artifact_ref.media_type != "application/json"
+        ):
+            raise ValueError("n4_candidate_proposal_locator_owner_profile_mismatch")
+        return self
 
 
 def _has_synthetic_source(value: object) -> bool:
@@ -298,6 +394,90 @@ class GenerationSourceRepository:
 
     def __init__(self, store: artifacts.ArtifactStore) -> None:
         self.store = store
+
+    def persist_candidate_proposal(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        raw_request: str,
+        problem: DesignProblem,
+        proposal: n4.N4CandidateProposalSource,
+    ) -> artifacts.ArtifactRef:
+        """Persist a candidate-only N4 proposal through the runtime-supplied CAS."""
+        if problem.nl_provenance.raw_request != raw_request:
+            raise ValueError("n4_candidate_proposal_request_mismatch")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        if proposal.design_problem_ref != problem_ref:
+            raise ValueError("n4_candidate_proposal_problem_mismatch")
+        payload = {
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "request_hash": "sha256:" + hashlib.sha256(raw_request.encode("utf-8")).hexdigest(),
+            "design_problem_ref": problem_ref,
+            "problem": problem,
+            "proposal": proposal,
+        }
+        draft = N4CandidateProposalRecord.model_construct(
+            **payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="python", exclude={"content_hash"})
+        draft["content_hash"] = _source_content_hash(draft)
+        artifact = N4CandidateProposalRecord.model_validate(draft)
+        body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
+        return self.store.put_bytes(body, _n4_candidate_proposal_write_options())
+
+    def load_candidate_proposal(
+        self,
+        ref: artifacts.ArtifactRef | N4CandidateProposalLocator | Mapping[str, Any],
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        raw_request: str,
+    ) -> N4CandidateProposalRecord:
+        """Verify exact bytes, owner profile, and served job/tenant identity."""
+        locator = (
+            ref
+            if isinstance(ref, N4CandidateProposalLocator)
+            else N4CandidateProposalLocator(artifact_ref=ref)
+            if isinstance(ref, artifacts.ArtifactRef)
+            else N4CandidateProposalLocator.model_validate(ref)
+        )
+        artifact_ref = locator.artifact_ref
+        # Core's selector-aware API accepts the canonical ref. Keep a narrow
+        # compatibility path while this slice is replayed on the pre-R9 base,
+        # whose refs cannot express a selected manifest view.
+        selected_ref: artifacts.ArtifactID | artifacts.ArtifactRef = (
+            artifact_ref
+            if "manifest_profile_sha256" in artifacts.ArtifactRef.model_fields
+            else artifact_ref.artifact_id
+        )
+        if not self.store.verify(selected_ref).ok:
+            raise ValueError("n4_candidate_proposal_cas_integrity_failed")
+        if not _has_n4_candidate_proposal_owner_profile(self.store.get_manifest(selected_ref)):
+            raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
+        body = self.store.get_bytes(selected_ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(artifact_ref.artifact_id):
+            raise ValueError("n4_candidate_proposal_cas_content_mismatch")
+        artifact = N4CandidateProposalRecord.model_validate(canon.from_canonical_bytes(body))
+        expected = {
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "request_hash": "sha256:" + hashlib.sha256(raw_request.encode("utf-8")).hexdigest(),
+        }
+        for field_name, value in expected.items():
+            if getattr(artifact, field_name) != value:
+                label = "tenant" if field_name == "tenant_id" else field_name.removesuffix("_id")
+                raise ValueError(f"n4_candidate_proposal_{label}_binding_mismatch")
+        return artifact
 
     def persist(
         self,

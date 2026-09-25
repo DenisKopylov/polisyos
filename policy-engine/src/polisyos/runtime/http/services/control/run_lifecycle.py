@@ -266,6 +266,27 @@ def _clean_runtime_text(value: object) -> str | None:
     return text or None
 
 
+def _job_scope_identity(
+    payload: Mapping[str, Any] | None,
+) -> tuple[str | None, str | None]:
+    """Return only tenant and cell identities actually supplied by the job owner."""
+
+    if not isinstance(payload, Mapping):
+        return None, None
+    raw_tenant_id = payload.get("tenant_id")
+    raw_cell_id = payload.get("cell_id")
+    tenant_id = _clean_runtime_text(raw_tenant_id) if isinstance(raw_tenant_id, str) else None
+    cell_id = _clean_runtime_text(raw_cell_id) if isinstance(raw_cell_id, str) else None
+    if tenant_id is not None and tenant_id.casefold() == "tenant-unknown":
+        tenant_id = None
+    if cell_id is not None and cell_id.casefold() == "cell-unknown":
+        cell_id = None
+    return (
+        tenant_id,
+        cell_id,
+    )
+
+
 class _ControlEvaluationSafetyAuthorityResolver:
     """Fail-closed authority resolver; it appoints and verifies nothing."""
 
@@ -390,6 +411,7 @@ if TYPE_CHECKING:
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+        N4CandidateProposalExecution,
         NormativeEvidenceSubmissionRequest,
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
@@ -400,7 +422,10 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
     )
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
-    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ExecutionIntent,
+        RecursiveCycleBudget,
+    )
     from polisyos.scientist import BudgetState
 
     from ...step_up import StepUpReplayStore
@@ -1601,12 +1626,13 @@ class ControlPlaneService(
         raw_request: str,
         context: Mapping[str, object],
         model_name: str,
+        execution_intent: ExecutionIntent | None = None,
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
-    ) -> CompiledRecursiveGenerationCycleRun:
+    ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
         """Run the HTTP composition through its container-owned epoch strangle."""
 
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -1617,6 +1643,7 @@ class ControlPlaneService(
             raw_request=raw_request,
             context=context,
             model_name=model_name,
+            execution_intent=execution_intent,
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
@@ -2109,8 +2136,9 @@ class ControlPlaneService(
             payload=payload,
             parent_span_id=parent_span_id,
         )
-        tenant_id = _clean_runtime_text((payload or {}).get("tenant_id")) or "tenant-unknown"
-        cell_id = _clean_runtime_text((payload or {}).get("cell_id")) or "cell-unknown"
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None or cell_id is None:
+            return None
         event = DiagnosticEvent(
             event_id=f"evt_{uuid.uuid4().hex[:24]}",
             event_source="polisyos.runtime.control",
@@ -2181,16 +2209,15 @@ class ControlPlaneService(
 
     @contextmanager
     def _job_tenant_scope(self, payload: dict[str, Any]) -> Iterator[None]:
-        tenant_id = payload.get("tenant_id")
-        cell_id = payload.get("cell_id")
-        if not isinstance(tenant_id, str) or not tenant_id:
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None:
             with nullcontext():
                 yield
             return
         with tenant_scope(
             None,
             tenant_id=tenant_id,
-            cell_id=cell_id if isinstance(cell_id, str) and cell_id else None,
+            cell_id=cell_id,
         ):
             yield
 
@@ -2799,8 +2826,27 @@ class ControlPlaneService(
         payload: Mapping[str, Any],
     ) -> EvaluationSafetyPersistenceContext:
         trace = self._job_trace_context(job_id=job.job_id, payload=payload)
-        tenant_id = _clean_runtime_text(payload.get("tenant_id")) or "tenant-unknown"
-        cell_id = _clean_runtime_text(payload.get("cell_id"))
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None:
+            code = "evaluation_safety_tenant_scope_not_established"
+            raise _WorkflowExecutionNonAuthorityError(
+                code,
+                progress={
+                    "state": "failed",
+                    "runtime_state": "blocked",
+                    "phase": "evaluation_safety",
+                    "status": "not_established",
+                    "execution_band": "authority",
+                    "limitation_code": code,
+                    "authority_path": "evaluation_safety",
+                    "authority_result": "blocked",
+                    "eval_safety_blocker_codes": [code],
+                    "runtime_diagnostic_event_status": "not_established",
+                    "runtime_diagnostic_event_limitation_code": (
+                        "diagnostic_event_owner_scope_not_established"
+                    ),
+                },
+            )
         run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
         input_refs = tuple(ref.artifact_id for ref in intake.evaluation_input_refs)
         closure_payload = {
@@ -3288,6 +3334,14 @@ class ControlPlaneService(
                             capability_manifest_ref=capability_manifest_ref,
                         )
                         return
+                    if evaluation_safety is not None:
+                        if evaluation_safety.execution_context is None:
+                            raise RuntimeError(
+                                "eval_safety_execution_context_not_established"
+                            )
+                        execution_intent = evaluation_safety.execution_context.evaluation_mode
+                    else:
+                        execution_intent = "candidate_only"
                     model_rows = payload.get("llm_models")
                     model_name = (
                         str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""
@@ -3307,6 +3361,7 @@ class ControlPlaneService(
                             raw_request=str(payload.get("request") or ""),
                             context=cast("Mapping[str, object]", payload.get("context") or {}),
                             model_name=model_name,
+                            execution_intent=execution_intent,
                             compiler_gateway=None,
                             budget_state=BudgetState.model_validate(
                                 {
@@ -3330,6 +3385,118 @@ class ControlPlaneService(
                         ),
                         timeout_seconds=max(120.0, 120.0 * max_cycles),
                     )
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        N4CandidateProposalExecution,
+                    )
+
+                    if isinstance(compiled, N4CandidateProposalExecution):
+                        from polisyos.runtime.quality.generation_source import (
+                            GenerationSourceRepository,
+                            N4CandidateProposalLocator,
+                        )
+
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        raw_request = str(payload.get("request") or "")
+                        tenant_id, cell_id = _job_scope_identity(payload)
+                        if tenant_id is None or cell_id is None:
+                            scope_limiter = (
+                                "candidate_proposal_owner_scope_not_established"
+                            )
+                            progress = {
+                                "state": "completed",
+                                "phase": "natural_language_run",
+                                "status": "not_established",
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "completed",
+                                "proposal_persistence_status": "not_established",
+                                "limitation_code": scope_limiter,
+                                "runtime_diagnostic_event_status": "not_established",
+                                "runtime_diagnostic_event_limitation_code": (
+                                    "diagnostic_event_owner_scope_not_established"
+                                ),
+                                "run_id": run_id,
+                                "candidate_proposal_ref": None,
+                                "n5_status": "not_run",
+                                "n8_status": "not_run",
+                                "n9_status": "not_run",
+                                "s8_status": "not_run",
+                            }
+                            self._control_store.complete_job(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                capability_manifest_ref=str(capability_manifest_ref),
+                                progress=progress,
+                            )
+                            return
+                        repository = GenerationSourceRepository(self._artifact_store)
+                        proposal_ref = repository.persist_candidate_proposal(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                            problem=compiled.design_problem,
+                            proposal=compiled.proposal,
+                        )
+                        proposal_locator = N4CandidateProposalLocator(
+                            artifact_ref=proposal_ref
+                        )
+                        proposal_record = repository.load_candidate_proposal(
+                            proposal_locator,
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": proposal_record.status,
+                            "execution_band": proposal_record.execution_band,
+                            "limitation_code": proposal_record.limitation_code,
+                            "stage": proposal_record.stage,
+                            "run_id": run_id,
+                            "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                            "n5_status": proposal_record.n5_status,
+                            "n8_status": proposal_record.n8_status,
+                            "n9_status": proposal_record.n9_status,
+                            "s8_status": proposal_record.s8_status,
+                        }
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                                "execution_band": proposal_record.execution_band,
+                                "limitation_code": proposal_record.limitation_code,
+                                "downstream_stages": {
+                                    "n5": proposal_record.n5_status,
+                                    "n8": proposal_record.n8_status,
+                                    "n9": proposal_record.n9_status,
+                                    "s8": proposal_record.s8_status,
+                                },
+                            },
+                            artifact_refs=[
+                                str(capability_manifest_ref),
+                                str(proposal_ref.artifact_id),
+                            ],
+                        )
+                        return
                     compiled_ref = self._put_json_artifact(
                         compiled.model_dump(mode="json"),
                         kind="runtime.compiled_recursive_generation_cycle",

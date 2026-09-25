@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -41,18 +41,21 @@ from polisyos.runtime.quality.public_export import (
     project_promotion_open_world_limitation,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
+    ExecutionIntent,
     RecursiveGenerationCycleRun,
     build_default_recursive_generation_cycle_controller,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_generation import N4CandidateProposalSource
     from polisyos.runtime.quality.evaluation_safety import (
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
@@ -485,11 +488,20 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         return self
 
 
+@dataclass(frozen=True, slots=True)
+class N4CandidateProposalExecution:
+    """Real N4 output stopped before recursive execution when scope is unknown."""
+
+    design_problem: DesignProblem
+    proposal: N4CandidateProposalSource
+
+
 async def compile_and_run_recursive_generation_cycle(
     *,
     raw_request: str,
     context: Mapping[str, object],
     model_name: str,
+    execution_intent: ExecutionIntent | None = None,
     compiler_gateway: _DesignProblemGatewayClient | None,
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
@@ -504,8 +516,8 @@ async def compile_and_run_recursive_generation_cycle(
     root_n4_generation_port: N4GenerationPort | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
-) -> CompiledRecursiveGenerationCycleRun:
-    """Compile arbitrary plain language and route it through the depth-N owner."""
+) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+    """Compile natural language and run the appropriate candidate or authority path."""
 
     if promotion_runtime is None:
         raise DesignProblemAuthorityError(
@@ -537,6 +549,7 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_budget_resolution_mismatch",
                 "The visible HTTP budget resolution must match the recursive budget used.",
             )
+    from polisyos.runtime.quality.evaluation_modes import EVAL_SAFETY_REQUIRED_MODES
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
 
@@ -546,6 +559,52 @@ async def compile_and_run_recursive_generation_cycle(
         raise DesignProblemAuthorityError(
             "eval_safety_execution_context_not_canonical",
             "The root EvalSafety context must be the canonical typed contract.",
+        )
+    if execution_intent is None:
+        # Direct internal callers predating the served intent map retain their
+        # explicit context's mode. The HTTP worker always supplies this value.
+        execution_intent = (
+            root_evaluation_context.evaluation_mode
+            if root_evaluation_context is not None
+            else "candidate_only"
+        )
+    elif execution_intent not in {
+        "candidate_only",
+        "simulate_only",
+        "retrospective",
+        "measurement_audit",
+        "sandbox_pilot",
+        "field_pilot",
+        "deployment",
+    }:
+        raise DesignProblemAuthorityError(
+            "execution_intent_not_canonical",
+            "Execution intent must be selected from the server-owned mode vocabulary.",
+        )
+    if execution_intent == "candidate_only" and root_evaluation_context is not None:
+        raise DesignProblemAuthorityError(
+            "candidate_execution_intent_context_mismatch",
+            "Candidate-only execution cannot carry an attempted EvalSafety context.",
+        )
+    if execution_intent in EVAL_SAFETY_REQUIRED_MODES:
+        if root_evaluation_context is None:
+            raise DesignProblemAuthorityError(
+                "eval_safety_execution_context_not_established",
+                "Protected evaluation intent requires its admitted current context.",
+            )
+        if root_evaluation_context.evaluation_mode != execution_intent:
+            raise DesignProblemAuthorityError(
+                "eval_safety_execution_mode_mismatch",
+                "Execution intent must match the canonical EvalSafety context mode.",
+            )
+    if (
+        root_evaluation_context is not None
+        and execution_intent != "candidate_only"
+        and root_evaluation_context.evaluation_mode != execution_intent
+    ):
+        raise DesignProblemAuthorityError(
+            "eval_safety_execution_mode_mismatch",
+            "Execution intent must match the canonical EvalSafety context mode.",
         )
     if (
         root_evaluation_context is not None
@@ -574,10 +633,25 @@ async def compile_and_run_recursive_generation_cycle(
             problem_ref=problem_ref,
             repo_root=repo_root,
         )
-    # A plain request may not have enough canonical owner data in the current
-    # checkout to establish a CycleSubstrateContext.  Preserve that bounded
-    # absence and let the recursive controller's canonical ports emit typed
-    # pending/blocked observations; do not mint caller-owned context or WMR.
+    if (
+        cycle_substrate_context is None
+        and execution_intent == "candidate_only"
+        and root_n4_generation_port is None
+    ):
+        from polisyos.runtime.quality.design_generation import (
+            generate_design_candidate_proposal_under_a,
+        )
+
+        proposal = await generate_design_candidate_proposal_under_a(
+            problem,
+            model_id=model_name,
+            repo_root=repo_root,
+        )
+        return N4CandidateProposalExecution(design_problem=problem, proposal=proposal)
+    # A candidate-only ordinary request with unknown scope returned its typed
+    # N4 proposal above. Other invocations never infer missing owner context;
+    # the explicit N4 override remains rejected below, and no caller-owned
+    # context or WMR is minted here.
     if cycle_substrate_context is None and root_n4_generation_port is not None:
         raise DesignProblemAuthorityError(
             "cycle_substrate_context_not_established",
@@ -665,8 +739,9 @@ async def compile_and_run_recursive_generation_cycle(
         evaluation_contexts_by_node=(
             {root_ref: root_evaluation_context}
             if root_evaluation_context is not None
-            else ({} if cycle_substrate_context is None else None)
+            else None
         ),
+        execution_intents_by_node={root_ref: execution_intent},
     )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()
@@ -805,5 +880,6 @@ def _build_cycle_substrate_context_from_owner(
 __all__ = [
     "COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION",
     "CompiledRecursiveGenerationCycleRun",
+    "N4CandidateProposalExecution",
     "compile_and_run_recursive_generation_cycle",
 ]

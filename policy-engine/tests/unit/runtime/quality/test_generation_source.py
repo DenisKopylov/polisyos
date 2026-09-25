@@ -4,13 +4,19 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 from tests.unit.runtime.quality.test_design_generation import (
+    REPO_ROOT,
+    RecordedClientWithCatalog,
     _bundle,
     _intervention,
+    _recording_with_successful_first_response,
     _test_design_problem,
 )
+from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
 
 
 @pytest.mark.asyncio
@@ -44,6 +50,54 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
 
     assert observed is organ
     assert observed.trinity_bundle is organ.trinity_bundle
+
+
+@pytest.mark.asyncio
+async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_path):
+    """N4 proposal persistence uses the supplied artifact store and checks its served scope."""
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    problem = contract._design_problem(recording)
+    proposal = await n4.generate_design_candidate_proposal_under_a(
+        problem,
+        model_id=model_id,
+        llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
+        repo_root=REPO_ROOT,
+    )
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
+
+    proposal_ref = repository.persist_candidate_proposal(
+        job_id="job-n4-candidate",
+        run_id="run-n4-candidate",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        raw_request=problem.nl_provenance.raw_request,
+        problem=problem,
+        proposal=proposal,
+    )
+    assert proposal_ref.kind == "runtime.quality.n4_candidate_proposal"
+    assert proposal_ref.media_type == "application/json"
+    loaded = repository.load_candidate_proposal(
+        proposal_ref,
+        job_id="job-n4-candidate",
+        run_id="run-n4-candidate",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        raw_request=problem.nl_provenance.raw_request,
+    )
+
+    assert loaded.proposal == proposal
+    assert loaded.execution_band == "candidate"
+    assert loaded.limitation_code == "cycle_substrate_context_unavailable"
+    with pytest.raises(ValueError, match="tenant"):
+        repository.load_candidate_proposal(
+            proposal_ref,
+            job_id="job-n4-candidate",
+            run_id="run-n4-candidate",
+            tenant_id="tenant-b",
+            cell_id="cell-a",
+            raw_request=problem.nl_provenance.raw_request,
+        )
 
 
 def test_synthetic_cg2_contract_mechanism_remains_non_promotable():

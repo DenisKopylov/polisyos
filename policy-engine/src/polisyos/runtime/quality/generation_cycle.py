@@ -1329,6 +1329,11 @@ class StrangleReceipt(_StrictModel):
                 "an explicit source checkout is required for receipt replay",
             )
         current = type(self).recompute(repo_root)
+        self._verify_against_current_receipt(current)
+
+    def _verify_against_current_receipt(self, current: StrangleReceipt) -> None:
+        """Compare with one source census already computed by this invocation."""
+
         bound = {
             "status": self.status,
             "source_state": self.source_state,
@@ -5892,33 +5897,59 @@ def validate_generation_cycle_run(
     source-bound receipt as current.
     """
 
+    return _validate_generation_cycle_run(run, repo_root=repo_root)
+
+
+def _validate_generation_cycle_run_with_current_source_receipt(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    current_strangle_receipt: StrangleReceipt,
+) -> tuple[dict[str, Any], ...]:
+    """Validate against a fresh source receipt shared within one live invocation."""
+
+    return _validate_generation_cycle_run(
+        run,
+        current_strangle_receipt=current_strangle_receipt,
+    )
+
+
+def _validate_generation_cycle_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+    current_strangle_receipt: StrangleReceipt | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Run cycle checks with either a strict fresh root or invocation snapshot."""
+
     if not isinstance(run, GenerationCycleRun):
         try:
             run = GenerationCycleRun.model_validate(run)
         except ValueError as exc:
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
-    if repo_root is None:
-        issues.append(
-            {
-                "code": "strangle_receipt_currentness_not_established",
-                "reason": "live repo_root is required to replay the source denominator",
-            }
-        )
-    else:
-        try:
+    try:
+        if current_strangle_receipt is not None:
+            run.strangle_receipt._verify_against_current_receipt(current_strangle_receipt)
+        elif repo_root is None:
+            issues.append(
+                {
+                    "code": "strangle_receipt_currentness_not_established",
+                    "reason": "live repo_root is required to replay the source denominator",
+                }
+            )
+        else:
             run.verify_strangle_receipt(repo_root)
-        except GenerationCycleError as exc:
-            issue_code = {
-                "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
-                "generation_cycle_strangle_receipt_not_strangled": (
-                    "strangle_receipt_currentness_not_established"
-                ),
-                "generation_cycle_strangle_receipt_currentness_not_established": (
-                    "strangle_receipt_currentness_not_established"
-                ),
-            }.get(exc.code, exc.code)
-            issues.append({"code": issue_code, "error": str(exc)})
+    except GenerationCycleError as exc:
+        issue_code = {
+            "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
+            "generation_cycle_strangle_receipt_not_strangled": (
+                "strangle_receipt_currentness_not_established"
+            ),
+            "generation_cycle_strangle_receipt_currentness_not_established": (
+                "strangle_receipt_currentness_not_established"
+            ),
+        }.get(exc.code, exc.code)
+        issues.append({"code": issue_code, "error": str(exc)})
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()

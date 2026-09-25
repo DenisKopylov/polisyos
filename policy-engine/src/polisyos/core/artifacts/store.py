@@ -131,6 +131,15 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
+def _file_content_hash(path: Path) -> str:
+    """Hash a CAS blob from disk without buffering the complete payload."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _current_access_scope() -> object | None:
     try:
         from polisyos.core.security.tenant_context import get_current_access_scope_or_none
@@ -635,6 +644,133 @@ class FileSystemCAS:
             span.set_attribute("cas.duration_seconds", duration)
 
             return data
+
+    def import_exact_view(
+        self,
+        data: bytes,
+        manifest_bytes: bytes,
+        *,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        signature_bytes: bytes | None = None,
+    ) -> ArtifactRef:
+        """Cache one already-owned CAS view without reconstructing signed bytes.
+
+        The manifest and optional detached signature are validated and copied as
+        their original bytes. An existing selector-free default is immutable; if
+        it differs, the imported view is stored under its exact profile selector.
+        """
+        aid, requested_profile, ref = _artifact_reference(artifact_id)
+        if content_hash(data) != aid.hex:
+            raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
+
+        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+        _validate_manifest_identity(aid, manifest)
+        _validate_read_integrity(aid, data, manifest)
+        profile_sha256 = self._manifests.profile_sha256(manifest)
+        if requested_profile is not None and requested_profile != profile_sha256:
+            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+        if ref is not None and (ref.kind != manifest.kind or ref.media_type != manifest.media_type):
+            raise ArtifactIntegrityError(
+                f"Artifact reference type does not match selected manifest for {aid}"
+            )
+
+        for input_ref in manifest.inputs:
+            self._require_blob_owner(
+                input_ref.artifact_id,
+                operation=f"cache input:{input_ref.role}",
+            )
+            self._require_manifest_view_owner(
+                input_ref.artifact_id,
+                input_ref.manifest_profile_sha256,
+                operation=f"cache input manifest:{input_ref.role}",
+            )
+
+        if signature_bytes is not None:
+            signature = DetachedSignature.model_validate_json(signature_bytes)
+            if signature.artifact_id != str(aid):
+                raise ArtifactIntegrityError(f"Signature artifact ID mismatch for {aid}")
+            if signature.statement.blob_sha256 != aid.hex:
+                raise ArtifactIntegrityError(f"Signature blob digest mismatch for {aid}")
+            if signature.statement.manifest_sha256 != hashlib.sha256(manifest_bytes).hexdigest():
+                raise ArtifactIntegrityError(f"Signature manifest digest mismatch for {aid}")
+
+        blob_path, default_manifest_path = self._paths(aid)
+        view_manifest_path = self._layout.view_manifest_path(aid, profile_sha256)
+        with self._artifact_lock(aid):
+            self._prepare_import_destination(
+                blob_path,
+                member=blob_path.relative_to(self.root).as_posix(),
+            )
+            if blob_path.exists() and _file_content_hash(blob_path) != aid.hex:
+                raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
+
+            default_manifest_bytes = (
+                default_manifest_path.read_bytes() if default_manifest_path.exists() else None
+            )
+            if default_manifest_bytes is not None:
+                default_manifest = ArtifactManifest.model_validate_json(default_manifest_bytes)
+                _validate_manifest_identity(aid, default_manifest)
+                _validate_read_integrity(aid, data, default_manifest)
+
+            write_default = requested_profile is None and (
+                default_manifest_bytes is None or default_manifest_bytes == manifest_bytes
+            )
+            target_manifest_path = default_manifest_path if write_default else view_manifest_path
+            manifest_paths = [target_manifest_path]
+            if write_default and view_manifest_path != default_manifest_path:
+                manifest_paths.append(view_manifest_path)
+
+            signature_paths = [
+                self._sig_path(aid, None if write_default else profile_sha256)
+            ]
+            if write_default:
+                signature_paths.append(self._sig_path(aid, profile_sha256))
+
+            for path in (*manifest_paths, *signature_paths):
+                self._prepare_import_destination(
+                    path,
+                    member=path.relative_to(self.root).as_posix(),
+                )
+            for path in manifest_paths:
+                if path.exists() and path.read_bytes() != manifest_bytes:
+                    raise ArtifactIntegrityError(
+                        f"Exact manifest bytes conflict for selected view {aid}"
+                    )
+            if signature_bytes is not None:
+                for path in signature_paths:
+                    if path.exists() and path.read_bytes() != signature_bytes:
+                        raise ArtifactIntegrityError(
+                            f"Exact signature bytes conflict for selected view {aid}"
+                        )
+
+            if not blob_path.exists():
+                self._files.write_once(blob_path, data)
+            if _file_content_hash(blob_path) != aid.hex:
+                raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
+            for path in manifest_paths:
+                self._files.write_once(path, manifest_bytes)
+                if path.read_bytes() != manifest_bytes:
+                    raise ArtifactIntegrityError(
+                        f"Exact manifest bytes conflict for selected view {aid}"
+                    )
+            if signature_bytes is not None:
+                for path in signature_paths:
+                    self._files.write_once(path, signature_bytes)
+                    if path.read_bytes() != signature_bytes:
+                        raise ArtifactIntegrityError(
+                            f"Exact signature bytes conflict for selected view {aid}"
+                        )
+
+            default_view_created = write_default and default_manifest_bytes is None
+            self._record_write_owner(aid, default_view_created=default_view_created)
+            self._record_write_view_owner(aid, profile_sha256)
+
+        return ArtifactRef(
+            artifact_id=aid,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=None if write_default else profile_sha256,
+        )
 
     def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
         """Load and validate the default or explicitly selected manifest view.

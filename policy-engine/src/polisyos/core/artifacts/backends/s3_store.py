@@ -27,6 +27,7 @@ from ..manifest import (
     artifact_reference_parts,
 )
 from ..store import PutOptions
+from ._cache_namespace import cache_namespace
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -64,6 +65,12 @@ class S3ArtifactStore:
         self._bucket = bucket
         self._prefix = prefix.rstrip("/")
         self._region = region
+        self._cache_namespace = cache_namespace(
+            backend="s3",
+            bucket=self._bucket,
+            prefix=self._prefix,
+            region=self._region,
+        )
         self._local_cache_dir = local_cache_dir
         self._client: Any = None
         self._lock = threading.Lock()
@@ -120,7 +127,14 @@ class S3ArtifactStore:
         if self._local_cache_dir is None:
             return None
         h = artifact_id.hex
-        return self._local_cache_dir / h[:2] / h[2:4] / f"{h}{suffix}"
+        return (
+            self._local_cache_dir
+            / "namespaces"
+            / self._cache_namespace
+            / h[:2]
+            / h[2:4]
+            / f"{h}{suffix}"
+        )
 
     def _cache_read(self, artifact_id: ArtifactID, suffix: str) -> bytes | None:
         p = self._cache_path(artifact_id, suffix)
@@ -201,7 +215,10 @@ class S3ArtifactStore:
         self._cache_write(aid, ".blob", data)
         return data
 
-    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+    def _load_manifest(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> tuple[bytes, ArtifactManifest]:
         aid, profile_sha256, ref = artifact_reference_parts(artifact_id)
         cache_suffix = self._manifest_cache_suffix(profile_sha256)
         cached = self._cache_read(aid, cache_suffix)
@@ -213,7 +230,7 @@ class S3ArtifactStore:
             except ArtifactIntegrityError as exc:
                 self._record_integrity_failure(reason=type(exc).__name__)
                 raise
-            return manifest
+            return bytes(cached), manifest
         resp = self._s3().get_object(
             Bucket=self._bucket,
             Key=self._manifest_key(aid, profile_sha256),
@@ -227,6 +244,16 @@ class S3ArtifactStore:
         except ArtifactIntegrityError as exc:
             self._record_integrity_failure(reason=type(exc).__name__)
             raise
+        return bytes(raw), manifest
+
+    def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        """Return the validated original manifest sidecar bytes for a view."""
+        raw, _manifest = self._load_manifest(artifact_id)
+        return raw
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view."""
+        _raw, manifest = self._load_manifest(artifact_id)
         return manifest
 
     @staticmethod

@@ -29,7 +29,9 @@ def _artifact_label(artifact_id: ArtifactID) -> str:
 class CachingArtifactStore:
     """Composes a local CAS (fast) with a remote store (durable).
 
-    * **Reads**: try local first, fall back to remote (download to local on miss).
+    * **Blob reads**: try local first, fall back to remote (download to local on miss).
+    * **Manifest reads**: resolve selector-free defaults at the remote owner; exact selected
+      views may be served from local storage.
     * **Writes**: write to local, then replicate to remote (if ``write_through``).
     * **Verify**: delegates to local if present, otherwise remote.
     """
@@ -66,6 +68,8 @@ class CachingArtifactStore:
             return bytes(self._local.get_bytes(selected))
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact cache miss for %s", artifact_label)
+        except PermissionError:
+            raise
         except OSError as exc:
             logger.warning(
                 "Local artifact cache unavailable for %s; falling back to remote store: %s",
@@ -76,9 +80,45 @@ class CachingArtifactStore:
         # Cache locally for subsequent reads.  We need the original
         # ``PutOptions`` to write to the local store, but since CAS is
         # content-addressed the manifest already exists remotely.
-        # Write raw blob + manifest via the local store's put_bytes with
-        # a generic kind — the manifest will be overwritten below.
+        # Prefer the storage owner's exact-byte transfer seam when available;
+        # simpler stores retain the typed put_bytes fallback below.
         try:
+            raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
+            exact_view_importer = getattr(self._local, "import_exact_view", None)
+            raw_manifest_bytes = (
+                raw_manifest_reader(selected)
+                if callable(raw_manifest_reader)
+                else None
+            )
+            if isinstance(raw_manifest_bytes, bytes) and callable(exact_view_importer):
+                signature_bytes: bytes | None = None
+                signature_reader = getattr(self._remote, "get_signature_bytes", None)
+                if callable(signature_reader):
+                    try:
+                        candidate_signature_bytes = signature_reader(selected)
+                    except FileNotFoundError:
+                        candidate_signature_bytes = None
+                    if isinstance(candidate_signature_bytes, bytes):
+                        signature_bytes = candidate_signature_bytes
+                imported_ref = exact_view_importer(
+                    data,
+                    raw_manifest_bytes,
+                    artifact_id=selected,
+                    signature_bytes=signature_bytes,
+                )
+                if imported_ref.artifact_id != aid:
+                    raise ArtifactIntegrityError(
+                        "Local cache imported an exact manifest view for another artifact"
+                    )
+                if ref is not None and (
+                    ref.manifest_profile_sha256 is not None
+                    and imported_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
+                ):
+                    raise ArtifactIntegrityError(
+                        "Local cache cannot reproduce the selected remote view"
+                    )
+                return bytes(data)
+
             manifest = self._remote.get_manifest(selected)
             opts = PutOptions(
                 kind=manifest.kind,
@@ -106,6 +146,8 @@ class CachingArtifactStore:
                 raise ArtifactIntegrityError(
                     "Local cache cannot reproduce the selected remote view"
                 )
+        except PermissionError:
+            raise
         except (FileNotFoundError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning(
                 "Local artifact cache population failed for %s under policy=%s: %s",
@@ -121,10 +163,17 @@ class CachingArtifactStore:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or artifact_id
         artifact_label = _artifact_label(aid)
+        if ref is None or ref.manifest_profile_sha256 is None:
+            # A selector-free reference is a store-scoped alias. The durable
+            # remote owner, not a local cache with a potentially different first
+            # writer, defines this composite store's default manifest.
+            return self._remote.get_manifest(selected)
         try:
             return self._local.get_manifest(selected)
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact manifest cache miss for %s", artifact_label)
+        except PermissionError:
+            raise
         except OSError as exc:
             logger.warning(
                 "Local artifact manifest cache unavailable for %s; "

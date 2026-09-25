@@ -164,6 +164,14 @@ GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
 )
 _N7_ACQ01_ROUTE_SCHEMA_VERSION = "policyos.runtime.acq01_route.v1"
+
+
+def _has_n7_acq01_route_payload(payload: object) -> bool:
+    """Whether the route projection has the exact container type consumed by N7."""
+
+    return isinstance(payload, Mapping) and isinstance(
+        payload.get("acq01_route"), Mapping
+    )
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
 )
@@ -5350,6 +5358,21 @@ class GenerationCycleController:
             raise GenerationCycleError(
                 "n7_receipt_invalid",
                 json.dumps(receipt_issues, sort_keys=True),
+            )
+        if self._authority_scope != "contract_testing" and any(
+            _has_n7_acq01_route_payload(artifact.payload)
+            for artifact in acquisition_receipt.owner_artifacts
+        ):
+            # The local FileTabular route is a contract fixture, not a
+            # production world-growth owner.  Preserve the candidate's
+            # acquisition gap and name the limitation before reading its
+            # capture_store_root, consuming grown_world_after_ref, or running N5.
+            return (
+                _cycle_with_n7_route_failure(
+                    cycle,
+                    reason="n7_acq01_route_not_admitted",
+                ),
+                cycle_summaries,
             )
         receipt_payload = acquisition_receipt.model_dump(mode="json")
         prior_candidate = self._n7_candidate_bindings.get(

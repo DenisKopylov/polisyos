@@ -971,6 +971,7 @@ def _build_acq01_real_route_controller(
     route: Any,
     simulation: Any,
     repo_root: Path,
+    authority_scope: str = "contract_testing",
 ) -> GenerationCycleController:
     class _RouteGenerationPort:
         async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
@@ -1003,6 +1004,7 @@ def _build_acq01_real_route_controller(
         acquisition_owner_gateway=gateway,
         repo_root=repo_root,
         cycle_substrate_context=case.before_context,
+        authority_scope=authority_scope,
     )
     if isinstance(simulation, _ContextRecordingSimulation):
         simulation.controller = controller
@@ -1020,6 +1022,59 @@ def _assert_n7_world_model_record_semantics(actual: Any, expected: Any) -> None:
     assert actual.world_model_record_id == expected.world_model_record_id
     assert actual.content_hash == expected.content_hash
     assert actual_created_at >= expected_created_at
+
+
+def test_acq01_route_fence_ignores_present_nonroute_payload_values() -> None:
+    """A key marker alone is not an ACQ-01 route consumed by the legacy reader."""
+
+    from polisyos.runtime.quality.generation_cycle import _has_n7_acq01_route_payload
+
+    assert not _has_n7_acq01_route_payload({"acq01_route": None})
+    assert not _has_n7_acq01_route_payload({"acq01_route": "route-marker"})
+    assert not _has_n7_acq01_route_payload({"acq01_route": ["not", "a", "route"]})
+    assert _has_n7_acq01_route_payload({"acq01_route": {}})
+
+
+@pytest.mark.asyncio
+async def test_production_n7_acq01_route_is_limited_before_route_cas_and_n5(
+    tmp_path: Path,
+) -> None:
+    """A legacy local route receipt cannot select a production world or re-enter N5."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_production_route_limited")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        simulation = _ContextRecordingSimulation()
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=simulation,
+            repo_root=tmp_path,
+            authority_scope="production",
+        )
+        run = await controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+
+        assert len(simulation.observations) == 1
+        assert simulation.observations[0][0] is case.before_context
+        assert (
+            simulation.observations[0][1]
+            == case.before_context.world_model_record.world_model_record_id
+        )
+        cycle = run.cycles[0]
+        assert cycle.acquisition_receipt is None
+        assert cycle.counterexample.diagnostic.code == (
+            "n6.acquisition.n7_acq01_route_not_admitted"
+        )
+        assert cycle.terminal_kind == "acquisition_required"
 
 
 @pytest.mark.asyncio
@@ -1050,6 +1105,7 @@ async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
         )
 
         receipt = run.acquisition_receipts[0]
+        assert run.synthetic is True
         assert receipt["status"] == "completed"
         assert route.world_build.data_snapshot_ref == route.data_snapshot_ref
         assert (
@@ -1232,6 +1288,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             acquisition_owner_gateway=gateway,
             repo_root=tmp_path,
             cycle_substrate_context=case.before_context,
+            authority_scope="contract_testing",
         )
 
         run = await controller.run(
@@ -1242,6 +1299,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             max_cycles=1,
         )
 
+        assert run.synthetic is True
         assert len(n5.requests) == 2
         before_request, after_request = n5.requests
         assert before_request.world_model_record == case.before_context.world_model_record

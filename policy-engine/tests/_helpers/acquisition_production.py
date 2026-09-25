@@ -8,6 +8,7 @@ are their production implementations; no service or port object is fabricated.
 import socket
 from collections.abc import Mapping
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import ClassVar
 from urllib.parse import urlsplit
 
@@ -87,6 +88,7 @@ async def persist_wdi_route(
     tenant_id: str = "tenant-a",
     cell_id: str = "cell-a",
     run_id: str = "run-acquisition",
+    generation_cycle_repo_root: Path | None = None,
 ):
     """Install a real compiled fixture case into the supplied app's canonical owners."""
     problem = fixtures._problem("served_wdi_acquisition")
@@ -109,7 +111,9 @@ async def persist_wdi_route(
         cycle_controller_factory=lambda *_: GenerationCycleController(
             generation_port=fixtures._CgfGenerationPort(target_world_slots=("government.balance",)),
             value_port=_WDIGap(),
-        )
+            repo_root=generation_cycle_repo_root,
+        ),
+        repo_root=generation_cycle_repo_root,
     )
     run = await controller.run(
         graph,

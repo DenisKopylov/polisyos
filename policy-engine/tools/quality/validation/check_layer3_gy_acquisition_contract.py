@@ -158,8 +158,148 @@ def _contract_design_problem() -> DesignProblem:
     )
 
 
+def _is_read_only_registry_entry_recomputation(
+    call: ast.Call,
+    *,
+    parents: dict[int, ast.AST],
+) -> bool:
+    """Return whether a built entry flows only into persisted-entry comparisons.
+
+    This is a narrow semantic role check: the builder result must be assigned to
+    one local name, every read of that name must participate in a comparison,
+    and the only operations on its comparison path are entry-key lookup and
+    read-only mapping ``get``. A same-named verifier that writes the value is
+    therefore classified as a production constructor caller.
+    """
+
+    assignment = parents.get(id(call))
+    if isinstance(assignment, ast.Assign):
+        if assignment.value is not call or len(assignment.targets) != 1:
+            return False
+        target = assignment.targets[0]
+    elif isinstance(assignment, ast.AnnAssign):
+        if assignment.value is not call:
+            return False
+        target = assignment.target
+    else:
+        return False
+    if not isinstance(target, ast.Name):
+        return False
+    local_name = target.id
+
+    scope: ast.FunctionDef | ast.AsyncFunctionDef | None = None
+    ancestor = parents.get(id(assignment))
+    while ancestor is not None:
+        if isinstance(ancestor, ast.FunctionDef | ast.AsyncFunctionDef):
+            scope = ancestor
+            break
+        ancestor = parents.get(id(ancestor))
+    if scope is None:
+        return False
+
+    has_comparison_use = False
+    for node in ast.walk(scope):
+        if not isinstance(node, ast.Name) or node.id != local_name:
+            continue
+        if isinstance(node.ctx, ast.Store):
+            if node is target:
+                continue
+            return False
+        if not isinstance(node.ctx, ast.Load):
+            continue
+
+        comparison: ast.Compare | None = None
+        current: ast.AST = node
+        while current is not scope:
+            parent = parents.get(id(current))
+            if parent is None:
+                return False
+            if isinstance(parent, ast.Compare):
+                comparison = parent
+                break
+            current = parent
+        if comparison is None:
+            return False
+
+        current = node
+        while current is not comparison:
+            parent = parents.get(id(current))
+            if parent is None:
+                return False
+            if isinstance(parent, ast.Attribute) and parent.value is current:
+                if parent.attr != "registry_key":
+                    return False
+            elif isinstance(parent, ast.Set) and current in parent.elts:
+                pass
+            elif isinstance(parent, ast.Call) and _ast_call_symbol(parent) == "get":
+                if current not in (*parent.args, *(keyword.value for keyword in parent.keywords)):
+                    return False
+            elif isinstance(parent, ast.Compare):
+                pass
+            else:
+                return False
+            current = parent
+        has_comparison_use = True
+
+    return has_comparison_use
+
+
+def _generation_cycle_substrate_call_census(
+    source: str,
+    *,
+    source_label: str,
+) -> dict[str, list[str]]:
+    """Classify substrate constructors by their data-flow role."""
+
+    tree = ast.parse(source, filename=source_label)
+    prohibited_builders = {
+        "SubstrateRegistration",
+        "build_substrate_registry",
+        "build_substrate_registry_entry",
+    }
+    parents = {
+        id(child): node
+        for node in ast.walk(tree)
+        for child in ast.iter_child_nodes(node)
+    }
+
+    production_callers: list[str] = []
+    owner_entry_recomputations: list[str] = []
+    bootstrap_literals: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            symbol = _ast_call_symbol(node)
+            if symbol not in prohibited_builders:
+                continue
+            site = f"{source_label}:{node.lineno}:{symbol}"
+            if (
+                symbol == "build_substrate_registry_entry"
+                and _is_read_only_registry_entry_recomputation(
+                    node,
+                    parents=parents,
+                )
+            ):
+                owner_entry_recomputations.append(site)
+            else:
+                production_callers.append(site)
+        if (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and "n6.bootstrap" in node.value
+        ):
+            bootstrap_literals.append(
+                f"{source_label}:{node.lineno}:{node.value}"
+            )
+
+    return {
+        "production_callers": sorted(production_callers),
+        "owner_entry_recomputations": sorted(owner_entry_recomputations),
+        "bootstrap_literals": sorted(bootstrap_literals),
+    }
+
+
 def generation_cycle_substrate_fence(repo_root: Path) -> dict[str, Any]:
-    """Derive the N6 bootstrap caller census and canonical-owner refusal witness."""
+    """Derive N6 bootstrap census and the canonical-owner refusal witness."""
 
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleError,
@@ -167,28 +307,11 @@ def generation_cycle_substrate_fence(repo_root: Path) -> dict[str, Any]:
     )
 
     source_path = repo_root / "src/polisyos/runtime/quality/generation_cycle.py"
-    source = source_path.read_text(encoding="utf-8")
-    tree = ast.parse(source, filename=source_path.as_posix())
-    prohibited_builders = {
-        "SubstrateRegistration",
-        "build_substrate_registry",
-        "build_substrate_registry_entry",
-    }
-    production_callers: list[str] = []
-    bootstrap_literals: list[str] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Call):
-            symbol = _ast_call_symbol(node)
-            if symbol in prohibited_builders:
-                production_callers.append(f"{source_path.relative_to(repo_root)}:{node.lineno}:{symbol}")
-        if (
-            isinstance(node, ast.Constant)
-            and isinstance(node.value, str)
-            and "n6.bootstrap" in node.value
-        ):
-            bootstrap_literals.append(
-                f"{source_path.relative_to(repo_root)}:{node.lineno}:{node.value}"
-            )
+    source_label = source_path.relative_to(repo_root).as_posix()
+    census = _generation_cycle_substrate_call_census(
+        source_path.read_text(encoding="utf-8"),
+        source_label=source_label,
+    )
 
     problem = _contract_design_problem()
     owner_absence_reason: str | None = None
@@ -206,20 +329,20 @@ def generation_cycle_substrate_fence(repo_root: Path) -> dict[str, Any]:
             fabricated_registry = True
     status = (
         "strangled"
-        if not production_callers
-        and not bootstrap_literals
+        if not census["production_callers"]
+        and not census["bootstrap_literals"]
         and owner_absence_reason == "n7_substrate_registry_unresolved"
         and not fabricated_registry
         else "drift"
     )
     return {
         "status": status,
-        "production_bootstrap_callers": sorted(production_callers),
-        "bootstrap_authority_literals": sorted(bootstrap_literals),
+        "production_bootstrap_callers": census["production_callers"],
+        "owner_entry_recomputations": census["owner_entry_recomputations"],
+        "bootstrap_authority_literals": census["bootstrap_literals"],
         "owner_absence_reason": owner_absence_reason,
         "fabricated_registry": fabricated_registry,
     }
-
 
 def _ast_call_symbol(node: ast.Call) -> str:
     if isinstance(node.func, ast.Name):

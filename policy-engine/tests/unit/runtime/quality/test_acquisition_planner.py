@@ -489,6 +489,54 @@ def test_l1_variable_availability_rejects_incoherent_unavailable_counts() -> Non
         )
 
 
+def test_generation_cycle_bootstrap_census_classifies_read_only_entry_comparison() -> None:
+    """Only a recomputed entry used as comparison evidence is a read-only check."""
+
+    source = """
+def _validate_n7_acq01_registry_binding(registration, persisted_entries):
+    expected_entry = build_substrate_registry_entry(registration)
+    return len(persisted_entries) == 1 and persisted_entries[0] == expected_entry
+
+def _local_bootstrap(registration):
+    return build_substrate_registry_entry(registration)
+"""
+    witness = contract._generation_cycle_substrate_call_census(
+        source,
+        source_label="fixture.py",
+    )
+
+    assert witness["owner_entry_recomputations"] == [
+        "fixture.py:3:build_substrate_registry_entry"
+    ]
+    assert witness["production_callers"] == [
+        "fixture.py:7:build_substrate_registry_entry"
+    ]
+
+
+def test_generation_cycle_bootstrap_census_detects_writer_inside_verifier() -> None:
+    """Retained verifier markers cannot hide a write of the recomputed entry."""
+
+    source = """
+def _validate_n7_acq01_registry_binding(registration, persisted_entries, store):
+    expected_entry = build_substrate_registry_entry(registration)
+    matches = len(persisted_entries) == 1 and persisted_entries[0] == expected_entry
+    return matches
+"""
+    writer_mutant = source.replace(
+        "    return matches\n",
+        "    store.put(expected_entry)\n    return matches\n",
+    )
+    witness = contract._generation_cycle_substrate_call_census(
+        writer_mutant,
+        source_label="fixture.py",
+    )
+
+    assert witness["owner_entry_recomputations"] == []
+    assert witness["production_callers"] == [
+        "fixture.py:3:build_substrate_registry_entry"
+    ]
+
+
 def test_generation_cycle_bootstrap_authority_is_strangled() -> None:
     """The N7 checker derives both caller census and fail-closed owner refusal."""
 
@@ -496,6 +544,7 @@ def test_generation_cycle_bootstrap_authority_is_strangled() -> None:
 
     assert witness["status"] == "strangled"
     assert witness["production_bootstrap_callers"] == []
+    assert witness["owner_entry_recomputations"]
     assert witness["bootstrap_authority_literals"] == []
     assert witness["owner_absence_reason"] == "n7_substrate_registry_unresolved"
     assert witness["fabricated_registry"] is False

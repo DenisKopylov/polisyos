@@ -1,5 +1,7 @@
 """Actual WDI/default executor and native owner chain through same-case re-entry."""
 
+from pathlib import Path
+
 import pytest
 
 from polisyos.core import artifacts, canon
@@ -8,13 +10,63 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
 )
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
-from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+from polisyos.runtime.quality.generation_cycle import (
+    AcquisitionOverlayReentryReceipt,
+    validate_generation_cycle_run,
+)
 from tests._helpers.acquisition_chain import make_wdi_port_case
 from tests._helpers.acquisition_production import (
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
 )
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
+
+
+@pytest.mark.asyncio
+async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
+    tmp_path, monkeypatch
+):
+    """A current source-bound route reaches native admission and direct bridge re-entry."""
+
+    install_fixture_wdi_cost_basis(monkeypatch)
+    control = _build_control_service(tmp_path / "control")
+    source_root = Path(__file__).resolve().parents[3]
+    closure, _ = await persist_wdi_route(
+        control,
+        generation_cycle_repo_root=source_root,
+    )
+    assert validate_generation_cycle_run(closure.generation_run, repo_root=source_root) == ()
+    case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
+
+    quarantined = case.port.execute(closure)
+    assert quarantined.disposition == "quarantined_no_growth"
+    assert quarantined.admitted_observation_delta == 0
+    case.appoint_native_policy()
+    case.port.prepare_route_execution(closure)
+    committed = case.port.execute(closure)
+    assert committed.disposition == "world_committed"
+    assert committed.admitted_observation_delta == 1
+    assert case.bridge.artifact_store is control._artifact_store
+
+    reentry_ref = case.bridge.resume(closure, committed.owner_receipt_refs)
+    reentry = AcquisitionOverlayReentryReceipt.model_validate(
+        canon.from_canonical_bytes(control._artifact_store.get_bytes(reentry_ref))
+    )
+    growth = case.bridge.project_growth(closure)
+    assert growth is not None
+    assert reentry.source_run_id == closure.generation_run.run_id
+    assert reentry.design_problem_ref == closure.design_problem_ref
+    assert reentry.source_cycle_index == closure.source_cycle.cycle_index
+    assert reentry.new_cycle.cycle_index == closure.source_cycle.cycle_index + 1
+    assert reentry.passport_id == growth.passport_id
+    assert reentry.epoch_id == growth.selection.epoch_id
+    assert reentry.overlay_receipt_ref == committed.overlay_admission_receipt_ref
+    assert reentry.admitted_observation_count == (
+        growth.previously_active_observations + growth.admitted_observation_delta
+    )
+    assert reentry.admitted_observation_count > 0
+    assert reentry.semantic_epoch_ref == str(growth.activation.semantic_epoch_stamp.epoch_ref)
+    assert reentry.semantic_epoch_production_receipt_content_hash
 
 
 @pytest.mark.asyncio

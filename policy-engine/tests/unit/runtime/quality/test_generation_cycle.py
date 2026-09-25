@@ -88,6 +88,7 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskVectorArtifactRepository,
@@ -271,7 +272,7 @@ class _Atom:
 @dataclass(frozen=True)
 class _Candidate:
     candidate_id: str
-    atom: _Atom
+    atom: _Atom | InterventionAtomBinding
     diversity_key: tuple[str, str, str, str]
     status: str = "candidate_unverified"
 
@@ -330,8 +331,9 @@ class _GroundingDisposition:
 
 
 class _CounterexampleAwareGenerator:
-    def __init__(self) -> None:
+    def __init__(self, *, first_atom: InterventionAtomBinding | None = None) -> None:
         self.problems: list[DesignProblem] = []
+        self._first_atom = first_atom
 
     async def __call__(
         self,
@@ -345,7 +347,11 @@ class _CounterexampleAwareGenerator:
             candidates = (
                 _Candidate(
                     candidate_id="candidate_cycle_1",
-                    atom=_Atom("candidate_cycle_1", "sha256:" + "1" * 64),
+                    atom=(
+                        self._first_atom
+                        if self._first_atom is not None
+                        else _Atom("candidate_cycle_1", "sha256:" + "1" * 64)
+                    ),
                     diversity_key=("grant", "firms", "proxy_only", "baseline"),
                 ),
             )
@@ -2132,7 +2138,6 @@ def _canonical_strict_world_case() -> tuple[
 
     from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
     from polisyos.runtime.quality.intervention_atom_binding import (
-        InterventionAtomBinding,
         intervention_atom_content_hash,
     )
     from polisyos.runtime.quality.intervention_substrate import (
@@ -3097,11 +3102,93 @@ def _n7_data_requirement_spec() -> DataRequirementSpec:
     )
 
 
+def _canonical_n7_test_atom(
+    problem: DesignProblem,
+    *,
+    candidate_id: str,
+    target_world_slot: str,
+) -> InterventionAtomBinding:
+    """Build a content-valid canonical atom for the isolated N7 consumer test."""
+
+    from polisyos.ir.analytics.interventions import (
+        ProofKernelInterventionType,
+        QueryTargetKind,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        CausalDoExpression,
+        DirectEffectBundle,
+        IdentificationPlanRef,
+        IntendedDownstreamEstimand,
+        InterventionAtomBinding,
+        OperatorKind,
+        TargetSelectorBinding,
+        _content_payload_from_fields,
+    )
+
+    proof_type = ProofKernelInterventionType.NODE
+    selector_ref = gy_content_hash({"target_world_slot": target_world_slot})
+    fields = {
+        "schema_version": "policyos.runtime.intervention_atom_binding.v1",
+        "problem_frame_ref": gy_content_hash(problem.model_dump(mode="json")),
+        "policy_spec_ref": gy_content_hash({"policy_spec": candidate_id}),
+        "intervention_id": candidate_id,
+        "operator_kind": OperatorKind(
+            trinity_kind="probe",
+            proof_kernel_type=proof_type,
+        ),
+        "target_selector": TargetSelectorBinding(
+            trinity_target={"scope": "all"},
+            selector_content_ref=selector_ref,
+        ),
+        "target_world_slots": (target_world_slot,),
+        "read_slots": (),
+        "direct_effect_bundle": DirectEffectBundle(
+            params={"candidate": candidate_id},
+            schedule={"kind": "immediate"},
+            mechanism_id="tests.n7.candidate",
+        ),
+        "causal_do_expr": CausalDoExpression(
+            intervention_type=proof_type,
+            expression_payload={"intervention_type": "node", "assignments": []},
+            write_variables=(target_world_slot,),
+            selection_context_ref=selector_ref,
+        ),
+        "intended_downstream_estimand": IntendedDownstreamEstimand(
+            target_kind=QueryTargetKind.EXPECTATION,
+            outcome_variables=(target_world_slot,),
+        ),
+        "causal_path_or_identification_plan_ref": IdentificationPlanRef(
+            plan_ref=gy_content_hash({"identification_plan": candidate_id}),
+            intervention_type=proof_type,
+            backend="test_fixture",
+            status="identified",
+            theorem_family="test_fixture",
+        ),
+        "world_model_record_ref": "world_model_record_test",
+        "measurement_expectations": {},
+        "measurement_expectations_authority": "supporting_metadata",
+        "normalized_from": None,
+        "producer_ref": "tests.unit.runtime.quality.test_generation_cycle",
+        "provenance_refs": ("fixture:n7-candidate",),
+        "status": "candidate_unverified",
+    }
+    content_hash = gy_content_hash(_content_payload_from_fields(fields))
+    return InterventionAtomBinding.model_validate(
+        {
+            **fields,
+            "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": content_hash,
+        }
+    )
+
+
 def _n7_owner_payload(
     *,
     acquired_family: str,
     source_id: str,
     candidate_id: str,
+    candidate_content_hash: str,
+    target_world_slots: tuple[str, ...],
 ) -> dict[str, object]:
     owner_response: dict[str, object] = {
         "owner_response_kind": "recorded_unit_owner_response",
@@ -3123,8 +3210,8 @@ def _n7_owner_payload(
         "candidate_bindings": [
             {
                 "candidate_id": candidate_id,
-                "candidate_content_hash": "sha256:" + "7" * 64,
-                "target_world_slots": [acquired_family],
+                "candidate_content_hash": candidate_content_hash,
+                "target_world_slots": list(target_world_slots),
             }
         ],
     }
@@ -3597,23 +3684,56 @@ async def test_revision_changes_when_prior_terminal_changes() -> None:
 
 
 @pytest.mark.asyncio
-async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
+@pytest.mark.parametrize("route_marker", [None, "route-marker", ["not", "a", "route"]])
+async def test_production_n7_receiver_preserves_nonroute_owner_artifacts(route_marker) -> None:
+    """A real owner artifact with a non-Mapping marker stays on the N7 path."""
+
     data_spec = _n7_data_requirement_spec()
+    problem = _problem().model_copy(
+        update={
+            "runtime_hints": {
+                "n7_data_requirement_specs": (data_spec,),
+                "n7_world_snapshot": AcquisitionWorldSnapshot(
+                    world_ref="world://before/n6-n7-nonroute",
+                    known_slots=("owner_panel_missing",),
+                    dependency_index={"owner_panel_missing": ("candidate_cycle_1",)},
+                    design_revalidation_stages={
+                        "candidate_cycle_1": (
+                            "identification",
+                            "calibration",
+                            "value_set",
+                            "grounding",
+                        )
+                    },
+                    substrate_registry=_n7_substrate_registry().model_dump(mode="json"),
+                ),
+                "n7_useful_design_rate_before": 0.0,
+            }
+        }
+    )
+    atom = _canonical_n7_test_atom(
+        problem,
+        candidate_id="candidate_cycle_1",
+        target_world_slot="owner_panel_missing",
+    )
     payload = _n7_owner_payload(
         acquired_family="owner_panel_missing",
         source_id="fabric.owner_panel_missing",
         candidate_id="candidate_cycle_1",
+        candidate_content_hash=atom.content_hash,
+        target_world_slots=atom.target_world_slots,
     )
+    payload["acq01_route"] = route_marker
     artifact = AcquisitionOwnerArtifact.from_payload(
         owner_component="fabric.ingestion",
         requirement_ref=data_spec.requirement_id,
-        artifact_ref="fabric://recorded/owner-panel-missing",
+        artifact_ref="fabric://recorded/owner-panel-missing/nonroute",
         payload=payload,
         cost_usd=2.0,
         quality={"capture": "real_owner_recording"},
         rights={"license": "recorded-open"},
         binding_refs=("candidate_cycle_1",),
-        journal_ref="journal://n7/owner-panel-missing/001",
+        journal_ref="journal://n7/owner-panel-missing/nonroute",
         capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
             owner_component="fabric.ingestion",
             owner_endpoint="fabric.ingestion.acquire",
@@ -3623,6 +3743,31 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
             capture_mode="local_substrate_owner",
         ),
     )
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+        repo_root=Path(__file__).resolve().parents[4],
+        authority_scope="production",
+    )
+
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert cycle.acquisition_receipt is not None
+    receipt = cycle.acquisition_receipt
+    assert receipt["owner_artifacts"][0]["payload"]["acq01_route"] == route_marker
+    assert cycle.counterexample.diagnostic.code != (
+        "n6.acquisition.n7_acq01_route_not_admitted"
+    )
+
+
+@pytest.mark.asyncio
+async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
+    data_spec = _n7_data_requirement_spec()
     problem = _problem().model_copy(
         update={
             "runtime_hints": {
@@ -3645,13 +3790,45 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
             }
         }
     )
+    atom = _canonical_n7_test_atom(
+        problem,
+        candidate_id="candidate_cycle_1",
+        target_world_slot="owner_panel_missing",
+    )
+    payload = _n7_owner_payload(
+        acquired_family="owner_panel_missing",
+        source_id="fabric.owner_panel_missing",
+        candidate_id="candidate_cycle_1",
+        candidate_content_hash=atom.content_hash,
+        target_world_slots=atom.target_world_slots,
+    )
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/owner-panel-missing",
+        payload=payload,
+        cost_usd=2.0,
+        quality={"capture": "real_owner_recording"},
+        rights={"license": "recorded-open"},
+        binding_refs=("candidate_cycle_1",),
+        journal_ref="journal://n7/owner-panel-missing/001",
+        capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
+            owner_component="fabric.ingestion",
+            owner_endpoint="fabric.ingestion.acquire",
+            owner_request={"requirement_ref": data_spec.requirement_id},
+            owner_response=payload,
+            captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+            capture_mode="local_substrate_owner",
+        ),
+    )
     controller = GenerationCycleController(
-        generation_port=_CounterexampleAwareGenerator(),
+        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
         value_port=PendingN8ValuePort(),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
@@ -3682,10 +3859,18 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
         }
     )
     data_spec = compiled.specs[0]
+    problem = _problem()
+    atom = _canonical_n7_test_atom(
+        problem,
+        candidate_id="candidate_cycle_1",
+        target_world_slot="owner_panel_missing",
+    )
     payload = _n7_owner_payload(
         acquired_family="owner_panel_missing",
         source_id="fabric.owner_panel_missing",
         candidate_id="candidate_cycle_1",
+        candidate_content_hash=atom.content_hash,
+        target_world_slots=atom.target_world_slots,
     )
     artifact = AcquisitionOwnerArtifact.from_payload(
         owner_component="fabric.ingestion",
@@ -3706,15 +3891,15 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
             capture_mode="local_substrate_owner",
         ),
     )
-    problem = _problem()
     assert not any(key.startswith("n7_") for key in problem.runtime_hints)
     controller = GenerationCycleController(
-        generation_port=_CounterexampleAwareGenerator(),
+        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
         value_port=PendingN8ValuePort(),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)

@@ -11,6 +11,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
+    InputRef,
     ProducerInfo,
     SchemaInfo,
 )
@@ -64,8 +65,8 @@ def _assert_manifest_profile(
     assert manifest.warnings == []
 
 
-def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path) -> None:
-    """A content hit cannot silently discard a second schema or producer profile."""
+def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
+    """The same bytes may have multiple exact metadata views without rewriting history."""
     store = FileSystemCAS(tmp_path / "cas")
     first_options = _options(
         "cas.first_writer",
@@ -73,22 +74,47 @@ def test_reuse_does_not_return_profile_absent_from_first_manifest(tmp_path: Path
         producer_version="first",
         schema_name="cas.first.v1",
     )
+    first_options = first_options.__class__(
+        **{**first_options.__dict__, "inputs": [
+            InputRef(artifact_id=ArtifactID.from_sha256_hex("a" * 64), role="first_basis")
+        ]}
+    )
     second_options = _options(
-        "cas.first_writer",
-        "application/json",
+        "cas.second_writer",
+        "text/plain",
         producer_version="second",
         schema_name="cas.second.v1",
+    )
+    second_options = second_options.__class__(
+        **{**second_options.__dict__, "inputs": [
+            InputRef(artifact_id=ArtifactID.from_sha256_hex("b" * 64), role="second_basis")
+        ]}
     )
 
     first_ref = store.put_bytes(PAYLOAD, first_options)
     first_manifest = store.get_manifest(first_ref.artifact_id)
+    second_ref = store.put_bytes(PAYLOAD, second_options)
+    second_manifest = store.get_manifest(second_ref)
 
-    with pytest.raises(ValueError):
-        store.put_bytes(PAYLOAD, second_options)
-
+    assert first_ref.artifact_id == second_ref.artifact_id
+    assert first_ref.kind == first_options.kind
+    assert first_ref.media_type == first_options.media_type
+    assert second_ref.kind == second_options.kind
+    assert second_ref.media_type == second_options.media_type
+    assert first_ref.manifest_profile_sha256 is None
+    assert second_ref.manifest_profile_sha256 is not None
+    assert second_ref.manifest_profile_sha256.startswith("sha256:")
+    assert first_manifest != second_manifest
     _assert_manifest_profile(first_manifest, first_options, data=PAYLOAD)
-    # Content identity does not authorize rewriting the complete first manifest.
+    _assert_manifest_profile(second_manifest, second_options, data=PAYLOAD)
+    # ID-only callers retain the historical first-writer view and byte identity.
     assert store.get_manifest(first_ref.artifact_id) == first_manifest
+    assert store.get_bytes(first_ref) == PAYLOAD
+    assert store.get_bytes(second_ref) == PAYLOAD
+
+    repeated_ref = store.put_bytes(PAYLOAD, second_options)
+    assert repeated_ref == second_ref
+    assert store.get_manifest(repeated_ref) == second_manifest
 
 
 def test_reuse_with_same_profile_preserves_first_manifest_and_ref(tmp_path: Path) -> None:
@@ -199,13 +225,15 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
     assert not second_thread.is_alive()
     assert set(outcomes) == {"cas-first", "cas-second"}
     assert isinstance(outcomes["cas-first"], ArtifactRef)
-    assert isinstance(outcomes["cas-second"], ValueError)
+    assert isinstance(outcomes["cas-second"], ArtifactRef)
 
     first_ref = outcomes["cas-first"]
+    second_ref = outcomes["cas-second"]
     assert isinstance(first_ref, ArtifactRef)
-    artifact_id = first_ref.artifact_id
-    manifest = store.get_manifest(artifact_id)
-    _assert_manifest_profile(manifest, first_options, data=PAYLOAD)
+    assert isinstance(second_ref, ArtifactRef)
+    assert first_ref.artifact_id == second_ref.artifact_id
+    _assert_manifest_profile(store.get_manifest(first_ref), first_options, data=PAYLOAD)
+    _assert_manifest_profile(store.get_manifest(second_ref), second_options, data=PAYLOAD)
 
 
 def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path) -> None:

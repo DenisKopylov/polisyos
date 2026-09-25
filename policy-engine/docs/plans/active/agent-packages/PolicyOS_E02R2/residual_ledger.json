@@ -29,13 +29,13 @@
     "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
     "The 18 Appendix-C no-record items are reconciled individually: LA-021 is partial after bounded corpus replays were supplemented but the exact 418 selector and caller-file replays remain UNRUN; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial B items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
     "The reviewed P triage remains 118/118 for the original P rows: 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 moves from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. Triage is not closure evidence, and no behavior replay was run for this correction.",
-    "The 2026-09-24 held review is a historical source/blocker snapshot, not a behavioral closeout. The interim H14 source map /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844 classified 4 owner decisions, 6 data records, 4 owner-path capability gaps, and 0 external-institution blockers; final independent closure review /Users/deniskopylov/.codex/scratch/e02-r2-h14-independent-closure-review-20260925.md@sha256:0459e569eb580ce6185ad3af182627ceb976b4dc6cbe3e6fd1c21851451eba3d supersedes that partition with 4 owner decisions, 8 data records, 2 smallest missing capabilities, and 0 external-institution blockers. B194 and B197 remain held on their named missing capabilities; B219 remains source-level open with downstream ID-engine impact not established. LA-010 is partial after root-CLI delegation with compatibility tests UNRUN; LA-032 remains held on a data-record blocker: receipt-bound inventory/path/digest/version plus independent sibling-reader replay; the E02 J0681 mixed-layout selector is only a bounded accepted sub-result. No H14 behavioral or P41 result is claimed; current ledger status is 0/265/12/5 (282 total).",
+    "Historical H14 partitions are superseded by the complete per-finding audit: 4 owner_decision, 7 data_record and 3 smallest_missing_capability blockers; current statuses are 12 held, LA-010 partial and B219 open. All H14 behavior and P41 witnesses remain UNRUN.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
     "R13 static root-store census: 2,693/2,693 src Python files parsed with zero parse errors; 26 direct FileSystemCAS constructors plus 33 root-config build_artifact_store calls = 59 static calls. Five E02 direct constructors are a subset, not a complete denominator; path-forwarded wrappers and dynamic runtime calls remain unresolved. Receipt is policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/policyos-r13-root-store-census.json@sha256:38c3ddd50feceb7fef253bac54569315007a5cc9289d536721c9dd2ff3beb7bf.",
     "R14 same-source review identifies four stale-reference cases (one W5 historical repo reference and three WS-2D release-ledger raw-client references). W5 manifest bytes are immutable, but no owner-issued admitted Git snapshot binds them to the introducing commit/tree; the repo-ref predicate is UNRUN/not_established because the manifest date precedes the commit. Closure needs an append-only team-runtime-quality sidecar binding manifest SHA to exact commit and tree; never restamp W5. The three WS-2D live ledger refs are repairable by their release-ledger owner. P41 attribution and B/LA binding remain pending.",
-    "B111 N18 owner trace is source-only: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. No runtime witness has run; status is partial with registry-boundary negative and finite positive control pending."
+    "B111 remains open at source review: ordinary canonical JSON/CAS rejects non-finite values, but first-champion genesis may bypass comparison on raw/legacy refs. Registry-boundary NaN/infinity negative, finite positive control and four-base replay remain UNRUN."
   ],
   "citation_catalog": {
     "B_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
@@ -93,14 +93,35 @@
       "scope": "all 132 Appendix-C closed_bounded candidates were checked against final records r2-r84; per-row result distinguishes accepted ID-bound receipts from specific unclosed exceptions"
     },
     "reviewed_no_record_audit": {
-      "identity": "accepted independent no-record and held review at 3377754d62be3aecf43f5fb2432ed51748765e18 on codex/e02-r2-held-review",
-      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710",
+      "identity": "Independent N-card audit v2 retained in scratch",
+      "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e",
       "held_review_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8",
-      "scope": "No-record and held source/owner review only. All finding-level behavioral tests and four-base replays remain UNRUN except LA-021 bounded corpus instrument; artifacts are cited from the reviewed branch and are not yet present in this worktree."
+      "scope": "Read-only card/source review for B09, B27, B28, B108, B109, B111, B19, B21, B23, B25 and B26; finding behavior and P41 replay remain UNRUN."
     },
     "h14_owner_capability_map": {
       "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844",
       "scope": "H14 source/owner-path blocker map for the 14 Appendix C held findings; source-only dispositions, not behavioral closure or P41 evidence."
+    },
+    "independent_h_card_audit": {
+      "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c",
+      "scope": "Read-only card/source audit for B31, B61, B194, B197, B201, B202 and B219."
+    },
+    "independent_h_la_cards": {
+      "LA-005": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-005.md@sha256:2dcd20ca25e445b23094649eb205d76408dbd9eab619460d4f3c23aa0e4f144b",
+      "LA-010": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-010.md@sha256:fb64cbee5e22dcb78391b95ad107f8df52efa26b3cff55397507b3401d518634",
+      "LA-026": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-026.md@sha256:0c5a61cb56f6dbdd2b1c0968e3cb730f965420ad8a222b986886835caa4c3fb1",
+      "LA-027": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-027.md@sha256:1c11d48116a6bba1afd0e857b0269d7887bb82d9ac5fe39d1df002822f95e435",
+      "LA-031": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-031.md@sha256:84ec43d574854b8d839d937264224b09478492516015508285038a59a6311995",
+      "LA-032": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-032.md@sha256:8d79d95381beb9bf30f4cc51e6b2ee6869a7efaa9000e8b7e96ee01fba4f97fc",
+      "LA-049": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-049.md@sha256:cd49a94d1495ae3b981c02587a9ab04065d62e756a42ca472df4a90b6ba4bab9"
+    },
+    "independent_n_record_cards": {
+      "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda",
+      "scope": "Read-only card/source audit for B57-B59, B72-B73, B88 and LA-021."
+    },
+    "la021_lossless_raw_storage": {
+      "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-independent-recheck-20260925/LA021_STORAGE_RECEIPT.json@sha256:a880cbb39e07cb7ed8923f6725e24e8fd4787d4dfd2df7a698d30869815dbfe1",
+      "scope": "Maps four raw outcomes to two verified zstd archives; not a closure claim."
     }
   },
   "reported_test_catalog": {
@@ -661,7 +682,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_controller_runs_counterexample_driven_revision_over_two_real_cycles; test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress; test_acquisition_required_invokes_n7_and_records_same_cycle_reentry",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B09",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B09",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:4f851cb207267a13877647ef82a2b73f3a24360a"
           ],
@@ -671,7 +692,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B09",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B09",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B09 requires the same candidate to be reconsidered when its admitted evidence basis changes, while a renamed candidate on unchanged inputs is stopped as no progress; occurrence identity and source/revised problem binding must remain explicit. The inspected `enforce_no_retry_without_new_grammar` path uses grammar growth as the progress signal. Existing selectors cover grammar progress, renamed no-progress, and same-cycle fixture re-entry but not a changed, served Data Forge-admitted basis. Next step: exercise changed admitted data through overlay, passport and epoch admission; retain the renamed unchanged-input refusal. P38: the grammar-only predicate can refuse genuinely new evidence while its marker remains intact. Provisional source-review classification is open; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1200,7 +1232,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_ncm_evidence_none_and_explicit_empty_are_distinct; test_joint_simulation_requires_explicit_selected_outcome_baseline; test_explicit_comparator_makes_equal_scenarios_zero_effect",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B19",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B19",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:3462c32268dd9cc35427680d97e5e6e037043d56"
           ],
@@ -1210,7 +1242,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B19",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B19",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B19 requires a no-op to stay at zero when the comparator is absent; missing comparator must not be substituted with zero, and the selected baseline must bind consistently to factual evidence and joint interaction. Existing local tests represent the baseline/comparator arithmetic, but the full horizon caller chain is not established. Next step: run those selectors and use a served joint-simulation request with the same declared model, horizon, comparator and factual evidence. P38: a correct local selected-baseline fixture does not prove each production runner binds comparator and factual evidence separately. Partial; all selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1296,7 +1339,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_single_paired_draw_has_unestimated_standard_error; test_paired_replicates_require_distinct_seeds; test_joint_request_runs_each_requested_replication_with_distinct_seeds",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B21",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B21",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:3462c32268dd9cc35427680d97e5e6e037043d56"
           ],
@@ -1306,7 +1349,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B21",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B21",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B21 requires the requested replicate count to determine actual work or produce an explicit limitation; count, distinct seeds and numerical uncertainty must agree, and one stochastic draw cannot be reported as an exact estimate. Next step: run the selectors and trace request → selected method → returned count/seed set on a served caller, preserving the one-draw limitation. P38: request-level replication checks do not prove every downstream sampler honors the requested count. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1392,7 +1446,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_physical_run_ref_binds_effective_evidence_and_source_mode; test_joint_simulation_reuses_physical_spec_across_roles",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B23",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B23",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:3462c32268dd9cc35427680d97e5e6e037043d56"
           ],
@@ -1402,7 +1456,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B23",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B23",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B23 requires one deterministic physical run to be reused across one or two atom roles without a second computation, while each role retains its own reference. A changed seed or parameter must not produce a false cache hit. Next step: run the selectors and add a distinct-seed negative control through both actual role consumers. P38: a common helper run ref does not prove role projections retain distinct references. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1493,7 +1558,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_summary_distance_requires_one_declared_metric_set; test_smm_missing_required_moment_cannot_win_calibration; test_smm_all_incomparable_candidates_are_explicitly_blocked",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B25",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B25",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:3462c32268dd9cc35427680d97e5e6e037043d56"
           ],
@@ -1503,7 +1568,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B25",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B25",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B25 requires removal of a required metric to never improve candidate fitness on the same task; differing data/metric sets must be declared incomparable or compared only under an explicit rule. Next step: run the selectors and bind the required metric set at both the real SMM producer and selection consumer. P38: a helper can enforce its declared set correctly while a production profile supplies a different or incomplete set. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1535,7 +1611,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_three_atom_controller_reports_real_higher_order_residual_and_order; test_joint_residual_keeps_higher_order_interaction_visible; test_checked_interaction_orders_include_pairwise_two_atom_run",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B26",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B26",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:3462c32268dd9cc35427680d97e5e6e037043d56"
           ],
@@ -1545,7 +1621,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B26",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B26",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B26 requires a three-atom multiplicative example to expose a nonzero higher-order residual instead of claiming global additivity, while genuinely additive independent effects retain the expected result in the tested domain. Next step: run the selectors and verify the board/consumer exposes interaction order and residual. P38: pairwise-zero classification does not test a three-way residual, and a downstream surface could still render it as global additivity. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1577,7 +1664,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_same_candidate_new_basis_preserves_history_and_current_front; test_changed_population_and_model_rebind_owner_basis_and_occurrence; test_controller_promotion_uses_current_occurrence_and_revised_basis",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B27",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B27",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:4f851cb207267a13877647ef82a2b73f3a24360a"
           ],
@@ -1587,7 +1674,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B27",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B27",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B27 requires an allowed second iteration to receive a context consistent with the revised DesignProblem, while a changed subject, population or model cannot reuse prior evidence bindings and both requests remain in common saved history. `_problem_ref` hashes the full problem model including runtime hints, while the controller carries prior cycle context into revision. Next step: exercise a permitted runtime-metadata revision with owner-issued revised basis/context; negative controls reject reuse after population/model/subject changes. P38: hashing a non-substantive runtime-hint change as a new subject can coexist with retaining stale context for the revised subject. Provisional source-review status is open; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1619,7 +1717,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_same_candidate_new_basis_preserves_history_and_current_front; test_controller_promotion_uses_current_occurrence_and_revised_basis",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B28",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B28",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:4f851cb207267a13877647ef82a2b73f3a24360a"
           ],
@@ -1629,7 +1727,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B28",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B28",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B28 requires one candidate across two data versions to retain history without duplicating the current front, and the second attempt result must not be assigned to the first; downstream must receive the correct occurrence. Next step: run the existing selectors and add an owner-bound two-occurrence witness. P38: a front indexed by candidate IDs cannot distinguish which occurrence backs downstream promotion. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -1767,7 +1876,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 source review identifies the owner decision on estimand/unit binding as the single blocker; the producer/served-consumer chain and all behavior remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B31."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "Owner decision remains the one blocker: define how existing identification bounds bind to statistical/model uncertainty, estimand, and units (linked UncertaintyEnvelope versus a versioned composite). The N8 result-to-receipt production and served-consumer chain is not established. The complete 2,693-file direct-call census does not exclude aliases, dynamic deserialization, external producers, or other ValueOuterSet paths. Distinguishing served witness and controls remain UNRUN.",
       "residual_owner": {
@@ -1791,7 +1900,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@git-blob:e73454e6b50624acc69627f48172a7612c9ccd9c",
         "blocker_path_scope": "Existing owner contract locus; H14 source census is literal-call evidence only and does not establish producer absence.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B31",
@@ -1803,7 +1912,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B31",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B31",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "owner_decision",
+          "Decide identification-set bounds separately from statistical/model uncertainty and bind the choice to estimand and unit; then demonstrate served producer→persisted ValueGateReceipt→consumer behavior."
+        ]
       }
     },
     {
@@ -3201,7 +3320,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_executor_cache_hit_preserves_unrelated_current_state; test_executor_cache_hit_replays_top_level_ref_write",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B57",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B57",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py@git-blob:604ac837cd4eecf3c51296bc4fb24533db732535"
           ],
@@ -3211,7 +3330,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B57",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B57",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B57 requires a warm cached result for `y=4` to preserve an independently changed `unrelated=\"new\"`, never resurrect a deletion, and retain an explicit write of the prior value. Next step: run the selectors and add cache-hit executor witnesses for deleted-field non-resurrection and explicit same-value write intent. P38: low-level mutation replay distinguishes delete/null/no-write, but the executor cache path may still replay a stale whole outcome. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -3243,7 +3373,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_replay_distinguishes_delete_null_and_no_write; test_replay_rejects_deletion_from_protected_index",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B58",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B58",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py@git-blob:645e30fa190a9f66b77b468adb6ceb5826213ce7"
           ],
@@ -3253,7 +3383,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B58",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B58",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B58 requires an allowed temporary-field deletion to behave identically through direct, parallel and cached paths; deleting a protected index is refused. Deleting an absent field and conflicting operations need explicit semantics. Next step: run the merge selectors and add parallel/cache caller coverage. P38: helper tombstone semantics do not show that executor/cache consumers route all deletion paths through the helper. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -3285,7 +3426,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B59",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B59",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py@git-blob:22d3c75e16d39c7eb1bbf7d8f7d845980341b094"
           ],
@@ -3295,7 +3436,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B59",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B59",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B59 requires edits inside a declared subtree to remain invisible to the base and sibling until commit, with failed/cancelled branch changes leaving no state behind. Next step: run the nested-isolation selector and exercise the canonical branching caller with a sibling and a failed/cancelled branch. P38: deep isolation of a `branch_state` input does not prove every actual node mutation goes through the isolated branch. Partial; selector and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -3372,7 +3524,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 narrows the single blocker to an immutable owner-issued read identity for the exact bytes shared by selection and cache identity. Behavioral and mutation witnesses remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B61."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: the SKG source owner must issue an immutable snapshot/read-handle identity binding the exact bytes consumed by both the ResolveParameters query and its cache key. SourceSnapshot exists but does not wrap the live SKGQuery path; recording a version/ref after selection does not establish same-run byte identity. Same-path mutation, removal, and preserving controls remain UNRUN.",
       "residual_owner": {
@@ -3398,7 +3550,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py@git-blob:365ce2b0efcd55b1e47f823057b2201e37c68cb3",
         "blocker_path_scope": "ResolveParameters live query and cache-key binding path; existing SourceSnapshot does not wrap this query.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B61",
@@ -3410,7 +3562,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B61",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B61",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B61",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Record an owner-issued immutable SKG snapshot/read handle proving the exact bytes selected are the bytes consumed and named by the cache key; mutation refusal and frozen-byte reuse remain unrun."
+        ]
       }
     },
     {
@@ -3977,7 +4139,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_single_skip_is_not_added_to_checkpoint_completed_set; proposed:test_skip_resume_completed_set_is_width_invariant",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B72",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B72",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_res_02.py@git-blob:bbdd69d3fcbdd072c366291ffac704bbde084128",
             "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py@git-blob:3c05cf6adaae5b9495f84ca15d046757972927fd",
@@ -3989,7 +4151,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B72",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B72",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -4021,7 +4194,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_parallel_tier_publishes_one_checkpoint_with_full_completed_set_and_cache_refs; test_fail_fast_discards_parallel_tier_without_checkpoint_but_keeps_output_record; test_continue_checkpoints_successes_and_preserves_their_outputs; test_parallel_tier_supports_async_only_legacy_checkpoint_hook; proposed:test_checkpoint_state_and_occurrence_set_survive_crash_after_publication",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B73",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B73",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/remediation/test_res_02.py@git-blob:bbdd69d3fcbdd072c366291ffac704bbde084128",
             "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py@git-blob:3c05cf6adaae5b9495f84ca15d046757972927fd",
@@ -4048,9 +4221,20 @@
         },
         "source_review": {
           "identity": "reviewed B73 card-level audit with compensation/cache/seed-ref closure signal",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#LA-021",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B73",
           "behavioral_verdict": "UNRUN",
           "scope": "Accepted review agrees with bounded instrument result; it does not reproduce the historical 418-input selector or four-base tests."
+        },
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B73",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B73",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B73 requires process stop after the first possible A/B publication to restore a semantically matching state and full completion set, without applying B’s increment twice; separately cover A=ok/B=fail under fail-fast and continue. Native tier-complete checkpointing exists, but a production-reachable legacy per-alias callback can publish merged tier state with only a prefix completion set. Next step: fault after publication, reopen persisted checkpoint, and verify state plus full occurrence set commit atomically and B increments once; cover failure policy, compensation, output cache, seed refs, and legacy hook if retained. P38: the native atomic-tier hook does not establish atomicity on the legacy per-node callback. Partial; existing selectors and the proposed crash witness are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
         }
       }
     },
@@ -4868,7 +5052,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure; test_run_replay_mode_uses_shared_blocking_bridge",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B88",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B88",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/fabric/data_plane/test_modes.py@git-blob:4f9d353c83429ce92ddeaf445f793731c0215af8"
           ],
@@ -4878,7 +5062,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:B88",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#B88",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -5988,7 +6183,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "test_budget_deficit_normalizes_missing_null_alias_and_sign; test_budget_deficit_marks_missing_metric_unusable; test_budget_deficit_keeps_non_finite_metric_unusable; test_budget_deficit_rejects_conflicting_balance_aliases",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B108",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B108",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/methods/search/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
           ],
@@ -5998,7 +6193,18 @@
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B108",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B108",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B108 requires equivalent balance/deficit encodings to score equally; zero is present evidence, while absent, explicit null, conflicting aliases, non-finite values and incompatible units remain distinct. In particular, absent `gov_balance` must not be collapsed with explicit-null `budget_deficit`. Next step: run the four extractor selectors and exercise a real search caller consuming `BudgetDeficitObjective`, including the absent-vs-null control. P38: extractor behavior alone does not prove the optimizer reports missing/incomparable outcomes as unusable. Partial; selectors and four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        }
       }
     },
     {
@@ -6016,13 +6222,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C has no finding-level record for B109. The current four-base comparator receipt proves only the mathematical helper; the served hierarchical node bypasses the registry owner and the downstream snapshot producer is not established. Keep partial pending the served owner-chain witness and removal probe; no finding closure is claimed. Read-only design: /Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-design-20260925.md@sha256:9eb1de15e2a42bd4c6182aad76efb6b75026461f034d3a4e5d9ea02514c8ab0b."
+        "detail": "Appendix C had no finding-level B109 record. The N no-record audit recommends the exact card discriminator as closed bounded from whole-file 8/25/8/25 totals, but this overstates the selector evidence: BASELINES exact 2D/3D selector rows are NOT_PRESENT at 78187878e and 5fd3ebcc1 and passed only at 00d946c2b and 73c656744 (lines 416–417, 589–590, 804–805). No base-equivalent distinguishing probe, current-head exact selector run, or marker-retaining removal probe is recorded. Keep partial; the separate served hierarchical-frontier/ParetoRegistry residual also remains."
       },
-      "residual": "The accelerated mathematical comparator has current four-base passing evidence for the equal-secondary 2D/3D case (test_pareto.py 8/25/8/25), but the registered hierarchical-search path remains partial: RunHierarchicalPolicySearchNode reconstructs global_frontier from every feasible candidate instead of the existing ParetoRegistry snapshot. The default adapter passes no registry, the node persists its own report, and the output builder reads pareto_registry_snapshot while the complete source census found zero production writes to that state field and zero production ParetoRegistry constructions. Do not label this an R9/R11 class or close B109 from comparator-only evidence. Reuse the typed ParetoRegistry at a runtime tenant/cell/loop boundary, wire the same snapshot to the persisted report and downstream output, and retain ordinary candidate search with unknown transfer scope as a typed limitation. Served A=(2,1)/B=(1,1) dominance witness, same-vector preserving control, marker-retaining bypass probe, and five off-matrix whole-file P41 replays remain UNRUN.",
+      "residual": "The exact equal-secondary 2D/3D selectors are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass only at E02 head 00d946c2b and Phase 0 73c656744 (BASELINES lines 416–417, 589–590, 804–805). The test_pareto.py totals 8/25/8/25 are whole-file counts and do not establish these exact selectors on all four bases. The optimistic N audit claim that this exact card discriminator is closed bounded is therefore not accepted. A base-equivalent distinguishing probe, current-head selector outcome, and marker-retaining property-removal probe remain UNRUN. Separately, RunHierarchicalPolicySearchNode rebuilds global_frontier from feasible candidates rather than using the existing ParetoRegistry snapshot; the default adapter passes no registry, the node persists its own report, and the output builder reads pareto_registry_snapshot although the source census found no production writes to that field or production ParetoRegistry construction. Keep partial. Route the served tenant/cell/loop path through the typed ParetoRegistry and bind its same snapshot to the report/output, preserving ordinary candidate search with unknown transfer scope carried as a typed limitation. Served dominance witness, same-vector preserving control, marker-retaining bypass probe, and five off-matrix whole-file P41 replays remain UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
-        "name": "ParetoFront fast path and normalized objective-direction consumer owner",
-        "appointment_status": "owner role identified by source path/review; no individual appointment is claimed"
+        "name": "ParetoFront exact comparator owner (bounded local selector) plus RunHierarchicalPolicySearchNode/global-frontier producer and ParetoRegistry snapshot/output consumer owners (served residual)",
+        "appointment_status": "Owner paths identified by source review; no individual appointment or served owner-chain witness is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -6030,7 +6236,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "TestParetoFront.test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; TestParetoFront.test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B109",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B109",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
           ],
@@ -6052,7 +6258,55 @@
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md@git-blob:f63003453104be188d9d7f24ae27b6161e902f23",
           "behavioral_verdict": "UNRUN",
           "scope": "Task plan only; no producer/consumer closure."
-        }
+        },
+        "p41_selector_matrix": {
+          "evidence": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:a27f0b956e2c6f61c53dbda6db24fb84fd082197830dd96ada3fba7ea4f4cd7d",
+          "selector_ids": [
+            "TestParetoFront.test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group",
+            "TestParetoFront.test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group"
+          ],
+          "by_base": {
+            "78187878e": "NOT_PRESENT",
+            "00d946c2b": "passed",
+            "5fd3ebcc1": "NOT_PRESENT",
+            "73c656744": "passed"
+          },
+          "baseline_rows": [
+            "L416",
+            "L417",
+            "L589",
+            "L590",
+            "L804",
+            "L805"
+          ],
+          "whole_file_counts": "8/25/8/25; not a substitute for these exact selectors",
+          "finding_level_verdict": "NOT_ESTABLISHED",
+          "measurement_result": "CASE_SET_CHANGED",
+          "base_equivalent_distinguishing_probe": "UNRUN",
+          "whole_file_pass_counts_by_base": {
+            "78187878e": 8,
+            "00d946c2b": 25,
+            "5fd3ebcc1": 8,
+            "73c656744": 25
+          }
+        },
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B109",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B109",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "The accelerated mathematical comparator has current four-base passing evidence for the equal-secondary 2D/3D case (test_pareto.py 8/25/8/25), but the registered hierarchical-search path remains partial: RunHierarchicalPolicySearchNode reconstructs global_frontier from every feasible candidate instead of the existing ParetoRegistry snapshot. The default adapter passes no registry, the node persists its own report, and the output builder reads pareto_registry_snapshot while the complete source census found zero production writes to that state field and zero production ParetoRegistry constructions. Do not label this an R9/R11 class or close B109 from comparator-only evidence. Reuse the typed ParetoRegistry at a runtime tenant/cell/loop boundary, wire the same snapshot to the persisted report and downstream output, and retain ordinary candidate search with unknown transfer scope as a typed limitation. Served A=(2,1)/B=(1,1) dominance witness, same-vector preserving control, marker-retaining bypass probe, and five off-matrix whole-file P41 replays remain UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        },
+        "h_n_review_notes": [
+          "Do not accept the N audit’s “exact card discriminator closed bounded” conclusion. BASELINES lists the exact 2D/3D selectors as NOT_PRESENT at execution base and main, passing only at E02 head and Phase 0.",
+          "The 8/25/8/25 values are whole-file case counts, not exact-selector four-base outcomes.",
+          "Correct the residual’s claim that the equal-secondary case has four-base passing evidence. Keep partial pending a base-equivalent distinguishing probe, current-head behavior plus marker-retaining removal probe, and the separate served hierarchical frontier consumer work.",
+          "Clarify residual owner to include RunHierarchicalPolicySearchNode/ParetoRegistry served snapshot owner, with ParetoFront local comparator owner as bounded scope."
+        ]
       }
     },
     {
@@ -6143,7 +6397,7 @@
         "finding_test_or_probe": {
           "kind": "candidate_behavioral_tests",
           "identity": "TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front; TestParetoFront.test_invalid_reference_point_does_not_emit_non_finite_hypervolume; proposed:ChampionRegistry rejects NaN and +/-infinity before genesis promotion",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#B111",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B111",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a",
             "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py@git-blob:89004b621244fe76b0d389b50c01a89195bc9018"
@@ -6166,6 +6420,17 @@
           "proposed_witness": "registry-boundary NaN and +/-infinity negative before genesis promotion; finite positive control; assert no persistence/publication on invalid values",
           "behavioral_verdict": "UNRUN",
           "unresolved_by_construction": "raw/legacy typed-ref reachability and first-genesis behavior until a runtime witness is executed"
+        },
+        "independent_card_audit": {
+          "identity": "n_no_record_card_audit:B111",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-no-record-card-audit-20260925-v2.md@sha256:a8b2435723d71cd7a1cd065f509246ba6a004f2b04b267a71b5ab089f8c9df7e#B111",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": {
+          "kind": "implementation_owner",
+          "summary": "B111 requires input permutations not to change the numeric Pareto front; invalid entries retain their reason; reference-point/hypervolume values are finite or explicitly unavailable; first-champion genesis and later promotion never publish undefined scores. Ordinary evaluator persistence rejects non-finite JSON, but `ChampionRegistry` genesis checks for `None` and can skip comparison. A raw/legacy typed-ref bypass is plausible, not runtime-proven. Next step: run the Pareto selectors and add a native-store registry-boundary NaN/±infinity test before genesis, with finite positive control; trace raw/legacy ref admission through that boundary. P38: Pareto filtering does not guard the separate registry promotion path. Provisional source-review status is open; all selectors/four-base replay are UNRUN.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
         }
       }
     },
@@ -10778,7 +11043,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status is retained. H14 exposed the source-level Monte Carlo owner gap, but the independent review rejects an open-to-closure handoff: the current served callback is affine rather than a simulation evaluator, and the proposed consumer set omitted decision_packet.enrichment. The one residual is the production typed-outcome/source-bound-support chain across all three consumers. No served positive, consumer witness, removal probe, control, or P41 replay ran. Review: /Users/deniskopylov/.codex/scratch/e02-r2-b194-independent-review-20260925.md@sha256:e3dff0e527e1d6fc65407e63b8db234d360b9f2a81d8391fcc5f41371d08898b."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one smallest_missing_capability blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One smallest missing capability: a production simulation-evaluation contract that supplies typed outcomes for each requested draw and carries source-bound support through the existing Monte Carlo result, persisted propagation report, derived envelope support, and one verified intake consumed by ConfidencePass, normative arbitration, and decision_packet.enrichment. The sole production PropagationDispatcher caller is PropagateUncertaintyNode.execute, whose callback is a frozen-metric affine sensitivity function rather than the simulation solver and has no input-domain refusal boundary; a served positive witness therefore needs an actual producer bridge. ConfidencePass trusts gate_eligible without denominator reconciliation; normative arbitration may rank a syntactically valid successful-only conditional interval; decision_packet.enrichment emits point/bounds/CI without support. Keep useful successful values conditional for candidates, but authority consumers must carry a typed limitation or withhold the bounds. The result/report/envelope witness, shared verified intake, marker-retaining removal probe, controls, and four-base P41 remain UNRUN. This is an engineering capability blocker, not a data or external-institution blocker.",
       "residual_owner": {
@@ -10802,7 +11067,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@git-blob:38f409e574dc2a97badc694499f534734123006a",
         "blocker_path_scope": "Served typed-outcome producer plus shared verified support intake across the Monte Carlo report/envelope and all three authority consumers; one owner-path capability, not a repository-wide absence claim.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "B194 held residual task and independent review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B194_HELD_TASK.md@git-blob:7c98a035aa663b27c1351d72eacfd6b3acc69891",
@@ -10826,7 +11091,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b194-held-design-20260925.md@sha256:4c0fb0d5a50e7b7d871c97600bfcf8266eb9c836692098b0b9850d0b9a530272",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only design; no tests run."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B194",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B194",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "smallest_missing_capability",
+          "Build the missing served simulation evaluator and source-bound per-draw outcome/support chain through persisted propagation report/envelope and ConfidencePass, normative arbitration, and decision-packet consumers."
+        ]
       }
     },
     {
@@ -10950,7 +11225,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status is retained. H14 source review found an actionable missing group-to-field projection, but no served consumer witness. B198 is a different receipt and does not close B197. The smallest capability and behavioral/removal/control/P41 witnesses remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B197."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one smallest_missing_capability blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "Actionable owner-path capability gap: a persisted tie-group-to-field projection must survive CalibrationReport and reach the uncertainty adapter with covariance/Hessian axes aligned to named fields. The optimizer retains group handles, but the current report/adapter path does not preserve that mapping through the welfare consumer. P41, round-trip witness, removal probe, and controls remain UNRUN.",
       "residual_owner": {
@@ -10974,7 +11249,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:d547b27f4f64091ea399c7bf7d8c6f557504c774",
         "blocker_path_scope": "Current calibration report-to-uncertainty adapter path; B198 tests are not evidence for this tied-group property.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "B197 held-finding source/design review",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b197-tied-group-design-20260925.md@sha256:10f814f76b010740a2a1d8717d4be3766f85cf1ed1af40c80f1d8ed51178bbb6",
@@ -10992,7 +11267,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b197-tied-group-design-20260925.md@sha256:10f814f76b010740a2a1d8717d4be3766f85cf1ed1af40c80f1d8ed51178bbb6",
           "behavioral_verdict": "UNRUN",
           "scope": "Source/design only; served caller not established."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B197",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B197",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "smallest_missing_capability",
+          "Build persisted optimizer tied-group coordinate→field/covariance projection through CalibrationReport, adapter, and existing welfare covariance owner."
+        ]
       }
     },
     {
@@ -11177,7 +11462,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 confirms the single blocker is an owner choice/versioning decision for point and interval semantics. Skewed-summary behavior and historical replay remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B201."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One owner decision: choose and version the point functional independently from equal-tail interval semantics for skewed posterior summaries, while preserving historical v1.1 serialization/replay. No owner ruling or behavioral/history replay is admitted; all proposed witnesses remain UNRUN.",
       "residual_owner": {
@@ -11201,7 +11486,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
         "blocker_path_scope": "Public IR uncertainty semantics and historical serializer path; decision remains pending.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B201",
@@ -11219,7 +11504,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B201",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B201",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "owner_decision",
+          "Public-IR owner must version point-functional versus interval-functional semantics while preserving byte-exact v1.1 history."
+        ]
       }
     },
     {
@@ -11237,7 +11532,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 confirms the single blocker is the public-IR source-law/joint-identity decision coordinated with B201. Persistence, reload, and historical replay remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B202."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One owner decision: choose and version how BayesianCalibrationPosteriorSummary identifies its source law (existing inline carrier versus content-bound CAS reference), including sample axes, weights, joint draw identity/compression, and historical serialization. PosteriorSamplesCarrier exists, but the producer binding and owner choice are unresolved. Persistence/reload and joint-law witnesses remain UNRUN.",
       "residual_owner": {
@@ -11261,7 +11556,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
         "blocker_path_scope": "Public posterior-summary law representation and historical serializer path; decision remains pending.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#B202",
@@ -11279,7 +11574,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B202",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B202",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "owner_decision",
+          "Public-IR owner must choose/version source-law binding (existing carrier or content-bound CAS reference), including axes, weights, joint-draw identity, compression and history."
+        ]
       }
     },
     {
@@ -12175,7 +12480,7 @@
       "status": "open",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C lists B219 as held on an environment_not_established label. H14 supersedes that rationale: the source path and existing direct exporter test are environment-admitted, and the current owner path overwrites same-endpoint edge identities. The missing export capability is actionable/open; P41 and behavioral/removal/control witnesses remain UNRUN. No ID-engine effect is inferred. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B219."
+        "detail": "Appendix C held B219 on environment_not_established. The current per-finding H-card source review instead admits the owner path and identifies one missing multiedge-preserving export capability, so status is open. Selector replay, behavioral test, removal probe, single-edge control and P41 remain UNRUN; downstream ID-engine harm is not established."
       },
       "residual": "Actionable owner-path capability gap: CausalGraphModel.to_networkx constructs a DiGraph, so repeated same-endpoint typed/lagged edges overwrite one another; the export must preserve parallel edge identity and metadata. The existing four-insertion-order direct test is a candidate but its P41 replay is UNRUN. id_engine/core.py builds its own mixed graph from original edges and discards the exporter result, so downstream ID-engine impact is not established. Single-edge control and property-removal probe remain UNRUN.",
       "residual_owner": {
@@ -12201,21 +12506,37 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:f8758f86a0e78fb748e658fdc7d92addbb54df88",
         "blocker_path_scope": "Actual CausalGraphModel.to_networkx export path. The ID-engine conversion result is discarded, so consumer impact is not established.",
-        "held_audit_receipt_status": "read-only H14 audit confirms data_record blocker; held status and semantic UNRUN remain unchanged",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; B219 is open on one smallest_missing_capability (multiedge-preserving typed graph export); selector P41, semantic test, removal probe and single-edge control remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:d1e21e27ffaee96aafc330516725c31364c828a4#B219",
           "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; H14 audit identifies an evidence/data record as the remaining blocker. No behavioral closure or repository-wide semantic absence is claimed."
+          "scope": "Historical held-only review is superseded for current status/blocker by the H-card source-owner audit: B219 is open on a missing multiedge-preserving export capability. No behavioral closure or ID-engine harm is established; P41 and probes remain UNRUN."
         },
         "blocker_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-20260924.md@sha256:70047d13784b61630f99ab921aedd13368aac37351f50cf5b10e1fb39637153e",
-        "blocker_audit_scope": "Full 14/14 held-row audit: 4 owner-decision blockers, 10 data-record blockers, 0 external-institution blockers, 0 justified missing-capability claims; semantic absence remains UNRUN.",
+        "blocker_audit_scope": "Historical aggregate H14 blocker census only; it predates the current B219 open/smallest_missing_capability classification and must not be read as a current zero-missing-capability result.",
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B219",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B219",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "h_card_audit:B219",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B219",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "smallest_missing_capability",
+          "Add multiedge-preserving CausalGraphModel.to_networkx export that retains parallel edge identity/metadata; selector replay, marker-retaining removal probe and single-edge control are unrun."
+        ],
+        "h_n_review_notes": [
+          "Current status open is correct; Appendix-C held status is historical and the disagreement is explicit.",
+          "Correct stale evidence_refs.held_audit_receipt_status: it currently says data_record and held; current H-card audit establishes an actionable smallest_missing_capability and open status.",
+          "Correct evidence_refs.held_review.scope, which also says the blocker is evidence/data record; mark that historical review superseded by the H-card owner-path audit.",
+          "Qualify or remove evidence_refs.blocker_audit_scope/path as a historical aggregate: its “0 justified missing-capability claims” conflicts with B219’s present classification."
+        ]
       }
     },
     {
@@ -12800,7 +13121,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 identifies the single missing record as the complete DTO/import/distribution/historical consumer inventory; no removal or compatibility behavior is admitted. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-005."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: complete exact DTO/import/package/historical-data consumer inventory for AgentType, RegionProfile, and SimulationConfig before moving or retiring their legacy definitions. Current definitions remain importable; text search does not establish external caller absence or distribution compatibility. Built-distribution and historical-payload witnesses remain UNRUN.",
       "residual_owner": {
@@ -12824,7 +13145,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/domain/schema.py@git-blob:098c04de8a8fa4987b78fa0d7e3cb0af25ef5616",
         "blocker_path_scope": "Legacy DTO definitions and supported distribution/import/history contract; external-caller absence remains not_established.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-005",
@@ -12836,7 +13157,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-005",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-005",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-005.md@sha256:2dcd20ca25e445b23094649eb205d76408dbd9eab619460d4f3c23aa0e4f144b#LA-005",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Inventory the three DTOs across wheel/sdist, supported imports and dynamic loads, and retained YAML/JSON/history before deciding retire versus move; J0696 is preservation/importability only."
+        ]
       }
     },
     {
@@ -13077,7 +13408,7 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C lists LA-010 as held with a duplicate-runner/self-edge residual. H14 finds the root CLI delegates to the canonical runner, so the duplicate implementation premise is gone at source level. Keep LA-010 partial for the separate compatibility data record; do not conflate LA-049's self-edge decision. Behavior remains UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-010."
+        "detail": "Appendix C held LA-010 on duplicate-runner/self-edge residual. The H-card review finds root migrate.py delegates to the canonical runner, removing the duplicate-runner premise at source level. Keep partial for the missing compatibility record; LA-049's same-version self-edge decision is separate. Behavior and P41 remain UNRUN."
       },
       "residual": "The root CLI is now a thin call-through to the canonical migration runner, removing the duplicate-runner source premise at this head. Residual: an end-to-end compatibility record for JSON/YAML, current/historical versions, default/explicit targets, malformed inputs, errors/exit/output, encoding/newlines, write failures, and supported historical fixtures. The actual root CLI matrix is UNRUN. LA-049 owns the separate same-version Trinity self-edge question.",
       "residual_owner": {
@@ -13101,7 +13432,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/migrate.py@git-blob:4e402d2c11146f86dab86f0473ce2ad970b8cd8b",
         "blocker_path_scope": "Root CLI call-through to canonical runner; forwarding is source-visible, while end-to-end compatibility remains unmeasured.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status partial; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-010",
@@ -13120,7 +13451,20 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-010",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-010",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-010.md@sha256:fb64cbee5e22dcb78391b95ad107f8df52efa26b3cff55397507b3401d518634#LA-010",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Complete the root CLI compatibility record (formats, versions/targets, malformed inputs, process/exit/output, encoding/newlines, write failures and historical fixtures); duplicate-runner premise is gone at source level."
+        ],
+        "h_n_review_notes": [
+          "Keep partial despite Appendix C held: root migrate.py delegates to canonical runner; remaining blocker is one compatibility data record. This is an explicit disagreement/refinement, not closure."
+        ]
       }
     },
     {
@@ -13686,8 +14030,8 @@
       "appendix_c_status": "no_finding_level_record",
       "status": "partial",
       "appendix_c_comparison": {
-        "relation": "not_measured",
-        "detail": "Appendix C listed no finding-level record. The earlier CAN-01 probe and supplemental corpus receipt provide bounded Core/IR data-level results, including the old-main JSON versions and shared JSONL records identified by reconstruction. The 418-input selector remains unrecovered, and 140 public codec/hash caller files present at all four bases still need full-file four-base replay. Those owner/caller predicates remain UNRUN, so bounded PASS_BOUNDED results do not support closed status."
+        "relation": "source_review_refines_no_record",
+        "detail": "Appendix C listed no finding-level record. The earlier CAN-01 probe plus supplemental corpus receipt establish bounded data-level parity for the explicitly enumerated Git-tree inputs: earlier 2,867 Phase-0 JSON path occurrences/2,833 unique blobs and 27 codec/16 raw-hash vectors; supplemental 4,891 records (17 old-main JSON versions plus 4,874 shared JSONL lines) and 19,768 direct encoded-byte outputs with zero unexpected differences. This is measured bounded evidence, not full finding closure. The exact 418 selector and 140 all-base caller-file replays remain UNRUN; persisted/runtime/production-data values and alternate formats/environments remain unresolved. Keep partial."
       },
       "residual": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.",
       "residual_owner": {
@@ -13701,7 +14045,7 @@
         "finding_test_or_probe": {
           "kind": "behavioral_probe_receipt",
           "identity": "CAN-01 historical/current Core and IR canonicalization parity re-check",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#LA-021",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#LA-021",
           "instrument_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/tools/check_la021_canonicalization.py@git-blob:40bfe270c844a227ee697b305696936986aa7bed",
           "raw_output_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-baselines/la021-canonicalization-20260924.log@sha256:12796e7177e20ee23c49619c34c866305e060fcdfbe2941ec4ae7061b6f63974",
           "behavioral_verdict": "PASS_BOUNDED",
@@ -13724,7 +14068,7 @@
         },
         "source_review": {
           "identity": "reviewed LA-021 no-record audit",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#LA-021",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#LA-021",
           "behavioral_verdict": "PASS_BOUNDED",
           "scope": "PASS_BOUNDED is retained for the bounded data-level results. The supplemental replay compares 4,891 main/Phase-0 input records with zero unexpected encoded-byte differences, but does not cover the exact 418 selector or 140 full-file four-base caller replay; finding status remains partial."
         },
@@ -13745,7 +14089,33 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-supplemental-review-20260925.md@sha256:567ef0ef987bfd8b887cbcbb2475c70ff659ea299b1cea018f3ce5c75240d9c2",
           "behavioral_verdict": "GO_BOUNDED_NO_GO_FULL_CLOSURE",
           "scope": "Independent re-enumeration and byte-span verification support the named 4,891-record/19,768-output corpus parity. Exact 418 selector, 140 caller-file replay, persisted/runtime-generated inputs and wider environments remain out of scope. Instrument has bounded P38 proxy weaknesses; no finding closure is supported."
-        }
+        },
+        "supplemental_corpus_receipt_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-additional-corpus-20260925/receipt.json@sha256:87ffa78b0c1aea6ad7cbcb84375f9967024148d79a5c21bfdc382bed15ab5c4d",
+        "supplemental_independent_review_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-supplemental-review-20260925.md@sha256:567ef0ef987bfd8b887cbcbb2475c70ff659ea299b1cea018f3ce5c75240d9c2",
+        "lossless_raw_storage_receipt_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-independent-recheck-20260925/LA021_STORAGE_RECEIPT.json@sha256:a880cbb39e07cb7ed8923f6725e24e8fd4787d4dfd2df7a698d30869815dbfe1",
+        "independent_card_audit": {
+          "identity": "n_no_record_cards_review:LA-021",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-record-cards-review-20260925.md@sha256:3d993bcb092816135f15e831d0af0af60d1f6c730046cde4f0d619d4bc1b7eda#LA-021",
+          "behavioral_verdict": "PASS_BOUNDED_DATA_ONLY",
+          "scope": "Read-only source/card review cites bounded data-level receipts only. Exact 418 selector and all-base caller replays remain UNRUN; P38 caveats and lossless archive mapping are recorded separately."
+        },
+        "lossless_raw_storage_receipt": {
+          "identity": "LA-021 lossless archive map for earlier independent full named-corpus comparison",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-independent-recheck-20260925/LA021_STORAGE_RECEIPT.json@sha256:a880cbb39e07cb7ed8923f6725e24e8fd4787d4dfd2df7a698d30869815dbfe1",
+          "behavioral_verdict": "PASS_BOUNDED_EVIDENCE_PRESERVED",
+          "scope": "Maps four logical raw outcomes/encoding artifacts to two verified zstd archives; all originals and decoded archives streamed SHA-256 matched, main/Phase-0 pairs are byte-identical. Parent comparison receipt SHA 3426f2f7...; this is evidence retention, not full LA-021 closure."
+        },
+        "h_n_review_disposition": {
+          "kind": "verification_owner",
+          "summary": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.",
+          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+        },
+        "h_n_review_notes": [
+          "Keep partial. The data-level bounded corpus is measured; 4,891 records and 19,768 encoded-byte outputs had zero unexpected differences, but the unrecovered 418 selector and 140 all-base caller-file replays remain UNRUN.",
+          "Change appendix_c_comparison.relation from not_measured to source_review_refines_no_record, because the bounded corpus was measured while full finding closure remains unestablished.",
+          "Keep the independent supplemental review’s P38 caveats: 12-character HEAD prefix check, manually enumerated owner module list/import-origin path-prefix proxy, and parity-only final predicate; this observed receipt is bounded, not a complete gate.",
+          "The earlier 7,758-input bounded comparison’s four logical raw output files are losslessly preserved in two verified zstd archives; storage receipt maps the byte-identical main/Phase-0 pairs to those archives. This preserves evidence, not a new closure scope."
+        ]
       }
     },
     {
@@ -13982,7 +14352,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 refines the single blocker to the distribution/external-caller/historical-payload record for the exact descriptor, not a repository-wide cleanup claim. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-026."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: complete source/import/dynamic-loader/package/ABI/history inventory for the GeneratedSchemaModule descriptor before deciding whether to retire or move its compatibility FQN. The descriptor is a three-field placeholder and current owner is data_forge/kernel/schemas; selected symbol scans do not establish external or retained-payload absence. Distribution/history witnesses remain UNRUN.",
       "residual_owner": {
@@ -14006,7 +14376,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py@git-blob:ac44baf02ab49e496631617060f32bbfde3add0e",
         "blocker_path_scope": "GeneratedSchemaModule descriptor and canonical schema registry owner; no external caller absence is inferred.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-026",
@@ -14018,7 +14388,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-026",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-026",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-026.md@sha256:0c5a61cb56f6dbdd2b1c0968e3cb730f965420ad8a222b986886835caa4c3fb1#LA-026",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Inventory GeneratedSchemaModule descriptor FQN, dynamic-loader, wheel/sdist, ABI and historical payload consumers before deciding whether to retire/move it; do not build a generator from the descriptor name."
+        ]
       }
     },
     {
@@ -14036,7 +14416,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 confirms the single blocker is an old-address/import-identity and distribution/history record; no behavioral or package test has run. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-027."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: establish the old import address, package inclusion, dynamic caller set, and historical import identity before retiring or changing the re-export alias. The initializer re-exports canonical classes; lexical non-use alone does not prove compatibility-window completion. Wheel/sdist and historical-import witnesses remain UNRUN.",
       "residual_owner": {
@@ -14060,7 +14440,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py@git-blob:09439357496c6e30c16444d8a5e7c15d5a3c09f3",
         "blocker_path_scope": "Compatibility alias initializer and canonical schema-service identity; external caller absence remains not_established.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-027",
@@ -14072,7 +14452,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-027",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-027",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-027.md@sha256:1c11d48116a6bba1afd0e857b0269d7887bb82d9ac5fe39d1df002822f95e435#LA-027",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Inventory the old import address, package inclusion, dynamic callers and historical import identity before changing/removing the re-export alias; J0696 proves preservation, not safe retirement."
+        ]
       }
     },
     {
@@ -14259,7 +14649,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14's complete package census finds 5/11 direct .common importers, so the single blocker is the named caller/registry-selected output parity record, not absence of a generic helper. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-031."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: map the actual registry-selected production builder for each of the five direct .common importers in the complete 11-file builder package and record byte/content, diagnostic, warning, and write-behavior parity after explicit routing. This is not a zero-caller retirement; the helper has active callers. Full caller/output witness remains UNRUN.",
       "residual_owner": {
@@ -14283,7 +14673,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py@git-blob:97c1f1dca8db13dc6409919ca2cf81feea43d997",
         "blocker_path_scope": "Canonical helper and its five current direct importers; do not infer that every helper is unused or retire common wholesale.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-031",
@@ -14295,7 +14685,20 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-031",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-031",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-031.md@sha256:84ec43d574854b8d839d937264224b09478492516015508285038a59a6311995#LA-031",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Map production registry-selected builder and output parity for five direct .common importers in the complete 11-file package; J0723 covers seven helper IDs only and does not prove stage routing."
+        ],
+        "h_n_review_notes": [
+          "Keep one data_record blocker; source audit found five direct .common importers in the complete 11-file package. This is an active-caller map/parity gap, not proof common has no caller."
+        ]
       }
     },
     {
@@ -14313,7 +14716,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained, with its stated inventory/digest binding and sibling-loader residual refined. H14 final review confirms the mixed-layout selector subproperty was already accepted in E02 J0681 (13/13); the remaining blocker is content-bound inventory/path/digest/version and sibling-reader replay, not absence of complete-layout selection. E02 receipt: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/outputs/E02-J0681-N-UDF05-current-r1/receipt.json@sha256:2a91c7879476ca700f58921eeabc63df6320b905ad662a4742eb7c6a5dc921dc; independent bounded verdict addendum: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/reviews/UDF-05-J0681-independent-bounded-verdict-addendum-r1.md@sha256:bb1c8472087194488bcf5f659789b09ea876cdd36c777e16bb191d3b89ff0c6c; H14 final review: /Users/deniskopylov/.codex/scratch/e02-r2-h14-independent-closure-review-20260925.md@sha256:0459e569eb580ce6185ad3af182627ceb976b4dc6cbe3e6fd1c21851451eba3d#LA-032."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One data-record blocker: bind the complete selected demographic inventory (paths, content digests, layout/version) to the existing VerifiedUkraineStageArtifacts receipt and prove independent sibling readers reopen those exact bytes. The original mixed-filename selection defect is a bounded accepted sub-result: E02 J0681 reports 13/13, and its independent addendum accepts the composite snapshot-selection slice. Do not describe the current loader as still combining mixed layouts. Served inventory-bound producer/receipt/reader, sibling-loader, mutation, and historical-replay witnesses remain UNRUN. Reuse the existing Data Forge receipt/store owner; add no parallel CAS or second world-growth path.",
       "residual_owner": {
@@ -14337,7 +14740,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py@git-blob:32d925f0d443ea61c08b16986b87ed053dd8c9a8",
         "blocker_path_scope": "Demographic loader selection and binding to the existing VerifiedUkraineStageArtifacts receipt; no new storage or world-growth path.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-032",
@@ -14356,7 +14759,20 @@
           "independent_review_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/reviews/UDF-05-J0681-independent-bounded-verdict-addendum-r1.md@sha256:bb1c8472087194488bcf5f659789b09ea876cdd36c777e16bb191d3b89ff0c6c",
           "behavioral_verdict": "PASS_BOUNDED",
           "scope": "13/13 accepted mixed-layout/composite snapshot-selection subproperty only; not inventory/digest binding, sibling-reader replay, or LA-032 closure."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-032",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-032.md@sha256:8d79d95381beb9bf30f4cc51e6b2ee6869a7efaa9000e8b7e96ee01fba4f97fc#LA-032",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "data_record",
+          "Bind complete selected demographic paths, exact-byte digests, layout/version to existing VerifiedUkraineStageArtifacts receipt and prove sibling readers reopen the same bytes; J0681 13/13 is bounded selection subproperty."
+        ],
+        "h_n_review_notes": [
+          "Keep one data_record blocker; do not restate the old mixed-layout selection subproperty as open: J0681’s 13/13 accepted result closes that bounded subproperty only."
+        ]
       }
     },
     {
@@ -15258,7 +15674,7 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 separates LA-049's same-version self-edge decision from LA-010's root CLI compatibility data record; owner decision and behavioral witnesses remain UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-049."
+        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
       },
       "residual": "One owner decision: determine whether the policy_ir 1.0→1.0 self-edge is an identity/no-op or must run current-version Trinity validation, without changing generic same-version semantics for every edge. The MIG-01 owner ruling and actual CLI/helper postcondition remain UNRUN.",
       "residual_owner": {
@@ -15282,7 +15698,7 @@
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:14f1c0319522800ebd7c9023be6177b40ffd16fd",
         "blocker_path_scope": "policy_ir 1.0→1.0 edge and generic migration no-op boundary; separate from LA-010 root CLI delegation.",
-        "held_audit_receipt_status": "pending_separate_candidate_commit",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "accepted held-finding source/owner review",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HELD_REVIEW.md@git-blob:175c1ed4db37589e8adaf14af6700ad639edb2c8#LA-049",
@@ -15294,7 +15710,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-049",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
-        }
+        },
+        "independent_card_audit": {
+          "identity": "per_finding_h_card_audit:LA-049",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-049.md@sha256:cd49a94d1495ae3b981c02587a9ab04065d62e756a42ca472df4a90b6ba4bab9#LA-049",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+        },
+        "h_n_review_disposition": [
+          "owner_decision",
+          "MIG-01 owner decides whether policy_ir 1.0→1.0 self-edge is identity/no-op or invokes current-version Trinity validation; keep generic same-version behavior unchanged."
+        ]
       }
     },
     {

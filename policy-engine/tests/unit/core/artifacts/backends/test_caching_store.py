@@ -8,7 +8,11 @@ from unittest.mock import MagicMock
 import pytest
 
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
-from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    ProducerInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 _FAKE_ID = "sha256:" + "aa" * 32
@@ -142,3 +146,42 @@ class TestCachingArtifactStore:
 
         assert local.has(selected)
         assert local.get_manifest(selected) == remote.get_manifest(selected)
+
+    def test_selectorless_manifest_read_uses_remote_default_when_cache_defaults_diverge(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        """The remote default wins when equal bytes have distinct first-writer profiles."""
+        payload = b"same bytes, independent cache defaults"
+        local = FileSystemCAS(tmp_path / "local")
+        remote = FileSystemCAS(tmp_path / "remote")
+        local_ref = local.put_bytes(
+            payload,
+            PutOptions(
+                kind="cache.shared-kind",
+                media_type="text/plain",
+                producer=ProducerInfo(component="tests.cache", version="local-first"),
+            ),
+        )
+        remote_ref = remote.put_bytes(
+            payload,
+            PutOptions(
+                kind="cache.shared-kind",
+                media_type="text/plain",
+                producer=ProducerInfo(component="tests.cache", version="remote-first"),
+            ),
+        )
+        assert local_ref.artifact_id == remote_ref.artifact_id
+        assert local_ref == remote_ref
+        assert (
+            local.get_manifest(local_ref).producer.version
+            != remote.get_manifest(remote_ref).producer.version
+        )
+
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        assert store.get_manifest(remote_ref).producer.version == "remote-first"
+        assert store.get_manifest(remote_ref.artifact_id).producer.version == "remote-first"
+        # Payload reads and byte-integrity reports remain valid because the blob ID is shared.
+        assert store.get_bytes(remote_ref) == payload
+        assert store.verify(remote_ref).ok is True

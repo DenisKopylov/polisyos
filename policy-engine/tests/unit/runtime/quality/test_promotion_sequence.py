@@ -512,10 +512,740 @@ def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> No
         promotion_sequence_module.parse_canonical_promotion_history_receipt(hybrid)
 
 
+def _historical_json_bytes(value: object) -> bytes:
+    """Serialize float-bearing promotion JSON independently of its DTOs."""
+
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+
+
+def test_historical_receipt_corpus_replays_without_current_authority() -> None:
+    """Replay every complete tracked N9 receipt and classify comparison excerpts."""
+
+    repository_root = REPO_ROOT.parent
+    listing = subprocess.run(
+        ["git", "ls-files", "-z", "--", "*.json"],
+        cwd=repository_root,
+        check=True,
+        capture_output=True,
+    )
+    tracked_json = tuple(
+        sorted(
+            Path(os.fsdecode(item))
+            for item in listing.stdout.split(b"\0")
+            if item
+        )
+    )
+    assert len(tracked_json) == 2_870
+    assert len(tracked_json) == len(set(tracked_json))
+
+    schema_prefix = "policyos.policy_design_case.layer3_gy.n9_promotion."
+    full_receipt_fields = frozenset(
+        {
+            "schema_version",
+            "candidate_id",
+            "status",
+            "promoted",
+            "terminal_kind",
+            "obligations",
+            "risk_spend",
+            "computed_authority_boundary",
+            "gate_outcome_hash",
+        }
+    )
+    comparison_envelope_fields = frozenset(
+        {"comparison_admission_manifest", "comparison_content_hash", "comparison_rule_version"}
+    )
+    comparison_excerpt_fields = frozenset(
+        {
+            "candidate_id",
+            "status",
+            "promoted",
+            "terminal_kind",
+            "obligations",
+            "risk_spend",
+            "owner_projection",
+            "confidence_ledger_projection",
+        }
+    )
+    v1_schema = promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
+    v3_schema = promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    v6_schema = promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION
+    expected_marker_counts = {v1_schema: 7, v3_schema: 17, v6_schema: 20}
+    marker_counts: dict[str, int] = {}
+    receipt_counts: dict[str, int] = {}
+    comparison_counts = {"envelope": 0, "projection_excerpt": 0}
+    complete_receipts: list[tuple[str, str, dict[str, Any]]] = []
+    unclassified_markers: list[str] = []
+
+    for relative_path in tracked_json:
+        document = json.loads((repository_root / relative_path).read_bytes())
+        pending: list[tuple[str, object]] = [("", document)]
+        while pending:
+            pointer, value = pending.pop()
+            if isinstance(value, dict):
+                schema = value.get("schema_version")
+                if isinstance(schema, str) and schema.startswith(schema_prefix):
+                    marker_counts[schema] = marker_counts.get(schema, 0) + 1
+                    identity = f"{relative_path.as_posix()}#{pointer or '/'}"
+                    if full_receipt_fields <= value.keys():
+                        complete_receipts.append((identity, schema, value))
+                        receipt_counts[schema] = receipt_counts.get(schema, 0) + 1
+                    elif comparison_envelope_fields <= value.keys():
+                        comparison_counts["envelope"] += 1
+                    elif (
+                        comparison_excerpt_fields <= value.keys()
+                        and isinstance(value.get("owner_projection"), dict)
+                        and "projection_hash" not in value["owner_projection"]
+                    ):
+                        # Comparison projections are a separate corpus. This test
+                        # does not claim their compatibility or send them to the
+                        # full-receipt parser.
+                        comparison_counts["projection_excerpt"] += 1
+                    else:
+                        unclassified_markers.append(identity + f" ({schema})")
+                pending.extend(
+                    (
+                        f"{pointer}/{str(key).replace('~', '~0').replace('/', '~1')}",
+                        child,
+                    )
+                    for key, child in value.items()
+                )
+            elif isinstance(value, list):
+                pending.extend(
+                    (f"{pointer}/{index}", child) for index, child in enumerate(value)
+                )
+
+    assert marker_counts == expected_marker_counts, (
+        f"tracked N9 schema-marker denominator changed: {marker_counts}"
+    )
+    assert receipt_counts == {v1_schema: 7, v3_schema: 14, v6_schema: 14}
+    assert comparison_counts == {"envelope": 3, "projection_excerpt": 6}
+    assert len(complete_receipts) == 35
+    assert not unclassified_markers, (
+        "unclassified N9 schema-marker objects: " + "; ".join(sorted(unclassified_markers))
+    )
+
+    supported_full_receipt_schemas = (
+        promotion_sequence_module._HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS
+        | {promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION}
+    )
+    unexpected_full_epochs = sorted(
+        {schema for _, schema, _ in complete_receipts if schema not in supported_full_receipt_schemas}
+    )
+    assert not unexpected_full_epochs, (
+        "unclassified full N9 receipt epochs: " + ", ".join(unexpected_full_epochs)
+    )
+
+    expected_types = {
+        v1_schema: promotion_sequence_module._LegacyCanonicalPromotionReceiptV1Captured,
+        v3_schema: promotion_sequence_module._LegacyCanonicalPromotionReceiptV3,
+        v6_schema: promotion_sequence_module._LegacyCanonicalPromotionReceiptV6,
+    }
+    v3_example: dict[str, Any] | None = None
+    for identity, schema, payload in sorted(complete_receipts):
+        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+        assert type(parsed) is expected_types[schema], identity
+        replayed = (
+            parsed.historical_projection()
+            if schema == v1_schema
+            else parsed.model_dump(mode="json")
+        )
+        assert _historical_json_bytes(replayed) == _historical_json_bytes(payload), identity
+
+        refusal_code = promotion_sequence_module._historical_promotion_non_admission_code(schema)
+        assert refusal_code is not None, identity
+        assert validate_canonical_promotion_receipt(payload) == ({"code": refusal_code},), identity
+        with pytest.raises(ValueError):
+            CanonicalPromotionReceipt.model_validate(payload)
+        if schema == v3_schema and v3_example is None:
+            v3_example = payload
+
+    assert v3_example is not None
+    non_slug_history = deepcopy(v3_example)
+    historical_owner = non_slug_history["owner_projection"]
+    non_slug_operation_id = "legacy operation / invocation:17"
+    historical_owner["operation_invocation_id"] = non_slug_operation_id
+    historical_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in historical_owner.items() if key != "projection_hash"}
+    )
+    parsed_non_slug = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+        non_slug_history
+    )
+    assert parsed_non_slug.owner_projection.operation_invocation_id == non_slug_operation_id
+
+
+def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
+    """Replay N9 receipts in every pinned Git JSON carrier used by owners."""
+
+    from tests.unit.runtime.quality import historical_artifacts
+    from tools.quality.validation import check_layer3_gy_promotion_contract as promotion_checker
+    from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain
+
+    pinned = {
+        name: value
+        for name, value in vars(historical_artifacts).items()
+        if name.endswith("_BLOB") and isinstance(value, str)
+    }
+    assert len(pinned) == 2
+    assert second_domain.N10A_PROOF_HEAD_COMMIT == (
+        "d8a8cf076da6233c66b0a90010647c0d437e81c4"
+    )
+    pinned_paths = {
+        "PROMOTION_CONTRACT_BASE": (
+            "504f995cd203f2efebee8566363b8987092e1e34",
+            f"policy-engine/{promotion_checker.OUTPUT_PATH}",
+        ),
+        "N10A_CENSUS": (
+            second_domain.N10A_PROOF_HEAD_COMMIT,
+            f"policy-engine/{second_domain.CENSUS_OUTPUT}",
+        ),
+        "N10A_PACK": (
+            second_domain.N10A_PROOF_HEAD_COMMIT,
+            f"policy-engine/{second_domain.PACK_OUTPUT}",
+        ),
+        "N10A_CYCLE_TRACE": (
+            second_domain.N10A_PROOF_HEAD_COMMIT,
+            f"policy-engine/{second_domain.CYCLE_TRACE_OUTPUT}",
+        ),
+    }
+    assert len(pinned_paths) == 4
+    carriers: dict[str, bytes] = {
+        name: historical_artifacts.historical_owner_bytes(blob)
+        for name, blob in pinned.items()
+    }
+    for name, (commit, path) in pinned_paths.items():
+        carrier = subprocess.run(
+            ["git", "show", f"{commit}:{path}"],
+            cwd=REPO_ROOT.parent,
+            check=True,
+            capture_output=True,
+        )
+        carriers[name] = carrier.stdout
+
+    non_json: set[str] = set()
+    complete: list[tuple[str, dict[str, Any]]] = []
+    carrier_counts: dict[str, int] = {}
+    for name, raw in sorted(carriers.items()):
+        try:
+            document = json.loads(raw)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            non_json.add(name)
+            continue
+        carrier_counts[name] = 0
+        pending: list[tuple[str, object]] = [("", document)]
+        while pending:
+            pointer, value = pending.pop()
+            if isinstance(value, dict):
+                schema = value.get("schema_version")
+                if (
+                    isinstance(schema, str)
+                    and schema.startswith("policyos.policy_design_case.layer3_gy.n9_promotion.")
+                    and {
+                        "candidate_id",
+                        "status",
+                        "promoted",
+                        "terminal_kind",
+                        "obligations",
+                        "risk_spend",
+                        "computed_authority_boundary",
+                        "gate_outcome_hash",
+                    }
+                    <= value.keys()
+                ):
+                    complete.append((f"{name}#{pointer or '/'}", value))
+                    carrier_counts[name] += 1
+                pending.extend(
+                    (f"{pointer}/{key}", child) for key, child in value.items()
+                )
+            elif isinstance(value, list):
+                pending.extend(
+                    (f"{pointer}/{index}", child) for index, child in enumerate(value)
+                )
+
+    assert non_json == {"PROMOTION_EMITTER_BASE_BLOB"}
+    assert carrier_counts == {
+        "GENERATION_CYCLE_V1_BLOB": 2,
+        "N10A_CENSUS": 0,
+        "N10A_CYCLE_TRACE": 1,
+        "N10A_PACK": 0,
+        "PROMOTION_CONTRACT_BASE": 3,
+    }
+    assert len(complete) == 6
+    expected_types = {
+        promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION: (
+            promotion_sequence_module._LegacyCanonicalPromotionReceiptV1Captured
+        ),
+        promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION: (
+            promotion_sequence_module._LegacyCanonicalPromotionReceiptV3
+        ),
+        promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION: (
+            promotion_sequence_module._LegacyCanonicalPromotionReceiptV6
+        ),
+    }
+    schema_counts: dict[str, int] = {}
+    for identity, payload in complete:
+        schema = payload["schema_version"]
+        schema_counts[schema] = schema_counts.get(schema, 0) + 1
+        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+            payload
+        )
+        assert type(parsed) is expected_types[schema], identity
+        replayed = (
+            parsed.historical_projection()
+            if schema == promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
+            else parsed.model_dump(mode="json")
+        )
+        assert _historical_json_bytes(replayed) == (
+            _historical_json_bytes(payload)
+        ), identity
+        refusal_code = promotion_sequence_module._historical_promotion_non_admission_code(schema)
+        assert refusal_code is not None, identity
+        assert validate_canonical_promotion_receipt(payload) == (
+            {"code": refusal_code},
+        ), identity
+    assert schema_counts == {
+        promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION: 1,
+        promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION: 2,
+        promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION: 3,
+    }
+
+
+def test_v1_flat_history_receipts_round_trip_without_current_authority() -> None:
+    depth_n_path = REPO_ROOT / (
+        "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+    )
+    frozen_depth_n_bytes = depth_n_path.read_bytes()
+    document = json.loads(frozen_depth_n_bytes)
+    expected_pointers = {
+        *(
+            "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json#"
+            "/proof_recordings/education/authority_source_migration_receipt/"
+            "historical_recording/compiled_run/recursive_run/nodes/0/cycle_run/"
+            f"promotion_port/receipts/{index}"
+            for index in range(4)
+        ),
+        *(
+            "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json#"
+            "/proof_recordings/first_vertical/authority_source_migration_receipt/"
+            "historical_recording/compiled_run/recursive_run/nodes/0/cycle_run/"
+            f"promotion_port/receipts/{index}"
+            for index in range(3)
+        ),
+    }
+    discovered: dict[str, dict[str, Any]] = {}
+    pending: list[tuple[str, object]] = [("", document)]
+    while pending:
+        pointer, value = pending.pop()
+        if isinstance(value, dict):
+            if value.get("schema_version") == (
+                promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
+            ):
+                discovered[f"{depth_n_path.relative_to(REPO_ROOT).as_posix()}#{pointer or '/'}"] = value
+            pending.extend(
+                (
+                    f"{pointer}/{str(key).replace('~', '~0').replace('/', '~1')}",
+                    child,
+                )
+                for key, child in value.items()
+            )
+        elif isinstance(value, list):
+            pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
+
+    assert set(discovered) == expected_pointers
+    assert len(discovered) == 7
+    captured = next(iter(discovered.values()))
+    original_shape = deepcopy(captured)
+    for field in promotion_sequence_module._V1_CAPTURE_EXTENSION_FIELDS:
+        original_shape.pop(field)
+    original = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+        original_shape
+    )
+    assert type(original) is promotion_sequence_module._LegacyCanonicalPromotionReceiptV1
+    assert _historical_json_bytes(original.historical_projection()) == (
+        _historical_json_bytes(original_shape)
+    )
+
+    absent_default = deepcopy(original_shape)
+    absent_default.pop("value_receipt_ref")
+    parsed_absent_default = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+        absent_default
+    )
+    historical_projection = parsed_absent_default.historical_projection()
+    ordinary_dump = parsed_absent_default.model_dump(mode="json")
+    assert "value_receipt_ref" not in historical_projection
+    assert ordinary_dump["value_receipt_ref"] is None
+    assert _historical_json_bytes(historical_projection) == _historical_json_bytes(
+        absent_default
+    )
+    assert _historical_json_bytes(ordinary_dump) != _historical_json_bytes(absent_default)
+
+    # The original Pydantic model accepts coercible JSON, but its historical
+    # projection changes those bytes. The generic epoch parser must reject both
+    # the original and captured v1 shapes on that divergence.
+    v1_profiles = (
+        (original_shape, promotion_sequence_module._LegacyCanonicalPromotionReceiptV1),
+        (captured, promotion_sequence_module._LegacyCanonicalPromotionReceiptV1Captured),
+    )
+    for source, model_type in v1_profiles:
+        coercible = deepcopy(source)
+        coercible["risk_spend"]["total_declared_delta"] = str(
+            coercible["risk_spend"]["total_declared_delta"]
+        )
+        directly_parsed = model_type.model_validate(coercible)
+        assert _historical_json_bytes(directly_parsed.historical_projection()) != (
+            _historical_json_bytes(coercible)
+        )
+        with pytest.raises(ValueError, match="promotion_history_payload_not_lossless"):
+            promotion_sequence_module.parse_canonical_promotion_history_receipt(coercible)
+
+    partial_extension = deepcopy(captured)
+    partial_extension.pop("cg2_resolution_reason")
+    with pytest.raises(ValueError):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(partial_extension)
+
+    malformed = deepcopy(captured)
+    malformed["owner_projection"] = {}
+    with pytest.raises(ValueError):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(malformed)
+    assert depth_n_path.read_bytes() == frozen_depth_n_bytes
+
+
+def test_historical_summary_intake_rejects_lossy_normalization() -> None:
+    """Historical markers cannot authorize defaulting, coercion, or extra keys."""
+
+    fixture = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+        ).read_bytes()
+    )
+    source = deepcopy(
+        fixture["generation_cycle_run"]["promotion_port"]["receipts"][0]
+    )
+    assert source["schema_version"] == (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    )
+    assert source["owner_projection"]["schema_version"] == (
+        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+    )
+
+    # The same generic historical parser guard covers outer receipt values as
+    # well as the versioned owner summary. Remove it and this v6 wrong-type
+    # mutation is silently normalized by Pydantic.
+    coercible_receipt = deepcopy(source)
+    coercible_receipt["risk_spend"]["budget_delta"] = str(
+        coercible_receipt["risk_spend"]["budget_delta"]
+    )
+    with pytest.raises(ValueError, match="promotion_history_payload_not_lossless"):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(
+            coercible_receipt
+        )
+
+    malformed_payloads = []
+    missing_default = deepcopy(source)
+    missing_default["owner_projection"]["candidate_summary"].pop("grounding_source")
+    malformed_payloads.append(missing_default)
+
+    coercible_type = deepcopy(source)
+    summary = coercible_type["owner_projection"]["candidate_summary"]
+    summary["cycle_index"] = str(summary["cycle_index"])
+    malformed_payloads.append(coercible_type)
+
+    unknown_field = deepcopy(source)
+    unknown_field["owner_projection"]["candidate_summary"]["unreviewed_extra"] = "kept"
+    malformed_payloads.append(unknown_field)
+
+    for payload in malformed_payloads:
+        owner = payload["owner_projection"]
+        owner["projection_hash"] = gy_content_hash(
+            {key: value for key, value in owner.items() if key != "projection_hash"}
+        )
+        # Keep valid epoch/owner markers and hash the supplied bytes. Refusal
+        # must come from lossless intake before normalization reaches owner hashing.
+        with pytest.raises(
+            ValueError,
+            match="n9_historical_candidate_summary_payload_not_lossless",
+        ):
+            promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+
+
+def _committed_v6_comparison_custody_payload() -> dict[str, Any]:
+    """Build a current-schema fixture from a committed, non-authoritative v6 receipt."""
+
+    from tools.quality.validation.check_layer3_gy_promotion_contract import (
+        _translate_n9_v6_receipt_epoch,
+    )
+
+    fixture_path = REPO_ROOT / (
+        "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+    )
+    fixture = json.loads(fixture_path.read_bytes())
+    source = fixture["generation_cycle_run"]["promotion_port"]["receipts"][0]
+    assert source["schema_version"] == (
+        promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION
+    )
+    payload, identity_map = _translate_n9_v6_receipt_epoch(source)
+    assert identity_map
+    assert payload["schema_version"] == (
+        promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    )
+    # Comparison custody only; this fixture does not establish production authority.
+    assert payload["promoted"] is False
+    assert payload["consumer_promotable"] is False
+    assert payload["owner_projection"]["candidate_summary"]["grounding_issue_codes"] == []
+    assert payload["owner_projection"]["candidate_summary"]["grounding_report_ref"] is None
+    assert payload["owner_projection"]["candidate_summary"]["source_content_hash"] is None
+    return deepcopy(payload)
+
+
+@pytest.mark.parametrize("summary_profile", ["p0", "p1", "p2"])
+def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
+    summary_profile: str,
+) -> None:
+    """Exercise v7 profiles from frozen custody bytes, never a live producer run."""
+
+    payload = _committed_v6_comparison_custody_payload()
+    source_schema = payload["schema_version"]
+    v7 = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    payload["schema_version"] = v7
+    owner = payload["owner_projection"]
+    assert isinstance(owner, dict)
+    owner["schema_version"] = (
+        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+    )
+    summary = owner["candidate_summary"]
+    assert isinstance(summary, dict)
+    if summary_profile in {"p0", "p1"}:
+        summary.pop("source_content_hash")
+    if summary_profile == "p0":
+        summary.pop("grounding_issue_codes")
+        summary.pop("grounding_report_ref")
+    expected_profile_type = {
+        "p0": promotion_sequence_module._HistoricalCandidateSummaryP0,
+        "p1": promotion_sequence_module._HistoricalCandidateSummaryP1,
+        "p2": promotion_sequence_module._HistoricalCandidateSummaryP2,
+    }[summary_profile]
+
+    boundaries = [payload["computed_authority_boundary"]]
+    for posture_name in ("s7_delegation_posture", "s8_value_posture"):
+        posture = owner.get(posture_name)
+        if isinstance(posture, dict) and isinstance(posture.get("authority_boundary"), dict):
+            boundaries.append(posture["authority_boundary"])
+    for boundary in boundaries:
+        assert isinstance(boundary, dict)
+        boundary["rule_version_refs"] = [
+            v7 if item == source_schema else item
+            for item in boundary["rule_version_refs"]
+        ]
+    owner["projection_hash"] = gy_content_hash(
+        {key: item for key, item in owner.items() if key != "projection_hash"}
+    )
+
+    semantic_raw = payload["confidence_ledger_semantic_projection"]
+    assert isinstance(semantic_raw, dict)
+    assert semantic_raw["checks"]
+    semantic = confidence_ledger_module.N9PromotionSemanticLedgerProjection.model_validate(
+        semantic_raw
+    )
+    v7_risk_scope_payload = deepcopy(semantic_raw["risk_scope"])
+    v7_risk_scope_payload["rule_ref"] = v7
+    v7_risk_scope = ConfidenceRiskBudgetScope.model_validate(v7_risk_scope_payload)
+    root_values = confidence_ledger_module._n9_semantic_ledger_root_values(
+        receipt=semantic,
+        risk_scope=v7_risk_scope,
+    )
+    root_hash = confidence_ledger_module._content_hash(root_values)
+    head_hash = root_hash
+    filtration_by_request: dict[str, str] = {}
+    projected_events = []
+    current_checks: dict[str, Any] = {}
+    for event in semantic.events:
+        request_key = event.check.request_key
+        if event.event_type == "prepared" or (
+            request_key not in filtration_by_request
+            and event.check.outcome == "preflight_refusal"
+        ):
+            assert request_key not in filtration_by_request
+            filtration_by_request[request_key] = head_hash
+        check = event.check.model_copy(
+            update={"filtration_projection_hash": filtration_by_request[request_key]}
+        )
+        check = check.model_copy(
+            update={
+                "claim_execution_projection_hash": (
+                    confidence_ledger_module._semantic_claim_execution_projection_hash_from_projection(
+                        check
+                    )
+                )
+            }
+        )
+        check = check.model_copy(
+            update={
+                "check_projection_hash": confidence_ledger_module._content_hash(
+                    check.model_dump(mode="json", exclude={"check_projection_hash"})
+                )
+            }
+        )
+        event_payload = {
+            "event_type": event.event_type,
+            "revision": event.revision,
+            "parent_event_projection_hash": head_hash,
+            "check": check.model_dump(mode="json"),
+        }
+        event_payload["event_projection_hash"] = confidence_ledger_module._content_hash(
+            event_payload
+        )
+        projected_event = confidence_ledger_module.ConfidenceLedgerSemanticEvent.model_validate(
+            event_payload
+        )
+        projected_events.append(projected_event)
+        current_checks[request_key] = check
+        head_hash = projected_event.event_projection_hash
+
+    semantic_payload = semantic.model_dump(mode="json")
+    semantic_payload.update(
+        {
+            "risk_scope": v7_risk_scope.model_dump(mode="json"),
+            "root_projection_hash": root_hash,
+            "events": [event.model_dump(mode="json") for event in projected_events],
+            "checks": [
+                current_checks[request_key].model_dump(mode="json")
+                for request_key in sorted(current_checks)
+            ],
+            "head_event_projection_hash": head_hash,
+        }
+    )
+    semantic_payload["projection_hash"] = confidence_ledger_module._content_hash(
+        {key: value for key, value in semantic_payload.items() if key != "projection_hash"}
+    )
+    rebound_semantic = confidence_ledger_module.N9PromotionSemanticLedgerProjection.model_validate(
+        semantic_payload
+    )
+    payload["confidence_ledger_semantic_projection"] = rebound_semantic.model_dump(mode="json")
+
+    certificate = payload["confidence_ledger_projection"]
+    certificate["risk_scope"]["rule_ref"] = v7
+    certificate["projection_hash"] = confidence_ledger_module._content_hash(
+        {key: item for key, item in certificate.items() if key != "projection_hash"}
+    )
+
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+    assert type(parsed) is promotion_sequence_module._LegacyCanonicalPromotionReceiptV7
+    assert type(parsed.owner_projection) is (
+        promotion_sequence_module._LegacyCanonicalPromotionOwnerProjectionV3History
+    )
+    assert type(parsed.owner_projection.candidate_summary) is expected_profile_type
+    assert parsed.model_dump(mode="json") == payload
+    assert validate_canonical_promotion_receipt(payload) == (
+        {"code": "legacy_promotion_epoch_v7_authority_not_admitted"},
+    )
+    with pytest.raises(ValueError):
+        CanonicalPromotionReceipt.model_validate(payload)
+    with pytest.raises(
+        ValueError,
+        match="legacy_promotion_epoch_v7_authority_not_admitted",
+    ):
+        promotion_sequence_module.canonical_promotion_receipt_semantic_projection(payload)
+
+    registry = promotion_sequence_module.canonical_promotion_verification_comparison_owner_rule_registry()
+    v7_rule = registry[
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_RULE
+    ]
+    comparison_projection = v7_rule.projector(payload)
+    assert comparison_projection["schema_version"] == v7
+    assert comparison_projection["confidence_ledger_semantic_projection"] == (
+        payload["confidence_ledger_semantic_projection"]
+    )
+    assert comparison_projection["confidence_ledger_projection"]["risk_scope"]["rule_ref"] == v7
+    assert comparison_projection["owner_projection"]["candidate_summary"] == summary
+    assert comparison_projection["confidence_ledger_projection"]["promotion_rows"]
+
+    if summary_profile == "p2":
+        lossy = deepcopy(payload)
+        lossy_owner = lossy["owner_projection"]
+        lossy_summary = lossy_owner["candidate_summary"]
+        lossy_summary.pop("grounding_report_ref")
+        lossy_owner["projection_hash"] = gy_content_hash(
+            {key: item for key, item in lossy_owner.items() if key != "projection_hash"}
+        )
+        assert lossy["schema_version"] == v7
+        assert lossy_owner["schema_version"].endswith(".v3")
+        with pytest.raises(
+            ValueError,
+            match="n9_historical_candidate_summary_payload_not_lossless",
+        ):
+            promotion_sequence_module.parse_canonical_promotion_history_receipt(lossy)
+
+def test_current_p2_owner_projection_remains_a_property_preserving_control() -> None:
+    payload = _committed_v6_comparison_custody_payload()
+    owner = payload["owner_projection"]
+    summary = owner["candidate_summary"]
+
+    # Current-schema parsing preserves p2 fields in comparison custody.
+    assert payload["schema_version"] == (
+        promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    )
+    assert owner["schema_version"] == (
+        promotion_sequence_module.CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+    )
+    assert {
+        "source_content_hash",
+        "grounding_issue_codes",
+        "grounding_report_ref",
+    } <= summary.keys()
+    stored_hash = owner["projection_hash"]
+    assert stored_hash == gy_content_hash(
+        {key: value for key, value in owner.items() if key != "projection_hash"}
+    )
+    assert type(
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+    ) is CanonicalPromotionReceipt
+    restored = CanonicalPromotionReceipt.model_validate(payload)
+    assert restored.model_dump(mode="json") == payload
+    assert payload["promoted"] is False
+    assert payload["consumer_promotable"] is False
+
+    summary_changes = {
+        "source_content_hash": "sha256:" + "0" * 64,
+        "grounding_issue_codes": ["independent_review"],
+        "grounding_report_ref": "artifact://current-p2-control",
+    }
+    for field, replacement in summary_changes.items():
+        changed = deepcopy(payload)
+        changed_owner = changed["owner_projection"]
+        old_value = changed_owner["candidate_summary"][field]
+        if replacement == old_value:
+            replacement = "sha256:" + "1" * 64
+        changed_owner["candidate_summary"][field] = replacement
+        changed_owner["projection_hash"] = gy_content_hash(
+            {
+                key: value
+                for key, value in changed_owner.items()
+                if key != "projection_hash"
+            }
+        )
+        assert changed_owner["projection_hash"] != stored_hash
+        changed_receipt = CanonicalPromotionReceipt.model_validate(changed)
+        observed = getattr(
+            changed_receipt.owner_projection.candidate_summary,
+            field,
+        )
+        if field == "grounding_issue_codes":
+            assert observed == tuple(replacement)
+        else:
+            assert observed == replacement
+
+
 def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
     receipt = _run(_promotion_input())
 
-    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
     payload = _legacy_v4_history_payload(receipt)
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
 
@@ -595,6 +1325,11 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
     assert parsed.schema_version.endswith(".v5")
     assert parsed.owner_projection.schema_version.endswith(".v3")
     assert parsed.model_dump_json().encode("utf-8") == raw
+    assert parsed.model_dump(mode="json") == payload
+    owner = payload["owner_projection"]
+    assert owner["projection_hash"] == gy_content_hash(
+        {key: value for key, value in owner.items() if key != "projection_hash"}
+    )
     assert validate_canonical_promotion_receipt(payload) == (
         {"code": "legacy_obligation_scope_v2_authority_not_admitted"},
     )
@@ -627,6 +1362,7 @@ def test_promotion_comparison_owner_registry_covers_every_receipt_epoch() -> Non
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     )
 
@@ -3175,7 +3911,9 @@ def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> N
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
     out_of_scope = _obligation(receipt, PromotionObligationClass.EVAL_SAFETY)
 
-    assert receipt.schema_version.endswith(".v7")
+    assert receipt.schema_version == (
+        promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    )
     assert effect.status == PromotionObligationStatus.UNKNOWN
     assert effect.reason.value == "unknown"
     assert effect.semantic_scope == "real_semantics"

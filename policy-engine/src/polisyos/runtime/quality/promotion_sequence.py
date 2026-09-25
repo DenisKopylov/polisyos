@@ -159,9 +159,12 @@ PROMOTION_STRANGLE_REF = (
     "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
 )
 CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
-] = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
+] = "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
 CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v4"
+] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v4"
+_LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
 ] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
 _LEGACY_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION: Literal[
@@ -1688,7 +1691,7 @@ class CredalReferencePromotabilityProjection(_StrictModel):
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v7"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v8"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -1900,6 +1903,197 @@ def _promotion_safety_scope(promotion_input: CanonicalPromotionInput) -> Promoti
     )
 
 
+def _canonical_historical_json(value: object) -> str:
+    """Encode JSON values canonically for byte-preserving typed history checks."""
+
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def _historical_summary_wire_keys(model_type: type[BaseModel]) -> frozenset[str]:
+    """Derive a historical summary's complete serialized key set from its DTO."""
+
+    return frozenset(
+        field.serialization_alias or field.alias or name
+        for name, field in model_type.model_fields.items()
+        if field.exclude is not True
+    )
+
+
+def _parse_lossless_historical_summary[HistoricalModelT: BaseModel](
+    value: object,
+    *,
+    allowed_profiles: tuple[type[HistoricalModelT], ...],
+) -> HistoricalModelT:
+    """Select exactly one historical summary profile and refuse normalization."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError("n9_historical_candidate_summary_payload_not_lossless")
+    payload = dict(value)
+    supplied_keys = frozenset(payload)
+    matches = tuple(
+        profile
+        for profile in allowed_profiles
+        if supplied_keys == _historical_summary_wire_keys(profile)
+    )
+    if len(matches) != 1:
+        raise ValueError("n9_historical_candidate_summary_payload_not_lossless")
+    parsed = matches[0].model_validate(payload)
+    if _canonical_historical_json(parsed.model_dump(mode="json")) != (
+        _canonical_historical_json(payload)
+    ):
+        raise ValueError("n9_historical_candidate_summary_payload_not_lossless")
+    return parsed
+
+
+class _HistoricalCandidateSummaryP0(_StrictModel):
+    """Frozen original N9 candidate summary projection (22 serialized fields)."""
+
+    candidate_id: str = Field(..., min_length=1)
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_index: int = Field(ge=0)
+    generation_channel: Literal["n4_owner", "grammar_fallback"] = "n4_owner"
+    proxy_score: float = Field(ge=0.0, le=1.0)
+    voi_estimate: float = Field(ge=0.0)
+    grounding_status: Literal[
+        "current_valid",
+        "grounded_shadow",
+        "grounding_gap",
+        "grounding_failed",
+        "grounding_unavailable",
+    ]
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
+        "grounding_unavailable"
+    )
+    grounding_disposition: str | None = None
+    grounding_score: float = Field(ge=0.0, le=1.0)
+    current_valid: bool
+    value_status: Literal[
+        "value_pending_n8",
+        "value_ready",
+        "value_conditional",
+        "value_blocked",
+    ] = "value_pending_n8"
+    value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
+    value_ref: str | None = None
+    value_blockers: tuple[str, ...] = ()
+    value_receipt: ValueGateReceipt | None = Field(default=None, exclude=True)
+    certified_by_n9: bool = False
+    front: Literal["decision", "research", "quarantine", "portfolio"]
+    high_proxy: bool
+    low_grounding: bool
+    quarantine_action: Literal["none", "adversarial_validate"] = "none"
+    adversarial_validation_status: Literal[
+        "not_required",
+        "required_before_decision",
+        "completed_shadow_only",
+    ] = "not_required"
+    counterexample_ref: str | None = None
+
+
+class _HistoricalCandidateSummaryP1(_StrictModel):
+    """Frozen p1 summary with grounding issue detail but no content source hash."""
+
+    candidate_id: str = Field(..., min_length=1)
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_index: int = Field(ge=0)
+    generation_channel: Literal["n4_owner", "grammar_fallback"] = "n4_owner"
+    proxy_score: float = Field(ge=0.0, le=1.0)
+    voi_estimate: float = Field(ge=0.0)
+    grounding_status: Literal[
+        "current_valid",
+        "grounded_shadow",
+        "grounding_gap",
+        "grounding_failed",
+        "grounding_unavailable",
+    ]
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
+        "grounding_unavailable"
+    )
+    grounding_disposition: str | None = None
+    grounding_issue_codes: tuple[str, ...] = ()
+    grounding_report_ref: str | None = None
+    grounding_score: float = Field(ge=0.0, le=1.0)
+    current_valid: bool
+    value_status: Literal[
+        "value_pending_n8",
+        "value_ready",
+        "value_conditional",
+        "value_blocked",
+    ] = "value_pending_n8"
+    value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
+    value_ref: str | None = None
+    value_blockers: tuple[str, ...] = ()
+    value_receipt: ValueGateReceipt | None = Field(default=None, exclude=True)
+    certified_by_n9: bool = False
+    front: Literal["decision", "research", "quarantine", "portfolio"]
+    high_proxy: bool
+    low_grounding: bool
+    quarantine_action: Literal["none", "adversarial_validate"] = "none"
+    adversarial_validation_status: Literal[
+        "not_required",
+        "required_before_decision",
+        "completed_shadow_only",
+    ] = "not_required"
+    counterexample_ref: str | None = None
+
+
+class _HistoricalCandidateSummaryP2(_StrictModel):
+    """Frozen p2 current-shape summary retained for v7 history."""
+
+    candidate_id: str = Field(..., min_length=1)
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    cycle_index: int = Field(ge=0)
+    generation_channel: Literal["n4_owner", "grammar_fallback"] = "n4_owner"
+    proxy_score: float = Field(ge=0.0, le=1.0)
+    voi_estimate: float = Field(ge=0.0)
+    grounding_status: Literal[
+        "current_valid",
+        "grounded_shadow",
+        "grounding_gap",
+        "grounding_failed",
+        "grounding_unavailable",
+    ]
+    grounding_source: Literal["cgf_firewall", "grounding_unavailable"] = (
+        "grounding_unavailable"
+    )
+    grounding_disposition: str | None = None
+    grounding_issue_codes: tuple[str, ...] = ()
+    grounding_report_ref: str | None = None
+    grounding_score: float = Field(ge=0.0, le=1.0)
+    current_valid: bool
+    value_status: Literal[
+        "value_pending_n8",
+        "value_ready",
+        "value_conditional",
+        "value_blocked",
+    ] = "value_pending_n8"
+    value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
+    value_ref: str | None = None
+    value_blockers: tuple[str, ...] = ()
+    value_receipt: ValueGateReceipt | None = Field(default=None, exclude=True)
+    certified_by_n9: bool = False
+    front: Literal["decision", "research", "quarantine", "portfolio"]
+    high_proxy: bool
+    low_grounding: bool
+    quarantine_action: Literal["none", "adversarial_validate"] = "none"
+    adversarial_validation_status: Literal[
+        "not_required",
+        "required_before_decision",
+        "completed_shadow_only",
+    ] = "not_required"
+    counterexample_ref: str | None = None
+
+
 class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
     """Exact pre-OpenWorldRisk owner projection retained for history reads."""
 
@@ -1907,7 +2101,7 @@ class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
         "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
     )
     design_problem_binding: N9DesignProblemBinding
-    candidate_summary: CandidateSummary
+    candidate_summary: _HistoricalCandidateSummaryP0
     value_receipt: ValueGateReceipt | None = None
     world_model_record: WorldModelRecord | None = None
     grounding_decision_certificate: GroundingDecisionCertificate | None = None
@@ -1926,6 +2120,14 @@ class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
     admissibility: bool
     force_proof_timeout: bool
     projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("candidate_summary", mode="before")
+    @classmethod
+    def _candidate_summary_is_exact_p0(cls, value: object) -> BaseModel:
+        return _parse_lossless_historical_summary(
+            value,
+            allowed_profiles=(_HistoricalCandidateSummaryP0,),
+        )
 
     @field_validator("value_receipt", mode="before")
     @classmethod
@@ -1963,7 +2165,7 @@ class _LegacyCanonicalPromotionOwnerProjectionV2(_LegacyCanonicalPromotionOwnerP
 class CanonicalPromotionOwnerProjection(_StrictModel):
     """Current owner projection without caller-asserted gate predicates."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v4"] = (
         CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -2008,10 +2210,134 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
         return self
 
 
+class _LegacyCanonicalPromotionOwnerProjectionV3(_StrictModel):
+    """Frozen v3 owner projection for v5/v6 receipts with p0 summaries."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+    ] = _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    design_problem_binding: N9DesignProblemBinding
+    candidate_summary: _HistoricalCandidateSummaryP0
+    value_receipt: ValueGateReceipt | None = None
+    world_model_record: WorldModelRecord | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = None
+    credal_reference: CredalReferencePromotabilityProjection | None = None
+    s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
+    s8_value_posture: Layer2S8ValuePostureInput | None = None
+    operation_invocation_id: str = Field(..., min_length=1)
+    declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
+    producer_root_classes: tuple[str, ...]
+    producer_root_refs: tuple[ArtifactRef, ...]
+    verifier_refs: tuple[str, ...]
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
+    open_world_gate: OpenWorldRiskPromotionGate | None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
+    g4_governed_promotion_ref: str | None
+    force_proof_timeout: bool
+    projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("candidate_summary", mode="before")
+    @classmethod
+    def _candidate_summary_is_exact_p0(cls, value: object) -> BaseModel:
+        return _parse_lossless_historical_summary(
+            value,
+            allowed_profiles=(_HistoricalCandidateSummaryP0,),
+        )
+
+    @field_validator("value_receipt", mode="before")
+    @classmethod
+    def _load_persisted_value_receipt(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        value_outer_set = payload.get("value_outer_set")
+        if isinstance(value_outer_set, Mapping):
+            payload["value_outer_set"] = core_contracts.ValueOuterSet.from_persisted_payload(
+                value_outer_set
+            )
+        return ValueGateReceipt.model_validate(payload)
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(
+        self,
+    ) -> _LegacyCanonicalPromotionOwnerProjectionV3:
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_owner_projection_hash_mismatch")
+        return self
+
+
+class _LegacyCanonicalPromotionOwnerProjectionV3History(_StrictModel):
+    """Frozen v7-history owner supporting exact p0/p1/p2 summary profiles."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+    ] = _LEGACY_PROMOTION_OWNER_PROJECTION_V3_SCHEMA_VERSION
+    design_problem_binding: N9DesignProblemBinding
+    candidate_summary: (
+        _HistoricalCandidateSummaryP0
+        | _HistoricalCandidateSummaryP1
+        | _HistoricalCandidateSummaryP2
+    )
+    value_receipt: ValueGateReceipt | None = None
+    world_model_record: WorldModelRecord | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = None
+    credal_reference: CredalReferencePromotabilityProjection | None = None
+    s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
+    s8_value_posture: Layer2S8ValuePostureInput | None = None
+    operation_invocation_id: str = Field(..., min_length=1)
+    declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
+    producer_root_classes: tuple[str, ...]
+    producer_root_refs: tuple[ArtifactRef, ...]
+    verifier_refs: tuple[str, ...]
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
+    open_world_gate: OpenWorldRiskPromotionGate | None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
+    g4_governed_promotion_ref: str | None
+    force_proof_timeout: bool
+    projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("candidate_summary", mode="before")
+    @classmethod
+    def _candidate_summary_is_exact_profile(cls, value: object) -> BaseModel:
+        return _parse_lossless_historical_summary(
+            value,
+            allowed_profiles=(
+                _HistoricalCandidateSummaryP0,
+                _HistoricalCandidateSummaryP1,
+                _HistoricalCandidateSummaryP2,
+            ),
+        )
+
+    @field_validator("value_receipt", mode="before")
+    @classmethod
+    def _load_persisted_value_receipt(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        value_outer_set = payload.get("value_outer_set")
+        if isinstance(value_outer_set, Mapping):
+            payload["value_outer_set"] = core_contracts.ValueOuterSet.from_persisted_payload(
+                value_outer_set
+            )
+        return ValueGateReceipt.model_validate(payload)
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(
+        self,
+    ) -> _LegacyCanonicalPromotionOwnerProjectionV3History:
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_owner_projection_hash_mismatch")
+        return self
+
+
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v7"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v8"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     owner_projection: CanonicalPromotionOwnerProjection
@@ -2145,20 +2471,305 @@ class CanonicalPromotionReceipt(_StrictModel):
         return self
 
 
+_LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+)
+
+_V1PromotionObligationClass = Literal[
+    "syntax", "type", "slot", "param", "coupling", "effect", "identification",
+    "calibration", "measurement", "data", "implementation", "equilibrium",
+    "normative", "eval_safety", "value",
+]
+_V1PromotionGateId = Literal[
+    "gy_waist", "ring2_waist", "cgf_grounding", "cg2_bind_promotability",
+    "gyk_entailment", "n5_coupling", "n8_value", "n8_calibration", "n8_transport",
+    "s6_blind_spot", "s7_mandate_delegation", "s8_value_posture",
+    "g4_governed_promotion", "gy_o0_eval_safety",
+]
+_V1PromotionObligationStatus = Literal[
+    "satisfied", "failed", "unknown", "scope_insufficient", "not_applicable_data_only",
+]
+_V1PromotionFailClosedReason = Literal[
+    "single_obligation_fail", "joint_obligation_inconsistency", "proof_timeout",
+    "scope_insufficient", "unknown",
+]
+
+
+class _LegacyV1PromotionRiskSpendRecord(_StrictModel):
+    """Frozen risk-spend record from the flat N9 v1 projection."""
+
+    obligation_class: _V1PromotionObligationClass
+    certificate_ref: str = Field(..., min_length=1, max_length=300)
+    instrument: str = Field(..., min_length=1, max_length=120)
+    declared_delta_spend: float = Field(ge=0.0)
+    deterministic_proof: bool = False
+    n11_confidence_ledger_ref: str | None = Field(default=None, max_length=300)
+
+
+class _LegacyV1PromotionObligation(_StrictModel):
+    """Frozen N9 v1 obligation row, before run-scoped identity fields."""
+
+    obligation_class: _V1PromotionObligationClass
+    gate_id: _V1PromotionGateId
+    status: _V1PromotionObligationStatus
+    reason: _V1PromotionFailClosedReason | None = None
+    owner_ref: str = Field(..., min_length=1, max_length=300)
+    detail: str = Field(..., min_length=1, max_length=1000)
+    evidence_refs: list[str] = Field(default_factory=list, max_length=40)
+    risk_spend: _LegacyV1PromotionRiskSpendRecord | None = None
+    semantic_scope: Literal[
+        "real_semantics", "scope_insufficient", "data_only_not_required"
+    ] = "real_semantics"
+
+    @model_validator(mode="after")
+    def _fail_closed_reason_matches_status(self) -> _LegacyV1PromotionObligation:
+        if self.status in {"failed", "unknown", "scope_insufficient"} and self.reason is None:
+            raise ValueError("unsatisfied_promotion_obligation_requires_reason")
+        if self.status == "satisfied" and self.semantic_scope == "scope_insufficient":
+            raise ValueError("obligation_class_vacuously_passed")
+        return self
+
+
+class _LegacyV1PromotionRiskSpendSummary(_StrictModel):
+    """Frozen pre-N11 risk summary carried by a flat N9 v1 receipt."""
+
+    total_declared_delta: float = Field(ge=0.0)
+    budget_delta: float = Field(ge=0.0)
+    within_budget: bool
+    spend_records: list[_LegacyV1PromotionRiskSpendRecord] = Field(
+        default_factory=list, max_length=80
+    )
+    caveat: str = (
+        "The delta claim is conditional on obligation completeness and validator soundness; "
+        "pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. "
+        "Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs."
+    )
+
+
+class _LegacyV1EvidenceBasis(_StrictModel):
+    """Frozen Layer 2 evidence basis nested in a v1 authority boundary."""
+
+    producer_roots: list[Any] = Field(default_factory=list, max_length=80)
+    method_refs: list[str] = Field(default_factory=list, max_length=80)
+    calibration_refs: list[Any] = Field(default_factory=list, max_length=80)
+    counterexamples_closed: list[Any] = Field(default_factory=list, max_length=80)
+
+
+class _LegacyV1AuthorityBoundary(_StrictModel):
+    """Frozen authority boundary shape used by the flat v1 receipt."""
+
+    boundary_id: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9_.-]*$")
+    authoritative_for: list[str] = Field(..., min_length=1, max_length=20)
+    may_not_use_for: list[str] = Field(..., min_length=1, max_length=20)
+    source_authority: Literal[
+        "deterministic_producer", "governed_config", "human_governance", "llm_candidate",
+        "llm_critic", "llm_drafter",
+    ]
+    posture: Literal["shadow", "advisory", "governed", "production"]
+    rule_version_refs: list[str] = Field(..., min_length=1, max_length=20)
+    evidence_kind: Literal[
+        "measurement", "derivation", "proxy", "transport", "bounds", "simulation",
+        "elicitation", "incomparable_meet",
+    ] | None = None
+    decision_grade: Literal[
+        "unsupported", "descriptive_only", "advisory_admissible", "decision_admissible",
+    ] | None = None
+    evidence_basis: _LegacyV1EvidenceBasis | None = None
+    known_limits: list[str] = Field(default_factory=list, max_length=80)
+
+    @model_validator(mode="after")
+    def _validate_llm_and_simulation_authority(self) -> _LegacyV1AuthorityBoundary:
+        if self.source_authority.startswith("llm_") and self.posture != "shadow":
+            raise ValueError("LLM authority boundary must remain shadow")
+        if (
+            self.evidence_kind == "simulation"
+            and self.decision_grade in {"advisory_admissible", "decision_admissible"}
+            and not (self.evidence_basis and self.evidence_basis.calibration_refs)
+        ):
+            raise ValueError("uncalibrated simulation cannot carry admissible authority")
+        return self
+
+
+class _LegacyV1ArtifactRef(_StrictModel):
+    """Frozen artifact reference nested in a v1 authority trace."""
+
+    artifact_id: str = Field(
+        ..., pattern=r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
+    )
+    artifact_type: str = Field(..., min_length=1, max_length=80)
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    schema_ref: str = Field(..., min_length=1, max_length=200)
+    uri: str = Field(..., min_length=1, max_length=300)
+    version: str = Field(..., min_length=1, max_length=80)
+
+
+class _LegacyV1AuthorityDerivationTrace(_StrictModel):
+    """Frozen trace schema from the original flat N9 v1 receipt."""
+
+    operation_invocation_id: str = Field(..., min_length=1)
+    output_artifact_ref: _LegacyV1ArtifactRef
+    declared_authority_transform: dict[str, Any]
+    computed_evidence_kind: Literal[
+        "measurement", "derivation", "proxy", "transport", "bounds", "simulation",
+        "elicitation", "incomparable_meet",
+    ]
+    computed_decision_grade: Literal[
+        "unsupported", "descriptive_only", "advisory_admissible", "decision_admissible",
+    ]
+    producer_root_classes: list[str]
+    method_classification: str
+    applicability_result_ref: str
+    calibration_refs: list[str] = Field(default_factory=list)
+    counterexamples_closed: list[str] = Field(default_factory=list)
+    certified_envelope_ref: str | None = None
+    unresolved_blockers: list[str] = Field(default_factory=list)
+    resulting_authority_boundary_ref: str
+    transform_mismatch_disposition: Literal["matched", "downgraded", "rejected", "upgraded"]
+    promotion_sequence_ref: str | None = Field(default=None, max_length=300)
+    gate_outcome_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    risk_spend_total: float = Field(default=0.0, ge=0.0)
+    risk_budget_delta: float | None = Field(default=None, ge=0.0)
+    trace_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _reject_self_promotion(self) -> _LegacyV1AuthorityDerivationTrace:
+        requested_kind = self.declared_authority_transform.get("requested_evidence_kind")
+        requested_grade = self.declared_authority_transform.get("requested_decision_grade")
+        if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:
+            raise ValueError("authority_transform hints cannot self-promote")
+        kind_rank = {
+            "unsupported": 0,
+            "descriptive_only": 1,
+            "advisory_admissible": 2,
+            "decision_admissible": 3,
+        }
+        computed_covers_request = self.computed_evidence_kind == requested_kind
+        if requested_kind == "elicitation":
+            computed_covers_request = self.computed_evidence_kind != "incomparable_meet"
+        elif self.computed_evidence_kind == "measurement":
+            computed_covers_request = requested_kind in {
+                "derivation", "proxy", "transport", "bounds", "simulation", "elicitation"
+            }
+        elif self.computed_evidence_kind == "derivation":
+            computed_covers_request = requested_kind in {
+                "proxy", "transport", "bounds", "simulation", "elicitation"
+            }
+        kind_self_promotes = (
+            isinstance(requested_kind, str) and not computed_covers_request
+        )
+        grade_self_promotes = (
+            isinstance(requested_grade, str)
+            and kind_rank.get(requested_grade, 0)
+            > kind_rank[self.computed_decision_grade]
+        )
+        if self.transform_mismatch_disposition == "matched" and (
+            kind_self_promotes or grade_self_promotes
+        ):
+            raise ValueError("authority_transform hints cannot self-promote")
+        if (
+            requested_grade == "decision_admissible"
+            and self.computed_decision_grade == "decision_admissible"
+            and self.unresolved_blockers
+        ):
+            raise ValueError("authority_transform hints cannot self-promote past blockers")
+        return self
+
+
+class _LegacyCanonicalPromotionReceiptV1(_StrictModel):
+    """Original flat N9 v1 receipt shape from the first canonical owner."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+    candidate_id: str = Field(..., min_length=1)
+    status: Literal["grounded_partial_admissible", "shadow", "abstention"]
+    promoted: bool
+    terminal_kind: Literal[
+        "a_spec_gap", "tool_failure", "composition_invalid", "recursive_blocked",
+        "search_ceiling_repair_required", "human_decision_required", "acquisition_required",
+        "budget_exhausted", "frontier_stable", "grounded_admissible",
+        "grounded_partial_admissible", "grounded_abstention",
+    ]
+    obligations: tuple[_LegacyV1PromotionObligation, ...]
+    risk_spend: _LegacyV1PromotionRiskSpendSummary
+    computed_authority_boundary: _LegacyV1AuthorityBoundary
+    authority_derivation_trace: _LegacyV1AuthorityDerivationTrace | None = None
+    gate_outcome_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    trace_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    refusal_reasons: tuple[str, ...] = ()
+    value_receipt_ref: str | None = None
+    value_method_family: str | None = None
+    sequence_ref: str = PROMOTION_SEQUENCE_REF
+
+    @model_validator(mode="after")
+    def _promoted_requires_trace(self) -> _LegacyCanonicalPromotionReceiptV1:
+        if self.promoted and self.authority_derivation_trace is None:
+            raise ValueError("promoted_receipt_requires_authority_derivation_trace")
+        if self.promoted and self.status != "grounded_partial_admissible":
+            raise ValueError("promoted_receipt_status_mismatch")
+        return self
+
+    def historical_projection(self) -> dict[str, Any]:
+        """Return only fields physically present in the frozen v1 receipt."""
+
+        return self.model_dump(mode="json", exclude_unset=True)
+
+
+_V1_CAPTURE_EXTENSION_FIELDS = frozenset(
+    {"promotion_lane", "consumer_promotable", "non_promotable_reason", "cg2_resolution_reason"}
+)
+
+
+class _LegacyCanonicalPromotionReceiptV1Captured(_LegacyCanonicalPromotionReceiptV1):
+    """Later flat fields persisted under the v1 label before a schema bump."""
+
+    promotion_lane: Literal["production", "contract_testing", "unresolved"]
+    consumer_promotable: bool
+    non_promotable_reason: str | None
+    cg2_resolution_reason: str | None
+
+    @model_validator(mode="after")
+    def _captured_status_is_consistent(
+        self,
+    ) -> _LegacyCanonicalPromotionReceiptV1Captured:
+        if self.consumer_promotable and not self.promoted:
+            raise ValueError("consumer_promotable_requires_promoted_receipt")
+        if self.consumer_promotable and self.promotion_lane != "production":
+            raise ValueError("consumer_promotable_requires_production_lane")
+        if self.promotion_lane == "contract_testing" and not self.non_promotable_reason:
+            raise ValueError("contract_lane_receipt_requires_non_promotable_reason")
+        if self.promoted and any(
+            obligation.status == "scope_insufficient" for obligation in self.obligations
+        ) and (self.promotion_lane != "contract_testing" or self.consumer_promotable):
+            raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
+        return self
+
+
+class _LegacyCanonicalPromotionReceiptV7(CanonicalPromotionReceipt):
+    """Typed v7 history; readable and projectable but never current authority."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+    owner_projection: _LegacyCanonicalPromotionOwnerProjectionV3History
+
+
 class _LegacyCanonicalPromotionReceiptV6(CanonicalPromotionReceipt):
     """Exact scope-v3/catalog-only v6 receipt retained solely for historical reads."""
 
     schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
         "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
     )
+    owner_projection: _LegacyCanonicalPromotionOwnerProjectionV3
 
 
 class _LegacyCanonicalPromotionReceiptV5(CanonicalPromotionReceipt):
     """Exact v5/v2 obligation-scope receipt retained only for history reads."""
 
-    schema_version: Literal[  # type: ignore[assignment]
+    schema_version: Literal[
         "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
     ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    owner_projection: _LegacyCanonicalPromotionOwnerProjectionV3
 
 
 class _LegacyCanonicalPromotionReceiptV4(_LegacyCanonicalPromotionReceiptV5):
@@ -2189,6 +2800,9 @@ class _LegacyCanonicalPromotionReceiptV2(_LegacyCanonicalPromotionReceiptV3):
 
 
 _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+_LEGACY_PROMOTION_SEQUENCE_V7_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+)
 _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
 )
@@ -2200,6 +2814,8 @@ _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION = (
 )
 _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS = frozenset(
     {
+        _LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION,
+        _LEGACY_PROMOTION_SEQUENCE_V7_SCHEMA_VERSION,
         _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION,
         _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION,
         _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION,
@@ -2216,6 +2832,10 @@ def _historical_promotion_non_admission_code(
 
     if schema_version not in _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS:
         return None
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION:
+        return "legacy_n9_v1_authority_not_admitted"
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V7_SCHEMA_VERSION:
+        return "legacy_promotion_epoch_v7_authority_not_admitted"
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION:
         return "legacy_obligation_scope_v3_authority_not_admitted"
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
@@ -2225,10 +2845,39 @@ def _historical_promotion_non_admission_code(
     return "legacy_open_world_gate_authority_not_admitted"
 
 
+def _historical_receipt_projection(parsed: BaseModel) -> dict[str, Any]:
+    """Serialize an epoch through its frozen wire model.
+
+    V1 used sparse dumps, so its serializer preserves the fields physically set.
+    Later epochs use their version-specific complete DTO serializers.
+    """
+
+    if isinstance(parsed, _LegacyCanonicalPromotionReceiptV1):
+        return parsed.historical_projection()
+    return parsed.model_dump(mode="json")
+
+
+def _parse_lossless_historical_receipt[HistoricalModelT: BaseModel](
+    model_type: type[HistoricalModelT],
+    value: Mapping[str, object],
+) -> HistoricalModelT:
+    """Validate a historical DTO against that epoch's exact serialized bytes."""
+
+    parsed = model_type.model_validate(value)
+    if _canonical_historical_json(_historical_receipt_projection(parsed)) != (
+        _canonical_historical_json(dict(value))
+    ):
+        raise ValueError("promotion_history_payload_not_lossless")
+    return parsed
+
+
 def parse_canonical_promotion_history_receipt(
     value: Mapping[str, object],
 ) -> (
     CanonicalPromotionReceipt
+    | _LegacyCanonicalPromotionReceiptV1
+    | _LegacyCanonicalPromotionReceiptV1Captured
+    | _LegacyCanonicalPromotionReceiptV7
     | _LegacyCanonicalPromotionReceiptV6
     | _LegacyCanonicalPromotionReceiptV5
     | _LegacyCanonicalPromotionReceiptV4
@@ -2240,16 +2889,43 @@ def parse_canonical_promotion_history_receipt(
     schema_version = value.get("schema_version")
     if schema_version == CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return CanonicalPromotionReceipt.model_validate(value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION:
+        model_type = (
+            _LegacyCanonicalPromotionReceiptV1Captured
+            if _V1_CAPTURE_EXTENSION_FIELDS.intersection(value)
+            else _LegacyCanonicalPromotionReceiptV1
+        )
+        return _parse_lossless_historical_receipt(model_type, value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V7_SCHEMA_VERSION:
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV7,
+            value,
+        )
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION:
-        return _LegacyCanonicalPromotionReceiptV6.model_validate(value)
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV6,
+            value,
+        )
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
-        return _LegacyCanonicalPromotionReceiptV5.model_validate(value)
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV5,
+            value,
+        )
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
-        return _LegacyCanonicalPromotionReceiptV4.model_validate(value)
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV4,
+            value,
+        )
     if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
-        return _LegacyCanonicalPromotionReceiptV3.model_validate(value)
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV3,
+            value,
+        )
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
-        return _LegacyCanonicalPromotionReceiptV2.model_validate(value)
+        return _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV2,
+            value,
+        )
     raise ValueError("promotion_history_schema_invalid")
 
 
@@ -2273,9 +2949,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v5"
 )
-CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v6"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v7"
 )
 
 _PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
@@ -2476,7 +3156,10 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 
     schema_version = value.get("schema_version")
     if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
-        receipt = _LegacyCanonicalPromotionReceiptV3.model_validate(value)
+        receipt = _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV3,
+            value,
+        )
         full_payload = receipt.model_dump(mode="json")
         class_rows = [
             _project_typed_fields(
@@ -2496,7 +3179,10 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
         model_type: type[BaseModel] = _LegacyCanonicalPromotionReceiptV3
         owner_model_type: type[BaseModel] = _LegacyCanonicalPromotionOwnerProjectionV1
     elif schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
-        receipt = _LegacyCanonicalPromotionReceiptV2.model_validate(value)
+        receipt = _parse_lossless_historical_receipt(
+            _LegacyCanonicalPromotionReceiptV2,
+            value,
+        )
         full_payload = receipt.model_dump(mode="json")
         model_type = _LegacyCanonicalPromotionReceiptV2
         owner_model_type = _LegacyCanonicalPromotionOwnerProjectionV1
@@ -2522,7 +3208,7 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Project a verified receipt onto its v7 producer-owned semantics.
+    """Project a verified receipt onto its v8 producer-owned semantics.
 
     The complete raw receipt remains the custody record. Physical ledger
     locators are non-decisive only when the confidence-ledger producer's full
@@ -2556,7 +3242,10 @@ def _canonical_promotion_receipt_v4_semantic_projection(
 ) -> dict[str, Any]:
     """Project exact historical v4/v2-owner bytes under their frozen v3 rule ID."""
 
-    receipt = _LegacyCanonicalPromotionReceiptV4.model_validate(value)
+    receipt = _parse_lossless_historical_receipt(
+        _LegacyCanonicalPromotionReceiptV4,
+        value,
+    )
     if receipt.confidence_ledger_semantic_projection is None:
         raise ValueError("promotion_comparison_semantic_ledger_missing")
     if not is_gy_declared_non_authority_block(
@@ -2576,7 +3265,10 @@ def _canonical_promotion_receipt_v6_semantic_projection(
 ) -> dict[str, Any]:
     """Project exact historical v6 bytes under their frozen v5 comparison rule."""
 
-    receipt = _LegacyCanonicalPromotionReceiptV6.model_validate(value)
+    receipt = _parse_lossless_historical_receipt(
+        _LegacyCanonicalPromotionReceiptV6,
+        value,
+    )
     if receipt.confidence_ledger_semantic_projection is None:
         raise ValueError("promotion_comparison_semantic_ledger_missing")
     if not is_gy_declared_non_authority_block(
@@ -2586,7 +3278,7 @@ def _canonical_promotion_receipt_v6_semantic_projection(
     return _project_promotion_receipt_payload(
         receipt.model_dump(mode="json"),
         model_type=_LegacyCanonicalPromotionReceiptV6,
-        owner_model_type=CanonicalPromotionOwnerProjection,
+        owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
     )
 
@@ -2596,7 +3288,10 @@ def _canonical_promotion_receipt_v5_semantic_projection(
 ) -> dict[str, Any]:
     """Project exact historical v5/v3-owner bytes under their frozen v4 rule ID."""
 
-    receipt = _LegacyCanonicalPromotionReceiptV5.model_validate(value)
+    receipt = _parse_lossless_historical_receipt(
+        _LegacyCanonicalPromotionReceiptV5,
+        value,
+    )
     if receipt.confidence_ledger_semantic_projection is None:
         raise ValueError("promotion_comparison_semantic_ledger_missing")
     if not is_gy_declared_non_authority_block(
@@ -2606,7 +3301,30 @@ def _canonical_promotion_receipt_v5_semantic_projection(
     return _project_promotion_receipt_payload(
         receipt.model_dump(mode="json"),
         model_type=_LegacyCanonicalPromotionReceiptV5,
-        owner_model_type=CanonicalPromotionOwnerProjection,
+        owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
+
+
+def _canonical_promotion_receipt_v7_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact historical v7 bytes through frozen owner-v3 profiles."""
+
+    receipt = _parse_lossless_historical_receipt(
+        _LegacyCanonicalPromotionReceiptV7,
+        value,
+    )
+    if receipt.confidence_ledger_semantic_projection is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=_LegacyCanonicalPromotionReceiptV7,
+        owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3History,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
     )
 
@@ -2616,7 +3334,10 @@ def _canonical_promotion_receipt_v3_semantic_projection(
 ) -> dict[str, Any]:
     """Project exact historical v3/v1 bytes under their frozen v2 rule ID."""
 
-    receipt = _LegacyCanonicalPromotionReceiptV3.model_validate(value)
+    receipt = _parse_lossless_historical_receipt(
+        _LegacyCanonicalPromotionReceiptV3,
+        value,
+    )
     if receipt.confidence_ledger_semantic_projection is None:
         raise ValueError("promotion_comparison_semantic_ledger_missing")
     if not is_gy_declared_non_authority_block(
@@ -2666,6 +3387,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_OWNER_RULE = GyComparison
 )
 
 
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_v7_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
     projector=canonical_promotion_receipt_semantic_projection,
     action="project",
@@ -2693,6 +3421,9 @@ def canonical_promotion_verification_comparison_owner_rule_registry() -> dict[
         ),
         CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE: (
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V7_HISTORY_OWNER_RULE
         ),
         CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
@@ -4284,7 +5015,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         previous: Mapping[str, object],
         current: Mapping[str, object],
     ) -> Mapping[str, object]:
-        """Admit same-version v7 lineage only; v2/v3/v4/v5/v6 stay history."""
+        """Admit same-version v8 lineage only; v2/v3/v4/v5/v6/v7 stay history."""
 
         try:
             current_receipt = CanonicalPromotionReceipt.model_validate(current)

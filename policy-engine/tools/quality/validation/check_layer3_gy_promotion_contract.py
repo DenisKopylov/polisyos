@@ -1220,7 +1220,7 @@ def _is_authorized_v3_to_v6_comparison_reissue(
 
 
 _N9_V6_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
-_N9_V7_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+_N9_V8_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
 _N9_V6_SCOPE_RULE = "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3"
 _N9_V6_MEASUREMENT_OWNER = (
     "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_catalog"
@@ -1251,7 +1251,7 @@ def _translate_n9_semantic_ledger_epoch(value: dict[str, Any]) -> dict[str, Any]
     if previous.risk_scope.rule_ref != _N9_V6_EPOCH:
         raise ValueError("promotion_reissue_ledger_epoch_invalid")
     scope = owner.ConfidenceRiskBudgetScope.model_validate(
-        {**previous.risk_scope.model_dump(mode="json"), "rule_ref": _N9_V7_EPOCH}
+        {**previous.risk_scope.model_dump(mode="json"), "rule_ref": _N9_V8_EPOCH}
     )
     scoped = previous.model_copy(update={"risk_scope": scope, "scope_id": scope.scope_id})
     root_hash = owner._content_hash(
@@ -1314,8 +1314,28 @@ def _translate_n9_v6_receipt_epoch(
         raise ValueError("promotion_reissue_historical_receipt_incomplete")
     if previous.schema_version != _N9_V6_EPOCH or previous.promoted or previous.consumer_promotable:
         raise ValueError("promotion_reissue_receipt_epoch_or_authority_invalid")
-    current_input = owner._input_from_owner_projection(previous.owner_projection, repo_root=None)
-    if current_input.schema_version != _N9_V7_EPOCH or current_input.producer_root_refs:
+    historical_owner = previous.owner_projection
+    historical_summary = historical_owner.candidate_summary.model_dump(mode="json")
+    current_summary = owner.CandidateSummary.model_validate(
+        {
+            **historical_summary,
+            "source_content_hash": None,
+            "grounding_issue_codes": [],
+            "grounding_report_ref": None,
+        }
+    )
+    current_owner_payload = historical_owner.model_dump(mode="json")
+    current_owner_payload["schema_version"] = (
+        owner.CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+    )
+    current_owner_payload["candidate_summary"] = current_summary.model_dump(mode="json")
+    current_owner_payload.pop("projection_hash", None)
+    current_owner_payload["projection_hash"] = gy_content_hash(current_owner_payload)
+    current_owner = owner.CanonicalPromotionOwnerProjection.model_validate(
+        current_owner_payload
+    )
+    current_input = owner._input_from_owner_projection(current_owner, repo_root=None)
+    if current_input.schema_version != _N9_V8_EPOCH or current_input.producer_root_refs:
         raise ValueError("promotion_reissue_requires_unbridged_contract_replay")
     old_scope_hash = _n9_v6_scope_hash(previous)
     old_drafts = [
@@ -1390,18 +1410,19 @@ def _translate_n9_v6_receipt_epoch(
             old.obligation_role,
         )
     payload = previous.model_dump(mode="json")
-    payload["schema_version"] = _N9_V7_EPOCH
+    payload["schema_version"] = _N9_V8_EPOCH
+    payload["owner_projection"] = current_owner.model_dump(mode="json")
     payload["obligations"] = [row.model_dump(mode="json") for row in current_rows]
     rules = payload["computed_authority_boundary"]["rule_version_refs"]
     if _N9_V6_EPOCH not in rules:
         raise ValueError("promotion_reissue_boundary_epoch_missing")
     payload["computed_authority_boundary"]["rule_version_refs"] = [
-        _N9_V7_EPOCH if rule == _N9_V6_EPOCH else rule for rule in rules
+        _N9_V8_EPOCH if rule == _N9_V6_EPOCH else rule for rule in rules
     ]
     certificate = payload["confidence_ledger_projection"]
     if certificate["risk_scope"]["rule_ref"] != _N9_V6_EPOCH:
         raise ValueError("promotion_reissue_certificate_epoch_invalid")
-    certificate["risk_scope"]["rule_ref"] = _N9_V7_EPOCH
+    certificate["risk_scope"]["rule_ref"] = _N9_V8_EPOCH
     certificate["projection_hash"] = ledger_owner._content_hash(
         {key: item for key, item in certificate.items() if key != "projection_hash"}
     )

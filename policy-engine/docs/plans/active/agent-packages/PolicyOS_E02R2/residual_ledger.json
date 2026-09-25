@@ -4283,11 +4283,11 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C had no finding-level record. Source review classifies the persisted width/resume seam as open; an existing single-skip selector is partial evidence only and UNRUN."
       },
-      "residual": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.\n\nN18 read-only residual addendum (UNRUN): The worker returns bytes for state only; merge reconstructs status ok for every result. Local tests also use a fake hook, not durable CAS.",
+      "residual": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The local AsyncWorkflowExecutor already admits completion only for `status == ok`; the active source-level risk is the remote Temporal/Ray result bridge. `_activity_worker` serializes final state without `NodeOutcome.status`, and the distributed merge reconstructs returned state bytes as status `ok` before merge/checkpoint, so a nonthrowing skip/fail may become completed. The exact width-one vs width-two persisted-resume witness, independent-success neighbor, skip/fail controls, and reopen/resume behavior are UNRUN. Next step: carry the existing typed NodeOutcome through the remote worker/result bridge and make the existing distributed merge/checkpoint owner admit only `status == ok`; compose skip/fail into the report/error-policy consumer. Sequence the shared merge/checkpoint files with B73. P38: local async checks the property, but the remote gate tests returned-byte presence and reconstructs success. Open; no exact full-property selector is an existing test. Four-base replay is UNRUN.\n\nN18 read-only residual addendum (UNRUN): status is lost in the remote Temporal/Ray worker/result bridge and distributed merge; local AsyncWorkflowExecutor is the positive control. No actual worker→distributed-merge→CAS-resume witness was run.",
       "residual_owner": {
         "kind": "implementation_owner",
-        "name": "AsyncWorkflowExecutor and checkpoint completed-set owner",
-        "appointment_status": "owner role identified by source path/review; no individual appointment is claimed"
+        "name": "Temporal/Ray worker-result bridge and distributed tier/checkpoint merge owner",
+        "appointment_status": "Remote worker/result and merge/checkpoint source paths are identified; no individual appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -4316,8 +4316,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The source review found the local `ok` condition but no exact width-and-resume witness. Next step: add/run the width-one vs width-two persisted-resume test with `ok`/`fail` controls; change code only if it turns red. P38: a locally correct success condition can still feed a stale or width-dependent completed set to the resume consumer. Open at source review; no exact full-property selector exists, so the proposed identity is not an existing test. Four-base replay is UNRUN.",
-          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+          "summary": "B72 requires a skipped node and an independent successful neighbor to keep the same meaning at one and two workers across persisted checkpoint/resume: the skipped alias is reevaluated, the successful alias is not, `ok` is completed and `fail` is not. The local AsyncWorkflowExecutor checks `record.status == ok`; the source-level loss occurs in remote Temporal/Ray transport and distributed merge, where state-only bytes are reconstructed as `ok`. No exact width-and-resume witness was run. Next step: preserve the existing typed NodeOutcome across the worker/result bridge, admit only `ok` at the merge/checkpoint owner, and exercise report/error-policy composition. Sequence shared checkpoint work with B73. P38 divergence is remote byte-presence success versus the native status predicate. Status remains open and four-base replay UNRUN.",
+          "next_step": "Keep B72 open; exercise the remote Temporal/Ray worker → distributed merge/checkpoint → CAS resume chain with skip/fail and independent-ok controls at widths one and two. Coordinate shared merge/checkpoint edits with B73; run the exact four-base whole-file matrix. No behavioral witness is recorded."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -4325,6 +4325,12 @@
             "identity": "N18 read-only source/caller audit:B72",
             "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-finding-witnesses-20260925/N_FINDING_LEVEL_PREP.json@sha256:3d78f839d54497be7bdc531660255e3ca0afa32d26a2fbf61c3ab504576354cf#findings/B72",
             "scope": "Read-only source/caller review; scratch patch is unapplied and unrun."
+          },
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "B72 remote status-loss source trace",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b73-b72-admission-20260925/B72-DECISION-PROBE-DRAFT.md@sha256:bf2e0ab8f6dea7ff59cea8eaa5460b1308c19ceece3a32b6b757b4e9e34f0299#current-owner-trace",
+            "scope": "Read-only source trace: local AsyncWorkflowExecutor applies the explicit ok predicate; remote worker serializes state only, Temporal/Ray forward those bytes, and distributed merge reconstructs ok. The width/resume property and public status composition remain UNRUN; retain B72 open."
           }
         ]
       }

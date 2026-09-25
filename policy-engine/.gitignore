@@ -146,5 +146,6 @@ packages/*/.eslintcache
 # directory beside the receipt that cites them, keep them locally, and cite them by
 # `path@sha` from the committed evidence. Committing one anyway needs a stated reason
 # in the commit message, not a silent `git add -f`.
+docs/plans/active/agent-packages/PolicyOS_E02R2/raw/
 docs/superpowers/journals/**/raw/
 docs/research/**/raw/

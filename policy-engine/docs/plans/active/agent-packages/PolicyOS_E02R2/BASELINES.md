@@ -987,3 +987,17 @@ Harness SHA-256: `6adf5ef2bf3fd1866af0f8aaa09771dc78d4d2ada8ed47a50436c5b698ac85
 Every run record in `results.json` includes the complete command, allowlisted environment variable names, timeout basis, return code, elapsed time, test-source SHA, case identities/statuses, and SHA-256/size for its JUnit, stdout, and stderr files. Logs are retained in the raw directory; values from the inherited environment are never logged.
 
 Unresolved by construction: dynamic/generated tests not represented by the named tracked files; native dependencies loaded transitively rather than directly named in a test module; tests that intentionally mutate ignored paths; and issue-owner attribution for identical red results, which requires review of the retained failing case output.
+
+## B73 — current-head four-base replay
+
+Run `p41-custom-20260925T190717Z-95272` replayed the three B73 files at the E02 execution base (`78187878e`), E02 head (`00d946c2b`), main (`5fd3ebcc1`), and current `codex/e02-r2` head (`1208c91203f11d76c1954c4c6f838dd22b310af3`). The branch was clean at the same head before and after the run. All 12 requested matrix cells were inspected: 10 present cells passed; two cells are verified `MISSING` because `test_res_02.py` is absent at the execution base and main. Thus no comparable pass→fail was observed, while the aggregate verdict remains **UNRUN**; missing cells do not establish a clean four-base comparison.
+
+| Test file | Execution `78187878e` | E02 `00d946c2b` | Main `5fd3ebcc1` | Current `1208c9120` |
+|---|---:|---:|---:|---:|
+| `tests/unit/remediation/test_res_02.py` | MISSING | PASS (5) | MISSING | PASS (5) |
+| `tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py` | PASS (1) | PASS (1) | PASS (1) | PASS (1) |
+| `tests/integration/scientist/test_checkpoint_resume.py` | PASS (7) | PASS (7) | PASS (7) | PASS (7) |
+
+The complete denominator was 3 requested test paths and 12 revision/path cells; tracked test Python paths / test modules were execution `2,552 / 2,440`, E02 `2,644 / 2,532`, main `2,630 / 2,510`, and current `2,723 / 2,603`. All present cells used the shared `policy-engine/.venv`, checkout-local imports, the read-only production-data link (`manifest.json` SHA-256 `9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`), and the recorded pytest flags. Admission was capped at two workers; observed peak was one active process group, 100% aggregate CPU, 595,504 KiB group RSS, 47% free memory, and zero swap growth. Minimum free disk was 12,820,328,448 bytes.
+
+Receipts: `/Users/deniskopylov/.codex/scratch/e02-r2-postrepair-p41-20260925/raw/p41-custom-20260925T190717Z-95272/results.json@sha256:2c6aa1351c9ed5bf4530e52a3d6b757534864e9bba2a4253c5e55f641c3e4b49` records all 12 cell identities/outcomes and indexes each retained JUnit, stdout, and stderr path, size, and SHA-256 under its `cells/` directory. Admission/resource receipt: `/Users/deniskopylov/.codex/scratch/e02-r2-postrepair-p41-20260925/broker-20260925T191141Z-95272.json@sha256:6a0e93607fe8f36eb85a6e363eb7600ff6b07e09d4664f59d698d3031063d0ec`.

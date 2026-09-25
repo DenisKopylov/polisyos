@@ -10,6 +10,7 @@ import sqlite3
 import threading
 import uuid
 from collections.abc import Callable, Iterator, Mapping
+from contextvars import ContextVar
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass
@@ -84,6 +85,16 @@ def _is_sha256_ref(value: object) -> bool:
         return False
     digest = value[7:]
     return len(digest) == 64 and all(character in "0123456789abcdef" for character in digest)
+
+
+def _is_unique_constraint_violation(exc: BaseException) -> bool:
+    """Recognize unique-index conflicts across the supported SQL drivers."""
+    if isinstance(exc, sqlite3.IntegrityError):
+        return "unique constraint failed" in str(exc).casefold()
+    return (
+        getattr(exc, "sqlstate", None) == "23505"
+        or getattr(exc, "pgcode", None) == "23505"
+    )
 
 
 def _job_event_topic(event_type: str) -> str:
@@ -1274,7 +1285,9 @@ class ControlPlaneStore:
         self._postgres_dsn = postgres_dsn
         self._lock = threading.RLock()
         self._human_decision_transaction = threading.local()
-        self._job_execution_fence = threading.local()
+        self._job_execution_fence: ContextVar[tuple[str, str, int] | None] = ContextVar(
+            "control_job_execution_fence", default=None
+        )
         self._sqlite_timeout_seconds = max(
             float(os.getenv("POLISYOS_CONTROL_SQLITE_TIMEOUT_SECONDS", "0.5")),
             0.05,
@@ -1297,17 +1310,17 @@ class ControlPlaneStore:
         worker_id: str,
         attempt: int,
     ) -> Iterator[None]:
-        """Bind one handler thread to a live ``(job, owner, attempt)`` lease.
+        """Bind one handler context to a live ``(job, owner, attempt)`` lease.
 
-        Lifecycle writes made by the bound handler inherit this fence.  The
-        lease is checked before entering the handler and again by every
-        fenced SQL mutation, so a takeover cannot be overwritten by an old
-        worker after its callback resumes.
+        Lifecycle writes made by the bound handler inherit this fence. The
+        lease is checked before entering the handler and again by each fenced
+        SQL mutation, so a takeover cannot be overwritten by an old worker.
+        Context variables carry the identity across the guarded-store executor
+        handoff; persisted job state, not this carrier, authorizes each write.
         """
         if not job_id.strip() or not worker_id.strip() or type(attempt) is not int:
             raise ValueError("control job execution fence identity is invalid")
-        existing = getattr(self._job_execution_fence, "value", None)
-        if existing is not None:
+        if self._job_execution_fence.get() is not None:
             raise RuntimeError("nested control job execution fences are forbidden")
         record = self.get_job(job_id)
         now = _utc_now()
@@ -1322,11 +1335,11 @@ class ControlPlaneStore:
             raise ControlJobLeaseLostError(
                 f"control job lease is not current for {job_id}"
             )
-        self._job_execution_fence.value = (job_id, worker_id, attempt)
+        token = self._job_execution_fence.set((job_id, worker_id, attempt))
         try:
             yield
         finally:
-            self._job_execution_fence.value = None
+            self._job_execution_fence.reset(token)
 
     def _resolve_job_execution_fence(
         self,
@@ -1336,7 +1349,7 @@ class ControlPlaneStore:
         expected_attempt: int | None,
     ) -> tuple[str, int] | None:
         """Resolve explicit or handler-bound fencing identity for one job write."""
-        bound = getattr(self._job_execution_fence, "value", None)
+        bound = self._job_execution_fence.get()
         if bound is not None:
             bound_job_id, bound_owner, bound_attempt = bound
             if bound_job_id != job_id:
@@ -2694,71 +2707,120 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
     ) -> AcquisitionActionHeadRecord:
-        """Append one predecessor-consistent action-head generation."""
+        """Append one predecessor-consistent action head under the job lease."""
 
         if action_generation < 1 or expected_head_generation < 0:
             raise ValueError("acquisition_action_generation_invalid")
         if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
             raise ValueError("acquisition_action_receipt_binding_invalid")
-        current = self.get_acquisition_action_head(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
-            source_job_id=source_job_id,
-            route_id=route_id,
-            action_generation=action_generation,
+        fence = self._resolve_job_execution_fence(
+            job_id=job_id,
+            expected_lease_owner=None,
+            expected_attempt=None,
         )
-        if (
-            (current is None and expected_head_generation != 0)
-            or (current is not None and current.head_generation != expected_head_generation)
-            or (current is not None and predecessor_receipt_ref != current.receipt_ref)
-            or (current is None and predecessor_receipt_ref is not None)
-        ):
-            raise ValueError("acquisition_action_predecessor_conflict")
-        next_generation = expected_head_generation + 1
-        created_at = _utc_now()
-        try:
-            self._execute(
-                """
-                INSERT INTO runtime_acquisition_action_heads (
-                    tenant_id, cell_id, run_id, source_job_id, route_id,
-                    action_generation, head_generation, receipt_ref, receipt_sha256,
-                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
-                    job_id, predecessor_receipt_ref, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    tenant_id,
-                    cell_id,
-                    run_id,
-                    source_job_id,
-                    route_id,
-                    action_generation,
-                    next_generation,
-                    receipt_ref,
-                    receipt_sha256,
-                    durable_event_id,
-                    coarse_phase,
-                    receipt_phase,
-                    recovery_state,
-                    job_id,
-                    predecessor_receipt_ref,
-                    _iso(created_at),
-                ),
+        with self._job_transaction():
+            if fence is not None:
+                where, where_params = self._job_fence_where(
+                    job_id=job_id,
+                    fence=fence,
+                    now=_utc_now(),
+                )
+                lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+                current_job = self._fetchone(
+                    f"SELECT job_id FROM control_jobs WHERE {where}{lock_suffix}",
+                    where_params,
+                )
+                if current_job is None:
+                    raise ControlJobLeaseLostError(
+                        "control job lease no longer permits action-head write "
+                        f"for {job_id}"
+                    )
+            current = self.get_acquisition_action_head(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                source_job_id=source_job_id,
+                route_id=route_id,
+                action_generation=action_generation,
             )
-        except Exception as exc:
-            raise ValueError("acquisition_action_predecessor_conflict") from exc
-        loaded = self.get_acquisition_action_head(
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            run_id=run_id,
-            source_job_id=source_job_id,
-            route_id=route_id,
-            action_generation=action_generation,
-        )
-        if loaded is None or loaded.head_generation != next_generation:
-            raise RuntimeError("acquisition_action_head_readback_failed")
-        return loaded
+            if (
+                (current is None and expected_head_generation != 0)
+                or (
+                    current is not None
+                    and current.head_generation != expected_head_generation
+                )
+                or (
+                    current is not None
+                    and predecessor_receipt_ref != current.receipt_ref
+                )
+                or (current is None and predecessor_receipt_ref is not None)
+            ):
+                raise ValueError("acquisition_action_predecessor_conflict")
+            next_generation = expected_head_generation + 1
+            created_at = _utc_now()
+            insert_columns = """tenant_id, cell_id, run_id, source_job_id, route_id,
+                action_generation, head_generation, receipt_ref, receipt_sha256,
+                durable_event_id, coarse_phase, receipt_phase, recovery_state,
+                job_id, predecessor_receipt_ref, created_at"""
+            values = (
+                tenant_id,
+                cell_id,
+                run_id,
+                source_job_id,
+                route_id,
+                action_generation,
+                next_generation,
+                receipt_ref,
+                receipt_sha256,
+                durable_event_id,
+                coarse_phase,
+                receipt_phase,
+                recovery_state,
+                job_id,
+                predecessor_receipt_ref,
+                _iso(created_at),
+            )
+            try:
+                if fence is None:
+                    affected_rows = self._execute(
+                        "INSERT INTO runtime_acquisition_action_heads "
+                        f"({insert_columns}) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        values,
+                    )
+                else:
+                    where, where_params = self._job_fence_where(
+                        job_id=job_id,
+                        fence=fence,
+                        now=_utc_now(),
+                    )
+                    affected_rows = self._execute(
+                        "INSERT INTO runtime_acquisition_action_heads "
+                        f"({insert_columns}) "
+                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
+                        f"WHERE EXISTS (SELECT 1 FROM control_jobs WHERE {where})",
+                        (*values, *where_params),
+                    )
+                self._require_fenced_write(
+                    job_id=job_id,
+                    fence=fence,
+                    affected_rows=affected_rows,
+                )
+            except Exception as exc:
+                if _is_unique_constraint_violation(exc):
+                    raise ValueError("acquisition_action_predecessor_conflict") from exc
+                raise
+            loaded = self.get_acquisition_action_head(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                source_job_id=source_job_id,
+                route_id=route_id,
+                action_generation=action_generation,
+            )
+            if loaded is None or loaded.head_generation != next_generation:
+                raise RuntimeError("acquisition_action_head_readback_failed")
+            return loaded
 
     def get_normative_evidence_head(self, job_id: str) -> dict[str, Any] | None:
         """Resolve the latest immutable normative admission event for one exact job."""
@@ -3192,11 +3254,27 @@ class ControlPlaneStore:
         )
 
     def update_manifest_ref(self, *, job_id: str, capability_manifest_ref: str) -> None:
-        """Update the persisted capability-manifest ref for an existing job."""
-        self._execute(
-            "UPDATE control_jobs SET capability_manifest_ref = ? WHERE job_id = ?",
-            (capability_manifest_ref, job_id),
+        """Update a job manifest ref only while its bound lease remains current."""
+        fence = self._resolve_job_execution_fence(
+            job_id=job_id,
+            expected_lease_owner=None,
+            expected_attempt=None,
         )
+        with self._job_transaction():
+            where, where_params = self._job_fence_where(
+                job_id=job_id,
+                fence=fence,
+                now=_utc_now(),
+            )
+            affected_rows = self._execute(
+                f"UPDATE control_jobs SET capability_manifest_ref = ? WHERE {where}",
+                (capability_manifest_ref, *where_params),
+            )
+            self._require_fenced_write(
+                job_id=job_id,
+                fence=fence,
+                affected_rows=affected_rows,
+            )
 
     def update_progress_state(
         self,

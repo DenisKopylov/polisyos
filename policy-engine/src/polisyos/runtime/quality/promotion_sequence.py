@@ -3727,26 +3727,30 @@ class CanonicalN9PromotionPort:
         cls,
         *,
         repo_root: Path,
-        confidence_ledger_session: ConfidenceLedgerSession,
+        confidence_ledger_session: ConfidenceLedgerSession | None = None,
+        confidence_ledger_session_factory: (
+            Callable[[DesignProblem, Sequence[CandidateSummary]], ConfidenceLedgerSession] | None
+        ) = None,
     ) -> _VerificationN9PromotionPort:
         """Build a private port whose receipts can never authorize N6."""
 
         del cls
-        if (
-            confidence_ledger_session.is_authority_session
-            or confidence_ledger_session.authority_provenance != "verification"
+        if (confidence_ledger_session is None) == (
+            confidence_ledger_session_factory is None
         ):
-            raise ValueError("confidence_ledger_verification_session_required")
+            raise ValueError("confidence_ledger_verification_session_source_invalid")
         owner_root = repo_root.resolve()
         if owner_root != Path(__file__).resolve().parents[4]:
             raise ValueError("verification_owner_repo_root_invalid")
-        _require_canonical_verification_registry(
-            confidence_ledger_session,
-            repo_root=owner_root,
-        )
+        if confidence_ledger_session is not None:
+            _require_verification_confidence_ledger_session(
+                confidence_ledger_session,
+                repo_root=owner_root,
+            )
         return _VerificationN9PromotionPort(
             repo_root=owner_root,
             confidence_ledger_session=confidence_ledger_session,
+            confidence_ledger_session_factory=confidence_ledger_session_factory,
         )
 
     def __call__(
@@ -3814,16 +3818,20 @@ class CanonicalN9PromotionPort:
 
 
 class _VerificationN9PromotionPort:
-    """Private N6 checker port over one isolated verification ledger."""
+    """Private N6 checker port over an isolated verification ledger."""
 
     def __init__(
         self,
         *,
         repo_root: Path,
-        confidence_ledger_session: ConfidenceLedgerSession,
+        confidence_ledger_session: ConfidenceLedgerSession | None,
+        confidence_ledger_session_factory: (
+            Callable[[DesignProblem, Sequence[CandidateSummary]], ConfidenceLedgerSession] | None
+        ),
     ) -> None:
         self._repo_root = repo_root.resolve()
         self._confidence_ledger_session = confidence_ledger_session
+        self._confidence_ledger_session_factory = confidence_ledger_session_factory
 
     def __call__(
         self,
@@ -3833,6 +3841,14 @@ class _VerificationN9PromotionPort:
     ) -> PromotionPortObservation:
         """Replay owners while emitting no consumer certification."""
 
+        session = (
+            self._confidence_ledger_session_factory(problem, summaries)
+            if self._confidence_ledger_session_factory is not None
+            else self._confidence_ledger_session
+        )
+        if session is None:
+            raise ValueError("confidence_ledger_verification_session_source_invalid")
+        _require_verification_confidence_ledger_session(session, repo_root=self._repo_root)
         return _run_n9_promotion_port_batch(
             summaries=summaries,
             problem=problem,
@@ -3840,7 +3856,7 @@ class _VerificationN9PromotionPort:
             context_provider=None,
             promotion_runtime=None,
             repo_root=self._repo_root,
-            confidence_ledger_session=self._confidence_ledger_session,
+            confidence_ledger_session=session,
         )
 
 
@@ -5108,6 +5124,18 @@ def canonical_promotion_comparison_admission_from_proof(
     if admission is None:
         raise ValueError("canonical_promotion_comparison_proof_invalid")
     return admission
+
+
+def _require_verification_confidence_ledger_session(
+    session: ConfidenceLedgerSession,
+    *,
+    repo_root: Path,
+) -> None:
+    """Require a non-authority verification session from the current owner registry."""
+
+    if session.is_authority_session or session.authority_provenance != "verification":
+        raise ValueError("confidence_ledger_verification_session_required")
+    _require_canonical_verification_registry(session, repo_root=repo_root)
 
 
 def _require_canonical_verification_registry(

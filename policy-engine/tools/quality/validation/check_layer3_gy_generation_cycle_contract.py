@@ -23,6 +23,8 @@ import hashlib
 import json
 import sys
 import time
+from collections.abc import Callable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -46,7 +48,11 @@ from polisyos.pdc import (
     gy_comparison_content_hash,
     gy_content_hash,
 )
-from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
+from polisyos.runtime.quality.confidence_ledger import (
+    ConfidenceLedgerError,
+    ConfidenceLedgerSession,
+    ConfidenceRiskBudgetScope,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -64,7 +70,9 @@ from polisyos.runtime.quality.design_problem import (
 from polisyos.runtime.quality.generation_cycle import (
     GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION,
     CandidateGroundingObservation,
+    CandidateSummary,
     GenerationCycleController,
+    GenerationCycleError,
     GenerationCycleRun,
     PendingN8ValuePort,
     PolicyGroundingPort,
@@ -84,12 +92,17 @@ from polisyos.runtime.quality.promotion_sequence import (
 )
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tools.lib.fs import (
+    measure_file_reads,
+    measured_is_file,
+    measured_read_bytes,
+    measured_read_text,
+)
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
 _FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "capture_wall_time_seconds"}
-
 _COMPARISON_IDENTITY_FIELDS = {
     "comparison_admission_manifest",
     "comparison_content_hash",
@@ -217,9 +230,202 @@ class _VerificationReplayContext:
 
     session: ConfidenceLedgerSession
     problem: DesignProblem
+    problem_binding: N9DesignProblemBinding
+    risk_scope: ConfidenceRiskBudgetScope
     run: GenerationCycleRun
     comparison_admissions: tuple[GyComparisonAdmission, ...]
     comparison_plan: GyComparisonProjectionPlan
+    callback_count: int
+    session_open_count: int
+    session_factory: _OneShotVerificationSessionFactory
+
+
+class _N6InputInspectionUnavailableError(RuntimeError):
+    """A named input or inspection resource could not be inspected."""
+
+    def __init__(
+        self,
+        *,
+        stage: str,
+        error_type: str,
+        code: str = "generation_cycle_contract_input_unreadable",
+        receipts: dict[str, Any] | None = None,
+    ) -> None:
+        self.stage = stage
+        self.error_type = error_type
+        self.code = code
+        self.receipts = dict(receipts or {})
+        super().__init__(code)
+
+
+class _N6VerificationReplayRaisedError(RuntimeError):
+    """Preserve partial final-N9 inputs when the controller cannot return a run."""
+
+    def __init__(self, original: Exception, measurement: dict[str, Any]) -> None:
+        self.original = original
+        self.measurement = measurement
+        super().__init__(str(original))
+
+
+class _N6VerificationReplayUnavailableError(RuntimeError):
+    """The final N6/N9 replay cannot reach its predicate under the supported callback contract."""
+
+    def __init__(self, code: str, measurement: dict[str, Any]) -> None:
+        self.code = code
+        self.measurement = measurement
+        super().__init__(code)
+
+
+class _N6VerificationReplayFailureError(RuntimeError):
+    """A measured N6/N9 owner predicate or validator invariant failed."""
+
+    def __init__(
+        self,
+        code: str,
+        issues: tuple[dict[str, Any], ...] = (),
+        measurement: dict[str, Any] | None = None,
+    ) -> None:
+        self.code = code
+        self.issues = issues
+        self.measurement = measurement
+        super().__init__(code)
+
+
+class _OneShotVerificationSessionFactory:
+    """Open exactly one isolated N9 session for the final problem passed by N6."""
+
+    def __init__(self, repo_root: Path, state_root: Path) -> None:
+        self.repo_root = repo_root
+        self.state_root = state_root
+        self.callback_attempt_count = 0
+        self.session_open_count = 0
+        self.problem: DesignProblem | None = None
+        self.candidate_ids: tuple[str, ...] | None = None
+        self.problem_binding: N9DesignProblemBinding | None = None
+        self.risk_scope: ConfidenceRiskBudgetScope | None = None
+        self.session: ConfidenceLedgerSession | None = None
+
+    def __call__(
+        self,
+        problem: DesignProblem,
+        summaries: Sequence[CandidateSummary],
+    ) -> ConfidenceLedgerSession:
+        self.callback_attempt_count += 1
+        if self.callback_attempt_count != 1:
+            raise _N6VerificationReplayUnavailableError(
+                "verification_session_factory_reused",
+                _verification_session_factory_measurement(self),
+            )
+        binding = N9DesignProblemBinding.from_problem(problem)
+        risk_scope = confidence_risk_scope_for_problem(binding)
+        self.candidate_ids = tuple(summary.candidate_id for summary in summaries)
+        session = ConfidenceLedgerSession._for_verification(
+            self.repo_root,
+            risk_scope=risk_scope,
+            artifact_store=FileSystemCAS(self.state_root / "cas"),
+            state_root=self.state_root / "state",
+        )
+        self.session_open_count += 1
+        self.problem = problem
+        self.problem_binding = binding
+        self.risk_scope = risk_scope
+        self.session = session
+        return session
+
+
+def _verification_session_factory_measurement(
+    factory: _OneShotVerificationSessionFactory,
+    *,
+    run: GenerationCycleRun | None = None,
+    admissions: tuple[GyComparisonAdmission, ...] = (),
+) -> dict[str, Any]:
+    """Retain actual final-N9 inputs even when the controller exits before a run."""
+
+    binding = factory.problem_binding
+    scope = factory.risk_scope
+    candidate_ids = factory.candidate_ids or ()
+    receipt_ids = (
+        tuple(
+            str(receipt.get("candidate_id") or "")
+            for receipt in run.promotion_port.receipts
+        )
+        if run is not None
+        else ()
+    )
+    scope_payload = scope.model_dump(mode="json") if scope is not None else None
+    session_scope = factory.session.risk_scope if factory.session is not None else None
+    session_scope_payload = (
+        session_scope.model_dump(mode="json") if session_scope is not None else None
+    )
+    return {
+        "status": "complete" if run is not None else "partial",
+        "callback_attempt_count": factory.callback_attempt_count,
+        "session_open_count": factory.session_open_count,
+        "final_n9_problem_binding": binding.model_dump(mode="json") if binding else None,
+        "final_n9_problem_content_hash": (
+            binding.problem_content_hash if binding is not None else None
+        ),
+        "final_n9_risk_scope": scope_payload,
+        "final_n9_risk_scope_hash": (
+            gy_content_hash(scope_payload) if scope_payload is not None else None
+        ),
+        "session_risk_scope": session_scope_payload,
+        "session_risk_scope_hash": (
+            gy_content_hash(session_scope_payload)
+            if session_scope_payload is not None
+            else None
+        ),
+        "session_matches_final_n9_risk_scope": (
+            session_scope_payload == scope_payload
+            if session_scope_payload is not None and scope_payload is not None
+            else None
+        ),
+        "verification_registry_content_hash": (
+            factory.session.registry.content_hash if factory.session is not None else None
+        ),
+        "selector_denominator": {
+            "generation_cycles": len(run.cycles) if run is not None else None,
+            "candidate_summaries": (
+                len(candidate_ids) if factory.candidate_ids is not None else None
+            ),
+            "run_candidate_summaries": (
+                len(run.candidate_summaries) if run is not None else None
+            ),
+            "candidate_ids": list(candidate_ids),
+            "promotion_receipts": len(receipt_ids),
+            "run_promotion_receipts": (
+                len(run.promotion_port.receipts) if run is not None else None
+            ),
+            "receipt_candidate_ids": list(receipt_ids),
+            "expected_receipt_count": len(candidate_ids),
+            "receipt_selection_complete": run is not None,
+            "receipt_candidate_denominator_matches": (
+                run is not None and bool(candidate_ids) and receipt_ids == candidate_ids
+            ),
+            "comparison_admissions": len(admissions),
+        },
+        "predicate_basis": {
+            "final_problem_binding": "recomputed from the typed N9 DesignProblem passed by N6",
+            "risk_scope": (
+                "recomputed from the complete N9DesignProblemBinding; the N9 owner compares "
+                "the session scope by full model equality"
+            ),
+            "verification_registry": (
+                "the session exposes a content hash; canonical registry reconciliation is "
+                "performed by the N9 owner"
+            ),
+        },
+        "predicate": (
+            "a repeated callback was refused before a second session opened; the second "
+            "callback predicate was not reached"
+            if factory.callback_attempt_count > 1
+            else (
+                "final N9 input binding and full risk-scope equality were exercised; run "
+                "return was "
+                + ("observed" if run is not None else "not observed")
+            )
+        ),
+    }
 
 
 class _Lane0GenerationPort:
@@ -293,16 +499,20 @@ class _Lane0GenerationPort:
 def load_contract_payload(repo_root: Path) -> dict[str, Any]:
     """Read the committed frozen N6 contract payload."""
 
-    return json.loads((repo_root / OUTPUT_PATH).read_text(encoding="utf-8"))
+    text = _inspect_input(
+        lambda: measured_read_text(repo_root / OUTPUT_PATH, encoding="utf-8"),
+        stage="committed_contract_read",
+    )
+    return json.loads(text)
 
 
 async def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Build the frozen Lane-0 payload by exercising the real N6 controller."""
 
-    with TemporaryDirectory(prefix="gy-n6-verification-") as temp_dir:
+    with _inspection_workspace("gy-n6-verification-") as temp_dir:
         payload, _ = await _build_live_payload_in_verification_namespace(
             repo_root,
-            state_root=Path(temp_dir),
+            state_root=temp_dir,
         )
         return payload
 
@@ -316,31 +526,64 @@ async def _build_live_payload_in_verification_namespace(
 
     started = time.monotonic()
     problem = _design_problem()
-    binding = N9DesignProblemBinding.from_problem(problem)
-    session = ConfidenceLedgerSession._for_verification(
-        repo_root,
-        risk_scope=confidence_risk_scope_for_problem(binding),
-        artifact_store=FileSystemCAS(state_root / "cas"),
-        state_root=state_root / "state",
-    )
+    session_factory = _OneShotVerificationSessionFactory(repo_root, state_root)
     controller = GenerationCycleController(
         generation_port=_Lane0GenerationPort(),
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=CanonicalN9PromotionPort._for_verification(
             repo_root=repo_root,
-            confidence_ledger_session=session,
+            confidence_ledger_session_factory=session_factory,
         ),
         repo_root=repo_root,
         generated_at=_FIXED_GENERATED_AT,
         authority_scope="contract_testing",
     )
-    run = await controller.run(
-        problem,
-        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
-        min_cycles=2,
-        max_cycles=3,
-    )
+    try:
+        run = await controller.run(
+            problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            min_cycles=2,
+            max_cycles=3,
+        )
+    except Exception as exc:
+        measurement = _verification_session_factory_measurement(session_factory)
+        if isinstance(exc, _N6InputInspectionUnavailableError):
+            exc.receipts["n9_replay_measurement"] = measurement
+            raise
+        raise _N6VerificationReplayRaisedError(exc, measurement) from exc
+    if (
+        session_factory.callback_attempt_count != 1
+        or session_factory.session_open_count != 1
+        or session_factory.problem is None
+        or session_factory.problem_binding is None
+        or session_factory.risk_scope is None
+        or session_factory.session is None
+    ):
+        raise _N6VerificationReplayFailureError(
+            "n9_final_problem_session_not_captured",
+            measurement=_verification_session_factory_measurement(
+                session_factory,
+                run=run,
+            ),
+        )
+    final_problem = session_factory.problem
+    final_binding = session_factory.problem_binding
+    final_risk_scope = session_factory.risk_scope
+    session = session_factory.session
+    recomputed_binding = N9DesignProblemBinding.from_problem(final_problem)
+    recomputed_scope = confidence_risk_scope_for_problem(recomputed_binding)
+    if (
+        final_binding != recomputed_binding
+        or final_risk_scope != recomputed_scope
+        or session.risk_scope != recomputed_scope
+    ):
+        raise _N6VerificationReplayRaisedError(
+            ValueError("confidence_ledger_scope_binding_mismatch"),
+            _verification_session_factory_measurement(session_factory, run=run),
+        )
     payload: dict[str, Any] = {
         "schema_version": GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION,
         "synthetic": run.synthetic,
@@ -398,28 +641,39 @@ async def _build_live_payload_in_verification_namespace(
             "non_cached_run_visibility": "writer_and_check_rederive_from_live_owners",
         },
     }
-    payload["fail_closed_probes"] = _fail_closed_reports(payload)
+    payload["fail_closed_probes"] = _fail_closed_reports(payload, repo_root=repo_root)
     revalidation_issues, admissions = _embedded_promotion_comparison_admissions(
         run,
         repo_root=repo_root,
         session=session,
-        problem=problem,
+        problem=final_problem,
     )
     if revalidation_issues:
-        raise RuntimeError(
-            "n6_verification_replay_invalid: " + json.dumps(revalidation_issues, sort_keys=True)
+        raise _N6VerificationReplayFailureError(
+            "n6_verification_replay_invalid",
+            tuple(revalidation_issues),
+            _verification_session_factory_measurement(
+                session_factory,
+                run=run,
+                admissions=admissions,
+            ),
         )
     plan = build_gy_comparison_projection_plan(payload, admissions=admissions)
-    payload["behavioral_mutations"] = _mutation_reports(payload, plan)
+    payload["behavioral_mutations"] = _mutation_reports(payload, plan, repo_root=repo_root)
     payload["capture_wall_time_seconds"] = round(max(0.0, time.monotonic() - started), 6)
     _set_comparison_identity(payload, plan)
     payload["contract_content_hash"] = _contract_content_hash(payload)
     context = _VerificationReplayContext(
         session=session,
-        problem=problem,
+        problem=final_problem,
+        problem_binding=final_binding,
+        risk_scope=final_risk_scope,
         run=run,
         comparison_admissions=admissions,
         comparison_plan=plan,
+        callback_count=session_factory.callback_attempt_count,
+        session_open_count=session_factory.session_open_count,
+        session_factory=session_factory,
     )
     return payload, context
 
@@ -562,10 +816,195 @@ def _embedded_promotion_comparison_admissions(
     return issues, tuple(admissions)
 
 
-def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
+def _verification_replay_measurement(
+    context: _VerificationReplayContext,
+) -> dict[str, Any]:
+    """Disclose the exact final N9 subject and selector counts used by replay."""
+
+    measurement = _verification_session_factory_measurement(
+        context.session_factory,
+        run=context.run,
+        admissions=context.comparison_admissions,
+    )
+    session_scope_payload = context.session.risk_scope.model_dump(mode="json")
+    final_scope = context.risk_scope.model_dump(mode="json")
+    measurement["session_risk_scope"] = session_scope_payload
+    measurement["session_risk_scope_hash"] = gy_content_hash(session_scope_payload)
+    measurement["session_matches_final_n9_risk_scope"] = session_scope_payload == final_scope
+    measurement["predicate_basis"] = {
+        "final_problem_binding": "recomputed from the typed final N9 DesignProblem",
+        "risk_scope": (
+            "recomputed from the complete N9DesignProblemBinding and compared by full "
+            "model equality with the session's scope"
+        ),
+        "verification_registry": (
+            "independently reconciled by the N9 owner against its canonical registry; "
+            "delegated file operations are unresolved by construction"
+        ),
+    }
+    measurement["predicate"] = (
+        "final N9 input binding and full risk-scope equality were recomputed"
+    )
+    return measurement
+
+
+def _inspect_input(operation: Callable[[], Any], *, stage: str) -> Any:
+    """Tag only errors from a named input operation as incomplete inspection."""
+
+    try:
+        return operation()
+    except (OSError, UnicodeError) as exc:
+        raise _N6InputInspectionUnavailableError(
+            stage=stage,
+            error_type=type(exc).__name__,
+        ) from exc
+
+
+def _inspection_workspace_cleanup_error(
+    prefix: str,
+    cleanup_error: Exception,
+    *,
+    receipts: dict[str, Any] | None = None,
+    primary: BaseException | None = None,
+) -> _N6InputInspectionUnavailableError:
+    """Build a typed UNRUN for cleanup failure without discarding inspection evidence."""
+
+    failure_receipts = dict(receipts or {})
+    if isinstance(primary, _N6InputInspectionUnavailableError):
+        failure_receipts.update(primary.receipts)
+    measurement = getattr(primary, "measurement", None)
+    if isinstance(measurement, dict):
+        failure_receipts.setdefault("n9_replay_measurement", measurement)
+    if primary is not None:
+        primary_failure: dict[str, str] = {"error_type": type(primary).__name__}
+        original = getattr(primary, "original", None)
+        if isinstance(original, BaseException):
+            primary_failure["original_error_type"] = type(original).__name__
+        for field in ("code", "stage"):
+            value = getattr(primary, field, None)
+            if isinstance(value, str):
+                primary_failure[field] = value
+        failure_receipts["primary_failure"] = primary_failure
+    failure_receipts["cleanup_failure"] = {"error_type": type(cleanup_error).__name__}
+    return _N6InputInspectionUnavailableError(
+        stage=f"{prefix}_cleanup",
+        error_type=type(cleanup_error).__name__,
+        code="generation_cycle_contract_inspection_workspace_cleanup_unavailable",
+        receipts=failure_receipts,
+    )
+
+
+@contextmanager
+def _inspection_workspace(
+    prefix: str,
+    *,
+    receipts: dict[str, Any] | None = None,
+) -> Iterator[Path]:
+    """Create an isolated workspace and type acquisition/cleanup failures as UNRUN."""
+
+    try:
+        temporary_directory = TemporaryDirectory(prefix=prefix)
+        temp_dir = temporary_directory.__enter__()
+    except (OSError, UnicodeError) as exc:
+        raise _N6InputInspectionUnavailableError(
+            stage=prefix,
+            error_type=type(exc).__name__,
+            code="generation_cycle_contract_inspection_workspace_unavailable",
+        ) from exc
+    try:
+        yield Path(temp_dir)
+    except BaseException as exc:
+        try:
+            temporary_directory.__exit__(type(exc), exc, exc.__traceback__)
+        except (OSError, UnicodeError) as cleanup_error:
+            raise _inspection_workspace_cleanup_error(
+                prefix,
+                cleanup_error,
+                receipts=receipts,
+                primary=exc,
+            ) from exc
+        raise
+    else:
+        try:
+            temporary_directory.__exit__(None, None, None)
+        except (OSError, UnicodeError) as cleanup_error:
+            raise _inspection_workspace_cleanup_error(
+                prefix,
+                cleanup_error,
+                receipts=receipts,
+            ) from cleanup_error
+
+
+def _replay_exception_report(exc: Exception, *, stage: str) -> dict[str, Any]:
+    """Map predicate failures to FAIL; preserve typed inspection for the CLI boundary."""
+
+    if isinstance(exc, _N6VerificationReplayUnavailableError):
+        raise exc
+    if isinstance(exc, _N6VerificationReplayRaisedError):
+        try:
+            report = _replay_exception_report(exc.original, stage=stage)
+        except _N6InputInspectionUnavailableError as unavailable:
+            unavailable.receipts.setdefault("n9_replay_measurement", exc.measurement)
+            raise
+        except _N6VerificationReplayUnavailableError as unavailable:
+            unavailable.measurement = exc.measurement
+            raise
+        report["n9_replay_measurement"] = exc.measurement
+        return report
+    if isinstance(exc, _N6InputInspectionUnavailableError):
+        # Only the shared CLI boundary may produce UNRUN. Keeping this exception typed
+        # prevents an intermediate mode dictionary from laundering its origin.
+        raise exc
+    issue: dict[str, Any]
+    if (
+        isinstance(exc, ConfidenceLedgerError)
+        or isinstance(exc, _N6VerificationReplayFailureError)
+        or isinstance(exc, GenerationCycleError)
+    ):
+        issue = {"code": exc.code, "stage": stage}
+    elif isinstance(exc, ValueError):
+        if str(exc) == "confidence_ledger_scope_binding_mismatch":
+            issue = {"code": "confidence_ledger_scope_binding_mismatch", "stage": stage}
+        else:
+            issue = {
+                "code": "n6_owner_predicate_rejected",
+                "stage": stage,
+                "error_type": type(exc).__name__,
+                "detail": str(exc),
+            }
+    else:
+        issue = {
+            "code": "generation_cycle_contract_validator_error",
+            "stage": stage,
+            "error_type": type(exc).__name__,
+            "detail": str(exc),
+        }
+    if isinstance(exc, _N6VerificationReplayFailureError):
+        report = {
+            "status": "fail",
+            "issues": [issue, *exc.issues],
+            "predicate_stage": stage,
+            "predicate_result": "fail",
+        }
+        if exc.measurement is not None:
+            report["n9_replay_measurement"] = exc.measurement
+        return report
+    return {
+        "status": "fail",
+        "issues": [issue],
+        "predicate_stage": stage,
+        "predicate_result": "fail",
+    }
+
+
+def validate_payload(
+    payload: dict[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> dict[str, Any]:
     """Validate one frozen N6 contract payload and its mutation witnesses."""
 
-    issues = _validate_payload_core(payload)
+    issues = _validate_payload_core(payload, repo_root=repo_root)
     mutation_reports = payload.get("behavioral_mutations")
     if not isinstance(mutation_reports, list) or not mutation_reports:
         issues.append({"code": "behavioral_mutations_missing"})
@@ -614,7 +1053,11 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return {"status": "pass" if not issues else "fail", "issues": issues}
 
 
-def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _validate_payload_core(
+    payload: dict[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if payload.get("schema_version") != GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION:
         issues.append({"code": "schema_version_drift"})
@@ -649,7 +1092,7 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
                     "error": str(exc),
                 }
             )
-    issues.extend(validate_generation_cycle_run(run))
+    issues.extend(validate_generation_cycle_run(run, repo_root=repo_root))
     positive = payload.get("positive_gate")
     if not isinstance(positive, dict):
         issues.append({"code": "positive_gate_missing"})
@@ -678,18 +1121,101 @@ def validate(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     path = repo_root / OUTPUT_PATH
-    issues: list[dict[str, Any]] = []
-    if not path.is_file():
-        issues.append({"code": "generation_cycle_contract_missing", "path": OUTPUT_PATH})
-    else:
-        committed_report = _validate_committed_contract_text(
-            repo_root,
-            path.read_text(encoding="utf-8"),
+    with measure_file_reads(repo_root) as file_reads:
+        try:
+            is_file = _inspect_input(
+                lambda: measured_is_file(path),
+                stage="committed_contract_presence",
+            )
+            if not is_file:
+                report = {
+                    "status": "fail",
+                    "issues": [
+                        {
+                            "code": "generation_cycle_contract_missing_or_not_regular",
+                            "path": OUTPUT_PATH,
+                        }
+                    ],
+                    "predicate_stage": "committed_contract_presence",
+                    "predicate_result": "fail",
+                }
+            else:
+                committed_text = _inspect_input(
+                    lambda: measured_read_text(path, encoding="utf-8"),
+                    stage="committed_contract_read",
+                )
+                report = _validate_committed_contract_text(repo_root, committed_text)
+        except _N6InputInspectionUnavailableError as exc:
+            report = {
+                "status": "UNRUN",
+                "issues": [
+                    {
+                        "code": exc.code,
+                        "stage": exc.stage,
+                        "error_type": exc.error_type,
+                    }
+                ],
+                "predicate_stage": exc.stage,
+                "predicate_result": "not_run",
+            }
+            if exc.receipts.get("n9_replay_measurement") is not None:
+                report["n9_replay_measurement"] = exc.receipts["n9_replay_measurement"]
+            if exc.receipts:
+                report["inspection_failure"] = {
+                    "stage": exc.stage,
+                    "error_type": exc.error_type,
+                    "receipts": exc.receipts,
+                }
+        except _N6VerificationReplayUnavailableError as exc:
+            report = {
+                "status": "UNRUN",
+                "issues": [{"code": exc.code, "stage": "live_n6_n9_replay"}],
+                "predicate_stage": "live_n6_n9_replay",
+                "predicate_result": "not_run",
+                "n9_replay_measurement": exc.measurement,
+            }
+        except Exception as exc:
+            report = _replay_exception_report(exc, stage="validator_boundary")
+        file_receipt = file_reads.snapshot(
+            complete_verdict=report.get("status") != "UNRUN"
         )
-        issues.extend(committed_report["issues"])
+    n9_measurement = report.pop("n9_replay_measurement", None)
+    predicate_status = report.get("status", "fail")
+    report["measurement"] = {
+        "command": {"selected_mode": "check"},
+        "files": file_receipt,
+        "selector_denominator": {
+            "committed_contract_paths": {
+                "selected": [OUTPUT_PATH],
+                "denominator": 1,
+                "observed_file_operations": [
+                    item for item in file_receipt["inputs"] if item.get("path") == OUTPUT_PATH
+                ],
+            },
+            "n6_n9_replay": n9_measurement
+            or {"status": "not_reached", "callback_attempt_count": 0},
+        },
+        "predicate": {
+            "stage": report.get("predicate_stage", "validator_boundary"),
+            "result": report.get("predicate_result", predicate_status),
+            "status": predicate_status,
+            "issue_codes": [str(issue.get("code")) for issue in report.get("issues", [])],
+        },
+        "unresolved_by_construction": [
+            *file_receipt["unresolved_by_construction"],
+            (
+                "The N9 owner reconciles its verification registry; registry content identity is "
+                "reported by the live replay, but delegated file operations are not in the "
+                "explicit file-read receipt."
+            ),
+            (
+                "The selected production N6/N9 route is exercised, but imports, dynamic dispatch, "
+                "and uninvoked sibling runtime paths are outside this validator's predicate."
+            ),
+        ],
+    }
     return {
-        "status": "pass" if not issues else "fail",
-        "issues": issues,
+        **report,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
 
@@ -705,11 +1231,11 @@ def write(repo_root: Path) -> None:
 def build_contract_json_for_write(repo_root: Path) -> str:
     """Return byte-stable JSON for the frozen N6 contract artifact."""
 
-    with TemporaryDirectory(prefix="gy-n6-verification-") as temp_dir:
+    with _inspection_workspace("gy-n6-verification-") as temp_dir:
         payload, context = asyncio.run(
             _build_live_payload_in_verification_namespace(
                 repo_root,
-                state_root=Path(temp_dir),
+                state_root=temp_dir,
             )
         )
     return _canonical_contract_json(
@@ -747,44 +1273,93 @@ def _validate_committed_contract_text(
         return {
             "status": "fail",
             "issues": [{"code": "generation_cycle_contract_invalid_json", "error": str(exc)}],
+            "predicate_stage": "committed_json_parse",
+            "predicate_result": "fail",
         }
-    report = validate_payload(committed_payload)
+    try:
+        report = validate_payload(committed_payload, repo_root=repo_root)
+    except _N6InputInspectionUnavailableError:
+        raise
+    except Exception as exc:
+        result = _replay_exception_report(exc, stage="committed_payload_validation")
+        result["issues"] = [
+            {"code": "committed_payload_validation_error", "error_type": type(exc).__name__},
+            *result["issues"],
+        ]
+        return result
     issues = list(report["issues"])
-    with TemporaryDirectory(prefix="gy-n6-committed-check-") as temp_dir:
-        expected_payload, context = asyncio.run(
-            _build_live_payload_in_verification_namespace(
-                repo_root,
-                state_root=Path(temp_dir),
-            )
-        )
-        run_payload = committed_payload.get("generation_cycle_run")
-        if isinstance(run_payload, dict):
-            try:
-                committed_run = GenerationCycleRun.model_validate(run_payload)
-            except (ValidationError, ValueError):
-                committed_run = None
-            if committed_run is not None:
-                issues.extend(
-                    _embedded_promotion_revalidation_issues(
-                        committed_run,
-                        context=context,
-                        repo_root=repo_root,
-                    )
-                )
+    n9_measurement: dict[str, Any] | None = None
+    inspection_receipts: dict[str, Any] = {}
+    with _inspection_workspace(
+        "gy-n6-committed-check-",
+        receipts=inspection_receipts,
+    ) as temp_dir:
         try:
-            expected_text = _canonical_contract_json(
-                expected_payload,
-                repo_root=repo_root,
-                comparison_plan=context.comparison_plan,
+            expected_payload, context = asyncio.run(
+                _build_live_payload_in_verification_namespace(
+                    repo_root,
+                    state_root=temp_dir,
+                )
             )
-        except ValueError as exc:
-            if str(exc) not in {
-                "generation_cycle_comparison_admission_manifest_drift",
-                "generation_cycle_governed_reissue_refused",
-            }:
-                raise
-            issues.append({"code": str(exc)})
-            expected_text = None
+            n9_measurement = _verification_replay_measurement(context)
+            inspection_receipts["n9_replay_measurement"] = n9_measurement
+            run_payload = committed_payload.get("generation_cycle_run")
+            if isinstance(run_payload, dict):
+                try:
+                    committed_run = GenerationCycleRun.model_validate(run_payload)
+                except (ValidationError, ValueError):
+                    committed_run = None
+                if committed_run is not None:
+                    issues.extend(
+                        _embedded_promotion_revalidation_issues(
+                            committed_run,
+                            context=context,
+                            repo_root=repo_root,
+                        )
+                    )
+            try:
+                expected_text = _canonical_contract_json(
+                    expected_payload,
+                    repo_root=repo_root,
+                    comparison_plan=context.comparison_plan,
+                )
+            except ValueError as exc:
+                if str(exc) not in {
+                    "generation_cycle_comparison_admission_manifest_drift",
+                    "generation_cycle_governed_reissue_refused",
+                }:
+                    raise
+                issues.append({"code": str(exc)})
+                expected_text = None
+        except _N6InputInspectionUnavailableError as exc:
+            if issues:
+                return {
+                    "status": "fail",
+                    "issues": [
+                        *issues,
+                        {
+                            "code": exc.code,
+                            "stage": exc.stage,
+                            "error_type": exc.error_type,
+                        },
+                    ],
+                    "predicate_stage": "committed_payload_and_inspection",
+                    "predicate_result": "fail",
+                    "n9_replay_measurement": n9_measurement
+                    or exc.receipts.get("n9_replay_measurement"),
+                }
+            if n9_measurement is not None:
+                exc.receipts["n9_replay_measurement"] = n9_measurement
+            raise
+        except Exception as exc:
+            replay_report = _replay_exception_report(exc, stage="live_n6_n9_replay")
+            n9_measurement = n9_measurement or replay_report.get("n9_replay_measurement")
+            return {
+                **replay_report,
+                "issues": [*issues, *replay_report["issues"]],
+                "n9_replay_measurement": n9_measurement
+                or {"status": "not_reached", "callback_attempt_count": 0},
+            }
     if expected_text is not None and committed_text.encode("utf-8") != expected_text.encode(
         "utf-8"
     ):
@@ -795,7 +1370,15 @@ def _validate_committed_contract_text(
                 "actual_hash": gy_content_hash(committed_payload),
             }
         )
-    return {"status": "pass" if not issues else "fail", "issues": issues}
+    status = "pass" if not issues else "fail"
+    return {
+        "status": status,
+        "issues": issues,
+        "predicate_stage": "n6_n9_replay_and_canonical_bytes",
+        "predicate_result": status,
+        "n9_replay_measurement": n9_measurement
+        or {"status": "not_reached", "callback_attempt_count": 0},
+    }
 
 
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
@@ -806,7 +1389,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     corrupted["generation_cycle_run"]["cycles"][1]["selected_candidate_content_hash"] = corrupted[
         "generation_cycle_run"
     ]["cycles"][0]["selected_candidate_content_hash"]
-    report = validate_payload(corrupted)
+    report = validate_payload(corrupted, repo_root=repo_root)
     if report["status"] == "fail":
         return {
             "status": "fail",
@@ -835,7 +1418,7 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     payload = asyncio.run(build_live_payload(repo_root))
-    report = validate_payload(payload)
+    report = validate_payload(payload, repo_root=repo_root)
     return {
         "status": report["status"],
         "issues": report["issues"],
@@ -874,6 +1457,8 @@ def _positive_gate(run: GenerationCycleRun) -> dict[str, Any]:
 def _mutation_reports(
     payload: dict[str, Any],
     plan: GyComparisonProjectionPlan,
+    *,
+    repo_root: Path,
 ) -> list[dict[str, Any]]:
     mutations = {
         "revision_not_terminal_driven": _mutate_revision_not_terminal_driven,
@@ -895,7 +1480,7 @@ def _mutation_reports(
         mutator(mutated)
         _set_comparison_identity(mutated, plan)
         mutated["contract_content_hash"] = _contract_content_hash(mutated)
-        report = _validate_payload_core(mutated)
+        report = _validate_payload_core(mutated, repo_root=repo_root)
         reports.append(
             {
                 "mutation_id": mutation_id,
@@ -1002,7 +1587,7 @@ def _mutate_full_denominator_subset(payload: dict[str, Any]) -> None:
     ]
 
 
-def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _fail_closed_reports(payload: dict[str, Any], *, repo_root: Path) -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
     try:
         CandidateGroundingObservation.model_validate(
@@ -1044,7 +1629,7 @@ def _fail_closed_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     )
     if any(
         issue.get("code") == "unknown_voi_action_not_fail_closed"
-        for issue in _validate_payload_core(unknown_voi)
+        for issue in _validate_payload_core(unknown_voi, repo_root=repo_root)
     ):
         reports.append({"probe_id": "unknown_voi_action", "status": "fail_closed"})
     return reports
@@ -1205,14 +1790,27 @@ def _reconcile_frozen_contract(
     plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
     path = repo_root / OUTPUT_PATH
-    if not path.is_file():
+    is_file = _inspect_input(
+        lambda: measured_is_file(path),
+        stage="historical_contract_presence",
+    )
+    if not is_file:
         return live
-    historical_bytes = path.read_bytes()
+    historical_bytes = _inspect_input(
+        lambda: measured_read_bytes(path),
+        stage="historical_contract_read",
+    )
     frozen = json.loads(historical_bytes)
     if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
         raise ValueError("generation_cycle_legacy_contract_content_hash_drift")
     if frozen.get("schema_version") != live.get("schema_version"):
-        if not _is_authorized_controller_source_reissue(historical_bytes, frozen, live, plan):
+        if not _is_authorized_controller_source_reissue(
+            historical_bytes,
+            frozen,
+            live,
+            plan,
+            repo_root=repo_root,
+        ):
             raise ValueError("generation_cycle_governed_reissue_refused")
         # Fresh current owner output has already passed real receipt admission in
         # _build_live_payload_in_verification_namespace. Never restamp old records.
@@ -1235,6 +1833,8 @@ def _is_authorized_controller_source_reissue(
     frozen: dict[str, Any],
     live: dict[str, Any],
     plan: GyComparisonProjectionPlan,
+    *,
+    repo_root: Path,
 ) -> bool:
     """Admit only the run-measured complete historical/current report transition."""
 
@@ -1252,7 +1852,7 @@ def _is_authorized_controller_source_reissue(
             or live["comparison_admission_manifest"] != plan.manifest
             or live["comparison_content_hash"] != _SOURCE_REISSUE_CURRENT_COMPARISON_HASH
             or live["comparison_content_hash"] != _comparison_content_hash(live, plan)
-            or validate_payload(live)["status"] != "pass"
+            or validate_payload(live, repo_root=repo_root)["status"] != "pass"
         ):
             return False
         historical_run = GenerationCycleRun.model_validate(frozen["generation_cycle_run"])
@@ -1368,9 +1968,21 @@ def main(argv: list[str] | None = None) -> int:
             "PASS layer3_gy_generation_cycle_contract "
             f"wall_time_seconds={report.get('wall_time_seconds', 0)}"
         )
+    elif report["status"] == "UNRUN":
+        stage = report.get("predicate_stage", "inspection")
+        code = report.get("issues", [{}])[0].get("code", "inspection_unavailable")
+        print(
+            f"UNRUN layer3_gy_generation_cycle_contract stage={stage} issue={code}",
+            file=sys.stderr,
+        )
+        print(
+            "Measurement details: "
+            + json.dumps(report.get("measurement", {}), sort_keys=True),
+            file=sys.stderr,
+        )
     else:
         print(json.dumps(report, indent=2, sort_keys=True), file=sys.stderr)
-    return 0 if report["status"] == "pass" else 1
+    return 0 if report["status"] == "pass" else 2 if report["status"] == "UNRUN" else 1
 
 
 if __name__ == "__main__":

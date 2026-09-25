@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
+from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 
 
@@ -156,3 +157,52 @@ def test_s3_store_preserves_each_exact_view_for_identical_bytes(
     )
     with pytest.raises(ArtifactIntegrityError, match="Selected manifest profile mismatch"):
         store.get_manifest(second)
+
+
+@pytest.mark.parametrize(
+    ("first_bucket", "first_prefix", "second_bucket", "second_prefix"),
+    [
+        ("first-bucket", "same-prefix", "second-bucket", "same-prefix"),
+        ("same-bucket", "first-prefix", "same-bucket", "second-prefix"),
+    ],
+)
+def test_s3_metadata_cache_isolated_by_bucket_and_prefix(
+    first_bucket: str,
+    first_prefix: str,
+    second_bucket: str,
+    second_prefix: str,
+    tmp_path,
+) -> None:
+    shared_cache = tmp_path / "shared-s3-cache"
+    first = S3ArtifactStore(
+        bucket=first_bucket,
+        prefix=first_prefix,
+        local_cache_dir=shared_cache,
+    )
+    second = S3ArtifactStore(
+        bucket=second_bucket,
+        prefix=second_prefix,
+        local_cache_dir=shared_cache,
+    )
+    first._client = _FakeS3Client()
+    second._client = _FakeS3Client()
+    payload = b"one content identity, independent S3 namespaces"
+
+    first_ref = first.put_bytes(
+        payload,
+        PutOptions(
+            kind="cache.namespace",
+            media_type="text/plain",
+            producer=ProducerInfo(component="tests.s3", version="first"),
+        ),
+    )
+    second.put_bytes(
+        payload,
+        PutOptions(
+            kind="cache.namespace",
+            media_type="text/plain",
+            producer=ProducerInfo(component="tests.s3", version="second"),
+        ),
+    )
+
+    assert first.get_manifest(first_ref).producer.version == "first"

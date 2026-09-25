@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import datetime, tzinfo
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.manifest import (
@@ -13,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactTenantContextInfo,
     ProducerInfo,
 )
+from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 _FAKE_ID = "sha256:" + "aa" * 32
@@ -185,3 +188,61 @@ class TestCachingArtifactStore:
         # Payload reads and byte-integrity reports remain valid because the blob ID is shared.
         assert store.get_bytes(remote_ref) == payload
         assert store.verify(remote_ref).ok is True
+
+    def test_same_default_profile_remains_readable_through_cache(self, tmp_path: Path) -> None:
+        payload = b"same default profile remains usable"
+        opts = PutOptions(
+            kind="cache.same-default",
+            media_type="text/plain",
+            producer=ProducerInfo(component="tests.cache", version="same"),
+        )
+        local = FileSystemCAS(tmp_path / "same-local")
+        remote = FileSystemCAS(tmp_path / "same-remote")
+        local_ref = local.put_bytes(payload, opts)
+        remote_ref = remote.put_bytes(payload, opts)
+        assert local_ref == remote_ref
+
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        selected = store.get_manifest(remote_ref)
+        assert selected.producer.version == "same"
+        assert store.get_bytes(remote_ref) == payload
+        assert store.verify(remote_ref).ok is True
+
+    def test_cache_population_preserves_raw_manifest_and_signature_bytes(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        payload = b"historical signed manifest must remain byte exact"
+        remote = FileSystemCAS(tmp_path / "signed-remote")
+        local = FileSystemCAS(tmp_path / "signed-local")
+        key = Ed25519PrivateKey.generate()
+        signer = Ed25519Signer(key)
+        verifier = Ed25519Verifier()
+        verifier.add_trusted_key(key.public_key())
+        ref = remote.put_bytes(
+            payload,
+            PutOptions(kind="cache.signed", media_type="application/octet-stream"),
+        )
+        remote.sign_artifact(ref, signer, signer_identity="cache-test")
+        remote_manifest_bytes = remote.get_manifest_bytes(ref)
+        remote_signature_bytes = remote.get_signature_bytes(ref)
+        assert remote.verify_signature(ref, verifier).ok is True
+
+        store = CachingArtifactStore(remote=remote, local=local)
+
+        class HistoricalClock:
+            @staticmethod
+            def now(tz: tzinfo | None = None) -> datetime:
+                return datetime(2000, 1, 1, tzinfo=tz)
+
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.manifest.datetime",
+            HistoricalClock,
+        )
+        assert store.get_bytes(ref) == payload
+
+        assert local.get_manifest_bytes(ref) == remote_manifest_bytes
+        assert local.get_signature_bytes(ref) == remote_signature_bytes
+        assert local.verify_signature(ref, verifier).ok is True

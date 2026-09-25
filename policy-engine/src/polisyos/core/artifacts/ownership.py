@@ -16,6 +16,8 @@ from .ids import ArtifactID
 
 OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v2"
 OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v2"
+_OWNERSHIP_INDEX_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index.v1"
+_OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index_signature.v1"
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
 
 
@@ -391,17 +393,9 @@ class ArtifactOwnershipIndex:
             blob_readers = _blob_readers_mapping(payload)
             digest = _digest_payload(payload)
             signature = self._signature_payload(payload, digest=digest)
-            if (
-                not self.signature_path.exists()
-                or _load_json_file(self.signature_path) != signature
-            ):
-                AtomicFileWriter.write_atomic(
-                    self.signature_path,
-                    _json_bytes(signature),
-                )
         evidence: dict[str, Any] = {
             "mode": OWNERSHIP_MODE_SHARED_CAS,
-            "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
+            "schema_version": str(payload["schema_version"]),
             "ownership_index_path": str(self.path),
             "ownership_index_digest": digest,
             "ownership_index_signature_path": str(self.signature_path),
@@ -437,6 +431,8 @@ class ArtifactOwnershipIndex:
 
     def _load_payload(self) -> dict[str, Any]:
         if not self.path.exists():
+            if self.signature_path.exists():
+                raise ValueError("ownership_index_signature_invalid")
             return {
                 "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
                 "mode": OWNERSHIP_MODE_SHARED_CAS,
@@ -445,20 +441,33 @@ class ArtifactOwnershipIndex:
             }
         raw = _load_json_file(self.path)
         if not isinstance(raw, dict):
-            return {
-                "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
-                "mode": OWNERSHIP_MODE_SHARED_CAS,
-                "artifacts": {},
-            }
-        raw.setdefault("schema_version", OWNERSHIP_INDEX_SCHEMA_VERSION)
+            raise ValueError("ownership_index_signature_invalid")
+        # The v1 owner signed a canonical projection that supplied these defaults.
+        # Preserve that historical projection in memory without writing it back.
+        raw.setdefault("schema_version", _OWNERSHIP_INDEX_SCHEMA_VERSION_V1)
         raw.setdefault("mode", OWNERSHIP_MODE_SHARED_CAS)
         raw.setdefault("artifacts", {})
-        raw.setdefault("blob_readers", {})
+        schema_version = raw.get("schema_version")
+        if schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
+            if "blob_readers" in raw:
+                raise ValueError("ownership_index_signature_invalid")
+        elif schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+            if not isinstance(raw.get("blob_readers"), dict):
+                raise ValueError("ownership_index_signature_invalid")
+        else:
+            raise ValueError("ownership_index_signature_invalid")
+        if raw.get("mode") != OWNERSHIP_MODE_SHARED_CAS:
+            raise ValueError("ownership_index_signature_invalid")
+        signature = _load_json_file(self.signature_path)
+        expected_signature = self._signature_payload(raw, digest=_digest_payload(raw))
+        if not isinstance(signature, dict) or signature != expected_signature:
+            raise ValueError("ownership_index_signature_invalid")
         return raw
 
     def _write_payload(self, payload: dict[str, Any]) -> None:
         payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
         payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
+        payload.setdefault("artifacts", {})
         payload.setdefault("blob_readers", {})
         AtomicFileWriter.write_atomic(self.path, _json_bytes(payload))
         digest = _digest_payload(payload)
@@ -468,13 +477,20 @@ class ArtifactOwnershipIndex:
         )
 
     def _signature_payload(self, payload: dict[str, Any], *, digest: str) -> dict[str, Any]:
+        index_schema_version = str(
+            payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION
+        )
+        if index_schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
+            signature_schema_version = _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1
+        elif index_schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+            signature_schema_version = OWNERSHIP_SIGNATURE_SCHEMA_VERSION
+        else:
+            raise ValueError("ownership_index_signature_invalid")
         signed_statement = {
-            "schema_version": OWNERSHIP_SIGNATURE_SCHEMA_VERSION,
+            "schema_version": signature_schema_version,
             "mode": OWNERSHIP_MODE_SHARED_CAS,
             "index_sha256": digest,
-            "index_schema_version": str(
-                payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION
-            ),
+            "index_schema_version": index_schema_version,
             "algorithm": "sha256-local-integrity",
             "key_id": "local-cas-ownership-index",
         }

@@ -2,6 +2,10 @@
 
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
+## Additional four-base Confidence Ledger risk-spend replay (2026-09-25)
+
+Two complete HTTP files were replayed before repair: `tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py` and `test_confidence_ledger_risk_spend_contracts.py`. All **8/8 present cells completed** with 0 missing and 0 `UNRUN`. The API file passed 3/3 cases and the contracts file passed 15/15 cases at each of the execution base, E02 head, main, and Phase 0 merge. There was no same-source pass-to-fail outcome in these two files. Import origin and source identity were verified for every cell. The maximum observed process-group CPU was 100.8%, peak RSS 1,653,312 KiB, minimum free memory 52%, zero swap growth, and minimum disk free 18,390,593,536 bytes; only one test process group ran at a time. Complete commands, JUnit cases, source identity, and resource samples: `raw/p41-custom-20260925T084545Z-1732/results.json@sha256:dca8dc50a4ea9ec86c66e41e3ca05135356de1083047e1c8b3c7a31561af81d2`.
+
 ## Additional four-base obligation-coverage replay (2026-09-25)
 
 The whole `tests/unit/runtime/quality/test_obligation_coverage.py` file has **4/4 present, completed cells and 0 `UNRUN`**. Its identical test blob at all four bases contains 15 cases: the E02 execution base and main pass 15/15 each; E02 head and the Phase 0 merge pass 6/15 and fail 9/15 each. The harness recorded nine same-source pass-to-fail cases for each relevant comparison; its mechanical owner-attribution field remains `UNRESOLVED` because plugin fixture behavior is outside its static closure. No test source or product source was edited during this replay. One pytest process group ran at a time; peak CPU was 100%, peak RSS was 788,160 KiB, minimum free memory was 73%, and swap growth was zero. Complete JUnit, import-origin, per-case and resource evidence: `raw/p41-custom-20260925T070822Z-59483/results.json@sha256:2e77adddf2fe347690c1ecc24470dea532fae826fb8988d3ee1794978896c9da`.

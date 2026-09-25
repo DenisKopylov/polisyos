@@ -2066,6 +2066,52 @@ def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() 
 
     assert observation.status == "simulation_blocked"
     assert "world_identity_unresolved" in observation.authority_blockers
+    assert observation.diagnostics["world_model_error_code"] == "world_identity_unresolved"
+    assert observation.world_model_record is None
+
+
+def test_joint_port_missing_candidate_unbound_proof_does_not_inherit_context_wmr() -> None:
+    """A candidate status marker cannot substitute for its context-bound refusal."""
+
+    problem, context = _lane0_cycle_context()
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_without_refusal",
+        status="candidate_unbound",
+        lever_resolution=None,
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert observation.diagnostics["world_model_error_code"] == "world_identity_unresolved"
+    assert observation.world_model_record is None
+
+
+def test_joint_port_malformed_candidate_unbound_proof_does_not_inherit_context_wmr() -> None:
+    """A typed refusal with invalid content binding cannot inherit the WMR."""
+
+    problem, context = _lane0_cycle_context()
+    malformed_refusal = _candidate_unbound_refusal(context).model_copy(
+        update={"content_hash": "sha256:" + "0" * 64}
+    )
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_malformed_refusal",
+        status="candidate_unbound",
+        lever_resolution=malformed_refusal,
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert observation.diagnostics["world_model_error_code"] == "world_identity_unresolved"
     assert observation.world_model_record is None
 
 

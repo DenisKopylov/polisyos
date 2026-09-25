@@ -8,8 +8,8 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 1,
-    "partial": 264,
+    "closed": 0,
+    "partial": 265,
     "held": 12,
     "open": 5
   },
@@ -20,16 +20,16 @@
     "no_finding_level_record": 18
   },
   "p_triage_counts": {
-    "a": 76,
+    "a": 77,
     "b": 16,
-    "c": 26
+    "c": 25
   },
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Current four-base status is UNRUN unless a row cites an admitted finding-level result. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
-    "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial but is distinct: its exact accepted J1107 selector/result is a historical FAIL counterexample to default-PAUSE capacity because the first admitted chunk exceeds both configured caps; current four-base replay and the full controls remain UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial; LA-021 remains separately closed only within its measured CAN-01 profile. No behavior failure is inferred from the 70 evidence-only downgrades.",
-    "The 18 Appendix-C no-record items are reconciled individually: LA-021 is closed within its measured CAN-01 profile; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
-    "The reviewed P triage remains 118/118 for the original P rows: 76 engineering, 16 principal decision drafts, and 26 typed blockers. The 71 evidence-gap downgrades are not reclassified into P118 buckets by this audit; triage is not closure evidence.",
-    "The 2026-09-24 held review is a historical source/blocker snapshot, not a behavioral closeout. H14 source map /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844 identifies 4 owner decisions, 6 data records, 4 owner-path capability gaps, and 0 external-institution blockers. Later reviews retain B194 and B197 as held: B194 requires the real served evaluator and a shared verified support intake for three consumers; B197 remains held on the group-to-field projection. B219 remains source-level open with downstream ID-engine impact not established. LA-010 is partial after root-CLI delegation with compatibility tests UNRUN; LA-032 remains held on the named loader capability. No H14 behavioral or P41 result is claimed; denominator remains 282.",
+    "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
+    "The 18 Appendix-C no-record items are reconciled individually: LA-021 is partial after bounded corpus replays were supplemented but the exact 418 selector and caller-file replays remain UNRUN; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial B items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
+    "The reviewed P triage remains 118/118 for the original P rows: 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 moves from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. Triage is not closure evidence, and no behavior replay was run for this correction.",
+    "The 2026-09-24 held review is a historical source/blocker snapshot, not a behavioral closeout. The interim H14 source map /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844 classified 4 owner decisions, 6 data records, 4 owner-path capability gaps, and 0 external-institution blockers; final independent closure review /Users/deniskopylov/.codex/scratch/e02-r2-h14-independent-closure-review-20260925.md@sha256:0459e569eb580ce6185ad3af182627ceb976b4dc6cbe3e6fd1c21851451eba3d supersedes that partition with 4 owner decisions, 8 data records, 2 smallest missing capabilities, and 0 external-institution blockers. B194 and B197 remain held on their named missing capabilities; B219 remains source-level open with downstream ID-engine impact not established. LA-010 is partial after root-CLI delegation with compatibility tests UNRUN; LA-032 remains held on a data-record blocker: receipt-bound inventory/path/digest/version plus independent sibling-reader replay; the E02 J0681 mixed-layout selector is only a bounded accepted sub-result. No H14 behavioral or P41 result is claimed; current ledger status is 0/265/12/5 (282 total).",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
@@ -64,10 +64,11 @@
       "scope": "per-ID record/mapping coverage only; behavior is UNRUN for all 282 findings"
     },
     "partial_triage": {
-      "identity": "reviewed P118 triage files at codex/e02-r2-partial-triage snapshot df41697294892bdad36f9b00d3728479f87c66ea; triage artifacts unchanged since e7edaebb2",
-      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:611c6cbef221876def624b8c6170010e0eadecf1",
-      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f",
-      "scope": "118/118 exact finding rows: 76 engineering, 16 principal decisions, 26 typed blockers; disposition/next step only, not closure evidence or behavioral results."
+      "identity": "reviewed P118 triage projection on codex/e02-r2-ledger after the independent B153 c-to-a correction; source lineage is codex/e02-r2-partial-triage at df41697294892bdad36f9b00d3728479f87c66ea",
+      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
+      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
+      "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:aa69b5dc16c27ec3c1fd39f971a1261967c54290",
+      "scope": "118/118 exact finding rows: 77 engineering, 16 principal decisions, 25 typed blockers; B153 is a reviewed triage correction. Disposition/next step only, not closure evidence or behavioral results."
     },
     "held_review": {
       "identity": "accepted held-finding review at 3377754d62be3aecf43f5fb2432ed51748765e18 on codex/e02-r2-held-review",
@@ -8457,7 +8458,7 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "Appendix C partial status is retained. The B153 source card is per-instance lock cardinality, not R9 profile honesty. The lock-stripe addendum confirms a structural 64-entry fixed pool but finds the existing 128-ID witness insufficient. It also corrects P118 c: production lifetime/cardinality is priority evidence, not a prerequisite to prove the per-instance property; correcting the accepted P118 bucket/projection requires a separate reviewed delta. No behavior replay was run."
+        "detail": "Appendix C partial status is retained. The B153 source card concerns per-instance lock cardinality, not R9 profile honesty. The lock-stripe addendum finds a structural fixed 64-entry pool but the existing 128-ID witness insufficient. Independent design review moves its P118 classification c→a: production lifetime/cardinality informs priority, not the property proof. The accepted P118 and ledger projections are corrected in this checkpoint; no behavior replay was run."
       },
       "residual": "The card property is per-FileSystemCAS lock-object cardinality independent of the number of distinct ArtifactIDs; repeated IDs map to a stable lock and same-key exclusion survives. The tracked owner already creates 64 fixed stripes, so the source mechanism is structurally present. Existing `tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters` is a useful but insufficient witness: it holds a lock/waiter and probes 128 IDs, while `len(locks) <= key_count` does not prove the pool stayed constant; it does not test 3,000 deterministic IDs or controlled distinct IDs colliding to one stripe. Strengthen this existing selector to compare per-instance pool size before/after 3,000 lookups, preserve waiter behavior, and verify two colliding distinct IDs keep their own refs/bytes/manifests under controlled lock acquisition. Removal probes must restore per-ID lock retention and remove the same-key fence while markers remain. Four-base whole-file replay is UNRUN. Production store lifetime/cardinality is useful for priority/economics but is not required to prove the per-instance bound; no cross-process lock claim.",
       "residual_owner": {
@@ -8467,13 +8468,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Artifact store lifecycle owner",
-        "blocker_kind": "data_record",
-        "next_step": "Strengthen the existing whole-file test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters with 3,000 deterministic IDs, constant construction-time pool size, same-ID waiter exclusion, and controlled distinct-ID collision readback; run its whole-file four-base replay. Production lifetime/cardinality is priority evidence only. P118 class-c correction remains a separate reviewed projection update; do not claim distributed locking.",
-        "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B153"
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
+        "blocker_kind": null,
+        "next_step": "Strengthen tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters to assert the fixed pool size is unchanged across 3,000 deterministic IDs, preserve same-ID waiter exclusion, and exercise two distinct IDs colliding to one stripe with refs/bytes/manifests read back. Remove per-ID lock retention and the same-key fence in marker-retaining probes; both must turn red. Run the whole file at all four P41 bases. The existing 128-ID holder/waiter evidence is bounded support, not the 3,000-ID discriminator; production lifetime/cardinality informs priority only. Do not claim distributed locking.",
+        "scope": "Reviewed P118 next-step classification only; all proposed behavior and four-base replay remain UNRUN.",
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785#B153"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8499,6 +8500,12 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b153-lock-stripes-addendum-20260925.md@sha256:5281864287ce6abcf483dd0768c2622e3752bb6ca2c4f04415876f61e1e988ee",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source and test inspection; structural mechanism exists, current witness insufficient."
+        },
+        "b153_design_review": {
+          "identity": "B153 P118 reclassification review",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b153-independent-design-review-20260925.md@sha256:db63aba6ee96c919d8b585df55db4843a69ba4e01bcdc83bae2ee444f14eba7b",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Independent review supports engineering triage because production lifetime/cardinality is not required to prove the per-instance pool bound; the 3,000-ID and collision/readback witness remains unrun."
         }
       }
     },
@@ -13677,16 +13684,16 @@
       "closure_owner": "CAN-01",
       "mapping_ref": "legacy_to_bundles",
       "appendix_c_status": "no_finding_level_record",
-      "status": "closed",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "bounded_recheck_closure",
-        "detail": "Appendix C listed no finding-level record. Independent CAN-01 review accepts closure only within the measured Core and IR bounded profiles. The architect's exact 418-input selector was not recovered or reverified; the separate 167-path owner/import replay plan identifies 140 test-named files present at all four bases and 22 paths missing at one or more bases. Those full-file replays remain UNRUN."
+        "relation": "not_measured",
+        "detail": "Appendix C listed no finding-level record. The earlier CAN-01 probe and supplemental corpus receipt provide bounded Core/IR data-level results, including the old-main JSON versions and shared JSONL records identified by reconstruction. The 418-input selector remains unrecovered, and 140 public codec/hash caller files present at all four bases still need full-file four-base replay. Those owner/caller predicates remain UNRUN, so bounded PASS_BOUNDED results do not support closed status."
       },
-      "residual": "Closed only within the measured canonicalization profile: the prior receipt covers 2,867 tracked JSON paths / 2,833 unique blobs and 27 fixed codec vectors plus 16 raw-hash vectors, not the architect's unrecovered 418-input selector. The broader owner/import union has 167 test-tree paths (160 test-named files, 7 helpers); 140 tests and 5 helpers exist at all four bases, and 22 paths are missing at one or more bases. The 140 full-file four-base replays, exact 418 selector, dynamic callers, persisted CAS/production-data inputs, and other Python/Pydantic versions remain UNRUN or unresolved by construction.",
+      "residual": "The earlier retained instrument reports PASS_BOUNDED over 2,867 Phase-0 tracked JSON path occurrences / 2,833 unique blobs, 27 fixed codec vectors and 16 raw-hash vectors. The supplemental replay compares 4,891 additional main/Phase-0 records: 17 distinct old-main JSON versions and 4,874 line records from 13 shared JSONL paths. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. The supplement compared 19,768 direct encoded-byte outputs with zero unexpected differences. The architect’s exact 418-input selector remains unrecovered. The public codec/hash owner/import union has 167 paths (160 test-named files, 7 helpers); 140 test-named files plus 5 helpers exist at all four P41 bases, but their full-file replays remain UNRUN. Dynamic callers, persisted CAS/production-data inputs, other non-JSON/JSONL inputs, and other Python/Pydantic versions remain unresolved. Retain both corpus receipts as bounded evidence; keep LA-021 partial until the exact selector and caller-file limitations are resolved.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CAN-01 canonicalization owner to recover or explicitly replace the missing historical selector; E02-R2 broker for the 140-test four-base replay",
-        "appointment_status": "owner role identified; no individual appointment is claimed"
+        "appointment_status": "Owner roles are identified; no individual appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -13698,28 +13705,46 @@
           "instrument_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/tools/check_la021_canonicalization.py@git-blob:40bfe270c844a227ee697b305696936986aa7bed",
           "raw_output_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-baselines/la021-canonicalization-20260924.log@sha256:12796e7177e20ee23c49619c34c866305e060fcdfbe2941ec4ae7061b6f63974",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "The bounded instrument and independent review cover only the stated Core/IR corpus/vector profile; the deep plan is source/replay planning only. Exact 418 selector, 140 full-file replays, dynamic callers and persisted CAS/production-data inputs remain UNRUN."
+          "scope": "PASS_BOUNDED data-level evidence includes the retained 2,867-JSON/2,833-blob + 27 codec/16 hash-vector profile and a supplemental 4,891-record main/Phase-0 comparison with 19,768 direct encoded-byte outputs and zero differences. The exact 418 selector and 140 all-base caller-file replays remain UNRUN; dynamic callers and persisted CAS/production-data inputs remain outside scope."
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "deep_plan": {
-          "identity": "LA-021 deep canonicalization owner/caller and P41 replay plan",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-deep-plan-20260925.md@sha256:ecf96435d24441f66f79ed60342627019f1e96ae35fce3838600fac5d4534203",
+          "identity": "LA-021 corpus reconstruction and four-base caller replay plan",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-corpus-reconstruction-20260925.md@sha256:dcf312057d2cd56d153f089f4627ca12100776cafa127984393d4b4ea09ea749",
           "behavioral_verdict": "UNRUN",
-          "scope": "Read-only plan confirms the 418-input selector was not recovered or reverified and defines a 167-path union, including 140 test-named files present at all four bases; it does not rerun the corpus or those tests."
+          "scope": "The source/replay plan identified the exact 418 selector as unrecovered and enumerated the 140 all-base caller files. A later supplemental data-level receipt replayed 4,891 main/Phase-0 input records; it did not run caller files or recover the 418 selector."
         },
         "la021_review": {
           "kind": "independent_bounded_review",
           "identity": "LA021_CANONICALIZATION_RECHECK.md",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/LA021_CANONICALIZATION_RECHECK.md@git-blob:617ed7ff6560d5d2c67fb57a68150ca36960ae2b",
-          "scope": "reviewer accepted bounded closure against the original card; exclusions remain as the row residual"
+          "scope": "This earlier review accepts only the bounded instrument result. The later corpus reconstruction and supplemental 4,891-record replay extend data-level coverage, but exact 418 selector and 140 full-file four-base caller replay remain unrun; current finding status remains partial."
         },
         "source_review": {
           "identity": "reviewed LA-021 no-record audit",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/NO_RECORD_REVIEW.md@git-blob:175da294c83c8b72c54b2ab568d21c308e39f710#LA-021",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Accepted review agrees only with the bounded instrument result; it does not reproduce the historical 418-input selector or the 140 full-file four-base replay."
+          "scope": "PASS_BOUNDED is retained for the bounded data-level results. The supplemental replay compares 4,891 main/Phase-0 input records with zero unexpected encoded-byte differences, but does not cover the exact 418 selector or 140 full-file four-base caller replay; finding status remains partial."
+        },
+        "deep_audit": {
+          "identity": "LA-021 historical input and caller coverage reconstruction",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-corpus-reconstruction-20260925.md@sha256:dcf312057d2cd56d153f089f4627ca12100776cafa127984393d4b4ea09ea749",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only reconstruction only. A separate supplemental receipt later compared the 17 old-main JSON versions and 4,874 shared JSONL line records across main/Phase 0, with zero unexpected byte differences; exact 418 selector and 140 caller-file replay remain UNRUN."
+        },
+        "additional_corpus_receipt": {
+          "identity": "LA-021 supplemental main/Phase-0 strict JSON and JSONL corpus comparison",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-additional-corpus-20260925/receipt.json@sha256:87ffa78b0c1aea6ad7cbcb84375f9967024148d79a5c21bfdc382bed15ab5c4d",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "4,891 additional records (17 old-main JSON versions plus 4,874 JSONL lines); 19,768 direct encoded-byte outputs compared with zero unexpected differences. The earlier retained instrument separately covers the 2,867 Phase-0 JSON-path occurrences. Exact 418 selector, 140 all-base caller-file replay, dynamic callers and persisted/production inputs remain unresolved or UNRUN."
+        },
+        "additional_corpus_independent_review": {
+          "identity": "Independent review of supplemental LA-021 corpus receipt",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-supplemental-review-20260925.md@sha256:567ef0ef987bfd8b887cbcbb2475c70ff659ea299b1cea018f3ce5c75240d9c2",
+          "behavioral_verdict": "GO_BOUNDED_NO_GO_FULL_CLOSURE",
+          "scope": "Independent re-enumeration and byte-span verification support the named 4,891-record/19,768-output corpus parity. Exact 418 selector, 140 caller-file replay, persisted/runtime-generated inputs and wider environments remain out of scope. Instrument has bounded P38 proxy weaknesses; no finding closure is supported."
         }
       }
     },
@@ -14288,13 +14313,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. H14 confirms that generic verified-stage receipt production exists but the demographic loader lacks the complete-layout/inventory-bound selection; reuse the existing Data Forge receipt owner. End-to-end behavior remains UNRUN. H14 source map: /Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-032."
+        "detail": "Appendix C held status retained, with its stated inventory/digest binding and sibling-loader residual refined. H14 final review confirms the mixed-layout selector subproperty was already accepted in E02 J0681 (13/13); the remaining blocker is content-bound inventory/path/digest/version and sibling-reader replay, not absence of complete-layout selection. E02 receipt: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/outputs/E02-J0681-N-UDF05-current-r1/receipt.json@sha256:2a91c7879476ca700f58921eeabc63df6320b905ad662a4742eb7c6a5dc921dc; independent bounded verdict addendum: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/reviews/UDF-05-J0681-independent-bounded-verdict-addendum-r1.md@sha256:bb1c8472087194488bcf5f659789b09ea876cdd36c777e16bb191d3b89ff0c6c; H14 final review: /Users/deniskopylov/.codex/scratch/e02-r2-h14-independent-closure-review-20260925.md@sha256:0459e569eb580ce6185ad3af182627ceb976b4dc6cbe3e6fd1c21851451eba3d#LA-032."
       },
-      "residual": "One smallest missing capability: a complete-layout, inventory/digest-bound demographic selection wired through the existing Data Forge verified-stage receipt/read owner. VerifiedUkraineStageArtifacts exists, but load_demography_artifacts independently selects files across hierarchical and flat layouts and does not bind/reopen the same complete selected set. Reuse the existing receipt/store owner; add no parallel CAS or second world-growth path. Served producer/receipt/reader and sibling-loader witnesses remain UNRUN.",
+      "residual": "One data-record blocker: bind the complete selected demographic inventory (paths, content digests, layout/version) to the existing VerifiedUkraineStageArtifacts receipt and prove independent sibling readers reopen those exact bytes. The original mixed-filename selection defect is a bounded accepted sub-result: E02 J0681 reports 13/13, and its independent addendum accepts the composite snapshot-selection slice. Do not describe the current loader as still combining mixed layouts. Served inventory-bound producer/receipt/reader, sibling-loader, mutation, and historical-replay witnesses remain UNRUN. Reuse the existing Data Forge receipt/store owner; add no parallel CAS or second world-growth path.",
       "residual_owner": {
-        "kind": "smallest_missing_capability",
-        "name": "Ukraine demography loader — inventory-bound complete-layout selector through VerifiedUkraineStageArtifacts",
-        "appointment_status": "The complete selected-set admission is absent on the demographic loader path; reuse the existing Data Forge receipt owner. Behavior remains UNRUN."
+        "kind": "data_record",
+        "name": "Ukraine demography receipt/read owner — selected inventory/path/digest/version plus sibling-reader replay",
+        "appointment_status": "The receipt-to-consumer identity record and independent reader replay are not established."
       },
       "r_class": null,
       "p_triage": null,
@@ -14324,6 +14349,13 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#LA-032",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+        },
+        "e02_j0681_bounded_subresult": {
+          "identity": "E02 J0681 UDF-05 composite snapshot-selection bounded sub-result",
+          "path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/outputs/E02-J0681-N-UDF05-current-r1/receipt.json@sha256:2a91c7879476ca700f58921eeabc63df6320b905ad662a4742eb7c6a5dc921dc",
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-UDF-05-CURRENT-R1/reviews/UDF-05-J0681-independent-bounded-verdict-addendum-r1.md@sha256:bb1c8472087194488bcf5f659789b09ea876cdd36c777e16bb191d3b89ff0c6c",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "13/13 accepted mixed-layout/composite snapshot-selection subproperty only; not inventory/digest binding, sibling-reader replay, or LA-032 closure."
         }
       }
     },

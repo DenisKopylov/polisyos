@@ -3,9 +3,9 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 76,
+    "engineering_a": 77,
     "principal_b": 16,
-    "typed_blocker_c": 26
+    "typed_blocker_c": 25
   },
   "triage_rule": {
     "a": "Engineering can close now in the plans direction.",
@@ -1925,12 +1925,12 @@
     },
     {
       "finding_id": "B153",
-      "bucket": "c",
-      "disposition": "typed_blocker",
-      "owner": "Artifact store lifecycle owner",
-      "blocker_kind": "data_record",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
+      "blocker_kind": null,
       "e02_residual": "CAS-01: in-process locks only",
-      "next_step": "Measure the production FileSystemCAS lifetime and distinct-ID cardinality to establish whether the conditional long-lived-store threshold applies; if it does, implement fixed lock striping and same-key exclusion without claiming distributed locking.",
+      "next_step": "Strengthen tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters to assert the fixed pool size is unchanged across 3,000 deterministic IDs, preserve same-ID waiter exclusion, and exercise two distinct IDs colliding to one stripe with refs/bytes/manifests read back. Remove per-ID lock retention and the same-key fence in marker-retaining probes; both must turn red. Run the whole file at all four P41 bases. The existing 128-ID holder/waiter evidence is bounded support, not the 3,000-ID discriminator; production lifetime/cardinality informs priority only. Do not claim distributed locking.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B153",
       "e02_residual_source_refs": [
         {

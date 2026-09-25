@@ -549,6 +549,7 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_budget_resolution_mismatch",
                 "The visible HTTP budget resolution must match the recursive budget used.",
             )
+    from polisyos.runtime.quality.evaluation_modes import EVAL_SAFETY_REQUIRED_MODES
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
 
@@ -585,13 +586,7 @@ async def compile_and_run_recursive_generation_cycle(
             "candidate_execution_intent_context_mismatch",
             "Candidate-only execution cannot carry an attempted EvalSafety context.",
         )
-    if execution_intent in {
-        "retrospective",
-        "measurement_audit",
-        "sandbox_pilot",
-        "field_pilot",
-        "deployment",
-    }:
+    if execution_intent in EVAL_SAFETY_REQUIRED_MODES:
         if root_evaluation_context is None:
             raise DesignProblemAuthorityError(
                 "eval_safety_execution_context_not_established",

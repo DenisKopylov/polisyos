@@ -10,6 +10,10 @@ from polisyos.pdc import EvaluationMode, EvaluationModeResolution
 _MISSING = "polisyos.eval_safety.evaluation_mode_missing@1.0.0"
 _INVALID = "polisyos.eval_safety.evaluation_mode_unknown@1.0.0"
 _MODES = frozenset(get_args(EvaluationMode))
+EVAL_SAFETY_REQUIRED_MODES = frozenset(
+    {"sandbox_pilot", "field_pilot", "deployment"}
+)
+DATA_TRUST_REQUIRED_MODES = frozenset({"retrospective", "measurement_audit"})
 
 
 def resolve_evaluation_mode(token: str | None) -> EvaluationModeResolution:
@@ -40,4 +44,10 @@ def resolve_evaluation_mode(token: str | None) -> EvaluationModeResolution:
     )
 
 
-__all__ = ["EvaluationMode", "EvaluationModeResolution", "resolve_evaluation_mode"]
+__all__ = [
+    "DATA_TRUST_REQUIRED_MODES",
+    "EVAL_SAFETY_REQUIRED_MODES",
+    "EvaluationMode",
+    "EvaluationModeResolution",
+    "resolve_evaluation_mode",
+]

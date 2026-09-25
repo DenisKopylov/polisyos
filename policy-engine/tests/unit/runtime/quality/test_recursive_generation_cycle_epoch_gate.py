@@ -96,12 +96,14 @@ async def test_empty_eval_safety_map_is_rejected_before_n4_dispatch(
         )
 
 
+@pytest.mark.parametrize("intent", ["candidate_only", "simulate_only"])
 @pytest.mark.asyncio
-async def test_candidate_only_intent_preserves_context_free_n4_dispatch(
+async def test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    intent: str,
 ) -> None:
-    """A typed candidate intent is distinct from a missing protected denominator."""
+    """Candidate and simulation intents preserve context-free computation."""
 
     from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
 
@@ -138,7 +140,94 @@ async def test_candidate_only_intent_preserves_context_free_n4_dispatch(
                 min_cycles_per_leaf=1,
                 max_cycles_per_leaf=1,
             ),
-            execution_intents_by_node={root_ref: "candidate_only"},
+            evaluation_contexts_by_node={},
+            execution_intents_by_node={root_ref: intent},
+        )
+
+
+@pytest.mark.parametrize("intent", ["retrospective", "measurement_audit"])
+@pytest.mark.asyncio
+async def test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety(
+    tmp_path: Path,
+    intent: str,
+) -> None:
+    """DataTrust modes do not claim an EvalSafety owner when their bridge is absent."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+
+    problem = _problem(f"data_trust_mode_{intent}_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+    )
+
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_data_trust_context_not_established",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            evaluation_contexts_by_node={},
+            execution_intents_by_node={root_ref: intent},
+        )
+
+
+@pytest.mark.parametrize("intent", ["sandbox_pilot", "field_pilot", "deployment"])
+@pytest.mark.asyncio
+async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4(
+    tmp_path: Path,
+    intent: str,
+) -> None:
+    """Each EvalSafety-owned intent requires its own exact leaf context."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+
+    problem = _problem(f"eval_safety_denominator_{intent}_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+    )
+
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_context_denominator_mismatch",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            evaluation_contexts_by_node={},
+            execution_intents_by_node={root_ref: intent},
         )
 
 
@@ -1202,13 +1291,13 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
 ) -> None:
     """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
 
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
-        _CgfGenerationPort,
         _budget,
+        _CgfGenerationPort,
         _lane0_cycle_context,
     )
-    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 
     problem, substrate_context = _lane0_cycle_context()
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
@@ -1318,11 +1407,11 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
 
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
+        _budget,
+        _cyc01_owner_bound_n5_case,
         _GenerationResult,
         _GroundingDisposition,
         _Ranking,
-        _cyc01_owner_bound_n5_case,
-        _budget,
     )
 
     problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
@@ -1419,15 +1508,15 @@ async def test_http_recursive_route_without_owner_context_fails_closed_before_bo
 ) -> None:
     """Owner-context absence must not become an empty-map limited WMR route."""
 
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
+        _budget,
+        _cyc01_owner_bound_n5_case,
         _GenerationResult,
         _GroundingDisposition,
         _Ranking,
-        _cyc01_owner_bound_n5_case,
-        _budget,
     )
-    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 
     problem, _substrate_context, candidate = _cyc01_owner_bound_n5_case()
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))

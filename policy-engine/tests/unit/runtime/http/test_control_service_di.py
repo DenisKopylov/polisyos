@@ -1405,11 +1405,13 @@ def test_runtime_container_passes_control_registry_provider_override(tmp_path) -
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("missing_scope_field", [None, "tenant_id", "cell_id"])
 async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
+    missing_scope_field: str | None,
 ) -> None:
-    """The real served compiler and N4 organs yield a tenant-replayable limited candidate."""
+    """Real served N4 may compute without scope but persists only a scoped candidate."""
     from polisyos.runtime.http.services.control import nl_pipeline
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.scientist.orchestration.llm import factory as llm_factory
@@ -1466,6 +1468,16 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
 
+        if missing_scope_field is not None:
+            load_payload_ref = service._load_payload_ref
+
+            def load_without_scope(payload_ref: str) -> dict[str, object]:
+                loaded = load_payload_ref(payload_ref)
+                loaded.pop(missing_scope_field, None)
+                return loaded
+
+            monkeypatch.setattr(service, "_load_payload_ref", load_without_scope)
+
         def reject_s8(**_kwargs):
             pytest.fail("candidate-only N4 proposal reached the S8 resolver")
 
@@ -1488,6 +1500,29 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert completed is not None
         assert completed.state == "completed"
         assert compiler_gateway.generate_calls
+        assert generation_gateway._cursor > 0
+        if missing_scope_field is not None:
+            assert completed.progress["state"] == "completed"
+            assert completed.progress["execution_band"] == "candidate"
+            assert completed.progress["status"] == "not_established"
+            assert completed.progress["candidate_computation_status"] == "completed"
+            assert completed.progress["proposal_persistence_status"] == "not_established"
+            assert completed.progress["limitation_code"] == (
+                "candidate_proposal_owner_scope_not_established"
+            )
+            assert completed.progress["runtime_diagnostic_event_status"] == "not_established"
+            assert completed.progress["candidate_proposal_ref"] is None
+            assert completed.progress["n5_status"] == "not_run"
+            assert completed.progress["n8_status"] == "not_run"
+            assert completed.progress["n9_status"] == "not_run"
+            assert completed.progress["s8_status"] == "not_run"
+            proposals = [
+                path
+                for path in service._artifact_store.base.rglob("*.manifest.json")
+                if "runtime.quality.n4_candidate_proposal" in path.read_text()
+            ]
+            assert not proposals
+            return
         assert completed.progress["status"] == "candidate_limited"
         assert completed.progress["execution_band"] == "candidate"
         assert completed.progress["n5_status"] == "not_run"
@@ -1518,5 +1553,107 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
         assert service._promotion_runtime.store is service._artifact_store
+    finally:
+        service.close()
+
+
+def test_diagnostic_event_omission_requires_real_tenant_and_cell_scope(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+
+    class RecordingEventLog:
+        def __init__(self) -> None:
+            self.events = []
+
+        def append(self, event, **_kwargs):
+            self.events.append(event)
+            return SimpleNamespace(event=event)
+
+    log = RecordingEventLog()
+    service._diagnostic_event_log = log
+    try:
+        omitted = service._emit_runtime_diagnostic_event(
+            job_id="job-no-scope",
+            run_id="run-no-scope",
+            execution_profile="dev",
+            phase="job_execution",
+            event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+            payload={},
+        )
+        assert omitted is None
+        assert not log.events
+
+        placeholder_scope_omitted = service._emit_runtime_diagnostic_event(
+            job_id="job-placeholder-scope",
+            run_id="run-placeholder-scope",
+            execution_profile="dev",
+            phase="job_execution",
+            event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+            payload={"tenant_id": "tenant-unknown", "cell_id": "cell-unknown"},
+        )
+        assert placeholder_scope_omitted is None
+        assert not log.events
+
+        emitted = service._emit_runtime_diagnostic_event(
+            job_id="job-scoped",
+            run_id="run-scoped",
+            execution_profile="dev",
+            phase="job_execution",
+            event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+            payload={"tenant_id": "tenant-real", "cell_id": "cell-real"},
+        )
+        assert emitted is not None
+        assert len(log.events) == 1
+        assert log.events[0].tenant_id == "tenant-real"
+        assert log.events[0].cell_id == "cell-real"
+    finally:
+        service.close()
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param({"tenant_id": "  ", "cell_id": "cell-real"}, id="blank"),
+        pytest.param(
+            {"tenant_id": "tenant-unknown", "cell_id": "cell-real"},
+            id="placeholder-marker",
+        ),
+        pytest.param({"tenant_id": 42, "cell_id": "cell-real"}, id="wrong-type"),
+    ],
+)
+def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
+    tmp_path,
+    payload: dict[str, object],
+) -> None:
+    from polisyos.runtime.http.services.control.workspace_loop_transition import (
+        _WorkflowExecutionNonAuthorityError,
+    )
+
+    service = _build_control_service(tmp_path)
+    intake = SimpleNamespace(
+        attempt_id="attempt-unknown-tenant",
+        evaluation_input_refs=(),
+        mode_resolution=SimpleNamespace(model_dump=lambda **_kwargs: {"mode": "field_pilot"}),
+        requested_at=datetime(2026, 9, 25, tzinfo=UTC),
+    )
+    job = SimpleNamespace(
+        job_id="job-unknown-tenant",
+        run_id="run-unknown-tenant",
+        requested_execution_profile="dev",
+        effective_execution_profile="dev",
+    )
+    try:
+        with pytest.raises(
+            _WorkflowExecutionNonAuthorityError,
+            match="evaluation_safety_tenant_scope_not_established",
+        ) as raised:
+            service._evaluation_safety_persistence_context(
+                intake=intake,
+                job=job,
+                payload=payload,
+            )
+        assert raised.value.progress["status"] == "not_established"
+        assert raised.value.progress["eval_safety_blocker_codes"] == [
+            "evaluation_safety_tenant_scope_not_established"
+        ]
     finally:
         service.close()

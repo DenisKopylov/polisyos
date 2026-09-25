@@ -49,8 +49,8 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -91,11 +91,13 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.evaluation_modes import (
-    EvaluationMode as ValueEvaluationMode,
-)
-from polisyos.runtime.quality.evaluation_modes import (
+    DATA_TRUST_REQUIRED_MODES,
+    EVAL_SAFETY_REQUIRED_MODES,
     EvaluationModeResolution,
     resolve_evaluation_mode,
+)
+from polisyos.runtime.quality.evaluation_modes import (
+    EvaluationMode as ValueEvaluationMode,
 )
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyAdmissionChallenge,
@@ -2913,7 +2915,7 @@ class FoundryValuePort:
                 started=started,
                 candidate_id=candidate_id,
             )
-        if mode != "simulate_only":
+        if mode in EVAL_SAFETY_REQUIRED_MODES:
             if (
                 context.candidate_ref.artifact_id != candidate_id
                 or context.candidate_ref.content_hash != _candidate_content_hash(candidate)
@@ -2971,7 +2973,7 @@ class FoundryValuePort:
                 candidate_id=candidate_id,
             )
         data_trust = self._data_trust
-        if mode in {"retrospective", "measurement_audit"} and data_trust is None:
+        if mode in DATA_TRUST_REQUIRED_MODES and data_trust is None:
             return _blocked_value_observation(
                 code="data_trust_gate_missing",
                 reason="Retrospective and measurement-audit value modes require DataTrust.",

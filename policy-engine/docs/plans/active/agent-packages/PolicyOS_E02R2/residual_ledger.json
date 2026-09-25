@@ -20,15 +20,15 @@
     "no_finding_level_record": 18
   },
   "p_triage_counts": {
-    "a": 77,
+    "a": 87,
     "b": 16,
-    "c": 25
+    "c": 15
   },
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Current four-base status is UNRUN unless a row cites an admitted finding-level result. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
     "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
     "The 18 Appendix-C no-record items are reconciled individually: LA-021 is partial after bounded corpus replays were supplemented but the exact 418 selector and caller-file replays remain UNRUN; 13 B items are partial pending their card discriminators; B09, B27, B72 and B111 are open. B73 is among the 13 partial B items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
-    "The reviewed P triage remains 118/118 for the original P rows: 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 moves from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. Triage is not closure evidence, and no behavior replay was run for this correction.",
+    "Historical pre-refinement P118 snapshot: 118/118 rows were classified as 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 then moved from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. The current 87/16/15 projection is bound in citation_catalog.partial_triage. Triage is not closure evidence, and no behavior replay was run for the B153 or ten subsequent classification changes.",
     "Historical H14 partitions are superseded by the complete per-finding audit: 4 owner_decision, 7 data_record and 3 smallest_missing_capability blockers; current statuses are 12 held, LA-010 partial and B219 open. All H14 behavior and P41 witnesses remain UNRUN.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
@@ -64,11 +64,17 @@
       "scope": "per-ID record/mapping coverage only; behavior is UNRUN for all 282 findings"
     },
     "partial_triage": {
-      "identity": "reviewed P118 triage projection on codex/e02-r2-ledger after the independent B153 c-to-a correction; source lineage is codex/e02-r2-partial-triage at df41697294892bdad36f9b00d3728479f87c66ea",
-      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
-      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
-      "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:aa69b5dc16c27ec3c1fd39f971a1261967c54290",
-      "scope": "118/118 exact finding rows: 77 engineering, 16 principal decisions, 25 typed blockers; B153 is a reviewed triage correction. Disposition/next step only, not closure evidence or behavioral results."
+      "identity": "Current 118/118 P triage projection in codex/e02-r2 at 5275690ed13b00457f1d859cde1f790a6fbe75a0; ten prior c rows are now engineering a rows. This is disposition/next-step classification only, not closure evidence or behavioral results.",
+      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678",
+      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678",
+      "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:53ccf63f68f9ba0c49f72567e1610bc53496fe01",
+      "scope": "118/118 exact finding rows: 87 engineering, 16 principal decisions, 15 typed blockers. Current triage supersedes the historical 77/16/25 snapshot after ten c-to-a refinements; disposition/next step only, not closure evidence or behavioral results.",
+      "previous_snapshot": {
+        "identity": "Historical P118 triage snapshot before the ten c-to-a refinements.",
+        "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
+        "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:aa69b5dc16c27ec3c1fd39f971a1261967c54290",
+        "scope": "Historical counts: 77 engineering, 16 principal decisions, 25 typed blockers. Superseded by the current 87/16/15 snapshot; retained for provenance."
+      }
     },
     "held_review": {
       "identity": "accepted held-finding review at 3377754d62be3aecf43f5fb2432ed51748765e18 on codex/e02-r2-held-review",
@@ -2274,13 +2280,13 @@
       },
       "r_class": "R8",
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Live Ray/Temporal and exactly-once owners",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner.",
+        "blocker_kind": null,
+        "next_step": "At ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner., implement and exercise this bounded property: A stale worker/attempt cannot overwrite a newer attempt or terminal job through the production GuardedDependencyProxy; current owner can still finish and event/status history remains consistent. Distinguishing discriminator: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. Removal probe: Remove the ContextVar/explicit owner-attempt fence or final SQL predecessor predicate while retaining receipt markers; stale worker writes newer job and the negative turns red. Preserve the non-refusal control: Current worker with matching job/owner/attempt and live lease completes; diagnostic orphan remains inspectable but is not attached as current. Keep the residual separate: External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B38"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B38"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4484,13 +4490,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Live Ray/Temporal and exactly-once owners",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain operated-runtime evidence for lease propagation and external exactly-once semantics; classify absent services as external blockers.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "FallbackRunner and its dispatch/result reconciliation owner.",
+        "blocker_kind": null,
+        "next_step": "At FallbackRunner and its dispatch/result reconciliation owner., implement and exercise this bounded property: Fallback may run only before a primary effect can have occurred; after an ambiguous lost acknowledgement it must reconcile or return typed unknown, never blindly apply a second effect. Distinguishing discriminator: Existing owner suite `tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py` (including primary failure/health cases); add fake effect-log post-dispatch/lost-confirmation selector. Removal probe: Restore catch-all retry after primary side effect but before acknowledgement while preserving degraded/fallback markers; fake effect log increments twice and negative turns red. Preserve the non-refusal control: Healthy primary executes exactly once; an explicit unhealthy/pre-dispatch result may use local fallback once. Keep the residual separate: Operated Ray/Temporal guarantees remain an external residual; they do not block the local injected-failure behavior.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B78"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B78"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4648,13 +4654,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Native ingestion runtime and external state owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "process_stream_dataset, StreamingSourceSession and cursor/checkpoint store in Fabric Data Plane.",
+        "blocker_kind": null,
+        "next_step": "At process_stream_dataset, StreamingSourceSession and cursor/checkpoint store in Fabric Data Plane., implement and exercise this bounded property: A processing error after poll/dedupe/raw persistence must not commit an unprocessed source position; restart must replay pending rows at-least-once with idempotent dedupe, never silently skip them. Distinguishing discriminator: Existing in-repo discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_failure_before_chunk_persistence_replays_dedupe_rows and `test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window`; add matrix for each commit boundary. Removal probe: Commit the observed offset/dedupe before durable processed output while retaining checkpoint markers; injected failure after poll must skip an unpersisted row and test goes red. Preserve the non-refusal control: Successful chunks advance the committed frontier once; honest at-least-once replay dedupes without losing rows. Keep the residual separate: Native connector offset/replay semantics and long-lived retention may remain typed residuals; the local no-lost-row contract does not require distributed exactly-once.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B81"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B81"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4702,13 +4708,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Native ingestion runtime and external state owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "StreamWindowAccumulator state serializer/restorer and process_stream_dataset checkpoint owner.",
+        "blocker_kind": null,
+        "next_step": "At StreamWindowAccumulator state serializer/restorer and process_stream_dataset checkpoint owner., implement and exercise this bounded property: Interrupted and uninterrupted processing must emit identical logical COUNT/SESSION/selected sliding windows and lineage, including pending rows, event-time/order/watermark and numbering. Distinguishing discriminator: Existing discriminator in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_interrupted_pending_window_resumes_with_lineage and `test_stream_window_operator_state_round_trips_pending_rows`; add mode matrix for count/session/sliding. Removal probe: Drop pending operator/order state but retain cursor/checkpoint fields; resume with the same source events and require the observed divergent window/lineage to make the test red. Preserve the non-refusal control: Fully closed window passes unchanged and normal restart with complete operator state yields the same logical outputs. Keep the residual separate: Per-connector native replay/retention remains a separate limitation; local persisted operator contract is internally testable.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B82"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B82"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4884,13 +4890,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Native ingestion runtime and external state owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain native runtime evidence for rewind/fencing, retention and exactly-once; keep the local adapter claim bounded until those external properties are witnessed.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "StreamWindowAccumulator provenance refs and _persist_stream_window_async artifact-manifest writer.",
+        "blocker_kind": null,
+        "next_step": "At StreamWindowAccumulator provenance refs and _persist_stream_window_async artifact-manifest writer., implement and exercise this bounded property: Every emitted multi-chunk window binds all and only chunks that contributed rows, including trigger chunk distinction, final flush and resumed windows; changing one contributor invalidates dependents only. Distinguishing discriminator: Existing discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_window_manifest_contains_all_contributor_chunks and `test_stream_window_lineage_covers_trigger_and_final_flush`. Removal probe: Omit one contributing chunk ref but retain payload/hash/status markers; revoke that source and require dependent-window currentness to fail while unaffected source/control remains valid. Preserve the non-refusal control: Single-chunk window and unchanged second contributor remain current; final flush includes all real inputs. Keep the residual separate: Native source retention guarantees are separate; lineage completeness and local invalidation are in-repo properties.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B85"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B85"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4992,13 +4998,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Live transport lifecycle owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property.",
+        "blocker_kind": null,
+        "next_step": "At StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property., implement and exercise this bounded property: Connection/stream startup failure or close failure must retain or release ownership so no pool handle/permit is leaked; retry cleanup must finish safely. Distinguishing discriminator: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Removal probe: Remove compensation/owner retention while keeping open/close status markers; injected subscribe/close failure must leak a handle or block later pool reuse, turning negative red. Preserve the non-refusal control: Ordinary create/subscribe/close succeeds; a retry after close error finishes cleanup once. Keep the residual separate: Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B87"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B87"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5101,13 +5107,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Live transport lifecycle owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "ConnectionPool.acquire/release/close_all and registry cleanup owner.",
+        "blocker_kind": null,
+        "next_step": "At ConnectionPool.acquire/release/close_all and registry cleanup owner., implement and exercise this bounded property: Cancellation/close races conserve each connection permit and cleanup owner exactly once; a closed pool never returns a duplicate/stale handle. Distinguishing discriminator: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Removal probe: Remove reservation/cleanup fencing but keep pool counters; cancel at connect/disconnect and prove a permit leaks, returns twice or is reused before cleanup; negative goes red. Preserve the non-refusal control: Fresh acquisition after cleanup receives one healthy connection; ordinary release returns exactly one permit. Keep the residual separate: Remote connector’s own cancellation semantics remain scoped to its adapter.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B89"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B89"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5157,13 +5163,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Live transport lifecycle owner",
-        "blocker_kind": "external_institution",
-        "next_step": "Obtain a real transport lifecycle receipt for concurrent disconnect/close-all and prove linearizable owner release; retain the typed blocker until the external owner can supply it.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "ConnectionPool.acquire lock/reservation path and connector adapter boundary.",
+        "blocker_kind": null,
+        "next_step": "At ConnectionPool.acquire lock/reservation path and connector adapter boundary., implement and exercise this bounded property: Slow network connect/health work must not hold the shared pool metadata lock; unrelated release/acquire must progress within their own deadline, and total acquire timeout covers the whole operation. Distinguishing discriminator: Existing owner pool-contention test `tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py::test_connection_pool_close_release_contention_and_bounded_tracking`; add event-gated slow-connect + independent release/parallel connect deadline discriminator. Removal probe: Move connect/health back under the shared lock or reset deadline after semaphore wait while retaining lock/timeout markers; blocked connector must prevent independent release or exceed total deadline. Preserve the non-refusal control: Fast parallel connects and independent release both complete within an explicit budget. Keep the residual separate: No production-latency claim from a fake connector; this checks control/lock semantics, not remote service SLO.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B90"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B90"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15232,13 +15238,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "DFI source-corpus and performance owner",
-        "blocker_kind": "data_record",
-        "next_step": "Obtain the complete admitted source-corpus manifest and measured completeness/partiality/performance record before asserting corpus-wide closure.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "Data Forge catalog batch checkpoint/pipeline owner",
+        "blocker_kind": null,
+        "next_step": "Fix the checkpoint mechanism now: bind input bytes/generation and output generation/receipt, not only path/size/mtime/existence. Through catalog batch pipeline, prove same-size/same-mtime input mutation and output replacement invalidate skip. Keep DFI-03 admitted full-corpus completeness/partiality/performance as a separate data-record limitation; it does not block the local mechanism repair. Distinguishing discriminator: Same-size/same-mtime source byte mutation must invalidate skip; mutate output bytes/replace generation while retaining markers and skip must turn red. Missing/partial source is not a completed stage. Preserve valid unchanged generation as positive control; measure full corpus separately.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-041"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#LA-041"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15965,13 +15971,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "c",
-        "disposition": "typed_blocker",
-        "owner": "Deployment and live-feed data owner",
-        "blocker_kind": "data_record",
-        "next_step": "Obtain an admitted deployment/live-feed data record with provenance, time and consumer identity before claiming this capability.",
+        "class": "a",
+        "disposition": "engineering",
+        "owner": "DDM calibration-audit, monitor and registry-event code owners",
+        "blocker_kind": null,
+        "next_step": "Fix the typed code chain now: carry CalibrationReport validity expiry, invalidation triggers and check result into CalibrationAudit, monitor, registry and readiness event so currentness remains an epoch fact. Use synthetic typed fixtures to distinguish live code semantics. Keep a real deployment/live-feed record as a separate limitation; do not claim deployment applicability until the data owner supplies it. Distinguishing discriminator: With actual CalibrationReport/Pydantic records, pass an unexpired, expired, changed-model/data and invalidation-trigger case through report→audit→monitor→registry/event; expiry/status must survive and stale approval fail. A valid-current control passes. Separate live deployment data receipt is still needed for production applicability.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-054"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#LA-054"
       },
       "evidence_refs": {
         "finding_test_or_probe": {

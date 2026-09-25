@@ -16,6 +16,7 @@ if TYPE_CHECKING:
         InputRef,
         ProducerInfo,
         SchemaInfo,
+        WarningRecord,
     )
 
 
@@ -34,6 +35,7 @@ class ArtifactWriteOptions:
     tenant_context: ArtifactTenantContextInfo | None = None
     same_input_closure: ArtifactSameInputClosureInfo | None = None
     authority: ArtifactAuthorityInfo | None = None
+    warnings: list[WarningRecord] | None = None
 
 
 __all__ = ["ArtifactWriteOptions"]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING
 
 from polisyos.common.serialization import fast_json_dumps_bytes
@@ -32,6 +33,7 @@ class ManifestLifecycle:
     ) -> ArtifactManifest:
         return ArtifactManifest.model_validate(
             {
+                "manifest_schema_version": "v2",
                 "artifact_id": artifact_id,
                 "kind": opts.kind,
                 "media_type": opts.media_type,
@@ -46,6 +48,7 @@ class ManifestLifecycle:
                 "same_input_closure": getattr(opts, "same_input_closure", None),
                 "authority": getattr(opts, "authority", None),
                 "integrity": IntegrityInfo(sha256=sha),
+                "warnings": list(opts.warnings or []),
             }
         )
 
@@ -86,6 +89,7 @@ class ManifestLifecycle:
             "tenant_context": getattr(opts, "tenant_context", None),
             "same_input_closure": getattr(opts, "same_input_closure", None),
             "authority": getattr(opts, "authority", None),
+            "warnings": list(opts.warnings or []),
         }
         return tuple(
             field
@@ -106,6 +110,29 @@ class ManifestLifecycle:
         if mismatches:
             fields = ", ".join(mismatches)
             raise ValueError(f"Existing artifact manifest profile conflict: {fields}")
+
+    @staticmethod
+    def profile_projection(manifest: ArtifactManifest) -> dict[str, object]:
+        """Return every immutable typed-view field, including warning evidence."""
+        return manifest.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+            exclude={
+                "artifact_id",
+                "byte_size",
+                "created_at",
+                "integrity",
+            },
+        )
+
+    @classmethod
+    def profile_sha256(cls, manifest: ArtifactManifest) -> str:
+        """Compute a domain-separated digest for one complete persisted view."""
+        projection = cls.profile_projection(manifest)
+        payload = fast_json_dumps_bytes(projection, sort_keys=True)
+        digest = hashlib.sha256(b"polisyos.cas.manifest-profile.v1\0" + payload).hexdigest()
+        return f"sha256:{digest}"
 
     @staticmethod
     def read(path: Path) -> ArtifactManifest:

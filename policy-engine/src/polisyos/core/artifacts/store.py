@@ -161,6 +161,17 @@ def _coerce_input_ref(value: object) -> InputRef:
     return InputRef.model_validate({"artifact_id": artifact_id, "role": role})
 
 
+def _artifact_reference(
+    value: ArtifactID | ArtifactRef | str,
+) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
+    """Split a blob identifier or typed reference without discarding its view selector."""
+    if isinstance(value, ArtifactRef):
+        return value.artifact_id, value.manifest_profile_sha256, value
+    if isinstance(value, str):
+        return ArtifactID.model_validate(value), None, None
+    return value, None, None
+
+
 class FileSystemCAS:
     """Store immutable artifacts in a sharded filesystem content-addressed store.
 
@@ -305,7 +316,22 @@ class FileSystemCAS:
             cell_id=owner_cell,
         )
 
-    def _sig_path(self, artifact_id: ArtifactID) -> Path:
+    def _manifest_path_for_ref(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str | None,
+    ) -> Path:
+        if manifest_profile_sha256 is None:
+            return self._paths(artifact_id)[1]
+        return self._layout.view_manifest_path(artifact_id, manifest_profile_sha256)
+
+    def _sig_path(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str | None = None,
+    ) -> Path:
+        if manifest_profile_sha256 is not None:
+            return self._layout.view_sig_path(artifact_id, manifest_profile_sha256)
         return self._layout.sig_path(artifact_id)
 
     def _artifact_lock(self, artifact_id: ArtifactID) -> threading.Lock:
@@ -357,14 +383,109 @@ class FileSystemCAS:
             operation=operation,
         )
 
-    def _record_write_owner(self, artifact_id: ArtifactID) -> None:
+    def _require_blob_owner(self, artifact_id: ArtifactID, *, operation: str) -> None:
         if not self._ownership_enforced:
             return
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
             return
-        self._ownership_index.record_owner(
+        self._ownership_index.require_blob_reader(
             artifact_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            operation=operation,
+        )
+
+    def _require_manifest_view_owner(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str | None,
+        *,
+        operation: str,
+    ) -> None:
+        if manifest_profile_sha256 is None:
+            self._require_artifact_owner(artifact_id, operation=operation)
+            return
+        if not self._ownership_enforced:
+            return
+        tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            return
+        self._ownership_index.require_view_owner(
+            artifact_id,
+            manifest_profile_sha256,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            operation=operation,
+        )
+
+    def _require_default_manifest_access(
+        self,
+        artifact_id: ArtifactID,
+        manifest: ArtifactManifest,
+        *,
+        operation: str,
+    ) -> None:
+        try:
+            self._require_artifact_owner(artifact_id, operation=operation)
+            return
+        except ArtifactOwnershipError as legacy_error:
+            if not self._ownership_enforced:
+                raise
+            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+            if tenant_id is None:
+                raise legacy_error
+            profile_sha256 = self._manifests.profile_sha256(manifest)
+            try:
+                self._ownership_index.require_view_owner(
+                    artifact_id,
+                    profile_sha256,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    operation=operation,
+                )
+            except ArtifactOwnershipError:
+                raise legacy_error from None
+
+    def _record_write_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        default_view_created: bool,
+    ) -> None:
+        if not self._ownership_enforced:
+            return
+        tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            return
+        if default_view_created:
+            self._ownership_index.record_owner(
+                artifact_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                writer="FileSystemCAS",
+            )
+        else:
+            self._ownership_index.record_blob_reader(
+                artifact_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                writer="FileSystemCAS",
+            )
+
+    def _record_write_view_owner(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str,
+    ) -> None:
+        if not self._ownership_enforced:
+            return
+        tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            return
+        self._ownership_index.record_view_owner(
+            artifact_id,
+            manifest_profile_sha256,
             tenant_id=tenant_id,
             cell_id=cell_id,
             writer="FileSystemCAS",
@@ -375,9 +496,14 @@ class FileSystemCAS:
             return
         for input_ref in opts.inputs or []:
             input_ref = _coerce_input_ref(input_ref)
-            self._require_artifact_owner(
+            self._require_blob_owner(
                 input_ref.artifact_id,
                 operation=f"write input:{input_ref.role}",
+            )
+            self._require_manifest_view_owner(
+                input_ref.artifact_id,
+                input_ref.manifest_profile_sha256,
+                operation=f"write input manifest:{input_ref.role}",
             )
 
     def _ensure_default_signer(self) -> Ed25519Signer:
@@ -388,16 +514,16 @@ class FileSystemCAS:
                 self._default_signer = load_signer_from_config(self._signing_config)
         return self._default_signer
 
-    def _maybe_sign_on_put(self, artifact_id: ArtifactID) -> None:
+    def _maybe_sign_on_put(self, artifact_ref: ArtifactRef) -> None:
         config = self._signing_config
         if not (config.enabled and config.sign_on_put):
             return
         try:
-            if self.has_signature(artifact_id):
+            if self.has_signature(artifact_ref):
                 return
             signer = self._ensure_default_signer()
             self.sign_artifact(
-                artifact_id,
+                artifact_ref,
                 signer,
                 signer_identity=config.default_identity,
             )
@@ -408,20 +534,36 @@ class FileSystemCAS:
                 ) from exc
             raise SigningError(f"Failed to sign artifact on put: {exc}") from exc
 
-    def has(self, artifact_id: ArtifactID | str) -> bool:
-        """Return whether both the blob and manifest sidecar exist for `artifact_id`."""
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        blob, manifest = self._paths(artifact_id)
+    def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
+        """Return whether the blob and selected manifest view exist."""
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        blob, _ = self._paths(aid)
+        manifest = self._manifest_path_for_ref(aid, profile_sha256)
         exists = blob.exists() and manifest.exists()
         if exists and self._ownership_enforced:
             tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
             if tenant_id is not None:
-                exists = self._ownership_index.is_owned_by(
-                    artifact_id,
+                exists = self._ownership_index.is_view_owned_by(
+                    aid,
+                    profile_sha256,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ) if profile_sha256 is not None else self._ownership_index.is_owned_by(
+                    aid,
                     tenant_id=tenant_id,
                     cell_id=cell_id,
                 )
+        if ref is not None and exists:
+            try:
+                self.get_manifest(ref)
+            except (FileNotFoundError, ValueError, ArtifactOwnershipError):
+                exists = False
+        elif ref is None and exists is False and blob.exists() and manifest.exists():
+            try:
+                self.get_manifest(aid)
+                exists = True
+            except (FileNotFoundError, ValueError, ArtifactOwnershipError):
+                pass
         if self._hpc_enabled and self._metrics:
             if exists and self._metrics.artifact_cache_hits_total:
                 self._metrics.artifact_cache_hits_total.add(1, {"kind": "existence_check"})
@@ -429,21 +571,22 @@ class FileSystemCAS:
                 self._metrics.artifact_cache_misses_total.add(1, {"kind": "existence_check"})
         return exists
 
-    def get_bytes(self, artifact_id: ArtifactID | str) -> bytes:
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
 
         Raises:
             FileNotFoundError: If the blob file is missing.
             OSError: If the blob file cannot be read.
         """
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="read")
-        blob, _ = self._paths(artifact_id)
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        self._require_blob_owner(aid, operation="read")
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(aid, profile_sha256, operation="read_manifest")
+        blob, _ = self._paths(aid)
         if not self._hpc_enabled or self._tracer is None:
-            return self._read_verified_blob(artifact_id, blob)
+            return self._read_verified_blob(aid, blob, manifest_ref=ref)
 
-        short_id = f"{artifact_id.hex[:16]}..."
+        short_id = f"{aid.hex[:16]}..."
         with self._tracer.start_as_current_span(
             "cas.get_bytes",
             attributes={
@@ -465,7 +608,7 @@ class FileSystemCAS:
                 span.set_attribute("cas.duration_seconds", duration)
                 raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
 
-            data = self._read_verified_blob(artifact_id, blob)
+            data = self._read_verified_blob(aid, blob, manifest_ref=ref)
             duration = time.perf_counter() - start
             byte_size = len(data)
 
@@ -487,91 +630,132 @@ class FileSystemCAS:
 
             return data
 
-    def get_manifest(self, artifact_id: ArtifactID | str) -> ArtifactManifest:
-        """Load and validate the manifest sidecar for one artifact.
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view.
 
         Raises:
             FileNotFoundError: If the manifest file is missing.
             ValueError: If the manifest JSON does not match `ArtifactManifest`.
         """
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="read_manifest")
-        _, manp = self._paths(artifact_id)
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+            )
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
         manifest = self._manifests.read(manp)
         try:
-            _validate_manifest_identity(artifact_id, manifest)
+            _validate_manifest_identity(aid, manifest)
+            if profile_sha256 is not None:
+                actual_profile = self._manifests.profile_sha256(manifest)
+                if actual_profile != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+            else:
+                self._require_default_manifest_access(
+                    aid,
+                    manifest,
+                    operation="read_manifest",
+                )
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+                raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
         except ArtifactIntegrityError as exc:
             self._record_integrity_failure(reason=type(exc).__name__)
             raise
         return manifest
 
-    def get_manifest_bytes(self, artifact_id: ArtifactID | str) -> bytes:
+    def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Return raw manifest bytes for signature verification/export paths."""
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="read_manifest")
-        _, manp = self._paths(artifact_id)
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self.get_manifest(artifact_id)
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
         return manp.read_bytes()
 
-    def put_signature(self, artifact_id: ArtifactID | str, signature: DetachedSignature) -> Path:
+    def put_signature(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        signature: DetachedSignature,
+    ) -> Path:
         """Write a detached signature sidecar after validating the artifact binding.
 
         Raises:
             ValueError: If `signature.artifact_id` does not match `artifact_id`.
             OSError: If the sidecar cannot be written atomically.
         """
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="write_signature")
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self.get_manifest(artifact_id)
         return _put_signature(
-            artifact_id=artifact_id,
+            artifact_id=aid,
             signature=signature,
-            sig_path_for_artifact=self._sig_path,
+            sig_path_for_artifact=lambda selected_id: self._sig_path(selected_id, profile_sha256),
             atomic_write=self._atomic_write,
         )
 
-    def get_signature(self, artifact_id: ArtifactID | str) -> DetachedSignature | None:
+    def get_signature(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> DetachedSignature | None:
         """Load a detached signature sidecar or return `None` when unsigned."""
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="read_signature")
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self.get_manifest(artifact_id)
         return _get_signature(
-            artifact_id=artifact_id,
-            sig_path_for_artifact=self._sig_path,
+            artifact_id=aid,
+            sig_path_for_artifact=lambda selected_id: self._sig_path(selected_id, profile_sha256),
         )
 
-    def has_signature(self, artifact_id: ArtifactID | str) -> bool:
+    def get_signature_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> bytes:
+        """Return the exact detached-signature bytes for the selected manifest view."""
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self.get_manifest(artifact_id)
+        path = self._sig_path(aid, profile_sha256)
+        if not path.is_file():
+            raise FileNotFoundError(f"Signature not found for artifact {aid}")
+        return path.read_bytes()
+
+    def has_signature(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
         """Return whether a detached signature sidecar exists for `artifact_id`."""
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="read_signature")
+        aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self.get_manifest(artifact_id)
         return _has_signature(
-            artifact_id=artifact_id,
-            sig_path_for_artifact=self._sig_path,
+            artifact_id=aid,
+            sig_path_for_artifact=lambda selected_id: self._sig_path(selected_id, profile_sha256),
         )
 
     def sign_artifact(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
         signer: Ed25519Signer,
         *,
         signer_identity: str | None = None,
     ) -> DetachedSignature:
         """Sign one stored artifact's blob+manifest pair and persist its sidecar."""
+        aid, _profile_sha256, ref = _artifact_reference(artifact_id)
+        selected: ArtifactID | ArtifactRef = ref or aid
         return _sign_artifact(
-            artifact_id=artifact_id,
+            artifact_id=aid,
             signer=signer,
             signer_identity=signer_identity,
-            read_blob=self.get_bytes,
-            read_manifest_bytes=self.get_manifest_bytes,
-            write_signature=self.put_signature,
-            load_snapshot=self._load_verified_snapshot,
+            read_blob=lambda selected_id: self.get_bytes(selected),
+            read_manifest_bytes=lambda selected_id: self.get_manifest_bytes(selected),
+            write_signature=lambda selected_id, signature: self.put_signature(
+                selected, signature
+            ),
+            load_snapshot=lambda selected_id: self._load_verified_snapshot(selected),
         )
 
     def verify_signature(
         self,
-        artifact_id: ArtifactID | str,
+        artifact_id: ArtifactID | ArtifactRef | str,
         verifier: Ed25519Verifier,
         *,
         strict_identity: bool | None = None,
@@ -586,15 +770,17 @@ class FileSystemCAS:
                     artifact_id=artifact_id,
                     message="Malformed artifact ID",
                 )
+        aid, _profile_sha256, ref = _artifact_reference(artifact_id)
+        selected: ArtifactID | ArtifactRef = ref or aid
         return _verify_signature(
-            artifact_id=artifact_id,
+            artifact_id=aid,
             verifier=verifier,
             strict_identity=strict_identity,
             verify_integrity=self.verify,
-            load_signature=self.get_signature,
-            read_blob=self.get_bytes,
-            read_manifest_bytes=self.get_manifest_bytes,
-            load_snapshot=self._load_verified_snapshot,
+            load_signature=lambda selected_id: self.get_signature(selected),
+            read_blob=lambda selected_id: self.get_bytes(selected),
+            read_manifest_bytes=lambda selected_id: self.get_manifest_bytes(selected),
+            load_snapshot=lambda selected_id: self._load_verified_snapshot(selected),
         )
 
     def sign_all_artifacts(
@@ -658,70 +844,47 @@ class FileSystemCAS:
         opts: PutOptions,
         aid: ArtifactID,
         sha: str,
-    ) -> bool:
-        """Persist immutable blob/manifest pair and return whether blob was deduplicated."""
-        blob, manp = self._paths(aid)
+    ) -> tuple[bool, bool, str]:
+        """Persist one blob and its default plus exact typed-view manifests."""
+        blob, default_manifest_path = self._paths(aid)
         with self._artifact_lock(aid):
             blob_preexisted = blob.exists()
-            existing_manifest = (
-                self._manifests.read(manp) if manp.exists() else None
-            )
-
-            if existing_manifest is not None:
-                _validate_manifest_identity(aid, existing_manifest)
-                self._manifests.validate_profile(
-                    existing_manifest,
-                    data_size=len(data),
-                    opts=opts,
-                )
-
             if not blob_preexisted:
-                # A false result means another writer won the atomic create;
-                # the bytes are validated below before they are reused.
                 self._files.write_once(blob, data)
+            existing_data = blob.read_bytes()
+            actual_sha = content_hash(existing_data)
+            if actual_sha != sha:
+                raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}: {actual_sha}")
 
-            if existing_manifest is not None:
-                existing_data = blob.read_bytes()
-                _validate_read_integrity(aid, existing_data, existing_manifest)
-            elif manp.exists():
-                # A different process may have published the sidecar between
-                # the initial existence check and our blob create.  Re-read
-                # and validate both its identity and complete write profile.
-                existing_manifest = self._manifests.read(manp)
-                _validate_manifest_identity(aid, existing_manifest)
-                self._manifests.validate_profile(
-                    existing_manifest,
-                    data_size=len(data),
-                    opts=opts,
-                )
-                existing_data = blob.read_bytes()
-                _validate_read_integrity(aid, existing_data, existing_manifest)
-            else:
-                # A blob without a sidecar can be completed, but only after
-                # proving that the existing bytes really match this address.
-                existing_data = blob.read_bytes()
-                actual_sha = content_hash(existing_data)
-                if actual_sha != sha:
+            manifest = self._manifests.build(
+                artifact_id=aid,
+                data=data,
+                sha=sha,
+                opts=opts,
+            )
+            manifest_bytes = self._manifests.to_bytes(manifest)
+            profile_sha256 = self._manifests.profile_sha256(manifest)
+            default_view_created = self._files.write_once(
+                default_manifest_path,
+                manifest_bytes,
+            )
+            default_manifest = self._manifests.read(default_manifest_path)
+            _validate_manifest_identity(aid, default_manifest)
+            _validate_read_integrity(aid, existing_data, default_manifest)
+
+            view_path = self._layout.view_manifest_path(aid, profile_sha256)
+            if not self._files.write_once(view_path, manifest_bytes):
+                existing_view = self._manifests.read(view_path)
+                _validate_manifest_identity(aid, existing_view)
+                _validate_read_integrity(aid, existing_data, existing_view)
+                if self._manifests.profile_projection(existing_view) != (
+                    self._manifests.profile_projection(manifest)
+                ):
                     raise ArtifactIntegrityError(
-                        f"Blob sha256 mismatch for {aid}: {actual_sha}"
+                        f"Manifest profile digest collision for {aid}"
                     )
-                manifest = self._manifests.build(
-                    artifact_id=aid,
-                    data=data,
-                    sha=sha,
-                    opts=opts,
-                )
-                if not self._manifests.write_once(manp, manifest):
-                    existing_manifest = self._manifests.read(manp)
-                    _validate_manifest_identity(aid, existing_manifest)
-                    self._manifests.validate_profile(
-                        existing_manifest,
-                        data_size=len(data),
-                        opts=opts,
-                    )
-                    _validate_read_integrity(aid, existing_data, existing_manifest)
 
-        return blob_preexisted
+        return blob_preexisted, default_view_created, profile_sha256
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         """Store raw bytes under their content hash and create the immutable manifest sidecar."""
@@ -732,10 +895,19 @@ class FileSystemCAS:
         blob.parent.mkdir(parents=True, exist_ok=True)
 
         if not self._hpc_enabled or self._tracer is None:
-            self._put_blob_and_manifest_once(data=data, opts=opts, aid=aid, sha=sha)
-            self._record_write_owner(aid)
-            self._maybe_sign_on_put(aid)
-            return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
+            _deduplicated, default_view_created, profile_sha256 = (
+                self._put_blob_and_manifest_once(data=data, opts=opts, aid=aid, sha=sha)
+            )
+            self._record_write_owner(aid, default_view_created=default_view_created)
+            self._record_write_view_owner(aid, profile_sha256)
+            ref = ArtifactRef(
+                artifact_id=aid,
+                kind=opts.kind,
+                media_type=opts.media_type,
+                manifest_profile_sha256=profile_sha256,
+            )
+            self._maybe_sign_on_put(ref)
+            return ref
 
         short_id = f"{aid.hex[:16]}..."
         byte_size = len(data)
@@ -749,13 +921,14 @@ class FileSystemCAS:
             },
         ) as span:
             start = time.perf_counter()
-            deduplicated = self._put_blob_and_manifest_once(
+            deduplicated, default_view_created, profile_sha256 = self._put_blob_and_manifest_once(
                 data=data,
                 opts=opts,
                 aid=aid,
                 sha=sha,
             )
-            self._record_write_owner(aid)
+            self._record_write_owner(aid, default_view_created=default_view_created)
+            self._record_write_view_owner(aid, profile_sha256)
 
             duration = time.perf_counter() - start
 
@@ -784,8 +957,14 @@ class FileSystemCAS:
             span.set_attribute("cas.deduplicated", deduplicated)
             span.set_attribute("cas.duration_seconds", duration)
 
-            self._maybe_sign_on_put(aid)
-            return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
+            ref = ArtifactRef(
+                artifact_id=aid,
+                kind=opts.kind,
+                media_type=opts.media_type,
+                manifest_profile_sha256=profile_sha256,
+            )
+            self._maybe_sign_on_put(ref)
+            return ref
 
     def put_json(
         self,
@@ -809,37 +988,47 @@ class FileSystemCAS:
             tenant_context=getattr(opts, "tenant_context", None),
             same_input_closure=getattr(opts, "same_input_closure", None),
             authority=getattr(opts, "authority", None),
+            warnings=getattr(opts, "warnings", None),
         )
         return self.put_bytes(data, opts2)
 
-    def verify(self, artifact_id: ArtifactID | str) -> VerificationReport:
-        """Check blob presence, manifest presence, content digest, and manifest integrity."""
-        if isinstance(artifact_id, str):
-            artifact_id = ArtifactID.model_validate(artifact_id)
-        self._require_artifact_owner(artifact_id, operation="verify")
+    def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:
+        """Check blob and exact selected manifest view integrity."""
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is None:
+            self._require_artifact_owner(aid, operation="verify")
+        else:
+            self._require_blob_owner(aid, operation="verify")
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="verify_manifest",
+            )
+        blob, _default_manifest = self._paths(aid)
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
         if not self._hpc_enabled or self._tracer is None:
-            blob, manp = self._paths(artifact_id)
-            return _verify_filesystem_artifact(
-                artifact_id,
-                blob_path=blob,
-                manifest_path=manp,
-            )
+            report = _verify_filesystem_artifact(aid, blob_path=blob, manifest_path=manp)
+        else:
+            short_id = f"{aid.hex[:16]}..."
+            with self._tracer.start_as_current_span(
+                "cas.verify",
+                attributes={"cas.artifact_id": short_id},
+            ) as span:
+                report = _verify_filesystem_artifact(
+                    aid,
+                    blob_path=blob,
+                    manifest_path=manp,
+                )
+                span.set_attribute("cas.verified", report.ok)
+                if report.byte_size is not None:
+                    span.set_attribute("cas.byte_size", report.byte_size)
 
-        short_id = f"{artifact_id.hex[:16]}..."
-        with self._tracer.start_as_current_span(
-            "cas.verify",
-            attributes={"cas.artifact_id": short_id},
-        ) as span:
-            blob, manp = self._paths(artifact_id)
-            report = _verify_filesystem_artifact(
-                artifact_id,
-                blob_path=blob,
-                manifest_path=manp,
-            )
-            span.set_attribute("cas.verified", report.ok)
-            if report.byte_size is not None:
-                span.set_attribute("cas.byte_size", report.byte_size)
-            return report
+        if report.ok and ref is not None:
+            try:
+                self.get_manifest(ref)
+            except (OSError, ValueError) as exc:
+                return report.model_copy(update={"ok": False, "error": str(exc)})
+        return report
 
     def _verify_staged_artifact(
         self,
@@ -1167,21 +1356,44 @@ class FileSystemCAS:
     def _artifact_id_from_member(path: str) -> ArtifactID | None:
         return _artifact_id_from_member(path)
 
-    def _read_verified_blob(self, artifact_id: ArtifactID, blob_path: Path) -> bytes:
+    def _read_verified_blob(
+        self,
+        artifact_id: ArtifactID,
+        blob_path: Path,
+        *,
+        manifest_ref: ArtifactRef | None = None,
+    ) -> bytes:
         return _read_verified_blob(
             artifact_id,
             blob_path,
-            load_manifest=self.get_manifest,
+            load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
             record_integrity_failure=self._record_integrity_failure,
         )
 
-    def _load_verified_snapshot(self, artifact_id: ArtifactID) -> _VerifiedArtifactSnapshot:
+    def _load_verified_snapshot(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> _VerifiedArtifactSnapshot:
         """Load one owned, integrity-checked bytes/manifest snapshot."""
-        self._require_artifact_owner(artifact_id, operation="verify")
-        blob, manifest = self._paths(artifact_id)
-        return _load_verified_artifact_snapshot(
-            artifact_id,
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        self._require_blob_owner(aid, operation="verify")
+        self.get_manifest(artifact_id)
+        blob, _default_manifest = self._paths(aid)
+        manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
+        snapshot = _load_verified_artifact_snapshot(
+            aid,
             blob_path=blob,
-            manifest_path=manifest,
+            manifest_path=manifest_path,
             record_integrity_failure=self._record_integrity_failure,
         )
+        manifest = ArtifactManifest.model_validate_json(snapshot.manifest_bytes)
+        _validate_manifest_identity(aid, manifest)
+        if profile_sha256 is not None and (
+            self._manifests.profile_sha256(manifest) != profile_sha256
+        ):
+            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+        if ref is not None and (ref.kind != manifest.kind or ref.media_type != manifest.media_type):
+            raise ArtifactIntegrityError(
+                f"Artifact reference type does not match selected manifest for {aid}"
+            )
+        return snapshot

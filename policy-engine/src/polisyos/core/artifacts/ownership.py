@@ -14,8 +14,8 @@ from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 from ._atomic_write import AtomicFileWriter
 from .ids import ArtifactID
 
-OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v1"
-OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v1"
+OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v2"
+OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v2"
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
 
 
@@ -45,10 +45,37 @@ def _record_matches_owner(
     tenant_id: str,
     cell_id: str | None,
 ) -> bool:
+    if "manifest_profile_sha256" in record:
+        return False
     if record.get("tenant_id") != tenant_id:
         return False
     recorded_cell = _normal_cell_id(record.get("cell_id"))
     return recorded_cell == cell_id
+
+
+def _record_matches_view_owner(
+    record: dict[str, Any],
+    *,
+    manifest_profile_sha256: str,
+    tenant_id: str,
+    cell_id: str | None,
+) -> bool:
+    return (
+        record.get("manifest_profile_sha256") == manifest_profile_sha256
+        and record.get("tenant_id") == tenant_id
+        and _normal_cell_id(record.get("cell_id")) == cell_id
+    )
+
+
+def _validate_profile_sha256(value: str) -> None:
+    prefix, separator, digest = str(value).partition(":")
+    if (
+        prefix != "sha256"
+        or not separator
+        or len(digest) != 64
+        or any(character not in "0123456789abcdef" for character in digest)
+    ):
+        raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
 
 
 class ArtifactOwnershipIndex:
@@ -113,6 +140,191 @@ class ArtifactOwnershipIndex:
             payload["artifacts"] = dict(sorted(artifacts.items()))
             self._write_payload(payload)
 
+    def record_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        writer: str | None = None,
+    ) -> None:
+        """Admit a tenant to shared payload bytes without granting default-view access."""
+        aid = _coerce_artifact_id(artifact_id)
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        with self._lock:
+            payload = self._load_payload()
+            blob_readers = _blob_readers_mapping(payload)
+            records = list(blob_readers.get(str(aid), []))
+            if any(
+                _record_matches_owner(
+                    record,
+                    tenant_id=normalized_tenant,
+                    cell_id=normalized_cell,
+                )
+                for record in records
+            ):
+                return
+            record: dict[str, Any] = {
+                "tenant_id": normalized_tenant,
+                "claimed_at": _utc_now(),
+            }
+            if normalized_cell is not None:
+                record["cell_id"] = normalized_cell
+            if writer:
+                record["writer"] = str(writer)
+            records.append(record)
+            blob_readers[str(aid)] = sorted(
+                records,
+                key=lambda item: (
+                    str(item.get("tenant_id") or ""),
+                    str(item.get("cell_id") or ""),
+                    str(item.get("claimed_at") or ""),
+                ),
+            )
+            payload["blob_readers"] = dict(sorted(blob_readers.items()))
+            self._write_payload(payload)
+
+    def is_blob_readable_by(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+    ) -> bool:
+        """Return whether a tenant may read payload bytes for an artifact."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_owned_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return True
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        records = _blob_readers_mapping(self._load_payload()).get(str(aid), [])
+        return any(
+            _record_matches_owner(
+                record,
+                tenant_id=normalized_tenant,
+                cell_id=normalized_cell,
+            )
+            for record in records
+        )
+
+    def require_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -> None:
+        """Fail closed unless the tenant may read this blob's payload bytes."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_blob_readable_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        raise ArtifactOwnershipError(
+            f"Artifact {aid} payload is not readable by tenant "
+            f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+
+    def record_view_owner(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        writer: str | None = None,
+    ) -> None:
+        """Admit one tenant to one exact manifest view of a shared blob."""
+        aid = _coerce_artifact_id(artifact_id)
+        _validate_profile_sha256(manifest_profile_sha256)
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        with self._lock:
+            payload = self._load_payload()
+            artifacts = _artifacts_mapping(payload)
+            records = list(artifacts.get(str(aid), []))
+            if any(
+                _record_matches_view_owner(
+                    record,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                    tenant_id=normalized_tenant,
+                    cell_id=normalized_cell,
+                )
+                for record in records
+            ):
+                return
+            record: dict[str, Any] = {
+                "tenant_id": normalized_tenant,
+                "manifest_profile_sha256": manifest_profile_sha256,
+                "claimed_at": _utc_now(),
+            }
+            if normalized_cell is not None:
+                record["cell_id"] = normalized_cell
+            if writer:
+                record["writer"] = str(writer)
+            records.append(record)
+            artifacts[str(aid)] = sorted(
+                records,
+                key=lambda item: (
+                    str(item.get("tenant_id") or ""),
+                    str(item.get("cell_id") or ""),
+                    str(item.get("manifest_profile_sha256") or ""),
+                    str(item.get("claimed_at") or ""),
+                ),
+            )
+            payload["artifacts"] = dict(sorted(artifacts.items()))
+            self._write_payload(payload)
+
+    def is_view_owned_by(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+    ) -> bool:
+        """Return whether this tenant was admitted to the exact profile view."""
+        aid = _coerce_artifact_id(artifact_id)
+        _validate_profile_sha256(manifest_profile_sha256)
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        return any(
+            _record_matches_view_owner(
+                record,
+                manifest_profile_sha256=manifest_profile_sha256,
+                tenant_id=normalized_tenant,
+                cell_id=normalized_cell,
+            )
+            for record in self.owners_for(aid)
+        )
+
+    def require_view_owner(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -> None:
+        """Fail closed unless the tenant owns this exact metadata view."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_view_owned_by(
+            aid,
+            manifest_profile_sha256,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        ):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        raise ArtifactOwnershipError(
+            f"Manifest view {manifest_profile_sha256} for artifact {aid} is not owned "
+            f"by tenant {_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+
     def owners_for(self, artifact_id: ArtifactID | str) -> list[dict[str, Any]]:
         """Return ownership records for one artifact, newest index view first."""
         aid = _coerce_artifact_id(artifact_id)
@@ -164,16 +376,25 @@ class ArtifactOwnershipIndex:
             f"current owners: {owner_text}"
         )
 
-    def evidence(self, *, tenant_id: str | None = None, cell_id: str | None = None) -> dict[str, Any]:
+    def evidence(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+    ) -> dict[str, Any]:
         """Return evidence metadata suitable for canary/debug bundles."""
         with self._lock:
             payload = self._load_payload()
             if not self.path.exists():
                 self._write_payload(payload)
             artifacts = _artifacts_mapping(payload)
+            blob_readers = _blob_readers_mapping(payload)
             digest = _digest_payload(payload)
             signature = self._signature_payload(payload, digest=digest)
-            if not self.signature_path.exists() or _load_json_file(self.signature_path) != signature:
+            if (
+                not self.signature_path.exists()
+                or _load_json_file(self.signature_path) != signature
+            ):
                 AtomicFileWriter.write_atomic(
                     self.signature_path,
                     _json_bytes(signature),
@@ -186,6 +407,13 @@ class ArtifactOwnershipIndex:
             "ownership_index_signature_path": str(self.signature_path),
             "ownership_index_signature_digest": _digest_payload(signature),
             "artifact_count": len(artifacts),
+            "blob_reader_claim_count": sum(len(records) for records in blob_readers.values()),
+            "manifest_view_claim_count": sum(
+                1
+                for records in artifacts.values()
+                for record in records
+                if isinstance(record.get("manifest_profile_sha256"), str)
+            ),
         }
         if tenant_id:
             normalized_tenant = _normal_tenant_id(tenant_id)
@@ -213,6 +441,7 @@ class ArtifactOwnershipIndex:
                 "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
                 "mode": OWNERSHIP_MODE_SHARED_CAS,
                 "artifacts": {},
+                "blob_readers": {},
             }
         raw = _load_json_file(self.path)
         if not isinstance(raw, dict):
@@ -224,11 +453,13 @@ class ArtifactOwnershipIndex:
         raw.setdefault("schema_version", OWNERSHIP_INDEX_SCHEMA_VERSION)
         raw.setdefault("mode", OWNERSHIP_MODE_SHARED_CAS)
         raw.setdefault("artifacts", {})
+        raw.setdefault("blob_readers", {})
         return raw
 
     def _write_payload(self, payload: dict[str, Any]) -> None:
         payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
         payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
+        payload.setdefault("blob_readers", {})
         AtomicFileWriter.write_atomic(self.path, _json_bytes(payload))
         digest = _digest_payload(payload)
         AtomicFileWriter.write_atomic(
@@ -274,6 +505,22 @@ def _artifacts_mapping(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]
     return result
 
 
+def _blob_readers_mapping(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    raw = payload.get("blob_readers")
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, list[dict[str, Any]]] = {}
+    for key, value in raw.items():
+        try:
+            artifact_id = str(_coerce_artifact_id(str(key)))
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(value, list):
+            continue
+        result[artifact_id] = [dict(item) for item in value if isinstance(item, dict)]
+    return result
+
+
 def _owner_label(tenant_id: object, cell_id: object | None = None) -> str:
     tenant = str(tenant_id or "").strip() or "<missing>"
     cell = _normal_cell_id(str(cell_id)) if cell_id is not None else None
@@ -297,9 +544,9 @@ def _load_json_file(path: Path) -> Any:
 
 
 __all__ = [
-    "ArtifactOwnershipError",
-    "ArtifactOwnershipIndex",
     "OWNERSHIP_INDEX_SCHEMA_VERSION",
     "OWNERSHIP_MODE_SHARED_CAS",
     "OWNERSHIP_SIGNATURE_SCHEMA_VERSION",
+    "ArtifactOwnershipError",
+    "ArtifactOwnershipIndex",
 ]

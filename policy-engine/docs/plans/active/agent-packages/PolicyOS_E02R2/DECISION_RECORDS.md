@@ -25,10 +25,13 @@ evidence must exist before S8 may emit a ranked recommendation?
 
 1. Require an owner context before any N4 candidate work. This keeps the producer
    input simple, but users pay for missing owner data with total refusal; new cases
-   depend on pre-enumerated owner state.
+   depend on pre-enumerated owner state. The HTTP/runtime team pays little change
+   cost; ordinary users and source owners pay in refused candidate work and
+   pressure to pre-enumerate scope.
 2. Remove context, source, and binding checks. This restores reachability quickly,
    but runtime and policy consumers bear the risk that caller-owned or mismatched
-   world state is treated as grounded.
+   world state is treated as grounded. The runtime-quality team saves implementation
+   effort while N5/S8 and published-claim consumers bear the integrity cost.
 3. **Preferred lane proposal — bind server-selected intent through the existing
    payload and job-created event/outbox.** The authenticated ordinary NL action
    selects candidate-only; request-body markers cannot select or upgrade authority.
@@ -55,7 +58,10 @@ evidence must exist before S8 may emit a ranked recommendation?
    and context currentness. Cost: payload/event binding, dispatch reconciliation,
    and v2/v1 replay. This reuses the job payload, event/outbox, CAS, and
    `GenerationSourceRepository`; it adds no standalone admission artifact, public
-   status DTO, or second context owner.
+   status DTO, or second context owner. The ControlPlane/HTTP and runtime-quality
+   owners pay for payload/event binding and dispatch wiring; the N4 source owner
+   pays the handoff integration; test and package owners pay for served witnesses
+   and historical v1/v2 replay.
 4. **Conditional only — add a standalone CAS admission artifact or retry-successor
    chain.** These duplicate intent already bound by the payload and event/outbox and
    add artifact lifecycle, read paths, and retry machinery. Consider a separate CAS
@@ -63,22 +69,28 @@ evidence must exist before S8 may emit a ranked recommendation?
    creation unleaseable or fail closed before dispatch. A retry chain is warranted
    only if a concrete retry can change the immutable intent or payload in place.
    The present evidence establishes neither condition; these mechanisms are not in
-   the preferred write set.
+   the preferred write set. The artifact-store and control-store owners would pay
+   for the extra producer, retention, retry, and consumer lifecycle.
 5. **Rejected option:** add a new root-context owner inside R1. This could supply
    positive evidence sooner, but would overlap R13's runtime-store repair and risk
    a second WMR/context owner. The existing WMR producer accepts a supplied store;
-   wiring that owner is the narrower route.
+   wiring that owner is the narrower route. The substrate/runtime team would pay
+   to maintain duplicate construction and reconciliation, while tenant consumers
+   would bear the resulting custody ambiguity.
 
 **Principal choice on the five existing normative fixtures.**
 
 - **A — upgrade them.** Keep the `authorized` outcomes, but use a served real N4
   producer, the existing persisted source handoff, and owner-resolved
   tenant-context/currentness evidence. This preserves their behavioral intent, but
-  depends on R13's store path and the missing context-owner capability.
+  depends on R13's store path and the missing context-owner capability. The HTTP,
+  N4/source, and context-owner teams pay the integration and four-base witness cost.
 - **B — keep them blocked.** Preserve fail-closed behavior until that owner
   capability exists, and change the old expected dispositions only after Denis
   explicitly rules the comparability decision. This accepts bounded loss of those
-  authority outcomes; it does not justify refusing ordinary candidate work.
+  authority outcomes; it does not justify refusing ordinary candidate work. The
+  affected policy users bear the unavailable normative outcomes; runtime-quality
+  owners avoid asserting unverified authority.
 
 **Premises.** B01–B03 describe ordinary request entry and the need to carry
 data/model context through the actual HTTP → N4 → N5 path; their criterion is a
@@ -387,10 +399,12 @@ source checkout or treating current-source drift as proof that history is invali
    implementation uses `source_root.rglob('*.py')`; non-Python files are outside
    that denominator. This is simple to understand, but every consumer and packaged
    deployment pays for live source access; unrelated Python edits can invalidate
-   old runs.
+   old runs. Runtime-quality and deployment owners pay the repeated scan and
+   checkout dependency; historical consumers pay the false-staleness cost.
 2. Remove the strangle receipt and stop checking the production-path property. This
    removes false staleness, but the runtime and public projections lose evidence for
-   a safety-relevant orchestration boundary.
+   a safety-relevant orchestration boundary. Runtime maintainers save the gate cost;
+   N9 and public-projection consumers pay with an unverified production-path claim.
 3. **Proposed lean:** keep the census over its declared source/build inputs as a
    source/deploy-time tooling gate. Extend the existing canonical identity owner to
    expose a typed deployment-identity projection for run-start and pre-N9 admission;
@@ -406,7 +420,21 @@ source checkout or treating current-source drift as proof that history is invali
    direct AST call census is not complete call-path proof: aliased or reflective
    dispatch, and any blanket caller allowlist, remain `not_established` unless
    independently reconciled. A declaration alone cannot turn an unresolved path
-   green. The current identity is computed inside private confidence-ledger
+   green. The source/deploy census receipt must declare the complete inspected
+   source/build inputs, the derived denominator, and dispatch classes unresolved
+   by construction. Its instrument verdict is `pass` only after complete inspection
+   with no forbidden production route and no unresolved authority-relevant class;
+   `fail` when completed inspection finds a forbidden route; and `UNRUN` when
+   inspection errors, the denominator is incomplete, or aliased/reflective dispatch
+   remains unresolved. Inspection failure is never substituted with an exception
+   or a green marker. This instrument verdict is separate from runtime currentness:
+   currentness is `current` only for an identity-bound `pass` whose run-start,
+   census-bound, and loaded identities match; `stale` for a proven identity
+   mismatch; and `not_established` for census `fail`/`UNRUN`, missing binding, or
+   unresolved coverage. This instrument/currentness separation follows the
+   independent decision-draft review
+   `/Users/deniskopylov/.codex/scratch/e02-r2-decision-drafts-independent-review-20260925.md@sha256:fc7103792e6525d032101dba8208336f223d3f21c5e87118f5407bc66b21af4c`.
+   The current identity is computed inside private confidence-ledger
    functions; no
    public packaged API exposes this pre-N9 admission gate. Extend that owner and
    wire the gate before N9. Persist its decision in `GenerationCycleRun` v3 for
@@ -415,7 +443,11 @@ source checkout or treating current-source drift as proof that history is invali
    byte-exact v1 replay against the pinned v1 bytes; v2 byte-exactness remains
    `UNRUN` / `not_established` until an owner supplies an original v2 payload and
    byte oracle. The costs are a public owner API, pre-N9 bridge, schema migration,
-   and historical payload/serializer evidence for each version.
+   and historical payload/serializer evidence for each version. The confidence-
+   ledger owner pays for its public identity API/input contract; runtime-quality
+   pays for the census and pre-N9 bridge; package/deployment and consumer owners
+   pay for source-free resolution and typed status wiring; test owners pay the
+   full four-base and historical-byte witnesses.
 
    Identity coverage is a precondition, not implied by exporting the current ledger
    digest. First enumerate whether the frozen confidence-ledger import/deployment
@@ -427,12 +459,17 @@ source checkout or treating current-source drift as proof that history is invali
       owner and one bound identity, but expands its input/schema contract, requires
       complete closure measurement and packaged producer/consumer wiring, and may
       require an authorized identity transition. The canonical closure's current
-      N6 membership is `UNRUN`.
+      N6 membership is `UNRUN`. The Confidence Ledger owner pays the closure/schema
+      expansion and authorized transition evidence; runtime-quality and packaging
+      owners pay measured route inclusion and installed-consumer wiring.
    b. Keep the canonical identity inputs fixed and add a typed census carrier whose
       exact bytes/ref are bound to that canonical identity. This avoids widening
       the identity inputs but adds a second persisted record, producer, package or
       guarded-store resolution, admission verifier, retention rule, and consumer
-      choreography; its binding must be independently reconciled.
+      choreography; its binding must be independently reconciled. Runtime-quality
+      and artifact owners pay the carrier lifecycle; deployment/package owners pay
+      offline resolution and retention; the Confidence Ledger owner still pays for
+      the single canonical identity binding.
 
    Both choices require a real source-free packaged bridge: an installed runtime
    must resolve the owner-produced identity and census evidence, verify their exact
@@ -574,7 +611,14 @@ already present.
 
 - The strangle census’s declared file/deployment denominator must be derived from
   the actual shipped source/build inputs (`recomputed`); a producer’s claimed count
-  or a search-index result is insufficient (`consumer_asserted`).
+  or a search-index result is insufficient (`consumer_asserted`). Its receipt
+  declares inspected source/build inputs, the derived denominator, and
+  unresolved-by-construction dispatch classes. The instrument returns `pass` only
+  for complete inspection with the guarded property established, `fail` when a
+  completed inspection proves a forbidden production path, and `UNRUN` on
+  inspection error, incomplete inputs, or unresolved authority-relevant dispatch.
+  Runtime `current | stale | not_established` remains a separate identity/currentness
+  result; `fail` or `UNRUN` cannot yield `current`.
 - The canonical identity is recomputed by the confidence-ledger owner from the
   project and lock files, authority-import-closure files, Python runtime manifest,
   authority import closure, and loaded-code manifest. The field-level predicate is
@@ -702,12 +746,15 @@ its historical owner supplies the original payload and byte oracle; no current
 producer-generated replacement counts. The `lex/simulator/report.py` comment probe
 is not an identity-drift probe until import-closure membership and effect are
 measured. For the strangle predicate, keep the `strangled` marker and direct-census
-receipt but introduce an aliased or reflective production call to `run_fixture`; the
-census must fail or return `not_established`, and N9 must remain withheld. A direct
-call inside the currently exempt path must also fail unless a behavioral reachability
-check independently establishes that exact caller as non-production. No blanket
-path-prefix allowlist is an acceptable positive control. These are acceptance
-requirements, not results recorded by this draft.
+receipt but introduce an aliased or reflective production call to `run_fixture`; a
+complete census that resolves the path must return `fail`, while a path it cannot
+resolve must return `UNRUN` and runtime currentness `not_established`; N9 remains
+withheld in both cases. Force an inspection error in a separate probe; the tool must
+return `UNRUN`, never crash in place of a verdict. A direct call inside the currently
+exempt path must also fail unless a behavioral reachability check independently
+establishes that exact caller as non-production. No blanket path-prefix allowlist is
+an acceptable positive control. These are acceptance requirements, not results
+recorded by this draft.
 
 **Where it binds.** Source/deploy-time census and run-start identity capture; the
 strangle classifier at `runtime/quality/generation_cycle.py::_collect_strangle_source_census`,
@@ -1046,14 +1093,17 @@ records no admitted source snapshot or content digest?
    that tree. This can restore a positive historical verdict without depending on
    today's checkout, but requires owner evidence for the actual admission, a
    retained/retrievable Git object set, a sidecar producer, and a separate
-   historical consumer path. Git's first commit containing the manifest or its
+   historical consumer path. The registered artifact owner pays for the source
+   receipt and object retention; runtime-quality pays for resolver integration and
+   historical verification. Git's first commit containing the manifest or its
    current branch ancestry cannot be chosen as a substitute for the missing owner
    fact.
 2. Keep the manifest immutable and return typed historical
    `not_established`/`UNRUN` until that owner evidence exists. This preserves the
    distinction between a missing snapshot and a proved invalid reference, but
    leaves the old historical check unresolved and cannot claim a pass from the
-   current tree.
+   current tree. Historical consumers and the record owner bear that unresolved
+   status; they pay no reissue cost and do not gain a green result.
 
 **Premises.** The same test blob
 `tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py@7c4b73fb339f36b21bcc430c1260f35d76a745d6`
@@ -1291,17 +1341,19 @@ session with N9’s final input, report semantic mismatch as FAIL and inspection
 failure as UNRUN, and leave production durable-root continuity `not_established`
 until witnessed.
 
-## R5 — EvalSafety context denominator for non-simulation leaves
+## R5 — mode-owned evidence gates and EvalSafety context denominator
 
-**Question.** Which admitted N6 run bands may compute without EvalSafety evidence, which modes require a current EvalSafety head for every graph leaf, and how does the ordinary candidate route remain available without inferring authority from missing context?
+**Question.** Which admitted N6 run bands require their mode-owned evidence gate (DataTrust or EvalSafety), and how does ordinary candidate work remain available without deriving authority from missing or mismatched evidence?
 
 **Options and costs.**
 
-1. Keep the current conditional denominator guard. This leaves empty maps and the custom-controller path outside the check, and it lets a missing worker result erase whether the request was ordinary candidate work or a declared evaluation attempt.
-2. Require current EvalSafety context for every mode, including `simulate_only`. This is easy to state but over-refuses pure computation and conflicts with the candidate band and S0-K06.
-3. **Proposed lane lean:** extend the existing `ControlPlaneService.launch_nl_run` admission owner and reuse R1's proposed binding through the existing persisted job payload and `job_created` event/outbox. Put one strict typed run-intent value in the existing payload; bind its digest, exact payload ref, job/run identity, and authenticated route/action through the existing event/outbox, then reconcile those records before dispatch. This is a proposal, not an implemented contract, and creates no standalone admission artifact. A versioned server admission policy derives intent from the authenticated route/action, not a caller assertion, and positively classifies the ordinary `/runs/nl` action as `candidate_only`. It does not derive that decision from missing context, empty EvalSafety output, caller-supplied band, execution profile, or mode token. A well-formed declared attempt is resolved by `resolve_evaluation_mode`; accepted `simulate_only` is persisted as the distinct `simulate_only_attempt` band, and accepted non-simulation modes select `eval_safety_required`. Malformed, invalid, contradictory, legacy, or mismatched intent is a typed `not_established` refusal before N6, never a downgrade to ordinary candidate completion. The required band needs a current verified EvalSafety context for the exact graph-leaf denominator on every path. Costs are a typed payload extension, event/outbox binding, atomic creation or explicit fail-closed recovery, readback, launch/worker/recursive propagation, and the behavioral witnesses below. A legacy row without a matching payload/event binding remains historically readable but is not eligible for N6.
+1. Keep the current conditional denominator guard. This leaves empty maps and the custom-controller path outside the check, and it lets a missing worker result erase whether the request was ordinary candidate work or a declared evaluation attempt. The recursive-runtime owner pays little change cost; protected users and DataTrust consumers bear the bypass and wrong-gate risk.
+2. Require current EvalSafety context for every mode, including `simulate_only`. This is easy to state but over-refuses pure computation and conflicts with the candidate band and S0-K06; it also assigns the wrong owner to `retrospective` and `measurement_audit`. EvalSafety and ControlPlane owners pay for unnecessary wiring, while candidate and DataTrust users pay the refusal or misclassification cost. These DataTrust modes still cannot become candidate work when their own evidence is missing.
+3. **Proposed lane lean:** extend the existing `ControlPlaneService.launch_nl_run` admission owner and reuse R1's proposed binding through the existing persisted job payload and `job_created` event/outbox. Put one strict typed run-intent value in the existing payload; bind its digest, exact payload ref, job/run identity, and authenticated route/action through the existing event/outbox, then reconcile those records before dispatch. This is a proposal, not an implemented contract, and creates no standalone admission artifact. A versioned server admission policy derives intent from the authenticated route/action, not a caller assertion, and positively classifies the ordinary `/runs/nl` action as `candidate_only`. It does not derive that decision from missing context, empty EvalSafety output, caller-supplied band, execution profile, or mode token. A well-formed declared attempt is resolved by `resolve_evaluation_mode`: `simulate_only` is the distinct `simulate_only_attempt` band; `retrospective` and `measurement_audit` require the existing DataTrust owner and select `data_trust_required`; only `sandbox_pilot`, `field_pilot`, and `deployment` select `eval_safety_required`. Missing, malformed, contradictory, legacy, or mismatched DataTrust/EvalSafety binding is typed `not_established` and non-runnable for that declared mode. It never falls through to `candidate_only`; only the affirmative authenticated ordinary-route policy selects candidate work. The EvalSafety band requires a current verified context for the exact graph-leaf denominator on every path, while the DataTrust band uses its separate existing owner and contract. Costs are typed payload and event/outbox binding, atomic creation or explicit fail-closed recovery, readback, launch/worker/recursive propagation, DataTrust and EvalSafety owner integration, and the behavioral witnesses below. ControlPlane/Store owners pay for admission and durability, the existing DataTrust and EvalSafety owners pay for their mode-specific bindings, and runtime/test/package owners pay for consumer wiring and four-base witnesses. A legacy row without a matching payload/event binding remains historically readable but is not eligible for N6.
 
-**Premises.** The public `EvaluationMode` vocabulary has a distinct `simulate_only` mode and non-simulation modes (`pdc/_impl/evaluation_safety.py:43-50`). `EvaluationAttemptIntake.mode_resolution` is a DTO field, not the resolver owner (`runtime/quality/evaluation_safety.py:438-447`). The canonical owner is `runtime/quality/evaluation_modes.py::resolve_evaluation_mode`; it rejects missing and invalid tokens and does not apply aliases or simulation fallback (`:15-40`). The EvalSafety consumer independently recomputes this resolution and rejects a mismatch (`runtime/quality/evaluation_safety.py:1445-1448`).
+**Premises.** The public `EvaluationMode` vocabulary includes `simulate_only`, `retrospective`, `measurement_audit`, `sandbox_pilot`, `field_pilot`, and `deployment` (`pdc/_impl/evaluation_safety.py:43-50`). GY §3.5.6 assigns `retrospective` and `measurement_audit` to DataTrust, and assigns only `sandbox_pilot`, `field_pilot`, and `deployment` to EvalSafety (`docs/plans/active/layer3-slices/GY-engine-subordination.md:2521-2526`). The existing generation-cycle value owner already blocks the two DataTrust modes when its DataTrust input is absent (`runtime/quality/generation_cycle.py:2974-2978`); this is not a candidate fallback or an EvalSafety check. `EvaluationAttemptIntake.mode_resolution` is a DTO field, not the resolver owner (`runtime/quality/evaluation_safety.py:438-447`). The canonical owner is `runtime/quality/evaluation_modes.py::resolve_evaluation_mode`; it rejects missing and invalid tokens and does not apply aliases or simulation fallback (`:15-40`). The EvalSafety consumer independently recomputes this resolution and rejects a mismatch (`runtime/quality/evaluation_safety.py:1445-1448`).
+
+The DataTrust/EvalSafety mode split corrects the independent review's blocking finding that the former R5 proposal routed every non-simulation mode through EvalSafety: `/Users/deniskopylov/.codex/scratch/e02-r2-decision-drafts-independent-review-20260925.md@sha256:fc7103792e6525d032101dba8208336f223d3f21c5e87118f5407bc66b21af4c`.
 
 The existing request carries an arbitrary context mapping. The reserved attempt key is `_EVALUATION_SAFETY_ATTEMPT_KEY` (`runtime/http/services/control/run_lifecycle.py:218`), and the worker-only `_admit_evaluation_safety_attempt` returns `None` when that key is absent; strict model parsing can raise for malformed content (`:2859-2867`). This is too late to choose a run band and cannot distinguish an ordinary request from a declared attempt lost before worker admission. The production launch owner is `ControlPlaneService.launch_nl_run` (`runtime/http/services/control/run_lifecycle.py:1319,4013-4029,4106-4134`), composed by `RuntimeContainer.startup` (`runtime/http/container.py:342-354`) and the authenticated `/runs/nl` route/action (`runtime/http/routes/control.py:261-265,368-390`). No trusted run-band field or policy exists at this source head; candidate-only selection is currently `not_established`.
 
@@ -1309,9 +1361,9 @@ The durable store does not yet preserve this decision. `ControlJobRecord` has no
 
 The recursive controller checks the EvalSafety denominator only when `evaluation_contexts_by_node` is truthy and only when no custom factory is configured (`runtime/quality/recursive_generation_cycle.py:823-839`). `CycleControllerFactory` accepts only `(node_ref, problem)` (`:401`), so the custom factory cannot receive or prove consumption of an EvalSafety context; the factory is called at the leaf (`:871-905`). HTTP passes `{}` when EvalSafety and cycle-substrate context are both absent (`runtime/http/services/control/generation_cycle.py:665-669`). That ordinary request is not thereby a `simulate_only` attempt.
 
-**Proposed choice; principal status.** Adopt option 3 as a lane proposal, pending Denis's ruling. Reuse R1's proposed smaller binding: place the typed server-selected intent in the existing persisted job payload, and bind its digest, exact payload ref, job/run identity, and authenticated route/action in the existing `job_created` event/outbox. The current event contains only `{"state":"pending"}`; extending it to bind the payload and intent is proposed, not implemented. Before dispatch, reconcile the current job, event/outbox, and payload bytes. A partially written or mismatched row must remain unleaseable or fail closed before N6. Do not add a standalone CAS admission artifact, a second N6 selector, a second owner, or a mutable-row-only authority field unless a focused race/owner test proves the existing binding cannot fail closed. Extend the existing server ingress/admission seam so it derives typed intent from authenticated route/action and policy before a job is runnable. The ordinary route explicitly constructs `candidate` intent under a versioned server rule. A caller cannot set a band or promote its own assertion into a server intent; any declared EvalSafety attempt is parsed strictly and sent through `resolve_evaluation_mode`, not through its supplied `mode_resolution` value. If a protected/evaluation action lacks its required declaration or matching binding, refuse it; never reinterpret it as ordinary candidate work.
+**Proposed choice; principal status.** Adopt option 3 as a lane proposal, pending Denis's ruling. Reuse R1's proposed smaller binding: place the typed server-selected intent in the existing persisted job payload, and bind its digest, exact payload ref, job/run identity, and authenticated route/action in the existing `job_created` event/outbox. The current event contains only `{"state":"pending"}`; extending it to bind the payload and intent is proposed, not implemented. Before dispatch, reconcile the current job, event/outbox, and payload bytes. A partially written or mismatched row must remain unleaseable or fail closed before N6. Do not add a standalone CAS admission artifact, a second N6 selector, a second owner, or a mutable-row-only authority field unless a focused race/owner test proves the existing binding cannot fail closed. Extend the existing server ingress/admission seam so it derives typed intent from authenticated route/action and policy before a job is runnable. The ordinary route explicitly constructs `candidate` intent under a versioned server rule. A caller cannot set a band or promote its own assertion into a server intent; every declared evaluation mode is parsed strictly and sent through `resolve_evaluation_mode`, not through its supplied `mode_resolution` value. Map `simulate_only` to pure computation, `retrospective` and `measurement_audit` to the existing DataTrust gate, and `sandbox_pilot`, `field_pilot`, and `deployment` to EvalSafety. A missing DataTrust binding for either DataTrust mode remains `not_established` and non-runnable in that declared mode; missing EvalSafety evidence for a protected mode remains `not_established` and fail-closed. Neither condition selects or falls through to `candidate_only`; only the affirmative authenticated ordinary-route policy selects candidate work. The current event-binding design and mode-specific owner gates are proposals, not implemented contracts.
 
-The persisted band is one of `candidate_only`, `simulate_only_attempt`, `eval_safety_required`, or `not_established`. The typed, schema-versioned run-intent value in the existing payload carries the server-resolved intent/policy version, declared attempt identity and generation, requested-mode token digest when present, canonical mode-resolution status/mode, and selected band. Its CAS payload bytes supply the content digest; the existing `job_created` event/outbox is proposed to bind that digest and exact payload ref with job/run identity, tenant, actor, and route/action. Reconcile the payload and event/outbox against the current row before dispatch; a row field alone is only a lookup projection. Retries keep the immutable intent and payload and check the current lease/attempt at dispatch; do not mint a per-retry artifact unless a concrete retry can change the intent or payload in place. Dispatch starts only after this evidence is read back.
+The persisted band is one of `candidate_only`, `simulate_only_attempt`, `data_trust_required`, `eval_safety_required`, or `not_established`. The typed, schema-versioned run-intent value in the existing payload carries the server-resolved intent/policy version, declared attempt identity and generation, requested-mode token digest when present, canonical mode-resolution status/mode, and selected band. Its CAS payload bytes supply the content digest; the existing `job_created` event/outbox is proposed to bind that digest and exact payload ref with job/run identity, tenant, actor, and route/action. Reconcile the payload and event/outbox against the current row before dispatch; a row field alone is only a lookup projection. Retries keep the immutable intent and payload and check the current lease/attempt at dispatch; do not mint a per-retry artifact unless a concrete retry can change the intent or payload in place. Dispatch starts only after this evidence is read back.
 
 The current store does not provide the required atomicity. Extend `ControlPlaneStore.create_job` with a transaction boundary so the job row, progress, intent-bearing payload reference, `job_created` event, and outbox intent commit together; that boundary does not exist today. Publish/dispatch only after the proposed transaction commits. If one transaction cannot cover the existing event/outbox path, add explicit idempotent recovery that reconciles row/event/outbox before dispatch; a row without a matching payload/event binding is not eligible. No new admission-artifact reference column or CAS owner is proposed. Existing jobs have no fabricated band or restamped event: keep historical status queries readable, but classify absent, legacy, or mismatched bindings as `not_established` and refuse N6.
 
@@ -1319,7 +1371,8 @@ Band behavior is explicit:
 
 - `candidate_only` is selected only by the authenticated server route/action's versioned ordinary-route admission policy. It permits pure candidate computation without an EvalSafety `ValuePort` and confers no authority. If the owner resolver cannot establish `CycleSubstrateContext`, carry that unknown through R1's single compiled-wrapper v2 typed limitation; do not infer unknown merely because the request omitted a context, since the HTTP owner builder may resolve one from existing production WMR/catalogs.
 - `simulate_only_attempt` requires a well-formed declared attempt whose mode is accepted as `simulate_only` by `resolve_evaluation_mode` and whose payload/event intent binding is read back before replay. It is pure computation and needs no R5 current-head denominator. It grants no protected effects, S8 authority grade, promotion, or publication. Missing or malformed intent cannot select this band.
-- `eval_safety_required` is selected for an accepted non-simulation mode. The worker must preserve this band even when the attempt or result is absent, malformed, stale, or refused. Such conditions produce a typed refusal before N6; they never become `candidate_only` or `simulate_only_attempt`. For every EvalSafety-evaluated leaf (including `sandbox_pilot`, `field_pilot`, and `deployment`), recompute the exact graph-leaf refs and require exactly one current, independently verified `EvaluationExecutionContext` per leaf. Empty, missing, extra, stale, foreign, or problem-mismatched context refuses. Do not weaken the EvalSafety consumer verifier or create another mode resolver.
+- `data_trust_required` is selected only for `retrospective` and `measurement_audit`. Route these modes through the existing DataTrust owner and its consumer contract. Missing, malformed, foreign, stale, or mismatched DataTrust binding is typed `not_established` and non-runnable in that mode; it never downgrades to `candidate_only` or substitutes EvalSafety evidence. Preserve the existing `data_trust_gate_missing` refusal in the generation-cycle value owner.
+- `eval_safety_required` is selected only for accepted `sandbox_pilot`, `field_pilot`, and `deployment` modes. The worker must preserve this band even when the attempt or result is absent, malformed, stale, or refused. Such conditions produce a typed refusal before N6; they never become `candidate_only`, `simulate_only_attempt`, or `data_trust_required`. Recompute the exact graph-leaf refs and require exactly one current, independently verified `EvaluationExecutionContext` per leaf. Empty, missing, extra, stale, foreign, or problem-mismatched context refuses. Do not weaken the EvalSafety consumer verifier or create another mode resolver.
 - `not_established` covers legacy/unclassifiable payload/event binding and malformed or contradictory declared intent. It is a non-runnable state. At the HTTP boundary return a typed refusal before dispatch; if a refused attempt is persisted for audit, its immutable intent remains `not_established` and its job is terminal, never runnable.
 
 Pass the verified band to `RecursiveGenerationCycleController.run` and check it before every leaf factory path. For `eval_safety_required`, the current custom-factory contract cannot express context consumption, so return a typed `recursive_eval_safety_custom_factory_context_not_consumed` refusal before invoking that factory. This is a bounded residual: a context-aware typed factory contract and post-factory reconciliation do not exist at this head. Do not pretend that checking the denominator alone proves that the custom controller's `ValuePort` consumed the expected context. The ordinary normal-controller candidate route and the declared `simulate_only_attempt` route retain pure computation, with promotion/publication disabled for both. R1 owns the context limitation schema and historical serializer; the exact v2 limitation field/type name remains for that owner to specify. If the compiled-run hashed model changes, R1 must preserve the prior byte projection under its historical serializer and bump the current schema. R5 reuses that typed limitation and adds no competing artifact.
@@ -1331,27 +1384,28 @@ This proposal does not decide that any S8-positive fixture lacks owner context. 
 - Server-resolved route/action intent and selected band are recomputed under a versioned admission policy; caller-provided mode/band fields are `consumer_asserted` and cannot choose the persisted band.
 - The typed intent in the persisted payload, job-created event/outbox, current job/run IDs, payload digest, tenant, actor, route/action, generation, and attempt are independently reconciled before worker execution. A missing or mismatched binding is `not_established`.
 - The attempt's canonical mode is recomputed by `resolve_evaluation_mode`; the supplied `mode_resolution` DTO is not accepted as evidence. A `simulate_only_attempt` additionally requires a well-formed declared attempt and replay of that same decision.
-- The exact recursive leaf set is recomputed from the validated graph. For `eval_safety_required`, every leaf's current EvalSafety context is independently verified by the existing consumer owner. Empty-map, custom-factory, missing, stale, and foreign-context cases fail closed.
-- `candidate_only` and `simulate_only_attempt` make no EvalSafety authority claim. Unknown substrate scope stays `not_established` in R1's typed limitation; it is not converted into a concrete context.
+- The exact recursive leaf set is recomputed from the validated graph. `data_trust_required` is independently admitted by the existing DataTrust owner for only `retrospective` and `measurement_audit`; missing binding remains `not_established`, never candidate. For `eval_safety_required`, every leaf's current EvalSafety context is independently verified by the existing consumer owner for only `sandbox_pilot`, `field_pilot`, and `deployment`. Empty-map, custom-factory, missing, stale, and foreign-context cases fail closed.
+- `candidate_only` and `simulate_only_attempt` make no EvalSafety authority claim. A missing DataTrust or EvalSafety binding cannot select either band. Unknown substrate scope for the positively admitted ordinary candidate route stays `not_established` in R1's typed limitation; it is not converted into a concrete context.
 
-**P38 — property and divergence.** Property: the server-selected intent is durably replayed from the payload/event binding at the served leaf; non-simulation EvalSafety execution has one current verified head for every graph leaf on every factory path; pure candidate and explicit `simulate_only_attempt` work remain available without acquiring authority. Current implementation tests context presence rather than a persisted intent binding: the worker's optional key can return `None`, the HTTP composition supplies `{}`, the denominator skips falsey maps and is inside the no-factory branch, and the custom factory cannot consume a context. The divergent cases are a protected/evaluation action whose missing binding is mistaken for ordinary candidate work, an empty map for a nonempty leaf graph, and an EvalSafety-required custom factory that bypasses the guard. Current absence also cannot truthfully distinguish candidate-only from `simulate_only_attempt`.
+**P38 — property and divergence.** Property: the server-selected intent is durably replayed from the payload/event binding at the served leaf; `retrospective`/`measurement_audit` reach DataTrust, `sandbox_pilot`/`field_pilot`/`deployment` reach EvalSafety with one current verified head per graph leaf on every supported factory path; pure candidate and explicit `simulate_only_attempt` work remain available without authority. The existing generation-cycle value owner correctly blocks missing DataTrust for the two DataTrust modes (`data_trust_gate_missing`, `generation_cycle.py:2974-2978`), but the HTTP run intent/band is not durably bound. Separately, the preceding R5 proposal's generic “all non-simulation” EvalSafety classification would send the two DataTrust modes through the wrong gate. The recursive guard also checks context presence rather than a persisted intent binding: the worker's optional key can return `None`, the HTTP composition supplies `{}`, the denominator skips falsey maps and is inside the no-factory branch, and the custom factory cannot consume a context. Divergent cases include a DataTrust mode mislabeled `eval_safety_required`, a missing DataTrust binding reinterpreted as candidate work, a protected action whose missing binding is mistaken for ordinary candidate work, an empty map for a nonempty leaf graph, and an EvalSafety-required custom factory that bypasses the guard. Current absence also cannot truthfully distinguish candidate-only from `simulate_only_attempt`.
 
-**Remainder.** The typed intent payload contract, payload/event binding, atomic job/event/outbox creation or idempotent fail-closed recovery, worker readback, and route-to-leaf band propagation are `bridge_missing`/`verification_missing` at this head; this proposal adds no standalone admission artifact or artifact owner. Existing rows without a matching binding remain historically readable but are `not_established` for N6. The current custom-factory interface cannot consume/reconcile EvalSafety contexts and is refused for `eval_safety_required` until that smallest missing capability is implemented and witnessed. R1's candidate-context limitation and compiled-wrapper historical serializer remain its owner responsibility. Every proposed R5 test, removal probe, and preserving control remains `UNRUN`; no proposal result is evidence of a pass.
+**Remainder.** The typed intent payload contract, payload/event binding, atomic job/event/outbox creation or idempotent fail-closed recovery, worker readback, and route-to-leaf band propagation are `bridge_missing`/`verification_missing` at this head; this proposal adds no standalone admission artifact or artifact owner. Existing rows without a matching binding remain historically readable but are `not_established` for N6. `retrospective` and `measurement_audit` must use the existing DataTrust owner; their missing binding remains non-runnable `not_established` and cannot become candidate work. The current custom-factory interface cannot consume/reconcile EvalSafety contexts and is refused for `eval_safety_required` until that smallest missing capability is implemented and witnessed. R1's candidate-context limitation and compiled-wrapper historical serializer remain its owner responsibility. Every proposed R5 test, removal probe, and preserving control remains `UNRUN`; no proposal result is evidence of a pass.
 
-**Remainder standing and signatory.** A declared non-simulation mode without current leaf evidence is `not_established` and refuses before candidate work. A correctly admitted `simulate_only_attempt` or `candidate_only` can compute without EvalSafety authority, while promotion/publication/S8 remain prohibited; candidate/substrate uncertainty stays a typed limitation. `ControlPlaneService.launch_nl_run` is the proposed existing software owner for admission issuance; `ControlPlaneStore` owns durable transaction/event/readback; the recursive runtime owns denominator enforcement. None signs EvalSafety evidence. Denis remains the pending principal signatory; this draft is not a principal ruling.
+**Remainder standing and signatory.** `data_trust_required` without its mode-owned DataTrust binding and `eval_safety_required` without its exact-leaf EvalSafety evidence are both `not_established` and non-runnable; neither can become `candidate_only`. A correctly admitted `simulate_only_attempt` or `candidate_only` can compute without either authority gate, while promotion/publication/S8 remain prohibited; candidate/substrate uncertainty stays a typed limitation. `ControlPlaneService.launch_nl_run` is the proposed existing software owner for admission issuance; `ControlPlaneStore` owns durable transaction/event/readback; the recursive runtime owns mode-band enforcement; existing DataTrust and EvalSafety owners supply their distinct evidence. Denis remains the pending principal signatory; this draft is not a principal ruling.
 
-**Falsifier / revisit trigger.** Reopen if a declared non-simulation attempt with absent or malformed payload reaches N6 without a typed refusal; if a persisted band can be changed by a caller assertion, absent context/result, mutable row, or job kind; if an old row is upgraded to candidate eligibility without an owner payload/event binding; if row/event/outbox disagreement still permits dispatch; if a stale worker reuses a prior attempt intent; if an empty or foreign leaf context, or the current custom factory, can pass under `eval_safety_required`; or if an explicit `simulate_only_attempt` gains promotion/publication/S8 authority. Required witnesses (proposed; all tests, removal probes, and preserving controls remain `UNRUN`):
+**Falsifier / revisit trigger.** Reopen if a declared DataTrust or EvalSafety mode with absent/malformed payload reaches its mode execution without a typed refusal; if `retrospective` or `measurement_audit` reaches `candidate_only` or `eval_safety_required`, or missing DataTrust evidence does not remain `not_established`; if a persisted band can be changed by a caller assertion, absent context/result, mutable row, or job kind; if an old row is upgraded to candidate eligibility without an owner payload/event binding; if row/event/outbox disagreement still permits dispatch; if a stale worker reuses a prior attempt intent; if an empty or foreign leaf context, or the current custom factory, can pass under `eval_safety_required`; or if an explicit `simulate_only_attempt` gains promotion/publication/S8 authority. Required witnesses (proposed; all tests, removal probes, and preserving controls remain `UNRUN`):
 
 - `test_control_plane_store_run_intent_payload_event_binding_and_readback`: new row, event, and outbox read back the same content-bound intent; interruption cannot leave a runnable partial record. `test_legacy_control_job_without_run_intent_binding_is_readable_but_not_n6_eligible`: existing SQLite/PostgreSQL rows remain historically readable and resolve to `not_established`, with no synthetic event or backfill.
-- `test_launch_candidate_and_eval_safety_intents_select_distinct_bands`: the authenticated ordinary server route selects `candidate_only`; a declared accepted non-simulation attempt selects `eval_safety_required`; corrupting or omitting the payload/event binding while retaining schema markers refuses and cannot fall back. `test_launch_malformed_eval_safety_intent_refuses_before_dispatch`: malformed and unresolved tokens return a typed refusal, not a crash or candidate downgrade.
+- `test_launch_candidate_and_eval_safety_intents_select_distinct_bands`: the authenticated ordinary server route selects `candidate_only`; `retrospective`/`measurement_audit` select `data_trust_required`; only `sandbox_pilot`/`field_pilot`/`deployment` select `eval_safety_required`; corrupting or omitting the payload/event binding while retaining schema markers refuses and cannot fall back. `test_launch_malformed_eval_safety_intent_refuses_before_dispatch`: malformed and unresolved tokens return a typed refusal, not a crash or candidate downgrade.
+- `test_data_trust_modes_require_distinct_owner_binding`: each DataTrust mode reaches the existing DataTrust owner with a valid binding; remove that binding while keeping mode and payload markers, and the mode becomes non-runnable `not_established` rather than candidate or EvalSafety. Its preserving control verifies the ordinary authenticated route still selects candidate only through its positive route policy.
 - `test_launch_simulate_only_attempt_is_persisted_as_pure_compute`: a well-formed attempt whose resolver returns `simulate_only` reads back as `simulate_only_attempt`, computes without a current EvalSafety head, and cannot promote, publish, or emit S8 authority.
 - `test_eval_safety_required_band_requires_exact_leaf_denominator`: normal controller execution rejects empty, missing, extra, stale, foreign, and problem-mismatched contexts; a current exact denominator preserves the valid control. `test_eval_safety_required_custom_factory_refuses_unconsumed_context`: the existing factory is refused before invocation until it can receive and reconcile typed contexts.
 - `test_nl_pipeline_candidate_route_preserves_r1_limitation_without_authority`: the ordinary served route reaches existing candidate owners and persists R1's v2 unknown limitation only when owner-context resolution actually returns unknown. P41 replay, not fixture shape, decides whether S8 bridge fixtures have owner context; the plausible no-context N4 route is not a served witness by source inspection alone.
 - Keep Appendix A `test_non_simulation_leaf_requires_current_eval_safety_head` as the base regression witness. Every newly touched test file must first have its complete four-base P41 denominator recorded. These are acceptance criteria, not run receipts.
 
-**Where it binds.** Server intent resolution before dispatch in `runtime/http/routes/control.py` and `runtime/http/services/control/run_lifecycle.py::ControlPlaneService.launch_nl_run`; the proposed typed intent in the existing persisted job payload and its binding in the existing `job_created` event/outbox; transaction or fail-closed recovery and readback in `ControlPlaneStore.create_job`; worker replay in `_process_control_job`; band propagation through `runtime/http/services/control/generation_cycle.py`; graph-leaf equality before controller-factory dispatch in `runtime/quality/recursive_generation_cycle.py`; canonical mode resolution in `runtime/quality/evaluation_modes.py` and current evidence verification in `runtime/quality/evaluation_safety.py`. R1 owns the compiled-wrapper v2 limitation and historical serializer. Promotion, publication, and S8 consumers continue to enforce their own authority boundary.
+**Where it binds.** Server intent resolution before dispatch in `runtime/http/routes/control.py` and `runtime/http/services/control/run_lifecycle.py::ControlPlaneService.launch_nl_run`; the proposed typed intent in the existing persisted job payload and its binding in the existing `job_created` event/outbox; transaction or fail-closed recovery and readback in `ControlPlaneStore.create_job`; worker replay in `_process_control_job`; band propagation through `runtime/http/services/control/generation_cycle.py`; graph-leaf equality before controller-factory dispatch in `runtime/quality/recursive_generation_cycle.py`; canonical mode resolution in `runtime/quality/evaluation_modes.py`; the existing DataTrust refusal in `runtime/quality/generation_cycle.py` (`data_trust_gate_missing`, lines 2974–2978); and current EvalSafety evidence verification in `runtime/quality/evaluation_safety.py`. R1 owns the compiled-wrapper v2 limitation and historical serializer. Promotion, publication, and S8 consumers continue to enforce their own authority boundary.
 
-**Pattern pass.** P04/P05/P07/P12/P29/P31/P32/P37/P38/P41. Existing failure: optional worker attempt plus conditional denominator, no durable run-intent bridge, and a non-atomic job/event/outbox sequence. Target: one server-selected typed intent in the existing persisted payload, bound by the `job_created` event/outbox and reconciled before replay; atomic persistence or explicit idempotent recovery; exact graph-derived non-simulation denominator on all supported controller paths; and a separately named pure `simulate_only_attempt`. Missing capability labels: `bridge_missing`, `verification_missing`, and `semantic_test_missing` until payload/event readback, served consumer, and removal probe pass.
+**Pattern pass.** P04/P05/P07/P12/P29/P31/P32/P37/P38/P41. Existing failure: optional worker attempt plus conditional denominator, no durable run-intent bridge, and a non-atomic job/event/outbox sequence; the generic non-simulation label also conflates the DataTrust and EvalSafety owners. Target: one server-selected typed intent in the existing persisted payload, bound by the `job_created` event/outbox and reconciled before replay; atomic persistence or explicit idempotent recovery; exact mode-specific owner gate (`data_trust_required` or `eval_safety_required`) and graph-derived EvalSafety denominator on all supported factory paths; and a separately named pure `simulate_only_attempt`. Missing capability labels: `bridge_missing`, `verification_missing`, and `semantic_test_missing` until payload/event readback, served mode-owner consumers, and removal probes pass.
 
 ### R1/R5 addendum — refresh evidence for each active basis (2026-09-25)
 
@@ -1364,9 +1418,13 @@ candidate route remain useful while that basis-specific evidence is unknown?
 1. Reuse the root context/head or remove the equality check. This avoids a new
    owner call, but turns a correct stale-context refusal into false grounding for
    `B != S` and can carry a root EvalSafety admission into a different problem.
+   The recursive-runtime owner pays little change cost; protected-mode users and
+   the authority consumers bear the stale-evidence risk.
 2. Refuse all work when per-basis context is unavailable. This prevents stale
    evidence from reaching protected consumers, but also closes ordinary
-   candidate computation under an explicitly unknown scope.
+   candidate computation under an explicitly unknown scope. Candidate users pay
+   the over-refusal cost; runtime and safety owners save the per-basis integration
+   effort.
 3. **Proposed lane choice, pending Denis:** after N6 selects the typed
    `current_problem`, resolve its recomputed full basis hash `B` through the
    existing context/world owners immediately before N4 and N5. Thread one
@@ -1378,7 +1436,10 @@ candidate route remain useful while that basis-specific evidence is unknown?
    EvalSafety context and cannot issue, retag, or stand in for one. This costs an
    owner-first per-basis resolution seam, exact-basis admission, and served
    removal/preserving witnesses. It reuses existing owners and does not add a
-   second registry or mode resolver.
+   second registry or mode resolver. The context/world and EvalSafety owners pay
+   for per-basis resolution/admission; runtime-quality and test owners pay for
+   controller wiring and behavioral witnesses. DataTrust modes retain their
+   separate DataTrust owner and are not routed through this EvalSafety context.
 
 **Premises.** N6 advances the problem from the preceding revision, while the
 recursive controller currently retains one root context across cycles. N4 and N5
@@ -1397,7 +1458,10 @@ publication, or normative replay on that unknown. `simulate_only` may simulate
 only with a valid current-basis context and skips N9 otherwise. Every protected
 mode remains fail-closed before N4 if its exact-B context or fresh EvalSafety
 admission is absent, stale, foreign, ambiguous, or mismatched. A supplied corrupt
-or foreign context is invalid evidence, not an unknown to swallow.
+or foreign context is invalid evidence, not an unknown to swallow. This candidate
+limitation applies only to the positively admitted ordinary candidate route;
+missing EvalSafety evidence does not reclassify a protected mode, and missing
+DataTrust evidence does not reclassify `retrospective` or `measurement_audit`.
 
 **P37/P38.** The active basis `B = hash(current_problem)` is recomputed at each
 cycle; context currentness against `B` and the active world epoch is
@@ -2358,7 +2422,9 @@ producer established, or must the local route remain explicitly non-authoritativ
    mint a local WMR, select `grown_world_after_ref`, rebind an atom, and reach N5
    without overlay admission, passport, or native epoch. It also rebuilds stores
    from paths, so it bypasses tenant custody. This option preserves an unsafe
-   second world-growth arm and is not recommended.
+   second world-growth arm and is not recommended. The local route/runtime owner
+   saves the strangle and store-plumbing effort; PolicyOS, tenant-bound consumers,
+   and affected users bear the authority and custody risk.
 2. **Bounded-strangle proposal:** put a structural production-scope refusal at the
    N7 gateway boundary for every default, runtime-hinted, and constructor-injected
    local owner, and a second refusal at re-entry for every route-bearing legacy
@@ -2374,7 +2440,10 @@ producer established, or must the local route remain explicitly non-authoritativ
    be supplied; never call the executor with a missing store and a root fallback.
    Costs are a controller/gateway/re-entry admission seam, explicit store plumbing
    through each producer/reader pair, historical receipt compatibility, and served
-   negative/positive witnesses across the actual container composition.
+   negative/positive witnesses across the actual container composition. Runtime-
+   quality and acquisition owners pay for the structural guards/store wiring;
+   source and artifact owners pay for typed evidence integration; test owners pay
+   for the served and historical-replay witnesses.
 3. Build or identify an actual production ACQ-01 producer and route it through the
    canonical bridge. This could restore a served ACQ-01 path, but no tracked producer
    and complete request/authority/journal handshake are established. External or
@@ -2382,7 +2451,9 @@ producer established, or must the local route remain explicitly non-authoritativ
    alone is insufficient. It requires an appointed owner, typed request, covered
    authority/journal, overlay/passport/native-epoch admission, runtime-store custody,
    and a served end-to-end witness. Do not create a second writer while that caller
-   and chain are absent.
+   and chain are absent. The appointed producer institution pays for its authorized
+   act and evidence lifecycle; Data Forge/runtime owners pay for bridge and
+   admission integration; test owners pay for the end-to-end witness.
 
 
 **Premises.** B12 requires the real chain from typed requirement through authorized
@@ -2887,11 +2958,14 @@ when the canonical owner chain cannot produce that world?
 1. Keep using the compiled root and one-time context, or drop the basis equality.
    This avoids extending owners, but either rejects legitimate revised cycles or
    treats root/source bytes as the revised basis and risks a confidently wrong
-   re-entry.
+   re-entry. Runtime-quality owners save receiver/context wiring; route consumers
+   pay with over-refusal or stale-world risk.
 2. Refuse every revised-cycle route until a production-qualified W1 provider is
    appointed. This withholds unsupported authority, but also prevents the lane
    from building and testing the already-authorized receiver and evidence
-   handoff.
+   handoff. Runtime and test owners avoid integration work for now; users of valid
+   revised-cycle candidate/route behavior pay for the delay, while the separate
+   issuer appointment remains unmade.
 3. **Proposed lane choice, pending Denis:** extend the existing
    `GenerationSourceRepository` and canonical Data Forge → data-state/world-model
    owners. Resolve one typed source handoff for exact `(run_id, cycle_index)`;
@@ -2905,7 +2979,10 @@ when the canonical owner chain cannot produce that world?
    and the four-base witness set. Preserve `GenerationSourceRepository.load`
    integrity/profile validation and cycle-agnostic payload identity; add exact
    occurrence as a separate predicate. This does not add a second world-growth
-   path or reconstruct a store from a root.
+   path or reconstruct a store from a root. The GenerationSource/route owners pay
+   for exact receiver lineage; Data Forge/data-state owners pay for W1 composition
+   through the supplied store; runtime-quality and test owners pay for served
+   evidence and compatibility witnesses.
 
 **Premises.** For cycle 0, `B = S`; for later cycle `i`, `B` is the exact
 `revision_request.revised_problem` from cycle `i-1`. The source witness must be

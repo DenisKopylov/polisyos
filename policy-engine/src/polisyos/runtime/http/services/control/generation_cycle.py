@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
 from typing import TYPE_CHECKING, Literal
 
@@ -54,6 +55,7 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_generation import N4CandidateProposalSource
     from polisyos.runtime.quality.evaluation_safety import (
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
@@ -486,6 +488,14 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         return self
 
 
+@dataclass(frozen=True, slots=True)
+class N4CandidateProposalExecution:
+    """Real N4 output stopped before recursive execution when scope is unknown."""
+
+    design_problem: DesignProblem
+    proposal: N4CandidateProposalSource
+
+
 async def compile_and_run_recursive_generation_cycle(
     *,
     raw_request: str,
@@ -506,8 +516,8 @@ async def compile_and_run_recursive_generation_cycle(
     root_n4_generation_port: N4GenerationPort | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
-) -> CompiledRecursiveGenerationCycleRun:
-    """Compile arbitrary plain language and route it through the depth-N owner."""
+) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+    """Compile natural language and run the appropriate candidate or authority path."""
 
     if promotion_runtime is None:
         raise DesignProblemAuthorityError(
@@ -628,10 +638,25 @@ async def compile_and_run_recursive_generation_cycle(
             problem_ref=problem_ref,
             repo_root=repo_root,
         )
-    # A plain request may not have enough canonical owner data in the current
-    # checkout to establish a CycleSubstrateContext.  Preserve that bounded
-    # absence and let the recursive controller's canonical ports emit typed
-    # pending/blocked observations; do not mint caller-owned context or WMR.
+    if (
+        cycle_substrate_context is None
+        and execution_intent == "candidate_only"
+        and root_n4_generation_port is None
+    ):
+        from polisyos.runtime.quality.design_generation import (
+            generate_design_candidate_proposal_under_a,
+        )
+
+        proposal = await generate_design_candidate_proposal_under_a(
+            problem,
+            model_id=model_name,
+            repo_root=repo_root,
+        )
+        return N4CandidateProposalExecution(design_problem=problem, proposal=proposal)
+    # A candidate-only ordinary request with unknown scope returned its typed
+    # N4 proposal above. Other invocations never infer missing owner context;
+    # the explicit N4 override remains rejected below, and no caller-owned
+    # context or WMR is minted here.
     if cycle_substrate_context is None and root_n4_generation_port is not None:
         raise DesignProblemAuthorityError(
             "cycle_substrate_context_not_established",
@@ -860,5 +885,6 @@ def _build_cycle_substrate_context_from_owner(
 __all__ = [
     "COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION",
     "CompiledRecursiveGenerationCycleRun",
+    "N4CandidateProposalExecution",
     "compile_and_run_recursive_generation_cycle",
 ]

@@ -390,6 +390,7 @@ if TYPE_CHECKING:
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+        N4CandidateProposalExecution,
         NormativeEvidenceSubmissionRequest,
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
@@ -1610,7 +1611,7 @@ class ControlPlaneService(
         recursive_budget: RecursiveCycleBudget,
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
-    ) -> CompiledRecursiveGenerationCycleRun:
+    ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
         """Run the HTTP composition through its container-owned epoch strangle."""
 
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -3344,6 +3345,91 @@ class ControlPlaneService(
                         ),
                         timeout_seconds=max(120.0, 120.0 * max_cycles),
                     )
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        N4CandidateProposalExecution,
+                    )
+
+                    if isinstance(compiled, N4CandidateProposalExecution):
+                        from polisyos.runtime.quality.generation_source import (
+                            GenerationSourceRepository,
+                            N4CandidateProposalLocator,
+                        )
+
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        raw_request = str(payload.get("request") or "")
+                        tenant_id = _clean_runtime_text(payload.get("tenant_id")) or (
+                            "tenant-unknown"
+                        )
+                        cell_id = _clean_runtime_text(payload.get("cell_id")) or "cell-unknown"
+                        repository = GenerationSourceRepository(self._artifact_store)
+                        proposal_ref = repository.persist_candidate_proposal(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                            problem=compiled.design_problem,
+                            proposal=compiled.proposal,
+                        )
+                        proposal_locator = N4CandidateProposalLocator(
+                            artifact_ref=proposal_ref
+                        )
+                        proposal_record = repository.load_candidate_proposal(
+                            proposal_locator,
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": proposal_record.status,
+                            "execution_band": proposal_record.execution_band,
+                            "limitation_code": proposal_record.limitation_code,
+                            "stage": proposal_record.stage,
+                            "run_id": run_id,
+                            "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                            "n5_status": proposal_record.n5_status,
+                            "n8_status": proposal_record.n8_status,
+                            "n9_status": proposal_record.n9_status,
+                            "s8_status": proposal_record.s8_status,
+                        }
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                                "execution_band": proposal_record.execution_band,
+                                "limitation_code": proposal_record.limitation_code,
+                                "downstream_stages": {
+                                    "n5": proposal_record.n5_status,
+                                    "n8": proposal_record.n8_status,
+                                    "n9": proposal_record.n9_status,
+                                    "s8": proposal_record.s8_status,
+                                },
+                            },
+                            artifact_refs=[
+                                str(capability_manifest_ref),
+                                str(proposal_ref.artifact_id),
+                            ],
+                        )
+                        return
                     compiled_ref = self._put_json_artifact(
                         compiled.model_dump(mode="json"),
                         kind="runtime.compiled_recursive_generation_cycle",

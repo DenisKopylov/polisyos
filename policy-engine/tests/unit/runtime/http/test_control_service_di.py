@@ -1402,3 +1402,121 @@ def test_runtime_container_passes_control_registry_provider_override(tmp_path) -
         assert discovery._composer._providers == {}
         assert discovery._composer._execution_resolver._operation_registry is None
         assert discovery._composer._execution_resolver._conformance_verifier is None
+
+
+@pytest.mark.asyncio
+async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """The real served compiler and N4 organs yield a tenant-replayable limited candidate."""
+    from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.scientist.orchestration.llm import factory as llm_factory
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _design_problem_tool_args,
+        _DeterministicSpanSupportClient,
+        _FakeDesignProblemGateway,
+        _intent_context,
+    )
+    from tests.unit.runtime.quality.test_design_generation import (
+        RecordedClientWithCatalog,
+        _recording_with_successful_first_response,
+    )
+
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
+    )
+    compiler_gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=_design_problem_tool_args(),
+    )
+    generation_gateway = RecordedClientWithCatalog(recording, model_ids=[model_id])
+    original_compiler = nl_pipeline.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs):
+        kwargs["gateway_client"] = compiler_gateway
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler)
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        llm_factory,
+        "create_traced_gateway_client",
+        lambda **_kwargs: generation_gateway,
+    )
+
+    service = _build_control_service(tmp_path)
+    try:
+        launch = await service.launch_nl_run(
+            NaturalLanguageRunRequest(
+                request=raw_request,
+                llm_model=model_id,
+                context=_intent_context(as_of="2026-05-12"),
+            ),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        def reject_s8(**_kwargs):
+            pytest.fail("candidate-only N4 proposal reached the S8 resolver")
+
+        def reject_publication(**_kwargs):
+            pytest.fail("candidate-only N4 proposal reached generation publication")
+
+        def reject_n6(**_kwargs):
+            pytest.fail("candidate-only N4 proposal entered the recursive N6 owner")
+
+        monkeypatch.setattr(service, "resolve_generation_value_choices", reject_s8)
+        monkeypatch.setattr(service, "_publish_generation_run", reject_publication)
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            reject_n6,
+        )
+        service._process_control_job(record)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+        assert compiler_gateway.generate_calls
+        assert completed.progress["status"] == "candidate_limited"
+        assert completed.progress["execution_band"] == "candidate"
+        assert completed.progress["n5_status"] == "not_run"
+        assert completed.progress["n8_status"] == "not_run"
+        assert completed.progress["n9_status"] == "not_run"
+        assert completed.progress["s8_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in completed.progress
+        assert "normative_disposition_ref" not in completed.progress
+        assert "manifest_ref" not in completed.progress
+        proposal_locator = completed.progress["candidate_proposal_ref"]
+        assert proposal_locator["schema_version"] == (
+            "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
+        )
+        assert proposal_locator["artifact_ref"]["kind"] == (
+            "runtime.quality.n4_candidate_proposal"
+        )
+        assert proposal_locator["artifact_ref"]["media_type"] == "application/json"
+        repository = GenerationSourceRepository(service._artifact_store)
+        proposal = repository.load_candidate_proposal(
+            proposal_locator,
+            job_id=launch.job_id,
+            run_id=str(record.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            raw_request=raw_request,
+        )
+        assert proposal.problem.nl_provenance.raw_request == raw_request
+        assert proposal.proposal.trinity_bundle.policy_spec.interventions
+        assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
+        assert service._promotion_runtime.store is service._artifact_store
+    finally:
+        service.close()

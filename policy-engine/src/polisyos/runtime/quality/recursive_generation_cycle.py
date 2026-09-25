@@ -6,7 +6,6 @@ import ast
 import hashlib
 from collections.abc import Callable, Mapping
 from contextvars import ContextVar
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import (
@@ -20,12 +19,15 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef  # noqa: TC001
 from polisyos.pdc import (
     CompositionCertificate,
+    EvalSafetyAdmissionChallenge,
+    EvaluationMode,
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
+    evaluation_safety_consumer_admission_is_verified,
     gy_artifact_self_identity_projection,
     gy_content_hash,
 )
@@ -36,9 +38,10 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
+    FOUNDRY_VALUE_PORT_EVALUATOR_ID,
     FoundryValuePort,
-    GenerationCycleError,
     GenerationCycleController,
+    GenerationCycleError,
     GenerationCycleRun,
     N4GenerationPort,
     generation_cycle_terminal_state,
@@ -57,6 +60,8 @@ from polisyos.runtime.quality.workspace.loop import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
@@ -64,6 +69,18 @@ if TYPE_CHECKING:
     from polisyos.scientist import BudgetState
 
 RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generation_cycle.v1"
+ExecutionIntent = Literal[
+    "candidate_only",
+    "simulate_only",
+    "retrospective",
+    "measurement_audit",
+    "sandbox_pilot",
+    "field_pilot",
+    "deployment",
+]
+_PROTECTED_EVALUATION_MODES: frozenset[EvaluationMode] = frozenset(
+    {"retrospective", "measurement_audit", "sandbox_pilot", "field_pilot", "deployment"}
+)
 RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController"
 )
@@ -765,6 +782,7 @@ class RecursiveGenerationCycleController:
         cycle_substrate_contexts_by_node: Mapping[str, CycleSubstrateContext] | None = None,
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
         evaluation_contexts_by_node: Mapping[str, EvaluationExecutionContext] | None = None,
+        execution_intents_by_node: Mapping[str, ExecutionIntent] | None = None,
     ) -> RecursiveGenerationCycleRun:
         """Run N6 at leaves and conservatively route terminals toward the root."""
 
@@ -820,22 +838,120 @@ class RecursiveGenerationCycleController:
         if set(depths) != set(node_refs):
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
         leaf_refs = {node_ref for node_ref, child_refs in children.items() if not child_refs}
+        if execution_intents_by_node is not None:
+            if set(execution_intents_by_node) != leaf_refs:
+                raise RecursiveGenerationCycleError(
+                    "recursive_execution_intent_denominator_mismatch"
+                )
+            if any(
+                intent
+                not in {
+                    "candidate_only",
+                    "simulate_only",
+                    "retrospective",
+                    "measurement_audit",
+                    "sandbox_pilot",
+                    "field_pilot",
+                    "deployment",
+                }
+                for intent in execution_intents_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError("recursive_execution_intent_not_canonical")
+        if (
+            evaluation_contexts_by_node is not None
+            and set(evaluation_contexts_by_node) != leaf_refs
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_eval_safety_context_denominator_mismatch"
+            )
         if self._cycle_controller_factory is None:
-            if evaluation_contexts_by_node is None and cycle_substrate_contexts_by_node is None:
+            candidate_band_only = bool(execution_intents_by_node) and all(
+                intent in {"candidate_only", "simulate_only"}
+                for intent in execution_intents_by_node.values()
+            )
+            if (
+                evaluation_contexts_by_node is None
+                and cycle_substrate_contexts_by_node is None
+                and not candidate_band_only
+            ):
                 raise RecursiveGenerationCycleError(
                     "recursive_eval_safety_context_not_established"
                 )
-            if evaluation_contexts_by_node is not None and evaluation_contexts_by_node:
-                if set(evaluation_contexts_by_node) != leaf_refs:
+            if evaluation_contexts_by_node is not None and any(
+                not isinstance(context, EvaluationExecutionContext)
+                for context in evaluation_contexts_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_context_not_canonical"
+                )
+            for node_ref, intent in (execution_intents_by_node or {}).items():
+                context = (evaluation_contexts_by_node or {}).get(node_ref)
+                if intent in {"candidate_only", "simulate_only"}:
+                    if intent == "candidate_only" and context is not None:
+                        raise RecursiveGenerationCycleError(
+                            "recursive_candidate_intent_has_eval_safety_context"
+                        )
+                    if context is None:
+                        continue
+                if context is None:
                     raise RecursiveGenerationCycleError(
                         "recursive_eval_safety_context_denominator_mismatch"
                     )
-                if any(
-                    not isinstance(context, EvaluationExecutionContext)
-                    for context in evaluation_contexts_by_node.values()
+                if context.evaluation_mode != intent:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_execution_mode_mismatch"
+                    )
+            protected_node_refs = (
+                {
+                    node_ref
+                    for node_ref, intent in execution_intents_by_node.items()
+                    if intent in _PROTECTED_EVALUATION_MODES
+                }
+                if execution_intents_by_node is not None
+                else {
+                    node_ref
+                    for node_ref, context in (evaluation_contexts_by_node or {}).items()
+                    if context.evaluation_mode in _PROTECTED_EVALUATION_MODES
+                }
+            )
+            for node_ref in protected_node_refs:
+                context = (evaluation_contexts_by_node or {}).get(node_ref)
+                if context is None or context.design_problem_ref != _problem_ref(
+                    problems_by_node[node_ref]
                 ):
                     raise RecursiveGenerationCycleError(
-                        "recursive_eval_safety_context_not_canonical"
+                        "recursive_eval_safety_design_problem_mismatch"
+                    )
+                verifier = self._eval_safety_verifier
+                if verifier is None:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_context_not_current"
+                    )
+                challenge = EvalSafetyAdmissionChallenge.fresh(
+                    consumer_component_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID
+                )
+                try:
+                    admission = verifier.require_admission(context, challenge)
+                except Exception as exc:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_context_not_current",
+                        type(exc).__name__,
+                    ) from exc
+                if (
+                    not evaluation_safety_consumer_admission_is_verified(
+                        admission,
+                        context,
+                        challenge,
+                    )
+                    or bool(admission.blocker_codes)
+                    or context.eval_safety_certificate_ref is None
+                    or context.eval_safety_revision_head_ref is None
+                    or admission.certificate_ref != context.eval_safety_certificate_ref
+                    or admission.current_revision_head_ref
+                    != context.eval_safety_revision_head_ref
+                ):
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_context_not_current"
                     )
         if n4_generation_ports_by_node is not None:
             if self._cycle_controller_factory is not None:

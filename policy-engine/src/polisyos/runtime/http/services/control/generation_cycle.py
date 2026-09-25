@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -41,12 +40,14 @@ from polisyos.runtime.quality.public_export import (
     project_promotion_open_world_limitation,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
+    ExecutionIntent,
     RecursiveGenerationCycleRun,
     build_default_recursive_generation_cycle_controller,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -490,6 +491,7 @@ async def compile_and_run_recursive_generation_cycle(
     raw_request: str,
     context: Mapping[str, object],
     model_name: str,
+    execution_intent: ExecutionIntent | None = None,
     compiler_gateway: _DesignProblemGatewayClient | None,
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
@@ -546,6 +548,58 @@ async def compile_and_run_recursive_generation_cycle(
         raise DesignProblemAuthorityError(
             "eval_safety_execution_context_not_canonical",
             "The root EvalSafety context must be the canonical typed contract.",
+        )
+    if execution_intent is None:
+        # Direct internal callers predating the served intent map retain their
+        # explicit context's mode. The HTTP worker always supplies this value.
+        execution_intent = (
+            root_evaluation_context.evaluation_mode
+            if root_evaluation_context is not None
+            else "candidate_only"
+        )
+    elif execution_intent not in {
+        "candidate_only",
+        "simulate_only",
+        "retrospective",
+        "measurement_audit",
+        "sandbox_pilot",
+        "field_pilot",
+        "deployment",
+    }:
+        raise DesignProblemAuthorityError(
+            "execution_intent_not_canonical",
+            "Execution intent must be selected from the server-owned mode vocabulary.",
+        )
+    if execution_intent == "candidate_only" and root_evaluation_context is not None:
+        raise DesignProblemAuthorityError(
+            "candidate_execution_intent_context_mismatch",
+            "Candidate-only execution cannot carry an attempted EvalSafety context.",
+        )
+    if execution_intent in {
+        "retrospective",
+        "measurement_audit",
+        "sandbox_pilot",
+        "field_pilot",
+        "deployment",
+    }:
+        if root_evaluation_context is None:
+            raise DesignProblemAuthorityError(
+                "eval_safety_execution_context_not_established",
+                "Protected evaluation intent requires its admitted current context.",
+            )
+        if root_evaluation_context.evaluation_mode != execution_intent:
+            raise DesignProblemAuthorityError(
+                "eval_safety_execution_mode_mismatch",
+                "Execution intent must match the canonical EvalSafety context mode.",
+            )
+    if (
+        root_evaluation_context is not None
+        and execution_intent != "candidate_only"
+        and root_evaluation_context.evaluation_mode != execution_intent
+    ):
+        raise DesignProblemAuthorityError(
+            "eval_safety_execution_mode_mismatch",
+            "Execution intent must match the canonical EvalSafety context mode.",
         )
     if (
         root_evaluation_context is not None
@@ -665,8 +719,9 @@ async def compile_and_run_recursive_generation_cycle(
         evaluation_contexts_by_node=(
             {root_ref: root_evaluation_context}
             if root_evaluation_context is not None
-            else ({} if cycle_substrate_context is None else None)
+            else None
         ),
+        execution_intents_by_node={root_ref: execution_intent},
     )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()

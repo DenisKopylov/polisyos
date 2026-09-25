@@ -18,7 +18,7 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     derive_recursive_design_graph,
 )
-from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController, N4GenerationPort
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
@@ -48,6 +48,98 @@ _DYNAMIC_TARGET_MARKERS: Final = frozenset(
     }
 )
 _PROMOTION_PORT_TARGET: Final = "<promotion-port>"
+
+
+@pytest.mark.asyncio
+async def test_empty_eval_safety_map_is_rejected_before_n4_dispatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An explicitly supplied empty map cannot erase a protected leaf denominator."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+
+    problem = _problem(f"empty_eval_safety_map_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+    )
+
+    async def n4_must_not_run(self, *args, **kwargs):
+        del self, args, kwargs
+        raise AssertionError("N4 was reached before the EvalSafety denominator check")
+
+    monkeypatch.setattr(GenerationCycleController, "run", n4_must_not_run)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_context_denominator_mismatch",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            evaluation_contexts_by_node={},
+        )
+
+
+@pytest.mark.asyncio
+async def test_candidate_only_intent_preserves_context_free_n4_dispatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A typed candidate intent is distinct from a missing protected denominator."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+
+    problem = _problem(f"candidate_only_intent_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+    )
+
+    async def candidate_dispatch_reached(self, *args, **kwargs):
+        del self, args, kwargs
+        raise AssertionError("typed candidate intent reached the N4/N6 execution seam")
+
+    monkeypatch.setattr(GenerationCycleController, "run", candidate_dispatch_reached)
+    with pytest.raises(
+        AssertionError,
+        match="typed candidate intent reached the N4/N6 execution seam",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            execution_intents_by_node={root_ref: "candidate_only"},
+        )
 
 
 @dataclass(frozen=True)
@@ -822,8 +914,9 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
                 self.first = concrete_verifier.require_admission(context, challenge)
             return self.first
 
-    replaying_verifier = ReplayFirstPositive()
     owner_calls: list[str] = []
+    n4_calls = 0
+    n5_calls = 0
 
     def actual_n5(
         self: JointSimulationPort,
@@ -832,7 +925,9 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         problem: object,
         cycle_index: int,
     ) -> object:
+        nonlocal n5_calls
         del self, problem, cycle_index
+        n5_calls += 1
         assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
         return simulation
 
@@ -853,6 +948,8 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
             self._delegate = _CgfGenerationPort()
 
         async def __call__(self, problem, *, cycle_index):
+            nonlocal n4_calls
+            n4_calls += 1
             return await self._delegate(problem, cycle_index=cycle_index)
 
     async def run_leaf(
@@ -879,8 +976,9 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     current = await run_leaf(
         context=fixture.execution_context,
-        verifier=replaying_verifier,
+        verifier=concrete_verifier,
     )
+    replaying_verifier = ReplayFirstPositive()
     replayed = await run_leaf(
         context=fixture.execution_context,
         verifier=replaying_verifier,
@@ -893,7 +991,13 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
             )
         }
     )
-    stale = await run_leaf(context=stale_context, verifier=concrete_verifier)
+    n4_n5_calls_before_stale = (n4_calls, n5_calls)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_context_not_current",
+    ):
+        await run_leaf(context=stale_context, verifier=concrete_verifier)
+    assert (n4_calls, n5_calls) == n4_n5_calls_before_stale
 
     foreign_problem = _problem(f"recursive_eval_safety_foreign_{uuid4().hex}")
     foreign_context = fixture.execution_context.model_copy(
@@ -932,7 +1036,6 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     current_value = value_observation(current)
     replayed_value = value_observation(replayed)
-    stale_value = value_observation(stale)
     assert replaying_verifier.first is not None
     assert replaying_verifier.first.status == "verified"
     assert replaying_verifier.first.certificate_ref == (
@@ -945,8 +1048,6 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
     assert replayed_value.authority_blockers == (
         "eval_safety_consumer_admission_blocked",
     )
-    assert stale_value.status == "value_blocked"
-    assert any("eval_safety" in blocker for blocker in stale_value.authority_blockers)
     assert owner_calls == ["load_value_data_profile"]
     for invalid_bindings in (
         {},

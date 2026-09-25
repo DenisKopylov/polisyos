@@ -466,6 +466,58 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
             GenerationSourceRepository(other).load(ref, run_id="synthetic-owner-profile")
 
 
+def test_candidate_owner_profile_preserves_warning_view_semantics(tmp_path):
+    """An omitted warnings option means no warnings, not an unknown profile."""
+    from dataclasses import replace
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.generation_source import (
+        _has_n4_candidate_proposal_owner_profile,
+        _has_source_owner_profile,
+        _n4_candidate_proposal_write_options,
+        _source_write_options,
+    )
+
+    store = artifacts.FileSystemCAS(tmp_path / "warning-profile")
+    candidate_bytes = b"candidate-profile-probe"
+    store.put_bytes(
+        candidate_bytes,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.unrelated_profile_probe", media_type="application/octet-stream"
+        ),
+    )
+    options = _n4_candidate_proposal_write_options()
+    ref = store.put_bytes(candidate_bytes, options)
+    assert ref.manifest_profile_sha256 is not None
+    assert store.verify(ref).ok
+    manifest = store.get_manifest(ref)
+    assert manifest.warnings == []
+    assert _has_n4_candidate_proposal_owner_profile(manifest)
+
+    warned_ref = store.put_bytes(
+        candidate_bytes,
+        replace(
+            options,
+            warnings=[artifacts.WarningRecord(code="warning", msg="retained warning")],
+        ),
+    )
+    assert warned_ref.manifest_profile_sha256 is not None
+    assert store.verify(warned_ref).ok
+    assert not _has_n4_candidate_proposal_owner_profile(store.get_manifest(warned_ref))
+
+    source_bytes = b"source-handoff-profile-probe"
+    store.put_bytes(
+        source_bytes,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.unrelated_source_probe", media_type="application/octet-stream"
+        ),
+    )
+    source_ref = store.put_bytes(source_bytes, _source_write_options())
+    assert source_ref.manifest_profile_sha256 is not None
+    assert store.verify(source_ref).ok
+    assert _has_source_owner_profile(store.get_manifest(source_ref))
+
+
 def test_tracked_owner_epochs_remain_exactly_readable():
     """Walk complete tracked owner records; historical nested CG2 gets no new defaults."""
     import json

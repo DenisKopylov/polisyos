@@ -82,7 +82,8 @@ def _has_owner_profile(
     # Byte size, artifact identity and integrity remain Core verification's concern.
     for field in fields(options):
         expected = getattr(options, field.name)
-        if field.name == "inputs":
+        # Core's ManifestLifecycle persists absent collection options as empty lists.
+        if field.name in {"inputs", "warnings"}:
             expected = list(expected or [])
         if field.name not in actual or actual[field.name] != expected:
             return False

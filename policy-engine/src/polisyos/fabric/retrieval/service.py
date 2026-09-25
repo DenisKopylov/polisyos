@@ -14,6 +14,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -149,6 +155,7 @@ class RetrievalService:
         *,
         curated_dir: Path,
         cas_root: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
         dataset_catalog: object | None = None,
         max_local_index_docs: int = 2_048,
         max_promotion_candidates: int = 512,
@@ -161,6 +168,21 @@ class RetrievalService:
         explore: ExploreLaneDiscovery | None = None,
         providers: RetrievalProviders | None = None,
     ) -> None:
+        executor_store = getattr(executor, "artifact_store", None) if executor is not None else None
+        if cas_root is not None and artifact_store is not None:
+            raise ValueError("fabric_artifact_store_and_cas_root_are_mutually_exclusive")
+        if cas_root is not None and executor is not None:
+            raise ValueError("fabric_cas_root_conflicts_with_explicit_executor")
+        if executor is not None and artifact_store is not None:
+            if executor_store is not artifact_store:
+                raise ValueError("fabric_executor_artifact_store_mismatch")
+        elif artifact_store is None and executor_store is not None:
+            artifact_store = executor_store
+        if executor is None and artifact_store is None and cas_root is not None:
+            local_store = build_artifact_store(
+                ArtifactStoreConfig(backend="filesystem", root=str(cas_root))
+            )
+            artifact_store = with_ambient_ownership_enforcement_if_supported(local_store)
         resolved = providers or resolve_retrieval_providers(
             registry=registry,
             profiles=profiles,
@@ -178,8 +200,9 @@ class RetrievalService:
         self._explore = explore or ExploreLaneDiscovery(
             providers=resolved,
         )
+        self._artifact_store = artifact_store
         self._executor = executor or FetchExecutor(
-            cas_root=cas_root,
+            artifact_store=artifact_store,
             providers=resolved,
         )
         self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)

@@ -118,7 +118,7 @@ class ProductionCG2CalibrationSource:
         self,
         *,
         source: academic.SourceSnapshot | None,
-        store: artifacts.FileSystemCAS,
+        store: artifacts.ArtifactStore,
         scratch: Path,
     ) -> None:
         self._source = source

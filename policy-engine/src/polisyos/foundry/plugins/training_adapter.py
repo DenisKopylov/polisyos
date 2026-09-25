@@ -17,14 +17,13 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from math import isfinite
-from pathlib import Path
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,
@@ -52,7 +51,6 @@ from polisyos.foundry.plugins.economics.state import (
     EconomicState,
 )
 from polisyos.foundry.runtime.fingerprint import DeterminismTier
-
 
 ECONOMICS_DOMAIN = "economics"
 _ECONOMICS_MECHANISMS = (
@@ -273,9 +271,16 @@ def _composite_to_native(state: CompositeState, template: GlobalState) -> Global
 class EconomicsTrainingAdapter:
     """Admit and execute the one-domain Economics training profile."""
 
-    def __init__(self, state: CompositeState, executor: CompositeExecutor) -> None:
+    def __init__(
+        self,
+        state: CompositeState,
+        executor: CompositeExecutor,
+        *,
+        artifact_store: ArtifactStore | None = None,
+    ) -> None:
         self.state = state
         self.executor = executor
+        self.artifact_store = artifact_store
         self.domain_config: DomainConfig = state.config.domains[ECONOMICS_DOMAIN]
         economic_state = state.get_domain(ECONOMICS_DOMAIN)
         self.n_agents = int(economic_state.n_agents)
@@ -363,6 +368,8 @@ class EconomicsTrainingAdapter:
         cls,
         state: CompositeState | None,
         executor: CompositeExecutor | None,
+        *,
+        artifact_store: ArtifactStore | None = None,
     ) -> EconomicsTrainingAdapter | None:
         """Build the adapter only after all profile predicates pass."""
 
@@ -370,7 +377,7 @@ class EconomicsTrainingAdapter:
             return None
         assert state is not None
         assert executor is not None
-        return cls(state, executor)
+        return cls(state, executor, artifact_store=artifact_store)
 
     def to_native_state(
         self,
@@ -485,7 +492,6 @@ class EconomicsTrainingAdapter:
         config: TrainingConfig,
         *,
         seed: int,
-        output_dir: Path | None = None,
     ) -> AdapterTrainingOutcome:
         """Run the existing native optimizer and persist/read back its artifact."""
 
@@ -524,11 +530,10 @@ class EconomicsTrainingAdapter:
             )
 
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
-        if output_dir is not None:
-            cas = FileSystemCAS(output_dir / "artifacts")
-            artifact_refs = store_policy_artifact(cas, _artifact_for_cas(artifact))
+        if self.artifact_store is not None:
+            artifact_refs = store_policy_artifact(self.artifact_store, _artifact_for_cas(artifact))
             trained_policy, _ = load_policy_artifact(
-                cas,
+                self.artifact_store,
                 artifact_refs[1],
                 actor,
                 DeterminismTier.STRICT_CPU,

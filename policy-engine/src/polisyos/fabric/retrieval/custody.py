@@ -188,7 +188,12 @@ def _require_source_agreement(
 
 
 def _put_json(
-    store: core_artifacts.FileSystemCAS, payload: BaseModel, *, kind: str, schema: str, inputs: list[core_artifacts.InputRef]
+    store: core_artifacts.ArtifactStore,
+    payload: BaseModel,
+    *,
+    kind: str,
+    schema: str,
+    inputs: list[core_artifacts.InputRef],
 ) -> core_artifacts.ArtifactRef:
     return store.put_bytes(
         canon.to_canonical_bytes(payload.model_dump(mode="json"), spec=_CANON),
@@ -204,7 +209,7 @@ def _put_json(
 
 def _persist_fetched_result(
     *,
-    store: core_artifacts.FileSystemCAS,
+    store: core_artifacts.ArtifactStore,
     plan: FetchPlan,
     request: FetchRequest,
     result: FetchResult[Any],
@@ -263,7 +268,7 @@ def _persist_fetched_result(
 
 
 def _read(
-    store: core_artifacts.FileSystemCAS,
+    store: core_artifacts.ArtifactStore,
     ref: core_artifacts.ArtifactRef,
     *,
     kind: str,
@@ -290,7 +295,7 @@ def _read(
 
 def resolve_persisted_fetch(
     *,
-    store: core_artifacts.FileSystemCAS,
+    store: core_artifacts.ArtifactStore,
     fetch_receipt_ref: core_artifacts.ArtifactRef,
     catalog: catalog_api.DatasetCatalogGraph,
     providers: RetrievalProviders | None = None,

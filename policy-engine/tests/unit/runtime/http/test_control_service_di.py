@@ -1401,3 +1401,100 @@ def test_runtime_container_passes_control_registry_provider_override(tmp_path) -
         assert discovery._composer._providers == {}
         assert discovery._composer._execution_resolver._operation_registry is None
         assert discovery._composer._execution_resolver._conformance_verifier is None
+
+
+def test_control_service_default_retrieval_persists_through_guarded_runtime_store(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """The run-lifecycle composition keeps persisted fetches under its tenant store."""
+
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
+    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality import substrate_registry
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_real_fetch_owner
+
+    tenant_id = "lifecycle-r13-tenant"
+    cell_id = "lifecycle-r13-cell"
+    fixture_root = tmp_path / "fetch_fixture"
+    fixture_root.mkdir()
+    with build_real_fetch_owner(fixture_root) as fixture:
+        curated_dir = tmp_path / "curated"
+        curated_dir.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", str(curated_dir))
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _root: SimpleNamespace(l1_dcat_path=fixture.graph_path),
+        )
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: fixture.overlay_path,
+        )
+
+        runtime_store = guard_runtime_cas(
+            FileSystemCAS(tmp_path / "cas").for_tenant(tenant_id, cell_id)
+        )
+        service = None
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            try:
+                service = ControlPlaneService(
+                    cas_root=tmp_path / "cas",
+                    core_runs_root=tmp_path / "runs",
+                    artifact_store=runtime_store,
+                    policy_resolver=RuntimeExecutionPolicyResolver(
+                        default_profile="dev",
+                        worker_backend="external",
+                        state_store_backend="sqlite",
+                        sqlite_path=str(tmp_path / "control.sqlite3"),
+                        postgres_dsn=None,
+                    ),
+                    registry_providers=_build_registry_providers(),
+                )
+                retrieval = service._retrieval
+                retrieval._fastlane.resolve = lambda _needs: FastLaneResolveResult(
+                    fetch_plans=(fixture.plan,), candidates=(), warnings=()
+                )
+                retrieval._executor._registry = fixture.providers.registry
+                retrieval._executor._profiles = fixture.providers.profiles
+                resolved = retrieval.resolve(
+                    DataResolveRequest(
+                        data_needs=[DataNeed(metric=fixture.plan.metric_id)],
+                        mode="fastlane",
+                        allow_explore_fallback=False,
+                    )
+                )
+                assert resolved.fetch_plans == [fixture.plan]
+
+                executed = retrieval.execute_fetch_plans(
+                    resolved.fetch_plans,
+                    persist_payload=True,
+                ).previews[0]
+                assert executed.payload_ref is not None
+                assert executed.fetch_receipt_ref is not None
+                replayed = resolve_persisted_fetch(
+                    store=runtime_store,
+                    fetch_receipt_ref=executed.fetch_receipt_ref,
+                    catalog=retrieval._dataset_catalog,
+                    providers=fixture.providers,
+                )
+                assert replayed.result.data == fixture.rows
+                assert replayed.payload_ref == executed.payload_ref
+            finally:
+                if service is not None:
+                    service.close()
+
+    foreign_store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "cas").for_tenant("foreign-lifecycle-tenant", cell_id)
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        foreign_store.get_bytes(executed.payload_ref.artifact_id)

@@ -4131,3 +4131,166 @@ def test_nl_pipeline_marks_progress_failed_when_scientist_raises(
     assert record.progress["state"] == "failed"
     assert record.progress["last_step"]["status"] == "failed"
     assert record.progress["last_step"]["details"]["error_type"] == "RuntimeError"
+
+
+def test_nl_pipeline_persists_fetch_through_guarded_runtime_store(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    request: pytest.FixtureRequest,
+) -> None:
+    """NL's local RetrievalService uses the ControlPlaneService tenant store."""
+
+    from contextlib import ExitStack
+
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
+    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.fabric.retrieval.service import RetrievalService as RealRetrievalService
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality import substrate_registry
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_real_fetch_owner
+
+    tenant_id = "nl-r13-tenant"
+    cell_id = "nl-r13-cell"
+    fetch_stack = ExitStack()
+    request.addfinalizer(fetch_stack.close)
+    fixture_root = tmp_path / "fetch_fixture"
+    fixture_root.mkdir()
+    fixture = fetch_stack.enter_context(build_real_fetch_owner(fixture_root))
+
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(curated_dir))
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _root: SimpleNamespace(l1_dcat_path=fixture.graph_path),
+    )
+    monkeypatch.setattr(
+        catalog_api,
+        "default_acquisition_overlay_path",
+        lambda _root: fixture.overlay_path,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.api.run_experiment",
+        lambda payload, **kwargs: {"run_id": payload["run_id"], "reports_index": {}},
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.build_method_catalog_snapshot",
+        lambda *, run_id=None: MethodCatalogSnapshot(
+            snapshot_id=f"test-catalog-{run_id or 'run'}",
+            run_id=run_id,
+        ),
+    )
+    runtime_store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "cas").for_tenant(tenant_id, cell_id)
+    )
+    captured: dict[str, Any] = {}
+
+    class _NoOpRetrievalService:
+        def list_promotion_candidates(self) -> list[Any]:
+            return []
+
+    def _build_retrieval_service(**kwargs: Any) -> Any:
+        assert kwargs.get("artifact_store") is runtime_store
+        retrieval = RealRetrievalService(**kwargs)
+        retrieval._fastlane.resolve = lambda _needs: FastLaneResolveResult(
+            fetch_plans=(fixture.plan,), candidates=(), warnings=()
+        )
+        retrieval._executor._registry = fixture.providers.registry
+        retrieval._executor._profiles = fixture.providers.profiles
+        execute_fetch_plans = retrieval.execute_fetch_plans
+
+        def _capture_fetch(plans: list[Any], **fetch_kwargs: Any) -> Any:
+            outcome = execute_fetch_plans(plans, **fetch_kwargs)
+            captured["fetch_outcome"] = outcome
+            return outcome
+
+        retrieval.execute_fetch_plans = _capture_fetch
+        captured["retrieval"] = retrieval
+        return retrieval
+
+    monkeypatch.setattr(
+        "polisyos.fabric.retrieval.RetrievalService",
+        _build_retrieval_service,
+    )
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        DecisionPacketEpochIssuanceOwner,
+    )
+
+    issuance_owner = DecisionPacketEpochIssuanceOwner.for_store(store=runtime_store)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        service = ControlPlaneService(
+            artifact_store=runtime_store,
+            retrieval_service=_NoOpRetrievalService(),
+            epoch_certificate_issuance_owner=issuance_owner,
+            cas_root=tmp_path / "cas",
+            core_runs_root=tmp_path / "runs",
+            policy_resolver=RuntimeExecutionPolicyResolver(
+                default_profile="dev",
+                worker_backend="external",
+                state_store_backend="sqlite",
+                sqlite_path=str(tmp_path / "control.sqlite3"),
+                postgres_dsn=None,
+            ),
+            registry_providers=_registry_providers(),
+        )
+        try:
+            service._execute_nl_pipeline_for_contract_testing(
+                run_id="R_nl_guarded_retrieval",
+                nl_request="test request",
+                context=_intent_context(requested_authority_level="dev"),
+                domain_hint="fiscal",
+                data_source=None,
+                max_iterations=1,
+                llm_models=[],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+            )
+            retrieval = captured["retrieval"]
+            executed = captured["fetch_outcome"].previews[0]
+            assert executed.payload_ref is not None
+            assert executed.fetch_receipt_ref is not None
+            replay_catalog = catalog_api.DatasetCatalogGraph(
+                fixture.graph_path,
+                tmp_path,
+                overlay_path=fixture.overlay_path,
+            )
+            try:
+                replayed = resolve_persisted_fetch(
+                    store=runtime_store,
+                    fetch_receipt_ref=executed.fetch_receipt_ref,
+                    catalog=replay_catalog,
+                    providers=fixture.providers,
+                )
+                assert replayed.result.data == fixture.rows
+                assert replayed.payload_ref == executed.payload_ref
+            finally:
+                replay_catalog.close()
+        finally:
+            retrieval = captured.get("retrieval")
+            if retrieval is not None:
+                retrieval._dataset_catalog.close()
+            service.close()
+
+    foreign_store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "cas").for_tenant("foreign-nl-tenant", cell_id)
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        foreign_store.get_bytes(executed.payload_ref.artifact_id)

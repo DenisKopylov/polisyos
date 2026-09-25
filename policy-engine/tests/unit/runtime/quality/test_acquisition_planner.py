@@ -6,10 +6,12 @@ import json
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_requirement import (
     DataQualityMinimums,
@@ -1448,7 +1450,14 @@ def test_n7_receipt_validation_rejects_fabricated_provenance_without_raw_owner_r
     assert "acquisition_provenance_not_recomputable_from_real_owner" in issue_codes
 
 
-def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path: Path) -> None:
+def test_real_owner_gateway_records_local_skg_response_without_network(
+    tmp_path: Path, request: pytest.FixtureRequest
+) -> None:
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
     base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
     base_spec["requirement_id"] = "data-requirement:claim-skg-source-family"
     base_spec["claim_id"] = "claim-skg-source-family"
@@ -1460,15 +1469,23 @@ def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path:
         requirement_gaps=(gap,),
         generated_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
+    guarded_store = guard_runtime_cas(
+        artifacts.FileSystemCAS(tmp_path / "skg-runtime-cas").with_ambient_ownership_enforcement()
+    )
+    request.addfinalizer(guarded_store.close)
+    recording_store = _RecordingArtifactStore(guarded_store)
+    runtime_store = cast("ArtifactStore", recording_store)
     gateway = RealAcquisitionOwnerGateway(
         repo_root=tmp_path,
+        artifact_store=runtime_store,
         captured_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
 
-    artifact = gateway.acquire(
-        record=report.acquisition_records[0],
-        compiled_requirement_spec=base_spec,
-    )
+    with tenant_scope(None, tenant_id="skg-tenant", cell_id="skg-cell"):
+        artifact = gateway.acquire(
+            record=report.acquisition_records[0],
+            compiled_requirement_spec=base_spec,
+        )
 
     assert artifact is not None
     assert artifact.owner_component == "data_forge.skg"
@@ -1484,6 +1501,23 @@ def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path:
         == "skg_exact_request_source_resolution"
     )
     resolution = artifact.payload["owner_response"]["resolution"]
+    resolution_ref = artifacts.ArtifactRef.model_validate(
+        artifact.payload["owner_response"]["resolution_ref"]
+    )
+    resolution_id = str(resolution_ref.artifact_id)
+    assert ("put_bytes", resolution_id) in recording_store.operations
+    assert ("get_manifest", resolution_id) in recording_store.operations
+    assert ("get_bytes", resolution_id) in recording_store.operations
+    with tenant_scope(None, tenant_id="skg-tenant", cell_id="skg-cell"):
+        resolution_bytes = runtime_store.get_bytes(resolution_ref.artifact_id)
+    for tenant_id, cell_id in (("other-tenant", "skg-cell"), ("skg-tenant", "other-cell")):
+        with (
+            tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            runtime_store.get_bytes(resolution_ref.artifact_id)
+    with tenant_scope(None, tenant_id="skg-tenant", cell_id="skg-cell"):
+        assert runtime_store.get_bytes(resolution_ref.artifact_id) == resolution_bytes
     assert resolution["source_population"] is None
     assert "source_snapshot_unavailable" in resolution["refusal_reasons"]
     assert resolution["n8_admission"] == "blocked"
@@ -1760,16 +1794,41 @@ def test_local_fabric_capture_path_boundary_matrix(
             )
 
 
+class _RecordingArtifactStore:
+    """Record successful storage operations while preserving the delegate's custody."""
+
+    def __init__(self, delegate: ArtifactStore) -> None:
+        self._delegate = delegate
+        self.operations: list[tuple[str, str]] = []
+
+    def __getattr__(self, name: str) -> Any:
+        operation = getattr(self._delegate, name)
+        if name not in {"put_bytes", "put_json", "get_manifest", "get_bytes"}:
+            return operation
+
+        def record(*args: Any, **kwargs: Any) -> Any:
+            result = operation(*args, **kwargs)
+            artifact_id = result.artifact_id if name.startswith("put_") else args[0]
+            self.operations.append((name, str(artifact_id)))
+            return result
+
+        return record
+
+
 def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
 ) -> None:
     """The explicit capture lane records real CAS refs and remains resolve-only for N7."""
 
     from polisyos.core import artifacts, canon
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.fabric.retrieval import custody
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
     from polisyos.fabric.retrieval.service import RetrievalService
+    from polisyos.runtime.http.resilience import guard_runtime_cas
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
     with build_recorded_file_fetch_owner(
@@ -1780,14 +1839,16 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
             return owner.graph
 
         def _local_service_factory(
-            curated_dir: Path, cas_root: Path, graph: object
+            curated_dir: Path, artifact_store: ArtifactStore, graph: object
         ) -> object:
-            return RetrievalService(
+            service = RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=artifact_store,
                 dataset_catalog=graph,
                 providers=owner.providers,
             )
+            assert service._executor.artifact_store is artifact_store
+            return service
 
         def _unexpected_replay(*args: object, **kwargs: object) -> None:
             del args, kwargs
@@ -1810,17 +1871,47 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
             requirement_gaps=(gap,),
             generated_at=datetime(2026, 7, 17, tzinfo=UTC),
         )
+        guarded_store = guard_runtime_cas(
+            artifacts.FileSystemCAS(tmp_path / ".n7-live-cas").with_ambient_ownership_enforcement()
+        )
+        request.addfinalizer(guarded_store.close)
+        recording_store = _RecordingArtifactStore(guarded_store)
+        capture_store = cast("ArtifactStore", recording_store)
+        original_capture_reader = acquisition_owner._captured_fabric_fetches
+
+        def _capture_with_runtime_store(
+            *,
+            plans: list[object],
+            metrics: list[object],
+            store: ArtifactStore,
+            catalog: object,
+        ) -> list[dict[str, object]]:
+            assert store is capture_store
+            return original_capture_reader(
+                plans=plans,
+                metrics=metrics,
+                store=store,
+                catalog=catalog,
+            )
+
+        monkeypatch.setattr(
+            acquisition_owner,
+            "_captured_fabric_fetches",
+            _capture_with_runtime_store,
+        )
         gateway = RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
+            artifact_store=capture_store,
             dataset_catalog_factory=_catalog_factory,
             retrieval_service_factory=_local_service_factory,
             captured_at=datetime(2026, 7, 17, tzinfo=UTC),
         )
 
-        artifact = gateway.acquire(
-            record=report.acquisition_records[0],
-            compiled_requirement_spec=base_spec,
-        )
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            artifact = gateway.acquire(
+                record=report.acquisition_records[0],
+                compiled_requirement_spec=base_spec,
+            )
 
         assert artifact is not None
         raw_response = artifact.payload["owner_response"]
@@ -1832,18 +1923,36 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
         payload_ref = artifacts.ArtifactRef.model_validate(captured["payload_ref"])
         receipt_ref = artifacts.ArtifactRef.model_validate(captured["fetch_receipt_ref"])
         binding_ref = artifacts.ArtifactRef.model_validate(captured["catalog_binding_ref"])
-        capture_store = FileSystemCAS(tmp_path / ".n7-live-cas")
-        assert capture_store.has(payload_ref.artifact_id)
-        assert capture_store.has(receipt_ref.artifact_id)
-        assert capture_store.has(binding_ref.artifact_id)
-        captured_receipt = FabricFetchReceipt.model_validate(
-            canon.from_canonical_bytes(capture_store.get_bytes(receipt_ref.artifact_id))
-        )
-        assert captured_receipt.catalog_binding_ref == binding_ref
-        assert captured_receipt.result.data == payload_ref
-        binding_manifest = capture_store.get_manifest(binding_ref.artifact_id)
-        assert binding_manifest.kind == "fabric.catalog_fetch_binding"
-        assert binding_manifest.media_type == "application/json"
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            assert capture_store.has(payload_ref.artifact_id)
+            assert capture_store.has(receipt_ref.artifact_id)
+            assert capture_store.has(binding_ref.artifact_id)
+            captured_receipt = FabricFetchReceipt.model_validate(
+                canon.from_canonical_bytes(capture_store.get_bytes(receipt_ref.artifact_id))
+            )
+            assert captured_receipt.catalog_binding_ref == binding_ref
+            assert captured_receipt.result.data == payload_ref
+            binding_manifest = capture_store.get_manifest(binding_ref.artifact_id)
+            assert binding_manifest.kind == "fabric.catalog_fetch_binding"
+            assert binding_manifest.media_type == "application/json"
+            original_receipt_bytes = capture_store.get_bytes(receipt_ref.artifact_id)
+        for tenant_id, cell_id in (("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
+            with (
+                tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+                pytest.raises(ArtifactOwnershipError),
+            ):
+                capture_store.get_bytes(receipt_ref.artifact_id)
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            assert capture_store.get_bytes(receipt_ref.artifact_id) == original_receipt_bytes
+        recorded_operations = set(recording_store.operations)
+        captured_ids = {
+            str(payload_ref.artifact_id),
+            str(receipt_ref.artifact_id),
+            str(binding_ref.artifact_id),
+        }
+        assert {("put_bytes", artifact_id) for artifact_id in captured_ids} <= recorded_operations
+        assert {("get_manifest", artifact_id) for artifact_id in captured_ids} <= recorded_operations
+        assert {("get_bytes", artifact_id) for artifact_id in captured_ids} <= recorded_operations
         assert artifact.payload["acquired_substrate_registrations"] == []
         assert artifact.payload["candidate_bindings"] == []
         assert gateway.network_counter.network_calls == 0
@@ -1936,11 +2045,11 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
             return owner.graph
 
         def _service_factory(
-            curated_dir: Path, cas_root: Path, graph: object
+            curated_dir: Path, artifact_store: ArtifactStore, graph: object
         ) -> object:
             service = RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=artifact_store,
                 dataset_catalog=graph,
                 providers=owner.providers,
             )
@@ -2366,9 +2475,9 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
         gateway = RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
             dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
-            retrieval_service_factory=lambda curated_dir, cas_root, graph: RetrievalService(
+            retrieval_service_factory=lambda curated_dir, artifact_store, graph: RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=artifact_store,
                 dataset_catalog=graph,
                 providers=owner.providers,
             ),

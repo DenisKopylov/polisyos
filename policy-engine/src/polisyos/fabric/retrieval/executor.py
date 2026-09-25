@@ -23,8 +23,7 @@ from polisyos.ir.connectors import FetchRequest, FetchResult
 from .providers import RetrievalProviders, resolve_retrieval_providers
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
@@ -51,7 +50,7 @@ class FetchExecutor:
     def __init__(
         self,
         *,
-        cas_root: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
         registry: ConnectorRegistry | None = None,
         profiles: SourceProfileRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
@@ -66,9 +65,15 @@ class FetchExecutor:
         )
         self._registry = resolved.registry
         self._profiles = resolved.profiles
-        self._cas_root = cas_root
+        self._artifact_store = artifact_store
         self._tracer = resolved.tracer
         self._metrics = resolved.metrics
+
+    @property
+    def artifact_store(self) -> ArtifactStore | None:
+        """Return the exact store used to persist this executor's fetch outputs."""
+
+        return self._artifact_store
 
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
         result: ExecutePlanResult = run_coro_sync(
@@ -149,10 +154,11 @@ class FetchExecutor:
             )
 
         binding = None
+        artifact_store = self._artifact_store
         if persist_payload:
             from .custody import FabricFetchCustodyError, _bind_plan
 
-            if self._cas_root is None:
+            if artifact_store is None:
                 raise FabricFetchCustodyError("fabric_fetch_cas_missing")
             binding = _bind_plan(dataset_catalog, plan)
         full_result = await self._fetch(
@@ -165,7 +171,7 @@ class FetchExecutor:
             from .custody import _persist_fetched_result
 
             payload_ref, fetch_receipt_ref = _persist_fetched_result(
-                store=core_artifacts.FileSystemCAS(self._cas_root),
+                store=artifact_store,
                 plan=plan,
                 request=_fetch_request(plan, page_size=None),
                 result=full_result,

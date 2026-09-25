@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from contextlib import nullcontext
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 from polisyos.core.contracts.control import (
     DataNeed,
@@ -766,3 +769,59 @@ def test_retrieval_service_provider_bundle_builds_nested_components_without_sing
         "fabric.retrieval.discover",
         "fabric.connector.fetch",
     }
+
+
+def test_retrieval_service_inherits_executor_store_and_rejects_root_conflict(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError, FileSystemCAS, PutOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    runtime_store = FileSystemCAS(tmp_path / "runtime-store").with_ambient_ownership_enforcement()
+    executor = FetchExecutor(artifact_store=runtime_store)
+    service = RetrievalService(curated_dir=tmp_path, executor=executor)
+
+    assert service._artifact_store is runtime_store
+    executor_store = executor.artifact_store
+    assert executor_store is not None
+    payload = b"tenant-bound executor artifact"
+    with tenant_scope(None, tenant_id="fabric-owner", cell_id="cell-a"):
+        ref = runtime_store.put_bytes(
+            payload,
+            PutOptions(kind="test.fabric_owner", media_type="application/octet-stream"),
+        )
+        assert executor_store.get_bytes(ref.artifact_id) == payload
+    with tenant_scope(None, tenant_id="other-owner", cell_id="cell-a"):
+        with pytest.raises(ArtifactOwnershipError):
+            executor_store.get_bytes(ref.artifact_id)
+
+    with pytest.raises(
+        ValueError,
+        match="fabric_cas_root_conflicts_with_explicit_executor",
+    ):
+        RetrievalService(
+            curated_dir=tmp_path,
+            cas_root=tmp_path / "unrelated-root",
+            executor=executor,
+        )
+
+
+def test_retrieval_service_local_root_fallback_keeps_ambient_tenant_custody(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError, PutOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    service = RetrievalService(curated_dir=tmp_path, cas_root=tmp_path / "local-root")
+    store = service._artifact_store
+    assert store is not None
+    payload = b"local compatibility store artifact"
+    with tenant_scope(None, tenant_id="local-owner", cell_id="cell-a"):
+        ref = store.put_bytes(
+            payload,
+            PutOptions(kind="test.local_owner", media_type="application/octet-stream"),
+        )
+        assert store.get_bytes(ref.artifact_id) == payload
+    with tenant_scope(None, tenant_id="foreign-owner", cell_id="cell-a"):
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)

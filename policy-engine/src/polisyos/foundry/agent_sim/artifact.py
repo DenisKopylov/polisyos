@@ -23,9 +23,9 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Generic, TypeVar
 
+from polisyos.core.artifacts import ArtifactStore, PutOptions
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.foundry.runtime.fingerprint import (
     DeterminismTier,
@@ -361,7 +361,7 @@ class AgentPolicyArtifact(Generic[P]):
 
 
 def store_policy_artifact(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     artifact: AgentPolicyArtifact,
 ) -> tuple[ArtifactRef, ArtifactRef]:
     """
@@ -390,7 +390,7 @@ def store_policy_artifact(
 
 
 def load_policy_artifact(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     manifest_ref: ArtifactRef | ArtifactID | str,
     model_skeleton: P,
     current_tier: DeterminismTier,
@@ -429,7 +429,7 @@ def load_policy_artifact(
 
 
 def _load_artifact_from_cas(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     manifest_ref: ArtifactRef | ArtifactID | str,
 ) -> AgentPolicyArtifact:
     manifest_payload = _load_payload(cas, manifest_ref)
@@ -449,7 +449,7 @@ def _load_artifact_from_cas(
 
 
 def _load_payload(
-    cas: FileSystemCAS,
+    cas: ArtifactStore,
     ref: ArtifactRef | ArtifactID | str,
 ) -> dict[str, Any]:
     if isinstance(ref, ArtifactRef):

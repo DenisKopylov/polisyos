@@ -25,7 +25,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -1313,11 +1317,14 @@ class RealAcquisitionOwnerGateway:
         network_counter: AcquisitionNetworkCallCounter | None = None,
         allow_openalex_network: bool = False,
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
-        retrieval_service_factory: Callable[[Path, Path, object], object] | None = None,
+        retrieval_service_factory: Callable[[Path, artifacts.ArtifactStore, object], object]
+        | None = None,
+        artifact_store: artifacts.ArtifactStore | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
         self._repo_root = Path(repo_root)
+        self._artifact_store = artifact_store
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
@@ -1331,6 +1338,25 @@ class RealAcquisitionOwnerGateway:
         """Return the live owner/network counter."""
 
         return self._network_counter
+
+    def _owner_artifact_store(self) -> artifacts.ArtifactStore:
+        """Return the injected store or an ambient-tenant-aware local fallback.
+
+        Production composition should inject its runtime-owned store so every
+        consumer resolves from the same tenant-bound authority.
+        """
+
+        if self._artifact_store is None:
+            local_store = build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(self._repo_root / ".n7-live-cas"),
+                )
+            )
+            self._artifact_store = with_ambient_ownership_enforcement_if_supported(
+                local_store
+            )
+        return self._artifact_store
 
     def acquire(
         self,
@@ -1372,6 +1398,7 @@ class RealAcquisitionOwnerGateway:
                 "Fabric fetch capture refused: an explicit local retrieval service is required"
             )
             return None
+        artifact_store = self._owner_artifact_store() if capture_fetches else self._artifact_store
         paths = default_substrate_catalog_paths(self._repo_root)
         if self._dataset_catalog_factory is not None:
             graph = self._dataset_catalog_factory(
@@ -1402,9 +1429,11 @@ class RealAcquisitionOwnerGateway:
             captured_fetches: list[dict[str, Any]] = []
             if capture_fetches:
                 try:
+                    if artifact_store is None:
+                        raise ValueError("fabric_fetch_capture_store_missing")
                     service = self._retrieval_service_factory(
                         curated_dir,
-                        self._repo_root / ".n7-live-cas",
+                        artifact_store,
                         graph,
                     )
                     if not callable(getattr(service, "resolve", None)) or not callable(
@@ -1437,7 +1466,7 @@ class RealAcquisitionOwnerGateway:
                     captured_fetches = _captured_fabric_fetches(
                         plans=response.fetch_plans,
                         metrics=execution.data_context.metrics,
-                        cas_root=self._repo_root / ".n7-live-cas",
+                        store=artifact_store,
                         catalog=graph,
                     )
                 except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -1446,7 +1475,7 @@ class RealAcquisitionOwnerGateway:
             else:
                 service = RetrievalService(
                     curated_dir=curated_dir,
-                    cas_root=self._repo_root / ".n7-live-cas",
+                    artifact_store=self._artifact_store,
                     dataset_catalog=graph,
                 )
                 response = service.resolve(request)
@@ -1520,14 +1549,10 @@ class RealAcquisitionOwnerGateway:
                     path=path, reference=f"duckdb://{path.resolve()}", sha256=digest
                 )
         request = _source_grounding_request(record, spec)
+        artifact_store = self._owner_artifact_store()
         owner = ProductionCG2CalibrationSource(
             source=source,
-            store=build_artifact_store(
-                ArtifactStoreConfig(
-                    backend="filesystem",
-                    root=str(self._repo_root / ".n7-live-cas"),
-                ),
-            ),
+            store=artifact_store,
             scratch=self._repo_root / ".n7-live-cas" / "source-query-scratch",
         )
         self._skg_calibration_source = owner
@@ -3036,7 +3061,7 @@ def _captured_fabric_fetches(
     *,
     plans: Sequence[Any],
     metrics: Sequence[Any],
-    cas_root: Path,
+    store: artifacts.ArtifactStore,
     catalog: object,
 ) -> list[dict[str, Any]]:
     """Validate and project executor-owned payload/receipt references.
@@ -3059,7 +3084,6 @@ def _captured_fabric_fetches(
 
     if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
         raise ValueError("fabric_fetch_capture_catalog_owner_missing")
-    store = artifacts.FileSystemCAS(cas_root)
     captured: list[dict[str, Any]] = []
     for metric in metrics:
         plan = plans_by_id[str(metric.plan_id)]
@@ -3125,7 +3149,7 @@ def _captured_fabric_fetches(
 
 
 def _validate_fabric_capture_ref(
-    store: artifacts.FileSystemCAS,
+    store: artifacts.ArtifactStore,
     ref: Any,
     *,
     expected_kind: str,

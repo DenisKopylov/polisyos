@@ -10,7 +10,13 @@ from typing import Any, Literal
 import jax
 import jax.numpy as jnp
 
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
 from polisyos.foundry.agent_sim.training import TrainingConfig
@@ -200,11 +206,14 @@ class PolisySimulator:
         training_config: TrainingConfig | None = None,
         seed: int = 42,
         output_dir: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> TrainingResult:
+        if artifact_store is not None and output_dir is not None:
+            raise ValueError("training_artifact_store_and_output_dir_are_mutually_exclusive")
         if self._state is None:
             self.initialize(seed)
 
-        adapter = self._training_adapter()
+        adapter = self._training_adapter(artifact_store=artifact_store)
         if adapter is None:
             assessment = EconomicsTrainingAdapter.assess(self._state, self._executor)
             assert self._state is not None
@@ -228,6 +237,19 @@ class PolisySimulator:
                 ),
             )
 
+        if artifact_store is None and output_dir is not None:
+            local_store = build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(output_dir / "artifacts"),
+                )
+            )
+            tenant_aware_local_store = with_ambient_ownership_enforcement_if_supported(
+                local_store
+            )
+            adapter = self._training_adapter(artifact_store=tenant_aware_local_store)
+            assert adapter is not None
+
         if training_config is None:
             training_config = TrainingConfig(
                 n_episodes=n_episodes,
@@ -249,7 +271,6 @@ class PolisySimulator:
                 policy,
                 training_config,
                 seed=seed,
-                output_dir=output_dir,
             )
         except TrainingBridgeError as exc:
             assert self._state is not None
@@ -277,10 +298,16 @@ class PolisySimulator:
             artifact_refs=outcome.artifact_refs,
         )
 
-    def _training_adapter(self) -> EconomicsTrainingAdapter | None:
-        """Return the checked bridge for the current composite profile."""
+    def _training_adapter(
+        self, *, artifact_store: ArtifactStore | None = None
+    ) -> EconomicsTrainingAdapter | None:
+        """Return the checked bridge for the current profile and selected artifact store."""
 
-        return EconomicsTrainingAdapter.from_composite(self._state, self._executor)
+        return EconomicsTrainingAdapter.from_composite(
+            self._state,
+            self._executor,
+            artifact_store=artifact_store,
+        )
 
     def get_state(self) -> CompositeState:
         if self._state is None:

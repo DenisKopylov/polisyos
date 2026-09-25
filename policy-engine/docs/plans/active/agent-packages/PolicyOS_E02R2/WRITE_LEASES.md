@@ -1,5 +1,32 @@
 # E02-R2 write leases
 
+## Current handoff at `62d9456d4` (supersedes earlier snapshots below)
+
+- The sole integration writer owns `codex/e02-r2`. R7's journal-owned live permit
+  scope is committed at `349c6e3e7`; R9's honest CAS view and v1 ownership-history
+  candidate was independently reviewed and merged at `62d9456d4`. On that
+  merge head the scoped CAS suite passed 69/69 and five exact Appendix A/B CAS
+  selectors passed. R9 remains bounded partial for 252 selector-loss-possible
+  calls in 85 source files; these are a census, not 252 proven failures.
+- R1/R5 owns only its isolated candidate branch `codex/e02-r1-r5-candidate` at
+  `8b618f85f`. Its scoped and unknown-scope served N4 selectors pass, as do the
+  focused mode matrix and exact R5 selector. It is **not admitted for merge**
+  until marker-retaining R1 and R5 removal probes are decisive and independent
+  delta review completes. The support-file whole-file comparison is running
+  in that isolated tree. Do not write its files from the integration tree.
+- R2 remains a scratch v7 design/test-first task, with no source writer lease.
+  R13 remains a reviewed store/world-growth plan with no source writer lease.
+  R11 is held for a principal decision on blocked/N9 semantics. R7's postcommit
+  review is GO for its bounded scope; its current-head whole-file P41 and the
+  architecture guardrail rerun remain open.
+- The baseline broker owns test admission. A measured R1 served run uses about
+  5.2 GiB RSS, and the E02 whole-file control test reached 5.1 GiB. Treat these
+  and other unmeasured native jobs as exclusive memory groups. A prior overlap
+  briefly left about 13% physical RAM free; subsequent heavy runs are serialized.
+  Keep at least 30% physical RAM free and 10 GiB available disk. No tree is
+  edited during a run against that tree. The current strict Appendix A/B
+  baseline still has `UNRUN` cells; do not infer a green four-base gate.
+
 ## Current code admission after the principal's 2026-09-25 direction
 
 The principal directed the lane to move to code with minimal, informative

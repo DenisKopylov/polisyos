@@ -1068,3 +1068,20 @@ This supplementary test path does **not** change the existing Appendix A/B denom
 ### R1 clean-base versus candidate whole-file comparison (not four-base)
 
 The separate candidate receipt compares clean base `15fedb94c` with candidate `codex/e02-r1-r5-candidate` only: `/Users/deniskopylov/.codex/scratch/e02-r1-n4-candidate-tests-20260926/R1_CANDIDATE_RECEIPT.md@sha256:a08587abb3bef4ee3f493ea9ecf87adaef3b9da5990a17f3324349933d9d0f2d`. The 38 shared `test_control_service_di.py` cases have 0 pass-to-fail and 1 fail-to-pass; the 121 shared `test_design_generation.py` cases have 0 pass-to-fail and 0 fail-to-pass. Candidate-only added tests passed. This is a two-tree comparison, not four-base attribution or a closure of the remaining R1 residuals; the receipt reports five remaining control-service failures and 12 design-generation failures.
+
+### R1 selected tenant-scope case reconciliation (selected cases only; not whole-file P41)
+
+A retained execution-base → E02-head selected-case receipt contradicts the inherited claim that all four `test_process_nl_job_enters_persisted_tenant_scope` parameter cases fail on E02. The recorded outcomes are:
+
+| Parameter | E02 execution base → E02 head | Evidence |
+|---|---|---|
+| `[authorized]` | PASS → FAIL | `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260924T224937Z-20241/results.json@sha256:6bde4396b4ed12f1af70f167de5208f9978b5577d6bae08a7fb9c91de17632e1` |
+| `[wrong_role]` | PASS → FAIL | same selected-case results JSON |
+| `[wrong_source]` | PASS → FAIL | same selected-case results JSON |
+| `[missing]` | PASS → PASS (`SAME`) | same selected-case results JSON |
+
+The containing E02 suite exited nonzero, but that suite status does not turn the `[missing]` case into a failure. The archived closeout map repeats the per-case distinction: `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-admission-map-20260925-v3.json@sha256:d00e0d7cd566cfb0d23d2f79182472a08b98de945610131be212f96504dc70e5`. Read-only caller diagnosis: `/Users/deniskopylov/.codex/scratch/e02-r1-remainder-diagnosis-20260926/R1_REMAINDER_DIAGNOSIS.md@sha256:a828b840d49d2a77d11c13b50493439d65d7d9da90be5cdd05dadfcb5a2f16c3`.
+
+This selected-case evidence does **not** fill the whole-file `test_control_service_di.py` cells in the 21-path Appendix A/B matrix; those cells remain `UNRUN` in the package baseline pending the four-base whole-file replay. The strict denominator remains 84 cells (62 complete, 20 verified missing, 2 present `UNRUN`) and 74 named cases (42 pass-to-fail / 12 same / 20 `UNRUN`); `BASELINES_DONE` remains unclaimed.
+
+A separate clean-`15fedb94c` → R1-candidate replay is a different two-tree comparison: all four tenant-scope parameters fail at both trees, as shown in `/Users/deniskopylov/.codex/scratch/e02-r1-n4-candidate-tests-20260926/R1_CANDIDATE_RECEIPT.md@sha256:a08587abb3bef4ee3f493ea9ecf87adaef3b9da5990a17f3324349933d9d0f2d`. It does not erase the old selected `[missing]` PASS→PASS result and does not establish current four-base attribution.

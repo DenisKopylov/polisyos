@@ -29,7 +29,7 @@
     "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
     "The 18 Appendix-C no-record items are reconciled individually: LA-021 is partial after bounded corpus replays were supplemented but the exact 418 selector and caller-file replays remain UNRUN; 16 B items are partial pending their remaining card discriminators/evidence; B72 is the only open item among the 18 no-record rows. B111 is partial after the focused six-file current-code replay (88 tests, 0 failed/errors/skipped) and native FileSystemCAS probe rejecting NaN and both infinities before ref issuance, with a finite-promotion control. The concrete residual is a mixed valid/invalid front that silently drops invalid candidates yet returns coordinate_schema.status=complete without a typed omission reason. One P40 witness should close this same invalid-metric class by preserving the omission and marking the front partial, then check permutation/direction/tie behavior and four-base replay; raw/legacy typed-ref reachability remains not_established. B73 is among the 16 partial B items and retains its legacy-hook boundary as UNRUN. Appendix-C source labels are preserved in every row.",
     "Historical pre-refinement P118 snapshot: 118/118 rows were classified as 77 engineering, 16 principal decision drafts, and 25 typed blockers. B153 then moved from c to a because the lock-pool property can be proved at the existing owner; production lifetime/cardinality is priority evidence only. The current 87/16/15 projection is bound in citation_catalog.partial_triage. Triage is not closure evidence, and no behavior replay was run for the B153 or ten subsequent classification changes.",
-    "Historical H14 partitions are superseded by the complete per-finding audit: 2 owner_decision, 8 data_record and 4 smallest_missing_capability blockers; current statuses are 11 held, LA-010 and LA-049 partial, and B219 open. All H14 behavior and P41 witnesses remain UNRUN.",
+    "Exact current Appendix-C H14 owner partition was recomputed from all 14 rows: owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027); data_record=4 (B61, LA-010, LA-031, LA-049); smallest_missing_capability=4 (B194, B197, B219, LA-032). Row status counts are 11 held, 2 partial (LA-010, LA-049), and 1 open (B219). The three DFK rows remain held: a local inventory is not an owner ruling, external support record, behavior witness, package-output check, or P41 replay. All H14 behavioral and P41 witnesses remain UNRUN.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
@@ -13865,25 +13865,26 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C and the current ledger both retain held. The complete local census discharges the broad source/import/loader/package-configuration/local-history inventory portion; one owner_decision remains. An external shipped-version/consumer/payload record is conditional on the owner affirming supported public ABI. No finding-level behavioral, built-package, removal/control, or P41 closure is claimed."
       },
-      "residual": "One data-record blocker: complete exact DTO/import/package/historical-data consumer inventory for AgentType, RegionProfile, and SimulationConfig before moving or retiring their legacy definitions. Current definitions remain importable; text search does not establish external caller absence or distribution compatibility. Built-distribution and historical-payload witnesses remain UNRUN.",
+      "residual": "One owner_decision blocker: Does polisyos.foundry.domain.schema remain a supported public FQN although the explicit stable-entrypoint contract omits it? The public-surface owner and Foundry schema owner must decide whether the contract controls and this exact module is retired after the behavioral/package witness, or whether it is supported with a deprecation window. Only if support is asserted is an owner-issued shipped-version, external-import, and persisted class-identity consumer record required. The complete local census is recorded; external support and current behavior are not inferred. Behavioral, package-output and P41 witnesses remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "DFK schema owner and distribution/compatibility consumer owners",
-        "appointment_status": "Complete dynamic/import/package and historical-payload inventory is not admitted; current source presence is not a consumer-absence record."
+        "kind": "owner_decision",
+        "name": "PolicyOS public-surface owner and Foundry schema owner",
+        "appointment_status": "Owner decision pending; no public-ABI or retirement ruling is adopted by this ledger update."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "source_review_or_unrun_test_candidates",
-          "identity": "legacy Foundry schema DTO exact-FQN/source census",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-005",
+          "identity": "DFK-01 complete local inventory and owner-decision boundary:LA-005",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
           "behavioral_verdict": "UNRUN",
-          "scope": "Local tracked-source census only; external client/distribution and historical payload compatibility are not established. No current behavior or retirement test was run.",
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The exact FQN is absent from the stable Foundry entrypoint list; the legacy module docstring and importability test conflict with that boundary.",
           "package_test_selector_groups": [],
           "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
           ]
         },
@@ -13891,8 +13892,8 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/domain/schema.py@git-blob:098c04de8a8fa4987b78fa0d7e3cb0af25ef5616",
-        "blocker_path_scope": "Legacy DTO definitions and supported distribution/import/history contract; external-caller absence remains not_established.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The exact FQN is absent from the stable Foundry entrypoint list; the legacy module docstring and importability test conflict with that boundary.",
+        "held_audit_receipt_status": "read_only complete local inventory; current status held; one owner_decision blocker; behavior, removal/control probes and P41 remain UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-005.md@sha256:2dcd20ca25e445b23094649eb205d76408dbd9eab619460d4f3c23aa0e4f144b",
@@ -13912,19 +13913,19 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "data_record",
-          "Inventory the three DTOs across wheel/sdist, supported imports and dynamic loads, and retained YAML/JSON/history before deciding retire versus move; J0696 is preservation/importability only."
+          "owner_decision",
+          "Complete repository-local source/import/dynamic-loader/package-configuration and reachable-history census is admitted. Resolve supported external FQN status and the canonical Data Forge schema path. Require an owner-issued shipped-version/external-consumer/persisted-payload record only if support is asserted; keep the row held pending decision and behavioral/package/P41 witness."
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:LA-005",
+          "identity": "E02-R2 DFK-01 local inventory and owner-decision reassessment:LA-005",
           "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-005",
-          "reviewed_head_or_snapshot": "b0332c91e5f3bee6b9d0fd6af86ccac98ddcebe1",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
+          "reviewed_head_or_snapshot": "bcf14f319 (tracked product inputs unchanged through current HEAD 4d79cd5971c8a6b95078aeaa8e49157f125e124a)",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
-          "scope": "Local tracked-source census only; external client/distribution and historical payload compatibility are not established. No current behavior or retirement test was run."
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The exact FQN is absent from the stable Foundry entrypoint list; the legacy module docstring and importability test conflict with that boundary."
         }
       }
     },
@@ -15189,25 +15190,26 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C and the current ledger both retain held. The complete local census discharges the broad source/import/loader/package-configuration/local-history inventory portion; one owner_decision remains. An external shipped-version/consumer/payload record is conditional on the owner affirming supported public ABI. No finding-level behavioral, built-package, removal/control, or P41 closure is claimed."
       },
-      "residual": "One data-record blocker: complete source/import/dynamic-loader/package/ABI/history inventory for the GeneratedSchemaModule descriptor before deciding whether to retire or move its compatibility FQN. The descriptor is a three-field placeholder and current owner is data_forge/kernel/schemas; selected symbol scans do not establish external or retained-payload absence. Distribution/history witnesses remain UNRUN.",
+      "residual": "One owner_decision blocker: Does polisyos.data_forge.kernel.schemas.codegen.GeneratedSchemaModule have an intended supported role, or is this empty three-field descriptor retired? The Data Forge schema owner must identify the canonical owner and choose retirement or a concrete retained producer/consumer contract; do not create a generator because of the module name. Only if support is asserted is an owner-issued shipped-version, external-import, and persisted-payload consumer record required. The complete local census found no production source/tool consumer; behavioral, package-output and P41 witnesses remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "DFK schema owner and distribution/compatibility consumer owners",
-        "appointment_status": "Complete dynamic-loader, wheel/sdist, external-consumer and historical-payload inventory is not admitted."
+        "kind": "owner_decision",
+        "name": "Data Forge schema owner",
+        "appointment_status": "Owner decision pending; no retained API role or external support window is established."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "source_review_or_unrun_test_candidates",
-          "identity": "GeneratedSchemaModule codegen placeholder source census",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-026",
+          "identity": "DFK-01 complete local inventory and owner-decision boundary:LA-026",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
           "behavioral_verdict": "UNRUN",
-          "scope": "Local source census only; external FQN/package/persisted-payload compatibility is not established. No current behavior or retirement test was run.",
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The source contains a three-field placeholder and the current tracked loader/import census finds no production consumer; that does not prove external ABI absence.",
           "package_test_selector_groups": [],
           "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
           ]
         },
@@ -15215,8 +15217,8 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py@git-blob:ac44baf02ab49e496631617060f32bbfde3add0e",
-        "blocker_path_scope": "GeneratedSchemaModule descriptor and canonical schema registry owner; no external caller absence is inferred.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The source contains a three-field placeholder and the current tracked loader/import census finds no production consumer; that does not prove external ABI absence.",
+        "held_audit_receipt_status": "read_only complete local inventory; current status held; one owner_decision blocker; behavior, removal/control probes and P41 remain UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-026.md@sha256:0c5a61cb56f6dbdd2b1c0968e3cb730f965420ad8a222b986886835caa4c3fb1",
@@ -15236,19 +15238,19 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "data_record",
-          "Inventory GeneratedSchemaModule descriptor FQN, dynamic-loader, wheel/sdist, ABI and historical payload consumers before deciding whether to retire/move it; do not build a generator from the descriptor name."
+          "owner_decision",
+          "Complete repository-local source/import/dynamic-loader/package-configuration and reachable-history census is admitted. Resolve supported external FQN status and the canonical Data Forge schema path. Require an owner-issued shipped-version/external-consumer/persisted-payload record only if support is asserted; keep the row held pending decision and behavioral/package/P41 witness."
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:LA-026",
+          "identity": "E02-R2 DFK-01 local inventory and owner-decision reassessment:LA-026",
           "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-026",
-          "reviewed_head_or_snapshot": "b0332c91e5f3bee6b9d0fd6af86ccac98ddcebe1",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
+          "reviewed_head_or_snapshot": "bcf14f319 (tracked product inputs unchanged through current HEAD 4d79cd5971c8a6b95078aeaa8e49157f125e124a)",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
-          "scope": "Local source census only; external FQN/package/persisted-payload compatibility is not established. No current behavior or retirement test was run."
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The source contains a three-field placeholder and the current tracked loader/import census finds no production consumer; that does not prove external ABI absence."
         }
       }
     },
@@ -15267,25 +15269,26 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C and the current ledger both retain held. The complete local census discharges the broad source/import/loader/package-configuration/local-history inventory portion; one owner_decision remains. An external shipped-version/consumer/payload record is conditional on the owner affirming supported public ABI. No finding-level behavioral, built-package, removal/control, or P41 closure is claimed."
       },
-      "residual": "One data-record blocker: establish the old import address, package inclusion, dynamic caller set, and historical import identity before retiring or changing the re-export alias. The initializer re-exports canonical classes; lexical non-use alone does not prove compatibility-window completion. Wheel/sdist and historical-import witnesses remain UNRUN.",
+      "residual": "One owner_decision blocker: Which path is the canonical Data Forge schema registry/evolution/migration owner: polisyos.data_forge.kernel.schemas (the implementation and facade path) or polisyos.data_forge.kernel.pipeline.schemas (the plan-named re-export alias)? The Data Forge schema owner and architecture-plan owner must reconcile the active plan with the actual owner and set the alias migration/sunset. Only if the old pipeline FQN is asserted as supported is an owner-issued shipped-version, external-import, and persisted import-identity consumer record required. The complete local census is recorded; behavior, built artifacts and P41 remain UNRUN.",
       "residual_owner": {
-        "kind": "data_record",
-        "name": "DFK schema owner and distribution/compatibility consumer owners",
-        "appointment_status": "Old-address caller/distribution/history inventory remains unadmitted; current alias source does not prove retirement safety."
+        "kind": "owner_decision",
+        "name": "Data Forge schema owner and architecture-plan owner",
+        "appointment_status": "Canonical-path and compatibility decision pending; no path migration or sunset is authorized by this ledger update."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "source_review_or_unrun_test_candidates",
-          "identity": "pipeline.schemas compatibility alias source census",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-027",
+          "identity": "DFK-01 complete local inventory and owner-decision boundary:LA-027",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
           "behavioral_verdict": "UNRUN",
-          "scope": "Source confirms re-export identity and test compatibility contract, but that test was not run in this H review; external consumer/window evidence remains absent. Do not treat local lexical absence as proof of safe retirement.",
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The tracked implementation routes registry/evolution/migration through kernel/schemas while the active consolidation plan names kernel/pipeline/schemas; the latter currently re-exports the former.",
           "package_test_selector_groups": [],
           "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
           ]
         },
@@ -15293,8 +15296,8 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py@git-blob:09439357496c6e30c16444d8a5e7c15d5a3c09f3",
-        "blocker_path_scope": "Compatibility alias initializer and canonical schema-service identity; external caller absence remains not_established.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The tracked implementation routes registry/evolution/migration through kernel/schemas while the active consolidation plan names kernel/pipeline/schemas; the latter currently re-exports the former.",
+        "held_audit_receipt_status": "read_only complete local inventory; current status held; one owner_decision blocker; behavior, removal/control probes and P41 remain UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925/LA-027.md@sha256:1c11d48116a6bba1afd0e857b0269d7887bb82d9ac5fe39d1df002822f95e435",
@@ -15314,19 +15317,19 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "data_record",
-          "Inventory the old import address, package inclusion, dynamic callers and historical import identity before changing/removing the re-export alias; J0696 proves preservation, not safe retirement."
+          "owner_decision",
+          "Complete repository-local source/import/dynamic-loader/package-configuration and reachable-history census is admitted. Resolve supported external FQN status and the canonical Data Forge schema path. Require an owner-issued shipped-version/external-consumer/persisted-payload record only if support is asserted; keep the row held pending decision and behavioral/package/P41 witness."
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:LA-027",
+          "identity": "E02-R2 DFK-01 local inventory and owner-decision reassessment:LA-027",
           "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b#LA-027",
-          "reviewed_head_or_snapshot": "b0332c91e5f3bee6b9d0fd6af86ccac98ddcebe1",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3",
+          "reviewed_head_or_snapshot": "bcf14f319 (tracked product inputs unchanged through current HEAD 4d79cd5971c8a6b95078aeaa8e49157f125e124a)",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/legacy_ast_census.out@sha256:636db0b63b926d8cc675db501b6a48a9cfa9a593492bfd7ad600d1248b44ce0c"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
-          "scope": "Source confirms re-export identity and test compatibility contract, but that test was not run in this H review; external consumer/window evidence remains absent. Do not treat local lexical absence as proof of safe retirement."
+          "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The tracked implementation routes registry/evolution/migration through kernel/schemas while the active consolidation plan names kernel/pipeline/schemas; the latter currently re-exports the former."
         }
       }
     },

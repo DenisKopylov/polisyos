@@ -3804,3 +3804,74 @@ or sampler is certified, and no promotion/publication authority is granted.
 **Source receipt:** `/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a`. The four probe assertions are expected to fail
 against the current implementation; their output is a diagnostic counterexample, not
 a passing acceptance suite.
+
+## DFK-01 held owner decisions — LA-005, LA-026 and LA-027 (2026-09-26)
+
+**Status.** These three rows remain `held`; this addendum changes only their single blocker kind from `data_record` to `owner_decision`. The complete local inventory is recorded in /Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3. It establishes repository-local source, test, tool, loader, package-configuration and locally reachable-history facts. It does not establish external publications, installed consumers, or untracked payloads. The inventory was taken at `bcf14f319`; the tracked product inputs are unchanged through current HEAD `4d79cd5971c8a6b95078aeaa8e49157f125e124a`. No behavior, wheel/sdist artifact or P41 test was run.
+
+The remaining question is the owner’s supported-FQN/canonical-owner decision. An external shipped-version, external-import and persisted-class/import-identity consumer record is conditional: require it only if the responsible owner asserts that the old FQN is supported. If a concrete retained payload is later identified, record its identity and replay or conversion requirement separately; do not infer public support from payload presence. The local census alone is not evidence of external absence.
+
+### LA-005 — `polisyos.foundry.domain.schema` public support boundary
+
+**Question.** Is the exact Foundry schema module a supported public entrypoint despite its absence from the explicit Foundry stable-entrypoint list?
+
+**Options and costs.**
+
+1. **Contract controls; treat the module as internal.** The public-surface owner and Foundry schema owner confirm that the contract allowlist governs, then retire only `foundry/domain/schema.py` after a marker-retaining negative import and built wheel/sdist absence check. Preserve the declared Foundry facade and the distinct plugin/provenance DTO owners. Cost: update the current importability test, package output, and any internal import. No external-consumer census is required absent an owner assertion of support.
+2. **Declare a supported ABI.** Add the exact FQN to the public-surface contract, provide a deprecation/sunset window and an owner-issued inventory of shipped versions, external import consumers and persisted class-identity payloads before migration. Cost: maintain the API and migration window, extend package/public-surface validation, and preserve or convert old identities.
+
+**Premises.** The explicit contract lists only `polisyos.foundry`, `.api`, `.compile`, and `.execute`; the source module calls itself a public API and the current DFK test preserves its importability. The complete local census found the FQN only in that test, not in production source/tools. Current Hatch configuration includes `src/polisyos`, but no locally tracked built distribution proves what was published. Sources: DFK01_REASSESSMENT memo above; `policy-engine/architecture/public_surface/contract.toml@sha256:579f930914495042582072e1c6d9ccf8e05bda121e87c462fe5c886e9f00a580`; `policy-engine/src/polisyos/foundry/domain/schema.py@sha256:9795fe24efddc4cd27ceb537c82a3663d8f4052bf063b65cf7b70d4e348ee347`; `policy-engine/tests/unit/remediation/test_dfk_01.py@sha256:6264576cce04bd0f753b763623c715eec4c9ffef69cf1c261c93523212326d56`; `policy-engine/hatch.toml@sha256:761d5e5395c8f2b72e9bb36ee39471dd8dc6ae7ab5046fbdd74a38485b1a84fa`.
+
+**Proposed choice; owner status.** Prefer option 1 if the public-surface owner confirms the written allowlist is controlling. No owner or principal ruling is yet recorded.
+
+**Remainder.** LA-005 stays held until the owner answers. Either choice still needs the finding-specific positive/canonical control, negative/removal probe, built-package witness when retirement is selected, and four-base P41 replay. A support ruling makes the shipped-version/consumer/payload record an additional required input to that decision path; it is not presumed today.
+
+**Revisit trigger / falsifier.** Reopen the internal-by-default choice if an owner-issued public API catalog, release manifest, supported-version matrix, external import integration, or retained payload demonstrates that the exact FQN is part of the supported ABI. The retirement witness must also turn red if the module is restored while its negative/import and wheel/sdist assertions remain.
+
+**Where it binds.** Public-surface owner binds `architecture/public_surface/contract.toml`, the public API boundary, and any deprecation window. Foundry schema and package owners bind internal caller migration, package output, and the behavioral witness. This does not authorize a broad `foundry/domain` deletion.
+
+**P37/P38.** The complete local source/test/tool/import-loader/history census is `recomputed`; Hatch inclusion is `recomputed` from configuration, while built/published artifact contents and external consumers are `not_established`. The relation between the written allowlist, the “public API” docstring and the September importability test is an `owner_decision`, not a locally recomputed authority fact. The current test turns on successful import/class identity; it does not turn on public support or actual consumers. Divergent case: the path is absent from the current allowlist while the test is green and Hatch still packages it.
+
+### LA-026 — `polisyos.data_forge.kernel.schemas.codegen` descriptor role
+
+**Question.** Does the empty `GeneratedSchemaModule` descriptor have an intended supported contract/consumer, or should this exact module be retired?
+
+**Options and costs.**
+
+1. **Retire the placeholder.** Data Forge schema owner confirms it has no producer/consumer role; remove only the descriptor/FQN and replace the positive import assertion with the negative/removal/package witness, preserving the canonical schema registry and migrations. Cost: update one module, its explicit compatibility test and built-package projection.
+2. **Retain as supported.** Owner names the producer, consumer, artifact contract and canonical schema owner; designate the FQN and versioning/sunset policy. If externally supported, issue the shipped-version/import/persisted-payload record before changing it. Cost: implement and maintain the actual capability plus producer/consumer/replay tests; the name alone does not justify generating code.
+
+**Premises.** Local census found a three-field descriptor with no generation behavior or production source/tool consumer; it is not present in the ABI model registry. The current test treats importability as preservation. The repo does not supply an external support record. Sources: DFK01_REASSESSMENT memo above; `policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py@sha256:2e4d9bf7791b0cccce090fd80afde9bb51809506a51666dfd9fde2a8ef4c685e`; `policy-engine/src/polisyos/schemas/abi_models.py@sha256:651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835`; DFK test and Hatch config cited under LA-005.
+
+**Proposed choice; owner status.** Prefer option 1 if the Data Forge schema owner confirms the descriptor has no intended consumer. No owner ruling is yet recorded.
+
+**Remainder.** The finding stays held pending owner response. Retirement still requires an import-negative and built-wheel/sdist absence witness, a removal probe that restores the path while keeping markers, canonical-registry positive control, and P41 replay. If support is asserted, the owner must name its producer/consumer and issue the conditional shipped-version/external-consumer record. If a concrete retained payload is separately identified, bind a replay or conversion witness to that payload; behavior remains unmeasured.
+
+**Revisit trigger / falsifier.** Reopen retirement if the owner supplies a concrete producer/consumer contract, an owner-issued shipped-version/API record or a retained payload whose type identity resolves to this FQN. The negative test must fail if this module is restored while its markers remain.
+
+**Where it binds.** Data Forge schema owner binds module role, canonical registry ownership, and package compatibility; package/test owners bind actual wheel/sdist contents and the removal/control witness. No second code-generation owner is created by this draft.
+
+**P37/P38.** Local source/import/dynamic-loader/history facts are `recomputed`; external support and payload use are `not_established`. `test_dfk_01.py` currently turns on importability and class shape. Divergent case: a module can import successfully while its descriptor performs no generation and has no producer/consumer.
+
+### LA-027 — canonical schema path and `pipeline.schemas` compatibility
+
+**Question.** Is `kernel/schemas` the canonical registry/evolution/migration owner and `kernel/pipeline/schemas` a temporary compatibility alias, or does the active plan’s pipeline path remain the canonical destination?
+
+**Options and costs.**
+
+1. **Keep `kernel/schemas` canonical; sunset the pipeline alias.** Data Forge and architecture-plan owners confirm the implementation/facade path is authoritative, then the plan owner reconciles the plan and names a migration owner/sunset. Retain the old import only for an explicit bounded compatibility window. Cost: plan/caller/test updates and, if removal is approved, a package/history migration witness.
+2. **Make `kernel/pipeline/schemas` canonical.** Move the registry/evolution/migration implementation and all callers behind that path, and leave at most one compatibility re-export at the former `kernel/schemas` address. Cost: relocate one owner and update facade, callers, architecture boundaries, tests and package projections; prevent two registries.
+
+**Premises.** The tracked implementation and top-level facade use `kernel/schemas`; `kernel/pipeline/schemas` re-exports it, while `DATA_FORGE_CONSOLIDATION_PLAN.md` still names the pipeline path for the registry. The local census finds no other production source/tool consumer of the pipeline FQN, but local absence does not establish external ABI absence. Sources: DFK01_REASSESSMENT memo above; `policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py@sha256:0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf`; `policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md@sha256:28927b07f7d068260df4f586a670d2883b4f44180b78411b0efe76764072360f`; `policy-engine/architecture/shims.toml@sha256:3752050d411eecc6dddf52500d009e6d081de12d2584497aa8916ffdc9e312d3`.
+
+**Proposed choice; owner status.** Current implementation evidence favors option 1, contingent on the plan owner’s confirmation; this draft does not amend the plan or assert the alias sunset. No owner ruling is yet recorded.
+
+**Remainder.** LA-027 remains held. After the path ruling, preserve one registry owner and prove canonical imports/identity, the chosen old-address behavior, package output, a marker-retaining removal/alias probe, and four-base P41. Require an external shipped-version/import/persisted-identity record only if the owner affirms the old FQN is supported; handle any concrete retained payload as a separate versioned replay/conversion input.
+
+**Revisit trigger / falsifier.** Reopen option 1 if the plan owner reaffirms the pipeline path as the required owner or an owner-issued release/payload record shows supported external imports of the alias. A claimed sunset is falsified if a shipped supported-version artifact or retained import identity still requires the alias after the declared window.
+
+**Where it binds.** Data Forge owner binds the single registry/evolution/migration implementation; architecture-plan owner binds the documented canonical path; package/public-surface owners bind the supported old FQN and sunset gate. The draft does not edit the plan or register.
+
+**P37/P38.** Current implementation and exact import/export identities are `recomputed`; the plan is `institutionally_supplied`; its authority relative to the source owner is not resolved. External clients and published artifacts are `not_established`. Existing alias/importability tests establish that both paths resolve to the same objects, not which address owns future schema behavior or the completion of a sunset. Divergent case: both imports preserve identity while the plan names the alias and code/facade name the canonical implementation.
+
+**Shared H14 partition check.** The exact row walk is: owner decisions `{B31, B201, B202, LA-005, LA-026, LA-027}` (6); data records `{B61, LA-010, LA-031, LA-049}` (4); smallest missing capabilities `{B194, B197, B219, LA-032}` (4). Across the same 14 Appendix-C rows, status remains 11 held, 2 partial (`LA-010`, `LA-049`), and 1 open (`B219`). This is a blocker-kind refinement only, not a status or behavior upgrade.

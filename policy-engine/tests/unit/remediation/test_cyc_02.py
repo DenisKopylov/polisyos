@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,48 +12,66 @@ from typing import Any
 
 import pytest
 
+import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+import polisyos.runtime.quality.recursive_generation_cycle as recursive_generation_cycle_module
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts.backends.config import (
+    with_ambient_ownership_enforcement_if_supported,
+)
+from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import (
     ArtifactRef as PDCArtifactRef,
+)
+from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
+    gy_content_hash,
 )
-from polisyos.pdc import gy_content_hash
+from polisyos.runtime.http.errors import (
+    RuntimeDependencyTimeoutError,
+    RuntimeDependencyUnavailableError,
+)
+from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
-from polisyos.runtime.quality.generation_cycle import (
-    CandidateGroundingObservation,
-    GenerationCycleError,
-    GenerationCycleController,
-    JointSimulationPort,
-    PendingN8ValuePort,
-    PromotionPortObservation,
-    SimulationPortObservation,
-    _DefaultSimulationBoundFoundryValuePort,
-    simulation_evaluation_input_ref,
-)
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingEdge,
     build_coupling_graph,
     derive_recursive_design_graph,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import (
-    JointSimulationHorizonController,
+from polisyos.runtime.quality.generation_cycle import (
+    CandidateGroundingObservation,
+    GenerationCycleController,
+    GenerationCycleError,
+    JointSimulationPort,
+    PendingN8ValuePort,
+    PromotionPortObservation,
+    SimulationPortObservation,
+    _DefaultSimulationBoundFoundryValuePort,
+    load_joint_simulation_result,
+    simulation_evaluation_input_ref,
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_content_hash,
 )
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    JointSimulationHorizonController,
+)
 from polisyos.runtime.quality.recursive_generation_cycle import (
     _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES,
-    _is_authenticated_legacy_v1,
     RecursiveCycleBudget,
     RecursiveCycleNode,
     RecursiveGenerationCycleController,
+    RecursiveGenerationCycleError,
     RecursiveGenerationCycleRun,
+    _is_authenticated_legacy_v1,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
-from tests.unit.runtime.quality.test_generation_cycle import _problem
+from tests.unit.runtime.quality.test_generation_cycle import (
+    _cyc01_owner_bound_n5_case,
+    _problem,
+)
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 
@@ -163,8 +182,19 @@ def test_legacy_recursive_v1_allowlist_covers_tracked_sources() -> None:
     assert not _is_authenticated_legacy_v1(invalid)
 
 
-def _real_n5_observation(tmp_path: Path):
+def _real_n5_observation(
+    tmp_path: Path,
+    *,
+    artifact_store: Any | None = None,
+    without_runtime_store: bool = False,
+):
     """Run the canonical N5 producer through the real generation-cycle adapter."""
+
+    store = (
+        None
+        if without_runtime_store
+        else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+    )
 
     problem, context, candidate = _cyc01_owner_bound_n5_case()
     request = _request(
@@ -218,15 +248,22 @@ def _real_n5_observation(tmp_path: Path):
         controller=_RecordingN5Controller(),
         repo_root=tmp_path,
         cycle_substrate_context=context,
+        artifact_store=store,
     )(candidate=candidate, problem=problem, cycle_index=0)
-    assert observation.status == "joint_simulated", {
-        "status": observation.status,
-        "authority_blockers": observation.authority_blockers,
-        "diagnostics": observation.diagnostics,
-    }
-    assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
-    assert len(produced_results) == 1
-    return problem, context, candidate, observation, produced_results[0]
+    if without_runtime_store:
+        assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+        assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+        assert produced_results == []
+    else:
+        assert observation.status == "joint_simulated", {
+            "status": observation.status,
+            "authority_blockers": observation.authority_blockers,
+            "diagnostics": observation.diagnostics,
+        }
+        assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
+        assert len(produced_results) == 1
+    produced_result = produced_results[0] if produced_results else None
+    return problem, context, candidate, observation, produced_result, store
 
 
 class _RecursiveGenerationPort:
@@ -291,7 +328,10 @@ class _RecursivePromotionPort:
 
 def _recursive_contract_testing_controller(
     repo_root: Path,
+    *,
+    artifact_store: Any | None = None,
 ) -> RecursiveGenerationCycleController:
+
     def factory(_node_ref: str, _problem_input: object) -> GenerationCycleController:
         return GenerationCycleController(
             generation_port=_RecursiveGenerationPort(),
@@ -301,11 +341,13 @@ def _recursive_contract_testing_controller(
             promotion_port=_RecursivePromotionPort(),
             authority_scope="contract_testing",
             repo_root=repo_root,
+            artifact_store=artifact_store,
         )
 
     return RecursiveGenerationCycleController.for_contract_testing(
         cycle_controller_factory=factory,
         repo_root=repo_root,
+        artifact_store=artifact_store,
     )
 
 
@@ -396,7 +438,9 @@ def _recursive_parent_request(
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
     """K_sim limits authority, but does not make the real N5 input disappear."""
 
-    _problem, _context, _candidate, simulation, _produced = _real_n5_observation(tmp_path)
+    _problem, _context, _candidate, simulation, _produced, _store = _real_n5_observation(
+        tmp_path
+    )
 
     input_ref = simulation_evaluation_input_ref(simulation)
 
@@ -405,13 +449,141 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
     assert input_ref.content_hash == str(simulation.simulation_result_ref.artifact_id)
 
 
+def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
+    tmp_path: Path,
+) -> None:
+    """A transient backend failure does not become a false corruption verdict."""
+
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+        tmp_path
+    )
+    assert simulation.simulation_result_ref is not None
+
+    class _TransientHasStore:
+        def __init__(self, delegate: Any) -> None:
+            self._delegate = delegate
+
+        def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
+            return self._delegate.get_manifest(artifact_ref)
+
+        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+            raise ConnectionError("temporary artifact-store outage")
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="joint_simulation_result_unavailable",
+    ):
+        load_joint_simulation_result(
+            simulation.simulation_result_ref,
+            store=_TransientHasStore(store),  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.parametrize(
+    ("failure_mode", "expected_cause"),
+    [
+        ("unavailable", RuntimeDependencyUnavailableError),
+        ("timeout", RuntimeDependencyTimeoutError),
+    ],
+)
+def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_mode: str,
+    expected_cause: type[Exception],
+) -> None:
+    """Production CAS guard errors become N5 unavailability, not corruption."""
+
+    problem, context, candidate, simulation, _produced, store = _real_n5_observation(
+        tmp_path
+    )
+    assert simulation.simulation_result_ref is not None
+
+    class _GuardFailureTarget:
+        def __init__(self, delegate: Any) -> None:
+            self._delegate = delegate
+
+        def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
+            return self._delegate.get_manifest(artifact_ref)
+
+        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+            if failure_mode == "unavailable":
+                raise OSError("temporary CAS I/O failure")
+            time.sleep(0.35)
+            return True
+
+    if failure_mode == "timeout":
+        monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
+    guarded_store = guard_runtime_cas(_GuardFailureTarget(store))
+    original_loader = generation_cycle_module.load_joint_simulation_result
+    observed_errors: list[GenerationCycleError] = []
+
+    def observe_loader_error(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return original_loader(*args, **kwargs)
+        except GenerationCycleError as exc:
+            observed_errors.append(exc)
+            raise
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "load_joint_simulation_result",
+        observe_loader_error,
+    )
+    try:
+        observation = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=guarded_store,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+        assert observation.status == "value_blocked"
+        assert observation.authority_blockers == (
+            "joint_simulation_result_unavailable",
+        )
+        assert len(observed_errors) == 1
+        assert isinstance(observed_errors[0].__cause__, expected_cause)
+    finally:
+        guarded_store.close()
+
+
+def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> None:
+    """Unexpected store faults surface instead of being mislabeled as corruption."""
+
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+        tmp_path
+    )
+    assert simulation.simulation_result_ref is not None
+
+    class _BrokenHasStore:
+        def __init__(self, delegate: Any) -> None:
+            self._delegate = delegate
+
+        def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
+            return self._delegate.get_manifest(artifact_ref)
+
+        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+            raise AssertionError("store adapter bug")
+
+    with pytest.raises(AssertionError, match="store adapter bug"):
+        load_joint_simulation_result(
+            simulation.simulation_result_ref,
+            store=_BrokenHasStore(store),  # type: ignore[arg-type]
+        )
+
+
 def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     """The simulation-only value state is explicit and cannot carry N8 receipts."""
 
-    problem, context, candidate, simulation, produced = _real_n5_observation(tmp_path)
+    problem, context, candidate, simulation, produced, store = _real_n5_observation(tmp_path)
     observation = _DefaultSimulationBoundFoundryValuePort(
         repo_root=tmp_path,
         cycle_substrate_context=context,
+        artifact_store=store,
     )(
         candidate=candidate,
         simulation=simulation,
@@ -427,11 +599,9 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     assert isinstance(simulation.simulation_result_ref, CASArtifactRef)
     assert observation.value_ref == str(simulation.simulation_result_ref.artifact_id)
 
-    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
-
     reopened = load_joint_simulation_result(
         simulation.simulation_result_ref,
-        repo_root=tmp_path,
+        store=store,
         expected_world_model_record_content_hash=context.world_model_record.content_hash,
     )
     outcome = problem.outcome_of_interest.target_variable
@@ -453,27 +623,64 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     assert effect == produced_trajectory.points[0].effect[outcome]
 
 
-def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
-    """The real N5 adapter keeps a typed CAS ref to its complete result."""
+class _GenericDefaultN5Store(FileSystemCAS):
+    """Keep a generic JSON view as default while returning N5's selected view."""
 
-    _problem, context, _candidate, simulation, produced = _real_n5_observation(tmp_path)
+    def __init__(self, root: Path) -> None:
+        super().__init__(root)
+        self.generic_view_ref: CASArtifactRef | None = None
+
+    def put_json(
+        self,
+        obj: object,
+        opts: PutOptions,
+        canon_spec: CanonSpec | None = None,
+    ) -> CASArtifactRef:
+        if (
+            opts.kind == "polisyos.runtime.joint_simulation_result"
+            and self.generic_view_ref is None
+        ):
+            self.generic_view_ref = super().put_json(
+                obj,
+                PutOptions(
+                    kind="application/json",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="application/json", version="1"),
+                ),
+                canon_spec=canon_spec,
+            )
+        return super().put_json(obj, opts, canon_spec=canon_spec)
+
+
+def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
+    """The selected N5 view remains distinct from another honest view of its bytes."""
+
+    store = _GenericDefaultN5Store(tmp_path / "n5-multiview-store")
+    _problem, _context, _candidate, simulation, produced, supplied_store = (
+        _real_n5_observation(tmp_path, artifact_store=store)
+    )
+    assert supplied_store is store
     result_ref = simulation.simulation_result_ref
     assert result_ref is not None
     assert result_ref.kind == "polisyos.runtime.joint_simulation_result"
+    generic_ref = store.generic_view_ref
+    assert generic_ref is not None
+    assert generic_ref.artifact_id == result_ref.artifact_id
+    assert generic_ref.manifest_profile_sha256 is None
+    assert result_ref.manifest_profile_sha256 is not None
 
-    store = FileSystemCAS(tmp_path / ".polisyos" / "cas")
-    manifest = store.get_manifest(result_ref.artifact_id)
-    payload = json.loads(store.get_bytes(result_ref.artifact_id))
+    generic_manifest = store.get_manifest(generic_ref)
+    assert generic_manifest.kind == "application/json"
+    manifest = store.get_manifest(result_ref)
+    payload = json.loads(store.get_bytes(result_ref))
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == "policyos.runtime.n5.joint_simulation_result"
     assert payload["receipt"]["payload_hash"] == produced.receipt.payload_hash
     assert payload["trajectories"]
 
-    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
-
     reopened = load_joint_simulation_result(
         result_ref,
-        repo_root=tmp_path,
+        store=store,
         expected_world_model_record_content_hash=(
             produced.world_model_record_content_hash
         ),
@@ -484,15 +691,26 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
         produced.world_model_record_content_hash
     )
 
+    wrong_profile_ref = result_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises(
+        GenerationCycleError,
+        match="joint_simulation_result_unavailable",
+    ):
+        load_joint_simulation_result(wrong_profile_ref, store=store)
+
     missing_ref = CASArtifactRef(
         artifact_id="sha256:" + "f" * 64,
         kind=result_ref.kind,
         media_type=result_ref.media_type,
     )
     with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
-        load_joint_simulation_result(missing_ref, repo_root=tmp_path)
+        load_joint_simulation_result(missing_ref, store=store)
 
-    blob_path, manifest_path = store.get_paths(result_ref.artifact_id)
+    blob_path, selected_manifest_path = store.get_paths(result_ref)
+    default_manifest_path = store.get_paths(generic_ref)[1]
+    assert selected_manifest_path != default_manifest_path
     original_blob = blob_path.read_bytes()
     blob_path.write_bytes(original_blob + b"tampered")
     try:
@@ -500,31 +718,32 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
             GenerationCycleError,
             match="joint_simulation_result_integrity_invalid",
         ):
-            load_joint_simulation_result(result_ref, repo_root=tmp_path)
+            load_joint_simulation_result(result_ref, store=store)
     finally:
         blob_path.write_bytes(original_blob)
 
-    original_manifest = manifest_path.read_bytes()
-    manifest_path.write_bytes(b"{}")
+    original_manifest = selected_manifest_path.read_bytes()
+    selected_manifest_path.write_bytes(b"{}")
     try:
         with pytest.raises(
             GenerationCycleError,
             match="joint_simulation_result_integrity_invalid",
         ):
-            load_joint_simulation_result(result_ref, repo_root=tmp_path)
+            load_joint_simulation_result(result_ref, store=store)
+        assert store.get_manifest(generic_ref).kind == "application/json"
     finally:
-        manifest_path.write_bytes(original_manifest)
+        selected_manifest_path.write_bytes(original_manifest)
 
     with pytest.raises(GenerationCycleError, match="joint_simulation_result_wmr_mismatch"):
         load_joint_simulation_result(
             result_ref,
-            repo_root=tmp_path,
+            store=store,
             expected_world_model_record_content_hash="sha256:" + "e" * 64,
         )
     with pytest.raises(GenerationCycleError, match="joint_simulation_result_atom_binding"):
         load_joint_simulation_result(
             result_ref,
-            repo_root=tmp_path,
+            store=store,
             expected_atom_ids=("foreign-model-atom",),
         )
 
@@ -553,7 +772,11 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
         problem=parent_problem,
         world_model_record=context.world_model_record,
     )
-    controller = _recursive_contract_testing_controller(tmp_path)
+    store = FileSystemCAS(tmp_path / "recursive-parent-store")
+    controller = _recursive_contract_testing_controller(
+        tmp_path,
+        artifact_store=store,
+    )
     subdesigns = _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
 
     run = await controller.run(
@@ -596,10 +819,138 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
 
     reopened = load_joint_simulation_result(
         root_node.joint_simulation_ref,
-        repo_root=tmp_path,
+        store=store,
         expected_world_model_record_content_hash=(
             root_node.joint_simulation.world_model_record_content_hash
         ),
         expected_atom_ids=root_node.joint_simulation.atom_ids,
     )
     assert reopened.trajectories == root_node.joint_simulation.trajectories
+
+
+@pytest.mark.asyncio
+async def test_recursive_parent_without_store_refuses_before_n5_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No-store refusal precedes parent N5; leaf currentness is outside this seam."""
+
+    root = "design://cyc-02/no-store-root"
+    child_refs = ("design://cyc-02/no-store-a", "design://cyc-02/no-store-b")
+    parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    problems = {
+        root: parent_problem,
+        child_refs[0]: _problem("cyc02_no_store_a"),
+        child_refs[1]: _problem("cyc02_no_store_b"),
+    }
+    graph = derive_recursive_design_graph(
+        design_ref=root,
+        module_refs=child_refs,
+        parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
+        rule_version_ref="repo://rules/cyc-02-recursive-no-store",
+    )
+    request = _recursive_parent_request(
+        parent_ref=root,
+        child_refs=child_refs,
+        problem=parent_problem,
+        world_model_record=context.world_model_record,
+    )
+    controller = _recursive_contract_testing_controller(tmp_path)
+
+    class _N5ControllerSentinel:
+        calls = 0
+
+        def run(self, _request: object) -> object:
+            self.calls += 1
+            raise AssertionError("parent N5 controller ran without its runtime store")
+
+    n5_sentinel = _N5ControllerSentinel()
+    controller._joint_simulation_controller = n5_sentinel  # type: ignore[assignment]
+    # The pinned public-parent selector fails before this seam at R2 currentness.
+    # This narrow run keeps that validator out of the subject under test without
+    # changing production validation or claiming a served whole-parent witness.
+    monkeypatch.setattr(
+        recursive_generation_cycle_module,
+        "validate_generation_cycle_run",
+        lambda *_args, **_kwargs: (),
+    )
+
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_n5_runtime_store_not_established",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node=problems,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=3,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            joint_simulation_requests_by_node={root: request},
+            subdesign_contracts_by_node={
+                root: _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
+            },
+        )
+
+    assert n5_sentinel.calls == 0
+
+
+def test_n5_replay_uses_supplied_guarded_tenant_store(tmp_path: Path) -> None:
+    """The N5 writer and N8 reader share the caller's tenant-owned store."""
+
+    store = guard_runtime_cas(
+        with_ambient_ownership_enforcement_if_supported(
+            FileSystemCAS(tmp_path / "guarded-runtime-store")
+        )
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            problem, context, candidate, simulation, _produced, supplied_store = (
+                _real_n5_observation(tmp_path, artifact_store=store)
+            )
+            assert supplied_store is store
+            observation = _DefaultSimulationBoundFoundryValuePort(
+                repo_root=tmp_path,
+                cycle_substrate_context=context,
+                artifact_store=supplied_store,
+            )(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert observation.status == "value_conditional"
+            assert simulation.simulation_result_ref is not None
+
+        with (
+            tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"),
+            pytest.raises(
+                GenerationCycleError,
+                match="joint_simulation_result_unavailable",
+            ),
+        ):
+            load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+            )
+    finally:
+        store.close()
+
+
+def test_n5_does_not_execute_without_runtime_owned_store(tmp_path: Path) -> None:
+    """A valid request cannot execute if N5 cannot durably replay its result."""
+
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+        tmp_path,
+        without_runtime_store=True,
+    )
+
+    assert store is None
+    assert simulation.status == "simulation_blocked"
+    assert simulation.simulation_result_ref is None
+    assert simulation.authority_blockers == ("n5_runtime_store_not_established",)

@@ -67,6 +67,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -727,6 +728,7 @@ class RecursiveGenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         epoch_subject_authority: core_contracts.EpochValidityPreN9SubjectAuthority | None = None,
         epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
@@ -741,9 +743,14 @@ class RecursiveGenerationCycleController:
             )
         ):
             raise ValueError("recursive_epoch_dependencies_must_be_runtime_derived")
+        if promotion_runtime is not None:
+            if artifact_store is not None and artifact_store is not promotion_runtime.store:
+                raise ValueError("recursive_artifact_store_owner_mismatch")
+            artifact_store = promotion_runtime.store
         self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._leaf_model_id = model_id
         self._promotion_runtime = promotion_runtime
+        self._artifact_store = artifact_store
         self._eval_safety_verifier = eval_safety_verifier
         self._epoch_subject_authority = epoch_subject_authority or getattr(
             promotion_runtime, "epoch_subject_authority", None
@@ -764,10 +771,11 @@ class RecursiveGenerationCycleController:
         *,
         cycle_controller_factory: CycleControllerFactory,
         repo_root: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> RecursiveGenerationCycleController:
         """Build a visibly non-production router over canonical scripted N6 owners."""
 
-        controller = cls(repo_root=repo_root)
+        controller = cls(repo_root=repo_root, artifact_store=artifact_store)
         controller._cycle_controller_factory = cycle_controller_factory
         controller._authority_scope = "contract_testing"
         return controller
@@ -1043,6 +1051,7 @@ class RecursiveGenerationCycleController:
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,
                         promotion_runtime=self._promotion_runtime,
+                        artifact_store=self._artifact_store,
                     )
                 else:
                     controller = self._cycle_controller_factory(node_ref, problem)
@@ -1124,11 +1133,16 @@ class RecursiveGenerationCycleController:
                     )
                     node_results[node_ref] = result
                     return result
+                if self._artifact_store is None:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_n5_runtime_store_not_established",
+                        "The parent N5 run cannot start without its runtime-owned result store.",
+                    )
                 joint_simulation = self._joint_simulation_controller.run(request)
                 try:
                     joint_simulation_ref = persist_joint_simulation_result(
                         joint_simulation,
-                        repo_root=self._repo_root,
+                        store=self._artifact_store,
                     )
                 except GenerationCycleError as exc:
                     raise RecursiveGenerationCycleError(

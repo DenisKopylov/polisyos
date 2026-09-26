@@ -13,6 +13,7 @@ from typing import Any
 import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.data_requirement import (
     DataQualityMinimums,
     DataRequirementScope,
@@ -1270,6 +1271,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 return self._delegate.run(request)
 
         n5 = _RecordingN5Controller()
+        runtime_store = FileSystemCAS(tmp_path / "n5-runtime-store")
         gateway = RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={
                 case.data_spec.requirement_id: route.owner_artifact,
@@ -1284,11 +1286,13 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 controller=n5,
                 repo_root=tmp_path,
                 cycle_substrate_context=case.before_context,
+                artifact_store=runtime_store,
             ),
             acquisition_owner_gateway=gateway,
             repo_root=tmp_path,
             cycle_substrate_context=case.before_context,
             authority_scope="contract_testing",
+            artifact_store=runtime_store,
         )
 
         run = await controller.run(

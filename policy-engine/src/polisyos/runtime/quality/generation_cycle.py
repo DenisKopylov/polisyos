@@ -45,6 +45,8 @@ from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
+    ArtifactOwnershipError,
+    ArtifactStore,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
@@ -53,7 +55,7 @@ from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -77,6 +79,7 @@ from polisyos.pdc import (
     gy_artifact_self_identity_projection,
     gy_content_hash,
 )
+from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
     FROZEN_N6_HISTORY_SCHEMA,
 )
@@ -661,19 +664,12 @@ def _joint_simulation_port_outcome(
     return "joint_simulated", tuple(dict.fromkeys(str(item) for item in blockers))
 
 
-def _joint_simulation_result_store(repo_root: Path | None) -> FileSystemCAS:
-    """Return the owner CAS used for durable N5 result artifacts."""
-
-    root = (repo_root or Path.cwd()).resolve()
-    return FileSystemCAS(root / ".polisyos" / "cas")
-
-
 def persist_joint_simulation_result(
     result: JointSimulationResult,
     *,
-    repo_root: Path | None = None,
+    store: ArtifactStore,
 ) -> CASArtifactRef:
-    """Persist one complete N5 result through the existing filesystem CAS owner."""
+    """Persist one complete N5 result through the runtime-supplied store."""
 
     if not isinstance(result, JointSimulationResult):
         raise GenerationCycleError(
@@ -682,7 +678,6 @@ def persist_joint_simulation_result(
         )
     try:
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
-        store = _joint_simulation_result_store(repo_root)
         return store.put_json(
             result.model_dump(mode="json"),
             PutOptions(
@@ -769,7 +764,7 @@ def _validate_loaded_joint_simulation_result(
 def load_joint_simulation_result(
     ref: CASArtifactRef,
     *,
-    repo_root: Path | None = None,
+    store: ArtifactStore,
     expected_world_model_record_content_hash: str | None = None,
     expected_atom_ids: Sequence[str] | None = None,
     expected_selected_outcomes: Sequence[str] | None = None,
@@ -782,38 +777,81 @@ def load_joint_simulation_result(
             if isinstance(ref, CASArtifactRef)
             else CASArtifactRef.model_validate(ref)
         )
-    except Exception as exc:
+    except (TypeError, ValueError) as exc:
         raise GenerationCycleError("joint_simulation_result_unavailable", str(exc)) from exc
     if (
         resolved_ref.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
         or resolved_ref.media_type != "application/json"
     ):
         _joint_simulation_result_integrity_error("artifact_reference_contract_mismatch")
-    store = _joint_simulation_result_store(repo_root)
     try:
-        blob_path, manifest_path = store.get_paths(resolved_ref.artifact_id)
-        if not blob_path.exists() or not manifest_path.exists():
-            raise GenerationCycleError(
-                "joint_simulation_result_unavailable",
-                "N5 result blob or manifest is absent",
-            )
-        report = store.verify(resolved_ref.artifact_id)
-        if not bool(getattr(report, "ok", False)):
-            _joint_simulation_result_integrity_error("CAS verification failed")
-        manifest = store.get_manifest(resolved_ref.artifact_id)
-        if (
-            manifest.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
-            or manifest.media_type != "application/json"
-            or manifest.artifact_schema is None
-            or manifest.artifact_schema.name != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA
-            or manifest.artifact_schema.version != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION
-        ):
-            _joint_simulation_result_integrity_error("artifact_manifest_contract_mismatch")
-        payload = from_canonical_bytes(store.get_bytes(resolved_ref.artifact_id))
-    except GenerationCycleError:
-        raise
-    except (OSError, KeyError, TypeError, ValueError) as exc:
-        _joint_simulation_result_integrity_error(str(exc), exc)
+        manifest = store.get_manifest(resolved_ref)
+    except (FileNotFoundError, ArtifactOwnershipError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected manifest view is absent or not owned by this store",
+        ) from exc
+    except (RuntimeDependencyError, TimeoutError, ConnectionError, OSError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected manifest view could not be read from the store",
+        ) from exc
+    except (ArtifactIntegrityError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error("artifact_manifest_invalid", exc)
+
+    try:
+        present = store.has(resolved_ref)
+    except (FileNotFoundError, ArtifactOwnershipError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected result view is absent or not owned by this store",
+        ) from exc
+    except (RuntimeDependencyError, TimeoutError, ConnectionError, OSError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected result view availability could not be checked",
+        ) from exc
+    if not present:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 result blob or manifest is absent",
+        )
+
+    if (
+        manifest.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA
+        or manifest.artifact_schema.version != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION
+    ):
+        _joint_simulation_result_integrity_error("artifact_manifest_contract_mismatch")
+
+    try:
+        payload_bytes = store.get_bytes(resolved_ref)
+    except (FileNotFoundError, ArtifactOwnershipError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected result view is absent or not owned by this store",
+        ) from exc
+    except (RuntimeDependencyError, TimeoutError, ConnectionError, OSError) as exc:
+        raise GenerationCycleError(
+            "joint_simulation_result_unavailable",
+            "N5 selected result bytes could not be read from the store",
+        ) from exc
+    except (ArtifactIntegrityError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error("CAS artifact integrity invalid", exc)
+
+    if (
+        str(manifest.artifact_id) != str(resolved_ref.artifact_id)
+        or manifest.integrity.sha256 != resolved_ref.artifact_id.hex
+        or manifest.byte_size != len(payload_bytes)
+        or content_hash(payload_bytes) != resolved_ref.artifact_id.hex
+    ):
+        _joint_simulation_result_integrity_error("CAS artifact integrity invalid")
+    try:
+        payload = from_canonical_bytes(payload_bytes)
+    except (TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error("artifact_payload_not_canonical", exc)
     if not isinstance(payload, Mapping):
         _joint_simulation_result_integrity_error("artifact_payload_not_mapping")
     payload_without_receipt = dict(payload)
@@ -2045,9 +2083,11 @@ class JointSimulationPort:
         *,
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._controller = controller or JointSimulationHorizonController()
         self._repo_root = repo_root
+        self._artifact_store = artifact_store
         if cycle_substrate_context is not None:
             from polisyos.runtime.quality.cycle_substrate import (
                 revalidate_cycle_substrate_context,
@@ -2216,13 +2256,28 @@ class JointSimulationPort:
                     "world_model_error": str(exc),
                 },
             )
+        if self._artifact_store is None:
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=("n5_runtime_store_not_established",),
+                diagnostics={
+                    "port": "N5",
+                    "reason": "n5_runtime_store_not_established",
+                    "world_model_record_id": request.world_model_record.world_model_record_id,
+                    "world_model_record_content_hash": request.world_model_record.content_hash,
+                },
+                k_world_ref_before=request.world_model_record.content_hash,
+                k_world_ref_after=request.world_model_record.content_hash,
+                world_model_record=request.world_model_record,
+            )
         result = self._controller.run(request)
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(result)
         try:
             simulation_result_ref = persist_joint_simulation_result(
                 result,
-                repo_root=self._repo_root,
+                store=self._artifact_store,
             )
         except GenerationCycleError as exc:
             return SimulationPortObservation(
@@ -3523,7 +3578,7 @@ def _conditional_simulation_value_observation(
     candidate: object,
     simulation: SimulationPortObservation,
     problem: DesignProblem,
-    repo_root: Path | None,
+    artifact_store: ArtifactStore | None,
 ) -> ValuePortObservation | None:
     """Consume a verified K_sim result without laundering it into N8 authority."""
 
@@ -3555,6 +3610,15 @@ def _conditional_simulation_value_observation(
             started=started,
             candidate_id=candidate_id,
         )
+    if artifact_store is None:
+        return _blocked_value_observation(
+            code="n8_runtime_store_not_established",
+            reason="N8 cannot replay a persisted N5 result without the runtime-owned store.",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
     outcome = _value_outcome_variable(candidate, problem)
     atom_ids = tuple(
         str(getattr(atom, "intervention_id"))
@@ -3564,7 +3628,7 @@ def _conditional_simulation_value_observation(
     try:
         result = load_joint_simulation_result(
             simulation.simulation_result_ref,
-            repo_root=repo_root,
+            store=artifact_store,
             expected_world_model_record_content_hash=world_hash,
             expected_atom_ids=atom_ids or None,
             expected_selected_outcomes=(outcome,) if outcome else None,
@@ -3600,6 +3664,7 @@ class _DefaultSimulationBoundFoundryValuePort:
 
     repo_root: Path | None
     cycle_substrate_context: CycleSubstrateContext | None
+    artifact_store: ArtifactStore | None = None
     owner_gateway: ValueOwnerGateway | None = None
     eval_safety_verifier: EvalSafetyVerifierPort | None = None
     data_trust: DataTrust | None = None
@@ -3630,7 +3695,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-            repo_root=self.repo_root,
+            artifact_store=self.artifact_store,
         )
         if conditional is not None:
             return conditional
@@ -3803,6 +3868,7 @@ class GenerationCycleController:
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
         observation_family: str | None = None,
@@ -3811,6 +3877,13 @@ class GenerationCycleController:
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
     ) -> None:
+        if promotion_runtime is not None:
+            if artifact_store is not None and artifact_store is not promotion_runtime.store:
+                raise ValueError("generation_cycle_artifact_store_owner_mismatch")
+            artifact_store = promotion_runtime.store
+        elif authority_scope == "production" and artifact_store is not None:
+            raise ValueError("generation_cycle_artifact_store_must_be_runtime_owned")
+        self._artifact_store = artifact_store
         if generation_port is None and model_id is None:
             generation_port = _UnavailableGenerationPort()
         self._generation_port = generation_port or N4GenerationPort(
@@ -3822,10 +3895,12 @@ class GenerationCycleController:
         self._simulation_port = simulation_port or JointSimulationPort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            artifact_store=artifact_store,
         )
         self._value_port = value_port or _DefaultSimulationBoundFoundryValuePort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            artifact_store=artifact_store,
             eval_safety_verifier=eval_safety_verifier,
             observation_to_contract_manifest=observation_to_contract_manifest,
             observation_family=observation_family,
@@ -4364,6 +4439,7 @@ class GenerationCycleController:
             }
         reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
             repo_root=self._repo_root,
+            artifact_store=self._artifact_store,
             owner_gateway=RealValueOwnerGateway(
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,

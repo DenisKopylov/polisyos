@@ -25,7 +25,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -1301,15 +1300,17 @@ class RealAcquisitionOwnerGateway:
     """Production gateway that records real Fabric/SKG/OpenAlex owner responses.
 
     Routine validators never instantiate this gateway. The live lane supplies
-    the needed roots and budget, this gateway calls the existing owners, and
-    the returned artifact is then replayed by ``RecordedAcquisitionOwnerGateway``
-    in offline lanes.
+    the runtime's tenant-bound artifact store, roots, and budget, this gateway
+    calls the existing owners, and the returned artifact is then replayed by
+    ``RecordedAcquisitionOwnerGateway`` in offline lanes. Standalone callers
+    that need persisted SKG capture must supply an explicit artifact store.
     """
 
     def __init__(
         self,
         *,
         repo_root: Path,
+        artifact_store: artifacts.ArtifactStore | None = None,
         network_counter: AcquisitionNetworkCallCounter | None = None,
         allow_openalex_network: bool = False,
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
@@ -1318,6 +1319,7 @@ class RealAcquisitionOwnerGateway:
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
         self._repo_root = Path(repo_root)
+        self._artifact_store = artifact_store
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
@@ -1446,7 +1448,6 @@ class RealAcquisitionOwnerGateway:
             else:
                 service = RetrievalService(
                     curated_dir=curated_dir,
-                    cas_root=self._repo_root / ".n7-live-cas",
                     dataset_catalog=graph,
                 )
                 response = service.resolve(request)
@@ -1510,6 +1511,12 @@ class RealAcquisitionOwnerGateway:
         )
         from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH
 
+        store = self._artifact_store
+        if store is None:
+            # A live owner may write only through the runtime's tenant-bound store.
+            # Standalone demonstrations must receive an explicit test-owned store.
+            return None
+
         source = self._skg_source_snapshot
         if source is None:
             path = self._repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
@@ -1522,13 +1529,8 @@ class RealAcquisitionOwnerGateway:
         request = _source_grounding_request(record, spec)
         owner = ProductionCG2CalibrationSource(
             source=source,
-            store=build_artifact_store(
-                ArtifactStoreConfig(
-                    backend="filesystem",
-                    root=str(self._repo_root / ".n7-live-cas"),
-                ),
-            ),
-            scratch=self._repo_root / ".n7-live-cas" / "source-query-scratch",
+            store=store,
+            scratch=self._repo_root / ".n7-live-scratch" / "source-query",
         )
         self._skg_calibration_source = owner
         ref = owner.produce(request)

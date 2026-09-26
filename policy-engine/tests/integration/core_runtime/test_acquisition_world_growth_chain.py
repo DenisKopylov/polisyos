@@ -70,6 +70,82 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
 
 
 @pytest.mark.asyncio
+async def test_revised_cycle_basis_survives_served_native_admission_and_reentry(
+    tmp_path, monkeypatch
+):
+    """A costed cycle N>0 re-enters on its exact revision basis, under stable subject S."""
+
+    install_fixture_wdi_cost_basis(monkeypatch)
+    control = _build_control_service(tmp_path / "control")
+    source_root = Path(__file__).resolve().parents[3]
+    closure, _ = await persist_wdi_route(
+        control,
+        generation_cycle_repo_root=source_root,
+        revised_source=True,
+    )
+    subject = closure.design_problem_ref
+    basis = closure.design_problem_basis_ref
+    assert closure.source_cycle.cycle_index == 1
+    assert subject == closure.generation_run.design_problem_ref
+    assert subject == closure.source_cycle.design_problem_ref
+    assert subject != basis
+    assert closure.design_problem_basis == closure.generation_run.cycles[0].revision_request.revised_problem
+    assert closure.generation_run.cycles[1].design_problem_basis_ref == basis
+
+    case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
+    quarantined = case.port.execute(closure)
+    assert quarantined.disposition == "quarantined_no_growth"
+    case.appoint_native_policy()
+    case.port.prepare_route_execution(closure)
+    committed = case.port.execute(closure)
+    assert committed.disposition == "world_committed"
+    assert committed.admitted_observation_delta == 1
+    assert case.bridge.artifact_store is control._artifact_store
+
+    reentry_ref = case.bridge.resume(closure, committed.owner_receipt_refs)
+    reentry = AcquisitionOverlayReentryReceipt.model_validate(
+        canon.from_canonical_bytes(control._artifact_store.get_bytes(reentry_ref))
+    )
+    growth = case.bridge.project_growth(closure)
+    assert growth is not None
+    assert reentry.source_run_id == closure.generation_run.run_id
+    assert reentry.design_problem_ref == subject
+    assert reentry.source_cycle_index == 1
+    assert reentry.new_cycle.cycle_index == 2
+    assert reentry.new_cycle.design_problem_ref == subject
+    assert reentry.new_cycle.design_problem_basis_ref == basis
+    assert reentry.passport_id == growth.passport_id
+    assert reentry.epoch_id == growth.selection.epoch_id
+    assert reentry.overlay_receipt_ref == committed.overlay_admission_receipt_ref
+    assert reentry.admitted_observation_count == (
+        growth.previously_active_observations + growth.admitted_observation_delta
+    )
+    assert reentry.semantic_epoch_ref == str(growth.activation.semantic_epoch_stamp.epoch_ref)
+
+    prior = closure.generation_run.cycles[0]
+    revised = prior.revision_request.revised_problem
+    changed_basis = revised.model_copy(
+        update={
+            "runtime_hints": {
+                **revised.runtime_hints,
+                "r13_basis_removal_probe": "changed-with-subject-and-receipt-markers-retained",
+            }
+        }
+    )
+    changed_request = prior.revision_request.model_copy(update={"revised_problem": changed_basis})
+    changed_prior = prior.model_copy(update={"revision_request": changed_request})
+    changed_run = closure.generation_run.model_copy(
+        update={"cycles": (changed_prior, *closure.generation_run.cycles[1:])}
+    )
+    changed_closure = closure.model_copy(update={"generation_run": changed_run})
+    assert changed_closure.design_problem_ref == subject
+    assert changed_closure.route_id == closure.route_id
+    assert changed_closure.source_cycle.design_problem_basis_ref == basis
+    with pytest.raises(AcquisitionRouteClosureError, match="source_cycle_basis_chain_invalid"):
+        case.bridge._validate_reentry(changed_closure, growth, reentry)
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("guarded_cas", [False, True])
 async def test_actual_wdi_admits_delta_and_reenters_same_case(
     tmp_path, monkeypatch, request, guarded_cas

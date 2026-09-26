@@ -330,6 +330,7 @@ class AcquisitionMovementService:
             or reentry.source_candidate_ref != closure.source_cycle.selected_candidate_ref
             or reentry.new_cycle.cycle_index != reentry.source_cycle_index + 1
             or reentry.new_cycle.design_problem_ref != closure.design_problem_ref
+            or reentry.new_cycle.design_problem_basis_ref != closure.design_problem_basis_ref
             or reentry.new_cycle.terminal_kind is None
         ):
             raise ValueError("supplier_reentry_binding_mismatch")

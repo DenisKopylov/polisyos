@@ -17,9 +17,11 @@ from polisyos.runtime.quality.acquisition_planner import (
     produce_acquisition_cost_basis_record,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
-from polisyos.runtime.quality.generation_cycle import (  # noqa: TC001
+from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRecord,
     GenerationCycleRun,
+    _cycle_basis_ref,
+    _problem_ref,
 )
 
 if TYPE_CHECKING:
@@ -57,6 +59,57 @@ class AcquisitionRouteClosureError(ValueError):
 
 class AcquisitionRouteRecoveryRequired(RuntimeError):  # noqa: N818 - exact lifecycle signal
     """Raised after the durable world-commit head requires re-entry recovery."""
+
+
+def _resolve_source_cycle_problem_basis(
+    *,
+    generation_run: GenerationCycleRun,
+    source_cycle: GenerationCycleRecord,
+    design_problem: DesignProblem,
+    design_problem_ref: str,
+) -> DesignProblem:
+    """Recompute the source cycle's basis from the same run's revision chain."""
+
+    if (
+        _problem_ref(design_problem) != design_problem_ref
+        or generation_run.design_problem_ref != design_problem_ref
+    ):
+        raise AcquisitionRouteClosureError("source_cycle_subject_binding_mismatch")
+    indexes = tuple(cycle.cycle_index for cycle in generation_run.cycles)
+    if len(indexes) != len(set(indexes)):
+        raise AcquisitionRouteClosureError("source_cycle_basis_chain_invalid")
+    matching_source = tuple(
+        cycle for cycle in generation_run.cycles
+        if cycle.cycle_index == source_cycle.cycle_index
+    )
+    if matching_source != (source_cycle,):
+        raise AcquisitionRouteClosureError("source_cycle_not_in_generation_run")
+    prefix = tuple(
+        sorted(
+            (
+                cycle
+                for cycle in generation_run.cycles
+                if cycle.cycle_index <= source_cycle.cycle_index
+            ),
+            key=lambda cycle: cycle.cycle_index,
+        )
+    )
+    if tuple(cycle.cycle_index for cycle in prefix) != tuple(
+        range(source_cycle.cycle_index + 1)
+    ):
+        raise AcquisitionRouteClosureError("source_cycle_basis_predecessor_missing")
+
+    expected_basis = design_problem
+    for cycle in prefix:
+        if (
+            cycle.design_problem_ref != design_problem_ref
+            or _cycle_basis_ref(cycle) != _problem_ref(expected_basis)
+        ):
+            raise AcquisitionRouteClosureError("source_cycle_basis_chain_invalid")
+        if cycle.cycle_index == source_cycle.cycle_index:
+            return expected_basis
+        expected_basis = cycle.revision_request.revised_problem
+    raise AcquisitionRouteClosureError("source_cycle_basis_unresolved")
 
 
 class AcquisitionRoutePhaseReceipt(BaseModel):
@@ -203,6 +256,23 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
+    @property
+    def design_problem_basis(self) -> DesignProblem:
+        """Recompute the concrete source-cycle basis from the recorded revision chain."""
+
+        return _resolve_source_cycle_problem_basis(
+            generation_run=self.generation_run,
+            source_cycle=self.source_cycle,
+            design_problem=self.design_problem,
+            design_problem_ref=self.design_problem_ref,
+        )
+
+    @property
+    def design_problem_basis_ref(self) -> str:
+        """Return the recomputed hash of the concrete source-cycle basis."""
+
+        return _problem_ref(self.design_problem_basis)
+
 
 class AcquisitionRouteLoop:
     """Resolve verified closures and own acquisition phase orchestration."""
@@ -300,6 +370,12 @@ class AcquisitionRouteLoop:
         if len(costed) != 1:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
         generation_run, source_cycle = costed[0]
+        _resolve_source_cycle_problem_basis(
+            generation_run=generation_run,
+            source_cycle=source_cycle,
+            design_problem=compiled.design_problem,
+            design_problem_ref=compiled.design_problem_ref,
+        )
         report = source_cycle.acquisition_routing_report
         cost = source_cycle.acquisition_cost_basis_record
         if report is None or cost is None or len(report.acquisition_records) != 1:

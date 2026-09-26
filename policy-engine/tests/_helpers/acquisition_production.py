@@ -82,6 +82,13 @@ class _WDIGap:
         )
 
 
+class _RevisedCycleWdiValuePort:
+    def __call__(self, **kwargs):
+        if kwargs.get("cycle_index") == 1:
+            return _WDIGap()(**kwargs)
+        return fixtures.PendingN8ValuePort()(**kwargs)
+
+
 async def persist_wdi_route(
     control,
     *,
@@ -89,6 +96,7 @@ async def persist_wdi_route(
     cell_id: str = "cell-a",
     run_id: str = "run-acquisition",
     generation_cycle_repo_root: Path | None = None,
+    revised_source: bool = False,
 ):
     """Install a real compiled fixture case into the supplied app's canonical owners."""
     problem = fixtures._problem("served_wdi_acquisition")
@@ -107,21 +115,44 @@ async def persist_wdi_route(
         parent_child_edges=(),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
+    if revised_source:
+        def cycle_controller_factory(
+            _node_ref: str, _problem: object
+        ) -> GenerationCycleController:
+            return GenerationCycleController(
+                generation_port=fixtures._SameCandidateNewBasisGenerator(),
+                grounding_port=fixtures._AlwaysLowGrounding(),
+                value_port=_RevisedCycleWdiValuePort(),
+                repo_root=generation_cycle_repo_root,
+            )
+
+        cycle_budget = RecursiveCycleBudget(
+            max_depth=0, max_nodes=1, min_cycles_per_leaf=2, max_cycles_per_leaf=2
+        )
+    else:
+        def cycle_controller_factory(
+            _node_ref: str, _problem: object
+        ) -> GenerationCycleController:
+            return GenerationCycleController(
+                generation_port=fixtures._CgfGenerationPort(
+                    target_world_slots=("government.balance",)
+                ),
+                value_port=_WDIGap(),
+                repo_root=generation_cycle_repo_root,
+            )
+
+        cycle_budget = RecursiveCycleBudget(
+            max_depth=0, max_nodes=1, min_cycles_per_leaf=1, max_cycles_per_leaf=1
+        )
     controller = RecursiveGenerationCycleController.for_contract_testing(
-        cycle_controller_factory=lambda *_: GenerationCycleController(
-            generation_port=fixtures._CgfGenerationPort(target_world_slots=("government.balance",)),
-            value_port=_WDIGap(),
-            repo_root=generation_cycle_repo_root,
-        ),
+        cycle_controller_factory=cycle_controller_factory,
         repo_root=generation_cycle_repo_root,
     )
     run = await controller.run(
         graph,
         problems_by_node={root_ref: problem},
         budget_state=fixtures._budget(),
-        recursive_budget=RecursiveCycleBudget(
-            max_depth=0, max_nodes=1, min_cycles_per_leaf=1, max_cycles_per_leaf=1
-        ),
+        recursive_budget=cycle_budget,
     )
     payload = {
         "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,

@@ -795,7 +795,7 @@ class AcquisitionWorldGrowthBridge:
                 controller.reenter_after_active_acquisition_overlay(
                     original_run=closure.generation_run,
                     source_cycle=closure.source_cycle,
-                    problem=closure.design_problem,
+                    problem=closure.design_problem_basis,
                     overlay_receipt=admitted,
                     baseline_path=self.authority.baseline_path,
                     overlay_path=overlay_path,
@@ -834,6 +834,8 @@ class AcquisitionWorldGrowthBridge:
             or receipt.design_problem_ref != closure.design_problem_ref
             or receipt.source_cycle_index != closure.source_cycle.cycle_index
             or receipt.new_cycle.cycle_index != closure.source_cycle.cycle_index + 1
+            or receipt.new_cycle.design_problem_ref != closure.design_problem_ref
+            or receipt.new_cycle.design_problem_basis_ref != closure.design_problem_basis_ref
             or receipt.overlay_receipt_ref
             != str(growth.activation.overlay_admission_receipt_ref.artifact_id)
             or receipt.admitted_observation_count

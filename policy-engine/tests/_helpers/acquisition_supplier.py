@@ -12,11 +12,11 @@ from tests._helpers.acquisition_production import (
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
 
 
-async def build_supplier_terminal_case(tmp_path, monkeypatch):
+async def build_supplier_terminal_case(tmp_path, monkeypatch, *, revised_source: bool = False):
     """Run actual live/epoch/N6/sink owners with an explicitly synthetic decision input."""
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(tmp_path / "control")
-    closure, _ = await persist_wdi_route(control)
+    closure, _ = await persist_wdi_route(control, revised_source=revised_source)
     case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
     quarantined = case.port.execute(closure)
     assert quarantined.disposition == "quarantined_no_growth"

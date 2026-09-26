@@ -49,6 +49,7 @@ def captured(tmp_path):
         substrate_registry=_substrate_registry().model_dump(mode="json"),
     )
     gap = n7.value_input_world_knowledge_requirement_gap(claim_ref="claim:avg_income")
+    store = artifacts.FileSystemCAS(tmp_path / "explicit-source-store")
     receipt = n7.run_acquisition_closed_loop(
         run_id="source-live",
         acquisition_request={"cycle_index": 1},
@@ -56,14 +57,16 @@ def captured(tmp_path):
         world_snapshot=world,
         design_problem=problem,
         owner_gateway=n7.RealAcquisitionOwnerGateway(
-            repo_root=tmp_path, skg_source_snapshot=source
+            repo_root=tmp_path,
+            artifact_store=store,
+            skg_source_snapshot=source,
         ),
     )
     assert n7.validate_acquisition_receipt(receipt) == ()
     owner = ProductionCG2CalibrationSource(
         source=source,
-        store=artifacts.FileSystemCAS(tmp_path / ".n7-live-cas"),
-        scratch=tmp_path / ".n7-live-cas" / "source-query-scratch",
+        store=store,
+        scratch=tmp_path / "source-query-scratch",
     )
     return gap, problem, world, receipt.owner_artifacts[0], owner
 

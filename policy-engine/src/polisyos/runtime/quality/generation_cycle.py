@@ -172,14 +172,6 @@ GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
 )
 _N7_ACQ01_ROUTE_SCHEMA_VERSION = "policyos.runtime.acq01_route.v1"
-
-
-def _has_n7_acq01_route_payload(payload: object) -> bool:
-    """Whether the route projection has the exact container type consumed by N7."""
-
-    return isinstance(payload, Mapping) and isinstance(
-        payload.get("acq01_route"), Mapping
-    )
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
 )
@@ -188,6 +180,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_cycle_substrate_context_invalid",
         "n7_cycle_substrate_context_mismatch",
         "n7_requirement_gap_invalid",
+        "n7_runtime_store_not_supplied",
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
     }
@@ -4210,13 +4203,30 @@ class GenerationCycleController:
         """
 
         problem_ref = _problem_ref(problem)
-        if (
-            original_run.design_problem_ref != problem_ref
-            or _cycle_basis_ref(source_cycle) != problem_ref
-            or tuple(
-                row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
+        source_matches = tuple(
+            row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
+        )
+        if source_cycle.cycle_index == 0:
+            expected_source_basis_ref = original_run.design_problem_ref
+        else:
+            previous_matches = tuple(
+                row
+                for row in original_run.cycles
+                if row.cycle_index == source_cycle.cycle_index - 1
             )
-            != (source_cycle,)
+            if (
+                len(previous_matches) != 1
+                or previous_matches[0].design_problem_ref != original_run.design_problem_ref
+            ):
+                raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
+            expected_source_basis_ref = _problem_ref(
+                previous_matches[0].revision_request.revised_problem
+            )
+        if (
+            source_cycle.design_problem_ref != original_run.design_problem_ref
+            or source_matches != (source_cycle,)
+            or expected_source_basis_ref != problem_ref
+            or _cycle_basis_ref(source_cycle) != problem_ref
         ):
             raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
         if source_cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
@@ -4356,7 +4366,8 @@ class GenerationCycleController:
             stable_design_problem_ref=original_run.design_problem_ref,
         )
         if (
-            _cycle_basis_ref(new_cycle) != problem_ref
+            new_cycle.design_problem_ref != original_run.design_problem_ref
+            or _cycle_basis_ref(new_cycle) != problem_ref
             or new_cycle.cycle_index != next_cycle_index
             or any(summary.cycle_index != next_cycle_index for summary in summaries)
         ):
@@ -4364,7 +4375,7 @@ class GenerationCycleController:
         source_receipt = self._source_preservation_receipt()
         return AcquisitionOverlayReentryReceipt.issue(
             source_run_id=original_run.run_id,
-            design_problem_ref=problem_ref,
+            design_problem_ref=original_run.design_problem_ref,
             source_cycle_index=source_cycle.cycle_index,
             source_candidate_ref=source_cycle.selected_candidate_ref,
             overlay_receipt_ref=str(overlay_receipt.receipt_ref.artifact_id),
@@ -4647,15 +4658,17 @@ class GenerationCycleController:
         if not isinstance(acquisition_request, Mapping):
             return None
         specs = self._n7_data_requirement_specs(problem, acquisition_request=acquisition_request)
+        if not specs:
+            return None
+        owner_gateway = self._n7_owner_gateway(problem)
+        if owner_gateway is None:
+            raise GenerationCycleError("n7_runtime_store_not_supplied")
         world_snapshot = self._n7_world_snapshot(
             problem,
             cycle=cycle,
             acquisition_request=acquisition_request,
             specs=specs,
         )
-        owner_gateway = self._n7_owner_gateway(problem)
-        if not specs:
-            return None
 
         return run_acquisition_closed_loop(
             run_id=f"n7-reentry:{problem.design_problem_id}:{cycle.cycle_index}",
@@ -4877,13 +4890,24 @@ class GenerationCycleController:
             world_model_record_ref=(context_world_ref or world_ref_hint),
         )
 
-    def _n7_owner_gateway(self, problem: DesignProblem) -> object:
+    def _n7_owner_gateway(self, problem: DesignProblem) -> object | None:
         hinted = problem.runtime_hints.get("n7_owner_gateway")
         if hinted is not None:
             return hinted
         if self._acquisition_owner_gateway is not None:
             return self._acquisition_owner_gateway
-        return RealAcquisitionOwnerGateway(repo_root=self._repo_root or Path.cwd())
+        if self._authority_scope == "production" and self._promotion_runtime is None:
+            # No runtime store means the default live owner cannot preserve tenant
+            # custody. Keep the candidate's acquisition gap typed and retryable.
+            return None
+        return RealAcquisitionOwnerGateway(
+            repo_root=self._repo_root or Path.cwd(),
+            artifact_store=(
+                self._promotion_runtime.store
+                if self._promotion_runtime is not None
+                else None
+            ),
+        )
 
     def _validate_n7_acq01_measurement_root_custody(
         self,
@@ -5425,14 +5449,14 @@ class GenerationCycleController:
         candidate_content_hash: str,
         target_world_slots: tuple[str, ...],
     ) -> CycleSubstrateContext | None:
-        """Rebuild a route-owned WMR/context from the accepted CAS snapshot.
+        """Rebuild a contract-test WMR/context from a local CAS snapshot.
 
         The registry-only N7 projection intentionally has no route payload and
         returns ``None`` so the existing unresolved-world negative guard remains
-        active.  A versioned ``acq01_route`` is different: its owner artifact
-        must point at one CAS, one admitted snapshot, and one persisted registry
-        before the existing N3 and cycle-context builders are allowed to mint a
-        fresh WMR.
+        active. A versioned ``acq01_route`` can exercise the old projection only
+        in the explicit contract-testing lane. Production world growth resumes
+        through AcquisitionWorldGrowthBridge after passport and active-epoch
+        admission; this local helper is not that owner.
         """
 
         route_artifacts = tuple(
@@ -5761,18 +5785,22 @@ class GenerationCycleController:
                 "n7_receipt_invalid",
                 json.dumps(receipt_issues, sort_keys=True),
             )
-        if self._authority_scope != "contract_testing" and any(
-            _has_n7_acq01_route_payload(artifact.payload)
-            for artifact in acquisition_receipt.owner_artifacts
-        ):
-            # The local FileTabular route is a contract fixture, not a
-            # production world-growth owner.  Preserve the candidate's
-            # acquisition gap and name the limitation before reading its
-            # capture_store_root, consuming grown_world_after_ref, or running N5.
+        if self._authority_scope != "contract_testing":
+            # This local receipt is not Data Forge native admission evidence:
+            # it carries no independently resolved OverlayAdmissionReceipt,
+            # passport, or active epoch. Preserve the candidate's acquisition
+            # gap before consuming any owner payload or grown-world reference.
+            # The canonical served path resumes only through
+            # AcquisitionWorldGrowthBridge after native admission.
+            reason = (
+                "n7_runtime_store_not_supplied"
+                if self._promotion_runtime is None
+                else "n7_native_admission_not_established"
+            )
             return (
                 _cycle_with_n7_route_failure(
                     cycle,
-                    reason="n7_acq01_route_not_admitted",
+                    reason=reason,
                 ),
                 cycle_summaries,
             )

@@ -39,10 +39,12 @@ def _board(service, supplier):
     )
 
 
-def _supplier(tmp_path, monkeypatch):
+def _supplier(tmp_path, monkeypatch, *, revised_source: bool = False):
     from tests._helpers.acquisition_supplier import build_supplier_terminal_case
 
-    return asyncio.run(build_supplier_terminal_case(tmp_path, monkeypatch))
+    return asyncio.run(
+        build_supplier_terminal_case(tmp_path, monkeypatch, revised_source=revised_source)
+    )
 
 
 def _movement_service(supplier):
@@ -110,6 +112,78 @@ def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
         if item.source_id == "n13b-global-deeper-terminal"
     )
     assert "per_row_movement" in global_source.may_not_use_for
+
+
+def test_revised_source_basis_survives_served_admission_reentry_and_movement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A revised costed cycle preserves stable S and replays exact basis B to the board."""
+
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+
+    supplier = _supplier(tmp_path / "supplier", monkeypatch, revised_source=True)
+    closure = supplier.closure
+    subject = closure.design_problem_ref
+    basis = closure.design_problem_basis_ref
+    assert closure.source_cycle.cycle_index == 1
+    assert subject == closure.generation_run.design_problem_ref
+    assert subject == closure.source_cycle.design_problem_ref
+    assert subject != basis
+    assert closure.design_problem_basis == closure.generation_run.cycles[0].revision_request.revised_problem
+
+    unallocated = _movement_service(supplier)
+    movement = unallocated._derive_movement(supplier.supplier_receipt_ref)
+    assert movement.design_problem_ref == subject
+    assert movement.source_cycle_index == 1
+    assert movement.new_cycle_index == 2
+
+    selected = configured_movement_service(unallocated, movement, tmp_path / "gy-owner")
+    admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
+    assert admitted.status == "admitted", admitted.reason
+    assert admitted.movement_record is not None
+    row = next(
+        row for row in _board(selected, supplier).get().payload.rows if row.row_id == movement.row_id
+    )
+    assert row.movement_records == (admitted.movement_record,)
+
+    reentry = AcquisitionOverlayReentryReceipt.model_validate(
+        canon.from_canonical_bytes(
+            supplier.control._artifact_store.get_bytes(movement.reentry_receipt_ref)
+        )
+    )
+    assert reentry.design_problem_ref == subject
+    assert reentry.new_cycle.design_problem_ref == subject
+    assert reentry.new_cycle.design_problem_basis_ref == basis
+    growth = supplier.case.bridge.project_growth(closure)
+    assert growth is not None
+
+    prior = closure.generation_run.cycles[0]
+    revised = prior.revision_request.revised_problem
+    changed_basis = revised.model_copy(
+        update={
+            "runtime_hints": {
+                **revised.runtime_hints,
+                "r13_basis_removal_probe": "changed-with-subject-and-route-markers-retained",
+            }
+        }
+    )
+    changed_prior = prior.model_copy(
+        update={
+            "revision_request": prior.revision_request.model_copy(
+                update={"revised_problem": changed_basis}
+            )
+        }
+    )
+    changed_run = closure.generation_run.model_copy(
+        update={"cycles": (changed_prior, *closure.generation_run.cycles[1:])}
+    )
+    changed_closure = closure.model_copy(update={"generation_run": changed_run})
+    assert changed_closure.design_problem_ref == subject
+    assert changed_closure.route_id == closure.route_id
+    assert changed_closure.source_cycle.design_problem_basis_ref == basis
+    with pytest.raises(AcquisitionRouteClosureError, match="source_cycle_basis_chain_invalid"):
+        supplier.case.bridge._validate_reentry(changed_closure, growth, reentry)
 
 
 def test_remove_decisive_native_bytes_keeps_receipt_markers_but_retracts_board_movement(

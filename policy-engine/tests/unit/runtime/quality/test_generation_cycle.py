@@ -3871,8 +3871,8 @@ async def test_revision_changes_when_prior_terminal_changes() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("route_marker", [None, "route-marker", ["not", "a", "route"]])
-async def test_production_n7_receiver_preserves_nonroute_owner_artifacts(route_marker) -> None:
-    """A real owner artifact with a non-Mapping marker stays on the N7 path."""
+async def test_production_n7_route_less_claim_cannot_reenter_n5(route_marker, monkeypatch) -> None:
+    """Route-less growth markers cannot replace native admission evidence."""
 
     data_spec = _n7_data_requirement_spec()
     problem = _problem().model_copy(
@@ -3929,6 +3929,28 @@ async def test_production_n7_receiver_preserves_nonroute_owner_artifacts(route_m
             capture_mode="local_substrate_owner",
         ),
     )
+    assert artifact.payload["acq01_route"] == route_marker
+    assert artifact.payload["acquired_substrate_registrations"]
+
+    emitted_local_receipts = []
+    original_acquisition = generation_cycle_module.run_acquisition_closed_loop
+
+    def capture_local_receipt(*args, **kwargs):
+        receipt = original_acquisition(*args, **kwargs)
+        emitted_local_receipts.append(receipt)
+        return receipt
+
+    n5_calls = 0
+    original_joint_value_node = GenerationCycleController._joint_value_node
+
+    def count_joint_value_node(self, state):
+        nonlocal n5_calls
+        if self._authority_scope == "production":
+            n5_calls += 1
+        return original_joint_value_node(self, state)
+
+    monkeypatch.setattr(generation_cycle_module, "run_acquisition_closed_loop", capture_local_receipt)
+    monkeypatch.setattr(GenerationCycleController, "_joint_value_node", count_joint_value_node)
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
@@ -3943,11 +3965,114 @@ async def test_production_n7_receiver_preserves_nonroute_owner_artifacts(route_m
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
     cycle = run.cycles[0]
-    assert cycle.acquisition_receipt is not None
-    receipt = cycle.acquisition_receipt
-    assert receipt["owner_artifacts"][0]["payload"]["acq01_route"] == route_marker
-    assert cycle.counterexample.diagnostic.code != (
-        "n6.acquisition.n7_acq01_route_not_admitted"
+    assert len(emitted_local_receipts) == 1
+    local_receipt = emitted_local_receipts[0]
+    assert local_receipt.owner_artifacts[0].payload["acq01_route"] == route_marker
+    assert local_receipt.owner_artifacts[0].payload["acquired_substrate_registrations"]
+    assert local_receipt.grown_world_after_ref
+    assert "same_cycle_reentry" in local_receipt.authority_boundary["authoritative_for"]
+    assert "affected_region_revalidation" in local_receipt.authority_boundary["authoritative_for"]
+    assert n5_calls == 1  # initial N5 only; the unadmitted local WMR is never consumed
+    assert cycle.acquisition_receipt is None
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.voi_decision.next_action == "escalate"
+    assert cycle.search_iteration.status == "acquisition_required"
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_runtime_store_not_supplied"
+    )
+
+
+@pytest.mark.asyncio
+async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Missing owner storage limits N7 while preserving the candidate."""
+
+    data_spec = _n7_data_requirement_spec()
+    problem = _problem("production_n7_without_runtime_store").model_copy(
+        update={
+            "runtime_hints": {
+                "n7_data_requirement_specs": (data_spec,),
+                "n7_world_snapshot": AcquisitionWorldSnapshot(
+                    world_ref="world://production-n7-without-runtime-store",
+                    known_slots=("owner_panel_missing",),
+                    dependency_index={"owner_panel_missing": ("candidate_cycle_1",)},
+                    design_revalidation_stages={
+                        "candidate_cycle_1": (
+                            "identification",
+                            "calibration",
+                            "value_set",
+                            "grounding",
+                        )
+                    },
+                    substrate_registry=_n7_substrate_registry().model_dump(mode="json"),
+                ),
+                "n7_useful_design_rate_before": 0.0,
+            }
+        }
+    )
+    atom = _canonical_n7_test_atom(
+        problem,
+        candidate_id="candidate_cycle_1",
+        target_world_slot="owner_panel_missing",
+    )
+    acquisition_calls = 0
+    original_acquisition = generation_cycle_module.run_acquisition_closed_loop
+
+    def count_acquisition(*args, **kwargs):
+        nonlocal acquisition_calls
+        acquisition_calls += 1
+        return original_acquisition(*args, **kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "run_acquisition_closed_loop",
+        count_acquisition,
+    )
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+        authority_scope="production",
+    )
+
+    assert controller._n7_owner_gateway(problem) is None
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert acquisition_calls == 0
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.candidate_ids
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_runtime_store_not_supplied"
+    )
+    assert not (tmp_path / ".n7-live-cas").exists()
+
+
+@pytest.mark.asyncio
+async def test_production_candidate_without_n7_receipt_is_not_refused() -> None:
+    """The admission boundary limits world growth, not ordinary candidate work."""
+
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_StableShadowGrounding(),
+        value_port=_ReadyValuePort(),
+        authority_scope="production",
+    )
+
+    run = await controller.run(
+        _problem("production_candidate_control"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+
+    assert run.cycles
+    assert run.cycles[0].candidate_ids
+    assert run.terminal_status != "blocked"
+    assert run.cycles[0].terminal_kind == "frontier_stable"
+    assert run.cycles[0].counterexample.diagnostic.code != (
+        "n6.acquisition.n7_native_admission_not_established"
     )
 
 

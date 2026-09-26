@@ -1216,7 +1216,10 @@ def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(
             acquisition_request={"cycle_index": 1},
             data_requirement_specs=(gap,),
             world_snapshot=AcquisitionWorldSnapshot(world_ref="world:actual"),
-            owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path),
+            owner_gateway=RealAcquisitionOwnerGateway(
+                repo_root=tmp_path,
+                artifact_store=FileSystemCAS(tmp_path / "n7-test-owner-cas"),
+            ),
         )
 
 
@@ -1462,6 +1465,7 @@ def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path:
     )
     gateway = RealAcquisitionOwnerGateway(
         repo_root=tmp_path,
+        artifact_store=FileSystemCAS(tmp_path / "n7-test-owner-cas"),
         captured_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
 
@@ -1536,7 +1540,11 @@ def test_skg_source_capture_replays_exact_current_request_and_cannot_write_world
         data_requirement_specs=specs,
         world_snapshot=world,
         design_problem=problem,
-        owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path, skg_source_snapshot=source),
+        owner_gateway=RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            artifact_store=FileSystemCAS(tmp_path / "n7-test-owner-cas"),
+            skg_source_snapshot=source,
+        ),
     )
     assert len(receipt.owner_artifacts) == 1
     resolution = receipt.owner_artifacts[0].payload["owner_response"]["resolution"]
@@ -1567,7 +1575,10 @@ def test_every_skg_intake_rejects_acquired_projection_even_with_valid_markers(
     record = plan_requirement_gap_acquisition(
         run_id="skg-forgery", requirement_gaps=(gap,)
     ).acquisition_records[0]
-    artifact = RealAcquisitionOwnerGateway(repo_root=tmp_path).acquire(
+    artifact = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        artifact_store=FileSystemCAS(tmp_path / "n7-test-owner-cas"),
+    ).acquire(
         record=record, compiled_requirement_spec=spec
     )
     payload = json.loads(json.dumps(artifact.payload))

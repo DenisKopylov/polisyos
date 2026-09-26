@@ -121,6 +121,7 @@ from polisyos.runtime.quality.generation_cycle import (
     ValueDataProfile,
     ValueGateReceipt,
     ValueOwnerAccessError,
+    ValueOwnerRow,
     ValuePortObservation,
     ValueTransportReceipt,
     _build_candidate_selection_diagram,
@@ -2735,6 +2736,87 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.acquisition_requirement is not None
     assert observation.acquisition_requirement.metadata["requirement"]["operator"] == "any_of"
     assert observation.acquisition_requirement.metadata["satisfaction_status"] == "unsatisfied"
+
+
+def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An ordinary N8 call accepts the advisor receipt against recomputed context."""
+
+    candidate = _avg_income_candidate()
+    problem = _avg_income_problem()
+    world = _world_record()
+    rows = []
+    for unit_index in range(3):
+        for period_id in range(4):
+            row_fields = {
+                "unit_id": f"unit_{unit_index}",
+                "period_id": period_id,
+                "outcome_value": float(period_id + unit_index),
+                "source_row_content_hashes": (_hash("a"),),
+            }
+            rows.append(
+                ValueOwnerRow(
+                    **row_fields,
+                    row_content_hash=gy_content_hash(row_fields),
+                )
+            )
+    rows_payload = [row.model_dump(mode="json") for row in rows]
+    profile_payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": "avg_income",
+        "rows": rows_payload,
+        "owner_row_count": len(rows_payload),
+        "unit_count": 3,
+        "period_count": 4,
+        "available_data_modalities": ["panel", "tabular"],
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "test://synthetic-n8-owner-profile",
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    profile = ValueDataProfile.model_validate(
+        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
+    )
+
+    class SyntheticOwnerGateway:
+        def load_value_data_profile(self, **kwargs: object) -> ValueDataProfile:
+            assert kwargs["candidate"] is candidate
+            assert kwargs["problem"] is problem
+            assert kwargs["world_record"] is world
+            return profile
+
+    accepted_contexts: list[str] = []
+    verify_context = MethodSelectionReceipt.verify_selection_context
+
+    def capture_context(
+        receipt: MethodSelectionReceipt, expected_selection_context_hash: str
+    ) -> MethodSelectionReceipt:
+        accepted_contexts.append(expected_selection_context_hash)
+        return verify_context(receipt, expected_selection_context_hash)
+
+    monkeypatch.setattr(
+        MethodSelectionReceipt, "verify_selection_context", capture_context
+    )
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
+    observation = FoundryValuePort(
+        evaluation_context=_simulation_execution_context(
+            candidate=candidate, simulation=simulation, problem=problem
+        ),
+        owner_gateway=SyntheticOwnerGateway(),
+    )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
+    assert observation.method_selection_receipt is not None
+    assert observation.method_selection_receipt.selection_authority == (
+        "foundry_registry_advisor"
+    )
+    assert observation.selected_method_fqn == (
+        observation.method_selection_receipt.selected_method_fqn
+    )
+    assert accepted_contexts == [
+        observation.method_selection_receipt.selection_context_hash
+    ]
 
 
 def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(

@@ -47,6 +47,8 @@ __all__ = [
     "suggest_plan_node_alternatives",
 ]
 
+_RECEIPT_IMPORTS = {"MethodSelectionAlternative", "MethodSelectionReceipt"}
+
 _REQUIREMENT_IMPORTS = {
     "select_method_candidates_for_requirements",
 }
@@ -58,6 +60,8 @@ def __getattr__(name: str) -> object:
     module_name = (
         "polisyos.foundry.methods.selection.requirements"
         if name in _REQUIREMENT_IMPORTS
+        else "polisyos.foundry.methods.selection.receipt"
+        if name in _RECEIPT_IMPORTS
         else "polisyos.foundry.methods.selection.advisor"
     )
     value = getattr(import_module(module_name), name)

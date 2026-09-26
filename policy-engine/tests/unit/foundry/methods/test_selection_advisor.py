@@ -2,8 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
+import subprocess
+import sys
+import sysconfig
 import time
 from dataclasses import replace
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -2377,3 +2383,147 @@ def test_input_contract_selector_retains_failed_intake_and_complete_registered_p
     assert selected.registry_discovery_errors == tuple(report.discovery_errors)
     assert selected.registry_bootstrap_error is not None
     assert selected.registry_bootstrap_error in selected.blockers
+
+def _run_source_free_receipt_probe(
+    tmp_path: Path,
+    *,
+    remove_receipt_route: bool,
+    probe_source: str,
+) -> subprocess.CompletedProcess[str]:
+    """Run the receipt facade in a minimal install layout without advisor.py."""
+
+    product_root = Path(__file__).resolve().parents[4]
+    source_root = product_root / "src" / "polisyos"
+    package_root = tmp_path / "site" / "polisyos"
+    package_files = (
+        "__init__.py",
+        "common/__init__.py",
+        "common/logger.py",
+        "common/serialization.py",
+        "foundry/__init__.py",
+        "foundry/methods/__init__.py",
+        "foundry/methods/api.py",
+        "foundry/methods/selection/__init__.py",
+        "foundry/methods/selection/receipt.py",
+    )
+    for relative in package_files:
+        source = source_root / relative
+        destination = package_root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+    assert not (package_root / "foundry/methods/selection/advisor.py").exists()
+
+    selection_init = package_root / "foundry/methods/selection/__init__.py"
+    source_text = selection_init.read_text(encoding="utf-8")
+    assert '"MethodSelectionReceipt"' in source_text
+    assert "_RECEIPT_IMPORTS" in source_text
+    assert (selection_init.parent / "receipt.py").is_file()
+    if remove_receipt_route:
+        route = (
+            '        else "polisyos.foundry.methods.selection.receipt"\n'
+            "        if name in _RECEIPT_IMPORTS\n"
+        )
+        assert source_text.count(route) == 1
+        selection_init.write_text(source_text.replace(route, "", 1), encoding="utf-8")
+
+    python_paths = [
+        Path(value)
+        for value in (sysconfig.get_paths()["purelib"], sysconfig.get_paths()["platlib"])
+        if Path(value).is_dir()
+    ]
+    environment = {
+        **os.environ,
+        "PYTHONPATH": os.pathsep.join(
+            [str(package_root.parent), *(str(value) for value in python_paths)]
+        ),
+        "PYTHONNOUSERSITE": "1",
+    }
+    # Security rationale: use the current Python interpreter with a literal test
+    # probe; no user-controlled executable, arguments, or source reach this call.
+    return subprocess.run(  # noqa: S603
+        [sys.executable, "-S", "-c", probe_source],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=30,
+    )
+
+
+def test_history_receipt_leaf_validates_without_advisor_and_route_removal_turns_red(
+    tmp_path: Path,
+) -> None:
+    """Keep markers while proving the leaf route is required for source-free reads."""
+
+    valid_probe = r'''
+import hashlib
+import json
+import sys
+from polisyos.foundry.methods.selection import MethodSelectionAlternative, MethodSelectionReceipt
+assert MethodSelectionAlternative.__module__ == "polisyos.foundry.methods.selection.advisor"
+assert MethodSelectionReceipt.__module__ == "polisyos.foundry.methods.selection.advisor"
+assert "polisyos.foundry.methods.selection.advisor" not in sys.modules
+alternative = MethodSelectionAlternative(
+    rank=1, method_fqn="method.example", method_family="family", selected=True
+)
+payload = {
+    "schema_version": "policyos.foundry.method_selection_receipt.v2",
+    "selection_authority": "requested_registry_method",
+    "selected_method_fqn": "method.example",
+    "ranked_alternatives": [alternative.model_dump(mode="json")],
+    "denominator": ["method.example"],
+    "selection_context_hash": "sha256:" + "0" * 64,
+}
+encoded = json.dumps(
+    payload,
+    sort_keys=True,
+    separators=(",", ":"),
+    ensure_ascii=True,
+).encode("utf-8")
+payload["content_hash"] = "sha256:" + hashlib.sha256(encoded).hexdigest()
+receipt = MethodSelectionReceipt.model_validate(payload)
+assert receipt.model_dump(mode="json") == payload
+assert "polisyos.foundry.methods.selection.advisor" not in sys.modules
+print("receipt_leaf_validated")
+'''
+    valid = _run_source_free_receipt_probe(
+        tmp_path / "valid", remove_receipt_route=False, probe_source=valid_probe
+    )
+    assert valid.returncode == 0, valid.stderr
+    assert valid.stdout.strip() == "receipt_leaf_validated"
+
+    route_removed_probe = r'''
+from pathlib import Path
+import polisyos.foundry.methods.selection as selection
+assert "MethodSelectionReceipt" in selection.__all__
+assert (Path(selection.__file__).parent / "receipt.py").is_file()
+from polisyos.foundry.methods.selection import MethodSelectionReceipt
+'''
+    removed = _run_source_free_receipt_probe(
+        tmp_path / "route-removed",
+        remove_receipt_route=True,
+        probe_source=route_removed_probe,
+    )
+    assert removed.returncode != 0
+    assert "polisyos.foundry.methods.selection.advisor" in removed.stderr
+    assert "ModuleNotFoundError" in removed.stderr
+
+
+def test_history_receipt_leaf_preserves_frozen_advisor_model_identity() -> None:
+    from importlib import import_module
+
+    public = import_module("polisyos.foundry.methods.selection")
+    advisor = import_module("polisyos.foundry.methods.selection.advisor")
+    receipt = import_module("polisyos.foundry.methods.selection.receipt")
+
+    assert public.MethodSelectionAlternative is receipt.MethodSelectionAlternative
+    assert public.MethodSelectionReceipt is receipt.MethodSelectionReceipt
+    assert receipt.MethodSelectionAlternative is advisor.MethodSelectionAlternative
+    assert receipt.MethodSelectionReceipt is advisor.MethodSelectionReceipt
+    assert receipt.MethodSelectionAlternative.__module__ == (
+        "polisyos.foundry.methods.selection.advisor"
+    )
+    assert receipt.MethodSelectionReceipt.__module__ == (
+        "polisyos.foundry.methods.selection.advisor"
+    )

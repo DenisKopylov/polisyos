@@ -63,10 +63,7 @@ from polisyos.core.contracts.value_outer_set import (
 )
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_requirement.compiler import DataRequirementCompiler
-from polisyos.foundry.methods.selection import (
-    MethodSelectionReceipt,
-    method_selection_context_hash,
-)
+from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
     ArtifactRef,
     CounterexampleRecord,
@@ -3480,6 +3477,8 @@ class FoundryValuePort:
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         try:
+            from polisyos.foundry.methods.selection import method_selection_context_hash
+
             selection_receipt.verify_selection_context(
                 method_selection_context_hash(
                     candidate=candidate,

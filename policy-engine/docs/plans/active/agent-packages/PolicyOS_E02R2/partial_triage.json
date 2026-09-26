@@ -3,9 +3,9 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 87,
+    "engineering_a": 84,
     "principal_b": 16,
-    "typed_blocker_c": 15
+    "typed_blocker_c": 18
   },
   "triage_rule": {
     "a": "Engineering can close now in the plans direction.",
@@ -1888,9 +1888,9 @@
       "owner": "ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner.",
       "blocker_kind": null,
       "e02_residual": "External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
-      "next_step": "At ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner., implement and exercise this bounded property: A stale worker/attempt cannot overwrite a newer attempt or terminal job through the production GuardedDependencyProxy; current owner can still finish and event/status history remains consistent. Distinguishing discriminator: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. Removal probe: Remove the ContextVar/explicit owner-attempt fence or final SQL predecessor predicate while retaining receipt markers; stale worker writes newer job and the negative turns red. Preserve the non-refusal control: Current worker with matching job/owner/attempt and live lease completes; diagnostic orphan remains inspectable but is not attached as current. Keep the residual separate: External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
-      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
-      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.", "owner": "Live Ray/Temporal and exactly-once owners"},
+      "next_step": "R8 is implemented in commit 6baa2e21db5ac1962cd5a09895a58e25941c36f4; the landed behavioral and removal receipts are in policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R8_REPAIR.md@sha256:4c638e58dedb06fe1ce31bf078cd8734cb00679c993beb66db543910447ddd35 (entire current worker file 7/7; thread-local mutation 3 guarded stale cases fail and 4 controls pass). Run the frozen four-base whole-file P41 replay of tests/unit/runtime/http/test_acquisition_control_worker.py and retain exact per-test outcomes before changing this finding status. Keep partial until that replay is complete. The bounded residual remains atomic publication across CAS, diagnostic event and action head, PostgreSQL FOR UPDATE, and broader Ray/Temporal semantics, all unestablished.",
+      "classification_rationale": "The local stale-worker-through-GuardedDependencyProxy property now has an in-repository owner, landed R8 implementation, and a negative/removal witness plus current-owner control. Keep it engineering-a until the final four-base whole-file P41 replay is recorded; the atomic-publication and external-runtime residuals remain separate.",
+      "production_residual": {"status": "four_base_replay_pending", "detail": "The local guarded-proxy lease fence and behavioral negative/control are landed and witnessed (R8_REPAIR.md; current worker file 7/7). Final four-base whole-file replay at the integration head is still UNRUN. Separate bounded residual: atomic CAS/event/action-head publication, PostgreSQL FOR UPDATE, and operated Ray/Temporal behavior remain unestablished.", "owner": "E02-R2 baseline broker for final P41 replay; live Ray/Temporal owners for the separate external-runtime residual"},
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B38",
       "e02_residual_source_refs": [
         {
@@ -2399,14 +2399,12 @@
     },
     {
       "finding_id": "B87",
-      "bucket": "a",
-      "disposition": "engineering",
-      "owner": "StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property.",
-      "blocker_kind": null,
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "ConnectionPool atomic teardown/finalize owner with linearizable pending-owner registration and permit release",
+      "blocker_kind": "smallest_missing_capability",
       "e02_residual": "Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
-      "next_step": "At StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property., implement and exercise this bounded property: Connection/stream startup failure or close failure must retain or release ownership so no pool handle/permit is leaked; retry cleanup must finish safely. Distinguishing discriminator: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Removal probe: Remove compensation/owner retention while keeping open/close status markers; injected subscribe/close failure must leak a handle or block later pool reuse, turning negative red. Preserve the non-refusal control: Ordinary create/subscribe/close succeeds; a retry after close error finishes cleanup once. Keep the residual separate: Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
-      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
-      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.", "owner": "Live transport lifecycle owner"},
+      "next_step": "P40 bounded STOP: the exact E02 NET-01 controller groups B87/B89 in the physical-owner lifecycle class; do not issue a separate instance patch. The missing capability is one atomic teardown/finalize owner with linearizable pending-owner registration and permit release. B87’s local subscribe-failure/close-retry witnesses cover the simpler cleanup path, but do not establish the class-level failed-disconnect/release/close_all interleaving. Reopen only through a separately reviewed class-level capability proposal. E02 controller: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L126.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B87",
       "e02_residual_source_refs": [
         {
@@ -2422,14 +2420,12 @@
     },
     {
       "finding_id": "B89",
-      "bucket": "a",
-      "disposition": "engineering",
-      "owner": "ConnectionPool.acquire/release/close_all and registry cleanup owner.",
-      "blocker_kind": null,
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "ConnectionPool atomic teardown/finalize owner with linearizable pending-owner registration and permit release",
+      "blocker_kind": "smallest_missing_capability",
       "e02_residual": "Remote connector’s own cancellation semantics remain scoped to its adapter.",
-      "next_step": "At ConnectionPool.acquire/release/close_all and registry cleanup owner., implement and exercise this bounded property: Cancellation/close races conserve each connection permit and cleanup owner exactly once; a closed pool never returns a duplicate/stale handle. Distinguishing discriminator: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Removal probe: Remove reservation/cleanup fencing but keep pool counters; cancel at connect/disconnect and prove a permit leaks, returns twice or is reused before cleanup; negative goes red. Preserve the non-refusal control: Fresh acquisition after cleanup receives one healthy connection; ordinary release returns exactly one permit. Keep the residual separate: Remote connector’s own cancellation semantics remain scoped to its adapter.",
-      "classification_rationale": "The card-level distinguishing behavior has an in-repository owner and can be exercised with deterministic local stores/fake connectors; external operating guarantees remain separate bounded residuals.",
-      "production_residual": {"status": "semantic_test_missing", "detail": "UNRUN: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Remote connector’s own cancellation semantics remain scoped to its adapter.", "owner": "Live transport lifecycle owner"},
+      "next_step": "P40 bounded STOP: do not add another instance-level pool patch. E02 identifies the B87/B89 physical-owner lifecycle class and names the smallest missing capability as one atomic teardown/finalize owner with linearizable pending-owner registration and permit release. Its falsifier is max_size=1, first disconnect failure, then two pending release retries or release racing close_all; require the same owner/no replacement, exactly one permit only after confirmed teardown, preserved PoolClosedError, and close completion only after pending-owner visibility/settlement. Resume only through a separately reviewed class-level capability proposal; E02 controller receipt: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L126.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B89",
       "e02_residual_source_refs": [
         {
@@ -2700,14 +2696,12 @@
     },
     {
       "finding_id": "LA-054",
-      "bucket": "a",
-      "disposition": "engineering",
-      "owner": "DDM calibration-audit, monitor and registry-event code owners",
-      "blocker_kind": null,
+      "bucket": "c",
+      "disposition": "typed_blocker",
+      "owner": "DDM checker-bound/content-bound validity owner and model_registry_record schema/typed public-contract owner",
+      "blocker_kind": "smallest_missing_capability",
       "e02_residual": "DDM rich calibration/report context must survive into `valid_until` and invalidation basis; a permanent pass or unrelated registry record is not enough. Test stale/expired context, changed model/data and same-basis valid control through the consumer.",
-      "next_step": "Fix the typed code chain now: carry CalibrationReport validity expiry, invalidation triggers and check result into CalibrationAudit, monitor, registry and readiness event so currentness remains an epoch fact. Use synthetic typed fixtures to distinguish live code semantics. Keep a real deployment/live-feed record as a separate limitation; do not claim deployment applicability until the data owner supplies it. Distinguishing discriminator: With actual CalibrationReport/Pydantic records, pass an unexpired, expired, changed-model/data and invalidation-trigger case through report→audit→monitor→registry/event; expiry/status must survive and stale approval fail. A valid-current control passes. Separate live deployment data receipt is still needed for production applicability.",
-      "classification_rationale": "CalibrationReport/audit feeds the DDM monitor and model registry/readiness events. check_calibration_validity already has validity data, but expiry/invalidation fields are dropped before those consumers.",
-      "production_residual": {"status": "data_record_missing", "detail": "partial_open_behavioral_witness_not_run: Live deployment/feed applicability still needs a provenance-, time- and consumer-bound record; code-level expiry propagation is engineering now.", "owner": "Deployment and live-feed data owner"},
+      "next_step": "P40 bounded STOP for DDM-02: no further production patch, gate, queue admission or integration is authorized by the exact final controller. The candidate exposed that a validity projection can be stamped RECOMPUTED from attestable CalibrationAudit validity plus a timestamp without checker-bound CalibrationInvalidationStatus/report provenance. The smallest missing capability is a checker-bound/content-bound validity-owner handoff bound to model/application identity; durable positive post-serialization re-evaluation requires a future model_registry_record schema and typed public-contract amendment. Reopen only through a separately authorized capability task and an end-to-end behavioral witness. Preserve the distinct deployment/live-feed data-record residual; it does not substitute for checker-bound validity. Exact controller: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L129-L134; integrated bounded DDM-02 r73 explicitly does not claim complete LA-054/LA-055 closure: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c#r73.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054",
       "e02_residual_source_refs": [
         {

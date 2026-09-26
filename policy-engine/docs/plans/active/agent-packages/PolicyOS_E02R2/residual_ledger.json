@@ -20,9 +20,9 @@
     "no_finding_level_record": 18
   },
   "p_triage_counts": {
-    "a": 87,
+    "a": 84,
     "b": 16,
-    "c": 15
+    "c": 18
   },
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Current four-base status is UNRUN unless a row cites an admitted finding-level result. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
@@ -68,16 +68,16 @@
       "scope": "per-ID record/mapping coverage only; behavior is UNRUN for all 282 findings"
     },
     "partial_triage": {
-      "identity": "Current 118/118 P triage projection in codex/e02-r2 at 5275690ed13b00457f1d859cde1f790a6fbe75a0; ten prior c rows are now engineering a rows. This is disposition/next-step classification only, not closure evidence or behavioral results.",
-      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678",
-      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678",
-      "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:53ccf63f68f9ba0c49f72567e1610bc53496fe01",
-      "scope": "118/118 exact finding rows: 87 engineering, 16 principal decisions, 15 typed blockers. Current triage supersedes the historical 77/16/25 snapshot after ten c-to-a refinements; disposition/next step only, not closure evidence or behavioral results.",
+      "identity": "Scratch candidate P118 projection after the reviewed P40/P41 row correction: 118/118 rows, 84 engineering, 16 principal decisions, and 18 typed blockers. B87/B89/LA-054 return to c under their recorded E02 P40 stops; B38 stays a with final four-base P41 pending. Triage only, not behavior closure or status promotion.",
+      "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787",
+      "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787",
+      "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:1ff4b054d34407e9df43603772d45bf777461b5e",
+      "scope": "118/118 exact Appendix C partial finding IDs: 84 engineering, 16 principal decisions, 18 typed blockers. Candidate correction retains seven net c-to-a refinements from the historical 77/16/25 snapshot; three former c-to-a rows return to c under P40 class stops. Disposition/next step only; not closure evidence or behavioral results.",
       "previous_snapshot": {
         "identity": "Historical P118 triage snapshot before the ten c-to-a refinements.",
         "markdown_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785",
         "json_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@git-blob:aa69b5dc16c27ec3c1fd39f971a1261967c54290",
-        "scope": "Historical counts: 77 engineering, 16 principal decisions, 25 typed blockers. Superseded by the current 87/16/15 snapshot; retained for provenance."
+        "scope": "Historical counts: 77 engineering, 16 principal decisions, 25 typed blockers. Superseded first by the 87/16/15 projection and then by the current 84/16/18 correction candidate; retained for provenance."
       }
     },
     "held_review": {
@@ -249,7 +249,7 @@
         "next_step": "Through the served HTTP process_nl_job/plain-language entrypoint, ordinary input without a manually created Python context must reach allowed computation; build the exact simulation context from the actual N5 result. Keep protected actions gated. Test a foreign candidate, foreign model, unresolved data and protected action as refusals, and assert the ordinary candidate result plus any declared unknown limitation at the consumer. Record the production caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B01"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B01"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -302,7 +302,7 @@
         "next_step": "Carry the same owner-resolved CycleSubstrateContext through the real HTTP → recursion → leaf N6 → N4/N5/N8 path, using existing context builders and identity checks. Prove each stage consumes the same bindings; changing DesignProblem, WMR or catalog version must cause a concrete refusal. Keep an absent production source absent rather than filling it with a test bundle; record the served caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B02"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B02"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -355,7 +355,7 @@
         "next_step": "At the real N5 path, build a serializable joint-simulation request from the actual candidate, related intervention atoms, WMR, required outcomes, horizon and authorized budget, resolving artifact references server-side and invoking the existing suitable engine method. Prove an ordinary request reaches that method and a changed material binding refuses; keep unknown parameters as typed gaps rather than defaults. Record the production caller and test identity.",
         "owner": "Runtime HTTP composition and generation-cycle owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B03"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B03"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -903,7 +903,7 @@
         "blocker_kind": null,
         "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Production residual: The complete tracked-path census found no production ACQ-01 route producer; only the test fixture emits the structured acq01_route payload. The local route is not production world growth. Classification basis: Bucket a covers engineering available now: fence the local route as typed non-authoritative demonstration and restore/verify served WDI custody. The production producer remains an explicit producer_missing residual.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B12"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B12"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -978,7 +978,7 @@
         "blocker_kind": null,
         "next_step": "Through the served chain, run a simulation that succeeds and then force a later stage failure. Use the ordinary user-facing result reader to retrieve the successful artifact, its scope, the failure stage, and its basis/retraction semantics. The negative probe removes the retained result reference while leaving status markers; the served read must fail. This tests B13 partial-result preservation, not promotion authority.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Production residual: No served behavioral witness is recorded here for preserving a completed result when a later independent stage fails. The B13 source card states that criterion; the E02 candidate-route residual is a separate mismatch. Classification basis: Engineering can strengthen the existing chain's partial-result representation without a principal decision. B13 is about retained successful artifacts and the later failure; it does not concern promotion authority or GY-PR1. Reconcile the unrelated E02 RES-03 residual separately.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B13"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B13"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1028,7 +1028,7 @@
         "blocker_kind": null,
         "next_step": "Drive a non-cooperative worker past its wait deadline and prove its late completion cannot mutate persisted state after the caller receives a typed timeout/refusal. Keep a short worker control that completes before the deadline and is retained; separately show that cancelling the wait does not claim to cancel the already-running thread.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B14"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B14"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1084,7 +1084,7 @@
         "blocker_kind": null,
         "next_step": "Expose requested and effective recursion/resource limits from the admitted profile. Through the ordinary HTTP-to-recursion caller, pass two meaningfully distinct child nodes and prove both traverse the existing recursion with their parent edges intact. Force the budget stop and verify obtained output is retained, search completeness is not claimed, and the whole result is not invalidated; keep a one-child control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B15"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B15"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1138,7 +1138,7 @@
         "next_step": "Pass task scope and measurement semantics to the existing L1 profile loader before sorting, LIMIT and aggregation. With unrelated scopes that sort earlier, prove matching rows survive; do not average mixed units without a declared rule; do not present a genuinely small sample as complete. Changing scope must change the consumed row set and its identity. Keep a supported profile control and record the caller/test identity.",
         "owner": "EMP scope and CAS graph-bridge owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B16"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B16"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1192,7 +1192,7 @@
         "blocker_kind": null,
         "next_step": "With the real search caller, make the first permitted provider return an empty response and prove the next permitted provider is called and its useful result reaches the consumer; report exhaustion only after allowed sources are exhausted. A useful non-empty first response must short-circuit. Preserve distinct typed reasons for error, empty, unsuitable, inaccessible text, and budget limit.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B17"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B17"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1248,7 +1248,7 @@
         "blocker_kind": null,
         "next_step": "At the consuming simulation path, distinguish an empty package, one omitted required outcome, an explicit numeric zero, NaN/infinity, and malformed structure. An omitted required outcome stays unknown and cannot improve the result; valid independent outcomes remain available with a partial marker. Keep explicit zero as a valid measured value.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B18"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B18"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1379,7 +1379,7 @@
         "blocker_kind": null,
         "next_step": "Use two compatible interventions and prove input permutation leaves the composed result unchanged. Use an incompatible pair targeting the same slot and require a typed conflict before computation, with neither input-order winner accepted. Preserve a separately declared ordered sequence and verify its order remains semantically significant.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B20"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B20"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -1510,7 +1510,7 @@
         "blocker_kind": null,
         "next_step": "Exercise empty, short, and fully covered trajectories against the requested time grid. Report requested versus available coverage; missing time points yield an explicit partial/unknown outcome and never imply stability. Preserve hold-last or interpolation only when that behavior is explicitly declared, and keep a fully covered trajectory control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B22"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B22"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -2299,7 +2299,7 @@
         "next_step": "Supply the selection diagram from a named causal model or identification plan; a name-based template may be an explicit research hypothesis but must not issue a universal transport certificate. Compare two models with identical variable names and marginals but different causal links: they must not receive the same certificate from the template. Missing structural evidence stays unresolved rather than being inferred from variable names.",
         "owner": "EMP scope and CAS graph-bridge owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B33"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B33"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -2515,7 +2515,7 @@
         "blocker_kind": null,
         "next_step": "On the existing FileBudgetLedger path, publish complete snapshots atomically and synchronize readers. Prove concurrent readers never see an empty or partial snapshot, an interrupted write leaves a valid old or new snapshot, and a corrupt existing ledger cannot be treated as a new zero ledger. This is budget-accounting integrity, not policy-justification custody.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Production residual: The B37 card records local interrupted-write/read and malformed-JSON probes; production behavior has not been remeasured in this triage. DUR-01 concerns a different policy-justification ledger lifecycle.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B37"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B37"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -2562,9 +2562,9 @@
         "disposition": "engineering",
         "owner": "ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner.",
         "blocker_kind": null,
-        "next_step": "At ControlPlaneStore.complete_job/fail_job SQL fence + guard_runtime_control_store/GuardedDependencyProxy executor propagation + worker lease owner., implement and exercise this bounded property: A stale worker/attempt cannot overwrite a newer attempt or terminal job through the production GuardedDependencyProxy; current owner can still finish and event/status history remains consistent. Distinguishing discriminator: Proposed guarded-service witness in tests/unit/runtime/http/test_control_plane_store.py or test_human_decision_guarded_custody.py: stale worker resumes through actual guarded proxy after attempt handoff; assert affected-row refusal and no job/event mutation. Removal probe: Remove the ContextVar/explicit owner-attempt fence or final SQL predecessor predicate while retaining receipt markers; stale worker writes newer job and the negative turns red. Preserve the non-refusal control: Current worker with matching job/owner/attempt and live lease completes; diagnostic orphan remains inspectable but is not attached as current. Keep the residual separate: External Ray/Temporal exactly-once is not the card-level local lease property and remains unverified.",
+        "next_step": "R8 is implemented in commit 6baa2e21db5ac1962cd5a09895a58e25941c36f4; the landed behavioral and removal receipts are in policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R8_REPAIR.md@sha256:4c638e58dedb06fe1ce31bf078cd8734cb00679c993beb66db543910447ddd35 (entire current worker file 7/7; thread-local mutation 3 guarded stale cases fail and 4 controls pass). Run the frozen four-base whole-file P41 replay of tests/unit/runtime/http/test_acquisition_control_worker.py and retain exact per-test outcomes before changing this finding status. Keep partial until that replay is complete. The bounded residual remains atomic publication across CAS, diagnostic event and action head, PostgreSQL FOR UPDATE, and broader Ray/Temporal semantics, all unestablished.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B38"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B38"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -2677,7 +2677,7 @@
         "blocker_kind": null,
         "next_step": "Resolve the effective deadline once at the top-level caller and pass the remaining monotonic budget through nested calls. With an explicit short timeout, prove the async delegate stops at that deadline and reports it in the trace; verify the blocking wrapper does not launch duplicate work after a timed-out wait. Keep a quick delegate control that completes normally.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B40"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B40"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -3059,7 +3059,7 @@
         "blocker_kind": null,
         "next_step": "Reproduce the greedy counterexample: a flexible candidate fits slots A and B, a fixed candidate fits only B, and the requested order is B then A. The linker must find the complete assignment; an impossible graph must retain exact unmatched reasons. Renaming neutral slot labels must not change feasibility, and semantic ambiguity still requires an explicit choice.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B47"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B47"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -3337,7 +3337,7 @@
         "blocker_kind": null,
         "next_step": "Exercise a slow synchronous cache get/put through AsyncWorkflowExecutor while an independent coroutine is ready to run. The independent work must progress without exceeding the declared deadline; cancellation must not publish a partial cache write. A cache hit and miss must preserve the same payload integrity and tenant/access checks. Measure responsiveness only; do not claim disk I/O became faster.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B52"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B52"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4035,7 +4035,7 @@
         "blocker_kind": "external_institution",
         "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B63"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B63"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4403,7 +4403,7 @@
         "blocker_kind": "external_institution",
         "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B70"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B70"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4457,7 +4457,7 @@
         "blocker_kind": "external_institution",
         "next_step": "Obtain live runtime and external-state sufficiency receipts from the operated Temporal/Ray deployment; do not treat local mocks as closure.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B71"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B71"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4689,7 +4689,7 @@
         "blocker_kind": null,
         "next_step": "For the same effective request, prove warm replay equals cold execution. Change each scientific parameter, seed, input snapshot, binding, or version and require invalidation/recompute; an operational timeout alone may reuse a valid checkpoint. Reject an invalid completed prefix and expose the resulting state to the actual consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B74"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B74"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4743,7 +4743,7 @@
         "blocker_kind": null,
         "next_step": "Resume from a checkpoint with distinct per-node outputs and prove the original outputs, seed, runtime, and version are retained; do not synthesize each prior node output from the final state. When legacy history is absent, return an explicit missing-history limitation. Keep the resumed final state usable by the served consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B75"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B75"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4797,7 +4797,7 @@
         "blocker_kind": null,
         "next_step": "Key sidecars by structural path plus generation so ['a_b'] and ['a','b'] cannot collide. Verify each loaded sidecar's hash, shape, dtype, and path binding. Inject a failed new save and prove the previous manifest and artifact remain readable.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B76"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B76"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4910,7 +4910,7 @@
         "blocker_kind": null,
         "next_step": "At FallbackRunner and its dispatch/result reconciliation owner., implement and exercise this bounded property: Fallback may run only before a primary effect can have occurred; after an ambiguous lost acknowledgement it must reconcile or return typed unknown, never blindly apply a second effect. Distinguishing discriminator: Existing owner suite `tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py` (including primary failure/health cases); add fake effect-log post-dispatch/lost-confirmation selector. Removal probe: Restore catch-all retry after primary side effect but before acknowledgement while preserving degraded/fallback markers; fake effect log increments twice and negative turns red. Preserve the non-refusal control: Healthy primary executes exactly once; an explicit unhealthy/pre-dispatch result may use local fallback once. Keep the residual separate: Operated Ray/Temporal guarantees remain an external residual; they do not block the local injected-failure behavior.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B78"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B78"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -4964,7 +4964,7 @@
         "blocker_kind": null,
         "next_step": "After R13 freezes, test through POST /data/ingest with execution_mode=batch_incremental: a persisted, admitted source cursor must reach the real connector request as incremental_since, and only confirmed source progress may advance. Negative: an unverified legacy cursor sends no hint and does not advance. Removing cursor injection while retaining the markers must make the served positive fail. Add a source change in the existing modes.py owner only if the served witness exposes a defect.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Production residual: modes.py has cursor injection, but this triage has no positive served /data/ingest witness. R13 must classify the route's root-built store path before any source change; the minimal next step is the served cursor-positive/negative pair and removal probe through the existing owner.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B79"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B79"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5074,7 +5074,7 @@
         "blocker_kind": null,
         "next_step": "At process_stream_dataset, StreamingSourceSession and cursor/checkpoint store in Fabric Data Plane., implement and exercise this bounded property: A processing error after poll/dedupe/raw persistence must not commit an unprocessed source position; restart must replay pending rows at-least-once with idempotent dedupe, never silently skip them. Distinguishing discriminator: Existing in-repo discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_failure_before_chunk_persistence_replays_dedupe_rows and `test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_window`; add matrix for each commit boundary. Removal probe: Commit the observed offset/dedupe before durable processed output while retaining checkpoint markers; injected failure after poll must skip an unpersisted row and test goes red. Preserve the non-refusal control: Successful chunks advance the committed frontier once; honest at-least-once replay dedupes without losing rows. Keep the residual separate: Native connector offset/replay semantics and long-lived retention may remain typed residuals; the local no-lost-row contract does not require distributed exactly-once.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B81"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B81"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5128,7 +5128,7 @@
         "blocker_kind": null,
         "next_step": "At StreamWindowAccumulator state serializer/restorer and process_stream_dataset checkpoint owner., implement and exercise this bounded property: Interrupted and uninterrupted processing must emit identical logical COUNT/SESSION/selected sliding windows and lineage, including pending rows, event-time/order/watermark and numbering. Distinguishing discriminator: Existing discriminator in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_interrupted_pending_window_resumes_with_lineage and `test_stream_window_operator_state_round_trips_pending_rows`; add mode matrix for count/session/sliding. Removal probe: Drop pending operator/order state but retain cursor/checkpoint fields; resume with the same source events and require the observed divergent window/lineage to make the test red. Preserve the non-refusal control: Fully closed window passes unchanged and normal restart with complete operator state yields the same logical outputs. Keep the residual separate: Per-connector native replay/retention remains a separate limitation; local persisted operator contract is internally testable.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B82"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B82"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5310,7 +5310,7 @@
         "blocker_kind": null,
         "next_step": "At StreamWindowAccumulator provenance refs and _persist_stream_window_async artifact-manifest writer., implement and exercise this bounded property: Every emitted multi-chunk window binds all and only chunks that contributed rows, including trigger chunk distinction, final flush and resumed windows; changing one contributor invalidates dependents only. Distinguishing discriminator: Existing discriminators in tests/unit/fabric/data_plane/test_streaming_runtime.py::test_stream_window_manifest_contains_all_contributor_chunks and `test_stream_window_lineage_covers_trigger_and_final_flush`. Removal probe: Omit one contributing chunk ref but retain payload/hash/status markers; revoke that source and require dependent-window currentness to fail while unaffected source/control remains valid. Preserve the non-refusal control: Single-chunk window and unchanged second contributor remain current; final flush includes all real inputs. Keep the residual separate: Native source retention guarantees are separate; lineage completeness and local invalidation are in-repo properties.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B85"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B85"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5364,7 +5364,7 @@
         "blocker_kind": null,
         "next_step": "Run the same source rows through multiple technical batch sizes and require identical accepted/rejected membership under the declared schema. Reject an actually malformed required field, wrong type, or non-finite metric; allow a missing optional field without erasing the source schema. Verify through the real ingestion consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B86"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B86"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5412,13 +5412,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "a",
-        "disposition": "engineering",
-        "owner": "StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property.",
-        "blocker_kind": null,
-        "next_step": "At StreamingSourceSession and ConnectionPool cleanup/registry owner; injected connector is sufficient for card property., implement and exercise this bounded property: Connection/stream startup failure or close failure must retain or release ownership so no pool handle/permit is leaked; retry cleanup must finish safely. Distinguishing discriminator: Existing local controlled-connector witnesses: tests/unit/fabric/data_plane/test_streaming_runtime.py::test_net01_subscribe_failure_releases_acquired_handle and `test_net01_close_failure_can_finish_cleanup_on_retry`; add full disconnect/close-all race case if absent. Removal probe: Remove compensation/owner retention while keeping open/close status markers; injected subscribe/close failure must leak a handle or block later pool reuse, turning negative red. Preserve the non-refusal control: Ordinary create/subscribe/close succeeds; a retry after close error finishes cleanup once. Keep the residual separate: Real transport operation receipt is optional for claims about a specific remote connector, not a prerequisite to local lifecycle correctness.",
+        "class": "c",
+        "disposition": "typed_blocker",
+        "owner": "ConnectionPool atomic teardown/finalize owner with linearizable pending-owner registration and permit release",
+        "blocker_kind": "smallest_missing_capability",
+        "next_step": "P40 bounded STOP: the exact E02 NET-01 controller groups B87/B89 in the physical-owner lifecycle class; do not issue a separate instance patch. The missing capability is one atomic teardown/finalize owner with linearizable pending-owner registration and permit release. B87’s local subscribe-failure/close-retry witnesses cover the simpler cleanup path, but do not establish the class-level failed-disconnect/release/close_all interleaving. Reopen only through a separately reviewed class-level capability proposal. E02 controller: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L126.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B87"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B87"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5545,13 +5545,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "a",
-        "disposition": "engineering",
-        "owner": "ConnectionPool.acquire/release/close_all and registry cleanup owner.",
-        "blocker_kind": null,
-        "next_step": "At ConnectionPool.acquire/release/close_all and registry cleanup owner., implement and exercise this bounded property: Cancellation/close races conserve each connection permit and cleanup owner exactly once; a closed pool never returns a duplicate/stale handle. Distinguishing discriminator: Existing injected tests in tests/unit/fabric/connectors/test_registry.py: `test_net01_cancelled_disconnect_keeps_same_owner_until_cleanup`, `test_net01_concurrent_release_returns_one_permit_and_disconnect`, `test_net01_cancelled_connect_releases_reserved_permit`, `test_net01_close_all_waits_for_pending_release_owner`. Removal probe: Remove reservation/cleanup fencing but keep pool counters; cancel at connect/disconnect and prove a permit leaks, returns twice or is reused before cleanup; negative goes red. Preserve the non-refusal control: Fresh acquisition after cleanup receives one healthy connection; ordinary release returns exactly one permit. Keep the residual separate: Remote connector’s own cancellation semantics remain scoped to its adapter.",
+        "class": "c",
+        "disposition": "typed_blocker",
+        "owner": "ConnectionPool atomic teardown/finalize owner with linearizable pending-owner registration and permit release",
+        "blocker_kind": "smallest_missing_capability",
+        "next_step": "P40 bounded STOP: do not add another instance-level pool patch. E02 identifies the B87/B89 physical-owner lifecycle class and names the smallest missing capability as one atomic teardown/finalize owner with linearizable pending-owner registration and permit release. Its falsifier is max_size=1, first disconnect failure, then two pending release retries or release racing close_all; require the same owner/no replacement, exactly one permit only after confirmed teardown, preserved PoolClosedError, and close completion only after pending-owner visibility/settlement. Resume only through a separately reviewed class-level capability proposal; E02 controller receipt: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L126.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B89"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B89"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5607,7 +5607,7 @@
         "blocker_kind": null,
         "next_step": "At ConnectionPool.acquire lock/reservation path and connector adapter boundary., implement and exercise this bounded property: Slow network connect/health work must not hold the shared pool metadata lock; unrelated release/acquire must progress within their own deadline, and total acquire timeout covers the whole operation. Distinguishing discriminator: Existing owner pool-contention test `tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py::test_connection_pool_close_release_contention_and_bounded_tracking`; add event-gated slow-connect + independent release/parallel connect deadline discriminator. Removal probe: Move connect/health back under the shared lock or reset deadline after semaphore wait while retaining lock/timeout markers; blocked connector must prevent independent release or exceed total deadline. Preserve the non-refusal control: Fast parallel connects and independent release both complete within an explicit budget. Keep the residual separate: No production-latency claim from a fake connector; this checks control/lock semantics, not remote service SLO.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#B90"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B90"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -5771,7 +5771,7 @@
         "blocker_kind": null,
         "next_step": "Fill the bounded registry beyond capacity while entries are actively protecting a key and prove LRU/TTL pressure cannot evict that protection before its declared expiry. After expiry, prove the entry is reclaimable and a fresh access re-establishes protection. Keep ordinary unprotected LRU eviction as a control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B93"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B93"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -6523,7 +6523,7 @@
         "blocker_kind": null,
         "next_step": "Decide the empirical completeness profile, cost and limits; require a falsifier for any claimed complete population.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B106"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B106"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7242,7 +7242,7 @@
         "blocker_kind": null,
         "next_step": "Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B116"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B116"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7296,7 +7296,7 @@
         "blocker_kind": null,
         "next_step": "Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B117"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B117"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7562,7 +7562,7 @@
         "blocker_kind": null,
         "next_step": "Decide the accepted near-zero-scale and non-finite policy, with options, costs, a falsifier and where the rule binds.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B122"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B122"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7720,7 +7720,7 @@
         "blocker_kind": null,
         "next_step": "Round-trip the actually used Python RNG state through the existing StrategyState artifact owner, then prove the next candidate equals an uninterrupted run. Malformed state must produce a typed failure, never silently reseed. Keep wrapper RNG under the same lease through its production route.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B125"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B125"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7774,7 +7774,7 @@
         "blocker_kind": null,
         "next_step": "Compare one batch of Sobol points with the same logical indices requested in chunks, both before and after checkpoint/restore; each index must yield the same point. Persist sampler identity, seed, search space, backend/version, and cursor. Preserve the declared sequence rather than restarting at each chunk.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B126"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B126"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7828,7 +7828,7 @@
         "blocker_kind": null,
         "next_step": "Choose normalized coordinates such as 0.1 and 0.2 that execute as the same integer or categorical action and prove they deduplicate by effective action before pending/selection. Distinct continuous actions remain distinct; explicitly requested replicate IDs remain independent.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B127"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B127"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7884,7 +7884,7 @@
         "blocker_kind": null,
         "next_step": "Round-trip a compatible saved score snapshot and prove every selected row and ArtifactRef survives restoration. An incompatible schema or unknown candidate must yield a typed refusal/diagnostic, never a silently empty mapping. Verify the served transfer consumer sees the same rows and references.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B128"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B128"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7940,7 +7940,7 @@
         "next_step": "Carry the verified ArtifactRef and version returned by index discovery into the history reader. In an index with more than 1,000 distractors, read the selected history without a second ANN; changing discovery top_k must not change addressability. A corrupt or unavailable reference must not be replaced by similar history; distinguish absent, unavailable, corrupt and schema-incompatible outcomes. Exercise the real reader/consumer and record its test identity.",
         "owner": "Transfer compatibility owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B129"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B129"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -7994,7 +7994,7 @@
         "blocker_kind": null,
         "next_step": "Use two candidates whose ranking reverses between minimize and maximize after the declared score normalization. Prove the bounded transfer selects the correct candidate for each objective direction and carries the exact selection basis into the consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B130"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B130"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8050,7 +8050,7 @@
         "blocker_kind": null,
         "next_step": "A matching task, metric, parameters, and context basis may transfer its score; change each binding field in turn and require refusal even when a similarity label matches. Verify the warm-start consumer cannot use a score from the mismatched basis.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B131"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B131"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8106,7 +8106,7 @@
         "blocker_kind": null,
         "next_step": "Transfer the original benchmark and source-run references with their purpose; do not fabricate a benchmark or label a copied score as independent evidence. Missing source lineage must surface as a typed gap. Read the lineage back through the consuming warm-start path.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B132"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B132"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8162,7 +8162,7 @@
         "blocker_kind": null,
         "next_step": "Choose the required distributed atomicity and compatibility guarantee, including bounded alternatives and cost; issue a falsifier for the chosen guarantee.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B133"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B133"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8216,7 +8216,7 @@
         "blocker_kind": "data_record",
         "next_step": "Obtain an owner-issued live metadata record for a real transfer and verify provenance, scope and freshness before claiming this slice.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B134"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B134"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8270,7 +8270,7 @@
         "blocker_kind": null,
         "next_step": "Pass nested task_family and domain through both object and serialized-mapping transfer inputs and verify the real consumer receives them. An authorized explicit override may replace them; fallback applies only when fields are absent. The transfer must not change the execution owner's tenant authority.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B135"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B135"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8326,7 +8326,7 @@
         "blocker_kind": null,
         "next_step": "Send local and transferred hints through the same query consumer with source_run_id, source, and min_confidence filters intact. A confidence 0.2 hint cannot satisfy a request for 0.8 or LOCAL; a genuinely permitted transferred hint can still be returned. Verify filtering does not require unnecessary materialization.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B136"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B136"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8382,7 +8382,7 @@
         "blocker_kind": null,
         "next_step": "Repeat lookup across cold, warm, and restarted reads and prove access/last_accessed updates never restore confidence or local trust. Only a new verification event may create a new evidence version that changes trust; the consumer must continue to reject the old low-confidence card.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B137"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B137"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8438,7 +8438,7 @@
         "blocker_kind": null,
         "next_step": "Preserve per-cell source metadata through the existing union and duplicate-column resolver. Use complementary rows with distinct trust and lineage, then prove the composed values follow the declared per-cell resolution policy and each chosen cell retains its actual source reference through readback. Permuting independent input frames must not misattribute provenance; an explicit ordered first-available policy keeps its declared order.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B138"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B138"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8546,7 +8546,7 @@
         "blocker_kind": null,
         "next_step": "Before expanding a join, enforce the declared cardinality: a many-to-one join with duplicate right keys must refuse rather than multiply rows. Null/null unknown keys must not match unless a shared category was explicitly declared. Preserve unmatched rows and allow declared many-to-many joins only under the resource guard; prove the resulting rows and aggregates through readback.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B140"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B140"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8602,7 +8602,7 @@
         "blocker_kind": null,
         "next_step": "Compose a legitimate input column named __source_id and a join with real x_left/x_right columns; preserve their original values and meanings through union/join and readback. Use an explicit collision-safe namespace and return a typed gap only for a real unresolved ambiguity.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B141"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B141"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8814,7 +8814,7 @@
         "blocker_kind": null,
         "next_step": "Under strict finite policy, reject [10, infinity] and do not coerce [10, bad] into a one-source result while reporting two contributors. Keep [10,14] -> 12 as a valid control; report actual accepted/excluded contributors. Infinity is valid only where its own explicit boundary contract permits it.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B145"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B145"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -8929,7 +8929,7 @@
         "next_step": "On the production observation path, inject failure before the first yield, after the first block and between metric frames within a block. Accepted observations must appear exactly once: continue only from a confirmed cursor on the same immutable snapshot, or withdraw unpublished draft outputs before replay. Check downstream shards and final counts, not only generator values; a new snapshot must not be mixed in. Keep unchanged-source and typed schema/access-failure controls.",
         "owner": "Observation and mutation owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B147"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B147"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -9290,7 +9290,7 @@
         "blocker_kind": null,
         "next_step": "Strengthen tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters to assert the fixed pool size is unchanged across 3,000 deterministic IDs, preserve same-ID waiter exclusion, and exercise two distinct IDs colliding to one stripe with refs/bytes/manifests read back. Remove per-ID lock retention and the same-key fence in marker-retaining probes; both must turn red. Run the whole file at all four P41 bases. The existing 128-ID holder/waiter evidence is bounded support, not the 3,000-ID discriminator; production lifetime/cardinality informs priority only. Do not claim distributed locking.",
         "scope": "Reviewed P118 next-step classification only; all proposed behavior and four-base replay remain UNRUN.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:000bd182e06166f7efdde4a8f43dbc1158a6a785#B153"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B153"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -9929,7 +9929,7 @@
         "next_step": "Through the existing Level6 promotion-stage caller, record the exact production function/path and exercise no_promotion, reduced_judge, and auto_cap separately; each must prevent the effect-capable runner from being invoked. Change ticket generation or authority after preparation and prove the commit owner rechecks and refuses; preserve the prepared-payload read path and an allowed callback that runs exactly once. This closes only the callback/commit gate, not GY-PR1 or Atlas DS12/DS13.",
         "owner": "Level6 promotion-stage and effect-capable runner owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Classification basis: Engineering can move the existing policy check before the callback and retain the owner-side commit check; no external institution, data record, or owner appointment is required.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B164"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B164"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10042,7 +10042,7 @@
         "blocker_kind": null,
         "next_step": "Use the declared time axis to materialize or address the immutable allowed historical slice, pass that exact slice identity to the Scientist request, and verify its references. Probe cutoff [1,2,900,901] at 2 and a plan with no intervention_step; retain an explicit typed limitation when the slice basis is unknown, plus a control for already-cut data with verified basis.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Classification basis: The existing masker and Scientist request path are present; binding their input is an actionable owner-routed engineering change, not a missing external record or appointment.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B166"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B166"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10096,7 +10096,7 @@
         "blocker_kind": null,
         "next_step": "For requested outcome y, test no predictions, a wrong-key-only prediction, a partial forecast, and a complete forecast. Missing or misaligned predictions must expose the missing denominator and cannot receive Grade A/eligible true; partial coverage is explicit and never scores better by silence than complete coverage. Keep a complete exact forecast as the positive control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B167"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B167"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10150,7 +10150,7 @@
         "blocker_kind": null,
         "next_step": "Separate missing, invalid, and observed intervals from actual misses, and preserve nominal confidence level and interval type. Verify a missing interval is unknown, a valid interval that misses is a miss, and a hit is a hit; retain requested 0.8 versus 0.99 levels through aggregation. A fully valid interval set remains the positive control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B168"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B168"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10204,7 +10204,7 @@
         "blocker_kind": null,
         "next_step": "Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B169"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B169"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10258,7 +10258,7 @@
         "blocker_kind": null,
         "next_step": "Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B170"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B170"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10312,7 +10312,7 @@
         "blocker_kind": null,
         "next_step": "Decide the accepted BKT-02 profile boundary and compatibility cost; state what observed case would reopen it.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B171"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B171"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10366,7 +10366,7 @@
         "blocker_kind": null,
         "next_step": "Add a systematic-bias diagnostic that detects a constant nonzero prediction error and appears in the actual report/consumer. A no-bias control remains neutral. Do not promote the diagnostic to admissibility evidence without an independently grounded basis.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B172"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B172"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10420,7 +10420,7 @@
         "blocker_kind": null,
         "next_step": "Run the same declared sample with SciPy available and unavailable. The available path must report the actual t-test; the fallback path must name its actual method and limits and must never call itself a t-test. Compare both results against the declared known sample and preserve the chosen method in the report.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B173"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B173"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10474,7 +10474,7 @@
         "blocker_kind": null,
         "next_step": "Apply the CV cap before pairwise or quadratic preparation and prove a bounded fixture never allocates the uncapped work. Reject step <= 0 or any non-progressing step with typed validation; a positive step advances to the exact expected folds. Keep ordinary positive-step behavior as a control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B174"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B174"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10530,7 +10530,7 @@
         "blocker_kind": null,
         "next_step": "An unknown bootstrap statistic name must produce a typed unsupported-statistic result, never silently fall back to mean. A supported statistic must produce the expected bootstrap output and interval, and its exact statistic label must survive the receipt and consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B175"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B175"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -10926,7 +10926,7 @@
         "next_step": "On the selected compiler/scale path, compute scale from the valid observed support and allowed training partition. Adding dates to an independent target must not change target A’s scale or loss at the same support unless that coupling is declared; preserve true zero versus missing placeholder and give absent support its own status. Keep a shared-time-axis control and record the caller/test identity.",
         "owner": "Calibration preflight owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B182"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B182"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -11084,7 +11084,7 @@
         "blocker_kind": null,
         "next_step": "Retain the existing 3/3 inactive-path witness. Add a batch with active and inactive rows using different schedules through the consuming calibration path: the active row matches its single-row gradient control, while the inactive row contributes no execution or gradient. Keep the homogeneous schedule control and state the heterogeneous-schedule remainder precisely.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B185"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B185"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -11702,7 +11702,7 @@
         "blocker_kind": null,
         "next_step": "Keep an existing infinite or NaN Hessian condition marked ill-conditioned, never treat it as an absent Hessian. With a finite well-conditioned candidate and a candidate with NaN loss or bad condition, the invalid candidate must not win by input order. An actually absent Hessian may use the documented loss-only path with its reason in the selection result.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B195"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B195"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -11955,7 +11955,7 @@
         "blocker_kind": null,
         "next_step": "Feed the same interval evidence reference twice and prove it is reused rather than changing type or nominal level. Distinct independent references remain separate evidence. A mixed credible/confidence interval input must be typed incompatible unless the existing owner has a valid conversion; verify the consumer preserves type and level.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B199"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B199"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12009,7 +12009,7 @@
         "blocker_kind": null,
         "next_step": "Duplicate one effect under the same evidence reference and prove its effective sample size/rank does not increase. Add genuinely independent evidence references and prove the supported contribution changes. Carry the unique-evidence denominator and independence basis to the consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B200"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B200"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12466,7 +12466,7 @@
         "blocker_kind": "data_record",
         "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B207"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B207"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12520,7 +12520,7 @@
         "blocker_kind": "data_record",
         "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B208"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B208"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12574,7 +12574,7 @@
         "blocker_kind": "data_record",
         "next_step": "Obtain a complete provenance-bearing staggered-DiD case dataset and verify assumptions and outputs against the admitted record.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B209"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B209"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12628,7 +12628,7 @@
         "blocker_kind": null,
         "next_step": "Decide the RDD assumption/scope boundary and its costs; name a falsifying case before claiming broader closure.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B210"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B210"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12682,7 +12682,7 @@
         "blocker_kind": null,
         "next_step": "Replace dense diagonal weighting with the existing sparse/weighted least-squares route or an equivalent O(n)-memory calculation. On a small fixture, match the dense reference coefficients within declared tolerance; on a larger bounded fixture, demonstrate memory growth is linear rather than quadratic. Invalid bandwidth remains a typed refusal.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B211"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B211"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12736,7 +12736,7 @@
         "blocker_kind": null,
         "next_step": "When native DoWhy returns a point estimate without interval support, emit uncertainty none/not_established rather than a near-zero interval. Keep an interval-supported method as a positive control and verify the served adapter consumer reports the unsupported uncertainty limitation.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B212"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B212"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -12790,7 +12790,7 @@
         "blocker_kind": null,
         "next_step": "For a requested estimand, call the corresponding method or return a typed unsupported-estimand refusal. Use two estimands with distinguishable outputs, or one supported and one unsupported estimand, and prove the executed method and reported estimand agree through the served adapter.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#B213"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#B213"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -13661,7 +13661,7 @@
         "next_step": "For registered IncomeTax/TaxSubsidy and LaborMarketMechanism, either retain an explicitly named baseline profile or relocate only under the existing Foundry execution owner. Preserve method IDs/class paths and PatchMap ABI. Verify registry/spec creation, fixed-input patches and PRNG-key progression, active/target masks, fiscal balance, employer IDs and labor counts through compiler/replay and existing fiscal/labor tests. Any changed model law needs a separate version.",
         "owner": "Forecast model, calibration and caller owners",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-003"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-003"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -13715,7 +13715,7 @@
         "blocker_kind": null,
         "next_step": "Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-004"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-004"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -13906,7 +13906,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the external loader and its owner, then produce an installed-package/import receipt proving the cleaned path is the one consumed.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-007"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-007"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -13962,7 +13962,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the actual downstream factlog and shim consumers and cutover owner; prove the canonical consumer path before retiring aliases.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-008"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-008"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14016,7 +14016,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the actual downstream factlog and shim consumers and cutover owner; prove the canonical consumer path before retiring aliases.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-009"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-009"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14160,7 +14160,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the live wrapper callers and their migration owner; produce a cutover record before retiring wrappers.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-011"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-011"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14214,7 +14214,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the live wrapper callers and their migration owner; produce a cutover record before retiring wrappers.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-012"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-012"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14327,7 +14327,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name and appoint the production SearchService consumer and cutover owner; then verify lifecycle, rollback and historical-reader behavior before migration closure.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-014"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-014"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14382,7 +14382,7 @@
         "next_step": "At the live autotune/runtime SearchController caller, characterize current traces and migrate through the existing search owner without changing strategy. Compare new and resumed runs for stopping/budget, warm history, empty proposal, sentinel roles, evaluator failure, and matching final result/history/frontier on known scenarios. Preserve serialized histories and import names for the agreed compatibility window; record caller and test identities.",
         "owner": "SearchService lifecycle owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-015"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-015"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14439,7 +14439,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name and appoint the production caller for the native causal route, then establish consumer lifecycle and replay before extending the adapter-only slice.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-016"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-016"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14545,7 +14545,7 @@
         "blocker_kind": null,
         "next_step": "Decide the compatibility lifetime for retained aliases and the cost of preserving or retiring them; state the falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-018"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-018"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14599,7 +14599,7 @@
         "blocker_kind": "owner_appointment",
         "next_step": "Name the external loader and its owner, then produce an installed-package/import receipt proving the cleaned path is the one consumed.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-019"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-019"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14655,7 +14655,7 @@
         "next_step": "For the causal_engine and interference package facades, inventory supported exports and consumers, then replace incidental reflection with an explicit compatible surface. Verify direct and star imports, documentation generation, object identity, monkeypatch targets and serialized FQNs. An added internal import must not silently expand public exports. Retain supported test-facing names until the owner resolves their compatibility window; record the complete caller denominator.",
         "owner": "Public API and documentation owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-020"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-020"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14858,7 +14858,7 @@
         "next_step": "Keep PLG-01 verification under its verification owner: the admission consumer accepts an owner-issued signal for a valid plugin and refuses absent or present-but-forged signals. For original LA-022, identify the Foundry DomainPlugin discovery owner separately and adapt discovery through existing shared primitives while preserving the DomainPlugin contract. Through the production route cover installed entry points, built-ins, declared development plugins, duplicate IDs, import/dependency failures, unload and reproducible order; compare resolved components and errors. Then invoke an actual economic model through its former DomainPlugin ABI and verify its initial state, mechanism, reward, objective, observation builder and lifecycle hooks remain available. Record both callers and test identities.",
         "owner": "PLG-01 verification owner; Foundry DomainPlugin discovery owner for LA-022",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-022"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-022"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14913,7 +14913,7 @@
         "blocker_kind": null,
         "next_step": "Decide cross-domain scope, RNG/continuation compatibility and retirement boundary with costs and a falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-023"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-023"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -14967,7 +14967,7 @@
         "next_step": "Route both Scholar seed-fetch and search-fetch through one existing-owner raw transport while preserving bytes, final URL, headers and redirect history. Test allowed URLs, blocked initial and redirect targets, loops, timeout, oversize, MIME, license and raw hash through both real callers. Keep DNS/SSRF admission as a separate unresolved property; a fetcher test alone does not establish it.",
         "owner": "Scope and network admission owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-024"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-024"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15023,7 +15023,7 @@
         "blocker_kind": null,
         "next_step": "Resolve a retained v1 snapshot reference from the existing CAS and prove the cache hit reads those exact bytes without network access. A same-URL v2 snapshot is a distinct reference and must not replace v1; if the blob is gone or access is denied, return a typed gap or an explicit refresh with new lineage. Preserve source identity and prove the behavior through the existing consumer.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-025"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-025"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15233,7 +15233,7 @@
         "next_step": "At the production catalog caller, use one versioned source registry as the authority for ordered IDs, filters, asset contracts and seed closure. Compare module and registry selection for enabled sources with enabled, disabled or missing seeds; distinguish an explicit empty module list from None/default; cover custom registries, cycles and profiles without introducing I/O on contract-only import. Keep any DFK-02 kit producer/consumer residual separately named; this step does not close it.",
         "owner": "Data Forge kit owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-028"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-028"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15287,7 +15287,7 @@
         "next_step": "Move the Ukraine provision/repository-gate command through the existing ops-runner owner and pass the verified product/workspace root from CLI composition. At the real caller compare command, cwd, environment, exit/skipped semantics and explicit override; preserve environment safeguards and gate results. In an installed package without a checkout, report the repository check unavailable instead of inferring a root with parents[N]. Record the caller and test identity.",
         "owner": "UDF server lifecycle owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-029"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-029"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15579,7 +15579,7 @@
         "next_step": "Switch supported internal source, string and benchmark consumers from the compatibility transit module to the canonical Scientist replay owner, updating the dynamic-import inventory while preserving lazy Runtime root exports and object identity. Exercise CLI check-only, bundle import/export, replay/resume, docs and import budget; verify historical bytes, monkeypatch targets and FQN consumers. Keep the old path until its supported compatibility window is resolved.",
         "owner": "Report migration owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-033"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-033"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15685,7 +15685,7 @@
         "blocker_kind": null,
         "next_step": "Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-035"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-035"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15846,7 +15846,7 @@
         "next_step": "Through the production batch/pipeline caller, make dependencies explicit at the actual core_sources_ingest leaf boundary. Prove a canonical leaf works without pre-importing the legacy facade, a sibling call cannot overwrite its globals, and requests/writes/errors/counts and coroutine signatures remain stable; cover safe concurrent dependency substitution. Replace broadcast synchronization only with the finite supported bindings identified by a complete cross-leaf/monkeypatch census. Keep DFI CLI override isolation as a separate control.",
         "owner": "DFI CLI facade owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-038"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-038"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15903,7 +15903,7 @@
         "next_step": "Through both Catalog and Academic production wrappers, publish a complete version-bound generation of IDs, vectors and HNSW basis for each domain’s own text projection. Empty input must not relabel a stale index as a new generation; failure between NPZ and HNSW writes must leave either the old complete generation or the new complete generation. The live reader must select one matching generation. Cover empty/nonempty, reordered rows, model change, partial-write failure and retained-history readback.",
         "owner": "Embedding generation and reader owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-039"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-039"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -15957,7 +15957,7 @@
         "blocker_kind": null,
         "next_step": "Move the live Lex store consumer to the canonical embedding artifact and prove legacy bytes are not read on the served path.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-040"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-040"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16011,7 +16011,7 @@
         "blocker_kind": null,
         "next_step": "Fix the checkpoint mechanism now: bind input bytes/generation and output generation/receipt, not only path/size/mtime/existence. Through catalog batch pipeline, prove same-size/same-mtime input mutation and output replacement invalidate skip. Keep DFI-03 admitted full-corpus completeness/partiality/performance as a separate data-record limitation; it does not block the local mechanism repair. Distinguishing discriminator: Same-size/same-mtime source byte mutation must invalidate skip; mutate output bytes/replace generation while retaining markers and skip must turn red. Missing/partial source is not a completed stage. Preserve valid unchanged generation as positive control; measure full corpus separately.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#LA-041"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-041"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16124,7 +16124,7 @@
         "blocker_kind": null,
         "next_step": "Decide the public compatibility promise for the full legacy client surface and the cost of removal or ongoing support.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-043"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-043"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16178,7 +16178,7 @@
         "next_step": "Resolve openapi-typescript through the Runtime API client package or an existing shared build owner at the locked version, not through the dashboard consumer. After frozen dependency installation, run package and dashboard generation from the same schema and compare the selected output contract while preserving the dashboard’s own formatting stage. Typecheck all workspaces and verify freshness in the isolated probe environment without loading dashboard runtime dependencies.",
         "owner": "Runtime API client package owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-044"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-044"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16287,7 +16287,7 @@
         "blocker_kind": null,
         "next_step": "Keep graph-derived construct refs, explicit pilot profiles, and mandatory resolver guards. Pair case-alpha / parent-support with otherwise identical inputs and verify the opaque ID does not add a mandatory construct; a negative housing/rent statement must not add one either. Verify a named explicit pilot profile retains UA / 2022-02-01, while generic national / annual leaves them unresolved. Then use the fallback scenario-adapter branch with an actual DataRequirementCompiler on a real DesignProblem through _n7_data_requirement_specs and _run_n7_acquisition_if_requested; assert text / domain and explicit scope reach compilation and resulting requirements reach the existing closed-loop consumer. Keep explicit-spec and typed-gap early-return branches as controls. This does not establish authority or world-growth admission.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Production residual: Existing compiler tests separately cover opaque scenario IDs, negated topic text, and generic scope; the N7 fallback handoff test uses a recording compiler, while the real closed-loop test starts from a typed requirement gap. The cited tests do not compose the original discriminator and explicit-profile positive through the actual N7 fallback into its consumer. Native grammar branch selection and downstream admission remain unestablished; this is not a claim of incorrect authority resolution. Classification basis: Bucket a is appropriate because the existing compiler and actual GenerationCycleController caller are named; closing the semantic and Runtime-handoff witnesses is an engineering task, not an owner appointment or principal decision. Preserve explicit pilot profile behavior and current typed gaps while removing dependence on opaque IDs, negated text, and unannounced defaults.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-046"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-046"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16355,7 +16355,7 @@
         "next_step": "Consolidate only the shared linear migration executor behind explicit Common and IR facade profiles. Verify input copy/no-op identity, nested callback mutation on success and failure, returned-version stamping versus refusal, input-version typing, duplicate registration, cycle/missing-edge and exception semantics. Exercise the actual DatasetManifest converter and IR callbacks plus supported historical inputs; keep IR schema negotiation/rules at the IR owner.",
         "owner": "MOVE-14 migration owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-047"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-047"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16409,7 +16409,7 @@
         "next_step": "For the actual run_manifest migration CLI, preserve the addressable source artifact and bytes; never replace an unresolved path with its basename. Test internal absolute and nested relative paths, same-basename collisions, distinct roots, existing run_root/relative_path, missing objects, symlink/escape and repeat runs through the Runtime reader. Define or explicitly reject --to for path-only normalization; do not claim relocation unless files were explicitly moved and verified.",
         "owner": "Migration owner for MIG-02",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-048"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-048"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16555,7 +16555,7 @@
         "next_step": "Move the DatasetManifest-specific converter to the Fabric identity/schema owner only after confirming historical formats; keep the Common runner generic. Through the operational CLI and real DatasetManifest validator, cover legacy/current aliases alone and together (equal and conflicting), unknown/missing fields, supported versions, JSON/YAML, default target, input isolation and error types. Preserve historical-profile handling where formats differ; do not invent raw_hash/provenance or treat parse success as admission.",
         "owner": "ManifestRegistry and corpus migration owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-050"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-050"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16610,7 +16610,7 @@
         "next_step": "First identify the compatible in-repository calibration producer and exact S10 consumer. Through that existing producer-to-consumer path, bind observed numerator and denominator, rule/report version, scope, and times, then assert the consumer sees those same values. If no compatible producer exists, record that census result and retain predictive_only/bridge_pending under FRC-01; do not manufacture coverage.",
         "owner": "Generation-cycle S10 and existing calibration producer owners",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure. Classification basis: The source names existing S10/calibration owners and a production-named gateway; census and owner-routed integration are engineering work, not an established external blocker.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-051"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-051"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16664,7 +16664,7 @@
         "next_step": "On the real curve → continuous evaluation → diagnostics report → truthfulness receipt path, cover empty intervals and observations, absent intervals, mismatched lengths, unmatched levels/sets, fully missing and partially usable data, positive/negative coverage and the small-sample downgrade. Carry the actual number of interval comparison points and distinguish not-evaluated/incomplete from a positive calibration label. Preserve valid curve mathematics; record the end-to-end test identity.",
         "owner": "PCL producer and consumer owner",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-052"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-052"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16718,7 +16718,7 @@
         "blocker_kind": null,
         "next_step": "Decide skipped-level identity semantics and the compatibility cost; record which identity binds and what evidence would falsify the decision.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-053"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-053"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16766,13 +16766,13 @@
       },
       "r_class": null,
       "p_triage": {
-        "class": "a",
-        "disposition": "engineering",
-        "owner": "DDM calibration-audit, monitor and registry-event code owners",
-        "blocker_kind": null,
-        "next_step": "Fix the typed code chain now: carry CalibrationReport validity expiry, invalidation triggers and check result into CalibrationAudit, monitor, registry and readiness event so currentness remains an epoch fact. Use synthetic typed fixtures to distinguish live code semantics. Keep a real deployment/live-feed record as a separate limitation; do not claim deployment applicability until the data owner supplies it. Distinguishing discriminator: With actual CalibrationReport/Pydantic records, pass an unexpired, expired, changed-model/data and invalidation-trigger case through report→audit→monitor→registry/event; expiry/status must survive and stale approval fail. A valid-current control passes. Separate live deployment data receipt is still needed for production applicability.",
+        "class": "c",
+        "disposition": "typed_blocker",
+        "owner": "DDM checker-bound/content-bound validity owner and model_registry_record schema/typed public-contract owner",
+        "blocker_kind": "smallest_missing_capability",
+        "next_step": "P40 bounded STOP for DDM-02: no further production patch, gate, queue admission or integration is authorized by the exact final controller. The candidate exposed that a validity projection can be stamped RECOMPUTED from attestable CalibrationAudit validity plus a timestamp without checker-bound CalibrationInvalidationStatus/report provenance. The smallest missing capability is a checker-bound/content-bound validity-owner handoff bound to model/application identity; durable positive post-serialization re-evaluation requires a future model_registry_record schema and typed public-contract amendment. Reopen only through a separately authorized capability task and an end-to-end behavioral witness. Preserve the distinct deployment/live-feed data-record residual; it does not substitute for checker-bound validity. Exact controller: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#L129-L134; integrated bounded DDM-02 r73 explicitly does not claim complete LA-054/LA-055 closure: /Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c#r73.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:b441eb2aa6137a6e3d070cae0787820b55414678#LA-054"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-054"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16828,7 +16828,7 @@
         "blocker_kind": null,
         "next_step": "Decide whether deployment/live-feed applicability is an in-scope promise and cost the evidence and maintenance obligation.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-055"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-055"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16884,7 +16884,7 @@
         "blocker_kind": null,
         "next_step": "Move/keep contract models at ddm/contracts and prove importing ddm.integration.events does not eagerly load the monitor. The legacy facade must still export the same classes, enum values, validation behavior, and wire schema; retain pickling/FQN compatibility for persisted references.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-056"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-056"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
@@ -16940,7 +16940,7 @@
         "blocker_kind": null,
         "next_step": "Remove the module-level T binding and run an AST/scope census proving T is not resolved outside function-local generic parameters. Preserve the declared signatures and type behavior of all four generic helpers; a same-named local type parameter remains a positive control.",
         "scope": "Accepted P118 triage classification only; it assigns a next step and is not behavioral evidence or finding closure.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:41620fca52a503b902bd249998f5828b5c32060f#LA-057"
+        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:d7a3535e4e784e58a4fc61015903b0c2f16b8787#LA-057"
       },
       "evidence_refs": {
         "finding_test_or_probe": {

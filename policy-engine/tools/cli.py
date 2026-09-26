@@ -391,6 +391,9 @@ def _run_registered_tool(
 
     with timed_tool_run(spec) as timing_state:
         timing_state["preflight_status"] = preflight_status
+        # Initialize before tool dispatch: KeyboardInterrupt is a BaseException, so
+        # it bypasses the ordinary tool-failure handlers below.
+        exit_code = 130
         try:
             exit_code = invoke_tool_main(spec, args)
         except ToolExecutionError as exc:
@@ -398,6 +401,10 @@ def _run_registered_tool(
             result = ToolResult.failed(spec.qualified_name, str(exc), exit_code=1)
             _write_result(result, output_format, stderr=True)
             exit_code = 1
+        except KeyboardInterrupt:
+            timing_state["status"] = "interrupted"
+            exit_code = 130
+            raise
         except Exception as exc:  # pragma: no cover - protects CLI boundary around legacy tools.
             timing_state["status"] = "failed"
             result = ToolResult.failed(

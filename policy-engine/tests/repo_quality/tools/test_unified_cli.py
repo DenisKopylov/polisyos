@@ -5,13 +5,17 @@ import json
 import subprocess
 import sys
 import tomllib
+from contextlib import contextmanager
 from importlib.metadata import distribution
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
+import tools.cli as unified_cli
 from tools.cli import EX_CONFIG, main
 from tools.lib.output import ToolMessage, ToolResult, format_tool_result
-from tools.lib.runner import ToolStatus
+from tools.lib.runner import ToolSpec, ToolStatus
 from tools.lib.timing import ToolRunRecord, append_timing_record, read_timing_records
 from tools.ops_runners.runtime_cli import foundry_main
 from tools.ops_runners.runtime_cli import main as polisyos_main
@@ -146,6 +150,51 @@ def test_unified_cli_help_discovers_tool_categories(capsys) -> None:
     assert "Commands:" in captured.out
     assert "diagnostics" in captured.out
     assert "workspace" in captured.out
+
+
+def test_registered_tool_interrupt_preserves_exit_state_and_normal_control(
+    monkeypatch,
+) -> None:
+    spec = ToolSpec(
+        name="interrupt-probe",
+        zone="test",
+        category="test",
+        module="tests.fixture",
+    )
+    timing_state: dict[str, object] = {}
+
+    @contextmanager
+    def capture_timing(_spec):
+        yield timing_state
+
+    def run_tool() -> int:
+        return unified_cli._run_registered_tool(
+            spec,
+            (),
+            output_format="text",
+            skip_preflight=True,
+            allow_degraded=False,
+            allow_deprecated=False,
+            timing_log=None,
+        )
+
+    monkeypatch.setattr(unified_cli, "timed_tool_run", capture_timing)
+    monkeypatch.setattr(unified_cli, "_append_timing_record", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(unified_cli, "invoke_tool_main", lambda *_: 0)
+    assert run_tool() == 0
+    assert timing_state["status"] == "ok"
+    assert timing_state["exit_code"] == 0
+
+    timing_state.clear()
+
+    def interrupt(*_args):
+        raise KeyboardInterrupt("test cancellation")
+
+    monkeypatch.setattr(unified_cli, "invoke_tool_main", interrupt)
+    with pytest.raises(KeyboardInterrupt):
+        run_tool()
+    assert timing_state["status"] == "interrupted"
+    assert timing_state["exit_code"] == 130
 
 
 def test_registry_discovers_zoned_package_entry_points() -> None:

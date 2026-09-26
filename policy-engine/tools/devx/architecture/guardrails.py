@@ -1598,27 +1598,353 @@ def _summarize_changed_paths(paths: list[str], *, limit: int = 12) -> str:
     return ", ".join(displayed) + suffix
 
 
+@dataclass
+class _GeneratedArtifactMeasurementCursor:
+    """Track completed, active, and pending freshness work for one gate run."""
+
+    required_families: tuple[GeneratedArtifactFamily, ...]
+    violations: list[GuardrailViolation]
+    unrun_checks: list[UnrunGeneratedCheck]
+    _state: tuple[int, int | None, str | None, str] = (0, None, None, "selection")
+
+    @property
+    def completed_index(self) -> int:
+        """Return the first required-family index not recorded as completed."""
+        return self._state[0]
+
+    @property
+    def active_family_index(self) -> int | None:
+        """Return the active family index, if a family phase has begun."""
+        return self._state[1]
+
+    @property
+    def active_phase(self) -> str | None:
+        """Return the current active family phase, when present."""
+        return self._state[2]
+
+    @property
+    def run_phase(self) -> str:
+        """Return the gate-wide phase around family work."""
+        return self._state[3]
+
+    @run_phase.setter
+    def run_phase(self, phase: str) -> None:
+        self._state = (
+            self.completed_index,
+            self.active_family_index,
+            self.active_phase,
+            phase,
+        )
+
+    def begin_family(self, family_index: int) -> None:
+        if family_index != self.completed_index:
+            raise AssertionError("generated-family cursor advanced out of order")
+        self._state = (family_index, family_index, "family_setup", "dispatch")
+
+    def set_active_phase(self, phase: str) -> None:
+        self._state = (
+            self.completed_index,
+            self.active_family_index,
+            phase,
+            self.run_phase,
+        )
+
+    def complete_family(self, family_index: int) -> None:
+        if self.active_family_index != family_index:
+            raise AssertionError("generated-family cursor completed a non-active family")
+        self._state = (family_index + 1, None, None, "dispatch")
+
+
+def _finalize_interrupted_generated_artifact_measurement(
+    cursor: _GeneratedArtifactMeasurementCursor,
+) -> GeneratedArtifactCheckUnrunError:
+    """Return one UNRUN verdict while preserving completed findings and cursors."""
+    unrun_checks = list(cursor.unrun_checks)
+    required_families = cursor.required_families
+
+    if cursor.active_family_index is not None:
+        active_index = cursor.active_family_index
+        active = required_families[active_index]
+        phase = cursor.active_phase or "measurement"
+        unrun_checks.append(
+            UnrunGeneratedCheck(
+                active.family_id,
+                phase,
+                f"KeyboardInterrupt: interrupted during {phase}.",
+            )
+        )
+        for pending in required_families[max(cursor.completed_index, active_index + 1) :]:
+            unrun_checks.append(
+                UnrunGeneratedCheck(
+                    pending.family_id,
+                    "not_started",
+                    f"Not started after interruption in {active.family_id} during {phase}.",
+                )
+            )
+    elif cursor.completed_index < len(required_families):
+        pending_families = required_families[cursor.completed_index :]
+        if cursor.run_phase == "dispatch" and cursor.completed_index > 0:
+            previous = required_families[cursor.completed_index - 1]
+            unrun_checks.extend(
+                UnrunGeneratedCheck(
+                    pending.family_id,
+                    "not_started",
+                    f"Not started after {previous.family_id} completed.",
+                )
+                for pending in pending_families
+            )
+        else:
+            phase = cursor.run_phase if cursor.run_phase != "selection" else "measurement"
+            unrun_checks.extend(
+                UnrunGeneratedCheck(
+                    pending.family_id,
+                    phase,
+                    f"KeyboardInterrupt before this family began; run phase was {phase}.",
+                )
+                for pending in pending_families
+            )
+    else:
+        phase = cursor.run_phase
+        if phase not in {"scratch_cleanup", "aggregate_verdict"}:
+            phase = "measurement"
+        unrun_checks.append(
+            UnrunGeneratedCheck(
+                "required_freshness_measurement",
+                phase,
+                "KeyboardInterrupt after all required family attempts completed; "
+                "the overall measurement verdict could not be finalized.",
+            )
+        )
+
+    return GeneratedArtifactCheckUnrunError(unrun_checks, cursor.violations)
+
+
+def _measure_required_generated_artifact_family(
+    family: GeneratedArtifactFamily,
+    *,
+    family_index: int,
+    cursor: _GeneratedArtifactMeasurementCursor,
+    family_scratch_root: Path,
+    isolated_repo_root: Path,
+    environment: dict[str, str],
+    expected_root: Path,
+    expected_outputs: dict[str, bytes | None],
+    declared_owners: dict[str, list[str]],
+) -> None:
+    """Measure one family and advance the run-wide cursor after its attempt."""
+    cursor.begin_family(family_index)
+    family_violation_start = len(cursor.violations)
+    probe_command = family.output_probe_command
+    if probe_command is None:
+        cursor.unrun_checks.append(
+            UnrunGeneratedCheck(
+                family.family_id, "generator", "No generator-observed output probe."
+            )
+        )
+        cursor.complete_family(family_index)
+        return
+
+    rendered_command = [
+        part.replace("{output_root}", str(family_scratch_root)) for part in probe_command
+    ]
+    cursor.set_active_phase("worktree_snapshot_before")
+    worktree_before = _snapshot_git_visible_worktree(REPO_ROOT)
+    cursor.set_active_phase("isolated_snapshot_before")
+    isolated_before = _snapshot_filesystem_tree(isolated_repo_root)
+    cursor.set_active_phase("generator")
+    try:
+        result = subprocess.run(
+            rendered_command,
+            cwd=isolated_repo_root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError as error:
+        cursor.unrun_checks.append(
+            UnrunGeneratedCheck(family.family_id, "generator", str(error))
+        )
+        cursor.complete_family(family_index)
+        return
+
+    cursor.set_active_phase("worktree_snapshot_after")
+    worktree_after = _snapshot_git_visible_worktree(REPO_ROOT)
+    cursor.set_active_phase("isolated_snapshot_after")
+    isolated_after = _snapshot_filesystem_tree(isolated_repo_root)
+    escaped_paths = _changed_snapshot_paths(worktree_before, worktree_after)
+    escaped_paths.extend(
+        f"isolated-source/{relative}"
+        for relative in _changed_snapshot_paths(isolated_before, isolated_after)
+    )
+    cursor.set_active_phase("oracle_snapshot")
+    for relative, frozen_bytes in expected_outputs.items():
+        current = expected_root / relative
+        current_bytes = current.read_bytes() if current.is_file() else None
+        if current_bytes != frozen_bytes:
+            escaped_paths.append(current.as_posix())
+    escaped_paths = sorted(set(escaped_paths))
+    if escaped_paths:
+        cursor.violations.append(
+            GuardrailViolation(
+                check="generated_artifact",
+                subject=family.family_id,
+                detail="output_probe_worktree_escape",
+                message=(
+                    f"{family.family_id} output probe changed paths outside its assigned "
+                    f"scratch root: {_summarize_changed_paths(escaped_paths)}."
+                ),
+            )
+        )
+    if result.returncode != 0:
+        output = ((result.stdout or "") + (result.stderr or "")).strip()
+        cursor.unrun_checks.append(
+            UnrunGeneratedCheck(
+                family.family_id, "generator", f"exit={result.returncode}\n{output}"
+            )
+        )
+        cursor.complete_family(family_index)
+        return
+
+    cursor.set_active_phase("output_census")
+    observed_outputs = {
+        candidate.relative_to(family_scratch_root).as_posix()
+        for candidate in family_scratch_root.rglob("*")
+        if candidate.is_file()
+    }
+    declared_outputs = {
+        relative
+        for output in family.outputs
+        if (relative := _relative_generated_output(output)) is not None
+    }
+
+    cursor.set_active_phase("output_comparison")
+    for relative in sorted(observed_outputs):
+        owners = sorted(declared_owners.get(relative, []))
+        if not owners:
+            cursor.violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail=relative,
+                    message=(
+                        f"{family.family_id} emitted {relative} but it is not registered "
+                        "under any generated-artifact family."
+                    ),
+                )
+            )
+            continue
+        if len(owners) > 1:
+            cursor.violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail=relative,
+                    message=(
+                        f"{family.family_id} emitted {relative}, but it is registered by "
+                        f"multiple families: {', '.join(owners)}."
+                    ),
+                )
+            )
+            continue
+        if owners[0] != family.family_id:
+            cursor.violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail=relative,
+                    message=(
+                        f"{family.family_id} emitted {relative}, but it is registered to "
+                        f"{owners[0]}."
+                    ),
+                )
+            )
+            continue
+
+        candidate = family_scratch_root / relative
+        expected = expected_root / relative
+        frozen_expected = expected_outputs.get(relative)
+        if frozen_expected is None:
+            cursor.violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail=relative,
+                    message=(
+                        f"{family.family_id} expected output is missing: "
+                        f"{expected.as_posix()}."
+                    ),
+                )
+            )
+        elif candidate.read_bytes() != frozen_expected:
+            cursor.violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail=relative,
+                    message=(
+                        f"{family.family_id} generated output {relative} does not match "
+                        f"{expected.as_posix()}."
+                    ),
+                )
+            )
+
+    for relative in sorted(declared_outputs - observed_outputs):
+        cursor.violations.append(
+            GuardrailViolation(
+                check="generated_artifact",
+                subject=family.family_id,
+                detail=relative,
+                message=(
+                    f"{family.family_id} declares {relative}, but its generator did not "
+                    "emit that output."
+                ),
+            )
+        )
+
+    if len(cursor.violations) == family_violation_start:
+        cursor.set_active_phase("verdict_receipt")
+        print(
+            "Generated artifact freshness clean: "
+            f"{family.family_id} ({len(observed_outputs)} generator-observed outputs)."
+        )
+    cursor.complete_family(family_index)
+
+
 def _run_required_generated_artifact_checks(
     families: list[GeneratedArtifactFamily],
     *,
     expected_root: Path,
 ) -> list[GuardrailViolation]:
-    violations: list[GuardrailViolation] = []
+    required_families = tuple(
+        family for family in families if _requires_default_generated_freshness(family)
+    )
+    cursor = _GeneratedArtifactMeasurementCursor(
+        required_families=required_families,
+        violations=[],
+        unrun_checks=[],
+    )
     try:
         return _measure_required_generated_artifacts(
-            families, expected_root=expected_root, violations=violations,
+            families, expected_root=expected_root, cursor=cursor,
         )
     except GeneratedArtifactCheckUnrunError:
         raise
+    except KeyboardInterrupt as error:
+        raise _finalize_interrupted_generated_artifact_measurement(cursor) from error
     except Exception as error:
-        # An unexpected measurement failure is still unavailable execution, never
-        # an artifact finding. Keep already observed facts without claiming closure.
-        raise GeneratedArtifactCheckUnrunError(
-            [UnrunGeneratedCheck(
-                "required_freshness_measurement", "measurement",
+        # An unexpected measurement failure is unavailable execution, never an artifact
+        # finding. Keep accumulated facts and mark only work that did not finish.
+        cursor.unrun_checks.append(
+            UnrunGeneratedCheck(
+                "required_freshness_measurement",
+                "measurement",
                 f"{type(error).__name__}: {error}",
-            )],
-            violations,
+            )
+        )
+        raise GeneratedArtifactCheckUnrunError(
+            cursor.unrun_checks,
+            cursor.violations,
         ) from error
 
 
@@ -1626,14 +1952,11 @@ def _measure_required_generated_artifacts(
     families: list[GeneratedArtifactFamily],
     *,
     expected_root: Path,
-    violations: list[GuardrailViolation],
+    cursor: _GeneratedArtifactMeasurementCursor,
 ) -> list[GuardrailViolation]:
-    required_families = [
-        family for family in families if _requires_default_generated_freshness(family)
-    ]
+    required_families = cursor.required_families
     if not required_families:
         return []
-    unrun_checks: list[UnrunGeneratedCheck] = []
     declared_owners: dict[str, list[str]] = {}
     for family in families:
         for output in family.outputs:
@@ -1641,11 +1964,13 @@ def _measure_required_generated_artifacts(
             if relative is None:
                 continue
             declared_owners.setdefault(relative, []).append(family.family_id)
+    cursor.run_phase = "expected_output_snapshot"
     expected_outputs = _expected_output_snapshot(
         required_families,
         expected_root=expected_root,
     )
 
+    cursor.run_phase = "environment"
     with tempfile.TemporaryDirectory(prefix="polisyos_generated_freshness_") as scratch_name:
         scratch_root = Path(scratch_name)
         isolated_repo_root = scratch_root / "source"
@@ -1660,180 +1985,33 @@ def _measure_required_generated_artifacts(
                 if isinstance(error, subprocess.CalledProcessError)
                 else str(error)
             )
-            raise GeneratedArtifactCheckUnrunError(
-                [
-                    UnrunGeneratedCheck(family.family_id, "environment", detail)
-                    for family in required_families
-                ]
-            ) from error
-        for family in required_families:
-            family_violations: list[GuardrailViolation] = []
-            probe_command = family.output_probe_command
-            if probe_command is None:
-                unrun_checks.append(
-                    UnrunGeneratedCheck(
-                        family.family_id, "generator", "No generator-observed output probe."
-                    )
-                )
-                continue
-
-            family_scratch_root = output_root / family.family_id
-            rendered_command = [
-                part.replace("{output_root}", str(family_scratch_root)) for part in probe_command
-            ]
-            worktree_before = _snapshot_git_visible_worktree(REPO_ROOT)
-            isolated_before = _snapshot_filesystem_tree(isolated_repo_root)
-            try:
-                result = subprocess.run(
-                    rendered_command,
-                    cwd=isolated_repo_root,
-                    env=environment,
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-            except OSError as error:
-                unrun_checks.append(UnrunGeneratedCheck(family.family_id, "generator", str(error)))
-                continue
-            worktree_after = _snapshot_git_visible_worktree(REPO_ROOT)
-            escaped_paths = _changed_snapshot_paths(worktree_before, worktree_after)
-            isolated_after = _snapshot_filesystem_tree(isolated_repo_root)
-            escaped_paths.extend(
-                f"isolated-source/{relative}"
-                for relative in _changed_snapshot_paths(isolated_before, isolated_after)
+            cursor.unrun_checks.extend(
+                UnrunGeneratedCheck(family.family_id, "environment", detail)
+                for family in required_families
             )
-            for relative, frozen_bytes in expected_outputs.items():
-                current = expected_root / relative
-                current_bytes = current.read_bytes() if current.is_file() else None
-                if current_bytes != frozen_bytes:
-                    escaped_paths.append(current.as_posix())
-            escaped_paths = sorted(set(escaped_paths))
-            if escaped_paths:
-                family_violations.append(
-                    GuardrailViolation(
-                        check="generated_artifact",
-                        subject=family.family_id,
-                        detail="output_probe_worktree_escape",
-                        message=(
-                            f"{family.family_id} output probe changed paths outside its assigned "
-                            f"scratch root: {_summarize_changed_paths(escaped_paths)}."
-                        ),
-                    )
-                )
-            if result.returncode != 0:
-                output = ((result.stdout or "") + (result.stderr or "")).strip()
-                unrun_checks.append(
-                    UnrunGeneratedCheck(
-                        family.family_id, "generator", f"exit={result.returncode}\n{output}"
-                    )
-                )
-                violations.extend(family_violations)
-                continue
+            raise GeneratedArtifactCheckUnrunError(
+                cursor.unrun_checks,
+                cursor.violations,
+            ) from error
 
-            observed_outputs = {
-                candidate.relative_to(family_scratch_root).as_posix()
-                for candidate in family_scratch_root.rglob("*")
-                if candidate.is_file()
-            }
-            declared_outputs = {
-                relative
-                for output in family.outputs
-                if (relative := _relative_generated_output(output)) is not None
-            }
+        for family_index, family in enumerate(required_families):
+            _measure_required_generated_artifact_family(
+                family,
+                family_index=family_index,
+                cursor=cursor,
+                family_scratch_root=output_root / family.family_id,
+                isolated_repo_root=isolated_repo_root,
+                environment=environment,
+                expected_root=expected_root,
+                expected_outputs=expected_outputs,
+                declared_owners=declared_owners,
+            )
+        cursor.run_phase = "scratch_cleanup"
 
-            for relative in sorted(observed_outputs):
-                owners = sorted(declared_owners.get(relative, []))
-                if not owners:
-                    family_violations.append(
-                        GuardrailViolation(
-                            check="generated_artifact",
-                            subject=family.family_id,
-                            detail=relative,
-                            message=(
-                                f"{family.family_id} emitted {relative} but it is not registered "
-                                "under any generated-artifact family."
-                            ),
-                        )
-                    )
-                    continue
-                if len(owners) > 1:
-                    family_violations.append(
-                        GuardrailViolation(
-                            check="generated_artifact",
-                            subject=family.family_id,
-                            detail=relative,
-                            message=(
-                                f"{family.family_id} emitted {relative}, but it is registered by "
-                                f"multiple families: {', '.join(owners)}."
-                            ),
-                        )
-                    )
-                    continue
-                if owners[0] != family.family_id:
-                    family_violations.append(
-                        GuardrailViolation(
-                            check="generated_artifact",
-                            subject=family.family_id,
-                            detail=relative,
-                            message=(
-                                f"{family.family_id} emitted {relative}, but it is registered to "
-                                f"{owners[0]}."
-                            ),
-                        )
-                    )
-                    continue
-
-                candidate = family_scratch_root / relative
-                expected = expected_root / relative
-                frozen_expected = expected_outputs.get(relative)
-                if frozen_expected is None:
-                    family_violations.append(
-                        GuardrailViolation(
-                            check="generated_artifact",
-                            subject=family.family_id,
-                            detail=relative,
-                            message=(
-                                f"{family.family_id} expected output is missing: "
-                                f"{expected.as_posix()}."
-                            ),
-                        )
-                    )
-                elif candidate.read_bytes() != frozen_expected:
-                    family_violations.append(
-                        GuardrailViolation(
-                            check="generated_artifact",
-                            subject=family.family_id,
-                            detail=relative,
-                            message=(
-                                f"{family.family_id} generated output {relative} does not match "
-                                f"{expected.as_posix()}."
-                            ),
-                        )
-                    )
-
-            for relative in sorted(declared_outputs - observed_outputs):
-                family_violations.append(
-                    GuardrailViolation(
-                        check="generated_artifact",
-                        subject=family.family_id,
-                        detail=relative,
-                        message=(
-                            f"{family.family_id} declares {relative}, but its generator did not "
-                            "emit that output."
-                        ),
-                    )
-                )
-
-            violations.extend(family_violations)
-            if not family_violations:
-                print(
-                    "Generated artifact freshness clean: "
-                    f"{family.family_id} ({len(observed_outputs)} generator-observed outputs)."
-                )
-
-    if unrun_checks:
-        raise GeneratedArtifactCheckUnrunError(unrun_checks, violations)
-    return violations
+    cursor.run_phase = "aggregate_verdict"
+    if cursor.unrun_checks:
+        raise GeneratedArtifactCheckUnrunError(cursor.unrun_checks, cursor.violations)
+    return cursor.violations
 
 
 def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:

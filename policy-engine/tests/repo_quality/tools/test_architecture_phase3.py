@@ -685,6 +685,270 @@ def test_guardrail_cli_cannot_waive_an_unrun_required_measurement(
     assert "Architecture guardrail check FAILED:" not in output
 
 
+def test_guardrail_cli_reports_interrupted_setup_as_unrun(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A user interrupt during freshness setup produces the gate's typed UNRUN verdict."""
+    monkeypatch.setattr(sys, "argv", ["guardrails", "check"])
+
+    def prepare_empty_source(_repo_root: Path, destination: Path) -> None:
+        destination.mkdir(parents=True)
+
+    def interrupted(_source: Path, _environment: dict[str, str]) -> None:
+        raise KeyboardInterrupt("test cancellation")
+
+    monkeypatch.setattr(guardrails, "_copy_isolated_probe_source", prepare_empty_source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", interrupted)
+
+    assert guardrails.main() == 2
+    output = capsys.readouterr().out
+    assert "Architecture guardrail check UNRUN" in output
+    required = [
+        family.family_id
+        for family in guardrails._parse_generated_artifacts(guardrails.DEFAULT_GENERATED_MANIFEST)
+        if guardrails._requires_default_generated_freshness(family)
+    ]
+    assert required
+    for family_id in required:
+        assert f"UNRUN {family_id} [environment]: KeyboardInterrupt" in output
+    assert "Architecture guardrail check passed." not in output
+    assert "Architecture guardrail check FAILED:" not in output
+
+
+def test_interrupted_generator_is_unrun_and_keeps_completed_findings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The active and pending families are UNRUN while completed evidence is retained."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "completed.txt", "expected\n")
+    _write_expected_output(expected, "active.txt", "expected\n")
+    _write_expected_output(expected, "pending.txt", "expected\n")
+    families = [
+        _generated_client_family(
+            source,
+            family_id="completed-family",
+            declared_outputs=("completed.txt",),
+            emitted_outputs=(("completed.txt", "different\n"),),
+        ),
+        _generated_client_family(
+            source,
+            family_id="active-family",
+            declared_outputs=("active.txt",),
+            emitted_outputs=(("active.txt", "expected\n"),),
+        ),
+        _generated_client_family(
+            source,
+            family_id="pending-family",
+            declared_outputs=("pending.txt",),
+            emitted_outputs=(("pending.txt", "expected\n"),),
+        ),
+    ]
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+    original_run = subprocess.run
+    calls = 0
+
+    def interrupt_second_family(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise KeyboardInterrupt("test cancellation")
+        return original_run(*args, **kwargs)
+
+    monkeypatch.setattr(guardrails.subprocess, "run", interrupt_second_family)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
+
+    assert [
+        (item.family_id, item.phase) for item in failure.value.unrun_checks
+    ] == [("active-family", "generator"), ("pending-family", "not_started")]
+    assert "KeyboardInterrupt" in failure.value.unrun_checks[0].diagnostic
+    assert "Not started" in failure.value.unrun_checks[1].diagnostic
+    assert [
+        (item.subject, item.detail) for item in failure.value.violations
+    ] == [("completed-family", "completed.txt")]
+
+
+def test_interrupted_output_comparison_names_pending_family_and_keeps_active_finding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An interrupt during comparison keeps the active family's already observed mismatch."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "first.txt", "expected\n")
+    _write_expected_output(expected, "second.txt", "expected\n")
+    _write_expected_output(expected, "pending.txt", "expected\n")
+    families = [
+        _generated_client_family(
+            source,
+            family_id="active-family",
+            declared_outputs=("first.txt", "second.txt"),
+            emitted_outputs=(
+                ("first.txt", "different\n"),
+                ("second.txt", "expected\n"),
+            ),
+        ),
+        _generated_client_family(
+            source,
+            family_id="pending-family",
+            declared_outputs=("pending.txt",),
+            emitted_outputs=(("pending.txt", "expected\n"),),
+        ),
+    ]
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+    original_read_bytes = Path.read_bytes
+
+    def interrupt_on_second_output(path: Path) -> bytes:
+        if "outputs" in path.parts and "active-family" in path.parts and path.name == "second.txt":
+            raise KeyboardInterrupt("test cancellation during comparison")
+        return original_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", interrupt_on_second_output)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
+
+    assert [
+        (item.subject, item.detail) for item in failure.value.violations
+    ] == [("active-family", "first.txt")]
+    assert [
+        (item.family_id, item.phase) for item in failure.value.unrun_checks
+    ] == [("active-family", "output_comparison"), ("pending-family", "not_started")]
+    assert "KeyboardInterrupt" in failure.value.unrun_checks[0].diagnostic
+
+
+def test_interrupt_between_generated_families_preserves_prior_unrun_and_findings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The run cursor separates a completed attempt from the pending next family."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "pending.txt", "expected\n")
+    first = _generated_client_family(
+        source,
+        family_id="completed-attempt",
+        declared_outputs=(),
+        emitted_outputs=(),
+        output_probe_command=(
+            sys.executable,
+            "-c",
+            "from pathlib import Path; Path('rogue.py').write_text('x'); raise SystemExit(17)",
+            "{output_root}",
+        ),
+    )
+    second = _generated_client_family(
+        source,
+        family_id="pending-family",
+        declared_outputs=("pending.txt",),
+        emitted_outputs=(("pending.txt", "expected\n"),),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+    cursor_type = guardrails._GeneratedArtifactMeasurementCursor
+    original_complete = cursor_type.complete_family
+
+    def interrupt_after_first_completion(cursor, family_index: int) -> None:
+        original_complete(cursor, family_index)
+        if family_index == 0:
+            raise KeyboardInterrupt("between-family cancellation")
+
+    monkeypatch.setattr(cursor_type, "complete_family", interrupt_after_first_completion)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks([first, second], expected_root=expected)
+
+    assert [(item.family_id, item.phase) for item in failure.value.unrun_checks] == [
+        ("completed-attempt", "generator"),
+        ("pending-family", "not_started"),
+    ]
+    assert "exit=17" in failure.value.unrun_checks[0].diagnostic
+    assert [(item.subject, item.detail) for item in failure.value.violations] == [
+        ("completed-attempt", "output_probe_worktree_escape")
+    ]
+
+
+def test_interrupt_during_scratch_cleanup_does_not_relabel_completed_families(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """After all family attempts, cleanup interruption has a run-level identity."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "changed.txt", "expected\n")
+    _write_expected_output(expected, "clean.txt", "expected\n")
+    families = [
+        _generated_client_family(
+            source,
+            family_id="completed-with-finding",
+            declared_outputs=("changed.txt",),
+            emitted_outputs=(("changed.txt", "different\n"),),
+        ),
+        _generated_client_family(
+            source,
+            family_id="completed-cleanly",
+            declared_outputs=("clean.txt",),
+            emitted_outputs=(("clean.txt", "expected\n"),),
+        ),
+    ]
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+    real_temporary_directory = guardrails.tempfile.TemporaryDirectory
+
+    class InterruptAfterCleanup:
+        def __init__(self, *args, **kwargs) -> None:
+            self._temporary_directory = real_temporary_directory(*args, **kwargs)
+
+        def __enter__(self):
+            return self._temporary_directory.__enter__()
+
+        def __exit__(self, exc_type, exc, traceback):
+            self._temporary_directory.__exit__(exc_type, exc, traceback)
+            raise KeyboardInterrupt("cleanup cancellation")
+
+    monkeypatch.setattr(guardrails.tempfile, "TemporaryDirectory", InterruptAfterCleanup)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(families, expected_root=expected)
+
+    assert [(item.family_id, item.phase) for item in failure.value.unrun_checks] == [
+        ("required_freshness_measurement", "scratch_cleanup")
+    ]
+    assert [(item.subject, item.detail) for item in failure.value.violations] == [
+        ("completed-with-finding", "changed.txt")
+    ]
+
+
+def test_required_generator_normal_matching_output_remains_a_pass(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The interruption boundary preserves the ordinary completed generator control."""
+    source = tmp_path / "source"
+    source.mkdir()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "expected\n")
+    family = _generated_client_family(
+        source,
+        family_id="normal-control",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(("generated.txt", "expected\n"),),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", lambda *_: None)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+
+    assert guardrails._run_required_generated_artifact_checks([family], expected_root=expected) == []
+
+
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

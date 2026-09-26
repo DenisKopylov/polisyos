@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+import struct
 import warnings
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 import jax.random as jrandom
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.uncertainty import (
@@ -59,6 +64,61 @@ class _EmpiricalJointSpec:
     samples: Mapping[str, np.ndarray]
     probabilities: np.ndarray
     joint_sample_id: str | None
+
+
+class _DrawOutcomeCode(StrEnum):
+    """Typed outcome classes for a Monte Carlo draw/output pair."""
+
+    SIMULATION_EXCEPTION = "simulation_exception"
+    INVALID_RESPONSE = "invalid_response"
+    MISSING_OUTPUT = "missing_output"
+    NON_NUMERIC_OUTPUT = "non_numeric_output"
+    NON_FINITE_OUTPUT = "non_finite_output"
+
+
+class _DrawOutputOutcome(BaseModel):
+    """Describe one unavailable output within a sampled draw."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    output_metric_id: str = Field(min_length=1)
+    outcome_code: _DrawOutcomeCode
+    error_type: str | None = None
+
+
+class _DrawOutcomeRecord(BaseModel):
+    """Bind all unavailable outputs for one draw to its sampled inputs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    draw_index: int = Field(ge=0)
+    sampled_input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    output_outcomes: tuple[_DrawOutputOutcome, ...] = Field(min_length=1)
+
+
+def _sampled_input_digest(params: Mapping[str, Any]) -> str:
+    """Hash all exact numeric inputs for one attempted draw."""
+    digest = hashlib.sha256()
+    for name in sorted(params):
+        digest.update(name.encode("utf-8"))
+        digest.update(b"\x00")
+        digest.update(struct.pack(">d", float(params[name])))
+    return digest.hexdigest()
+
+
+def _envelope_content_digest(envelope: UncertaintyEnvelope) -> str | None:
+    """Return a stable content binding, or None when the payload is not JSON-safe."""
+    try:
+        payload = json.dumps(
+            envelope.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError):
+        return None
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _normal_parametric_fit(env: UncertaintyEnvelope) -> tuple[float, float] | None:
@@ -307,6 +367,7 @@ class MonteCarloPropagator:
             n_samples=n_samples,
         )
         missing_outputs = dict.fromkeys(output_metric_ids, 0)
+        draw_outcomes: list[_DrawOutcomeRecord] = []
         failed = 0
         stopped_early = False
         actual_n_samples = 0
@@ -327,6 +388,7 @@ class MonteCarloPropagator:
                 adaptive,
                 alpha,
                 missing_outputs,
+                draw_outcomes,
                 empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
@@ -343,6 +405,7 @@ class MonteCarloPropagator:
                 adaptive,
                 alpha,
                 missing_outputs,
+                draw_outcomes,
                 empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
@@ -361,6 +424,8 @@ class MonteCarloPropagator:
             level,
             alpha,
             missing_outputs=missing_outputs,
+            draw_outcomes=draw_outcomes,
+            requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
             joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
@@ -383,6 +448,7 @@ class MonteCarloPropagator:
         adaptive: Any,
         alpha: float,
         missing_outputs: dict[str, int],
+        draw_outcomes: list[_DrawOutcomeRecord],
         empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int, _QMCExecutionSummary]:
         batch_size = min(self._config.mc_batch_size, n_samples)
@@ -440,6 +506,7 @@ class MonteCarloPropagator:
                         sample_buffers,
                         sample_idx=sample_idx,
                         missing_outputs=missing_outputs,
+                        draw_outcomes=draw_outcomes,
                     )
                     if not ok:
                         failed += 1
@@ -488,6 +555,7 @@ class MonteCarloPropagator:
         adaptive: Any,
         alpha: float,
         missing_outputs: dict[str, int],
+        draw_outcomes: list[_DrawOutcomeRecord],
         empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int]:
         rng = jrandom.PRNGKey(self._config.mc_seed)
@@ -535,6 +603,7 @@ class MonteCarloPropagator:
                     sample_buffers,
                     sample_idx=sample_idx,
                     missing_outputs=missing_outputs,
+                    draw_outcomes=draw_outcomes,
                 )
                 if not ok:
                     failed += 1
@@ -562,24 +631,89 @@ class MonteCarloPropagator:
         *,
         sample_idx: int,
         missing_outputs: dict[str, int],
+        draw_outcomes: list[_DrawOutcomeRecord],
     ) -> bool:
-        for name in param_names:
-            sample_buffers.input_samples[name][sample_idx] = float(params[name])
+        sampled_inputs = {name: float(params[name]) for name in param_names}
+        for name, value in sampled_inputs.items():
+            sample_buffers.input_samples[name][sample_idx] = value
+        sampled_input_sha256: str | None = None
+
+        def input_digest() -> str:
+            nonlocal sampled_input_sha256
+            if sampled_input_sha256 is None:
+                sampled_input_sha256 = _sampled_input_digest(params)
+            return sampled_input_sha256
+
+        def record_failures(
+            failures: Mapping[str, tuple[_DrawOutcomeCode, str | None]],
+        ) -> None:
+            if not failures:
+                return
+            draw_outcomes.append(
+                _DrawOutcomeRecord(
+                    draw_index=sample_idx,
+                    sampled_input_sha256=input_digest(),
+                    output_outcomes=tuple(
+                        _DrawOutputOutcome(
+                            output_metric_id=metric_id,
+                            outcome_code=outcome_code,
+                            error_type=error_type,
+                        )
+                        for metric_id, (outcome_code, error_type) in sorted(failures.items())
+                    ),
+                )
+            )
+
         try:
             result = simulation_fn(**params)
-            if not isinstance(result, Mapping):
-                raise TypeError("simulation_fn must return a mapping of output metrics")
-            for mid in output_metric_ids:
-                if mid not in result or result[mid] is None:
-                    missing_outputs[mid] += 1
-                    sample_buffers.values[mid][sample_idx] = float("nan")
-                    continue
-                sample_buffers.values[mid][sample_idx] = float(result[mid])
-            return True
-        except Exception:
+        except Exception as exc:
             for mid in output_metric_ids:
                 sample_buffers.values[mid][sample_idx] = float("nan")
+            record_failures(
+                dict.fromkeys(
+                    output_metric_ids,
+                    (_DrawOutcomeCode.SIMULATION_EXCEPTION, type(exc).__name__),
+                )
+            )
             return False
+
+        if not isinstance(result, Mapping):
+            for mid in output_metric_ids:
+                sample_buffers.values[mid][sample_idx] = float("nan")
+            record_failures(
+                dict.fromkeys(
+                    output_metric_ids,
+                    (_DrawOutcomeCode.INVALID_RESPONSE, type(result).__name__),
+                )
+            )
+            return False
+
+        parsed_values: dict[str, float] = {}
+        failures: dict[str, tuple[_DrawOutcomeCode, str | None]] = {}
+        for mid in output_metric_ids:
+            if mid not in result or result[mid] is None:
+                parsed_values[mid] = float("nan")
+                failures[mid] = (_DrawOutcomeCode.MISSING_OUTPUT, None)
+                continue
+            try:
+                value = float(result[mid])
+            except (TypeError, ValueError, OverflowError) as exc:
+                parsed_values[mid] = float("nan")
+                failures[mid] = (_DrawOutcomeCode.NON_NUMERIC_OUTPUT, type(exc).__name__)
+                continue
+            if not math.isfinite(value):
+                parsed_values[mid] = float("nan")
+                failures[mid] = (_DrawOutcomeCode.NON_FINITE_OUTPUT, None)
+                continue
+            parsed_values[mid] = value
+
+        for mid, value in parsed_values.items():
+            sample_buffers.values[mid][sample_idx] = value
+        for mid, (outcome_code, _error_type) in failures.items():
+            if outcome_code is _DrawOutcomeCode.MISSING_OUTPUT:
+                missing_outputs[mid] += 1
+        record_failures(failures)
+        return True
 
     # ------------------------------------------------------------------
     # Adaptive stopping
@@ -671,6 +805,8 @@ class MonteCarloPropagator:
         alpha: float,
         *,
         missing_outputs: Mapping[str, int],
+        draw_outcomes: list[_DrawOutcomeRecord],
+        requested_n_samples: int,
         qmc_summary: _QMCExecutionSummary | None,
         sample_axis: str = "draw",
         joint_sample_id: str | None = None,
@@ -697,12 +833,48 @@ class MonteCarloPropagator:
             )
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
+        input_envelope_digests = {
+            name: _envelope_content_digest(envelope)
+            for name, envelope in input_envelopes.items()
+        }
+        input_identity_complete = all(
+            value is not None for value in input_envelope_digests.values()
+        )
+        metric_failure_draw_counts = dict.fromkeys(output_metric_ids, 0)
+        for draw_outcome in draw_outcomes:
+            for output_outcome in draw_outcome.output_outcomes:
+                metric_failure_draw_counts[output_outcome.output_metric_id] += 1
+        draw_outcome_provenance: dict[str, Any] = {
+            "schema_version": "1.0",
+            "requested_draw_count": requested_n_samples,
+            "attempted_draw_count": actual_n_samples,
+            "successful_draw_count": actual_n_samples - len(draw_outcomes),
+            "unattempted_draw_count": requested_n_samples - actual_n_samples,
+            "outcome_denominator_complete": not stopped_early,
+            "sampling_recipe": {
+                "config": self._config.model_dump(mode="json"),
+                "input_param_names": param_names,
+                "input_envelope_sha256": input_envelope_digests,
+                "sample_axis": sample_axis,
+                "joint_sample_id": joint_sample_id,
+            },
+            "input_identity_status": (
+                "content_hashed" if input_identity_complete else "not_established"
+            ),
+            "implementation_identity_status": "not_established",
+            "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
+            "failure_records": [item.model_dump(mode="json") for item in draw_outcomes],
+        }
         for metric_id in output_metric_ids:
             arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             valid = arr[jnp.isfinite(arr)]
             n_valid = int(valid.shape[0])
             missing_count = int(missing_outputs.get(metric_id, 0))
             has_missing_output = missing_count > 0
+            metric_failure_draw_count = metric_failure_draw_counts[metric_id]
+            has_incomplete_draws = (
+                metric_failure_draw_count > 0 or stopped_early or not input_identity_complete
+            )
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
@@ -723,7 +895,7 @@ class MonteCarloPropagator:
                 scope = ("expectation_bv",)
             if qmc_method is None and actual_n_samples <= 0:
                 scope = ("expectation", "bounds")
-            if has_missing_output:
+            if has_incomplete_draws:
                 interval_semantics = IntervalSemantics.HEURISTIC_RANGE
                 confidence_level = None
                 gate_eligible = False
@@ -748,9 +920,7 @@ class MonteCarloPropagator:
                     confidence_interval = (point, point)
                 failure_metadata = {
                     "failure": (
-                        "missing_output"
-                        if has_missing_output
-                        else "insufficient_valid_samples"
+                        "missing_output" if has_missing_output else "insufficient_valid_samples"
                     ),
                     "mc_n_valid": n_valid,
                     "mc_n_samples": actual_n_samples,
@@ -758,6 +928,23 @@ class MonteCarloPropagator:
                 }
                 if has_missing_output:
                     failure_metadata["missing_output_count"] = missing_count
+                if has_incomplete_draws:
+                    failure_metadata.update(
+                        {
+                            "draw_outcome_status": (
+                                "adaptively_stopped" if stopped_early else "incomplete"
+                            ),
+                            "draw_requested_count": requested_n_samples,
+                            "draw_attempted_count": actual_n_samples,
+                            "draw_successful_count": n_valid,
+                            "draw_failure_count": metric_failure_draw_count,
+                            "draw_unattempted_count": requested_n_samples - actual_n_samples,
+                            "distribution_sample_semantics": (
+                                "successful_draws_only_conditional_on_execution"
+                            ),
+                            "candidate_only": True,
+                        }
+                    )
                 if qmc_method is not None:
                     failure_metadata["qmc_scrambled"] = qmc_scrambled
                     failure_metadata["qmc_replicates"] = qmc_replicates
@@ -833,6 +1020,24 @@ class MonteCarloPropagator:
                 if has_missing_output:
                     metadata["missing_output"] = metric_id
                     metadata["missing_output_count"] = missing_count
+                if has_incomplete_draws:
+                    metadata.update(
+                        {
+                            "failure": "incomplete_simulation_draws",
+                            "draw_outcome_status": (
+                                "adaptively_stopped" if stopped_early else "incomplete"
+                            ),
+                            "draw_requested_count": requested_n_samples,
+                            "draw_attempted_count": actual_n_samples,
+                            "draw_successful_count": n_valid,
+                            "draw_failure_count": metric_failure_draw_count,
+                            "draw_unattempted_count": requested_n_samples - actual_n_samples,
+                            "distribution_sample_semantics": (
+                                "successful_draws_only_conditional_on_execution"
+                            ),
+                            "candidate_only": True,
+                        }
+                    )
                 if qmc_method is not None:
                     metadata["qmc_scrambled"] = qmc_scrambled
                     metadata["qmc_replicates"] = qmc_replicates
@@ -967,9 +1172,12 @@ class MonteCarloPropagator:
                         "n_samples": actual_n_samples,
                         "n_valid": n_valid,
                         "n_failed": actual_n_samples - n_valid,
+                        "missing_output": has_missing_output,
                         "missing_output_count": missing_count,
+                        "draw_outcome_provenance": draw_outcome_provenance,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
+                    "output_coverage_complete": not has_incomplete_draws,
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,

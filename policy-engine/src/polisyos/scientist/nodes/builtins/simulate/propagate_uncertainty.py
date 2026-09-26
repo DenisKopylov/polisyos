@@ -49,6 +49,12 @@ class _PropagationFunction(Protocol):
 
     def __call__(self, **current_params: Any) -> dict[str, Any]: ...
 
+
+def _has_missing_output(result: PropagationResult) -> bool:
+    """Read the method-neutral missing-output signal from a propagation result."""
+    return result.diagnostics.get("missing_output") is True
+
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_uncertainty@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -157,8 +163,15 @@ class PropagateUncertaintyNode:
         missing_output_metric_ids = [
             item.metric_id
             for item in results
-            if item.envelope.metadata.get("failure") == "missing_output"
-            or item.diagnostics.get("missing_output_count", 0) > 0
+            if _has_missing_output(item)
+        ]
+        incomplete_output_metric_ids = [
+            item.metric_id
+            for item in results
+            if (
+                _has_missing_output(item)
+                or item.diagnostics.get("output_coverage_complete") is False
+            )
         ]
 
         envelope_refs: dict[str, ArtifactRef] = {}
@@ -177,6 +190,7 @@ class PropagateUncertaintyNode:
             mapped_params=mapped_params,
             unmapped_metric_ids=unmapped_metric_ids,
             missing_output_metric_ids=missing_output_metric_ids,
+            incomplete_output_metric_ids=incomplete_output_metric_ids,
         )
 
         updated_sim = sim_result.model_copy(
@@ -448,6 +462,7 @@ def _persist_report(
     mapped_params: set[str],
     unmapped_metric_ids: list[str],
     missing_output_metric_ids: list[str],
+    incomplete_output_metric_ids: list[str],
 ) -> ArtifactRef:
     mapping_status = (
         "resolved"
@@ -456,8 +471,28 @@ def _persist_report(
         if len(unmapped_metric_ids) < len(output_metrics)
         else "unresolved"
     )
+    shared_provenance = results[0].diagnostics.get("draw_outcome_provenance") if results else None
+    if shared_provenance is not None and not all(
+        item.diagnostics.get("draw_outcome_provenance") is shared_provenance
+        for item in results
+    ):
+        shared_provenance = None
+
+    diagnostics: list[dict[str, Any]] = []
+    for item in results:
+        item_diagnostics = dict(item.diagnostics)
+        if shared_provenance is not None:
+            item_diagnostics.pop("draw_outcome_provenance", None)
+        diagnostics.append(
+            {
+                "metric_id": item.metric_id,
+                "method": item.method_used.value,
+                "diagnostics": item_diagnostics,
+            }
+        )
+
     payload = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "input_envelope_count": len(input_envelopes),
         "output_metric_count": len(output_metrics),
         "mapped_param_count": len(mapped_params),
@@ -466,21 +501,17 @@ def _persist_report(
         "unmapped_metric_ids": sorted(unmapped_metric_ids),
         "missing_output_metric_ids": sorted(missing_output_metric_ids),
         "methods": [item.method_used.value for item in results],
-        "diagnostics": [
-            {
-                "metric_id": item.metric_id,
-                "method": item.method_used.value,
-                "diagnostics": item.diagnostics,
-            }
-            for item in results
-        ],
+        "diagnostics": diagnostics,
+        "incomplete_output_metric_ids": sorted(incomplete_output_metric_ids),
     }
+    if shared_provenance is not None:
+        payload["draw_outcome_provenance"] = shared_provenance
     return ctx.store.put_json(
         payload,
         PutOptions(
             kind="foundry.propagation_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.0"),
+            schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.1"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )

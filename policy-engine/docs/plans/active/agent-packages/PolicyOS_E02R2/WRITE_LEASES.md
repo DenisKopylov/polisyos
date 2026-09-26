@@ -1,5 +1,34 @@
 # E02-R2 write leases
 
+## Current handoff at `ff07e89fa` (supersedes older snapshots below)
+
+- The root integrator is the sole writer of `codex/e02-r2`. R1's narrow served
+  N4 terminal repair is committed at `679f096e3`; its reviewed decision-draft
+  correction is `b14af08ca`. The 282-row ledger reconciliation is `ff07e89fa`.
+  These commits do not close the pending principal choices or the remaining
+  four-base `UNRUN` cells.
+- The shared `runtime/quality/generation_cycle.py` lease belongs to **R2 history**.
+  Its uncommitted prototype is frozen at SHA-256
+  `a7cc9cf9be1aced16a5a58071abaf9ea0eb4c733968ea1547f0916c56fc542ea`;
+  its untracked history test is frozen at SHA-256
+  `8cd5afb970c33e2bc177376169976178a8fac0087b2dde1615acfaa51faaf36c`.
+  A scratch candidate is being built from the complete historical typed graph;
+  no one else edits these shared files. The separate R2 deployment-identity
+  candidate also touches `generation_cycle.py`, `confidence_ledger.py`, and
+  `promotion_sequence.py`; it waits for history handoff, compatibility review,
+  and test-first admission. Do not apply its earlier six-file patch unchanged.
+- R13's supplied-store/world-growth candidate and R11's VOI-status candidate
+  remain scratch-only. Their `generation_cycle.py` edits follow R2 in that order.
+  R11's EIG-per-USD threshold was rejected in independent review because its
+  units are not established. H/N agents own read-only probes and scratch patches,
+  not the integration tree. The reviewed ledger documentation patch has already
+  landed; further ledger edits require new SHA-link reconciliation.
+- Test jobs may use four to five measured process groups while preserving at
+  least 20–30% RAM headroom and 10 GiB free disk; native/high-RSS jobs remain
+  exclusive. No shared tree edits while a test reads it. Reuse the existing
+  offline `.venv` and the read-only `production_data` symlink. No governed
+  artifact reissue, branch publication, or Trash emptying is authorized here.
+
 ## Current handoff at `0ee329300` (supersedes every older snapshot below)
 
 - The sole integration writer owns `codex/e02-r2`. R1/R5 is merged at

@@ -3390,6 +3390,89 @@ class ControlPlaneService(
                     )
 
                     if isinstance(compiled, N4CandidateProposalExecution):
+                        from polisyos.runtime.quality.design_generation import (
+                            DesignGenerationOrganRun,
+                        )
+
+                        proposal_result = compiled.proposal
+                        if isinstance(proposal_result, DesignGenerationOrganRun):
+                            generation_status = proposal_result.result.status
+                            limitation_code_by_status = {
+                                "generation_unavailable": "n4_generation_unavailable",
+                                "preflight_rejected": "n4_model_preflight_rejected",
+                            }
+                            limitation_code = limitation_code_by_status.get(
+                                generation_status
+                            )
+                            if limitation_code is None:
+                                raise RuntimeError(
+                                    "n4_candidate_proposal_terminal_status_invalid"
+                                )
+
+                            run_id = str(job.run_id or payload.get("run_id") or "")
+                            event_id = self._emit_runtime_diagnostic_event(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                execution_profile=job.effective_execution_profile,
+                                phase="job_execution",
+                                event_type=(
+                                    "polisyos.runtime.diagnostic.phase_transition.v1"
+                                ),
+                                state_before="running",
+                                state_after="completed",
+                                payload=payload,
+                                event_payload={
+                                    "job_kind": job.kind,
+                                    "capability_manifest_ref": str(
+                                        capability_manifest_ref
+                                    ),
+                                    "execution_band": "candidate",
+                                    "candidate_computation_status": (
+                                        "not_established"
+                                    ),
+                                    "limitation_code": limitation_code,
+                                    "n4_status": generation_status,
+                                    "downstream_stages": {
+                                        "n5": "not_run",
+                                        "n8": "not_run",
+                                        "n9": "not_run",
+                                        "s8": "not_run",
+                                    },
+                                },
+                                artifact_refs=[str(capability_manifest_ref)],
+                            )
+                            progress = {
+                                "state": "completed",
+                                "phase": "natural_language_run",
+                                "status": "not_established",
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "proposal_persistence_status": "not_run",
+                                "limitation_code": limitation_code,
+                                "stage": "n4_proposal_only",
+                                "n4_status": generation_status,
+                                "run_id": run_id,
+                                "candidate_proposal_ref": None,
+                                "runtime_diagnostic_event_status": (
+                                    "persisted" if event_id is not None else "not_established"
+                                ),
+                                "n5_status": "not_run",
+                                "n8_status": "not_run",
+                                "n9_status": "not_run",
+                                "s8_status": "not_run",
+                            }
+                            if event_id is None:
+                                progress[
+                                    "runtime_diagnostic_event_limitation_code"
+                                ] = "diagnostic_event_owner_scope_not_established"
+                            self._control_store.complete_job(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                capability_manifest_ref=str(capability_manifest_ref),
+                                progress=progress,
+                            )
+                            return
+
                         from polisyos.runtime.quality.generation_source import (
                             GenerationSourceRepository,
                             N4CandidateProposalLocator,
@@ -3436,7 +3519,7 @@ class ControlPlaneService(
                             cell_id=cell_id,
                             raw_request=raw_request,
                             problem=compiled.design_problem,
-                            proposal=compiled.proposal,
+                            proposal=proposal_result,
                         )
                         proposal_locator = N4CandidateProposalLocator(
                             artifact_ref=proposal_ref

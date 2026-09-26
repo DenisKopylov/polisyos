@@ -1596,6 +1596,95 @@ async def test_http_recursive_route_without_owner_context_fails_closed_before_bo
 
 
 @pytest.mark.asyncio
+async def test_http_protected_explicit_n4_without_owner_context_fails_closed_before_boundary_wmr(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Protected explicit N4 stays refused when its owner context is missing."""
+
+    from polisyos.runtime.quality import design_generation as design_generation_owner
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _cyc01_owner_bound_n5_case,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _non_simulation_execution_context,
+    )
+
+    problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+    evaluation_context = _non_simulation_execution_context(
+        mode="field_pilot",
+        candidate=candidate,
+        world=substrate_context.world_model_record,
+        problem=problem,
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    class _NeverCalledVerifier:
+        def require_admission(self, *_args, **_kwargs):
+            raise AssertionError("owner-context absence reached EvalSafety verifier")
+
+    class _ExplicitN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self.calls = 0
+
+        async def __call__(self, *_args, **_kwargs):
+            self.calls += 1
+            raise AssertionError("protected explicit N4 ran without substrate")
+
+    async def compile_problem(**_kwargs):
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+
+    def reject_candidate_proposal(**_kwargs):
+        pytest.fail("protected explicit N4 route entered candidate-only proposal path")
+
+    monkeypatch.setattr(
+        design_generation_owner,
+        "generate_design_candidate_proposal_under_a",
+        reject_candidate_proposal,
+    )
+    n4_port = _ExplicitN4Port()
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="field_pilot",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=evaluation_context,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+
+    assert exc_info.value.code == "cycle_substrate_context_not_established"
+    assert n4_port.calls == 0
+
+
+@pytest.mark.asyncio
 async def test_recursive_leaf_preserves_history_and_current_problem_binding() -> None:
     """A leaf retains prior cycles while its current binding follows the leaf head."""
 

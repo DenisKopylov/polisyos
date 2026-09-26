@@ -451,8 +451,13 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A plain request must not require a caller-built EvalSafety Python object."""
+    """A plain request reaches proposal-only N4 without caller-built EvalSafety state."""
 
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        N4CandidateProposalExecution,
+    )
+    from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+    from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _budget,
@@ -475,12 +480,20 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
         "build_design_problem_from_nl_request",
         compile_problem,
     )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        llm_factory,
+        "create_traced_gateway_client",
+        lambda **_kwargs: None,
+    )
 
-    # This is the ordinary HTTP boundary: no CycleSubstrateContext or
-    # EvaluationExecutionContext is supplied by the caller.  N4 is deliberately
-    # not replaced with a fixture bundle.  If the canonical owner producer is
-    # unavailable in this checkout, the existing recursive ports must preserve
-    # typed blocked observations instead of raising at the HTTP boundary.
+    # This is the ordinary HTTP candidate boundary: no CycleSubstrateContext or
+    # EvaluationExecutionContext is supplied by the caller. The canonical N4
+    # owner is attempted, and its unavailable result must stay typed.
     compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
         raw_request=problem.nl_provenance.raw_request,
         context={},
@@ -500,16 +513,11 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     )
 
     assert compiler_calls == 1
-    assert compiled.recursive_run.leaf_nodes
-    if compiled.cycle_substrate_context_ref is None:
-        leaf = compiled.recursive_run.leaf_nodes[0]
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.cycles
-        cycle = leaf.cycle_run.cycles[0]
-        assert cycle.simulation.status == "simulation_blocked"
-        assert cycle.simulation.simulation_ref is None
-        assert cycle.value_port.status == "value_blocked"
-        assert cycle.value_port.value_ref is None
+    assert isinstance(compiled, N4CandidateProposalExecution)
+    assert isinstance(compiled.proposal, DesignGenerationOrganRun)
+    assert compiled.design_problem == problem
+    assert compiled.proposal.result.status == "generation_unavailable"
+    assert compiled.proposal.result.candidates == ()
 
 
 @pytest.mark.asyncio
@@ -1553,6 +1561,125 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
         assert service._promotion_runtime.store is service._artifact_store
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or_downstream(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A real served candidate request records N4 unavailability as a typed limitation."""
+
+    from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.scientist.orchestration.llm import factory as llm_factory
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _design_problem_tool_args,
+        _DeterministicSpanSupportClient,
+        _FakeDesignProblemGateway,
+        _intent_context,
+    )
+    from tests.unit.runtime.quality.test_design_generation import _recordings
+
+    recording = _recordings()[0]
+    model_id = str(recording["model_id"])
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
+    )
+    compiler_gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=_design_problem_tool_args(),
+    )
+    original_compiler = nl_pipeline.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs):
+        kwargs["gateway_client"] = compiler_gateway
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    generation_factory_calls: list[str] = []
+
+    def unavailable_generation_gateway(**kwargs):
+        generation_factory_calls.append(str(kwargs.get("model_name")))
+        return None
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "_build_cycle_substrate_context_from_owner",
+        lambda **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        llm_factory,
+        "create_traced_gateway_client",
+        unavailable_generation_gateway,
+    )
+
+    service = _build_control_service(tmp_path)
+    try:
+        launch = await service.launch_nl_run(
+            NaturalLanguageRunRequest(
+                request=raw_request,
+                llm_model=model_id,
+                context=_intent_context(as_of="2026-05-12"),
+            ),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        def reject_downstream(**_kwargs):
+            pytest.fail("unavailable proposal reached an N6/N8/N9/S8 consumer")
+
+        monkeypatch.setattr(service, "resolve_generation_value_choices", reject_downstream)
+        monkeypatch.setattr(service, "_publish_generation_run", reject_downstream)
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            reject_downstream,
+        )
+
+        def reject_unavailable_proposal_persistence(*_args, **_kwargs):
+            pytest.fail("unavailable N4 terminal reached proposal persistence")
+
+        monkeypatch.setattr(
+            GenerationSourceRepository,
+            "persist_candidate_proposal",
+            reject_unavailable_proposal_persistence,
+        )
+        service._process_control_job(record)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+        progress = completed.progress
+        assert progress["status"] == "not_established"
+        assert progress["execution_band"] == "candidate"
+        assert progress["candidate_computation_status"] == "not_established"
+        assert progress["proposal_persistence_status"] == "not_run"
+        assert progress["limitation_code"] == "n4_generation_unavailable"
+        assert progress["n4_status"] == "generation_unavailable"
+        assert progress["candidate_proposal_ref"] is None
+        assert progress["n5_status"] == "not_run"
+        assert progress["n8_status"] == "not_run"
+        assert progress["n9_status"] == "not_run"
+        assert progress["s8_status"] == "not_run"
+        assert progress["runtime_diagnostic_event_status"] == "persisted"
+        assert generation_factory_calls == [model_id]
+        assert compiler_gateway.generate_calls
+
+        manifest_text = "\n".join(
+            manifest.read_text(encoding="utf-8")
+            for manifest in service._artifact_store.base.rglob("*.manifest.json")
+        )
+        assert "runtime.quality.n4_candidate_proposal" not in manifest_text
+        assert "runtime.quality.compiled_recursive_generation_cycle" not in manifest_text
     finally:
         service.close()
 

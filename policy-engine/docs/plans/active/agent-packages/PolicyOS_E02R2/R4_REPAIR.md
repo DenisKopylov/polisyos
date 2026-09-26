@@ -25,3 +25,17 @@ Commit `c0d290e0a979ff256db0cee27900b7632e84c4d7` reuses the live run's typed so
 The code-removal probe deleted only the stored-to-current receipt comparison while keeping receipt/status markers and the current-source status guard. The distinguishing test turned red because `strangle_receipt_stale` disappeared; after reverse-applying the probe, the candidate source hash and clean branch matched its pre-probe state. Full receipt: `/Users/deniskopylov/.codex/scratch/e02-r4-source-census-performance-removal-20260925/removal-receipt.md@sha256:24f72e092ad7c2a08240b5027d3b5d8fc2b56c44b522a57a2ac50aa51f636269`. Independent delta review: `/Users/deniskopylov/.codex/scratch/e02-r4-source-census-performance-independent-review-v2-20260925.md@sha256:6d5b80220cf7e1fa79f3d8aee14ad618f3b18bfc5b20359410ff4543748dc2a2`.
 
 The committed N6 contract and the older N9 promotion receipts still require authorized reissue through their owners. R2's deployment-identity/currentness question remains separate and unresolved. The full four-base postrepair replay and whole repository-quality checker file remain UNRUN.
+
+## Current-head verdict addendum — 2026-09-26
+
+The earlier direct `fail`/exit-1 result above is a historical measurement at the
+R4 repair commit. At clean `codex/e02-r2@c9a6d672ebd30ff5de6934cc0b30903686f3e42a`,
+the standalone `--check` invocation took 27.923 seconds and returned typed
+**`UNRUN`, exit 2** with `generation_cycle_currentness_reissue_required`.
+The v2 historical replay passed, the current contract requires v3, and the
+live callback attempt count was zero. This proves the checker no longer
+crashes at this head; it does not prove the current N6/N9 contract passes.
+The complete command, declared read denominator and limitations, input digest,
+exit, and raw output are retained in
+`/Users/deniskopylov/.codex/scratch/e02-r13-d-exact-store-20260926/R4_POST_C9A6_VERDICT_RECEIPT.md@sha256:5d8a659aabcbdf3bc5684b5d9819c59e0f89709adc6f11cce250fb08f62af640`.
+No governed artifact was regenerated or restamped.

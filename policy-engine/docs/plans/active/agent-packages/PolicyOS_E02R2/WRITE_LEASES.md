@@ -1,5 +1,40 @@
 # E02-R2 write leases
 
+## Handoff after `d782e7ea1` (2026-09-26; supersedes older snapshots below)
+
+- The root integrator is the sole writer of `codex/e02-r2`. R13-E is committed at
+  `d782e7ea1`: the supplied Foundry store and selected CAS view pass the integrated
+  PLG-03 file (6/6). Runtime store injection still has no production caller in that
+  plugin. The shared tree was clean when this handoff was written.
+- **Next shared source lease: R13-D**, then R13-F/G, then R2 consumer work that
+  also edits `runtime/quality/generation_cycle.py`. R13-D owns that file,
+  `recursive_generation_cycle.py`, `test_cyc_02.py`, and `test_acq_01.py` in an
+  isolated scratch candidate. Its first patch is not admitted as-is: moving the
+  NCM reader to the runtime store while the composed-WMR owner still writes to a
+  root store would split producer and reader. The author is preparing a bounded
+  N5/N8 revision; independent delta review must precede integration. R13-F's
+  contract-only route store and R2's currentness consumer wait for that lease.
+- R1's target-scope profile is a scratch-only candidate. Its existing write set is
+  `data_state_substrate.py`, `cycle_substrate.py`, HTTP control generation/lifecycle,
+  and their tests. It lacks a production job producer/consumer bridge and a served
+  N4→N5 witness; protected S8 still requires an appointed scope issuer and current
+  evidence. Do not integrate it as a completed R1 capability. The R2 cold-start
+  package-identity candidate remains scratch-only and cannot grant authority from
+  a synthetic manifest or an UNRUN N6 census.
+- **P41 test-origin correction:** the first supplementary R13-C four-base wave
+  used a relative test path from `/Users/deniskopylov/polisyos` (the 78187878e
+  execution checkout) while importing source from each target checkout. Its
+  execution-base cell used matching inputs; its E02/main/current cells do not
+  establish those bases' test outcomes. The corrected harness uses an absolute
+  target test path and checks every collected item's path and Git blob. The broker
+  runs historical trees separately; current-head tests wait for the next source
+  freeze. Preserve the invalid receipts with their `UNRUN` attribution.
+- B72 and B111 candidates are reviewed or under review in isolated scratch and
+  wait behind the R classes. Keep no more than four or five measured test process
+  groups, at least 20–30% RAM free and 10 GiB disk free. Never edit a tree during
+  its test, copy or write `production_data`, reissue governed artifacts without an
+  authorized transition, or empty macOS Trash.
+
 ## Current handoff at `ff07e89fa` (supersedes older snapshots below)
 
 - The root integrator is the sole writer of `codex/e02-r2`. R1's narrow served

@@ -5470,9 +5470,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C had no finding-level record. Source review narrows the discriminator to no egress/delegate on a real missing/corrupt fixture; existing selectors are UNRUN and do not establish the live transport boundary."
+        "detail": "Appendix C had no finding-level record. Current R2 evidence now has an integrated PASS_BOUNDED served-route and actual replay-owner witness for the aiohttp path; this does not establish source-session/request/response-byte binding in the emitted evidence bundle or egress through other transports. B88 remains partial."
       },
-      "residual": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.\n\nN18 read-only residual addendum (UNRUN): Existing egress tests mock the live delegate. Native transport egress is unestablished. Both success/failure route responses currently project request mode, so replay may report batch_full.",
+      "residual": "PASS_BOUNDED: the integrated served route dispatches every explicit replay_ref, including an empty ref that must fail replay validation before ordinary batch_full ingress; success and failure responses report replay. Real ReplayStore/CAS fixtures exercise the actual run_replay_mode -> run_connectors_ingestion -> APISimulator path: missing and corrupt fixtures make no ordinary-delegate call or native aiohttp request, and a valid fixture replays successfully. Remaining provenance residual: the emitted evidence bundle is not reopened to independently bind its source RecordSession/replay_ref, request hash, and exact captured response bytes. Remaining transport residual: the no-egress witness intercepts aiohttp.ClientSession._request only; httpx, urllib, custom transports, and direct sockets are not established. The HTTP route and replay-owner tests are adjacent selectors, not one served API-to-CAS-to-simulator end-to-end selector. Four-base/whole-file P41 replay remains UNRUN; status stays partial.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "fabric data-plane replay-mode owner and ordinary delegate/transport egress owner",
@@ -5483,17 +5483,21 @@
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "bounded_behavioral_test_receipt",
-          "identity": "test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure plus test_run_replay_mode_uses_shared_blocking_bridge control",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/FINDING_WITNESS_REPORT.md@sha256:3bafc2c096f8c1e412a20223087619108655392d1a2d080512f3939b64525923#B88",
+          "identity": "Integrated B88 served replay route and actual owner selectors (7 cases)",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/integrated-8ed1.junit.xml@sha256:03859aaac9b6d178d24bd3c7ca9eb90aa9520f0ffca311d4390b6f0bdd39f759#7-selectors",
           "candidate_test_paths_at_sha": [
-            "policy-engine/tests/unit/fabric/data_plane/test_modes.py@git-blob:4f9d353c83429ce92ddeaf445f793731c0215af8"
+            "policy-engine/tests/unit/runtime/http/test_control_api.py@git-blob:2442b7cfebf0311f38739d5ce9f2458e36f98efe",
+            "policy-engine/tests/unit/fabric/data_plane/test_modes.py@git-blob:7e8b937c2d08ec4baf435462aa78513c8446cffe"
           ],
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B88",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Two direct replay selectors pass, but the failure is injected at run_blocking_async with a no-op simulator; real HTTP transport and no-out-of-authority egress are not established.",
+          "scope": "Integrated at codex/e02-r2 commit 59c9d7331a39f5a333d316df94ce870febeddfe4; 7 selectors pass. Served tests cover explicit empty replay_ref refusal, replay success/failure mode projection, and batch_full control. Real ReplayStore/CAS owner tests cover valid, missing, and corrupt fixtures through APISimulator with zero ordinary-delegate calls and zero native aiohttp calls. Not established: replay output evidence binding to the persisted source session/replay_ref, request hash, and exact response bytes; non-aiohttp transport egress; one full served-chain selector; whole-file/four-base P41 replay.",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/b88-replay-failure.junit.xml@sha256:33c4bdd40b08751c0e299fdcbf165e936b246365eba3aa2ab71319597dbc1fa4",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/b88-replay-success-control.junit.xml@sha256:817fa84fdd19c733cac4f9ef1b802186f37c46be0174a175d51f0f8b0b2393af"
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/integrated-8ed1.junit.xml@sha256:03859aaac9b6d178d24bd3c7ca9eb90aa9520f0ffca311d4390b6f0bdd39f759",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/removal-probe.junit.xml@sha256:7661984a48d02b9289a7ba6966f7ea03878841bdce820f788ba218bbdc8a4512",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/red-empty-ref.log@sha256:3e3d0b7dc664d58dbedf01fd543c8352ddc03d24a7b72a27abb26dc1cdc0112a",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/INDEPENDENT_REVIEW_V2.md@sha256:7a165c1c2a7717c1a255c89ce200a246667752105eff4812bfde531eb5e2bdcf",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/B88_owner_boundary_candidate_report.md@sha256:d2726aadd93a2e17523b9f62e144b4892d93cb03e452f19c4327717d515aff0a"
           ]
         },
         "package_record": "e02_package_projection",
@@ -5507,8 +5511,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "B88 requires a real missing/corrupt fixture failure to make no network egress or ordinary delegate call without separate authority, while mode and provenance remain truthful. Existing selectors assert fixture/simulator boundaries only, not production HTTP transport. Next step: run them and add intercepted-transport failure coverage asserting no unauthorized request, delegate call, replay-success label or provenance reuse; retain a successful replay control bound to the same bytes/request. P38: no live request in a fixture run does not prove the production delegate cannot issue one. Partial; selectors and four-base replay are UNRUN.",
-          "next_step": "Retain partial/open status; run the listed discriminator through its actual production owner/consumer and required P41 bases. No finding-level test was run in this reconciliation."
+          "summary": "PASS_BOUNDED: the integrated served route dispatches every explicit replay_ref, including an empty ref that must fail replay validation before ordinary batch_full ingress; success and failure responses report replay. Real ReplayStore/CAS fixtures exercise the actual run_replay_mode -> run_connectors_ingestion -> APISimulator path: missing and corrupt fixtures make no ordinary-delegate call or native aiohttp request, and a valid fixture replays successfully. Remaining provenance residual: the emitted evidence bundle is not reopened to independently bind its source RecordSession/replay_ref, request hash, and exact captured response bytes. Remaining transport residual: the no-egress witness intercepts aiohttp.ClientSession._request only; httpx, urllib, custom transports, and direct sockets are not established. The HTTP route and replay-owner tests are adjacent selectors, not one served API-to-CAS-to-simulator end-to-end selector. Four-base/whole-file P41 replay remains UNRUN; status stays partial.",
+          "next_step": "Keep B88 partial. Close the remaining provenance gap by reopening output evidence and independently checking source RecordSession/replay_ref, request hash, and exact response bytes. Close the transport gap with an owner-level egress chokepoint or a complete registered-transport census and witnesses. Add one served API-to-CAS-to-simulator selector and complete required whole-file/four-base P41 replay before any closure proposal."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -5519,16 +5523,17 @@
           }
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:B88",
+          "identity": "E02-R2 integrated served replay bounded evidence reconciliation:B88",
           "classification_at_review": "partial",
           "behavioral_verdict": "PASS_BOUNDED",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/FINDING_WITNESS_REPORT.md@sha256:3bafc2c096f8c1e412a20223087619108655392d1a2d080512f3939b64525923#B88",
-          "reviewed_head_or_snapshot": "ff07e89faebce36c84fc1d4ec6edaa1891f591a4",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/INDEPENDENT_REVIEW_V2.md@sha256:7a165c1c2a7717c1a255c89ce200a246667752105eff4812bfde531eb5e2bdcf",
+          "reviewed_head_or_snapshot": "59c9d7331a39f5a333d316df94ce870febeddfe4",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/b88-replay-failure.junit.xml@sha256:33c4bdd40b08751c0e299fdcbf165e936b246365eba3aa2ab71319597dbc1fa4",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-res02-ing01-can01-20260926/b88-replay-success-control.junit.xml@sha256:817fa84fdd19c733cac4f9ef1b802186f37c46be0174a175d51f0f8b0b2393af"
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/integrated-8ed1.junit.xml@sha256:03859aaac9b6d178d24bd3c7ca9eb90aa9520f0ffca311d4390b6f0bdd39f759",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/removal-probe.junit.xml@sha256:7661984a48d02b9289a7ba6966f7ea03878841bdce820f788ba218bbdc8a4512",
+            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/red-empty-ref.log@sha256:3e3d0b7dc664d58dbedf01fd543c8352ddc03d24a7b72a27abb26dc1cdc0112a"
           ],
-          "scope": "Two direct replay selectors pass, but the failure is injected at run_blocking_async with a no-op simulator; real HTTP transport and no-out-of-authority egress are not established."
+          "scope": "Integrated at codex/e02-r2 commit 59c9d7331a39f5a333d316df94ce870febeddfe4; 7 selectors pass. Served tests cover explicit empty replay_ref refusal, replay success/failure mode projection, and batch_full control. Real ReplayStore/CAS owner tests cover valid, missing, and corrupt fixtures through APISimulator with zero ordinary-delegate calls and zero native aiohttp calls. Not established: replay output evidence binding to the persisted source session/replay_ref, request hash, and exact response bytes; non-aiohttp transport egress; one full served-chain selector; whole-file/four-base P41 replay."
         }
       }
     },

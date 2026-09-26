@@ -1085,3 +1085,35 @@ The containing E02 suite exited nonzero, but that suite status does not turn the
 This selected-case evidence does **not** fill the whole-file `test_control_service_di.py` cells in the 21-path Appendix A/B matrix; those cells remain `UNRUN` in the package baseline pending the four-base whole-file replay. The strict denominator remains 84 cells (62 complete, 20 verified missing, 2 present `UNRUN`) and 74 named cases (42 pass-to-fail / 12 same / 20 `UNRUN`); `BASELINES_DONE` remains unclaimed.
 
 A separate clean-`15fedb94c` → R1-candidate replay is a different two-tree comparison: all four tenant-scope parameters fail at both trees, as shown in `/Users/deniskopylov/.codex/scratch/e02-r1-n4-candidate-tests-20260926/R1_CANDIDATE_RECEIPT.md@sha256:a08587abb3bef4ee3f493ea9ecf87adaef3b9da5990a17f3324349933d9d0f2d`. It does not erase the old selected `[missing]` PASS→PASS result and does not establish current four-base attribution.
+
+### R2 four-base whole-file cells (2026-09-26)
+
+These two supplementary files were replayed with the common Python 3.14 venv, checkout-local PYTHONPATH, JAX_PLATFORMS=cpu, the same pytest options, and POLISYOS_PRODUCTION_DATA_ROOT pointing to the canonical read-only production-data directory. The source origin was checked in the pytest session for E02, main, and current; execution's separate import preflight confirmed both polisyos and generation_cycle resolve under 78187878e. This section does not fill or relabel the existing 84-cell Appendix A/B matrix and does not claim BASELINES_DONE.
+
+#### tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py
+
+| Base | Commit | Cases | Pass | Fail | JUnit SHA-256 |
+|---|---|---:|---:|---:|---|
+| Execution | 78187878ee18 | 48 | 48 | 0 | 1663db5c107cfbef103fe583006611049dd58e1bbb7d9fe0df6c8e9e58a379dc |
+| E02 | 00d946c2b7d0 | 48 | 33 | 15 | d3f06c6eed6f5e9dd63f7a5084f89868353413e9ee26b9a309cededcfa2feb8c |
+| Main | 5fd3ebcc1563 | 48 | 48 | 0 | 9b79168bddc15053b2d7f179d85d4e60709acef157a0a156555b763083b99a5f |
+| Current | 3d5907ba2ddc | 49 | 49 | 0 | 49846aae18bcf12ea8729ab70bd101d2b3512c8fe49434c2c6194cd919345e53 |
+
+The 15 E02 pass-to-fail cases are enumerated in /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/design_axes_value_choice_provenance-fourbase-comparison.md@sha256:d9a6b849c28d52f90ce3221b7251149351c705f9e386de3a8dca9cbcaf5f8f6e. Execution and main outcomes are identical. Main-to-current has zero common pass-to-fail cases; the one current-only case, test_generation_source_reader_replays_historical_schema_by_its_manifest, passes. Complete per-case outcomes and JUnit/log hashes: /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/design_axes_value_choice_provenance-fourbase-comparison.json@sha256:e5ec1b5df69e5eb722d2cda74cb784de35ef9070bfe7e6c108070fccd18dd8ef.
+
+Whole-cell wall time / maximum RSS were execution 37.00s / 775,094,272 B; E02 32.73s / 797,147,136 B; main 30.93s / 793,329,664 B; current 35.17s / 807,616,512 B. No swaps were recorded.
+
+#### tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py
+
+| Base | Commit | Cases | Pass | Fail | Error | JUnit SHA-256 |
+|---|---|---:|---:|---:|---:|---|
+| Execution | 78187878ee18 | 16 | 11 | 5 | 0 | 44381b93f21dd50d175ba9978a510674fd766c215cf6d6db10d91fdacb23ed4d |
+| E02 | 00d946c2b7d0 | 16 | 2 | 4 | 10 | c5332042f19dc770278a3de236a7300d65addec35c26581e0f8157b613cf00a2 |
+| Main | 5fd3ebcc1563 | 16 | 11 | 5 | 0 | c5e8212e63b631efc8ad9487e3f36389ccbd8081c7d43e492d469f8ab8be6041 |
+| Current | 666d3873dcdb | 13 | 10 | 3 | 0 | 42ca27de2c434625058f8c3be184bced6a9e85830d1adbcbc6bc010638ea168f |
+
+The four-base union denominator is 22 test identities. Main-to-current has no common pass-to-fail outcome. The three current reds (test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners, test_generation_cycle_check_rejects_rehashed_stale_live_field, and test_current_epoch_keeps_strict_complete_projection) also fail on execution and main; one main failure now passes. Current collects six new passing tests and no longer collects nine old identities (eight old passes plus test_source_reissue_preserves_actual_fresh_payload, which failed on main). Current failures are not new pass-to-fail outcomes, but the direct validator/runtime/test paths overlap the R2 change, so this receipt does not label them inherited under the strict P41 disjoint-input rule.
+
+Between main and current, six directly relevant paths changed: _generation_cycle_history_schema.py (+1,457 lines), confidence_ledger.py (+71), generation_cycle.py (+3,697/−335), promotion_sequence.py (+824/−36), this test file (+106/−55), and check_layer3_gy_generation_cycle_contract.py (+828/−85). This is the directly changed test/owner/validator surface, not a transitive import-closure proof. Complete per-case outcomes, collection differences, and hashes: /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/layer3_gy_contract-fourbase-comparison.md@sha256:34af1efa3b024e4ecaf9a6f152d3c416ec8ef17f5311b3703f333fef5e9cc64b and /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/layer3_gy_contract-fourbase-comparison.json@sha256:d872bf8833255d369889de39c636a06e2ee2df62e433c0db951a514784127878.
+
+Whole-cell wall time / maximum RSS were execution 181.31s / 911,425,536 B; E02 68.10s / 932,364,288 B; main 188.40s / 918,700,032 B; current 257.54s / 1,053,999,104 B. No swaps were recorded.

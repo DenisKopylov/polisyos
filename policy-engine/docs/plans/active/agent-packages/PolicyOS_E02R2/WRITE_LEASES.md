@@ -1,5 +1,36 @@
 # E02-R2 write leases
 
+## Active integration lease after `1ed0df830` (2026-09-26)
+
+- The root integrator alone writes `codex/e02-r2`. The DFK H14 owner-decision
+  ledger correction is committed; P118 triage must be rebuilt on this head
+  before its overlapping JSON/Markdown/CROSSWALK files can be integrated.
+- The combined R2 v4 currentness patch is **NO-GO for integration** while its
+  N6 owner issuer is absent and its census rule disagrees with the provisional
+  owner. It would make positive N9/S8 witnesses refuse. The history author is
+  extracting a history-only v1–v3 replay slice that leaves the live v3
+  producer, currentness and S8 unchanged. The separate fixture-entry guard
+  remains scratch-only and cannot itself claim source-route or package PASS.
+- R1's first versioned-slot patch is held: its global default-v2 change can
+  reinterpret unversioned persisted DesignProblems. The revised grammar must
+  keep generic default v1, make the current NL compiler explicitly emit v2,
+  and regenerate its schema only through the declared owner. R5 takes the
+  overlapping `run_lifecycle.py` and `generation_cycle.py` lease before R1's
+  served context bridge. R5 must retain a positive N5 computation path for
+  `simulate_only` while stopping before S8 value choice or publication.
+- R11 public-OWR test v3 is **NO-GO**: forcing `stop` over a
+  `search_ceiling_repair_required` terminal failed before projection. Its
+  writer is replacing that setup with two owner-produced runs. CYC-03/B28's
+  first corrected test bundle needs exact patch-to-JUnit reconciliation.
+  R13's source-occurrence resolver patch is scratch-only, owns
+  `generation_source.py` and its mirrored test, and must not change hashed
+  handoff schemas or the overlapping `generation_cycle.py` lease.
+- Strict Appendix A/B current cells remain 42 completed JUnit / 20 absent /
+  22 present UNRUN (21 files × 4 bases). Shared tests and shared edits are
+  serialized. Scratch tests may use a second light process group while free
+  RAM stays at least 20–30% and disk above 10 GiB. No generated families,
+  governed epochs, receipts or production data are restamped or copied.
+
 ## Active integration lease after `95f082bfd` (2026-09-26)
 
 - The root integrator alone writes `codex/e02-r2`. The R2 package-issuer

@@ -2035,6 +2035,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "title": "Media Type",
             "type": "string"
@@ -2058,6 +2070,18 @@
           "kind": {
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "title": "Media Type",
@@ -2536,6 +2560,18 @@
             "default": "foundry.attractor_analysis_result",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -4577,6 +4613,18 @@
             "default": "foundry.basin_map",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -9066,6 +9114,18 @@
             "default": "foundry.continuation_branch",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -14766,6 +14826,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -16606,6 +16678,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -16629,6 +16713,18 @@
             "default": "foundry.exec_plan",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -17311,6 +17407,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -17418,6 +17526,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -17442,6 +17562,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -17465,6 +17597,18 @@
             "default": "foundry.feedback_result",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -21172,6 +21316,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -21461,6 +21617,18 @@
         "properties": {
           "artifact_id": {
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "role": {
             "title": "Role",
@@ -23682,6 +23850,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -23706,6 +23886,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -23729,6 +23921,18 @@
             "default": "foundry.metrics",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -25062,6 +25266,20 @@
             "additionalProperties": true,
             "title": "Stop Criteria",
             "type": "object"
+          },
+          "target_world_scope_profile_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9._-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target World Scope Profile Id"
           }
         },
         "required": [
@@ -34822,6 +35040,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/json",
             "title": "Media Type",
@@ -34845,6 +35075,18 @@
             "default": "foundry.simulation_result",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -35176,6 +35418,18 @@
             "default": "foundry.state_snapshot",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -35949,6 +36203,18 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "media_type": {
             "default": "application/jsonl",
             "title": "Media Type",
@@ -36512,6 +36778,18 @@
             "default": "foundry.welfare_bound_report",
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "default": "application/json",
@@ -57714,18 +57992,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:67bcc06ac4ae7603bfd563a983b88e32efa141ea8e76c635f4b310ca4fc472e5",
+                      "projection_hash": "sha256:9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A67bcc06ac4ae7603bfd563a983b88e32efa141ea8e76c635f4b310ca4fc472e5&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A84252fa528fb6326a3446b87c6c38797cbd0182c8b60eafff579fb1119fba6a2",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:67bcc06ac4ae7603bfd563a983b88e32efa141ea8e76c635f4b310ca4fc472e5",
+                        "projection_hash": "sha256:9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:84252fa528fb6326a3446b87c6c38797cbd0182c8b60eafff579fb1119fba6a2"
+                        "source_dependency_hash": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -57734,8 +58012,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:84252fa528fb6326a3446b87c6c38797cbd0182c8b60eafff579fb1119fba6a2",
-                          "bound_dependency_count": 6610,
+                          "bound_dependency_aggregate_identity": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
+                          "bound_dependency_count": 6623,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -57750,16 +58028,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:5d57775893477d4bb1b6f16311c1fd722112734781c3c3978a416b58deaadd45"
+                          "worker_validation_receipt_hash": "sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:84252fa528fb6326a3446b87c6c38797cbd0182c8b60eafff579fb1119fba6a2",
+                      "source_dependency_hash": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:5d57775893477d4bb1b6f16311c1fd722112734781c3c3978a416b58deaadd45",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:5d57775893477d4bb1b6f16311c1fd722112734781c3c3978a416b58deaadd45"
+                      "worker_validation_receipt_hash": "sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6"
                     }
                   }
                 },

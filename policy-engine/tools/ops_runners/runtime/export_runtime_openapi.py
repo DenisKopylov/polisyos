@@ -20,6 +20,11 @@ def _parse_args() -> argparse.Namespace:
         default=Path("schemas/runtime_api_v1.openapi.json"),
         help="Output JSON path.",
     )
+    parser.add_argument(
+        "--scratch-root",
+        type=Path,
+        help="Keep the runtime CAS used for export at this new directory.",
+    )
     return parser.parse_args()
 
 
@@ -33,11 +38,20 @@ def main() -> int:
     from polisyos.runtime.http.app import create_runtime_api_app
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="runtime_openapi_", dir=args.output.parent) as scratch:
-        app = create_runtime_api_app(
-            enable_security_middlewares=False, cas_root=Path(scratch) / "cas"
-        )
-        schema = app.openapi()
+
+    def render(scratch: Path) -> dict:
+        app = create_runtime_api_app(enable_security_middlewares=False, cas_root=scratch / "cas")
+        return app.openapi()
+
+    if args.scratch_root is None:
+        with tempfile.TemporaryDirectory(
+            prefix="runtime_openapi_", dir=args.output.parent
+        ) as scratch:
+            schema = render(Path(scratch))
+    else:
+        scratch = args.scratch_root.resolve()
+        scratch.mkdir(parents=True, exist_ok=False)
+        schema = render(scratch)
 
     args.output.write_text(
         json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",

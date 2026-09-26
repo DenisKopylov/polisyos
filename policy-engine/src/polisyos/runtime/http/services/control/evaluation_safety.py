@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -566,6 +567,11 @@ class EvaluationSafetyPersistenceService:
         read_attempts.append(f"cas_bytes:{artifact_ref}")
         raw = self._artifact_store.get_bytes(artifact_ref)
         inputs_read.append(f"cas_bytes:{artifact_ref}")
+        artifact_schema = getattr(manifest, "artifact_schema", None)
+        schema_version = getattr(artifact_schema, "version", None)
+        allowed_schema_versions = {"1.0"}
+        if kind == "runtime.control_job_payload.natural_language_run":
+            allowed_schema_versions.add("1.1")
         if (
             manifest.kind != kind
             or artifact_ref != f"sha256:{canon.content_hash(raw)}"
@@ -573,11 +579,39 @@ class EvaluationSafetyPersistenceService:
             or manifest.integrity.sha256 != artifact_ref.removeprefix("sha256:")
             or manifest.byte_size != len(raw)
             or manifest.media_type != "application/json"
-            or manifest.artifact_schema
-            != core_artifacts.SchemaInfo(name=schema_name, version="1.0")
+            or artifact_schema is None
+            or getattr(artifact_schema, "name", None) != schema_name
+            or schema_version not in allowed_schema_versions
         ):
             raise ValueError("promotion_source_artifact_binding_mismatch")
-        return canon.from_canonical_bytes(raw)
+        payload = canon.from_canonical_bytes(raw)
+        if (
+            schema_version == "1.0"
+            and kind == "runtime.control_job_payload.natural_language_run"
+            and isinstance(payload, dict)
+            and "target_world_scope_profile_id" in payload
+        ):
+            raise ValueError("promotion_source_artifact_binding_mismatch")
+        if schema_version == "1.1":
+            selector = (
+                payload.get("target_world_scope_profile_id")
+                if isinstance(payload, dict)
+                else None
+            )
+            if (
+                kind != "runtime.control_job_payload.natural_language_run"
+                or not isinstance(payload, dict)
+                or "target_world_scope_profile_id" not in payload
+                or (
+                    selector is not None
+                    and (
+                        not isinstance(selector, str)
+                        or re.fullmatch(r"[a-z][a-z0-9._-]{0,127}", selector) is None
+                    )
+                )
+            ):
+                raise ValueError("promotion_source_artifact_binding_mismatch")
+        return payload
 
     def _resolve_promotion_source(
         self,

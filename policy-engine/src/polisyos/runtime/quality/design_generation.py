@@ -965,6 +965,7 @@ async def generate_design_candidate_proposal_under_a(
     llm_client: object | None = None,
     repo_root: Path | None = None,
     data_context: dict[str, Any] | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> N4CandidateProposalSource | DesignGenerationOrganRun:
     """Run proposal-only N4 while preserving successful or typed terminal organ output."""
 
@@ -976,7 +977,7 @@ async def generate_design_candidate_proposal_under_a(
         min_diverse_candidates=3,
         data_context=data_context,
         world_model_record_ref=None,
-        cycle_substrate_context=None,
+        cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=None,
         candidate_proposal_only=True,
     )
@@ -1095,20 +1096,33 @@ async def _generate_design_candidate_bundle_under_a(
         ).as_organ_run()
 
     reference: CredalReference | None = None
-    try:
-        reference = build_credal_reference(repo_root)
-    except (OSError, RuntimeError, ValueError) as exc:
+    if candidate_proposal_only and cycle_substrate_context is None:
         lever_space_prompt_slice = LeverSpacePromptSlice(
             status="unavailable",
-            failure_reason=f"credal_reference_unavailable:{type(exc).__name__}",
+            failure_reason="target_world_scope_not_established",
         )
     else:
-        lever_space_prompt_slice = derive_lever_space_prompt_slice(
-            design_problem,
-            repo_root=repo_root,
-            reference=reference,
-            cycle_substrate_context=cycle_substrate_context,
-        )
+        try:
+            reference = build_credal_reference(
+                repo_root,
+                world_model_record=(
+                    cycle_substrate_context.world_model_record
+                    if cycle_substrate_context is not None
+                    else None
+                ),
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            lever_space_prompt_slice = LeverSpacePromptSlice(
+                status="unavailable",
+                failure_reason=f"credal_reference_unavailable:{type(exc).__name__}",
+            )
+        else:
+            lever_space_prompt_slice = derive_lever_space_prompt_slice(
+                design_problem,
+                repo_root=repo_root,
+                reference=reference,
+                cycle_substrate_context=cycle_substrate_context,
+            )
     base_scientist_frame = _with_generation_cycle_revision_context(
         design_problem.to_scientist_problem_frame(),
         design_problem=design_problem,

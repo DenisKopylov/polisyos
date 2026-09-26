@@ -365,6 +365,12 @@ class NaturalLanguageRunRequest(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
     domain_hint: str | None = None
     data_source: DataSourceBinding | None = None
+    target_world_scope_profile_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        pattern=r"^[a-z][a-z0-9._-]*$",
+    )
     max_iterations: int = Field(default=3, ge=1, le=10)
     llm_model: str | None = None
     llm_models: list[str] | None = None

@@ -91,7 +91,7 @@ from .manifest import (
     ArtifactManifest,
     ArtifactRef,
     CanonInfo,
-    InputRef,
+    _coerce_input_ref,
 )
 from .manifest import (
     artifact_reference_parts as _artifact_reference,
@@ -162,19 +162,6 @@ def _current_cell_id() -> str | None:
     except ImportError:
         return None
     return get_current_cell_id()
-
-
-def _coerce_input_ref(value: object) -> InputRef:
-    if isinstance(value, InputRef):
-        return value
-    if isinstance(value, dict):
-        return InputRef.model_validate(value)
-    model_dump = getattr(value, "model_dump", None)
-    if callable(model_dump):
-        return InputRef.model_validate(model_dump(mode="python"))
-    artifact_id = getattr(value, "artifact_id", None)
-    role = getattr(value, "role", None)
-    return InputRef.model_validate({"artifact_id": artifact_id, "role": role})
 
 
 class FileSystemCAS:

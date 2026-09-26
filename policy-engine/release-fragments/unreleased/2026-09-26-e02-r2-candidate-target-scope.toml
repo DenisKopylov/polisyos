@@ -1,0 +1,37 @@
+id = "2026-09-26-e02-r2-candidate-target-scope"
+title = "Carry an unadmitted target-scope selector through candidate generation"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "The natural-language run API accepts an optional target world scope profile ID and marks it unadmitted while no profile admission owner is wired, preserving candidate N4 work."
+evidence = [
+  "tests/unit/runtime/http/test_served_unknown_target_scope.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "Additive optional NaturalLanguageRunRequest field. A selector is retained in the job payload and status, but does not grant world-model authority or select the repository's default Ukraine world."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: natural-language run request and job-status progress"
+migration = "Regenerate the runtime client and dashboard types from the exported OpenAPI snapshot. Callers may omit the field; old schema-1.0 job payloads remain readable."
+api = "POST /api/v1/control/runs/nl accepts optional target_world_scope_profile_id. The job-status API reports target_world_scope_status and target_world_scope_profile_status for candidate work."
+limitations = "There is no owner-admitted target-world profile or complete served N4-to-N5-to-S8 authority bridge. A supplied profile remains profile_admission_missing; N5 and S8 are not run from this candidate-only path. Job-status progress carries these keys in an untyped map, not named OpenAPI response fields."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/update-runtime-dashboard-api-client.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "nl-target-scope-selector"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API natural-language run request"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Natural-language run requests can carry an optional target-scope selector without promoting an unadmitted world profile into authority."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/how-to/update-runtime-dashboard-api-client.md"]
+runbook_docs = []

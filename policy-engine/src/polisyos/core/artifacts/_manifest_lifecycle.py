@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from polisyos.common.serialization import fast_json_dumps_bytes
 
-from .manifest import ArtifactManifest, IntegrityInfo
+from .manifest import ArtifactManifest, IntegrityInfo, _coerce_input_ref
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -31,7 +31,7 @@ class ManifestLifecycle:
         sha: str,
         opts: ArtifactWriteOptions,
     ) -> ArtifactManifest:
-        input_refs = list(opts.inputs or [])
+        input_refs = [_coerce_input_ref(input_ref) for input_ref in opts.inputs or []]
         manifest_payload = {
             "artifact_id": artifact_id,
             "kind": opts.kind,
@@ -87,7 +87,7 @@ class ManifestLifecycle:
             "byte_size": data_size,
             "artifact_schema": opts.schema,
             "canon": opts.canon,
-            "inputs": list(opts.inputs or []),
+            "inputs": [_coerce_input_ref(input_ref) for input_ref in opts.inputs or []],
             "producer": opts.producer,
             "env": opts.env,
             "governance": getattr(opts, "governance", None),

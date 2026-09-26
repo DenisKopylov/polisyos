@@ -2859,6 +2859,8 @@ export interface components {
       artifact_id: components["schemas"]["ArtifactID-Input"];
       /** Kind */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /** Media Type */
       media_type: string;
     };
@@ -2870,6 +2872,8 @@ export interface components {
       artifact_id: string;
       /** Kind */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /** Media Type */
       media_type: string;
     };
@@ -3059,6 +3063,8 @@ export interface components {
        * @default foundry.attractor_analysis_result
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -3922,6 +3928,8 @@ export interface components {
        * @default foundry.basin_map
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -5813,6 +5821,8 @@ export interface components {
        * @default foundry.continuation_branch
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -8048,6 +8058,8 @@ export interface components {
        * @default foundry.environment_manifest
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -8930,6 +8942,8 @@ export interface components {
        * @default foundry.exec_plan
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -8947,6 +8961,8 @@ export interface components {
        * @default foundry.exec_plan
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -9257,6 +9273,8 @@ export interface components {
        * @default scientist.fairness_audit_report
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -9303,6 +9321,8 @@ export interface components {
        * @default foundry.feedback_jacobian_diagnostics
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -9320,6 +9340,8 @@ export interface components {
        * @default foundry.feedback_result
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -9337,6 +9359,8 @@ export interface components {
        * @default foundry.feedback_result
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -10922,6 +10946,8 @@ export interface components {
        * @default foundry.identifiability_diagnostic
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -11059,6 +11085,8 @@ export interface components {
      */
     InputRef: {
       artifact_id: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /** Role */
       role: string;
     };
@@ -12225,6 +12253,8 @@ export interface components {
        * @default foundry.metric_observation_bundle
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -12242,6 +12272,8 @@ export interface components {
        * @default scientist.metric_validation_report
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -12259,6 +12291,8 @@ export interface components {
        * @default foundry.metrics
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -12827,6 +12861,8 @@ export interface components {
       stop_criteria?: {
         [key: string]: unknown;
       };
+      /** Target World Scope Profile Id */
+      target_world_scope_profile_id?: string | null;
     };
     /**
      * NodeDebugResponse
@@ -16974,6 +17010,8 @@ export interface components {
        * @default foundry.simulation_result
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -16991,6 +17029,8 @@ export interface components {
        * @default foundry.simulation_result
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -17179,6 +17219,8 @@ export interface components {
        * @default foundry.state_snapshot
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json
@@ -17507,6 +17549,8 @@ export interface components {
        * @default foundry.trace_slice
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/jsonl
@@ -17775,6 +17819,8 @@ export interface components {
        * @default foundry.welfare_bound_report
        */
       kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
       /**
        * Media Type
        * @default application/json

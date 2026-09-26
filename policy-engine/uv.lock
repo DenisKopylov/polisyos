@@ -4360,7 +4360,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], marker = "extra == 'multi-tenant'", specifier = ">=3.1.0" },
     { name = "pulp", marker = "extra == 'solvers'", specifier = ">=2.8" },
     { name = "pyarrow", specifier = ">=14.0.0" },
-    { name = "pydantic", specifier = ">=2.5.0" },
+    { name = "pydantic", specifier = ">=2.12.0" },
     { name = "pydantic-settings", specifier = ">=2.0.0" },
     { name = "pyjwt", marker = "extra == 'runtime-http'", specifier = ">=2.8.0" },
     { name = "pymoo", specifier = ">=0.6.0" },

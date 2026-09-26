@@ -1,0 +1,38 @@
+id = "2026-09-26-e02-r2-cas-serialization-schema"
+title = "Preserve historical CAS bytes and strict artifact reference schemas"
+type = "fixed"
+component = "artifacts"
+owner = "team-runtime"
+summary = "CAS references retain exact historical serialization while generated API schemas describe their declared, closed fields."
+evidence = [
+  "tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+  "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "Historical selector-free v1 manifests and refs keep their stored bytes. Selected manifest views retain their profile selectors. The Python package now requires Pydantic 2.12 or newer to preserve both properties."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API artifact references; internal: CAS manifest sidecars"
+migration = "Upgrade Python environments pinned below Pydantic 2.12, then regenerate OpenAPI and both TypeScript client families from their owners. Existing CAS sidecars require no reissue."
+api = "ArtifactRef, InputRef and ArtifactManifest regain strict object serialization schemas, with optional manifest-profile selectors for typed views of a blob."
+limitations = "A selected manifest profile must be passed through each consumer; schema fidelity alone does not make a default view equivalent to a selected view. The public-surface inventory names the public-stable polisyos.core package and its artifacts export, not these nested classes."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/update-runtime-dashboard-api-client.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "cas-strict-schema-and-python-floor"
+change_class = "schema-openapi-abi"
+impact = "requires_regeneration"
+surface = "public_stable: Runtime API artifact reference and Python artifact models"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "CAS artifact references have strict generated schemas while historical v1 bytes remain replayable; Python environments require Pydantic 2.12 or newer."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/how-to/update-runtime-dashboard-api-client.md"]
+runbook_docs = []

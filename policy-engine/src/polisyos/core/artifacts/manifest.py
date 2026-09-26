@@ -16,7 +16,6 @@ from pydantic import (
     Field,
     field_serializer,
     field_validator,
-    model_serializer,
     model_validator,
 )
 
@@ -57,15 +56,23 @@ class CanonInfo(BaseModel):
         return cls(
             name=getattr(spec, "name", cls.model_fields["name"].default),
             version=getattr(spec, "version", cls.model_fields["version"].default),
-            forbid_floats=getattr(spec, "forbid_floats", cls.model_fields["forbid_floats"].default),
+            forbid_floats=getattr(
+                spec, "forbid_floats", cls.model_fields["forbid_floats"].default
+            ),
             forbid_nan_inf=getattr(
                 spec, "forbid_nan_inf", cls.model_fields["forbid_nan_inf"].default
             ),
-            exclude_none=getattr(spec, "exclude_none", cls.model_fields["exclude_none"].default),
+            exclude_none=getattr(
+                spec, "exclude_none", cls.model_fields["exclude_none"].default
+            ),
             max_depth=getattr(spec, "max_depth", cls.model_fields["max_depth"].default),
             sort_keys=getattr(spec, "sort_keys", cls.model_fields["sort_keys"].default),
-            separators=getattr(spec, "separators", cls.model_fields["separators"].default),
-            ensure_ascii=getattr(spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default),
+            separators=getattr(
+                spec, "separators", cls.model_fields["separators"].default
+            ),
+            ensure_ascii=getattr(
+                spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default
+            ),
         )
 
 
@@ -198,7 +205,11 @@ class InputRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
-    manifest_profile_sha256: str | None = None
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
@@ -208,15 +219,28 @@ class InputRef(BaseModel):
     @classmethod
     def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
         if value is not None and not _is_manifest_profile_sha256(value):
-            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+            raise ValueError(
+                "manifest_profile_sha256 must be sha256:<64 lowercase hex>"
+            )
         return value
 
-    @model_serializer(mode="wrap")
-    def _serialize_historical_input_ref(self, handler: Any) -> dict[str, Any]:
-        payload = handler(self)
-        if self.manifest_profile_sha256 is None:
-            payload.pop("manifest_profile_sha256", None)
-        return payload
+
+def _coerce_input_ref(value: object) -> InputRef:
+    """Normalize supported lineage inputs to the manifest's typed owner."""
+    if isinstance(value, InputRef):
+        return value
+    if isinstance(value, dict):
+        return InputRef.model_validate(value)
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return InputRef.model_validate(model_dump(mode="python"))
+    return InputRef.model_validate(
+        {
+            "artifact_id": getattr(value, "artifact_id", None),
+            "role": getattr(value, "role", None),
+            "manifest_profile_sha256": getattr(value, "manifest_profile_sha256", None),
+        }
+    )
 
 
 class ArtifactRef(BaseModel):
@@ -226,7 +250,11 @@ class ArtifactRef(BaseModel):
     artifact_id: ArtifactID
     kind: str
     media_type: str
-    manifest_profile_sha256: str | None = None
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
@@ -236,15 +264,10 @@ class ArtifactRef(BaseModel):
     @classmethod
     def _validate_manifest_profile_sha256(cls, value: str | None) -> str | None:
         if value is not None and not _is_manifest_profile_sha256(value):
-            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+            raise ValueError(
+                "manifest_profile_sha256 must be sha256:<64 lowercase hex>"
+            )
         return value
-
-    @model_serializer(mode="wrap")
-    def _serialize_historical_artifact_ref(self, handler: Any) -> dict[str, Any]:
-        payload = handler(self)
-        if self.manifest_profile_sha256 is None:
-            payload.pop("manifest_profile_sha256", None)
-        return payload
 
 
 class ArtifactManifest(BaseModel):
@@ -257,7 +280,9 @@ class ArtifactManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    manifest_schema_version: Literal["v1", "v2"] = "v1"
+    manifest_schema_version: Literal["v1", "v2"] = Field(
+        default="v1", exclude_if=lambda value: value == "v1"
+    )
     artifact_id: ArtifactID
     kind: str
     media_type: str
@@ -280,13 +305,6 @@ class ArtifactManifest(BaseModel):
     integrity: IntegrityInfo
     warnings: list[WarningRecord] = Field(default_factory=list)
 
-    @model_serializer(mode="wrap")
-    def _serialize_historical_manifest(self, handler: Any) -> dict[str, Any]:
-        payload = handler(self)
-        if self.manifest_schema_version == "v1":
-            payload.pop("manifest_schema_version", None)
-        return payload
-
     @field_serializer("artifact_id")
     def _serialize_artifact_id(self, value: object) -> str:
         return str(value)
@@ -304,8 +322,10 @@ class ArtifactManifest(BaseModel):
 
 
 def _is_manifest_profile_sha256(value: str) -> bool:
-    return len(value) == 71 and value.startswith("sha256:") and all(
-        character in "0123456789abcdef" for character in value[7:]
+    return (
+        len(value) == 71
+        and value.startswith("sha256:")
+        and all(character in "0123456789abcdef" for character in value[7:])
     )
 
 

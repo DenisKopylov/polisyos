@@ -1631,6 +1631,7 @@ class ControlPlaneService(
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
+        target_world_scope_profile_id: str | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -1648,6 +1649,7 @@ class ControlPlaneService(
             budget_state=budget_state,
             recursive_budget=recursive_budget,
             recursive_budget_resolution=recursive_budget_resolution,
+            target_world_scope_profile_id=target_world_scope_profile_id,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
@@ -2053,10 +2055,17 @@ class ControlPlaneService(
         job_kind: str,
         payload: dict[str, Any],
     ) -> str:
+        schema_version = (
+            "1.1"
+            if job_kind == "natural_language_run"
+            and "target_world_scope_profile_id" in payload
+            else "1.0"
+        )
         return self._put_json_artifact(
             payload,
             kind=f"runtime.control_job_payload.{job_kind}",
             schema_name="polisyos.runtime.ControlJobPayload",
+            schema_version=schema_version,
         )
 
     def _build_job_telemetry(self, *, request_id: str | None) -> dict[str, Any] | None:
@@ -3377,6 +3386,11 @@ class ControlPlaneService(
                                 max_cycles_per_leaf=max_cycles,
                             ),
                             recursive_budget_resolution=recursive_budget_resolution,
+                            target_world_scope_profile_id=(
+                                payload.get("target_world_scope_profile_id")
+                                if isinstance(payload.get("target_world_scope_profile_id"), str)
+                                else None
+                            ),
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None
@@ -3393,6 +3407,21 @@ class ControlPlaneService(
                         from polisyos.runtime.quality.design_generation import (
                             DesignGenerationOrganRun,
                         )
+
+                        target_scope_progress = {
+                            "target_world_scope_profile_id": (
+                                compiled.target_world_scope_profile_id
+                            ),
+                            "target_world_scope_status": compiled.target_world_scope_status,
+                            "target_world_scope_profile_status": (
+                                compiled.target_world_scope_profile_status
+                            ),
+                            "target_world_scope_authority": "not_established",
+                            "target_world_scope_currentness": "not_established",
+                            "target_world_model_record_ref": (
+                                compiled.target_world_model_record_ref
+                            ),
+                        }
 
                         proposal_result = compiled.proposal
                         if isinstance(proposal_result, DesignGenerationOrganRun):
@@ -3460,6 +3489,7 @@ class ControlPlaneService(
                                 "n8_status": "not_run",
                                 "n9_status": "not_run",
                                 "s8_status": "not_run",
+                                **target_scope_progress,
                             }
                             if event_id is None:
                                 progress[
@@ -3503,6 +3533,7 @@ class ControlPlaneService(
                                 "n8_status": "not_run",
                                 "n9_status": "not_run",
                                 "s8_status": "not_run",
+                                **target_scope_progress,
                             }
                             self._control_store.complete_job(
                                 job_id=job.job_id,
@@ -3545,6 +3576,7 @@ class ControlPlaneService(
                             "n8_status": proposal_record.n8_status,
                             "n9_status": proposal_record.n9_status,
                             "s8_status": proposal_record.s8_status,
+                            **target_scope_progress,
                         }
                         self._control_store.complete_job(
                             job_id=job.job_id,
@@ -4366,6 +4398,11 @@ class ControlPlaneService(
                 "data_source": request.data_source.model_dump(mode="json")
                 if request.data_source
                 else None,
+                **(
+                    {"target_world_scope_profile_id": request.target_world_scope_profile_id}
+                    if request.target_world_scope_profile_id is not None
+                    else {}
+                ),
                 "max_iterations": request.max_iterations,
                 "llm_models": requested_models,
                 "max_parallel_models": request.max_parallel_models,

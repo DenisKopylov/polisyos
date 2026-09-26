@@ -497,6 +497,13 @@ class N4CandidateProposalExecution:
 
     design_problem: DesignProblem
     proposal: N4CandidateProposalSource | DesignGenerationOrganRun
+    target_world_scope_profile_id: str | None = None
+    target_world_scope_status: Literal["not_established"] = "not_established"
+    target_world_scope_profile_status: Literal[
+        "profile_not_requested",
+        "profile_admission_missing",
+    ] = "profile_not_requested"
+    target_world_model_record_ref: str | None = None
 
 
 async def compile_and_run_recursive_generation_cycle(
@@ -517,6 +524,7 @@ async def compile_and_run_recursive_generation_cycle(
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
+    target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
 ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
@@ -631,11 +639,11 @@ async def compile_and_run_recursive_generation_cycle(
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     if cycle_substrate_context is None:
-        cycle_substrate_context = _build_cycle_substrate_context_from_owner(
-            problem=problem,
-            problem_ref=problem_ref,
-            repo_root=repo_root,
+        scope_selection = _classify_target_world_scope_profile(
+            target_world_scope_profile_id
         )
+    else:
+        scope_selection = None
     if (
         cycle_substrate_context is None
         and execution_intent == "candidate_only"
@@ -650,7 +658,18 @@ async def compile_and_run_recursive_generation_cycle(
             model_id=model_name,
             repo_root=repo_root,
         )
-        return N4CandidateProposalExecution(design_problem=problem, proposal=proposal)
+        return N4CandidateProposalExecution(
+            design_problem=problem,
+            proposal=proposal,
+            target_world_scope_profile_id=target_world_scope_profile_id,
+            target_world_scope_status="not_established",
+            target_world_scope_profile_status=(
+                scope_selection.status
+                if scope_selection is not None
+                else "profile_not_requested"
+            ),
+            target_world_model_record_ref=None,
+        )
     # A candidate-only ordinary request with unknown scope returned its typed
     # N4 proposal above. Other invocations never infer missing owner context;
     # the explicit N4 override remains rejected below, and no caller-owned
@@ -822,62 +841,38 @@ async def compile_and_run_recursive_generation_cycle(
     )
 
 
-def _build_cycle_substrate_context_from_owner(
-    *,
-    problem: DesignProblem,
-    problem_ref: str,
-    repo_root: Path | None,
-) -> CycleSubstrateContext | None:
-    """Best-effort ordinary-route binding through the existing substrate owners.
+@dataclass(frozen=True, slots=True)
+class _TargetWorldScopeProfileSelection:
+    """Carry selector status separately from an owner-bound cycle context."""
 
-    A plain request may arrive without Python-owned context.  If the canonical
-    production catalogs are available, bind one context to their existing WMR;
-    if they are unavailable, retain the typed pending route instead of making a
-    fixture or a second world store look authoritative.
+    target_world_scope_profile_id: str | None
+    status: Literal[
+        "profile_not_requested",
+        "profile_admission_missing",
+    ]
+
+
+def _classify_target_world_scope_profile(
+    target_world_scope_profile_id: str | None,
+) -> _TargetWorldScopeProfileSelection:
+    """Classify selector presence without inferring scope or authority.
+
+    No authoritative profile registry/admission exists at this owner boundary.
+    Any supplied selector remains unadmitted and cannot select a repo-root WMR.
     """
 
-    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
-    from polisyos.runtime.quality.intervention_substrate import (
-        production_composed_world_model_record,
+    status: Literal[
+        "profile_not_requested",
+        "profile_admission_missing",
+    ]
+    if target_world_scope_profile_id is None:
+        status = "profile_not_requested"
+    else:
+        status = "profile_admission_missing"
+    return _TargetWorldScopeProfileSelection(
+        target_world_scope_profile_id=target_world_scope_profile_id,
+        status=status,
     )
-    from polisyos.runtime.quality.substrate_registry import (
-        build_substrate_registry_from_existing_catalogs,
-    )
-
-    if repo_root is None:
-        return None
-    root = repo_root.resolve()
-    try:
-        world = production_composed_world_model_record(root)
-        registry = build_substrate_registry_from_existing_catalogs(root)
-        if registry.content_hash != world.substrate_registry_ref.content_hash:
-            return None
-        selected_hashes = tuple(
-            entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
-        )
-        if not selected_hashes:
-            return None
-        return build_cycle_substrate_context(
-            design_problem_ref=problem_ref,
-            domain=problem.domain,
-            substrate_registry=registry,
-            selected_registry_entry_hashes=selected_hashes,
-            world_model_record=world,
-            intervention_substrate=None,
-            candidate_levers=(),
-            transport_context=None,
-            source_pack_content_hash=None,
-            substrate_input_content_hash=gy_content_hash(
-                {
-                    "design_problem_ref": problem_ref,
-                    "substrate_registry_content_hash": registry.content_hash,
-                    "world_model_record_content_hash": world.content_hash,
-                    "selected_registry_entry_hashes": selected_hashes,
-                }
-            ),
-        )
-    except (OSError, TypeError, ValueError):
-        return None
 
 
 __all__ = [

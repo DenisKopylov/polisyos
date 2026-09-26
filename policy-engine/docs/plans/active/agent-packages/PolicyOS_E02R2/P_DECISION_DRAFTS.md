@@ -4,7 +4,7 @@
 
 **Denominator.** All 16 rows marked `bucket=b` in `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json` (118 rows in the P118 Appendix C partial-finding triage cohort; counts: 84 engineering a / 16 principal b / 18 typed blocker c). All 16 embedded objects carry the §9.7 fields, but a populated draft object is not by itself proof that its question matches the triage next step; see each reconciliation below. The source declares `decision_draft_count: 16`. Source JSON: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994`.
 
-**Census and relation rule.** The current `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md` scans 77 GY task scopes, 22 Atlas slice scopes, and 74 current open/blocked A/B register rows using exact owner-scope matches. For rows below marked `not_established`, the scan admitted no direct relation; this is not proof of no dependency. Scan inputs: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5`; `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725`; `policy-engine/docs/plans/active/DEBT-REGISTER.md@sha256:133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e`. Crosswalk: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6`.
+**Census and relation rule.** The current `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md` scans 77 GY task scopes, 22 Atlas slice scopes, and 74 current open/blocked A/B register rows using exact owner-scope matches. For rows below marked `not_established`, the scan admitted no direct relation; this is not proof of no dependency. Scan inputs: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5`; `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725`; `policy-engine/docs/plans/active/DEBT-REGISTER.md@sha256:133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e`. Crosswalk: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05`.
 
 ## Separate decisions that may be reviewed together
 
@@ -39,7 +39,7 @@ Keep these decisions distinct even if reviewed together: B116/B117 bind comparis
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B122`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L179`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L179`.
 
 ## b116
 
@@ -70,7 +70,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B116`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L173`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L173`.
 
 ## b117
 
@@ -103,7 +103,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B117`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L174`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L174`.
 
 ## b133
 
@@ -136,7 +136,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B133`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L190`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L190`.
 
 ## la-053
 
@@ -169,7 +169,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-053`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L335`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L335`.
 
 ## b169
 
@@ -200,7 +200,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B169`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L226`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L226`.
 
 ## b170
 
@@ -231,7 +231,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B170`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L227`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L227`.
 
 ## b171
 
@@ -262,7 +262,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B171`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L228`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L228`.
 
 ## la-004
 
@@ -293,7 +293,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-004`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L286`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L286`.
 
 ## la-035
 
@@ -324,7 +324,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-035`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L317`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L317`.
 
 ## la-023
 
@@ -357,7 +357,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-023`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L305`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L305`.
 
 ## b210
 
@@ -388,7 +388,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B210`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L267`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L267`.
 
 ## b106
 
@@ -419,7 +419,7 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B106`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L163`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L163`.
 
 ## la-055
 
@@ -469,9 +469,9 @@ This companion addresses the LA-055 triage next step about deployment/live-feed 
 
 **Where it binds.** DDM-02 applicability/profile contract at the readiness input and `ReadinessStateEvent`/`ModelRegistryReadinessRecord` projection, with evidence admission before `evaluate_registry_gate` and the consumer’s eligibility interpretation. Any external deployment action remains with its appointed owner.
 
-**Sources for this separate scope question.** Triage: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994#LA-055`; separate capability blocker LA-054 plus live-feed residual: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:0aa16b80f0ab780e95bde873151621e5f23ca3b48bf7f5d055932b49a69334cf#LA-054`.
+**Sources for this separate scope question.** Triage: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994#LA-055`; separate capability blocker LA-054 plus live-feed residual: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:f9cf1d49ed73eb54b2a1302bc44fa9654d121a97184618dfac9d6e5ab8029c1d#LA-054`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L337`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L337`.
 
 ## la-018
 
@@ -502,7 +502,7 @@ This companion addresses the LA-055 triage next step about deployment/live-feed 
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-018`.
 
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L300`.
+**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L300`.
 
 ## la-043
 
@@ -533,8 +533,8 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-043`.
 
-**Plan/register relation.** The admitted relation is `touches code named by` Atlas DS3 for runtime-client compatibility artifacts. It does not establish caller compatibility, generated-surface acceptance, or closure; no direct GY or live-register relation is admitted. See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L48`, `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:935a34442294617a2a41fde8bc9d6f73b8adf9f10847ca482111c42dee82e6b6#L325` and `policy-engine/docs/plans/active/atlas-slices/DS3-runtime-producers.md@sha256:e87bb63c8c34fc5993e06d97ed607e938bcc544abe9158d48130ca96aae51408`.
+**Plan/register relation.** The admitted relation is `touches code named by` Atlas DS3 for runtime-client compatibility artifacts. It does not establish caller compatibility, generated-surface acceptance, or closure; no direct GY or live-register relation is admitted. See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L48`, `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L325` and `policy-engine/docs/plans/active/atlas-slices/DS3-runtime-producers.md@sha256:e87bb63c8c34fc5993e06d97ed607e938bcc544abe9158d48130ca96aae51408`.
 
 ## Link compatibility
 
-When this draft is copied to `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md`, the existing `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:0aa16b80f0ab780e95bde873151621e5f23ca3b48bf7f5d055932b49a69334cf` links need no text correction: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md` and fragments `#b122`, `#b116`, `#b117`, `#b133`, `#la-053`, `#b169`, `#b170`, `#b171`, `#la-004`, `#la-035`, `#la-023`, `#b210`, `#b106`, `#la-055`, `#la-018`, `#la-043` resolve to the lowercase ID headings above. Materialize at that exact sibling path to make the links live.
+Projection reconciliation: the 16 lowercase decision headings in this committed file match exactly the 16 bucket=b IDs in partial_triage.json. LA-055 keeps a separate applicability-scope question from LA-054’s P40 capability blocker. Triage source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:f9cf1d49ed73eb54b2a1302bc44fa9654d121a97184618dfac9d6e5ab8029c1d; JSON source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994.

@@ -1,8 +1,10 @@
 # E02-R2 decision record drafts
 
-**Status:** proposals for the principal; none is ratified by this file. Repeating a
-lane lean does not make it a principal decision. The R11 v3 N9-exclusion ruling is recorded below. Principal rulings, signers,
-and dates remain pending for R1, R2, R5, R9, R13, and R14.
+**Status:** Denis's R1 option-A and R11 universal v3 blocked-run/N9-exclusion
+rulings are recorded below (2026-09-26). Their implementation, falsifiers, and
+finding-level closure remain outstanding. Principal choices still pending are R2,
+R5, R9, R13, and R14. A ruling records direction; it does not claim a test result,
+register closure, or authorization to reissue a governed artifact.
 
 **Prepared:** 2026-09-24. **Code inspected:** candidate base
 `73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
@@ -399,6 +401,131 @@ The hashed wrapper's v2 field must preserve exact v1 historical bytes. The five
 existing normative authorization expectations remain a principal choice between
 real-producer upgrade and bounded blocked outcome; the 17/22 current-head result is
 not a four-base P41 verdict.
+
+## R1 addendum — owner-bound N4→N5→S8 path (principal ruling, 2026-09-26)
+
+This addendum records Denis's selection of option A. It supersedes the earlier R1
+proposal's open A/B fixture choice and “subject to Denis's ruling” wording; that
+proposal and its evidence remain as the pre-ruling record. This ruling selects an
+implementation direction. It does not claim the served positive path, its controls,
+or R1 closure have been delivered.
+
+**Question.** How should an ordinary plain-language request reach real N4
+production and N5 simulation, and what evidence is required before S8 may emit a
+ranked recommendation? How should the existing normative fixtures that expect
+`authorized` prove that behavior?
+
+**Options and costs.**
+
+- **A — selected.** Build the real served, owner-bound N4→N5→S8 path through the
+  existing runtime store and evidence owners, then update the old fake N4 fixtures
+  to use real tenant, runtime-store, persisted-source, and context evidence. The
+  HTTP/control, world-model/context, N4 source, N5/S8, and test owners pay for
+  cross-owner wiring and realistic end-to-end tests. The tests cost more than
+  fixture-only tests, and exercise the capability PolicyOS claims to provide.
+- **B — not selected.** Keep the existing fixtures blocked until an owner-bound
+  path exists. This avoids integration cost now, but preserves over-refusal at the
+  ordinary front door and leaves no positive served normative witness. Users and
+  policy-design flows bear the unavailable ordinary outcomes.
+- **C — rejected.** Remove the context/source checks or keep a fake port as the
+  authority-positive fixture. This is the cheapest test change, but lets synthetic
+  status, matching IDs, or caller-supplied context stand in for tenant custody and a
+  real N4 record. S8 and recommendation consumers bear the false-authority risk.
+
+**Premises.** B01–B03 require evidence from an ordinary request through the real
+HTTP→N4→N5 path, not a manually assembled Python context. S0-K06 keeps the bands
+distinct: an ordinary candidate request may continue with an explicit typed unknown
+scope, while protected actions and S8 authority require their own evidence. Sources:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5`,
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-01.md@sha256:0fb74637f987bb1a8be4a91f83c6120f918d4c8a3fe27b2974d5b3d2a417ba78`, and
+`policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md@sha256:a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7`.
+
+The existing `GenerationSourceRepository` persists the N4
+`GenerationSourceHandoff`; `load(ref, run_id)` returns the full handoff while
+`resolve(...)` returns a projection. The existing world-model producer accepts a
+supplied store, so the R13 runtime-store owner is the path to wire. No separate
+pre-N4 context owner is established by the inspected evidence. Reuse these owners;
+if tenant context or currentness remains unavailable, preserve it as
+`not_established` rather than creating a second owner or artifact. Current source
+identities at this snapshot:
+`policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:6a13f56d2716c610ae2ed9a1bb64cebf4d77e4294b603bfcad034b9aeb665d58`,
+`policy-engine/src/polisyos/runtime/quality/cycle_substrate.py@sha256:1e7f14f5634526f120f2f10fb1d7b06bea1e368a2e954734b679a6050b859f88`,
+`policy-engine/src/polisyos/runtime/quality/intervention_substrate.py@sha256:1783a4ecfd67e0010e4e4ccc5c19a022da5786e517c70f356cd5f639cbc726df`, and
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:f0e1871fdabf636e69517f1819ad93bbd795bf8ca0a5d1e42960ccda677b0155`.
+
+The current `[authorized]` control-service case and the five normative selectors
+use fake `_CgfGenerationPort` results rather than a real persisted N4 handoff. A
+fake positive therefore tests fixture status, not the owner-bound path. The
+relevant test files are
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py@sha256:c4f0f0552de85ecd3aaecca6b3ef70a2640fc1e3295a5d9578c80aa99bbf0b36` and
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py@sha256:3bf494166dd3d86bfd254cfa992fc382f522b2082316b946c328d9f5e9f7c29a`.
+Keep the separate protected explicit-N4/no-owner-context refusal in
+`policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@sha256:8b6d67145038c14d5c3b257c3e92cd791518f47e114ea7cb06aff9b7a92464e3`.
+
+**Principal ruling and implementation direction.** Denis selected option A on
+2026-09-26. Implement the path through the existing owners:
+
+1. The served control-plane job supplies the authenticated tenant/job identity and
+   uses the runtime-provided tenant-bound store. Request markers, display IDs,
+   repo-root CAS state, and test-fixture state do not establish authority.
+2. Wire the existing world-model/context producer through that runtime store and
+   bind the context to the exact problem, candidate, and tenant scope. Do not build
+   a second WMR, context, or source owner.
+3. Invoke the real N4 producer and persist its source in the existing
+   `GenerationSourceRepository`; replay must reconcile the job/run, full handoff,
+   stored bytes, and tenant/store scope.
+4. Run N5 over that same source and current context. S8 must load the full persisted
+   handoff (or a strict equivalent), establish context currentness and its own
+   signed-evidence prerequisites, and only then emit a ranked recommendation.
+5. Replace the fake authority-positive fixtures with the real served path and
+   preserve distinct foreign-tenant, stale-context, and protected no-context
+   negatives.
+
+An ordinary candidate request with unknown scope may still produce N4 candidate
+work under a typed limitation; that does not assert that N5 simulation ran, that a
+world context is grounded, or that S8 may emit authority. If valid N5 simulation
+cannot proceed without the unknown context, return a typed limited/pending result.
+S8 remains blocked or `not_established` until tenant binding, context currentness,
+and signed-evidence predicates are established by their owners. Do not turn the
+candidate unknown into a global front-door refusal, and do not let it authorize a
+ranked or published claim.
+
+**P37/P38 — admission predicate and divergence.** Recompute the persisted N4
+handoff and problem/candidate/context bindings; independently reconcile tenant
+identity and runtime-store custody against the authenticated job. Context
+currentness and signed-value permission require current evidence from their owners;
+absence remains `not_established`. The divergent case is a green fake N4 fixture
+with no persisted source bytes or consumed tenant-bound context: its markers pass
+while the served property is absent. Replacing that fixture with the real handoff
+and consumer is part of option A.
+
+**Remainder.** The ruling does not establish that an existing owner can provide
+every tenant-context or currentness predicate. Candidate work remains available
+with an explicit limitation where scope is unknown; authority remains blocked until
+the owner evidence exists. The positive served N4→N5→S8 witness, the marker-removal
+probes, preserving candidate control, and four-base touched-file replay are still
+implementation and verification work. R1 remains open; no finding or register row
+is closed by this decision. WMR/store changes remain with R13's canonical owner and
+must respect the active shared-file lease. This ruling authorizes no governed
+reissue or restamp.
+
+**Falsifier / revisit trigger.** Reopen this choice if the existing owner path
+cannot persist and replay the exact N4 handoff through the same tenant-bound
+runtime store; if foreign-tenant, stale, mismatched, or substituted source/context
+can reach N5/S8; if removing tenant binding or full-handoff consumption while
+retaining markers leaves the authority test green; or if missing S8-grade context
+alone refuses an ordinary candidate request. Closure evidence must include a
+served positive that reaches N4→N5→S8 from persisted owner-bound evidence, a
+separate no-context candidate-only request that succeeds with its typed limitation,
+and negative controls for foreign/mismatched/stale evidence. These are future
+signals, not results claimed here.
+
+**Where it binds.** This ruling binds the served plain-language `ControlPlaneService`
+path, its real N4 source producer/`GenerationSourceRepository`, the runtime-store
+WMR/context producer, N5, S8, and the existing fake-positive control-service and
+normative-generation selectors named above. It preserves the protected no-context
+refusal and the ordinary candidate path. It does not change status vocabulary,
+authorize publication from candidate evidence, close R13, or assign a second owner.
 
 ## R2 — CYC-05 strangle proof, deployment identity, and historical replay
 
@@ -3400,8 +3527,9 @@ from the current-path test alone.
 
 ## Closeout note
 
-These seven drafts are proposals only. The lane has not recorded a principal’s
-acceptance, implemented the proposed repairs, run their falsifiers, or authorized
-any governed reissue. A principal ruling should be appended with its date, named
-decision, evidence that moved it, and any changed remainder; it should not be
-backfilled as though already granted.
+R1 option A and R11's universal v3 blocked-run/N9-exclusion rule have principal
+rulings recorded in their dated addenda. Neither is implemented to its ruled scope,
+its falsifiers have not all run, and neither finding is closed. The remaining
+principal proposals in this document are R2, R5, R9, R13, and R14. Earlier proposal
+text is retained as the pre-ruling record; the dated addenda supersede its pending
+status wording. No governed reissue or restamp is authorized by these records.

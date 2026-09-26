@@ -1,6 +1,37 @@
 # E02-R2 write leases
 
-## Active integration lease at `02b7f5e3c` (2026-09-26)
+## Active integration lease at `341985355` (2026-09-26)
+
+- The root integrator is the only writer to `codex/e02-r2`; the branch was clean
+  after the reviewed R11 S8 commit. R11's bounded S8 guard passed its direct
+  N6→CAS→S8 owner test 2/2 and a marker-retaining removal probe. It does not
+  close the served R1 path or all R11 consumers. The earlier HTTP fixture edits
+  that failed at R1 setup were preserved as a scratch patch and removed from
+  the integration tree before this commit.
+- R5's widened protected-intent gate owns only its isolated scratch candidate;
+  its independent review and removal receipt precede any integration edit to
+  `runtime/http/services/control/run_lifecycle.py` or recursive runtime tests.
+  R1's owner-backed N4→N5 candidate is in a separate full scratch worktree and
+  follows R5 on overlapping HTTP lifecycle files. Its writer must carry an
+  owner-admitted profile and the runtime-supplied tenant store; absence remains
+  a typed candidate limitation, not an S8 authority claim.
+- R2 has two scratch-only writers: deployment-identity route attestation and
+  v4 historical schema/currentness. They share an explicit owner API and are
+  sequenced before one combined independent review and integration into
+  `runtime/quality/generation_cycle.py`. The old three-file NO-GO prototype was
+  reversed and preserved in scratch. The R2 route-removal and unresolved-call
+  probes are required before admission; an UNRUN census cannot grant authority.
+- H/N ledger patches are scratch-only until the integrator validates each exact
+  row change, 282-row denominator and Markdown JSON digest. The R14 P41 broker
+  is read-only; it may inventory receipts but not classify an unrun cell green.
+- At most four or five measured light test groups may run while retaining
+  20–30% free RAM and 10 GiB free disk. Heavy native jobs and the full
+  architecture guardrail are exclusive. The R11 test wave is complete; R5's
+  removal probe runs only in its scratch tree. No tree is edited during a test
+  against that tree. Production data stays a read-only symlink, no branch is
+  pushed or merged into main, and only the user empties macOS Trash.
+
+## Historical integration lease at `02b7f5e3c` (2026-09-26)
 
 - The root integrator is the only writer to `codex/e02-r2`. The branch contains
   the reviewed LA-049 bounded repair. Three uncommitted R2 prototype files are

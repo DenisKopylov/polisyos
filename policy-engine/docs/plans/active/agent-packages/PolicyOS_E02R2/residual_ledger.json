@@ -2132,9 +2132,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held is retained. The 2026-09-25 follow-up supersedes the earlier H-card owner_decision classification and corrects its duplicate current-disposition metadata in held_audit_receipt_status and h_n_review_disposition: the current blocker is a smallest_missing_capability, specifically a production-positive N8 estimator-result to typed uncertainty receipt bridge. Additional ValueOuterSet constructors exist; no production statistical-uncertainty receipt, served positive consumer, behavior witness, P41, or closure is established."
+        "detail": "Appendix C held is retained. The 2026-09-25 follow-up supersedes the earlier H-card owner_decision classification and corrects its duplicate current-disposition metadata in held_audit_receipt_status and h_n_review_disposition: the current blocker is a smallest_missing_capability, specifically a production-positive N8 estimator-result to typed uncertainty receipt bridge. Additional ValueOuterSet constructors exist; no production statistical-uncertainty receipt, served positive consumer, behavior witness, P41, or closure is established. The d4c5 and 2522 source-only absence observations are historical; no current integration-head census or behavior/P41 is claimed."
       },
-      "residual": "Smallest missing capability: a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt bridge. The served FoundryValuePort path currently refuses before an estimator result; no production ValueGateReceipt emitter or served positive consumer is established. Reuse GY-N8/Foundry for estimator-to-receipt, GY-N-V for identification-set semantics, and DS16 only as consumer; do not fabricate a result or add a second uncertainty owner. Behavioral witness and P41 remain UNRUN.",
+      "residual": "Smallest missing capability: a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt bridge. The d4c5ae7 and 2522cf2 source censuses are historical snapshots, not evidence about a later integration head: they reported that the served FoundryValuePort path stopped before an estimator result and found no production ValueGateReceipt emitter or served positive consumer. The generation-cycle helper source changed after the 2522 snapshot; no current-head census, behavioral witness, removal/control probe, or P41 is claimed. Reuse GY-N8/Foundry for estimator-to-receipt, GY-N-V for identification-set semantics, and DS16 only as consumer; do not fabricate a result or add a second uncertainty owner. Behavioral witness and P41 remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner paths are identified; the production-positive bridge is absent. No individual appointment or principal semantic decision is claimed.",
         "kind": "smallest_missing_capability",
@@ -2146,9 +2146,9 @@
         "finding_test_or_probe": {
           "kind": "source_review_or_unrun_test_candidates",
           "identity": "B31 served N8 source/owner census; no current behavioral selector",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#L7",
           "behavioral_verdict": "UNRUN",
-          "scope": "Complete tracked-source census establishes no production-positive estimator-to-ValueGateReceipt path; behavioral witness, removal/control probe and P41 are UNRUN. Keep held with one smallest_missing_capability.",
+          "scope": "The complete tracked-source census cited here is pinned at d4c5ae77751db0e681c520e5823952a4a451094b; it is source-only and does not establish current integration-head behavior. The separate 2522cf2 source census is recorded as a historical source pin below. Behavioral witness, removal/control probe, and P41 remain UNRUN.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375"
@@ -2158,7 +2158,7 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@git-blob:e73454e6b50624acc69627f48172a7612c9ccd9c",
-        "blocker_path_scope": "Existing owner contract locus. Follow-up read-only source/call-path census found additional ValueOuterSet constructors but no production statistical-uncertainty ValueGateReceipt emitter or served positive consumer. This is bounded source evidence, not a behavioral proof of semantic absence; production witness, removal/control, and P41 remain UNRUN.",
+        "blocker_path_scope": "The d4c5ae77751db0e681c520e5823952a4a451094b and 2522cf2 source snapshots report no production statistical-uncertainty ValueGateReceipt emitter or served positive consumer. These are bounded historical source observations, not a current integration-head census or behavioral proof; the production witness, removal/control, and P41 remain UNRUN.",
         "held_audit_receipt_status": "read_only_h_card_audit_complete; earlier owner_decision classification is superseded by the 2026-09-25 B31 source follow-up; current blocker is one smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
@@ -2168,13 +2168,13 @@
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B31",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L20",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B31",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#L19",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
@@ -2194,18 +2194,30 @@
             "identity": "B31 complete tracked production-source census",
             "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c",
             "scope": "Static source-only inventory pinned at d4c5ae77751db0e681c520e5823952a4a451094b: 3,929 tracked production-source files; instrument /Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.py@sha256:21cff62ad2a9cdc0cd417780c1389ec4b02af26dfc0097c61767c1edad70d86e; result /Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375. The helper has no product-source callsite and the served path stops before a positive estimator result. No behavioral closure, removal/control, or P41 evidence."
+          },
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "B31 historical complete-source census and generation-cycle source pin",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held-five-current-census/b31-production-source-census.json@sha256:cd866ccaeed0d494847c82028cb1263310db9644dc0718c06154ec0139186568",
+            "reviewed_head_or_snapshot": "2522cf2ee59a0f45cebc52303a184908a4326fa1",
+            "source_pin_path_at_sha": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:0f710cc406def1830305a189b6a432f2dc0cfc3a",
+            "witness_refs": [
+              "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held-five-current-census/focused-owner-symbol-census.json@sha256:bc952f430d112c2e1d4bb07ddd3837783c0bb52b827108b96c869236496d7b71",
+              "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held-five-current-census/b31-census.py@sha256:6f3fcff793f007c5a548a41472da47fed10a3fd95e8b90f68a761102ac938d23"
+            ],
+            "scope": "Historical source-only observation at 2522cf2: complete census scanned 3,930 first-party source files within 13,374 tracked PolicyOS paths and its helper-source pin is generation_cycle.py@git-blob:0f710cc406def1830305a189b6a432f2dc0cfc3a. The helper pin is retained as historical and is not silently repointed to a later blob. R13 changed this source after that snapshot; no current census at captured HEAD 46de219 or later descendants, behavioral witness, removal/control probe, or P41 is claimed. This addition changes no finding status or owner."
           }
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B31",
           "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#B31",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#L7",
           "reviewed_head_or_snapshot": "d4c5ae77751db0e681c520e5823952a4a451094b",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375"
           ],
-          "scope": "Complete tracked-source census establishes no production-positive estimator-to-ValueGateReceipt path; behavioral witness, removal/control probe and P41 are UNRUN. Keep held with one smallest_missing_capability."
+          "scope": "The complete tracked-source census is pinned at d4c5ae77751db0e681c520e5823952a4a451094b, not the captured 46de219 head or its later descendants. A separate source census pinned at 2522cf2 is recorded below as historical; the generation-cycle helper changed afterward. Neither source-only census is behavioral proof. Current-head witness, removal/control, and P41 remain UNRUN; keep held with one smallest_missing_capability."
         }
       }
     },
@@ -11608,7 +11620,7 @@
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
           "identity": "B194 Monte Carlo partial-draw/report semantics; low-valid marker-retaining removal probe and paired controls; four importer files; UQP consumer",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#B194",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
           "behavioral_verdict": "PARTIAL",
           "scope": "At b347c3326765f4d5be8e9e0daaaac59386d92ed0, 515/1000 failed draws retain samples only as candidate evidence, with gate authority withdrawn and typed per-draw outcomes; the 0/100 all-exception case preserves insufficient_valid_samples while marking incompleteness. Persisted v1.1 report aggregation distinguishes absent outputs from invalid/incomplete outputs; Delta missing and valid controls exercise the shared classifier. The historical low-valid status-removal probe is red and paired controls pass 2/2. Four importers pass 34/34 and the UQP consumer passes 1/1. This is bounded owner behavior, not served authority-chain closure. Full four-base P41 and production reader/history replay are UNRUN.",
           "package_test_selector_groups": [],
@@ -11622,7 +11634,7 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "PARTIAL",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@git-blob:38f409e574dc2a97badc694499f534734123006a",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@git-blob:7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
         "blocker_path_scope": "Served typed-outcome producer plus shared verified support intake across the Monte Carlo report/envelope and all three authority consumers; one owner-path capability, not a repository-wide absence claim.",
         "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
         "held_review": {
@@ -11633,7 +11645,7 @@
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B194",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B194",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L22",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         },
@@ -11651,7 +11663,7 @@
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B194",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B194",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#L35",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
@@ -11663,13 +11675,13 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B194",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B194",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
           "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
           ],
-          "scope": "Direct probe reproduces 515 failed / 485 valid requested draws while confidence interval remains present and gate_eligible is true; 1000/1000 valid control passes. Persisted report binding and adaptive-stop policy remain absent; no closure."
+          "scope": "The report observation base is historical 12c1c8dba4716e206d72f332caab78d40e2a7f6f: its 515/485 gate_eligible probe is pre-repair. Lines 7–22 separately record bounded owner behavior at b347c3326765f4d5be8e9e0daaaac59386d92ed0; this is not a fresh later-head four-base P41 or production reader/history replay. The served source/deployment-bound evaluator-to-authority-intake capability remains unestablished; status stays held."
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@git-blob:ef85325624efa365cd716b9633dc7ed6f1fe4e56#L127,L130,L320",
@@ -11686,7 +11698,7 @@
         "behavioral_verdict": "PARTIAL",
         "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
         "scope": "Historical result: 515 failed / 485 valid requested draws retained a 95% confidence interval and gate_eligible=true; the 1000/1000 valid control passed. This is pre-repair evidence and is not the current implementation result.",
-        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B194",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
         "witness_refs": [
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
@@ -11701,7 +11713,7 @@
         "identity": "E02-R2 H/N current evidence reconciliation after bounded B194 owner repair",
         "classification_at_review": "held",
         "behavioral_verdict": "PARTIAL",
-        "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#B194",
+        "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
         "reviewed_head_or_snapshot": "b347c3326765f4d5be8e9e0daaaac59386d92ed0",
         "witness_refs": [
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integration-importer-files-restored.junit.xml@sha256:b6beb16e8e8c0cb92631d856e98b092cd41a573bac3cd89b525b17bbc6bd920d",
@@ -11709,7 +11721,7 @@
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/B194_P41_COMPATIBILITY_INDEPENDENT_REVIEW.md@sha256:284c1827c849e3168ed6f521017105b215ba4b69e5dc529dc718c0bff6ae3803",
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-current-caller-census.out@sha256:1f54b4f3a72419386e2467bc757c5c142bbd8f7595dff9d59d1497bf3ffbb526"
         ],
-        "scope": "Current owner-level Monte Carlo/report defect is repaired and bounded behavior is verified: 515/1000 failures remain candidate-only with typed per-draw outcomes; persisted report aggregation and Delta missing/valid controls are exercised; compatibility removal/control and importer receipts pass. The one missing capability is the served source/deployment-bound simulation evaluator to shared verified authority-intake chain. Adaptive stopping remains candidate-only; full four-base and production reader/history replay are UNRUN. The pre-repair 12c result is preserved separately as historical evidence."
+        "scope": "The report's 12c1c8dba4716e206d72f332caab78d40e2a7f6 probe is historical pre-repair; the b347c3326765f4d5be8e9e0daaaac59386d92ed0 snapshot scopes the bounded owner-repair probes only. This is not a fresh later-head four-base P41 or production reader/history replay. The served source/deployment-bound evaluator-to-authority-intake capability remains unestablished; status stays held."
       }
     },
     {
@@ -12102,9 +12114,9 @@
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
           "identity": "skewed-posterior envelope validator probe",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Real Pydantic envelope rejects 99 zero draws plus one 100 draw (mean 1, central 90% interval [0,0]); public point-functional/interval semantics still need owner decision and versioned history.",
+          "scope": "The cited line 24 is from the historical observation base 12c1c8dba4716e206d72f332caab78d40e2a7f6f, as stated at report line 5. This evidence is not a fresh later-head probe or four-base replay; the owner decision remains pending and no closure is claimed.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
@@ -12124,20 +12136,20 @@
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
         },
         "decision_record_draft": {
-          "kind": "principal_decision_draft",
-          "identity": "DECISION_RECORDS.md#held-B201",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#B201",
-          "scope": "draft only; principal/owner ruling pending"
+          "kind": "source_review_options",
+          "identity": "HELD_FINDINGS_REPORT.md#L24 source-review options:B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
+          "scope": "Source-review options only; the cited report line is not a formal DECISION_RECORDS.md entry, principal ruling, or owner decision. Decision remains pending."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B201",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L24",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B201",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#L53",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
@@ -12149,7 +12161,7 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B201",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B201",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
           "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
@@ -12188,9 +12200,9 @@
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
           "identity": "distinct posterior source-law carrier probe",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Two distinct 100-draw laws with equal mean and equal interval collapse to the same canonical envelope; source distribution payload is absent. Inline-size/CAS reference and joint-draw identity remain owner decision; no closure.",
+          "scope": "The cited line 25 is from the historical observation base 12c1c8dba4716e206d72f332caab78d40e2a7f6f, as stated at report line 5. This evidence is not a fresh later-head probe or four-base replay; the owner decision remains pending and no closure is claimed.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b202_carrier_probe.out@sha256:2d690715f63f6f5bd34b87e58f18290852579d7f3af21ad684fa44bb4121297b",
@@ -12211,20 +12223,20 @@
           "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
         },
         "decision_record_draft": {
-          "kind": "principal_decision_draft",
-          "identity": "DECISION_RECORDS.md#held-B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@git-blob:b898d6e3ccba7b61cd793fb90a6f214747b77a60#B202",
-          "scope": "draft only; principal/owner ruling pending"
+          "kind": "source_review_options",
+          "identity": "HELD_FINDINGS_REPORT.md#L25 source-review options:B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
+          "scope": "Source-review options only; the cited report line is not a formal DECISION_RECORDS.md entry, principal ruling, or owner decision. Decision remains pending."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B202",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L25",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B202",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#L61",
           "behavioral_verdict": "UNRUN",
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
@@ -12236,7 +12248,7 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B202",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B202",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
           "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b202_carrier_probe.out@sha256:2d690715f63f6f5bd34b87e58f18290852579d7f3af21ad684fa44bb4121297b",

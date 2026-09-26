@@ -1,5 +1,35 @@
 # E02-R2 write leases
 
+## Current handoff at `0ee329300` (supersedes every older snapshot below)
+
+- The sole integration writer owns `codex/e02-r2`. R1/R5 is merged at
+  `8b748e334`; the R1 reader/profile integration correction is committed at
+  `d4c5ae777`. Its selected-view removal probe is red and the scoped served
+  control is green. R1/R5 remain bounded: the current whole-file
+  `test_control_service_di.py` has 32 passes and six failures. Five of 30
+  node IDs shared with the E02 execution base and main passed there and fail
+  here; the sixth failing node was added later. R1 class design is active.
+  The passed
+  `test_generation_source.py` cases have zero new main-pass-to-head-fail among
+  17 shared node IDs; its inherited failures remain recorded separately.
+- R1 follow-up design is read-only/scratch. It owns the HTTP candidate/context
+  boundary and may propose tests, but no agent writes the integration tree.
+  R2-History v8 is scratch-only and next in the shared
+  `runtime/quality/generation_cycle.py` and EvalSafety lease. R13 supplied-store
+  handoff remains scratch-only; its `generation_cycle.py` changes follow R2.
+  R11 remains a principal decision draft on blocked/N9 semantics. Apply one
+  reviewed class delta at a time; do not edit any tree under an active test.
+- The four-base `BASELINES.md` addendum at `0ee329300` distinguishes the original
+  Phase 0 column from later current heads. It does not claim current-head
+  21-file completion. The full changed-test union is a path-presence census,
+  not a test result; the later R1 whole-file receipts must be appended after
+  their casewise reconciliation.
+- One measured R1 full-file job has approached 5.52 GiB RSS, so native and
+  unmeasured jobs remain exclusive. Lightweight measured logic tests may run
+  in parallel only while preserving 20–30% RAM headroom. Keep at least 10 GiB
+  available disk. Reuse the existing `.venv` and the read-only production-data
+  symlink; never copy production data or restamp governed artifacts.
+
 ## Current handoff at `62d9456d4` (supersedes earlier snapshots below)
 
 - The sole integration writer owns `codex/e02-r2`. R7's journal-owned live permit

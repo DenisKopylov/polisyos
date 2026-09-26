@@ -1333,6 +1333,178 @@ It does not authorize changes to the manifest, the runtime API client's generate
 artifact owner, N6 historical serializers/currentness, or WS-2D's live closeout
 references. The same boundary and its evidence are cross-referenced by R14.
 
+### R2 package-only route attestation issuer — principal decision draft (2026-09-26)
+
+**Status and relation to the R2 drafts.** This addendum supplements the R2 source-free
+currentness proposal and issuer-policy draft above. It resolves the narrower evidence
+gap: how an installed package can consume an N6 route census when it has no source
+checkout. It does not replace the existing issuer choices A/B/C, select a trust root,
+appoint an issuer, or authorize an identity/epoch reissue. No principal ruling has been
+made.
+
+**Question.** What evidence may establish package-only N6 route currentness, binding the
+route census to the canonical loaded deployment identity and lock inputs, when
+`src/polisyos`, `pyproject.toml`, and `uv.lock` are not present at runtime?
+
+**Options and costs.**
+
+1. **Appoint a build/deploy issuer for an identity-bound receipt.** Denis and the
+   authorized security owner select an existing authorized release issuer or appoint a
+   deployment/admission institution under the existing issuer policy. Its immutable
+   receipt binds the exact built package subject, the N6 route-census rule, complete
+   inspected denominator, and independently derived complete served-root set, as well
+   as the census verdict/unresolved classes and canonical Confidence Ledger deployment
+   identity (including its loaded-code manifest, lock and other owner-defined inputs).
+   Root discovery must use the actual registered served handlers and worker/job
+   dispatch source of truth; a curated root list cannot support class-wide PASS. The
+   installed reader verifies issuer/trust policy and reconciles the receipt against
+   the code actually loaded and the package's lock identity, without a source checkout.
+   This enables positive package currentness, but
+   costs an issuer appointment or exact workflow admission, trusted key/root and
+   rotation policy, build/deploy producer, immutable evidence delivery and retention,
+   offline runtime verifier, and an authorized transition if identity inputs change.
+   Release/deployment, security, Confidence Ledger, and runtime-quality owners carry
+   those duties. The identity remains computed by the existing Confidence Ledger owner;
+   the receipt is N6-scoped evidence bound to that identity, not a second identity
+   calculation.
+
+2. **Keep source-tree tooling and bound installed currentness as `UNRUN`.** The
+   source/deploy tool recomputes the route closure and served-root denominator from
+   the actual route registry and worker/job dispatch in an available checkout. It
+   returns `UNRUN` if registration or root completeness cannot be reconciled; a
+   finite hand-maintained root list cannot return class-wide PASS. A source-tree result
+   alone does not attest which bytes are installed; an installed package without a verified owner
+   receipt returns currentness `not_established`/`UNRUN`, with N9 authority withheld.
+   Candidate computation and source-free historical replay continue. This is the
+   smallest honest interim path and avoids inventing an issuer, but leaves positive
+   package-only currentness unavailable until option 1 is admitted.
+
+3. **Reject an unsigned package self-attestation.** A JSON file co-packaged beside the
+   code, even if it lists source hashes, lock digest, manifest, and a PASS marker, has
+   no independent issuer or trust root. Code and receipt can be changed together, so
+   package presence, internal hash consistency, and a claimed producer role remain
+   self-attested. This is cheap to add but can falsely green the authority predicate; it
+   is rejected as evidence for package currentness. It may be diagnostic input only and
+   must yield `UNRUN` for authority.
+
+**Premises and predicate provenance.** The property is that the served production N6
+path does not route through `WorkspaceLoop.run_fixture`; it is separate from the sibling
+`workflow_run` fixture path. Existing `StrangleReceipt` counts direct AST names and
+exempts every direct caller under `workspace/loop.py`, so that source census is not
+itself a complete route proof. The R2 route-closure design requires unresolved indirect
+dispatch or incomplete served-root enumeration to produce `UNRUN` and retains the
+candidate-band path under a declared limitation. In P37 terms: route membership, root
+completeness, and forbidden-edge checks are `recomputed` by the build/source tool;
+matching the installed loaded-code manifest and lock to the
+receipt is `independently_reconciled` by the packaged reader; the issuer identity and
+trust root are `institutionally_supplied` by the principal/security owner. An exact R2
+reviewer also found that a new served sibling omitted from the candidate's finite root
+list can call `run_fixture` and leave the owner result PASS. Root completeness is
+therefore a separate deciding predicate; it must be derived from the actual served
+route registry and worker/job dispatcher, not from the same list under review. If it is
+not independently reconciled, route currentness is `UNRUN` and no class-wide authority
+PASS is allowed. Review note:
+`/Users/deniskopylov/.codex/scratch/e02-r2-served-root-completeness-review-20260926.md@sha256:f8c4ac4bee61d81ef6390a2ce819dc5992153066d650b3919932d1842de925d6`.
+
+The inspected packaged readiness path returns `UNRUN` and names
+`packaged_build_identity_issuer_not_appointed`, `n6_strangle_census_not_established`,
+and `deployment_authority_issuer_not_appointed`. It checks whether
+`_packaged_deployment_identity.json` exists but no production issuer/reader for that
+file was found; its only other repository references are readiness tests. The canonical
+identity owner is `confidence_ledger`; its current source-checkout path requires
+`pyproject.toml`, `uv.lock`, and `src/polisyos`. A package self-file is not proof that
+these inputs or the route census describe the installed loaded code. Evidence:
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:63b3c9bbde5faf530da1466a563e76833c6d29682612d86ea008e8a08c3d7e4d`;
+current R2 record
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f`.
+
+**P38 — property and divergence.** Property: every served production N6 entry is
+covered and does not route through `WorkspaceLoop.run_fixture`; package currentness
+binds that route result to the exact loaded deployment. The candidate route analyzer
+uses a finite root set. Divergent case: register a new served sibling outside that
+list and let it call `run_fixture`; the analyzer can return PASS while the property is
+false. This is the same P38/P40 class, not a new root-instance class; do not patch it
+by adding another root to a curated list. A second package-boundary divergence is an
+unsigned co-packaged JSON whose PASS marker and digest are updated alongside the code:
+a form-only reader stays green although the installed route changed. The current
+packaged readiness result `UNRUN` is
+honest; neither a curated root list nor package presence may replace it.
+
+The read-only class-mechanism review recommends the existing `StrangleReceipt` owner for
+route closure, a separate N6-scoped receipt bound to the existing canonical identity,
+and a real build/deploy issuer before positive package currentness. The follow-up
+review identifies incomplete served-root enumeration as the same P38/P40 class; no
+class-wide PASS is available until that denominator is independently derived. The
+review rejects unsigned package claims and treats the runtime fixture token as
+containment only, not proof that no route exists.
+Review evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r2-class-mechanism-design-20260926.md@sha256:7264f158170d87b876b47abe881f2929c35a2089dd55ffdd0ede6482ffb59e8d` and
+`/Users/deniskopylov/.codex/scratch/e02-r2-owner-attestation-independent-review-v4-20260926.md@sha256:4fb90c37f3b8fc027e8b29fd204248a552d58400b83095bf22e9eb72905fcb82`.
+
+**Proposed choice; decision-maker and binding status.** Recommend option 1 as the
+production path for any positive installed N6 currentness. Until Denis and the
+authorized security owner name/admit its issuer and trust policy, apply option 2:
+installed currentness remains `UNRUN`/`not_established`, N9 authority is withheld, and
+candidate computation plus historically valid replay remain available. Option 3 is
+rejected for authority. No class-wide route PASS is admissible until root completeness
+and issuer-bound package identity both pass. This is a proposal, not a principal ruling;
+the exact release workflow or deployment institution must not be guessed from repository
+presence. Denis decides; the authorized security owner co-owns issuer and trust-root
+admission.
+
+**Historical validity and currentness.** Historical validity is replay of the persisted,
+versioned run and parent bytes under that run's historical serializer; it never requires
+today's source tree or a currently installed package receipt. Currentness is a separate
+typed epoch fact: `current` only when a root-complete N6 census has verdict PASS and
+its issuer, route-rule version, canonical deployment identity, loaded-code manifest,
+and lock binding reconcile with the installed runtime; a proven changed identity is
+`stale`; absent, unsigned, incomplete, or unresolved evidence is
+`UNRUN`/`not_established`. Persisting a new receipt requires a v4 run projection with
+explicit frozen v1–v3 serializers; do not append fields to the R11 v3 projection.
+Missing package evidence withholds
+authority, not candidate work or historical replay.
+
+**Remainder.** The exact production issuer, admitted release workflow or deployment
+institution, trust-root/rotation owner, evidence transport/retention path, and
+authorized currentness transition remain undecided. The route analyzer's unresolved
+dispatch classes remain `UNRUN`; complete served-root enumeration is not yet
+independently established, so no class-wide authority PASS is available. This addendum
+does not make Python reflection statically complete by declaration. It does not close
+R2, authorize a restamp, or resolve the independent historical v2 byte-oracle gap.
+If no issuer is appointed, the bounded residual is package-only currentness `UNRUN`,
+not a source-checkout fallback and not unsigned self-attestation.
+
+**Falsifier / revisit trigger.** Keep receipt fields and PASS markers intact, then add
+and register a new served sibling route outside the declared root list that reaches
+`run_fixture`. The census must discover that root and return FAIL, or return `UNRUN`
+if registration/reachability cannot be reconciled; it must never PASS. Also alter a
+route-relevant N6 call/alias, installed loaded code, or lock input without an authorized
+receipt for the resulting exact package. The installed reader must return
+FAIL or `UNRUN`/`not_established`; it must never report current, and N9 remains
+withheld. A receipt from a different package/lock, or a regenerated unsigned JSON beside
+altered code, must also fail to establish currentness. For option 2, an unresolved
+reachable dispatch must remain `UNRUN`; if source-tree-only evidence is accepted as
+package currentness, the boundary is too weak. The preserving control is a real served
+N6 run with a verified receipt from the admitted issuer bound to the exact package and
+matching loaded-code/lock identity; it may establish currentness only after the route
+census PASS and all other N9 predicates pass. If absence of the receipt blocks ordinary
+candidate computation or historical replay, the refusal is too broad. Revisit this
+record when the principal/security owner supplies an issuer identity, verifier trust
+source/rotation rule, and exact evidence delivery path that can pass these falsifiers.
+
+**Where it binds.** This decision binds only the package-only N6 route-attestation
+issuer and its currentness predicate: the release/deploy receipt producer and installed
+verifier; the owner of the complete served route registry and worker/job dispatch
+inventory; the existing Confidence Ledger deployment identity owner and packaged
+readiness/identity API; the existing `generation_cycle.py::StrangleReceipt` route-census
+owner; the versioned `GenerationCycleRun` receipt binding and pre-N9 currentness
+consumer; and the GY-N6 validator's three-valued output. It does not change the global
+deployment identity formula, historical replay semantics, `workflow_run` fixture
+permission, candidate-band permission, or the existing A/B/C issuer options except by
+requiring their selected issuer to bind this exact N6 subject. No trust-posture pins,
+promotion epochs, or other governed artifacts are reissued by this draft.
+
+
 ## R4 — GY-N6 contract validator must return a verdict
 
 **Question.** How should the validator construct its isolated N9 verification state

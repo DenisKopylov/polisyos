@@ -2720,6 +2720,23 @@ for current v3 runs. The option and accepted cost are recorded above. Principal
 reconsideration is not a prerequisite for implementation; any policy change needs
 a new explicit principal ruling.
 
+### R11 implementation status addendum — 2026-09-26
+
+The ruling's v3 status guard and validator invariants were subsequently committed
+in `caad223d2096ed19c957c4ad6a7e838302736130`, superseding the earlier
+"code not integrated" and "integration waits" statements as historical
+pre-implementation status. The focused post-R13 candidate had **7/7 passing**
+cases, including blocked VOI, retry/safety-cap blocks, and a nonblocked N9
+control; removing the N9 guard while retaining the markers made two negative
+cases fail. Receipts:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_POST_R13_GREEN_7.junit.xml@sha256:2ebd8a9ec168c1d6a20ade426478d67e3ef4d7c1c92fb1a663f9a3c516162bd3`
+and
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_POST_R13_N9_REMOVAL_RED.junit.xml@sha256:53e79f705cb0a5746c21f530028dddde7c18e804368b44f394a9c55bcd92eb19`.
+The exact write set, controls, and remaining consumer limits are in
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_POST_R13_HANDOFF.md@sha256:909d1241a0cf0ac047db8412579cf91658e3fff5da994a5df1d800b648cee77d`.
+This is an implementation receipt for the bounded N6→N9 property, not evidence
+of a served public/S8/board witness or complete four-base whole-file replay.
+
 
 ## R13 — one world-growth path and runtime store custody
 

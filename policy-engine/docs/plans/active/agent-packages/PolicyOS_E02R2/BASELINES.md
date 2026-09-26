@@ -2,6 +2,50 @@
 
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
+
+## R14/P41 census addendum (2026-09-25; pinned R2 snapshot `ffec359`)
+
+**Revision attribution.** The historical 21-file matrix in this document has
+columns `78187878e`, `00d946c2b`, `5fd3ebcc1`, and `73c656744`. Its fourth base
+is Phase 0 `73c`, not the pinned R2 snapshot `ffec3598da9770fae91ebcafd4ebf03b5f101b95`
+or any later checkout HEAD. The census pinned `ffec` for path presence only;
+later test-path edits are outside its counts.
+
+**Historical status sources.** The original raw matrix receipt
+`raw/p41-pre-repair-20260924T201448Z-19470/results.json@sha256:4a52ed6db2058626e1ea6aae496a5b0b64e8a59094276911dd4505bcc12d3a90`,
+parsed by the cited census, records 84 cells: 45 completed (20 pass, 25 fail),
+20 verified missing, and 19 present `UNRUN`. Its 74 named-case rows are
+26 `PASS_TO_FAIL`, 1 `SAME`, and 47 `UNRUN` (A: 4/0/33; B: 22/1/14). The later
+v10 closeout map
+`/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-admission-map-20260925-v3.json@sha256:d00e0d7cd566cfb0d23d2f79182472a08b98de945610131be212f96504dc70e5`
+and cancellation reconciliation
+`/Users/deniskopylov/.codex/scratch/p41-v10-unrun-reconciliation-20260925-cancel.json@sha256:f47014d025e55e09287f735fa3e91c5ee85d266f90cf3c34048a76c95e0b569e`
+report updated totals of 62 completed / 20 missing / 2 present `UNRUN` cells
+and 42 `PASS_TO_FAIL` / 12 `SAME` / 20 `UNRUN` named cases; the associated
+normative full-file result is
+`/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-v10-20260925T1250Z/results.json@sha256:20f6f490eceb791ac5fedcfeae9db5bdeecb567f802fb1fc89dcffe292273f58`.
+The v10 summary in this document reports those later totals, while its detailed
+74-case table still shows the original 26/1/47. These are separately sourced
+snapshots; the census does not reconcile them, and this addendum claims no new
+test outcomes.
+
+**Path-presence denominator, not test outcomes.** The strict Appendix A/B set
+is 21 whole-file paths / 74 named cases. Across refs `781`, `00d`, `5fd`, and
+pinned `ffec`, its 84 path cells comprise 64 present and 20 missing; all 21
+strict paths exist at `ffec`. The complete changed-test-tree union through
+pinned `ffec` is 364 tracked paths: 348 pytest modules, 9 Python support files,
+and 7 fixture/other files. The four-ref path-presence denominator for the 348
+modules is 1,392 cells: 1,065 present and 327 missing. Presence does not imply
+a completed test. The census did not run tests and does not extend these counts
+to later HEADs.
+
+Census evidence: machine output
+`/Users/deniskopylov/.codex/scratch/e02-r2-r14-p41-test-census-20260925/census.json@sha256:06dae57a81b815e0741b28a18bca3e2500a951f8ecf0cc5c1e006c4f9c34646d`,
+report
+`/Users/deniskopylov/.codex/scratch/e02-r2-r14-p41-test-census-20260925/REPORT.md@sha256:67cc45ce1b8842cdd018898faa43a72f467e79d8faf1a0da72919b2a978fd048`,
+and script
+`/Users/deniskopylov/.codex/scratch/e02-r2-r14-p41-test-census-20260925/census.py@sha256:3d01c426bfecece3575515c4cc0a23f24c9f8e786594dfc9e138836dfcb919d1`.
+
 ## Latest normative-bridge reconciliation — v10, 2026-09-25
 
 **Discrepancy and outcome.** With the same pinned checkout, production-data link,

@@ -10,15 +10,19 @@ from pathlib import Path
 import jax
 import jax.numpy as jnp
 import pytest
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.agent_sim import ActorCritic, TrainingConfig, build_temporal_observations
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
+from polisyos.foundry.plugins.cli import cmd_train
 from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin
-from polisyos.foundry.plugins.cli import cmd_train
 from polisyos.foundry.plugins.training_adapter import EconomicsTrainingAdapter
+from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
 
 
 @pytest.fixture
@@ -126,6 +130,134 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
 
     final_state = simulator.get_state()
     assert int(final_state.time_step) > 0
+
+
+def test_training_uses_supplied_tenant_store_for_persist_and_readback(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Training keeps the caller's tenant store through artifact write and readback."""
+
+    from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    simulator.initialize(seed=7)
+    config = _small_config()
+
+    def stub_native_training(policy, _initial_state, _config, **kwargs):
+        trained_artifact = AgentPolicyArtifact.from_trained_policy(
+            policy,
+            run_id="tenant-store-test",
+            steps=1,
+            loss=0.25,
+            fingerprint=EnvironmentFingerprint.capture(kwargs["tier"], kwargs["seed"]),
+        )
+        return policy, {"loss_history": [0.25]}, trained_artifact
+
+    monkeypatch.setattr(
+        training_adapter_module, "train_actor_critic_with_artifact", stub_native_training
+    )
+    monkeypatch.setattr(training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(
+        EconomicsTrainingAdapter,
+        "run",
+        lambda self, *args, **kwargs: (simulator.get_state(), []),
+    )
+
+    tenant_store = FileSystemCAS(tmp_path / "shared-cas").for_tenant(
+        "tenant-a",
+        cell_id="cell-a",
+    )
+
+    class RecordingTenantStore:
+        """Record read selectors while keeping the tenant-bound store as owner."""
+
+        def __init__(self, delegate: FileSystemCAS) -> None:
+            self.delegate = delegate
+            self.read_refs: list[ArtifactID | ArtifactRef | str] = []
+
+        def __getattr__(self, name: str):
+            return getattr(self.delegate, name)
+
+        def get_bytes(self, reference: ArtifactID | ArtifactRef | str) -> bytes:
+            self.read_refs.append(reference)
+            return self.delegate.get_bytes(reference)
+
+    supplied_store = RecordingTenantStore(tenant_store)
+    store_calls: list[object] = []
+    load_calls: list[object] = []
+    store_policy_artifact = training_adapter_module.store_policy_artifact
+    load_policy_artifact = training_adapter_module.load_policy_artifact
+
+    def record_store(store, value):
+        store_calls.append(store)
+        return store_policy_artifact(store, value)
+
+    def record_load(store, *args, **kwargs):
+        load_calls.append(store)
+        return load_policy_artifact(store, *args, **kwargs)
+
+    monkeypatch.setattr(training_adapter_module, "store_policy_artifact", record_store)
+    monkeypatch.setattr(training_adapter_module, "load_policy_artifact", record_load)
+
+    result = simulator.train(
+        n_episodes=config.n_episodes,
+        training_config=config,
+        seed=7,
+        artifact_store=supplied_store,
+    )
+
+    assert result.status == "trained"
+    assert result.artifact_refs is not None
+    assert len(store_calls) == 1 and store_calls[0] is supplied_store
+    assert len(load_calls) == 1 and load_calls[0] is supplied_store
+    weights_ref, manifest_ref = result.artifact_refs
+    assert supplied_store.has(weights_ref)
+    assert supplied_store.has(manifest_ref)
+    assert isinstance(supplied_store.read_refs[0], ArtifactRef)
+    assert supplied_store.read_refs[0].artifact_id == manifest_ref.artifact_id
+
+    foreign_store = FileSystemCAS(tmp_path / "shared-cas").for_tenant(
+        "tenant-b",
+        cell_id="cell-b",
+    )
+    assert foreign_store.has(manifest_ref) is False
+    with pytest.raises(ArtifactOwnershipError):
+        foreign_store.get_bytes(manifest_ref)
+
+
+def test_load_payload_reads_non_default_selected_view_for_shared_blob(
+    tmp_path: Path,
+) -> None:
+    """A tenant can read its selected typed manifest view, not another tenant's default."""
+
+    from polisyos.foundry.agent_sim.artifact import _load_payload
+
+    payload = {"selected_view": "tenant-b"}
+    shared_store = FileSystemCAS(tmp_path / "shared-view-cas")
+    default_owner = shared_store.for_tenant("tenant-a", cell_id="cell-a")
+    selected_view_owner = shared_store.for_tenant("tenant-b", cell_id="cell-b")
+
+    default_ref = default_owner.put_json(
+        payload,
+        PutOptions(kind="foundry.policy.default-view", media_type="application/json"),
+    )
+    selected_ref = selected_view_owner.put_json(
+        payload,
+        PutOptions(kind="foundry.policy.selected-view", media_type="application/json"),
+    )
+
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert default_ref.manifest_profile_sha256 is None
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert default_owner.get_manifest(default_ref).kind == "foundry.policy.default-view"
+    assert selected_view_owner.get_manifest(selected_ref).kind == "foundry.policy.selected-view"
+
+    assert _load_payload(selected_view_owner, selected_ref) == payload
+    with pytest.raises(ArtifactOwnershipError):
+        _load_payload(selected_view_owner, selected_ref.artifact_id)
 
 
 def test_unsupported_composite_remains_bridge_pending() -> None:

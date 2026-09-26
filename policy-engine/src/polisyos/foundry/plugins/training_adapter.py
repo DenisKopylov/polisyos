@@ -23,8 +23,9 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,
@@ -52,7 +53,6 @@ from polisyos.foundry.plugins.economics.state import (
     EconomicState,
 )
 from polisyos.foundry.runtime.fingerprint import DeterminismTier
-
 
 ECONOMICS_DOMAIN = "economics"
 _ECONOMICS_MECHANISMS = (
@@ -486,6 +486,7 @@ class EconomicsTrainingAdapter:
         *,
         seed: int,
         output_dir: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> AdapterTrainingOutcome:
         """Run the existing native optimizer and persist/read back its artifact."""
 
@@ -524,8 +525,15 @@ class EconomicsTrainingAdapter:
             )
 
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
-        if output_dir is not None:
-            cas = FileSystemCAS(output_dir / "artifacts")
+        cas = artifact_store
+        if cas is None and output_dir is not None:
+            cas = build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(output_dir / "artifacts"),
+                )
+            )
+        if cas is not None:
             artifact_refs = store_policy_artifact(cas, _artifact_for_cas(artifact))
             trained_policy, _ = load_policy_artifact(
                 cas,

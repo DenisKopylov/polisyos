@@ -11,6 +11,7 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
 from polisyos.foundry.agent_sim.training import TrainingConfig
@@ -200,6 +201,7 @@ class PolisySimulator:
         training_config: TrainingConfig | None = None,
         seed: int = 42,
         output_dir: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> TrainingResult:
         if self._state is None:
             self.initialize(seed)
@@ -250,6 +252,7 @@ class PolisySimulator:
                 training_config,
                 seed=seed,
                 output_dir=output_dir,
+                artifact_store=artifact_store,
             )
         except TrainingBridgeError as exc:
             assert self._state is not None

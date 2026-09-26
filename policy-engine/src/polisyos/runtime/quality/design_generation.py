@@ -965,10 +965,10 @@ async def generate_design_candidate_proposal_under_a(
     llm_client: object | None = None,
     repo_root: Path | None = None,
     data_context: dict[str, Any] | None = None,
-) -> N4CandidateProposalSource:
-    """Run real N4 organs and preserve their output before unknown-scope atom binding."""
+) -> N4CandidateProposalSource | DesignGenerationOrganRun:
+    """Run proposal-only N4 while preserving successful or typed terminal organ output."""
 
-    result = await _run_design_generation_under_a(
+    return await _run_design_generation_under_a(
         design_problem,
         model_id=model_id,
         llm_client=llm_client,
@@ -980,14 +980,6 @@ async def generate_design_candidate_proposal_under_a(
         grounding_run_budget=None,
         candidate_proposal_only=True,
     )
-    if isinstance(result, N4CandidateProposalSource):
-        return result
-    reason = (
-        result.result.degraded_artifacts[0].reason
-        if result.result.degraded_artifacts
-        else result.result.status
-    )
-    raise DesignGenerationError("n4_candidate_proposal_organs_unavailable", str(reason))
 
 
 async def _run_design_generation_under_a(

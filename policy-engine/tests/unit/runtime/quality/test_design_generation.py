@@ -3329,6 +3329,29 @@ async def test_gateway_unavailable_returns_terminal_not_mock_candidate() -> None
 
 
 @pytest.mark.asyncio
+async def test_proposal_only_n4_preserves_gateway_unavailable_terminal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = _recordings()[0]
+    model_id = str(recording["model_id"])
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.factory.create_traced_gateway_client",
+        lambda **_kwargs: None,
+    )
+
+    result = await dg.generate_design_candidate_proposal_under_a(
+        contract._design_problem(recording),
+        model_id=model_id,
+        repo_root=REPO_ROOT,
+    )
+
+    assert isinstance(result, dg.DesignGenerationOrganRun)
+    assert result.result.status == "generation_unavailable"
+    assert result.result.preflight.status == "gateway_unavailable"
+    assert result.result.candidates == ()
+
+
+@pytest.mark.asyncio
 async def test_unsupported_model_profile_rejects_before_generation() -> None:
     recording = _recordings()[0]
     result = await generate_design_candidates_under_a(

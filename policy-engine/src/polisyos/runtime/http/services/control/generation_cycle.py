@@ -55,7 +55,10 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
-    from polisyos.runtime.quality.design_generation import N4CandidateProposalSource
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationOrganRun,
+        N4CandidateProposalSource,
+    )
     from polisyos.runtime.quality.evaluation_safety import (
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
@@ -490,10 +493,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
 
 @dataclass(frozen=True, slots=True)
 class N4CandidateProposalExecution:
-    """Real N4 output stopped before recursive execution when scope is unknown."""
+    """Proposal-only N4 result stopped before recursive execution when scope is unknown."""
 
     design_problem: DesignProblem
-    proposal: N4CandidateProposalSource
+    proposal: N4CandidateProposalSource | DesignGenerationOrganRun
 
 
 async def compile_and_run_recursive_generation_cycle(

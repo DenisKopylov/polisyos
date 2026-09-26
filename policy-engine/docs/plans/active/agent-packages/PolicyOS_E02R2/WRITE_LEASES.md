@@ -1,5 +1,29 @@
 # E02-R2 write leases
 
+## Handoff after `0c80c296c` (2026-09-26; supersedes older snapshots below)
+
+- The root integrator remains the sole writer of `codex/e02-r2`; the branch is
+  clean at this handoff. R13-G is committed as a **bounded residual**, not a
+  positive NCM capability. Its 2,905-path/2,695-Python census found no
+  production NCM writer or selected-view WMR reference. The missing owner,
+  versioned reference, scope-bound cache and served witness are recorded in
+  `R13_G_RESIDUAL.md`. The isolated candidate's citation was corrected and
+  independently reviewed before integration. R13 as a whole remains open.
+- R13-F owns only the synthetic `contract_testing` ACQ-01 route-store helper in
+  `generation_cycle.py` and its `test_acq_01.py` fixture. Its candidate is
+  scratch-only and must pass review, a wrong-store negative, a candidate control,
+  and a marker-retaining removal probe before integration. R1's served unknown
+  scope patch is likewise scratch-only; principal option A still requires a
+  positive owner-bound N4→N5→S8 witness. No other agent writes shared source.
+- R2 history-owner work is scratch-only and overlaps `generation_cycle.py`;
+  integrate only after the R13-F lease and independent review. H/N work stays
+  in scratch until exact evidence and citation review. The strict 21-file
+  four-base baseline and touched-file replay remain incomplete.
+- Admit at most four to five measured light test groups, preserving 20–30% free
+  RAM and at least 10 GiB disk. Heavy native jobs are exclusive. Never edit a
+  tree during its tests, copy or write `production_data`, restamp governed
+  artifacts, or empty macOS Trash.
+
 ## Handoff after `5619eae65` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator remains the sole writer of `codex/e02-r2`; it is clean at

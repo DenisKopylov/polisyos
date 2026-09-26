@@ -2,6 +2,44 @@
 
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
+## P41 exact-test-origin correction and R14 denominator (2026-09-26)
+
+The first supplementary R13-C four-base wave passed a relative test path from the
+execution-base checkout while importing source from each target checkout. Its
+E02, main, and then-current test results mixed revisions and are **UNRUN** for
+four-base attribution. In particular, the apparent 12 SKG planner failures and
+seven retrieval failures at the repair head are not admitted product regressions.
+The corrected harness asserts the absolute collected test path, loaded module
+origin, and Git test/source blobs. The invalidation receipt is
+`/Users/deniskopylov/.codex/scratch/p41-r13c-corrected-20260926/WAVE1_INVALIDATION.md@sha256:397aaac37ad83f1e122975ab9cb35df748401e5765f0d85f35f8cf3461da474f`.
+
+Corrected whole-file historical results now cover three bases for two files.
+For `test_acquisition_planner.py`, the union is **69 identities**, of which **49
+are common**: execution base 48 pass/one skip, E02 67 pass/one fail/one skip,
+main 48 pass/one skip. The one common execution/main pass → E02 fail is
+`test_generation_cycle_bootstrap_authority_is_strangled` (R12). E02's 20
+additional identities all pass. For `test_retrieval_fetch_custody.py`, the union
+is **33 identities**, of which **32 are common**: execution and main each pass
+32/32, E02 passes 33/33, with one E02-only identity. There is no common
+pass → fail in retrieval. Current-head cells for both files await a pinned
+post-R13-D source freeze. Every historical cell and individual node is in
+`/Users/deniskopylov/.codex/scratch/p41-r13c-corrected-20260926/corrected-historical-comparison.json@sha256:12d0516cbbb1b73e81602c710100a88bbaeeb15c798ea158d76896cac901ce55`;
+the human-readable report is
+`/Users/deniskopylov/.codex/scratch/p41-r13c-corrected-20260926/corrected-historical-comparison.md@sha256:7bf192cce059cbf8c8c1bd425fbcfcb201cab8ab19d6fa3d8edea57f9c10bd4c`.
+These observations do not establish a complete transitive input census.
+
+The R14 history walk from `78187878e` through pinned `d5006c26d` found **364
+tracked pytest modules** touched by either side or this lane; all 364 exist at
+that pinned head. Its current-head whole-file denominator is **364 cells, zero
+admitted exact-origin results, 364 UNRUN** at that snapshot. The older 348-module
+count was pinned to `ffec3598d`; the 16-module difference reflects later
+history, not a test outcome. Complete path manifest:
+`/Users/deniskopylov/.codex/scratch/e02-r14-d5006-manifest-20260926/R14_CURRENT_HEAD_UNMEASURED_MANIFEST.json@sha256:fe3433cc00c4e2f8ffda4992719a6227fcc0a4425fa90b5eb45ba2dfe8304330`;
+classification report:
+`/Users/deniskopylov/.codex/scratch/e02-r14-d5006-manifest-20260926/R14_CURRENT_HEAD_UNMEASURED.md@sha256:235dc4feb261691545443be0ed9a563f187d1b06f43076fe93de8ff92d8159fc`.
+Later commits require another path/blob readback before their results are assigned
+to this head.
+
 
 ## R14/P41 census addendum (2026-09-25; pinned R2 snapshot `ffec359`)
 

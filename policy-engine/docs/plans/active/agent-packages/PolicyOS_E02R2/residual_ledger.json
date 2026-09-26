@@ -15524,13 +15524,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C status held retained. This follow-up corrects the blocker kind from data_record to smallest_missing_capability: the selected input-file/version/digest inventory and its shared binding across the three Data Forge readers do not exist end to end. The existing Data Forge basis/read owner is reusable; the capability is not implemented. No served readback, removal/control probe, or P41 closure is claimed."
       },
-      "residual": "One data-record blocker: bind the complete selected demographic inventory (paths, content digests, layout/version) to the existing VerifiedUkraineStageArtifacts receipt and prove independent sibling readers reopen those exact bytes. The original mixed-filename selection defect is a bounded accepted sub-result: E02 J0681 reports 13/13, and its independent addendum accepts the composite snapshot-selection slice. Do not describe the current loader as still combining mixed layouts. Served inventory-bound producer/receipt/reader, sibling-loader, mutation, and historical-replay witnesses remain UNRUN. Reuse the existing Data Forge receipt/store owner; add no parallel CAS or second world-growth path.",
+      "residual": "One smallest-missing-capability blocker: persist an input inventory containing every selected file path, exact-byte digest, and declared data/schema/layout version, then bind the composite loader and all three sibling readers (load_reconciled_targets, load_transition_priors, optional load_donor_pool) to that same inventory through the existing Data Forge input-basis/read owner. The generic GenerationBasis is an available primitive, but this Ukraine route does not call or persist it and it has no separate declared source/schema-version field; VerifiedUkraineStageArtifacts and the D5 release receipt bind outputs, not source inputs. The mixed-filename selection defect remains a bounded accepted sub-result (E02 J0681: 13/13); do not reopen it. A served positive consumer/readback, shared-reader byte/path/version mutation probe, preserving control, and historical replay remain UNRUN. Proposed closure signal (new selector, not run): policy-engine/tests/unit/remediation/test_udf_05.py@git-blob:e7d2a6ee74913664d363242d53ea1d0c387c5a2e::test_bound_input_inventory_is_shared_by_demography_readers; it must exercise the public Data Forge/read-api consumer, show the same persisted inventory is consumed by all three readers, turn red when one selected path/byte/version changes while receipt markers remain, and preserve the unchanged-input control. Reuse the existing Data Forge owner; no parallel CAS or second world-growth path.",
       "residual_owner": {
-        "kind": "data_record",
+        "kind": "smallest_missing_capability",
         "name": "Ukraine demography receipt/read owner — selected inventory/path/digest/version plus sibling-reader replay",
-        "appointment_status": "The receipt-to-consumer identity record and independent reader replay are not established."
+        "appointment_status": "The existing Data Forge basis/read owner is identified, but the end-to-end input inventory and shared reader-binding capability is absent; no individual implementer appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -15540,7 +15540,7 @@
           "identity": "UDF-05 complete-layout/mixed-layout selection selectors (10 cases in shared 31-case run)",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#LA-032",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; receipt-bound inventory bytes and sibling-reader replay remain UNRUN.",
+          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; the input-inventory capability, served readback, and sibling-reader replay remain UNRUN.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/h-mig-udf-junit.xml@sha256:bbaffea243503dce93ace5fc211c99955fc3c828dc3e9ec657665388f6a32039",
@@ -15553,7 +15553,7 @@
         "finding_test_status": "PASS_BOUNDED",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py@git-blob:32d925f0d443ea61c08b16986b87ed053dd8c9a8",
         "blocker_path_scope": "Demographic loader selection and binding to the existing VerifiedUkraineStageArtifacts receipt; no new storage or world-growth path.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; served readback, removal/control and P41 remain UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f",
@@ -15580,11 +15580,11 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "data_record",
-          "Bind complete selected demographic paths, exact-byte digests, layout/version to existing VerifiedUkraineStageArtifacts receipt and prove sibling readers reopen the same bytes; J0681 13/13 is bounded selection subproperty."
+          "smallest_missing_capability",
+          "Persist exact selected input paths, byte digests and declared data/schema version through the existing Data Forge input-basis owner, and bind all three sibling readers to the same inventory; output receipts do not establish input identity. J0681 13/13 closes only the bounded mixed-layout selection subproperty."
         ],
         "h_n_review_notes": [
-          "Keep one data_record blocker; do not restate the old mixed-layout selection subproperty as open: J0681’s 13/13 accepted result closes that bounded subproperty only."
+          "Keep status held and owner role unchanged; correct only the blocker kind to smallest_missing_capability. The complete input-inventory/read-binding capability is absent end to end; do not reopen J0681’s accepted mixed-layout subproperty. Proposed behavioral signal is the new bound-inventory sibling-reader selector recorded in the residual."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:LA-032",
@@ -15597,7 +15597,7 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5",
             "policy-engine/tests/unit/remediation/test_udf_05.py@git-blob:e7d2a6ee74913664d363242d53ea1d0c387c5a2e"
           ],
-          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; receipt-bound inventory bytes and sibling-reader replay remain UNRUN."
+          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; the input-inventory capability, served readback, and sibling-reader replay remain UNRUN."
         }
       }
     },
@@ -16500,9 +16500,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C says held. The independent follow-up review found Denis’s principal-authored commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180 selects current-version Trinity validation at the policy_ir boundary, so the former owner_decision blocker is no longer current. Record an explicit Appendix C disagreement and keep the finding partial for the missing data record: runtime behavior, exception/depth/import acceptance, removal/control probes and P41 remain UNRUN."
+        "detail": "Appendix C says held. The principal-selected current-version Trinity validation at the policy_ir boundary is implemented, so the former owner_decision blocker is no longer current. Preserve the explicit Appendix C disagreement and partial status for the missing native compatibility record. Source review also found the registered 1.0→1.0 identity edge still present even though the same-version runner bypasses it; remove that dead registration after retaining the explicit wrapper postcondition, as the LA-049 source card directs. Behavior, marker-retaining removal/control probes and P41 remain UNRUN."
       },
-      "residual": "The selected policy_ir 1.0→1.0 boundary validates the current-version Trinity payload through the existing owner; the generic same-version migration runner remains a no-op. Residual is one data record: execute the public wrapper and canonical CLI with native valid/current, incomplete and malformed nested inputs, ready models, JSON/YAML/UTF-8 and legacy markers; assert validator invocation, exception identity, output bytes/return semantics, and valid no-op identity. The reviewer named `test_current_version_migration_runs_the_real_trinity_validator`, `test_current_version_incomplete_mapping_is_not_accepted_as_validated`, and the parameterized full-Trinity control, plus a marker-retaining validation-removal patch. These are candidate selectors only: whole-file `test_mig_01.py`, removal/control probes and four-base P41 replay are UNRUN. Keep generic runner behavior unchanged; do not claim closure.",
+      "residual": "The public migrate_policy_ir same-version boundary already calls TrinityBundle.model_validate and preserves the original mapping. A separate dead registration remains: policy_ir.py still decorates migrate_policy_ir_identity as a 1.0→1.0 migration, but the shared runner’s same-version no-op makes this edge unreachable. Remove only the registration (preserve the helper callable if compatibility requires it); do not change the generic migration engine. One data-record blocker remains for the public wrapper and canonical CLI: exercise native current-valid, incomplete and malformed nested inputs, ready models, JSON/YAML/UTF-8 and legacy markers; assert real validator invocation, exception identity, output bytes/return semantics and valid no-op identity. Proposed closure signal (new selector, not run): policy-engine/tests/unit/remediation/test_mig_01.py@git-blob:48bb51735c406de067ade8a3c0d8cdc95dfb0dff::test_current_version_validation_has_no_registered_self_edge; it must invoke the public wrapper and canonical CLI, prove invalid nested payloads are refused by the real validator after the dead registration is removed, assert no registered 1.0→1.0 edge, and retain an unchanged-valid control. Removal of the explicit wrapper validation while retaining explanatory markers must make the negative red. Existing candidate tests and the bounded 14/14 group are not full-file evidence: removal/control probes, whole-file test_mig_01.py and four-base P41 remain UNRUN. Keep status partial and generic runner behavior unchanged.",
       "residual_owner": {
         "kind": "data_record",
         "name": "MIG-01 current-version Trinity validation boundary and canonical CLI compatibility-data owner",

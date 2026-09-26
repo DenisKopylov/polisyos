@@ -52,6 +52,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerError,
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
+    capture_loaded_deployment_identity,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -69,6 +70,7 @@ from polisyos.runtime.quality.design_problem import (
 )
 from polisyos.runtime.quality.generation_cycle import (
     GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION,
+    GENERATION_CYCLE_SCHEMA_VERSION,
     CandidateGroundingObservation,
     CandidateSummary,
     GenerationCycleController,
@@ -80,6 +82,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _validate_generation_cycle_run_with_current_source_receipt,
     enforce_no_retry_without_new_grammar,
     validate_generation_cycle_run,
+    validate_generation_cycle_run_history,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.promotion_sequence import (
@@ -1136,6 +1139,77 @@ def _validate_payload_core(
     return issues
 
 
+def _persisted_run_currentness_observation(run_payload: dict[str, Any]) -> dict[str, Any]:
+    """Separate historical replay validity from current N6 deployment identity."""
+
+    try:
+        run = GenerationCycleRun.model_validate(run_payload)
+    except (ValidationError, ValueError):
+        return {"status": "not_applicable", "reason_code": "generation_cycle_run_invalid"}
+    history_issues = validate_generation_cycle_run_history(run_payload)
+    if history_issues:
+        return {
+            "status": "fail",
+            "reason_code": "generation_cycle_historical_replay_invalid",
+            "historical_replay_status": "fail",
+            "historical_replay_issues": list(history_issues),
+        }
+    historical_replay = {"status": "pass", "predicate": "recomputed"}
+    if run.schema_version != GENERATION_CYCLE_SCHEMA_VERSION:
+        return {
+            "status": "UNRUN",
+            "reason_code": "generation_cycle_currentness_reissue_required",
+            "persisted_schema_version": run.schema_version,
+            "required_schema_version": GENERATION_CYCLE_SCHEMA_VERSION,
+            "historical_replay": historical_replay,
+        }
+    try:
+        owner_identity = capture_loaded_deployment_identity()
+    except Exception:
+        return {
+            "status": "UNRUN",
+            "reason_code": "generation_cycle_currentness_owner_unavailable",
+            "persisted_schema_version": run.schema_version,
+            "owner_identity_status": "not_established",
+            "historical_replay": historical_replay,
+        }
+    if owner_identity.status != "established":
+        return {
+            "status": "UNRUN",
+            "reason_code": "generation_cycle_currentness_owner_unavailable",
+            "persisted_schema_version": run.schema_version,
+            "owner_identity_status": owner_identity.status,
+            "owner_identity_reason": owner_identity.reason_code,
+            "historical_replay": historical_replay,
+        }
+    if run.deployment_identity_status != "established":
+        return {
+            "status": "UNRUN",
+            "reason_code": "generation_cycle_currentness_reissue_required",
+            "persisted_schema_version": run.schema_version,
+            "persisted_identity_status": run.deployment_identity_status,
+            "owner_identity_status": owner_identity.status,
+            "historical_replay": historical_replay,
+        }
+    if run.deployment_identity != owner_identity.deployment_identity:
+        return {
+            "status": "UNRUN",
+            "reason_code": "generation_cycle_currentness_deployment_identity_mismatch",
+            "persisted_schema_version": run.schema_version,
+            "persisted_identity_status": run.deployment_identity_status,
+            "owner_identity_status": owner_identity.status,
+            "historical_replay": historical_replay,
+        }
+    return {
+        "status": "pass",
+        "persisted_schema_version": run.schema_version,
+        "persisted_identity_status": run.deployment_identity_status,
+        "owner_identity_status": owner_identity.status,
+        "identity_equality": "recomputed",
+        "historical_replay": historical_replay,
+    }
+
+
 def validate(repo_root: Path) -> dict[str, Any]:
     """Validate committed frozen artifact drift and behavioral invariants."""
 
@@ -1164,7 +1238,30 @@ def validate(repo_root: Path) -> dict[str, Any]:
                     lambda: measured_read_text(path, encoding="utf-8"),
                     stage="committed_contract_read",
                 )
-                report = _validate_committed_contract_text(repo_root, committed_text)
+                committed_payload = json.loads(committed_text)
+                run_payload = committed_payload.get("generation_cycle_run")
+                if isinstance(run_payload, dict):
+                    currentness = _persisted_run_currentness_observation(run_payload)
+                    if currentness["status"] == "fail":
+                        reason_code = str(currentness["reason_code"])
+                        report = {
+                            "status": "fail",
+                            "issues": [{"code": reason_code}],
+                            "predicate_stage": "persisted_historical_replay",
+                            "predicate_result": "fail",
+                            "historical_replay": currentness,
+                        }
+                    elif currentness["status"] == "UNRUN":
+                        raise _N6VerificationReplayUnavailableError(
+                            str(currentness["reason_code"]),
+                            {
+                                "status": "not_run",
+                                "callback_attempt_count": 0,
+                                "currentness": currentness,
+                            },
+                        )
+                    else:
+                        report = _validate_committed_contract_text(repo_root, committed_text)
         except _N6InputInspectionUnavailableError as exc:
             report = {
                 "status": "UNRUN",

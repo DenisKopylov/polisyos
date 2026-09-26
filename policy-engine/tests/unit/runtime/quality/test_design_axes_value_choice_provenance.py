@@ -725,6 +725,72 @@ def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
     }
 
 
+def test_generation_source_reader_replays_historical_schema_by_its_manifest(
+    tmp_path: Path,
+) -> None:
+    """The current consumer admits known historical runs only when payload and manifest agree."""
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
+
+    store = artifacts.FileSystemCAS(tmp_path)
+    owner = s8.NormativeValueScheduleOwner(store=store)
+
+    def put(
+        payload_schema: str,
+        manifest_schema: str,
+        *,
+        run_id: str = "historical-run",
+    ) -> str:
+        ref = store.put_json(
+            {"schema_version": payload_schema, "run_id": run_id},
+            artifacts.PutOptions(
+                kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+                    version=manifest_schema,
+                ),
+            ),
+        )
+        return str(ref.artifact_id)
+
+    supported_schemas = (
+        "policyos.runtime.generation_cycle_controller.v1",
+        "policyos.runtime.generation_cycle_controller.v2",
+        GENERATION_CYCLE_SCHEMA_VERSION,
+    )
+    for run_schema in supported_schemas:
+        run_ref = put(run_schema, run_schema)
+        assert owner._read(
+            run_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        ) == {"schema_version": run_schema, "run_id": "historical-run"}
+
+    mismatched_ref = put(
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        supported_schemas[1],
+        run_id="historical-run-with-mismatched-manifest",
+    )
+    with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
+        owner._read(
+            mismatched_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+    unknown_schema = "policyos.runtime.generation_cycle_controller.v0"
+    unknown_ref = put(unknown_schema, unknown_schema)
+    with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
+        owner._read(
+            unknown_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+
 def test_separate_signed_authorization_produces_persists_resolves_and_projects(
     tmp_path: Path,
 ) -> None:

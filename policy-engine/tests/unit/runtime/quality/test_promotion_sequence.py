@@ -126,6 +126,13 @@ from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manif
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
+
+def _canonical_loaded_deployment_identity() -> str:
+    observation = confidence_ledger_module.capture_loaded_deployment_identity()
+    assert observation.status == "established"
+    assert observation.deployment_identity is not None
+    return observation.deployment_identity
+
 _CP_SAT_GUIDANCE = (
     "CP-SAT proof dependency is unavailable; install it with "
     "`uv sync --frozen --extra test --extra solvers`"
@@ -3791,7 +3798,11 @@ def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
     )
     assert controller._source_repository is None
     monkeypatch.setattr(promotion_sequence_module, "_legacy_policy_promotion_callers", lambda _: ())
-    observation = controller._promotion_port(admitted_batch=admitted, problem=owner.problem)
+    observation = controller._promotion_port(
+        admitted_batch=admitted,
+        problem=owner.problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     independence = next(row for row in receipt.obligations
                         if row.source_obligation_ref.endswith("#effective_independence"))
@@ -4046,7 +4057,11 @@ def test_production_n9_port_persists_and_consumes_dependent_independence_evidenc
         repo_root=REPO_ROOT,
     )
 
-    observation = port(admitted_batch=admitted_batch, problem=problem)
+    observation = port(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     independence = next(
         item
@@ -4107,7 +4122,11 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
         repo_root=REPO_ROOT,
     )
 
-    observation = port(admitted_batch=admitted_batch, problem=problem)
+    observation = port(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
 
@@ -4168,7 +4187,11 @@ def test_production_n9_port_persists_effect_but_refuses_contract_only_cg2(
         repo_root=REPO_ROOT,
     )
 
-    observation = port(admitted_batch=admitted_batch, problem=problem)
+    observation = port(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
 
@@ -4660,7 +4683,11 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
     )
     assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
-    observation = port(admitted_batch=admitted_batch, problem=problem)
+    observation = port(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     receipts = tuple(
         CanonicalPromotionReceipt.model_validate(item) for item in observation.receipts
     )
@@ -4717,7 +4744,11 @@ def test_promotion_context_cannot_supply_open_world_gate(
     assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
 
     with pytest.raises(ValueError, match="promotion_context_cannot_supply_open_world_gate"):
-        port(admitted_batch=admitted_batch, problem=problem)
+        port(
+            admitted_batch=admitted_batch,
+            problem=problem,
+            deployment_identity=_canonical_loaded_deployment_identity(),
+        )
 
 
 @pytest.mark.parametrize("legacy_field", ["admissibility", "effective_independence"])
@@ -4751,7 +4782,11 @@ def test_promotion_context_cannot_supply_legacy_gate_predicate(
     )
 
     with pytest.raises(ValueError, match="promotion_context_cannot_supply_gate_predicate"):
-        port(admitted_batch=admitted_batch, problem=problem)
+        port(
+            admitted_batch=admitted_batch,
+            problem=problem,
+            deployment_identity=_canonical_loaded_deployment_identity(),
+        )
 
 
 def test_absent_open_world_runtime_freezes_production_promotion(
@@ -4776,6 +4811,7 @@ def test_absent_open_world_runtime_freezes_production_promotion(
     result = CanonicalN9PromotionPort(repo_root=REPO_ROOT)(
         admitted_batch=None,  # type: ignore[arg-type]
         problem=problem,  # type: ignore[arg-type]
+        deployment_identity=_canonical_loaded_deployment_identity(),
     )
 
     assert result.status == "not_promoted"

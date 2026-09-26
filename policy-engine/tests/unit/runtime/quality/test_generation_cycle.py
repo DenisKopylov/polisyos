@@ -23,9 +23,14 @@ from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
-from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.data_requirement import (
+    DataQualityMinimums,
+    DataRequirementScope,
+    DataRequirementSpec,
+)
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
 from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
@@ -34,6 +39,9 @@ from polisyos.runtime.quality.acquisition_planner import (
     RecordedAcquisitionOwnerGateway,
     l1_variable_availability_requirement_gap,
     value_input_world_knowledge_requirement_gap,
+)
+from polisyos.runtime.quality.confidence_ledger import (
+    LoadedDeploymentIdentityObservation,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
@@ -87,7 +95,9 @@ from polisyos.runtime.quality.generation_cycle import (
     generation_cycle_terminal_state,
     validate_generation_cycle_run,
 )
-from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.grounding_disposition_vocab import (
+    GroundingDispositionKind,
+)
 from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.open_world_risk import (
@@ -114,9 +124,18 @@ from polisyos.runtime.quality.substrate_registry import (
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
-from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
+from tools.quality.validation import (
+    check_layer3_gy_generation_cycle_contract as contract,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _canonical_loaded_deployment_identity() -> str:
+    observation = confidence_ledger_module.capture_loaded_deployment_identity()
+    assert observation.status == "established"
+    assert observation.deployment_identity is not None
+    return observation.deployment_identity
 
 
 def _owner_catalog_prerequisite_issue(repo_root: Path) -> str | None:
@@ -816,6 +835,58 @@ class _NoPromotionPort:
         )
 
 
+def test_production_n9_port_is_canonical_and_contract_fake_remains_available() -> None:
+    """Production cannot route around identity admission; test fakes stay scoped."""
+
+    class _RecordingPort:
+        def __init__(self) -> None:
+            self.call_count = 0
+
+        def __call__(
+            self,
+            *,
+            summaries: Any,
+            problem: DesignProblem,
+        ) -> PromotionPortObservation:
+            del summaries, problem
+            self.call_count += 1
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="contract_fake_called",
+            )
+
+    fake = _RecordingPort()
+    with pytest.raises(
+        ValueError,
+        match="production_promotion_port_must_be_container_derived",
+    ):
+        GenerationCycleController(promotion_port=fake)  # type: ignore[arg-type]
+
+    production = GenerationCycleController()
+    assert isinstance(production._promotion_port, CanonicalN9PromotionPort)
+    # Exercise the runtime invariant as well as the constructor boundary.
+    production._promotion_port = fake  # type: ignore[assignment]
+    blocked = production._promote_completed_generation(
+        summaries=(),
+        problem=_problem("production_port_mutation_probe"),
+        deployment_identity=None,
+    )
+    assert blocked.reason == "epoch_validity_refused:production_promotion_port_not_canonical"
+    assert fake.call_count == 0
+
+    contract_testing = GenerationCycleController(
+        promotion_port=fake,  # type: ignore[arg-type]
+        authority_scope="contract_testing",
+    )
+    allowed = contract_testing._promote_completed_generation(
+        summaries=(),
+        problem=_problem("contract_fake_control"),
+        deployment_identity=None,
+    )
+    assert allowed.reason == "contract_fake_called"
+    assert fake.call_count == 1
+
+
 class _MixedBindingAndDispositionPort:
     """Return one bound candidate and one honest non-binding CGF row."""
 
@@ -1484,7 +1555,11 @@ def test_pre_n9_batch_rejects_shaped_denominator_hash(tmp_path: Path) -> None:
             promotion_runtime=runtime,
             epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
             repo_root=REPO_ROOT,
-        )(admitted_batch=changed, problem=problem)
+        )(
+            admitted_batch=changed,
+            problem=problem,
+            deployment_identity=_canonical_loaded_deployment_identity(),
+        )
 
 
 def test_positive_epoch_gate_cannot_carry_failure_codes(tmp_path: Path) -> None:
@@ -1647,7 +1722,11 @@ def test_missing_or_mutated_owner_context_freezes_n9(
         promotion_runtime=runtime,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(admitted_batch=changed, problem=problem)
+    )(
+        admitted_batch=changed,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
 
     assert result.status == "not_promoted"
     assert result.reason == "epoch_validity_refused:epoch_validity_gate_evidence_unresolved"
@@ -1714,7 +1793,11 @@ def test_post_n9_packet_binds_exact_subject_and_gate_receipt(
         promotion_runtime=runtime,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(admitted_batch=admitted, problem=problem)
+    )(
+        admitted_batch=admitted,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     assert observation.receipts
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     projection = receipt.owner_projection.epoch_validity_projection
@@ -3440,6 +3523,109 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
     assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
 
 
+
+
+@pytest.mark.asyncio
+async def test_deployment_identity_mismatch_blocks_n9_but_keeps_n6_candidates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing the owner-identity comparison lets mismatched runs reach N9 prep."""
+
+    current = confidence_ledger_module.capture_loaded_deployment_identity()
+    assert current.status == "established"
+    mismatched = "policy-engine-deployment:sha256:" + "f" * 64
+    if mismatched == current.deployment_identity:
+        mismatched = "policy-engine-deployment:sha256:" + "e" * 64
+    monkeypatch.setattr(
+        confidence_ledger_module,
+        "capture_loaded_deployment_identity",
+        lambda: LoadedDeploymentIdentityObservation(
+            status="established",
+            deployment_identity=mismatched,
+        ),
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    n9_preparation: list[bool] = []
+    monkeypatch.setattr(
+        runtime,
+        "_prepare_completed_generation",
+        lambda **_kwargs: n9_preparation.append(True),
+    )
+
+    run = await GenerationCycleController(
+        generation_port=_SameCandidateNewBasisGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+    ).run(
+        _problem("deployment_identity_mismatch"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    assert run.cycles
+    assert run.candidate_summaries
+    assert run.deployment_identity_status == "established"
+    assert run.deployment_identity == mismatched
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == "confidence_ledger_refused:deployment_identity_mismatch"
+    assert n9_preparation == []
+
+
+@pytest.mark.asyncio
+async def test_missing_deployment_identity_does_not_refuse_candidate_computation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unknown identity keeps N6 candidates but blocks real N9 before preparation."""
+
+    monkeypatch.setattr(
+        confidence_ledger_module,
+        "capture_loaded_deployment_identity",
+        lambda: LoadedDeploymentIdentityObservation(
+            status="not_established",
+            reason_code="canonical_loaded_runtime_mismatch",
+        ),
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    n9_preparation: list[bool] = []
+    monkeypatch.setattr(
+        runtime,
+        "_prepare_completed_generation",
+        lambda **_kwargs: n9_preparation.append(True),
+    )
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+    ).run(_problem("candidate_with_unknown_deployment"), budget_state=_budget(), max_cycles=1)
+
+    assert len(run.cycles) == 1
+    assert run.deployment_identity_status == "not_established"
+    assert run.deployment_identity is None
+    assert run.deployment_identity_reason == "canonical_loaded_runtime_mismatch"
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == (
+        "confidence_ledger_refused:deployment_identity_not_established"
+    )
+    assert n9_preparation == []
+
+    unprovided_identity_payload = run.model_dump(mode="json")
+    unprovided_identity_payload.pop("deployment_identity_status")
+    unprovided_identity_payload.pop("deployment_identity")
+    unprovided_identity_payload.pop("deployment_identity_reason")
+    defaulted_run = GenerationCycleRun.model_validate(unprovided_identity_payload)
+    assert defaulted_run.deployment_identity_status == "not_established"
+    assert defaulted_run.deployment_identity is None
+    assert defaulted_run.deployment_identity_reason == "loaded_deployment_identity_not_supplied"
+
+
 @pytest.mark.asyncio
 async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
     tmp_path: Path,
@@ -5006,7 +5192,11 @@ def test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve(
         promotion_runtime=runtime,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(admitted_batch=admitted_batch, problem=problem)
+    )(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
 
     assert events == ["fresh_resolve_vector", "n9"]
     assert observation.status == "not_promoted"
@@ -5037,7 +5227,11 @@ def _run_open_world_n9_case(
         promotion_runtime=runtime,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(admitted_batch=admitted_batch, problem=problem)
+    )(
+        admitted_batch=admitted_batch,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
     assert observation.receipts
     return (
         runtime,

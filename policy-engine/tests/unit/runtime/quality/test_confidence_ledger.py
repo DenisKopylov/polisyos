@@ -1252,7 +1252,8 @@ print(json.dumps({
     "closure": [name for name, _path in ledger._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE],
     "identity": ledger._policy_engine_deployment_identity(Path.cwd()),
     "manifest_keys": sorted(manifest),
-    "verification_identity": session._deployment_identity,
+    "verification_identity": session.deployment_identity,
+    "public_session_identity": session.deployment_identity,
 }, sort_keys=True))
 """
     env = os.environ.copy()
@@ -1274,6 +1275,7 @@ print(json.dumps({
     for payload in payloads:
         assert payload["manifest_keys"] == payload["closure"]
         assert payload["verification_identity"] == payload["identity"]
+        assert payload["public_session_identity"] == payload["identity"]
     assert payloads[0]["identity"] == payloads[1]["identity"]
 
 
@@ -3744,3 +3746,49 @@ def test_registry_cannot_self_declare_owner_verifier_kernel() -> None:
 
     with pytest.raises(ValueError, match="unknown_owner_verifier_kernel"):
         load_confidence_ledger_registry(payload)
+
+
+def test_loaded_deployment_identity_capture_is_typed_and_uses_owner_snapshot() -> None:
+    """The run-start observation commits the loaded manifest and lock baseline."""
+
+    observation = ledger_module.capture_loaded_deployment_identity()
+
+    assert observation.status == "established"
+    assert observation.reason_code is None
+    assert observation.deployment_identity == ledger_module._deployment_identity_from_baseline(
+        ledger_module._IMPORT_TIME_DEPLOYMENT_BASELINE
+    )
+
+
+def test_loaded_deployment_identity_capture_does_not_rescan_source(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """After owner import, run identity reads only its admitted snapshot."""
+
+    def unavailable(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("source_checkout_must_not_be_required_for_identity_observation")
+
+    monkeypatch.setattr(ledger_module, "_loaded_policy_engine_root", unavailable)
+    monkeypatch.setattr(ledger_module, "_deployment_baseline", unavailable)
+    monkeypatch.setattr(ledger_module, "_loaded_code_manifest", unavailable)
+
+    observation = ledger_module.capture_loaded_deployment_identity()
+
+    assert observation.status == "established"
+    assert observation.deployment_identity == ledger_module._deployment_identity_from_baseline(
+        ledger_module._IMPORT_TIME_DEPLOYMENT_BASELINE
+    )
+
+
+def test_loaded_deployment_identity_absence_is_a_typed_verdict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An inconsistent import snapshot is unavailable, never a guessed identity."""
+
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_CONSISTENT", False)
+
+    observation = ledger_module.capture_loaded_deployment_identity()
+
+    assert observation.status == "not_established"
+    assert observation.deployment_identity is None
+    assert observation.reason_code == "canonical_loaded_runtime_mismatch"

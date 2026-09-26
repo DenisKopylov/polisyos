@@ -1811,14 +1811,20 @@ def build(RecursiveGenerationCycleController):
 class Probe:
     def promote(self):
         port = self._promotion_port
-        return port(admitted_batch=batch, problem=problem)
+        return port(
+            admitted_batch=batch,
+            problem=problem,
+            deployment_identity=identity,
+        )
 """,
         module="synthetic.port_alias_probe",
         source_path="synthetic/port_alias_probe.py",
     )
     assert port_alias_ambiguity == ()
     assert len(aliased_ports) == 1
-    assert aliased_ports[0].keyword_names == frozenset({"admitted_batch", "problem"})
+    assert aliased_ports[0].keyword_names == frozenset(
+        {"admitted_batch", "problem", "deployment_identity"}
+    )
     _, dynamic_ports, dynamic_port_ambiguity = _scan_python_source(
         source="""
 class Probe:
@@ -1826,6 +1832,7 @@ class Probe:
         return getattr(self, "_promotion_port")(
             admitted_batch=batch,
             problem=problem,
+            deployment_identity=identity,
         )
 """,
         module="synthetic.dynamic_port_probe",
@@ -1833,7 +1840,9 @@ class Probe:
     )
     assert dynamic_port_ambiguity == ()
     assert len(dynamic_ports) == 1
-    assert dynamic_ports[0].keyword_names == frozenset({"admitted_batch", "problem"})
+    assert dynamic_ports[0].keyword_names == frozenset(
+        {"admitted_batch", "problem", "deployment_identity"}
+    )
 
     missing_runtime = tuple(
         replace(

@@ -80,6 +80,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     N9PromotionSemanticLedgerProjection,
     PredictableClaimSpec,
     PromotionCertificateOffer,
+    capture_loaded_deployment_identity,
     load_confidence_ledger_registry,
     project_n9_promotion_certificate,
     project_n9_promotion_semantic_ledger,
@@ -3753,14 +3754,34 @@ class CanonicalN9PromotionPort:
             confidence_ledger_session_factory=confidence_ledger_session_factory,
         )
 
+    def deployment_identity_refusal(self, deployment_identity: str | None) -> str | None:
+        """Return a typed refusal when N6 identity is absent or not current."""
+
+        if deployment_identity is None:
+            return "confidence_ledger_refused:deployment_identity_not_established"
+        current_identity = capture_loaded_deployment_identity()
+        if current_identity.status != "established":
+            code = current_identity.reason_code or "deployment_identity_not_established"
+            return f"confidence_ledger_refused:{code}"
+        if deployment_identity != current_identity.deployment_identity:
+            return "confidence_ledger_refused:deployment_identity_mismatch"
+        return None
+
     def __call__(
         self,
         *,
         admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch | None,
         problem: DesignProblem,
+        deployment_identity: str | None,
     ) -> PromotionPortObservation:
-        """Certify candidates only through the canonical N9 sequence."""
+        """Certify only when the explicit identity matches canonical admission."""
 
+        identity_refusal = self.deployment_identity_refusal(deployment_identity)
+        if identity_refusal is not None:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason=identity_refusal,
+            )
         if self._promotion_runtime is None:
             return PromotionPortObservation(
                 status="not_promoted",
@@ -3802,6 +3823,14 @@ class CanonicalN9PromotionPort:
                 strangle_receipt=LegacyPromotionStrangleReceipt.recompute(
                     self._repo_root
                 ).model_dump(mode="json"),
+            )
+        if (
+            not confidence_ledger_session.is_authority_session
+            or confidence_ledger_session.deployment_identity != deployment_identity
+        ):
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="confidence_ledger_refused:deployment_identity_mismatch",
             )
         return _run_n9_promotion_port_batch(
             admitted_batch=admitted_batch,

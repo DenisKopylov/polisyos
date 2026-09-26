@@ -26,8 +26,11 @@ from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
+from enum import Enum
+from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
+from types import UnionType
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Union, get_args, get_origin
 
 from pydantic import (
     BaseModel,
@@ -50,7 +53,7 @@ from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -73,6 +76,9 @@ from polisyos.pdc import (
     ValueOfInformationEstimate,
     gy_artifact_self_identity_projection,
     gy_content_hash,
+)
+from polisyos.runtime.quality._generation_cycle_history_schema import (
+    FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCostBasisRecord,
@@ -154,7 +160,7 @@ if TYPE_CHECKING:
         N9PromotionEvidenceBridgeRepository,
     )
 
-GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v2"
+GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
 )
@@ -267,6 +273,312 @@ def _historical_supplied_field_tree(value: object, payload: object) -> object:
     if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
         return [
             _historical_supplied_field_tree(original, item)
+            for original, item in zip(value, payload, strict=True)
+        ]
+    return payload
+
+
+@cache
+def _historical_typed_model_edges(
+    annotation: object,
+) -> tuple[tuple[tuple[str, ...], str], ...]:
+    """Return nested Pydantic owner identities and their container paths."""
+
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        owner = f"{annotation.__module__}.{annotation.__qualname__}"
+        return (((), owner),)
+    origin = get_origin(annotation)
+    if origin is None:
+        return ()
+    container = (
+        "union"
+        if origin in (UnionType, Union)
+        else getattr(origin, "__name__", str(origin).rsplit(".", 1)[-1])
+    )
+    edges: list[tuple[tuple[str, ...], str]] = []
+    for index, argument in enumerate(get_args(annotation)):
+        if argument is Ellipsis:
+            continue
+        prefix = f"{container}:{index}"
+        edges.extend(
+            ((prefix, *path), owner)
+            for path, owner in _historical_typed_model_edges(argument)
+        )
+    return tuple(sorted(set(edges)))
+
+
+@cache
+def _historical_annotation_vocabularies(
+    annotation: object, path: tuple[str, ...] = ()
+) -> tuple[tuple[tuple[str, ...], str, str | None, tuple[object, ...]], ...]:
+    """Find Literal aliases and Enum vocabularies anywhere in a field type."""
+
+    origin = get_origin(annotation)
+    if origin is Literal:
+        return ((path, "literal", None, tuple(get_args(annotation))),)
+    if isinstance(annotation, type) and issubclass(annotation, Enum):
+        owner = f"{annotation.__module__}.{annotation.__qualname__}"
+        return ((path, "enum", owner, tuple(member.value for member in annotation)),)
+
+    container = (
+        "union"
+        if origin in (UnionType, Union)
+        else getattr(origin, "__name__", str(origin).rsplit(".", 1)[-1])
+    )
+    rows: list[tuple[tuple[str, ...], str, str | None, tuple[object, ...]]] = []
+    for index, argument in enumerate(get_args(annotation)):
+        if argument is Ellipsis:
+            continue
+        rows.extend(
+            _historical_annotation_vocabularies(
+                argument, (*path, f"{container}:{index}")
+            )
+        )
+    return tuple(sorted(set(rows)))
+
+
+def _historical_annotation_matches_value(annotation: object, value: object) -> bool:
+    """Return whether a parsed value can inhabit one annotation branch."""
+
+    origin = get_origin(annotation)
+    if origin is Literal:
+        return any(
+            type(value) is type(allowed) and value == allowed
+            for allowed in get_args(annotation)
+        )
+    if isinstance(annotation, type):
+        if issubclass(annotation, Enum):
+            return isinstance(value, annotation)
+        try:
+            return isinstance(value, annotation)
+        except TypeError:
+            return False
+    if origin in (UnionType, Union):
+        return any(
+            _historical_annotation_matches_value(argument, value)
+            for argument in get_args(annotation)
+            if argument is not type(None)
+        ) or value is None
+    if origin in (list, tuple, set, frozenset, Sequence):
+        return isinstance(value, (list, tuple, set, frozenset))
+    if origin in (dict, Mapping):
+        return isinstance(value, Mapping)
+    return True
+
+
+def _historical_value_matches_vocabulary(
+    annotation: object,
+    value: object,
+    frozen: Mapping[tuple[tuple[str, ...], str, str | None], set[object]],
+    path: tuple[str, ...] = (),
+) -> bool:
+    """Check parsed values against the frozen vocabulary at each typed path."""
+
+    origin = get_origin(annotation)
+    if origin is Literal:
+        allowed = frozen.get((path, "literal", None))
+        return allowed is not None and any(
+            type(value) is type(item) and value == item for item in allowed
+        )
+    if isinstance(annotation, type) and issubclass(annotation, Enum):
+        owner = f"{annotation.__module__}.{annotation.__qualname__}"
+        allowed = frozen.get((path, "enum", owner))
+        return (
+            allowed is not None
+            and isinstance(value, annotation)
+            and any(
+                type(value.value) is type(item) and value.value == item
+                for item in allowed
+            )
+        )
+
+    container = (
+        "union"
+        if origin in (UnionType, Union)
+        else getattr(origin, "__name__", str(origin).rsplit(".", 1)[-1])
+    )
+    arguments = get_args(annotation)
+    if origin in (UnionType, Union):
+        branches = [
+            (index, argument)
+            for index, argument in enumerate(arguments)
+            if _historical_annotation_matches_value(argument, value)
+        ]
+        return bool(branches) and any(
+            _historical_value_matches_vocabulary(
+                argument, value, frozen, (*path, f"{container}:{index}")
+            )
+            for index, argument in branches
+        )
+    if origin in (list, set, frozenset, Sequence):
+        if not isinstance(value, (list, tuple, set, frozenset)):
+            return False
+        if not arguments:
+            return True
+        return all(
+            _historical_value_matches_vocabulary(
+                arguments[0], item, frozen, (*path, f"{container}:0")
+            )
+            for item in value
+        )
+    if origin is tuple:
+        if not isinstance(value, tuple):
+            return False
+        if len(arguments) == 2 and arguments[1] is Ellipsis:
+            return all(
+                _historical_value_matches_vocabulary(
+                    arguments[0], item, frozen, (*path, "tuple:0")
+                )
+                for item in value
+            )
+        return len(value) == len(arguments) and all(
+            _historical_value_matches_vocabulary(
+                argument, item, frozen, (*path, f"tuple:{index}")
+            )
+            for index, (argument, item) in enumerate(zip(arguments, value, strict=True))
+        )
+    if origin in (dict, Mapping):
+        if not isinstance(value, Mapping) or len(arguments) != 2:
+            return False
+        return all(
+            _historical_value_matches_vocabulary(
+                arguments[0], key, frozen, (*path, f"{container}:0")
+            )
+            and _historical_value_matches_vocabulary(
+                arguments[1], item, frozen, (*path, f"{container}:1")
+            )
+            for key, item in value.items()
+        )
+    if arguments:
+        return all(
+            _historical_value_matches_vocabulary(
+                argument, value, frozen, (*path, f"{container}:{index}")
+            )
+            for index, argument in enumerate(arguments)
+            if argument is not Ellipsis
+        )
+    return True
+
+
+def _historical_generation_cycle_field_tree(
+    value: object, payload: object, *, version: str
+) -> object:
+    """Project an N6 object through its frozen v1/v2 typed serializer graph.
+
+    Unknown typed owners, changed historical model edges, and current-only
+    Literal values fail closed. Fields absent from the persisted model's
+    supplied-field set stay absent; opaque mapping leaves remain uninterpreted.
+    """
+
+    version_models = FROZEN_N6_HISTORY_SCHEMA.get(version)
+    if not isinstance(version_models, dict):
+        raise ValueError("generation_cycle_history_schema_version_unmapped")
+
+    if isinstance(value, BaseModel):
+        if not isinstance(payload, dict):
+            raise ValueError("generation_cycle_history_typed_model_not_object")
+        qualified_name = f"{type(value).__module__}.{type(value).__qualname__}"
+        shape = version_models.get(qualified_name)
+        if not isinstance(shape, dict):
+            raise ValueError("generation_cycle_history_typed_owner_unmapped")
+
+        current_fields = type(value).model_fields
+        declared_fields = shape["declared_fields"]
+        excluded_fields = shape["excluded_fields"]
+        opaque_fields = shape["opaque_fields"]
+        for field_name in declared_fields:
+            if field_name in excluded_fields:
+                continue
+            field = current_fields.get(field_name)
+            if field is None:
+                raise ValueError("generation_cycle_history_historical_field_owner_missing")
+            expected_edges = tuple(
+                sorted(
+                    (tuple(path), owner)
+                    for path, owner in shape["typed_model_edges"].get(field_name, ())
+                )
+            )
+            if _historical_typed_model_edges(field.annotation) != expected_edges:
+                raise ValueError("generation_cycle_history_typed_edge_drift")
+
+        frozen_field_vocabulary = shape.get("field_vocabulary")
+        if not isinstance(frozen_field_vocabulary, dict):
+            raise ValueError("generation_cycle_history_vocabulary_unmapped")
+        for field_name in declared_fields:
+            if field_name in excluded_fields:
+                continue
+            field = current_fields[field_name]
+            current_vocabulary = _historical_annotation_vocabularies(field.annotation)
+            frozen_vocabulary = frozen_field_vocabulary.get(field_name, ())
+            frozen_by_identity = {
+                (
+                    tuple(item["path"]),
+                    str(item["kind"]),
+                    item["type"] if item["type"] is None else str(item["type"]),
+                ): set(item["values"])
+                for item in frozen_vocabulary
+            }
+            current_by_identity = {
+                (path, kind, owner): set(values)
+                for path, kind, owner, values in current_vocabulary
+            }
+            if set(frozen_by_identity) != set(current_by_identity):
+                raise ValueError("generation_cycle_history_vocabulary_shape_drift")
+            if any(
+                not allowed.issubset(current_by_identity[identity])
+                for identity, allowed in frozen_by_identity.items()
+            ):
+                raise ValueError("generation_cycle_history_vocabulary_owner_drift")
+            if not frozen_by_identity:
+                continue
+            if field_name not in value.model_fields_set:
+                continue
+            if not _historical_value_matches_vocabulary(
+                field.annotation,
+                getattr(value, field_name),
+                frozen_by_identity,
+            ):
+                raise ValueError("generation_cycle_history_vocabulary_out_of_epoch")
+
+        fields_by_key = {
+            key: name
+            for name, field in current_fields.items()
+            for key in (name, field.alias, field.serialization_alias)
+            if isinstance(key, str)
+        }
+        allowed_wire_fields = set(shape["wire_fields"])
+        computed_fields = set(shape["computed_fields"])
+        result: dict[str, Any] = {}
+        for key, item in payload.items():
+            if key not in allowed_wire_fields:
+                continue
+            field_name = fields_by_key.get(key)
+            if key in computed_fields:
+                result[key] = item
+                continue
+            if field_name is None or field_name not in declared_fields:
+                raise ValueError("generation_cycle_history_wire_field_owner_unmapped")
+            if field_name in excluded_fields:
+                continue
+            if field_name not in value.model_fields_set:
+                continue
+            if field_name in opaque_fields:
+                result[key] = item
+                continue
+            result[key] = _historical_generation_cycle_field_tree(
+                getattr(value, field_name), item, version=version
+            )
+        return result
+
+    if isinstance(value, Mapping) and isinstance(payload, dict):
+        return {
+            key: _historical_generation_cycle_field_tree(value[key], item, version=version)
+            for key, item in payload.items()
+            if key in value
+        }
+    if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
+        return [
+            _historical_generation_cycle_field_tree(original, item, version=version)
             for original, item in zip(value, payload, strict=True)
         ]
     return payload
@@ -1378,6 +1690,7 @@ class GenerationCycleRun(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.generation_cycle_controller.v1",
         "policyos.runtime.generation_cycle_controller.v2",
+        "policyos.runtime.generation_cycle_controller.v3",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -1396,6 +1709,29 @@ class GenerationCycleRun(_StrictModel):
     synthetic: bool | None = None
     source_handoff_refs: tuple[str, ...] = ()
     source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+    deployment_identity_status: Literal["established", "not_established"] = "not_established"
+    deployment_identity: str | None = Field(
+        default=None,
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
+    )
+    deployment_identity_reason: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _default_unprovided_deployment_identity_reason(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        schema_version = value.get("schema_version", GENERATION_CYCLE_SCHEMA_VERSION)
+        identity_status = value.get("deployment_identity_status", "not_established")
+        if (
+            schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+            and identity_status == "not_established"
+            and "deployment_identity_reason" not in value
+        ):
+            normalized = dict(value)
+            normalized["deployment_identity_reason"] = "loaded_deployment_identity_not_supplied"
+            return normalized
+        return value
 
     @model_validator(mode="after")
     def _bind_source_custody_epoch(self) -> GenerationCycleRun:
@@ -1405,6 +1741,18 @@ class GenerationCycleRun(_StrictModel):
             or self.source_preservation_receipt
         ):
             raise ValueError("historical_generation_cannot_acquire_source_custody")
+        if self.schema_version.endswith((".v1", ".v2")) and (
+            self.deployment_identity_status != "not_established"
+            or self.deployment_identity is not None
+            or self.deployment_identity_reason is not None
+        ):
+            raise ValueError("historical_generation_cannot_acquire_deployment_identity")
+        if self.schema_version.endswith(".v3"):
+            if self.deployment_identity_status == "established":
+                if self.deployment_identity is None or self.deployment_identity_reason is not None:
+                    raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
+            elif self.deployment_identity is not None or self.deployment_identity_reason is None:
+                raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
         receipt = self.source_preservation_receipt
         if receipt is not None and (
             receipt.run_id != self.run_id
@@ -1422,11 +1770,15 @@ class GenerationCycleRun(_StrictModel):
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         payload = handler(self)
-        if self.schema_version.endswith(".v1"):
-            supplied = _historical_supplied_field_tree(self, payload)
+        if self.schema_version.endswith((".v1", ".v2")):
+            version = self.schema_version.rsplit(".", 1)[-1]
+            supplied = _historical_generation_cycle_field_tree(
+                self, payload, version=version
+            )
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
+        if self.schema_version.endswith(".v1"):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
@@ -3695,6 +4047,21 @@ class GenerationCycleController:
         if subject_ref != design_problem_ref:
             raise GenerationCycleError("generation_cycle_subject_binding_mismatch")
         run_id = f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}"
+        try:
+            from polisyos.runtime.quality.confidence_ledger import (
+                capture_loaded_deployment_identity,
+            )
+
+            identity_capture = capture_loaded_deployment_identity()
+        except Exception:
+            # Identity is required for N9 authority, never for ordinary N6 work.
+            identity_status = "not_established"
+            deployment_identity = None
+            identity_reason = "loaded_deployment_identity_owner_unavailable"
+        else:
+            identity_status = identity_capture.status
+            deployment_identity = identity_capture.deployment_identity
+            identity_reason = identity_capture.reason_code
         self._begin_source_run(run_id)
         current_problem = problem
         last_cycle_problem = problem
@@ -3786,6 +4153,7 @@ class GenerationCycleController:
             summaries=promotion_summaries,
             problem=last_cycle_problem,
             design_problem_basis_ref=promotion_basis_ref,
+            deployment_identity=deployment_identity,
         )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
@@ -3817,6 +4185,9 @@ class GenerationCycleController:
             ),
             source_handoff_refs=tuple(self._source_handoff_refs),
             source_preservation_receipt=source_receipt,
+            deployment_identity_status=identity_status,
+            deployment_identity=deployment_identity,
+            deployment_identity_reason=identity_reason,
         )
         return run
 
@@ -4024,6 +4395,7 @@ class GenerationCycleController:
         summaries: tuple[CandidateSummary, ...],
         problem: DesignProblem,
         design_problem_basis_ref: str | None = None,
+        deployment_identity: str | None = None,
     ) -> PromotionPortObservation:
         """Run the fixed post-loop subject/gate strangle before canonical N9."""
 
@@ -4039,6 +4411,23 @@ class GenerationCycleController:
                 reason="epoch_validity_refused:generation_cycle_promotion_basis_mismatch",
             )
         runtime = self._promotion_runtime
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+
+        canonical_n9_port = isinstance(self._promotion_port, CanonicalN9PromotionPort)
+        if self._authority_scope == "production" and not canonical_n9_port:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:production_promotion_port_not_canonical",
+            )
+        if canonical_n9_port:
+            identity_refusal = self._promotion_port.deployment_identity_refusal(
+                deployment_identity
+            )
+            if identity_refusal is not None:
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason=identity_refusal,
+                )
         if runtime is None:
             if self._authority_scope != "contract_testing":
                 return PromotionPortObservation(
@@ -4123,6 +4512,12 @@ class GenerationCycleController:
             contexts=prepared.contexts,
             admissions=admissions,
         )
+        if isinstance(self._promotion_port, CanonicalN9PromotionPort):
+            return self._promotion_port(
+                admitted_batch=admitted_batch,
+                problem=problem,
+                deployment_identity=deployment_identity,
+            )
         return self._promotion_port(admitted_batch=admitted_batch, problem=problem)
 
     def _schedule_candidate_for_execution(
@@ -5891,15 +6286,46 @@ def validate_generation_cycle_run(
     *,
     repo_root: Path | None = None,
 ) -> tuple[dict[str, Any], ...]:
-    """Behaviorally validate an N6 run artifact and its source binding.
+    """Validate N6 semantics and require current source evidence for live use."""
 
-    ``repo_root`` may be omitted for diagnostic validation of a serialized
-    artifact, but omission is non-positive and cannot establish currentness.
-    A live source checkout is required before the consumer can treat the
-    source-bound receipt as current.
+    return _validate_generation_cycle_run(
+        run, repo_root=repo_root, require_currentness=True
+    )
+
+
+def validate_generation_cycle_run_history(
+    run: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Replay one persisted N6 projection without asserting deployment currentness.
+
+    The versioned ``GenerationCycleRun`` serializer is the historical projection
+    owner. The supplied persisted mapping must match that serializer byte-for-byte
+    after canonical encoding before intrinsic N6 checks run. This reader does not
+    inspect current trust or source files and has no artifact-store capability.
+    Current authority requires a separate deployment-currentness observation.
     """
 
-    return _validate_generation_cycle_run(run, repo_root=repo_root)
+    if not isinstance(run, Mapping):
+        return ({"code": "generation_cycle_history_requires_persisted_mapping"},)
+    try:
+        parsed = GenerationCycleRun.model_validate(run)
+        spec = CanonSpec(forbid_floats=False)
+        persisted_projection_bytes = to_canonical_bytes(dict(run), spec)
+        replayed_projection_bytes = to_canonical_bytes(
+            parsed.model_dump(mode="json"), spec
+        )
+    except (TypeError, ValueError) as exc:
+        return (
+            {
+                "code": "generation_cycle_historical_projection_invalid",
+                "error": str(exc),
+            },
+        )
+    if replayed_projection_bytes != persisted_projection_bytes:
+        return ({"code": "generation_cycle_historical_projection_mismatch"},)
+    return _validate_generation_cycle_run(
+        parsed, require_currentness=False
+    )
 
 
 def _validate_generation_cycle_run_with_current_source_receipt(
@@ -5912,6 +6338,7 @@ def _validate_generation_cycle_run_with_current_source_receipt(
     return _validate_generation_cycle_run(
         run,
         current_strangle_receipt=current_strangle_receipt,
+        require_currentness=True,
     )
 
 
@@ -5920,8 +6347,9 @@ def _validate_generation_cycle_run(
     *,
     repo_root: Path | None = None,
     current_strangle_receipt: StrangleReceipt | None = None,
+    require_currentness: bool = True,
 ) -> tuple[dict[str, Any], ...]:
-    """Run cycle checks with either a strict fresh root or invocation snapshot."""
+    """Run intrinsic cycle checks and, when requested, the live source check."""
 
     if not isinstance(run, GenerationCycleRun):
         try:
@@ -5929,29 +6357,32 @@ def _validate_generation_cycle_run(
         except ValueError as exc:
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
-    try:
-        if current_strangle_receipt is not None:
-            run.strangle_receipt._verify_against_current_receipt(current_strangle_receipt)
-        elif repo_root is None:
-            issues.append(
-                {
-                    "code": "strangle_receipt_currentness_not_established",
-                    "reason": "live repo_root is required to replay the source denominator",
-                }
-            )
-        else:
-            run.verify_strangle_receipt(repo_root)
-    except GenerationCycleError as exc:
-        issue_code = {
-            "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
-            "generation_cycle_strangle_receipt_not_strangled": (
-                "strangle_receipt_currentness_not_established"
-            ),
-            "generation_cycle_strangle_receipt_currentness_not_established": (
-                "strangle_receipt_currentness_not_established"
-            ),
-        }.get(exc.code, exc.code)
-        issues.append({"code": issue_code, "error": str(exc)})
+    if require_currentness:
+        try:
+            if current_strangle_receipt is not None:
+                run.strangle_receipt._verify_against_current_receipt(
+                    current_strangle_receipt
+                )
+            elif repo_root is None:
+                issues.append(
+                    {
+                        "code": "strangle_receipt_currentness_not_established",
+                        "reason": "live repo_root is required to replay the source denominator",
+                    }
+                )
+            else:
+                run.verify_strangle_receipt(repo_root)
+        except GenerationCycleError as exc:
+            issue_code = {
+                "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
+                "generation_cycle_strangle_receipt_not_strangled": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+                "generation_cycle_strangle_receipt_currentness_not_established": (
+                    "strangle_receipt_currentness_not_established"
+                ),
+            }.get(exc.code, exc.code)
+            issues.append({"code": issue_code, "error": str(exc)})
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()
@@ -9600,4 +10031,5 @@ __all__ = [
     "simulation_evaluation_input_ref",
     "simulation_value_execution_context",
     "validate_generation_cycle_run",
+    "validate_generation_cycle_run_history",
 ]

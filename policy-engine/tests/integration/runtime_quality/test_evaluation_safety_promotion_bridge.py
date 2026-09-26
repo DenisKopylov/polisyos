@@ -317,6 +317,9 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     )
     leaf = compiled.recursive_run.leaf_nodes[0]
     summary = leaf.cycle_run.candidate_summaries[0]
+    assert leaf.cycle_run.deployment_identity_status == "established"
+    deployment_identity = leaf.cycle_run.deployment_identity
+    assert deployment_identity is not None
     value = _value_receipt().model_copy(update={
         "candidate_id": summary.candidate_id, "evaluation_mode": "field_pilot",
     })
@@ -328,7 +331,11 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     observation = n9.CanonicalN9PromotionPort(
         promotion_runtime=service._promotion_runtime, repo_root=REPO_ROOT,
         context_provider=lambda _summary, _problem: {"value_receipt": value},
-    )(admitted_batch=admitted, problem=compiled.design_problem)
+    )(
+        admitted_batch=admitted,
+        problem=compiled.design_problem,
+        deployment_identity=deployment_identity,
+    )
     receipt = n9.CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     assert observation.status == "not_promoted"
     assert receipt.owner_projection.open_world_gate is not None

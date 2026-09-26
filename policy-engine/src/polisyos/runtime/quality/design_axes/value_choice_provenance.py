@@ -641,12 +641,30 @@ class NormativeValueScheduleOwner:
                 or manifest.kind != kind
                 or manifest.artifact_schema is None
                 or manifest.artifact_schema.name != kind
-                or manifest.artifact_schema.version != schema
             ):
                 raise ValueError("content or manifest mismatch")
             payload = canon.from_canonical_bytes(raw)
             if not isinstance(payload, dict):
                 raise ValueError("artifact is not a mapping")
+            manifest_schema = manifest.artifact_schema.version
+            if kind == NORMATIVE_GENERATION_SOURCE_KIND:
+                from polisyos.runtime.quality.generation_cycle import (
+                    GENERATION_CYCLE_SCHEMA_VERSION,
+                    GenerationCycleRun,
+                )
+
+                if (
+                    schema != GENERATION_CYCLE_SCHEMA_VERSION
+                    or payload.get("schema_version") != manifest_schema
+                ):
+                    raise ValueError(
+                        "generation source schema does not match its historical manifest"
+                    )
+                TypeAdapter(
+                    GenerationCycleRun.model_fields["schema_version"].annotation
+                ).validate_python(manifest_schema)
+            elif manifest_schema != schema:
+                raise ValueError("artifact schema does not match the requested schema")
             return payload
         except Exception as exc:
             raise P20NormativeChoiceError(

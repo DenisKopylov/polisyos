@@ -41,6 +41,9 @@ from polisyos.pdc import PromotionObligationClass
 
 CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.registry.v1"
 CONFIDENCE_LEDGER_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.v1"
+DEPLOYMENT_IDENTITY_OBSERVATION_SCHEMA_VERSION = (
+    "policyos.runtime.confidence_ledger.loaded_deployment_identity.v1"
+)
 N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION = (
     "policyos.runtime.quality.confidence_ledger.n9_promotion_semantic_projection.v1"
 )
@@ -750,6 +753,39 @@ class _DeploymentDriftPoison(_StrictModel):
         return self
 
 
+class LoadedDeploymentIdentityObservation(_StrictModel):
+    """Typed import-time identity supplied by the confidence-ledger owner.
+
+    The identity commits to the owner's canonical deployment baseline (including
+    ``uv.lock``) and its loaded-code manifest. It is a capture of the process's
+    loaded deployment, not a claim that mutable source files remain current.
+    The canonical ledger session performs that separate currentness check when
+    authority is requested.
+    """
+
+    schema_version: Literal[DEPLOYMENT_IDENTITY_OBSERVATION_SCHEMA_VERSION] = (
+        DEPLOYMENT_IDENTITY_OBSERVATION_SCHEMA_VERSION
+    )
+    status: Literal["established", "not_established"]
+    deployment_identity: str | None = Field(
+        default=None,
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
+    )
+    reason_code: Literal[
+        "canonical_loaded_runtime_mismatch",
+        "canonical_deployment_identity_invalid",
+    ] | None = None
+
+    @model_validator(mode="after")
+    def _bind_status_to_identity(self) -> Self:
+        if self.status == "established":
+            if self.deployment_identity is None or self.reason_code is not None:
+                raise ValueError("loaded_deployment_identity_observation_invalid")
+        elif self.deployment_identity is not None or self.reason_code is None:
+            raise ValueError("loaded_deployment_identity_observation_invalid")
+        return self
+
+
 class ConfidenceLedgerReceipt(_StrictModel):
     """Canonical recomputation of the current durable event-chain head."""
 
@@ -1310,6 +1346,12 @@ class ConfidenceLedgerSession:
             and root == _loaded_policy_engine_root()
             and self._deployment_quick_fence == _deployment_quick_fence(root)
         )
+
+    @property
+    def deployment_identity(self) -> str:
+        """Return the immutable canonical deployment identity this session admitted."""
+
+        return self._deployment_identity
 
     @property
     def authority_provenance(self) -> SessionAuthorityProvenance:
@@ -4373,6 +4415,33 @@ def _loaded_policy_engine_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
+def capture_loaded_deployment_identity() -> LoadedDeploymentIdentityObservation:
+    """Capture the current process identity from the canonical owner snapshot.
+
+    The snapshot is made once when this owner loads. It binds the loaded-code
+    manifest and canonical deployment files, including the lock file, without
+    rescanning the source tree on each N6 run. A later canonical ledger session
+    revalidates currentness before it can admit N9 authority.
+    """
+
+    if not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+        return LoadedDeploymentIdentityObservation(
+            status="not_established",
+            reason_code="canonical_loaded_runtime_mismatch",
+        )
+    try:
+        identity = _deployment_identity_from_baseline(_IMPORT_TIME_DEPLOYMENT_BASELINE)
+    except (NameError, ConfidenceLedgerError):
+        return LoadedDeploymentIdentityObservation(
+            status="not_established",
+            reason_code="canonical_deployment_identity_invalid",
+        )
+    return LoadedDeploymentIdentityObservation(
+        status="established",
+        deployment_identity=identity,
+    )
+
+
 def _policy_engine_deployment_identity(repo_root: Path) -> str:
     """Bind authority to disk bytes, runtime ABI, and actually loaded code."""
 
@@ -5749,6 +5818,7 @@ __all__ = [
     "ConfidenceLedgerSemanticReceiptProjection",
     "ConfidenceLedgerSession",
     "ConfidenceRiskBudgetScope",
+    "LoadedDeploymentIdentityObservation",
     "N9PromotionCertificateProjection",
     "N9PromotionLedgerRow",
     "N9PromotionSemanticLedgerProjection",
@@ -5759,6 +5829,7 @@ __all__ = [
     "PredictableClaimSpec",
     "PromotionCertificateOffer",
     "RationalSpec",
+    "capture_loaded_deployment_identity",
     "load_confidence_ledger_registry",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",

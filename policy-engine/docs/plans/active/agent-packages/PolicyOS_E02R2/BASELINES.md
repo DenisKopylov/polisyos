@@ -1155,3 +1155,36 @@ The four-base union denominator is 22 test identities. Main-to-current has no co
 Between main and current, six directly relevant paths changed: _generation_cycle_history_schema.py (+1,457 lines), confidence_ledger.py (+71), generation_cycle.py (+3,697/−335), promotion_sequence.py (+824/−36), this test file (+106/−55), and check_layer3_gy_generation_cycle_contract.py (+828/−85). This is the directly changed test/owner/validator surface, not a transitive import-closure proof. Complete per-case outcomes, collection differences, and hashes: /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/layer3_gy_contract-fourbase-comparison.md@sha256:34af1efa3b024e4ecaf9a6f152d3c416ec8ef17f5311b3703f333fef5e9cc64b and /Users/deniskopylov/.codex/scratch/p41-r2-fourbase-20260926/layer3_gy_contract-fourbase-comparison.json@sha256:d872bf8833255d369889de39c636a06e2ee2df62e433c0db951a514784127878.
 
 Whole-cell wall time / maximum RSS were execution 181.31s / 911,425,536 B; E02 68.10s / 932,364,288 B; main 188.40s / 918,700,032 B; current 257.54s / 1,053,999,104 B. No swaps were recorded.
+
+## P41 current-integration snapshot reconciliation (2026-09-26 addendum)
+
+### Discrepancy first
+
+The historical 84-cell table above uses Phase 0 `73c6567` as its fourth base, so its `62 complete / 20 missing / 2 UNRUN` total applies to that historical four-base selection. It is not the current-integration result. The requested current source/test snapshot is `40f498593d515006634d8989023c1ac44e24a193`; current branch HEAD is `5034ed5402915639269c927d12bbc5be5a2a587f`. The `34198535530cae11b9016f4bbd9161c7b7dda150..40f498593d515006634d8989023c1ac44e24a193` and `40f498593d515006634d8989023c1ac44e24a193..5034ed5402915639269c927d12bbc5be5a2a587f` diffs contain package-document changes only and no `policy-engine/tests` or `policy-engine/src` paths. Thus the strict test/source snapshot and whole-file P41 cell status recorded for 40f also describe HEAD 5034; this is blob/path equivalence, not a new test run.
+
+### Strict Appendix A/B whole-file cell counts
+
+The denominator remains 21 unique files × 4 bases = 84 cells. Here `complete` means a whole-file JUnit receipt is recorded; the count does not state whether its cases passed or failed. `missing` means the file is absent from that base's Git tree. `UNRUN` means the file is present but its whole-file P41 JUnit cell is not recorded.
+
+| Base | Complete JUnit cells | Missing paths | Present, whole-file UNRUN |
+|---|---:|---:|---:|
+| Execution `78187878ee188ff6d27442ba1498bd094da9785b` | 11 | 10 | 0 |
+| E02 `00d946c2b7d052522be092f9c70eb9902f6521c2` | 10 | 10 | 1 |
+| Main `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` | 21 | 0 | 0 |
+| Current source/test snapshot `40f498593d515006634d8989023c1ac44e24a193` (same test/source paths at HEAD `5034ed5402915639269c927d12bbc5be5a2a587f`) | 0 | 0 | 21 |
+| **Total** | **42** | **20** | **22** |
+
+The present-current whole-file replay is `UNRUN` for all 21 strict files. Selected-case and class-specific receipts elsewhere in this file do not fill these whole-file cells. In particular, no current-head whole-file P41 outcome is asserted here, and `BASELINES_DONE` remains unclaimed.
+
+### Expanded changed-test-tree denominator
+
+The complete changed test-tree census contains **390 tracked paths**: **374** `test_*.py` pytest modules, **9** Python support files, and **7** fixture/other files. The 374 modules create 1,496 possible four-base path-presence cells; 1,139 module/base paths are present in the corresponding Git trees and 357 are path-missing. Per-base module presence is execution 201, E02 293, main 271, current 374. These are Git-tree presence counts, not test outcomes; a whole-file JUnit reconciliation for all 374 modules is not claimed.
+
+### Receipts
+
+- Inventory and discrepancy analysis: `/Users/deniskopylov/.codex/scratch/e02-r14-p41-current-coverage-20260926/P41_CLOSEOUT_INVENTORY.md@sha256:046056abce0be88828bd77744ecd4f2ad008f24794302933d9d9312c1df537cd`
+- Machine-readable strict cells, full diff census, and denominators: `/Users/deniskopylov/.codex/scratch/e02-r14-p41-current-coverage-20260926/coverage_inventory.json@sha256:340f84e6d16394ecb5cffac3abf7058d635909b2d962d2d3109f9438b4e6f6e9`
+- Complete sorted changed-path list: `/Users/deniskopylov/.codex/scratch/e02-r14-p41-current-coverage-20260926/TOUCHED_TEST_PATHS.txt@sha256:1135655d903aaca0f538a2a235532f4e7237029725c70c4a1f56b309c14c7a7d`
+- Reproducible census script: `/Users/deniskopylov/.codex/scratch/e02-r14-p41-current-coverage-20260926/inventory.py@sha256:fc714420c445503af7d6203a8a9837c9c131ce02327d151151b434f466d36352`
+
+Patch base: `BASELINES.md` at HEAD `5034ed5402915639269c927d12bbc5be5a2a587f`, SHA-256 `a0996172751f315c0fbafa54db39e75b5f00a7cfd2f1a5466f272343c0505acb`.

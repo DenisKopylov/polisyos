@@ -1,8 +1,8 @@
 # E02-R2 decision record drafts
 
 **Status:** proposals for the principal; none is ratified by this file. Repeating a
-lane lean does not make it a principal decision. The principal’s ruling, signer, and
-date remain pending for R1, R2, R5, R9, R11, R13, and R14.
+lane lean does not make it a principal decision. The R11 v3 N9-exclusion ruling is recorded below. Principal rulings, signers,
+and dates remain pending for R1, R2, R5, R9, R13, and R14.
 
 **Prepared:** 2026-09-24. **Code inspected:** candidate base
 `73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
@@ -2418,6 +2418,181 @@ before authority work. The existing fixture records the block but not the N9
 non-promotion witness; the closure state is `verification_missing` until equal-byte
 owner-handoff, marker-removal, distinct-byte candidate-preserving, blocked-run,
 N9/S8 non-promotion, and preserved-terminal controls pass.
+
+## R11 addendum — universal v3 blocked-run N9 exclusion (principal ruling, 2026-09-26)
+
+This addendum records Denis's binding ruling for R11. It supersedes earlier R11
+statements that the principal decision was pending or that N9 exclusion covered
+only repeated-candidate causes. It does not claim code has been integrated and does
+not close the finding.
+
+**Decision.** For every current `policyos.runtime.generation_cycle_controller.v3`
+run with `terminal_status="blocked"`, do not enter the N9 promotion owner,
+regardless of `blocked_reason`, scheduler action, or source of the block. Preserve
+the VOI decision's action and reason; a run-level guard may independently set the
+run terminal to blocked. Emit the existing typed
+`PromotionPortObservation(status="not_promoted")` with no certified IDs, N9
+receipts, or pre-N9 observation payloads. This rule applies to v3; it does not
+rewrite v1/v2 historical meanings or bytes. Candidate-band computation and its
+typed limitations remain available; the rule withholds N9 authority for a blocked
+run.
+
+**Options and costs.**
+
+1. **Selected: status-based N9 exclusion for every blocked v3 run.** Test the
+   exact status named in the principal ruling, skip the N9 owner, and record the
+   existing `not_promoted` observation. This is a broad authority refusal by
+   design. An otherwise N9-eligible candidate is also withheld when its enclosing
+   v3 run is blocked; Denis accepted that cost. The mechanism must remain on the
+   single N6→N9 path and have a run-validator invariant and behavioral controls.
+2. Cause-scoped exclusion. Refuse only named, independently reconciled block
+   causes. This preserves more N9 opportunities but creates a second
+   cause-to-authority policy whose omissions or proxy reason checks could admit a
+   blocked run. Rejected by the ruling.
+3. Let N9 decide independently. This retains the most review opportunities but
+   violates the binding rule and preserves the unconditional owner call. Rejected
+   by the ruling.
+
+**Premises and complete block-cause census.** The principal ruling establishes
+policy; source inspection establishes the current divergence. At commit
+`5eca56ab0b9dc07ae094cc99f4a55045d1a53988`,
+`src/polisyos/runtime/quality/generation_cycle.py` has SHA-256
+`2442d86b228a1542b4fdbf6557f11e4a8eb417be8017afb7a5f5584c3467beb1`.
+The census parsed 2,695 tracked runtime Python files with zero syntax errors and
+found one production `GenerationCycleRun` constructor. It found three current
+assignments of `terminal_status="blocked"`:
+
+- max-cycle safety cap: `voi_safety_cap_reached_without_scheduler_stop`;
+- fake-cycle/progress guard: `fake_cycle_same_candidate_repeated`,
+  `cycle_two_not_counterexample_driven`, or `no_retry_without_new_grammar`;
+- no-retry grammar guard: `new_grammar_elements_not_introduced`,
+  `new_grammar_owner_missing`, `new_grammar_element_not_owned`, or
+  `no_retry_without_new_grammar`.
+
+R11 also maps a final `LoopVOIDecision(next_action="blocked")` to a blocked v3
+run while retaining the action and reason. The production `decide_next_action`
+constructor currently assigns `unsupported_terminal` for an unsupported prior
+terminal. `_revise_node` constructs a `next_action="blocked", reason="pending"`
+placeholder that is overwritten before run construction; it is not a run-level
+cause. Thus the census plus the required R11 mapping covers the current three
+run-guard classes and the direct VOI-block class. Reason text remains diagnostic;
+the N9 refusal does not branch on a cause allow-list. Any future blocked run cause
+is withheld by the same status predicate.
+
+Instrument:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/r11b_block_cause_census_5eca.py@0d48cb2cd8b490ee23db4b4996be7827863fc7db706736c4c8b16f6aa296af32`.
+Output:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_BLOCK_CAUSE_CENSUS_5ECA.json@be88ba4056cd8fca03a1b97d5d7f7c0e17353b075073728aca7ef91f7cbfdda6`.
+
+The historical census walked 2,883 tracked JSON/JSONL files plus pinned v1 object
+`adab90797d1d1562ae252c076883bc5af6d77ce`: 11 persisted N6 runs (10 v1, one v2),
+all completed, zero blocked; no v3 run was in this denominator. Non-JSON,
+runtime-only, and external persisted records remain unresolved by construction.
+The v1/v2 serializer and historical validation must stay unchanged. Receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_BLOCKED_HISTORY_CENSUS_5ECA.json@47640e422af25a31d4bf1a522fbe9ce07a9c0da2d19fcad5877b909cb7c335c2`.
+
+**Complete consumer census.** The instrument parsed 2,695 runtime Python and 445
+tool Python files and scanned 1,231 tracked TS/TSX/JS/JSX files in `apps` and
+`packages`: zero Python parse errors; eight direct `LoopVOIDecision` identifier
+references, all in `generation_cycle.py`; twelve typed runtime/tool contract
+reference sites; zero exact frontend tokens from the declared token set. The
+runtime consumers are:
+
+- `runtime/quality/generation_cycle.py`: N6 action/run construction, validation,
+  post-loop N9 owner call, and terminal projection;
+- `runtime/quality/recursive_generation_cycle.py`: run validation and derived
+  recursive terminal;
+- `runtime/quality/acquisition_route_loop.py`: recursive/acquisition wrapper;
+- `runtime/quality/public_export.py`: run validation/public export;
+- `runtime/quality/design_axes/value_choice_provenance.py`: normative projection;
+- `runtime/http/services/control/generation_cycle.py`: HTTP composition/reopen;
+- `runtime/http/services/control/evaluation_safety.py`: evaluation-safety and
+  promotion bridge;
+- `runtime/http/services/control/run_lifecycle.py`: HTTP lifecycle/reopen.
+
+The four other typed contract sites are validators:
+`check_layer3_gy_composition_artifacts.py`,
+`check_layer3_gy_depth_n_universality_contract.py`,
+`check_layer3_gy_generation_cycle_contract.py`, and
+`check_layer3_gy_second_domain_pack.py`. There is no direct board consumer in this
+measured source set. Zero frontend exact-token hits do not establish absence of a
+differently named, generated, reflective, or external board consumer; those remain
+`not_established`. Downstream listed consumers read the run or its terminal
+projection, not `LoopVOIDecision` directly.
+
+Instrument:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/r11b_consumer_census_5eca.py@c5afb39022af2577b99535db692afda60489faa6a7e8625daea09a17c4a0b25b`.
+Output:
+`/Users/deniskopylov/.codex/scratch/e02-r11b-action-terminal-20260926/R11B_PRODUCTION_CONSUMER_CENSUS_5ECA.json@126275ec1ea00a246e7baa82c4be411573b6dad3c5c0b008feba7a1569a5badc`.
+
+**Chosen mechanism and boundary.** In `GenerationCycleController.run`, map a
+final VOI `next_action="blocked"` to `terminal_status="blocked"` and the existing
+blocked-cycle projection without rewriting `scheduler_action` or the VOI reason.
+At the post-loop boundary, before `_promote_completed_generation`, branch on the
+exact current-v3 `terminal_status="blocked"` predicate; do not enter N9 and
+return `PromotionPortObservation(status="not_promoted")` with reason
+`generation_cycle_blocked_before_n9:<blocked_reason>`. The reason explains the
+refusal; it is not the admission predicate. For v3, the run validator must
+recompute action/run consistency and final-cycle blocked projection, and reject a
+blocked run carrying certified-current status, certified IDs, N9 receipts, an N9
+strangle receipt, or pre-N9 admission payload. Gate these new invariants to v3 so
+v1/v2 serialization and history replay remain byte-exact. Preserve existing
+run-derived recursive terminal mapping, including the safety-cap distinction.
+Do not add a schema field, second N9 owner, scheduler threshold, or EIG/USD
+conversion.
+
+**P37/P38.** The N9 gate turns on the exact current-v3 run status
+`terminal_status="blocked"`, which is the principal-selected property. Readers
+must validate that status against the run's typed action/guard projections. The
+gate must not turn on reason strings, repeated-candidate markers, action alone, or
+presence/absence of a receipt field. The implementation divergence is the
+unconditional post-loop N9 call and the direct blocked action that can leave its
+run completed. A blocked-run marker paired with N9 certification must fail v3
+validation, and removing the pre-N9 branch while keeping markers must make the
+negative owner-boundary test fail.
+
+Relevant patterns: P04, P05, P29, P31, P32, P37, P38, P40, P41. This decision
+settles N9 scope, not whether the repeated-candidate premise is true.
+`_fake_cycle_reason` compares stored candidate hash claims/ID fallback; canonical
+equality of producer-owned bytes remains `not_established` until both persisted
+source handoffs are resolved and their candidate projections compared. R11a
+scheduler utility units remain unresolved; no unsupported threshold is added.
+
+**Remainder and owners.** Runtime-quality owns run construction, terminal
+validation, and the N9 boundary. `GenerationSourceRepository` owns candidate
+source-byte resolution. HTTP/S8, public export, recursive routing, and any later
+identified board projection must be checked against the typed blocked result. A
+real served/public/board witness that no current authority leaks from blocked
+runs remains missing. Denis's policy choice is settled; the architect owns any
+register change. This addendum does not modify the debt register or claim closure.
+
+**Falsifier and revisit trigger.** Remove only the v3 blocked-status branch before
+N9 while retaining run status, reason, and markers. For each blocked producer
+class, an N9-owner spy or otherwise N9-eligible fixture must show a call and the
+negative test must fail. Forge certified-current status, receipt markers, or
+pre-N9 admission payload into a blocked v3 run; validation must reject it.
+Preserve a positive nonblocked control with a valid current candidate and
+otherwise valid N9 evidence: it must reach the N9 owner and retain existing
+certification behavior. Preserve exact v1/v2 replay for the pinned 11-record
+corpus. Revisit if any blocked v3 run reaches N9, passes validation with N9
+authority, the nonblocked control is refused, or historical v1/v2 bytes/meaning
+change. Any new blocked cause is automatically subject to N9 withholding.
+These are required acceptance witnesses, not results claimed by this draft.
+
+**Where it binds.** `runtime/quality/generation_cycle.py` at
+`GenerationCycleController.run`, the post-loop `_promote_completed_generation`
+boundary, `_validate_generation_cycle_run`, `_blocked_cycle`, and
+`generation_cycle_terminal_state`; all run-derived consumers listed in the census;
+and semantic tests. The R2 schema version is v3. Test write set:
+`tests/unit/runtime/quality/test_generation_cycle.py`, plus the smallest served
+consumer witness required for projection behavior. Source integration waits for
+R13's shared-file lease and independent review; this record is not a test receipt.
+
+**Decision-maker and binding status.** Denis's ruling dated 2026-09-26 is binding
+for current v3 runs. The option and accepted cost are recorded above. Principal
+reconsideration is not a prerequisite for implementation; any policy change needs
+a new explicit principal ruling.
+
 
 ## R13 — one world-growth path and runtime store custody
 

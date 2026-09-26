@@ -140,9 +140,16 @@ class TestRunOrchestratedIngestion:
         store = FileSystemCAS(cas_root)
         evidence_ref = _make_evidence_bundle(store)
 
+        cache_namespace = "connector_cache/routes/" + "a" * 64
+        ingestion_calls: list[dict[str, object]] = []
+
+        def _capture_ingestion(**kwargs: object) -> EvidenceBundleRef:
+            ingestion_calls.append(dict(kwargs))
+            return evidence_ref
+
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=evidence_ref,
+            side_effect=_capture_ingestion,
         ):
             result = run_orchestrated_ingestion(
                 connector_manifest={"datasets": [{"connector_id": "test", "dataset_id": "ds1"}]},
@@ -150,8 +157,10 @@ class TestRunOrchestratedIngestion:
                 license_name="open",
                 cas_root=cas_root,
                 produce_snapshot=False,
+                cache_namespace=cache_namespace,
             )
 
+        assert ingestion_calls[0]["cache_namespace"] == cache_namespace
         assert result.evidence_bundle_ref == evidence_ref
         assert result.data_snapshot_ref is None
         assert result.datasets_fetched == 1

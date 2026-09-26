@@ -842,6 +842,7 @@ def run_connectors_ingestion(
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
+    cache_namespace: str | None = None,
 ) -> EvidenceBundleRef | None:
     """Run connector ingestion with optional HTTP and normalized-result witnesses.
 
@@ -851,6 +852,7 @@ def run_connectors_ingestion(
             It is not a raw HTTP-body witness.
         raw_http_response_observer: Authorizes each HTTP attempt and receives its exact
             bounded response bytes before HTTP-status or JSON interpretation.
+        cache_namespace: Optional index namespace, independent of the CAS blob root.
     """
     spec = _normalize_connector_manifest(connector_manifest)
     if not spec.datasets:
@@ -886,6 +888,7 @@ def run_connectors_ingestion(
             ConnectorCacheStore(
                 cas_store,
                 cache_registry,
+                namespace=(cache_namespace if cache_namespace is not None else "connector_cache"),
                 metrics=resolved_dependencies.metrics,
                 tracer=resolved_dependencies.tracer,
             )

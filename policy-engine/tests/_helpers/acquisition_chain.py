@@ -156,6 +156,7 @@ def make_wdi_port_case(tmp_path, monkeypatch, *, control, closure, previous_case
         provision=authority.provision,
         provision_content_sha256=authority.provision_content_sha256,
         runtime_state_root=runtime_root,
+        artifact_store=store,
         world_growth_bridge=bridge,
     )
     return SimpleNamespace(

@@ -519,12 +519,13 @@ def run_orchestrated_ingestion(
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
+    cache_namespace: str | None = None,
 ) -> IngestionResult:
     """Run ingestion and optionally produce a DataSnapshot.
 
     This avoids the double-fetch problem: data is fetched once during
     ingestion, cached in CAS, and the snapshot is built from cached
-    artifacts.
+    artifacts. ``cache_namespace`` scopes the index without changing the CAS writer.
     """
     from polisyos.fabric.ingestion import run_connectors_ingestion
 
@@ -542,6 +543,7 @@ def run_orchestrated_ingestion(
         raw_result_sink=raw_result_sink,
         raw_http_response_observer=raw_http_response_observer,
         _live_acquire_permit=_live_acquire_permit,
+        cache_namespace=cache_namespace,
     )
 
     datasets_fetched = 0

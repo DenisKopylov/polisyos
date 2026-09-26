@@ -186,6 +186,19 @@ def test_raw_result_sink_runs_once_before_transform_sanitize_and_cache(
         return result, [], 0
 
     original_cache_put = ConnectorCacheStore.put
+    original_cache_init = ConnectorCacheStore.__init__
+    cache_namespaces: list[str] = []
+    cache_namespace = "connector_cache/routes/" + "b" * 64
+
+    def _cache_init(
+        self: ConnectorCacheStore,
+        cas: Any,
+        policy: Any,
+        namespace: str = "connector_cache",
+        **kwargs: Any,
+    ) -> None:
+        cache_namespaces.append(namespace)
+        original_cache_init(self, cas, policy, namespace=namespace, **kwargs)
 
     def _cache_put(self: ConnectorCacheStore, *args: object, **kwargs: object) -> object:
         events.append("cache")
@@ -209,6 +222,7 @@ def test_raw_result_sink_runs_once_before_transform_sanitize_and_cache(
         lambda: None,
     )
     monkeypatch.setattr(ConnectorCacheStore, "put", _cache_put)
+    monkeypatch.setattr(ConnectorCacheStore, "__init__", _cache_init)
 
     result = run_connectors_ingestion(
         connector_manifest=_manifest("raw.dataset", "raw.dataset.second"),
@@ -218,9 +232,11 @@ def test_raw_result_sink_runs_once_before_transform_sanitize_and_cache(
         dependencies=_dependencies(tmp_path / "cas"),
         raw_result_sink=_sink,
         raw_http_response_observer=http_observer,
+        cache_namespace=cache_namespace,
     )
 
     assert result is not None
+    assert cache_namespaces == [cache_namespace]
     assert events == [
         "http_before",
         "http_raw",

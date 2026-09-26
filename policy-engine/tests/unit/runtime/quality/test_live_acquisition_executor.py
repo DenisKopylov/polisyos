@@ -19,10 +19,12 @@ import pandas as pd
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.connectors import (
     ResultSerializer,
@@ -539,6 +541,7 @@ def _run(
     constraints: LiveCatalogExecutionConstraints | None = None,
     authority_entry: object | None = None,
     execution_dependencies: dict[str, object] | None = None,
+    cache_namespace: str | None = None,
 ) -> tuple[object, object, _OrchestratedWorldBankStub, Path]:
     repo_root = tmp_path / "repo"
     entry = authority_entry or _entry()
@@ -572,14 +575,19 @@ def _run(
         stub,
     )
 
+    cas_root = tmp_path / "cas"
+    dependencies = dict(execution_dependencies or {})
+    if "artifact_store" not in dependencies:
+        dependencies["artifact_store"] = FileSystemCAS(cas_root)
     result = execute_live_catalog_acquisition(
         authority=authority,
         entry_id=entry.entry_id,
         attempt_id=_ATTEMPT_ID,
         constraints=constraints or _constraints(),
         journal_path=journal_path,
-        cas_root=tmp_path / "cas",
-        **(execution_dependencies or {}),
+        cas_root=cas_root,
+        cache_namespace=cache_namespace,
+        **dependencies,
     )
     return authority, result, stub, journal_path
 
@@ -964,7 +972,14 @@ def test_live_executor_does_not_fall_back_when_injected_profile_is_absent(
 
     providers = resolve_control_registry_providers(source_profiles=AbsentProfiles())
     with pytest.raises(LiveAcquisitionExecutionError, match="live_source_profile_unresolved"):
-        _run(tmp_path, monkeypatch, execution_dependencies={"registry_providers": providers})
+        _run(
+            tmp_path,
+            monkeypatch,
+            execution_dependencies={
+                "artifact_store": None,
+                "registry_providers": providers,
+            },
+        )
     assert not (tmp_path / "journal.jsonl").exists()
     assert not (tmp_path / "cas").exists()
 
@@ -984,6 +999,64 @@ def test_live_executor_rejects_an_injected_store_with_different_artifact_backing
     assert terminals[0]["failure_code"] == refusal.value.code
     assert terminals[0]["failure_code"] != "measured_pending_passport"
     assert terminals[0]["response_admitted"] is False
+
+
+def test_live_executor_requires_runtime_store_before_journaling_or_egress(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        receipt=_family_receipt(),
+    )
+    authority, entry = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt,),
+    )
+    journal_path = tmp_path / "journal.jsonl"
+
+    def _forbid_orchestrator(**_kwargs: object) -> object:
+        pytest.fail("missing runtime store reached live ingestion")
+
+    monkeypatch.setattr(
+        acquisition_executor_module,
+        "run_orchestrated_ingestion",
+        _forbid_orchestrator,
+    )
+
+    with pytest.raises(LiveAcquisitionExecutionError) as refusal:
+        execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            constraints=_constraints(),
+            journal_path=journal_path,
+            cas_root=tmp_path / "cas",
+        )
+
+    assert refusal.value.code == "live_runtime_artifact_store_required"
+    assert not journal_path.exists()
+
+
+def test_live_executor_forwards_route_cache_namespace_to_orchestration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    namespace = "connector_cache/routes/" + "a" * 64
+
+    _authority, _evidence, stub, _journal_path = _run(
+        tmp_path,
+        monkeypatch,
+        cache_namespace=namespace,
+    )
+
+    assert len(stub.calls) == 1
+    assert stub.calls[0]["cache_namespace"] == namespace
 
 
 def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_evidence(
@@ -1400,14 +1473,18 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     monkeypatch.setattr(socket.socket, "connect", _forbid_socket)
     monkeypatch.setattr(socket.socket, "connect_ex", _forbid_socket)
 
-    evidence = execute_live_catalog_acquisition(
-        authority=authority,
-        entry_id=entry.entry_id,
-        attempt_id=_ATTEMPT_ID,
-        constraints=_constraints(),
-        journal_path=tmp_path / "journal.jsonl",
-        cas_root=tmp_path / "cas",
-    )
+    cas_root = tmp_path / "cas"
+    store = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="tenant-wdi", cell_id="cell-wdi"):
+        evidence = execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            constraints=_constraints(),
+            journal_path=tmp_path / "journal.jsonl",
+            cas_root=cas_root,
+            artifact_store=store,
+        )
 
     assert transport_calls == [("GET", _URL, _PARAMS)]
     assert scope_entries == [(_ATTEMPT_ID, _CONNECTOR_ID, _INDICATOR_ID)]
@@ -1417,12 +1494,18 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     assert evidence.call_count == 1
     assert evidence.variable_count == 1
     assert evidence.transport_trace.raw_evidence_ref == evidence.raw_evidence_ref
-    reopened = authority.resolve_live_source_execution(
-        entry.entry_id,
-        evidence,
-        FileSystemCAS(tmp_path / "cas"),
-    )
-    assert reopened.row_count == 2
+    with tenant_scope(None, tenant_id="tenant-wdi", cell_id="cell-wdi"):
+        reopened = authority.resolve_live_source_execution(
+            entry.entry_id,
+            evidence,
+            store,
+        )
+        assert reopened.row_count == 2
+
+    foreign_store = FileSystemCAS(cas_root).for_tenant("tenant-other", "cell-other")
+    with tenant_scope(None, tenant_id="tenant-other", cell_id="cell-other"):
+        with pytest.raises(ArtifactOwnershipError):
+            foreign_store.get_bytes(evidence.raw_artifact_id)
 
 
 def test_live_executor_recomputes_full_authorization_before_issuing_pool_permit(
@@ -1552,6 +1635,7 @@ def test_live_acquire_permit_rejects_a_reconstructed_copy_before_pool_io(
             constraints=_constraints(),
             journal_path=tmp_path / "journal.jsonl",
             cas_root=tmp_path / "cas",
+            artifact_store=FileSystemCAS(tmp_path / "cas"),
         )
 
     assert exc_info.value.code == "live_acquire_permit_invalid"
@@ -1742,6 +1826,7 @@ def test_pool_rejects_concurrent_reuse_before_a_second_health_check(
         constraints=_constraints(),
         journal_path=tmp_path / "journal.jsonl",
         cas_root=tmp_path / "cas",
+        artifact_store=FileSystemCAS(tmp_path / "cas"),
     )
 
     assert evidence.call_count == 1
@@ -1799,6 +1884,7 @@ def test_live_executor_blocks_out_of_authority_country_before_http_transport(
             constraints=_constraints(),
             journal_path=journal_path,
             cas_root=tmp_path / "cas",
+            artifact_store=FileSystemCAS(tmp_path / "cas"),
         )
 
     assert exc_info.value.code == "live_transport_request_drift"

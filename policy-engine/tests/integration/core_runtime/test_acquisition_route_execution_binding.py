@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.runtime.http.services import (
     acquisition_surface_execution as acquisition_surface_execution_module,
@@ -23,6 +28,11 @@ from polisyos.runtime.http.services.acquisition_surface_execution import (
 )
 from polisyos.runtime.quality import acquisition_executor as acquisition_executor_module
 from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
+from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionWorldGrowthBridge,
+    AcquisitionWorldGrowthConfig,
+)
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
     _entry,
     _resolver,
@@ -131,6 +141,7 @@ def _port_fixture(
         authority.registry_path.read_bytes()
     )
     runtime_state_root = tmp_path / "runtime-state"
+    artifact_store = FileSystemCAS(runtime_state_root / "cas")
     observer = _ExecutorObserver()
     port_kwargs: dict[str, object] = {}
     if not use_default_executor:
@@ -142,6 +153,7 @@ def _port_fixture(
             provision=authority.provision,
             provision_content_sha256=authority.provision_content_sha256,
             runtime_state_root=runtime_state_root,
+            artifact_store=artifact_store,
             **port_kwargs,
         ),
         observer,
@@ -192,6 +204,7 @@ def test_production_factory_owns_authority_files_runtime_root_and_executor(
         live_harness_receipts=receipt_provisions,
     )
     runtime_state_root = tmp_path / "runtime-state"
+    artifact_store = FileSystemCAS(runtime_state_root)
     observer = _ExecutorObserver()
     monkeypatch.setattr(
         acquisition_surface_execution_module,
@@ -206,18 +219,75 @@ def test_production_factory_owns_authority_files_runtime_root_and_executor(
     control_service = SimpleNamespace(
         _policy_resolver=SimpleNamespace(default_profile="production"),
         _cas_root=runtime_state_root,
+        _artifact_store=artifact_store,
     )
 
     port = build_production_world_bank_wdi_execution_port(control_service=control_service)
 
     assert type(port) is WorldBankWDIAcquisitionExecutionPort
     assert port is not None
-    port.reserve_route_binding(_route_closure())
+    binding = port.reserve_route_binding(_route_closure())
+    expected_cache_namespace = acquisition_surface_execution_module._connector_cache_namespace(
+        binding
+    )
     result = port.execute(_route_closure())
     assert result.disposition == "quarantined_no_growth"
     assert len(observer.calls) == 1
     assert observer.calls[0]["journal_path"].is_relative_to(runtime_state_root)
     assert observer.calls[0]["cas_root"].is_relative_to(runtime_state_root)
+    assert observer.calls[0]["artifact_store"] is artifact_store
+    assert observer.calls[0]["cas_root"] == artifact_store.root
+    assert observer.calls[0]["cache_namespace"] == expected_cache_namespace
+    assert expected_cache_namespace.startswith("connector_cache/routes/")
+    route_token = expected_cache_namespace.removeprefix("connector_cache/routes/")
+    assert len(route_token) == 64 and all(char in "0123456789abcdef" for char in route_token)
+    foreign_binding = binding.model_copy(
+        update={"tenant_id": "tenant-other", "cell_id": "cell-other"}
+    )
+    assert (
+        acquisition_surface_execution_module._connector_cache_namespace(foreign_binding)
+        != expected_cache_namespace
+    )
+
+
+def test_port_rejects_world_growth_bridge_with_foreign_artifact_store(
+    tmp_path: Path,
+) -> None:
+    port, _, runtime_state_root = _port_fixture(tmp_path, with_attempt=False)
+    foreign_store = FileSystemCAS(tmp_path / "foreign-cas")
+    bridge = AcquisitionWorldGrowthBridge(
+        config=AcquisitionWorldGrowthConfig(),
+        repo_root=tmp_path / "repo",
+        runtime_root=runtime_state_root,
+        authority=port._authority,
+        artifact_store=foreign_store,
+        event_log=object(),
+        epoch_deployment=None,
+    )
+
+    with pytest.raises(ValueError, match="acquisition_world_growth_runtime_store_mismatch"):
+        WorldBankWDIAcquisitionExecutionPort(
+            authority=port._authority,
+            registry=port._registry,
+            provision=port._provision,
+            provision_content_sha256=port._provision_content_sha256,
+            runtime_state_root=runtime_state_root,
+            artifact_store=port._artifact_store,
+            world_growth_bridge=bridge,
+        )
+
+
+def test_port_returns_typed_candidate_limitation_without_filesystem_store_root(
+    tmp_path: Path,
+) -> None:
+    port, observer, _runtime_state_root = _port_fixture(tmp_path)
+    port._artifact_store = SimpleNamespace()
+
+    with pytest.raises(LiveAcquisitionExecutionError) as limitation:
+        port.execute(_route_closure())
+
+    assert limitation.value.code == "live_artifact_store_backing_mismatch"
+    assert observer.calls == []
 
 
 def test_concrete_port_binds_route_and_governed_storage_before_executor(
@@ -236,6 +306,9 @@ def test_concrete_port_binds_route_and_governed_storage_before_executor(
     )
     assert len(observer.calls) == 1
     call = observer.calls[0]
+    assert call["cache_namespace"] == (
+        acquisition_surface_execution_module._connector_cache_namespace(reservation)
+    )
     assert call["entry_id"].startswith("acquisition-authority:sha256:")
     assert call["attempt_id"] == _ATTEMPT_ID
     assert call["constraints"].country_code == "UKR"
@@ -476,3 +549,56 @@ def test_public_route_binding_gaps_refuse_before_authority_provider(
 
     assert exc_info.value.code == expected_code
     assert provider_calls == []
+
+
+def test_route_cache_namespaces_preserve_a_warm_entry_across_foreign_same_request(
+    tmp_path: Path,
+) -> None:
+    port, _, _ = _port_fixture(tmp_path / "route")
+    binding = port.reserve_route_binding(_route_closure())
+    foreign_binding = binding.model_copy(
+        update={"tenant_id": "tenant-other", "cell_id": "cell-other"}
+    )
+    namespace_a = acquisition_surface_execution_module._connector_cache_namespace(binding)
+    namespace_b = acquisition_surface_execution_module._connector_cache_namespace(foreign_binding)
+    assert namespace_a != namespace_b
+
+    store = FileSystemCAS(tmp_path / "shared-runtime-cas").with_ambient_ownership_enforcement()
+    cache_a = ConnectorCacheStore(
+        store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_a
+    )
+    cache_b = ConnectorCacheStore(
+        store, TTLPolicy(ttl=timedelta(hours=1)), namespace=namespace_b
+    )
+    now = datetime.now(UTC)
+    request = FetchRequest(dataset_id="same.public.request")
+    result = FetchResult(
+        data=[{"value": 1}],
+        row_count=1,
+        schema_id="test.cache_scope",
+        schema_version="1.0",
+        version=DataVersion(
+            strategy=VersionStrategy.TIMESTAMP,
+            value=now.isoformat(),
+            timestamp=now,
+        ),
+        fetched_at=now,
+        completeness=1.0,
+        quality_tier=QualityTier.SILVER,
+    )
+
+    try:
+        with tenant_scope(None, tenant_id=binding.tenant_id, cell_id=binding.cell_id):
+            cache_a.put(request, result, connector_id="test.connector")
+            assert cache_a.get(request, connector_id="test.connector") is not None
+
+        with tenant_scope(
+            None, tenant_id=foreign_binding.tenant_id, cell_id=foreign_binding.cell_id
+        ):
+            assert cache_b.get(request, connector_id="test.connector") is None
+
+        with tenant_scope(None, tenant_id=binding.tenant_id, cell_id=binding.cell_id):
+            assert cache_a.get(request, connector_id="test.connector") is not None
+    finally:
+        cache_a.close()
+        cache_b.close()

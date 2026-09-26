@@ -24,7 +24,6 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
@@ -722,6 +721,7 @@ def execute_live_catalog_acquisition(
     journal_path: Path,
     cas_root: Path,
     artifact_store: ArtifactStore | None = None,
+    cache_namespace: str | None = None,
     registry_providers: ControlRegistryProviders | None = None,
 ) -> LiveSourceExecutionEvidence:
     """Execute one catalog-owned variable through Fabric and return quarantine evidence.
@@ -729,7 +729,8 @@ def execute_live_catalog_acquisition(
     The function does not admit observations.  It creates the exact raw journal/CAS
     carrier and Fabric snapshot required by the independent passport owner.
     The supplied store remains the writer for Fabric ingestion and its snapshot.
-    It must address ``cas_root`` because the connector cache also uses that root.
+    It must address ``cas_root`` because connector-cache payloads use that store.
+    ``cache_namespace`` scopes the cache index independently per governed route.
     """
 
     from polisyos.runtime.http.services.control_registry_providers import (
@@ -819,13 +820,11 @@ def execute_live_catalog_acquisition(
         max_response_bytes=constraints.max_response_bytes,
         max_decompressed_bytes=constraints.max_decompressed_bytes,
     )
+    if artifact_store is None:
+        raise LiveAcquisitionExecutionError("live_runtime_artifact_store_required")
     journal = fabric_data_plane.AppendOnlyEvidenceJournal(journal_path)
     request_ref = journal.append_request(attempt_id=attempt_id, request=request)
-    store = (
-        artifact_store
-        if artifact_store is not None
-        else build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root)))
-    )
+    store = artifact_store
     expected_url = (
         profile.base_url.rstrip("/")
         + f"/country/{constraints.country_code}/indicator/"
@@ -896,6 +895,7 @@ def execute_live_catalog_acquisition(
                 manifest=manifest,
                 connection_config=connection_config,
                 cas_root=cas_root,
+                cache_namespace=cache_namespace,
             )
         journal.append_classification(
             attempt_id=attempt_id,
@@ -952,6 +952,7 @@ def _execute_authorized_live_acquisition(
     manifest: ConnectorManifestSpec,
     connection_config: fabric_connectors.ConnectionConfig,
     cas_root: Path,
+    cache_namespace: str | None,
 ) -> LiveSourceExecutionEvidence:
     """Execute and independently reopen one already-authorized live carrier."""
 
@@ -1011,6 +1012,7 @@ def _execute_authorized_live_acquisition(
             raw_result_sink=_capture_result,
             raw_http_response_observer=observer,
             _live_acquire_permit=live_acquire_permit,
+            cache_namespace=cache_namespace,
             ingestion_dependencies=fabric_ingestion.resolve_ingestion_dependencies(
                 store_factory=_owned_ingestion_store,
             ),

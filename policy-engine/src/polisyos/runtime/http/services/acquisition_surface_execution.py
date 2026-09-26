@@ -24,6 +24,7 @@ from polisyos.runtime.quality.acquisition_executor import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionOwnerExecutionResult,
     )
@@ -311,6 +312,25 @@ def _constraints_from_live_variable_route(
         ) from exc
 
 
+def _route_scope_token(binding: WorldBankWDIRouteExecutionBinding) -> str:
+    """Return the canonical, opaque token for one tenant/cell route scope."""
+
+    scope = {
+        "schema_version": "polisyos.runtime.world_bank_wdi_route_storage_scope.v1",
+        "tenant_id": binding.tenant_id,
+        "cell_id": binding.cell_id,
+        "run_id": binding.run_id,
+        "route_id": binding.route_id,
+    }
+    return hashlib.sha256(canon.to_canonical_bytes(scope)).hexdigest()
+
+
+def _connector_cache_namespace(binding: WorldBankWDIRouteExecutionBinding) -> str:
+    """Place the cache index under this bound route while CAS blobs stay shared."""
+
+    return f"connector_cache/routes/{_route_scope_token(binding)}"
+
+
 class WorldBankWDIAcquisitionExecutionPort:
     """Lease and execute one canonical WDI attempt for an exact tenant-bound route."""
 
@@ -322,6 +342,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         provision: _AcquisitionAuthorityProvision,
         provision_content_sha256: str,
         runtime_state_root: Path,
+        artifact_store: ArtifactStore,
         executor: Callable[..., _LiveSourceExecutionEvidence] | None = None,
         world_growth_bridge: AcquisitionWorldGrowthBridge | None = None,
     ) -> None:
@@ -342,6 +363,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         self._provision = provision
         self._provision_content_sha256 = provision_content_sha256
         self._runtime_state_root = root
+        self._artifact_store = artifact_store
         self._executor = executor
         if world_growth_bridge is not None:
             from polisyos.runtime.quality.acquisition_world_growth import (
@@ -350,6 +372,8 @@ class WorldBankWDIAcquisitionExecutionPort:
 
             if type(world_growth_bridge) is not AcquisitionWorldGrowthBridge:
                 raise TypeError("acquisition world growth bridge must be production-owned")
+            if world_growth_bridge.artifact_store is not artifact_store:
+                raise ValueError("acquisition_world_growth_runtime_store_mismatch")
         self._world_growth_bridge = world_growth_bridge
 
     def require_route_ready(self, closure: VerifiedAcquisitionRouteClosure) -> None:
@@ -412,13 +436,11 @@ class WorldBankWDIAcquisitionExecutionPort:
         if bridge is not None and bridge.has_admission_attempt(closure):
             owner_refs, growth = bridge.resume_deferred_admission(closure)
             return self._admission_result(closure, owner_refs, growth)
+        cas_root = self._runtime_artifact_store_root()
         binding = self.reserve_route_binding(closure)
         self._claim_reserved_binding(binding)
-        journal_path, cas_root = self._governed_paths(binding)
-        extra_executor_args = {}
-        if bridge is not None and bridge.selection(closure) is not None:
-            cas_root = bridge.artifact_store.root
-            extra_executor_args["artifact_store"] = bridge.artifact_store
+        journal_path = self._governed_journal_path(binding)
+        cache_namespace = _connector_cache_namespace(binding)
         evidence: _LiveSourceExecutionEvidence
         if self._executor is None:
             evidence = execute_live_catalog_acquisition(
@@ -428,7 +450,8 @@ class WorldBankWDIAcquisitionExecutionPort:
                 constraints=binding.constraints,
                 journal_path=journal_path,
                 cas_root=cas_root,
-                **extra_executor_args,
+                artifact_store=self._artifact_store,
+                cache_namespace=cache_namespace,
             )
         else:
             evidence = self._executor(
@@ -438,7 +461,8 @@ class WorldBankWDIAcquisitionExecutionPort:
                 constraints=binding.constraints,
                 journal_path=journal_path,
                 cas_root=cas_root,
-                **extra_executor_args,
+                artifact_store=self._artifact_store,
+                cache_namespace=cache_namespace,
             )
         owner_receipt_refs = tuple(
             dict.fromkeys(
@@ -660,22 +684,22 @@ class WorldBankWDIAcquisitionExecutionPort:
     def _execution_claim_path(self, binding: WorldBankWDIRouteExecutionBinding) -> Path:
         return self._lease_path(binding).with_suffix(".claim")
 
-    def _governed_paths(
+    def _runtime_artifact_store_root(self) -> Path:
+        """Resolve the connector-cache root from the exact runtime artifact store."""
+
+        store_root = getattr(self._artifact_store, "root", None)
+        if store_root is None:
+            raise LiveAcquisitionExecutionError("live_artifact_store_backing_mismatch")
+        return Path(store_root).resolve()
+
+    def _governed_journal_path(
         self,
         binding: WorldBankWDIRouteExecutionBinding,
-    ) -> tuple[Path, Path]:
-        scope = {
-            "schema_version": "polisyos.runtime.world_bank_wdi_route_storage_scope.v1",
-            "tenant_id": binding.tenant_id,
-            "cell_id": binding.cell_id,
-            "run_id": binding.run_id,
-            "route_id": binding.route_id,
-        }
-        token = hashlib.sha256(canon.to_canonical_bytes(scope)).hexdigest()
+    ) -> Path:
+        token = _route_scope_token(binding)
         route_root = self._runtime_state_root / _RUNTIME_SUBTREE / "routes" / token
-        cas_root = route_root / "cas"
-        cas_root.mkdir(parents=True, exist_ok=True)
-        return route_root / "evidence-journal.jsonl", cas_root
+        route_root.mkdir(parents=True, exist_ok=True)
+        return route_root / "evidence-journal.jsonl"
 
     @staticmethod
     def _raise_attempt_exhausted() -> NoReturn:
@@ -757,6 +781,7 @@ def build_production_world_bank_wdi_execution_port(
         provision=provision,
         provision_content_sha256="sha256:" + hashlib.sha256(provision_raw).hexdigest(),
         runtime_state_root=Path(control_service._cas_root),
+        artifact_store=control_service._artifact_store,
     )
 
 

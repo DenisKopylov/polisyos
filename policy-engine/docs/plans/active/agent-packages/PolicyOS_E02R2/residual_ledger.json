@@ -2132,45 +2132,50 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held is retained. The 2026-09-25 follow-up supersedes the earlier H-card owner_decision classification and corrects its duplicate current-disposition metadata in held_audit_receipt_status and h_n_review_disposition: the current blocker is a smallest_missing_capability, specifically a production-positive N8 estimator-result to typed uncertainty receipt bridge. Additional ValueOuterSet constructors exist; no production statistical-uncertainty receipt, served positive consumer, behavior witness, P41, or closure is established. The d4c5 and 2522 source-only absence observations are historical; no current integration-head census or behavior/P41 is claimed."
+        "detail": "Appendix C held status retained. The current two-case B31 diagnostic reproduces loss and alteration of the source statistical interval at the value projection. Refine the one blocker to the DS16/IR owner decision on a versioned public representation separating identification and statistical/model uncertainty; no served positive consumer or closure is established."
       },
-      "residual": "Smallest missing capability: a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt bridge. The d4c5ae7 and 2522cf2 source censuses are historical snapshots, not evidence about a later integration head: they reported that the served FoundryValuePort path stopped before an estimator result and found no production ValueGateReceipt emitter or served positive consumer. The generation-cycle helper source changed after the 2522 snapshot; no current-head census, behavioral witness, removal/control probe, or P41 is claimed. Reuse GY-N8/Foundry for estimator-to-receipt, GY-N-V for identification-set semantics, and DS16 only as consumer; do not fabricate a result or add a second uncertainty owner. Behavioral witness and P41 remain UNRUN.",
+      "residual": "One owner decision: DS16/IR must admit a versioned public representation that keeps ValueOuterSet identification-only and carries statistical/model uncertainty on a separate typed channel bound to the estimand and unit. The B31 two-case diagnostic shows that point identification loses the source interval and the proxy projection changes its endpoints. Production adapter callsites, served consumer, public schema/history, and P41 remain unestablished; do not fabricate a statistical interval or add a parallel uncertainty owner.",
       "residual_owner": {
-        "appointment_status": "Owner paths are identified; the production-positive bridge is absent. No individual appointment or principal semantic decision is claimed.",
-        "kind": "smallest_missing_capability",
-        "name": "GY-N8/Foundry estimator-to-receipt owner; GY-N-V identification-set owner; DS16 surface owner as consumer only"
+        "kind": "owner_decision",
+        "name": "DS16/IR owner — versioned separation of identification bounds and statistical/model uncertainty",
+        "appointment_status": "Owner decision pending; no schema semantics are adopted by this ledger update."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "source_review_or_unrun_test_candidates",
-          "identity": "B31 served N8 source/owner census; no current behavioral selector",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#L7",
-          "behavioral_verdict": "UNRUN",
-          "scope": "The complete tracked-source census cited here is pinned at d4c5ae77751db0e681c520e5823952a4a451094b; it is source-only and does not establish current integration-head behavior. The separate 2522cf2 source census is recorded as a historical source pin below. Behavioral witness, removal/control probe, and P41 remain UNRUN.",
+          "kind": "direct_behavioral_probe",
+          "identity": "test_b31_point_identification_retains_native_statistical_interval; second B31 asymmetric proxy-bound probe",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B31",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Both marker-free behavioral assertions failed diagnostically: point identification dropped source interval [1,10], and proxy projection returned [-0.5,8.5]. This establishes a bounded value-projection counterexample, not a served consumer or full closure.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:4557dde3052bf88ddb3b45e71978d51dafd63f825bb72f2c23c0fc09a517f402",
+            "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b"
           ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN",
+        "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@git-blob:e73454e6b50624acc69627f48172a7612c9ccd9c",
         "blocker_path_scope": "The d4c5ae77751db0e681c520e5823952a4a451094b and 2522cf2 source snapshots report no production statistical-uncertainty ValueGateReceipt emitter or served positive consumer. These are bounded historical source observations, not a current integration-head census or behavioral proof; the production witness, removal/control, and P41 remain UNRUN.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; earlier owner_decision classification is superseded by the 2026-09-25 B31 source follow-up; current blocker is one smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one owner_decision blocker; 4-case uncertainty diagnostic includes this finding-specific counterexample; no schema ruling, public history replay or P41 closure",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "identity": "current held uncertainty owner-decision review and four-case diagnostic",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Finding-specific bounded counterexample reproduced by the four-case diagnostic; owner decision, production path, schema history and full P41 remain open."
         },
         "h14_source_review": {
-          "identity": "H14 source-owner capability map:B31",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L20",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+          "identity": "H14 current uncertainty source-owner census:B31",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#source_census",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Complete tracked denominator 2,696 source Python files; no production callsite for _value_outer_set_from_foundry_result or summarize_bayesian_calibration_posterior. This is a source census; the four-case behavior probe is cited separately."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B31",
@@ -2179,8 +2184,8 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "smallest_missing_capability",
-          "Build and behaviorally demonstrate a production-positive N8 estimator-result to typed statistical/model-uncertainty receipt to served-consumer bridge. Keep identification-set bounds distinct from statistical/model uncertainty and bind both to the estimand and unit. This source review is not a behavior witness; positive, removal/control, and P41 checks remain UNRUN."
+          "owner_decision",
+          "DS16/IR owner must admit the versioned public representation separating identification-set bounds from statistical/model uncertainty; keep ValueOuterSet identification-only and do not synthesize statistical evidence."
         ],
         "r2_ledger_reconciliation_additions": [
           {
@@ -2211,15 +2216,31 @@
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B31",
           "classification_at_review": "held",
-          "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c#L7",
-          "reviewed_head_or_snapshot": "d4c5ae77751db0e681c520e5823952a4a451094b",
+          "behavioral_verdict": "PARTIAL",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B31",
+          "reviewed_head_or_snapshot": "probe base 59c9d7331a39f5a333d316df94ce870febeddfe4; report head 9d20cabe72a46d98a4d80da5c28b37b456857d44; direct owner/source-test diff is empty, but transitive import closure at report head is not_established; 7f162d98 changed ledger docs only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:4557dde3052bf88ddb3b45e71978d51dafd63f825bb72f2c23c0fc09a517f402",
+            "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b"
           ],
-          "scope": "The complete tracked-source census is pinned at d4c5ae77751db0e681c520e5823952a4a451094b, not the captured 46de219 head or its later descendants. A separate source census pinned at 2522cf2 is recorded below as historical; the generation-cycle helper changed afterward. Neither source-only census is behavioral proof. Current-head witness, removal/control, and P41 remain UNRUN; keep held with one smallest_missing_capability."
+          "scope": "Point identification returned lower=upper=(4,) and omitted statistical_lower/statistical_upper despite source interval [1,10]. This is a marker-free diagnostic counterexample, not a production served path or full closure. Complete census counts 2,696 product source Python files, 2,732 test Python files and five IR migration Python files; no full four-base replay or historical serializer replay ran."
+        },
+        "h_n_review_notes": [
+          "Reclassify one blocker from smallest_missing_capability to owner_decision. The four-case probe covers two B31 diagnostics; both reproduce a boundary failure. Complete source census found no production callsite for the value helper or summary adapter; that is a premise for an owner decision, not evidence of a served positive path."
+        ],
+        "decision_record_draft": {
+          "kind": "section_9_7_owner_decision_draft",
+          "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         }
-      }
+      },
+      "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b",
+      "blocker_path_scope": "ValueOuterSet public representation and N8 value projection; retain identification-only semantics until DS16/IR owner admits a versioned statistical uncertainty channel."
     },
     {
       "id": "B32",
@@ -12105,27 +12126,31 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held status retained. The current asymmetric-posterior diagnostic reproduces rejection of a valid mean/equal-tail summary. One public-IR owner decision remains: version the point functional separately from interval semantics and preserve v1.1 history."
       },
-      "residual": "One owner decision: choose and version the point functional independently from equal-tail interval semantics for skewed posterior summaries, while preserving historical v1.1 serialization/replay. No owner ruling or behavioral/history replay is admitted; all proposed witnesses remain UNRUN.",
+      "residual": "One owner decision: choose and version the point functional independently from equal-tail interval semantics for skewed posterior summaries, while preserving historical v1.1 serialization and replay. Current probe: 99 zero draws plus one 100 draw yields mean 1 and equal-tail interval [0,0], which the existing UncertaintyEnvelope validator rejects. No schema ruling, migration/replay or production consumer is admitted.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "Public IR owner — point-functional semantics and versioned historical serialization",
-        "appointment_status": "Owner decision pending; no interval widening or semantic relabeling is authorized."
+        "name": "Public IR owner — versioned point-functional and interval-functional semantics",
+        "appointment_status": "Owner decision pending; no schema semantics are adopted by this ledger update."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
-          "identity": "skewed-posterior envelope validator probe",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
+          "identity": "test_b201_asymmetric_equal_tail_summary_keeps_mean_and_interval",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B201",
           "behavioral_verdict": "PARTIAL",
-          "scope": "The cited line 24 is from the historical observation base 12c1c8dba4716e206d72f332caab78d40e2a7f6f, as stated at report line 5. This evidence is not a fresh later-head probe or four-base replay; the owner decision remains pending and no closure is claimed.",
+          "scope": "99 zero draws and one 100 draw gave mean 1 and equal-tail interval [0,0]; UncertaintyEnvelope rejected the point outside its interval. Diagnostic failure is reproduced; owner decision and v1.1 historical replay remain open.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/ir/analytics/uncertainty.py@sha256:cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+            "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@sha256:1696611a0031b781ae1578481971e32c7165371c0382a1bc041a6e1149550462"
           ]
         },
         "package_record": "e02_package_projection",
@@ -12133,24 +12158,24 @@
         "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
         "blocker_path_scope": "Public IR uncertainty semantics and historical serializer path; decision remains pending.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one owner_decision blocker; 4-case uncertainty diagnostic includes this finding-specific counterexample; no schema ruling, public history replay or P41 closure",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "identity": "current held uncertainty owner-decision review and four-case diagnostic",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Finding-specific bounded counterexample reproduced by the four-case diagnostic; owner decision, production path, schema history and full P41 remain open."
         },
         "decision_record_draft": {
-          "kind": "source_review_options",
-          "identity": "HELD_FINDINGS_REPORT.md#L24 source-review options:B201",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
-          "scope": "Source-review options only; the cited report line is not a formal DECISION_RECORDS.md entry, principal ruling, or owner decision. Decision remains pending."
+          "kind": "section_9_7_owner_decision_draft",
+          "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {
-          "identity": "H14 source-owner capability map:B201",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L24",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+          "identity": "H14 current uncertainty source-owner census:B201",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#source_census",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Complete source/test/migration denominators are in the cited addendum. The current owner decision is separate from missing production consumer/replay evidence."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B201",
@@ -12166,14 +12191,21 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B201",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L24",
-          "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B201",
+          "reviewed_head_or_snapshot": "probe base 59c9d7331a39f5a333d316df94ce870febeddfe4; report head 9d20cabe72a46d98a4d80da5c28b37b456857d44; direct owner/source-test diff is empty, but transitive import closure at report head is not_established; 7f162d98 changed ledger docs only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/ir/analytics/uncertainty.py@sha256:cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+            "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@sha256:1696611a0031b781ae1578481971e32c7165371c0382a1bc041a6e1149550462"
           ],
-          "scope": "Real Pydantic envelope rejects 99 zero draws plus one 100 draw (mean 1, central 90% interval [0,0]); public point-functional/interval semantics still need owner decision and versioned history."
-        }
+          "scope": "99 zero draws and one 100 draw gave mean 1 and equal-tail interval [0,0]; UncertaintyEnvelope rejected the point outside its interval. This is a marker-free diagnostic counterexample, not a production served path or full closure. Complete census counts 2,696 product source Python files, 2,732 test Python files and five IR migration Python files; no full four-base replay or historical serializer replay ran."
+        },
+        "h_n_review_notes": [
+          "Keep exactly one owner_decision blocker and held status. The current skewed-posterior diagnostic is a bounded counterexample to the current unconditional point-in-interval validation; no schema choice or historical replay is adopted."
+        ]
       }
     },
     {
@@ -12191,28 +12223,32 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one owner_decision blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held status retained. The current paired-draw permutation diagnostic reproduces loss of joint law through summary projection. One public-IR owner decision remains: version the inline carrier or persisted reference and content-bound common-draw identity."
       },
-      "residual": "One owner decision: choose and version how BayesianCalibrationPosteriorSummary identifies its source law (existing inline carrier versus content-bound CAS reference), including sample axes, weights, joint draw identity/compression, and historical serialization. PosteriorSamplesCarrier exists, but the producer binding and owner choice are unresolved. Persistence/reload and joint-law witnesses remain UNRUN.",
+      "residual": "One owner decision: choose and version how BayesianCalibrationPosteriorSummary identifies its source law, using the existing PosteriorSamplesCarrier or a content-bound CAS reference for persisted large draws, including sample axes, weights, and an ordered joint-draw identity. Current paired-draw probe produces identical marginals but no distribution_payload. Persistence/reload, content binding, historical serialization and a production consumer remain UNRUN.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "Public IR owner — schema-versioned source-law and joint-draw identity",
-        "appointment_status": "Owner decision pending; the existing carrier does not supply producer binding."
+        "name": "Public IR owner — versioned source-law carrier/reference and content-bound joint-draw identity",
+        "appointment_status": "Owner decision pending; no schema semantics are adopted by this ledger update."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
-          "identity": "distinct posterior source-law carrier probe",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
+          "identity": "test_b202_joint_draw_permutation_survives_summary_projection",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B202",
           "behavioral_verdict": "PARTIAL",
-          "scope": "The cited line 25 is from the historical observation base 12c1c8dba4716e206d72f332caab78d40e2a7f6f, as stated at report line 5. This evidence is not a fresh later-head probe or four-base replay; the owner decision remains pending and no closure is claimed.",
+          "scope": "Paired +1/-1 and -1/+1 joint draws produced identical marginals; returned envelopes had distribution_payload=None. The existing PosteriorSamplesCarrier is reusable, but this producer does not bind or attach it; no new carrier is proposed.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b202_carrier_probe.out@sha256:2d690715f63f6f5bd34b87e58f18290852579d7f3af21ad684fa44bb4121297b",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/ir/analytics/uncertainty.py@sha256:cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+            "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@sha256:1696611a0031b781ae1578481971e32c7165371c0382a1bc041a6e1149550462",
+            "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@sha256:2679d546e048f466ceb96a80d69571ee953d0a402a596d423cc04e2c2d4ac9b1"
           ]
         },
         "package_record": "e02_package_projection",
@@ -12220,24 +12256,24 @@
         "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/uncertainty.py@git-blob:0a2495855d707a6548da6983bdef9abed9c4b0c7",
         "blocker_path_scope": "Public posterior-summary law representation and historical serializer path; decision remains pending.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as owner_decision; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one owner_decision blocker; 4-case uncertainty diagnostic includes this finding-specific counterexample; no schema ruling, public history replay or P41 closure",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "identity": "current held uncertainty owner-decision review and four-case diagnostic",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Finding-specific bounded counterexample reproduced by the four-case diagnostic; owner decision, production path, schema history and full P41 remain open."
         },
         "decision_record_draft": {
-          "kind": "source_review_options",
-          "identity": "HELD_FINDINGS_REPORT.md#L25 source-review options:B202",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
-          "scope": "Source-review options only; the cited report line is not a formal DECISION_RECORDS.md entry, principal ruling, or owner decision. Decision remains pending."
+          "kind": "section_9_7_owner_decision_draft",
+          "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {
-          "identity": "H14 source-owner capability map:B202",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#L25",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+          "identity": "H14 current uncertainty source-owner census:B202",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#carrier_reuse",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "PosteriorSamplesCarrier exists and is consumed by Foundry Monte Carlo; producer summary omits it and joint_sample_id strings are not content-bound to ordered draw bytes."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B202",
@@ -12247,21 +12283,28 @@
         },
         "h_n_review_disposition": [
           "owner_decision",
-          "Public-IR owner must choose/version source-law binding (existing carrier or content-bound CAS reference), including axes, weights, joint-draw identity, compression and history."
+          "Public-IR owner must choose/version source-law binding (existing carrier or content-bound reference), including axes, weights, ordered joint-draw identity and historical replay."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B202",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L25",
-          "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a#findings/B202",
+          "reviewed_head_or_snapshot": "probe base 59c9d7331a39f5a333d316df94ce870febeddfe4; report head 9d20cabe72a46d98a4d80da5c28b37b456857d44; direct owner/source-test diff is empty, but transitive import closure at report head is not_established; 7f162d98 changed ledger docs only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b202_carrier_probe.out@sha256:2d690715f63f6f5bd34b87e58f18290852579d7f3af21ad684fa44bb4121297b",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/test_uncertainty_held_discriminators.py@sha256:70b26ed3f6f69c24b5adda95d4b850b3ebfa499b8b7cca0085e0e12d4ff436b8",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.junit.xml@sha256:4572656863939f38e28c9f126f052a7d88d4a248bb0db4835dfbb06fccfb88b6",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/current-head.log@sha256:07f23873c5601041dcccfe8dd5ef5c44826bc8df881e9e87e3e820d34c975480",
+            "policy-engine/src/polisyos/ir/analytics/uncertainty.py@sha256:cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+            "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@sha256:1696611a0031b781ae1578481971e32c7165371c0382a1bc041a6e1149550462",
+            "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@sha256:2679d546e048f466ceb96a80d69571ee953d0a402a596d423cc04e2c2d4ac9b1"
           ],
-          "scope": "Two distinct 100-draw laws with equal mean and equal interval collapse to the same canonical envelope; source distribution payload is absent. Inline-size/CAS reference and joint-draw identity remain owner decision; no closure."
-        }
+          "scope": "Paired +1/-1 and -1/+1 joint draws produced identical marginals; returned envelopes had distribution_payload=None. This is a marker-free diagnostic counterexample, not a production served path or full closure. Complete census counts 2,696 product source Python files, 2,732 test Python files and five IR migration Python files; no full four-base replay or historical serializer replay ran."
+        },
+        "h_n_review_notes": [
+          "Keep exactly one owner_decision blocker and held status. Reuse PosteriorSamplesCarrier; its matching joint_sample_id strings are not content-bound to ordered draws, and the summary adapter omits the carrier. The contract decision must precede a public schema change."
+        ]
       }
     },
     {
@@ -15460,27 +15503,28 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held status retained. Current registry/source census and 17/17 bounded UDF tests refine the one residual to a data_record for selected caller/output parity; they do not establish finding-level closure or authorize retiring common.py."
       },
-      "residual": "One data-record blocker: map the actual registry-selected production builder for each of the five direct .common importers in the complete 11-file builder package and record byte/content, diagnostic, warning, and write-behavior parity after explicit routing. This is not a zero-caller retirement; the helper has active callers. Full caller/output witness remains UNRUN.",
+      "residual": "One data_record blocker: produce one complete registry-to-output parity record for the five direct .common importers in the complete 11-file builders package. The current route map is sources.py for D0-P0/D1/D2, demography.py for D3, governance_handoff.py for D4, and release.py for D5; bindings_validation.py helpers feed sources.py, while builders/__init__.py owns the registry/facade. Compare bytes/content, diagnostics, warnings, and writes along each actual selected production stage. Current census and 17/17 bounded UDF tests do not execute every registered path, so they do not establish parity; common.py remains actively used. P38 limit: helper identity/serialization checks can pass while a registered D5 caller changes or omits output. No new D5 regression is asserted; full selected-caller parity remains UNRUN.",
       "residual_owner": {
         "kind": "data_record",
-        "name": "Ukraine builder migration owner — five importer caller/registry/output map",
-        "appointment_status": "Five direct .common importers remain in the 11-file denominator; selected production callers and output-parity record are incomplete."
+        "name": "Ukraine builder migration owner — five importer registry/caller/output parity record",
+        "appointment_status": "The full 11-file/5-importer census and registry route map are recorded; output parity for the actual selected production callers is the single remaining data_record."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "bounded_behavioral_test_receipt",
-          "identity": "UDF-02 helper/I/O selectors (7 cases in shared 31-case run)",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#LA-031",
+          "identity": "17 tests: UDF-02 7/7 and UDF-05 10/10; serial test snapshot 59c9d7331a39f5a333d316df94ce870febeddfe4, inspected source/census head 9d20cabe72a46d98a4d80da5c28b37b456857d44; later commit was ledger-only",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-031",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Current helper/I/O cases pass; active registry-selected caller/output parity for all five importers remains a data_record blocker; not closure.",
+          "scope": "All seven UDF-02 helper/I/O cases and ten UDF-05 selection cases passed in one serial run. This is not a production caller parity result. P38 divergence: isolated helper checks can stay green when a registered production stage output changes.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/h-mig-udf-junit.xml@sha256:bbaffea243503dce93ace5fc211c99955fc3c828dc3e9ec657665388f6a32039",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.junit.xml@sha256:c7f4637923503d5318190b2a67a01be0360a036157a6ea40e46879f0b02cc955",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.stdout.log@sha256:0ecdeabdffaea920997d20657ecfa150372ebba9e25a77044500dcfba05328be",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/current_head_census.json@sha256:16b22d5781afe2192f3bc396f04556ba0d3b661921687110a57ab59657e8edb3",
             "policy-engine/tests/unit/remediation/test_udf_02.py@git-blob:27c4c09d13063138f4e8f18bb6593a0ca898413b"
           ]
         },
@@ -15488,13 +15532,13 @@
         "reported_test_catalog": null,
         "finding_test_status": "PASS_BOUNDED",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py@git-blob:97c1f1dca8db13dc6409919ca2cf81feea43d997",
-        "blocker_path_scope": "Canonical helper and its five current direct importers; do not infer that every helper is unused or retire common wholesale.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "Complete tracked builders package (11 Python files), five direct .common importers and all selected registry stage paths; remaining question is output parity, not whether common.py has callers.",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one data_record blocker; current bounded UDF tests pass; complete selected-caller output parity and finding-level P41 remain UNRUN",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "identity": "current source/card and bounded-test review; finding-level closure remains UNRUN",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-031",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Current UDF-02 helper/I/O tests pass; complete registered caller/output parity and P41 remain UNRUN."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:LA-031",
@@ -15510,23 +15554,24 @@
         },
         "h_n_review_disposition": [
           "data_record",
-          "Map production registry-selected builder and output parity for five direct .common importers in the complete 11-file package; J0723 covers seven helper IDs only and does not prove stage routing."
+          "Record selected production route and compare output bytes/content, diagnostics, warnings, and writes for five direct .common importers over the 11-file builder package. Do not infer common.py is unused or retire it wholesale."
         ],
         "h_n_review_notes": [
-          "Keep one data_record blocker; source audit found five direct .common importers in the complete 11-file package. This is an active-caller map/parity gap, not proof common has no caller."
+          "Keep one data_record blocker and held status. Complete census found five direct importers and routes D0-P0/D1/D2→sources.py, D3→demography.py, D4→governance_handoff.py, D5→release.py; bindings_validation feeds sources.py and __init__ owns registry/facade. P38: helper tests do not exercise every selected caller; a D5 output divergence could be green under these tests."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:LA-031",
           "classification_at_review": "held",
           "behavioral_verdict": "PASS_BOUNDED",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#LA-031",
-          "reviewed_head_or_snapshot": "7bc009b5637983a69863b7323a810f171c0c7802",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-031",
+          "reviewed_head_or_snapshot": "test snapshot 59c9d7331a39f5a333d316df94ce870febeddfe4; inspected source/census head 9d20cabe72a46d98a4d80da5c28b37b456857d44; later commit 7f162d98 changed ledger docs only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/h-mig-udf-junit.xml@sha256:bbaffea243503dce93ace5fc211c99955fc3c828dc3e9ec657665388f6a32039",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.junit.xml@sha256:c7f4637923503d5318190b2a67a01be0360a036157a6ea40e46879f0b02cc955",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.stdout.log@sha256:0ecdeabdffaea920997d20657ecfa150372ebba9e25a77044500dcfba05328be",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/current_head_census.json@sha256:16b22d5781afe2192f3bc396f04556ba0d3b661921687110a57ab59657e8edb3",
             "policy-engine/tests/unit/remediation/test_udf_02.py@git-blob:27c4c09d13063138f4e8f18bb6593a0ca898413b"
           ],
-          "scope": "Current helper/I/O cases pass; active registry-selected caller/output parity for all five importers remains a data_record blocker; not closure."
+          "scope": "17/17 combined UDF tests pass (UDF-02 7/7, UDF-05 10/10). Bounded helper tests pass; registered selected-caller/output parity remains UNRUN. P38 divergence is helper-only assertions versus a possible changed/omitted D5 production output; no new D5 regression is asserted."
         }
       }
     },
@@ -15545,27 +15590,30 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C status held retained. This follow-up corrects the blocker kind from data_record to smallest_missing_capability: the selected input-file/version/digest inventory and its shared binding across the three Data Forge readers do not exist end to end. The existing Data Forge basis/read owner is reusable; the capability is not implemented. No served readback, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held status retained. One missing production bridge/inventory capability remains. A complete owner census found reusable records and digest primitives, but no connection from them to the demographic composite and sibling readers. J0681 13/13 remains accepted for the composite layout-selection sub-result only."
       },
-      "residual": "One smallest-missing-capability blocker: persist an input inventory containing every selected file path, exact-byte digest, and declared data/schema/layout version, then bind the composite loader and all three sibling readers (load_reconciled_targets, load_transition_priors, optional load_donor_pool) to that same inventory through the existing Data Forge input-basis/read owner. The generic GenerationBasis is an available primitive, but this Ukraine route does not call or persist it and it has no separate declared source/schema-version field; VerifiedUkraineStageArtifacts and the D5 release receipt bind outputs, not source inputs. The mixed-filename selection defect remains a bounded accepted sub-result (E02 J0681: 13/13); do not reopen it. A served positive consumer/readback, shared-reader byte/path/version mutation probe, preserving control, and historical replay remain UNRUN. Proposed closure signal (new selector, not run): policy-engine/tests/unit/remediation/test_udf_05.py@git-blob:e7d2a6ee74913664d363242d53ea1d0c387c5a2e::test_bound_input_inventory_is_shared_by_demography_readers; it must exercise the public Data Forge/read-api consumer, show the same persisted inventory is consumed by all three readers, turn red when one selected path/byte/version changes while receipt markers remain, and preserve the unchanged-input control. Reuse the existing Data Forge owner; no parallel CAS or second world-growth path.",
+      "residual": "One smallest_missing_capability blocker: extend an existing Data Forge input/read owner to persist one demographic source inventory (selected member paths, exact content digests, and declared layout/data/schema version) and make the composite loader plus load_reconciled_targets, load_transition_priors, and optional load_donor_pool consume that same record through an actual public read_api consumer with replayable history. Complete census found reusable ArtifactRecord/BuildRunManifest.inputs, SourceSnapshotManifest/NormalizedArtifactManifest, and GenerationBasis (member digests/rule version); none is connected to these readers, and Ukraine stage/release receipts bind outputs rather than source inventory. The complete product-source census found no call site of the four readers beyond definitions and re-exports, so a served caller is not established in-repo; this is part of the missing bridge, not a separate blocker and not a claim that generic producer primitives do not exist. The scratch public-facade counterexample produced new targets [20] with legacy priors [[0.5]] while the composite refused the mixed layout; a legacy-only root produced targets [10]. P38 limit: composite layout tests can pass while sibling readers bypass the selector. E02 J0681 13/13 remains bounded; shared inventory/readback, path/byte/version mutation, preserving control, served consumer and historical replay remain UNRUN.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
-        "name": "Ukraine demography receipt/read owner — selected inventory/path/digest/version plus sibling-reader replay",
-        "appointment_status": "The existing Data Forge basis/read owner is identified, but the end-to-end input inventory and shared reader-binding capability is absent; no individual implementer appointment is claimed."
+        "name": "Ukraine demography read owner — shared source-inventory/replay bridge across composite and sibling readers",
+        "appointment_status": "Reusable Data Forge records and digest/basis primitives exist; the single demographic input-inventory and shared-reader production bridge is not connected, and no individual implementer appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "bounded_behavioral_test_receipt",
-          "identity": "UDF-05 complete-layout/mixed-layout selection selectors (10 cases in shared 31-case run)",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#LA-032",
+          "kind": "bounded_test_and_sibling_counterexample",
+          "identity": "17 UDF tests pass (UDF-05 10/10); public read_api.ukraine probe reproduced mixed new-target/legacy-prior sibling reads while composite refused",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-032",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; the input-inventory capability, served readback, and sibling-reader replay remain UNRUN.",
+          "scope": "The ten UDF-05 bounded tests passed; the separate public-facade probe demonstrates the unclosed sibling-reader property. PASS_BOUNDED applies only to selected tests, not the full finding.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/h-mig-udf-junit.xml@sha256:bbaffea243503dce93ace5fc211c99955fc3c828dc3e9ec657665388f6a32039",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.junit.xml@sha256:c7f4637923503d5318190b2a67a01be0360a036157a6ea40e46879f0b02cc955",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.stdout.log@sha256:0ecdeabdffaea920997d20657ecfa150372ebba9e25a77044500dcfba05328be",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/current_head_census.json@sha256:16b22d5781afe2192f3bc396f04556ba0d3b661921687110a57ab59657e8edb3",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.json@sha256:bec000425ede0b32424e284fc870e44877c2cb30876c16f2a9c20f16286ea78c",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.py@sha256:7cd5ce5e50fe951eb76350e8e090c4f572e184ccb20f8f1ca48de4aab235539b",
             "policy-engine/tests/unit/remediation/test_udf_05.py@git-blob:e7d2a6ee74913664d363242d53ea1d0c387c5a2e"
           ]
         },
@@ -15573,13 +15621,13 @@
         "reported_test_catalog": null,
         "finding_test_status": "PASS_BOUNDED",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py@git-blob:32d925f0d443ea61c08b16986b87ed053dd8c9a8",
-        "blocker_path_scope": "Demographic loader selection and binding to the existing VerifiedUkraineStageArtifacts receipt; no new storage or world-growth path.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; served readback, removal/control and P41 remain UNRUN",
+        "blocker_path_scope": "Demographic composite reader and all three sibling read_api exports; extend existing Data Forge input/read owners. Public served consumer is not established by the in-repository caller census.",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one smallest_missing_capability blocker; bounded layout-selection tests pass but sibling-reader counterexample is reproduced; shared inventory/readback and P41 remain UNRUN",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "identity": "current source/card, bounded-test, owner-census and public-facade counterexample review; finding-level closure remains UNRUN",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-032",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Current UDF-05 tests pass for their composite selection scope; public sibling APIs are separately shown to mix layouts. Shared inventory, served readback and P41 remain UNRUN."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:LA-032",
@@ -15602,23 +15650,33 @@
         },
         "h_n_review_disposition": [
           "smallest_missing_capability",
-          "Persist exact selected input paths, byte digests and declared data/schema version through the existing Data Forge input-basis owner, and bind all three sibling readers to the same inventory; output receipts do not establish input identity. J0681 13/13 closes only the bounded mixed-layout selection subproperty."
+          "Persist and replay-bind one selected-source inventory across the composite reader and all siblings through an actual public consumer, extending existing Data Forge input/read owners. Reusable hashing/artifact primitives exist but are not connected to these readers; output receipts do not bind source inputs."
         ],
         "h_n_review_notes": [
-          "Keep status held and owner role unchanged; correct only the blocker kind to smallest_missing_capability. The complete input-inventory/read-binding capability is absent end to end; do not reopen J0681’s accepted mixed-layout subproperty. Proposed behavioral signal is the new bound-inventory sibling-reader selector recorded in the residual."
+          "Keep held status with exactly one missing production bridge/inventory capability. The 280-file Data Forge census identifies ArtifactRecord/BuildRunManifest.inputs, SourceSnapshotManifest/NormalizedArtifactManifest and GenerationBasis as reusable primitives; none is wired to these readers. The 2,696-file product-source census has no caller beyond definitions/re-exports. P38 counterexample: composite refuses a mixed root but siblings return target [20] and legacy priors [[0.5]]. J0681 remains bounded at 13/13."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:LA-032",
           "classification_at_review": "held",
           "behavioral_verdict": "PASS_BOUNDED",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#LA-032",
-          "reviewed_head_or_snapshot": "7bc009b5637983a69863b7323a810f171c0c7802",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-032",
+          "reviewed_head_or_snapshot": "test snapshot 59c9d7331a39f5a333d316df94ce870febeddfe4; inspected source/census head 9d20cabe72a46d98a4d80da5c28b37b456857d44; later commit 7f162d98 changed ledger docs only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/h-mig-udf-junit.xml@sha256:bbaffea243503dce93ace5fc211c99955fc3c828dc3e9ec657665388f6a32039",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.junit.xml@sha256:c7f4637923503d5318190b2a67a01be0360a036157a6ea40e46879f0b02cc955",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/udf-current.stdout.log@sha256:0ecdeabdffaea920997d20657ecfa150372ebba9e25a77044500dcfba05328be",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/current_head_census.json@sha256:16b22d5781afe2192f3bc396f04556ba0d3b661921687110a57ab59657e8edb3",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.json@sha256:bec000425ede0b32424e284fc870e44877c2cb30876c16f2a9c20f16286ea78c",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.py@sha256:7cd5ce5e50fe951eb76350e8e090c4f572e184ccb20f8f1ca48de4aab235539b",
             "policy-engine/tests/unit/remediation/test_udf_05.py@git-blob:e7d2a6ee74913664d363242d53ea1d0c387c5a2e"
           ],
-          "scope": "Current mixed/complete-layout selection cases pass, as did E02 J0681 selection sub-result; the input-inventory capability, served readback, and sibling-reader replay remain UNRUN."
+          "scope": "10/10 UDF-05 tests pass their bounded selectors. Public-facade probe counterexample: siblings return new target [20] plus legacy priors [[0.5]], while composite refuses the same mixed input. P38 divergence: composite selector tests do not prove sibling APIs consume a shared inventory. Reusable owner primitives exist but are not wired to the reader; served readback/history remain UNRUN."
+        },
+        "sibling_reader_counterexample": {
+          "identity": "public read_api.ukraine mixed-layout sibling-reader probe",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.json@sha256:bec000425ede0b32424e284fc870e44877c2cb30876c16f2a9c20f16286ea78c",
+          "source_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/la032_sibling_reader_probe.py@sha256:7cd5ce5e50fe951eb76350e8e090c4f572e184ccb20f8f1ca48de4aab235539b",
+          "behavioral_verdict": "COUNTEREXAMPLE_REPRODUCED",
+          "scope": "Immutable root with demography/targets.json and demography_transition_priors.json yielded new-v2 target [20] and legacy priors [[0.5]] through siblings while composite refused. A second legacy-only root yielded target [10]; no fixture deletion was performed."
         }
       }
     },

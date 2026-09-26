@@ -3550,3 +3550,85 @@ its falsifiers have not all run, and neither finding is closed. The remaining
 principal proposals in this document are R2, R5, R9, R13, and R14. Earlier proposal
 text is retained as the pre-ruling record; the dated addenda supersede its pending
 status wording. No governed reissue or restamp is authorized by these records.
+
+
+## DS16 / IR — versioned public uncertainty representation (B31, B201, B202)
+
+**Status:** draft for the DS16 / IR contract owner; not adopted. The three findings
+remain held. This draft records one owner decision per finding and gives a shared
+schema direction where their public uncertainty representations intersect.
+
+**Question.** What public, versioned representation preserves identification bounds,
+statistical/model uncertainty, point-functional semantics, and joint-draw identity
+without treating one as evidence for another or granting authority by itself?
+
+**Options and costs.**
+
+1. **A — additive versioned uncertainty contract (recommended).** Keep
+   `ValueOuterSet` identification-only; encode statistical uncertainty in a separate
+   typed channel tied to estimand and unit; tag the point functional independently
+   from the equal-tail interval; reuse `PosteriorSamplesCarrier` for inline joint
+   draws and define a content-bound typed reference for persisted large draws. Bind
+   one common ordered-draw identity and version the public schema. Cost: schema bump,
+   historical serializers/migrations, persistence and producer/consumer wiring, and
+   end-to-end verification.
+2. **B — retain candidate-only summaries until the served chain exists.** Do not
+   present incomplete means/intervals or marginals as a complete distribution; carry
+   a typed limitation where a consumer needs the missing semantics. Cost: reduces
+   immediate compatibility work but leaves statistical uncertainty and joint-law
+   consumers unavailable; it does not close the producer/consumer capability.
+3. **C — narrow compatibility projection with a tagged median.** Where the public
+   interval must contain its point, set `point_functional=median`, preserve posterior
+   mean separately, retain native equal-tail bounds, and still use a carrier/reference
+   for joint operations. Cost: requires a versioned semantic tag and is incompatible
+   with consumers that interpret the point as mean; it does not close joint-draw
+   identity or large-payload persistence.
+
+**Premises.** The four focused diagnostic probes reproduced two B31 failures, one
+B201 failure, and one B202 failure (4/4 expected diagnostic failures; 0 errors).
+`ValueOuterSet` currently does not preserve a statistical interval separately from
+identification bounds; the IR envelope rejects a valid skewed posterior whose mean
+lies outside its equal-tail interval; and calibration summaries omit the existing
+`PosteriorSamplesCarrier`, so different joint draw pairings collapse to the same
+marginals. The complete tracked-source census covers 2,696 product Python files,
+2,732 test Python files, and 5 IR migration Python files. It found no production
+callsite for the summary adapter or value-outer-set helper and no uncertainty-family
+migration references. `PosteriorSamplesCarrier` exists and Foundry Monte Carlo
+consumes it, but the source string `joint_sample_id` is not content-bound to the
+ordered draw payload. The probe ran at `59c9d7331a39f5a333d316df94ce870febeddfe4`;
+direct owner/source-test files were identical through `9d20cabe72a46d98a4d80da5c28b37b456857d44`, while transitive import closure at that later head is
+`not_established`. The later `7f162d98` commit changes only ledger documents. No
+production positive consumer, public migration/replay, or authority-grade effect was
+measured.
+
+**Proposed choice and decision-maker status.** Prefer option A as the target
+contract, with option B as the operating limitation until an owner-admitted schema
+and served consumer exist. The DS16 / IR contract owner must rule; this draft is not a
+principal ruling or authority admission. The three binding decisions are: **B31** —
+separate identification bounds from statistical/model uncertainty; **B201** — choose
+and version the point functional independently of equal-tail interval semantics while
+preserving v1.1 history; **B202** — choose the public inline-carrier / persisted-reference
+contract and content-bound ordered joint-draw identity. Reuse `PosteriorSamplesCarrier`;
+do not create a duplicate carrier or infer a source law from marginal summaries.
+
+**Remainder.** This schema decision does not establish calibration validity, sampler
+adequacy, mixing, effective sample size, a production consumer, large-draw storage,
+or byte-exact historical replay. It grants no promotion or publication authority.
+Those producer, persistence, consumer, migration, and served-witness tasks remain
+implementation work after the owner decision.
+
+**Revisit trigger (falsifier).** Reopen if a supported consumer cannot preserve a
+nonzero native statistical interval alongside a point-identified set without widening
+the identification set; if a valid asymmetric mean/equal-tail summary changes meaning
+or fails byte-exact replay; or if two distinct ordered joint-draw batches can share an
+admitted identity or reload as the same joint law. The draft is not closed until
+behavioral probes for all three properties pass through persistence and a production
+consumer.
+
+**Binding scope.** Public/versioned uncertainty representation and B31/B201/B202
+producer-consumer paths only. No domain or jurisdiction profile is selected, no data
+or sampler is certified, and no promotion/publication authority is granted.
+
+**Source receipt:** `/Users/deniskopylov/.codex/scratch/e02-r2-held-uncertainty-20260926/held-uncertainty-ledger-addendum.json@sha256:1601a73ebb33f1246978ab399fb7eae0fc8ccd066d068b7e8064cf29e9528b4a`. The four probe assertions are expected to fail
+against the current implementation; their output is a diagnostic counterexample, not
+a passing acceptance suite.

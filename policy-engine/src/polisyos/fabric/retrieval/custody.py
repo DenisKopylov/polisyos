@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -20,6 +20,9 @@ from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 from .providers import RetrievalProviders
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _PRODUCER = core_artifacts.ProducerInfo(
@@ -188,7 +191,12 @@ def _require_source_agreement(
 
 
 def _put_json(
-    store: core_artifacts.FileSystemCAS, payload: BaseModel, *, kind: str, schema: str, inputs: list[core_artifacts.InputRef]
+    store: ArtifactStore,
+    payload: BaseModel,
+    *,
+    kind: str,
+    schema: str,
+    inputs: list[core_artifacts.InputRef],
 ) -> core_artifacts.ArtifactRef:
     return store.put_bytes(
         canon.to_canonical_bytes(payload.model_dump(mode="json"), spec=_CANON),
@@ -204,7 +212,7 @@ def _put_json(
 
 def _persist_fetched_result(
     *,
-    store: core_artifacts.FileSystemCAS,
+    store: ArtifactStore,
     plan: FetchPlan,
     request: FetchRequest,
     result: FetchResult[Any],
@@ -263,7 +271,7 @@ def _persist_fetched_result(
 
 
 def _read(
-    store: core_artifacts.FileSystemCAS,
+    store: ArtifactStore,
     ref: core_artifacts.ArtifactRef,
     *,
     kind: str,
@@ -290,7 +298,7 @@ def _read(
 
 def resolve_persisted_fetch(
     *,
-    store: core_artifacts.FileSystemCAS,
+    store: ArtifactStore,
     fetch_receipt_ref: core_artifacts.ArtifactRef,
     catalog: catalog_api.DatasetCatalogGraph,
     providers: RetrievalProviders | None = None,

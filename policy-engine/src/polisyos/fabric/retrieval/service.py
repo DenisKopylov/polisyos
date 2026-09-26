@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -149,6 +151,8 @@ class RetrievalService:
         *,
         curated_dir: Path,
         cas_root: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
+        artifact_store_config: ArtifactStoreConfig | None = None,
         dataset_catalog: object | None = None,
         max_local_index_docs: int = 2_048,
         max_promotion_candidates: int = 512,
@@ -178,10 +182,23 @@ class RetrievalService:
         self._explore = explore or ExploreLaneDiscovery(
             providers=resolved,
         )
+        if executor is not None and (
+            cas_root is not None or artifact_store_config is not None
+        ):
+            raise ValueError("retrieval_service_executor_store_configuration_conflict")
+        if (
+            executor is not None
+            and artifact_store is not None
+            and executor.artifact_store is not artifact_store
+        ):
+            raise ValueError("retrieval_service_executor_store_identity_mismatch")
         self._executor = executor or FetchExecutor(
             cas_root=cas_root,
+            artifact_store=artifact_store,
+            artifact_store_config=artifact_store_config,
             providers=resolved,
         )
+        self._artifact_store = self._executor.artifact_store
         self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)
         self._registry = resolved_registry
         self._profiles = resolved_profiles
@@ -196,6 +213,11 @@ class RetrievalService:
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
         self._state_lock = threading.RLock()
+
+    @property
+    def artifact_store(self) -> ArtifactStore | None:
+        """Return the exact artifact store owned by the fetch executor."""
+        return self._artifact_store
 
     def _source_policy(self, source_name: str) -> Any | None:
         normalized = (source_name or "").strip()

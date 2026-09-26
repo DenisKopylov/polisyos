@@ -50,6 +50,8 @@ def build_real_fetch_owner(
     patch_fastlane=True,
     metric_id="metric.test",
     dataset_records=None,
+    artifact_store=None,
+    artifact_store_config=None,
 ):
     """Use a real graph, with only the connector transport controlled."""
     from polisyos.data_forge.domains.catalog.knowledge.types import (
@@ -143,8 +145,18 @@ def build_real_fetch_owner(
         source_lane="fastlane",
         metadata={"resolution_route": "catalog", "catalog_discovered": True},
     )
+    local_cas_root = (
+        tmp_path / "cas"
+        if artifact_store is None and artifact_store_config is None
+        else None
+    )
     service = RetrievalService(
-        curated_dir=tmp_path, cas_root=tmp_path / "cas", dataset_catalog=graph, providers=providers
+        curated_dir=tmp_path,
+        cas_root=local_cas_root,
+        artifact_store=artifact_store,
+        artifact_store_config=artifact_store_config,
+        dataset_catalog=graph,
+        providers=providers,
     )
     if patch_fastlane:
         service._fastlane.resolve = lambda needs: FastLaneResolveResult(
@@ -159,7 +171,7 @@ def build_real_fetch_owner(
         requests=requests,
         payload=payload,
         preview_reject=preview_reject,
-        store=FileSystemCAS(tmp_path / "cas"),
+        store=service.artifact_store,
         providers=providers,
         curated_dir=tmp_path,
         cas_root=tmp_path / "cas",
@@ -945,3 +957,51 @@ def test_current_registry_validates_full_result_without_fetch_or_mutation(tmp_pa
             assert any("field 'value' completeness" in error for error in validation.errors)
         if variant == "wrong_schema":
             assert any("schema_id" in error for error in validation.errors)
+
+
+
+def test_fetch_executor_keeps_supplied_tenant_store_for_persist_and_readback(tmp_path):
+    """The exact runtime tenant view owns both fetch writes and later resolution."""
+    root_store = FileSystemCAS(tmp_path / "shared-cas")
+    runtime_store = root_store.for_tenant("tenant-a", cell_id="cell-a")
+    foreign_store = root_store.for_tenant("tenant-b", cell_id="cell-b")
+
+    with build_real_fetch_owner(tmp_path, artifact_store=runtime_store) as owner:
+        assert owner.service.artifact_store is runtime_store
+        executed = _execute(owner)
+        assert executed.fetch_receipt_ref is not None
+        assert executed.payload_ref is not None
+        assert runtime_store.has(executed.fetch_receipt_ref)
+        assert runtime_store.has(executed.payload_ref)
+        assert not foreign_store.has(executed.fetch_receipt_ref)
+        with pytest.raises(PermissionError, match="not readable by tenant"):
+            foreign_store.get_bytes(executed.fetch_receipt_ref.artifact_id)
+
+        from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+
+        resolved = resolve_persisted_fetch(
+            store=owner.service.artifact_store,
+            fetch_receipt_ref=executed.fetch_receipt_ref,
+            catalog=owner.graph,
+            providers=owner.providers,
+        )
+        assert resolved.result.data == owner.rows
+        assert resolved.payload_ref == executed.payload_ref
+
+
+def test_fetch_executor_local_config_remains_a_standalone_control(tmp_path):
+    """An explicit local store config preserves the standalone capture lane."""
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
+
+    configured_store = ArtifactStoreConfig(
+        backend="filesystem", root=str(tmp_path / "standalone-cas")
+    )
+    with build_real_fetch_owner(
+        tmp_path,
+        artifact_store_config=configured_store,
+    ) as owner:
+        executed = _execute(owner)
+        assert executed.fetch_receipt_ref is not None
+        assert owner.service.artifact_store is owner.store
+        assert owner.store.artifact_store_config() == configured_store
+        assert owner.store.has(executed.fetch_receipt_ref)

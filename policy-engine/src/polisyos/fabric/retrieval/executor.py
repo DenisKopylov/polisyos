@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.control import (
     DataContextMetric,
     FetchPlan,
@@ -52,6 +54,8 @@ class FetchExecutor:
         self,
         *,
         cas_root: Path | None = None,
+        artifact_store: ArtifactStore | None = None,
+        artifact_store_config: ArtifactStoreConfig | None = None,
         registry: ConnectorRegistry | None = None,
         profiles: SourceProfileRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
@@ -66,9 +70,30 @@ class FetchExecutor:
         )
         self._registry = resolved.registry
         self._profiles = resolved.profiles
-        self._cas_root = cas_root
+        store_inputs = sum(
+            value is not None for value in (cas_root, artifact_store, artifact_store_config)
+        )
+        if store_inputs > 1:
+            raise ValueError("fabric_fetch_store_configuration_conflict")
+        if artifact_store is not None:
+            self._artifact_store = artifact_store
+        elif artifact_store_config is not None:
+            self._artifact_store = build_artifact_store(artifact_store_config)
+        elif cas_root is not None:
+            # `cas_root` remains a local standalone compatibility spelling. Runtime
+            # owners pass their already-scoped ArtifactStore directly.
+            self._artifact_store = build_artifact_store(
+                ArtifactStoreConfig(backend="filesystem", root=str(cas_root))
+            )
+        else:
+            self._artifact_store = None
         self._tracer = resolved.tracer
         self._metrics = resolved.metrics
+
+    @property
+    def artifact_store(self) -> ArtifactStore | None:
+        """Return the exact store used for persisted fetch payloads and receipts."""
+        return self._artifact_store
 
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
         result: ExecutePlanResult = run_coro_sync(
@@ -152,8 +177,8 @@ class FetchExecutor:
         if persist_payload:
             from .custody import FabricFetchCustodyError, _bind_plan
 
-            if self._cas_root is None:
-                raise FabricFetchCustodyError("fabric_fetch_cas_missing")
+            if self._artifact_store is None:
+                raise FabricFetchCustodyError("fabric_fetch_store_missing")
             binding = _bind_plan(dataset_catalog, plan)
         full_result = await self._fetch(
             plan=plan,
@@ -165,7 +190,7 @@ class FetchExecutor:
             from .custody import _persist_fetched_result
 
             payload_ref, fetch_receipt_ref = _persist_fetched_result(
-                store=core_artifacts.FileSystemCAS(self._cas_root),
+                store=self._artifact_store,
                 plan=plan,
                 request=_fetch_request(plan, page_size=None),
                 result=full_result,

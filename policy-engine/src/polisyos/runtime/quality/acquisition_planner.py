@@ -18,13 +18,14 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 from urllib.parse import unquote, urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -39,6 +40,7 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
@@ -1314,12 +1316,18 @@ class RealAcquisitionOwnerGateway:
         network_counter: AcquisitionNetworkCallCounter | None = None,
         allow_openalex_network: bool = False,
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
-        retrieval_service_factory: Callable[[Path, Path, object], object] | None = None,
+        retrieval_service_factory: Callable[[Path, ArtifactStore | None, object], object]
+        | None = None,
+        artifact_store_config: ArtifactStoreConfig | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
+        if artifact_store is not None and artifact_store_config is not None:
+            raise ValueError("acquisition_owner_store_configuration_conflict")
         self._repo_root = Path(repo_root)
         self._artifact_store = artifact_store
+        if artifact_store_config is not None:
+            self._artifact_store = build_artifact_store(artifact_store_config)
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
@@ -1369,9 +1377,13 @@ class RealAcquisitionOwnerGateway:
         if not families:
             return None
         capture_fetches = _fabric_fetch_capture_enabled(spec)
-        if capture_fetches and self._retrieval_service_factory is None:
+        if (
+            capture_fetches
+            and self._retrieval_service_factory is None
+            and self._artifact_store is None
+        ):
             _LOGGER.warning(
-                "Fabric fetch capture refused: an explicit local retrieval service is required"
+                "Fabric fetch capture refused: the owner-supplied artifact store is missing"
             )
             return None
         paths = default_substrate_catalog_paths(self._repo_root)
@@ -1404,15 +1416,30 @@ class RealAcquisitionOwnerGateway:
             captured_fetches: list[dict[str, Any]] = []
             if capture_fetches:
                 try:
-                    service = self._retrieval_service_factory(
-                        curated_dir,
-                        self._repo_root / ".n7-live-cas",
-                        graph,
-                    )
+                    if self._retrieval_service_factory is not None:
+                        service = self._retrieval_service_factory(
+                            curated_dir,
+                            self._artifact_store,
+                            graph,
+                        )
+                    else:
+                        service = RetrievalService(
+                            curated_dir=curated_dir,
+                            artifact_store=self._artifact_store,
+                            dataset_catalog=graph,
+                        )
                     if not callable(getattr(service, "resolve", None)) or not callable(
                         getattr(service, "execute_fetch_plans", None)
                     ):
                         raise ValueError("fabric_fetch_capture_service_invalid")
+                    service_store = getattr(service, "artifact_store", None)
+                    if service_store is None:
+                        raise ValueError("fabric_fetch_capture_store_missing")
+                    if (
+                        self._artifact_store is not None
+                        and service_store is not self._artifact_store
+                    ):
+                        raise ValueError("fabric_fetch_capture_store_identity_mismatch")
                     response = service.resolve(request)
                     if len(response.fetch_plans) != 1:
                         raise ValueError("fabric_fetch_capture_requires_one_plan")
@@ -1439,7 +1466,7 @@ class RealAcquisitionOwnerGateway:
                     captured_fetches = _captured_fabric_fetches(
                         plans=response.fetch_plans,
                         metrics=execution.data_context.metrics,
-                        cas_root=self._repo_root / ".n7-live-cas",
+                        store=cast("ArtifactStore", service_store),
                         catalog=graph,
                     )
                 except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -1448,6 +1475,7 @@ class RealAcquisitionOwnerGateway:
             else:
                 service = RetrievalService(
                     curated_dir=curated_dir,
+                    artifact_store=self._artifact_store,
                     dataset_catalog=graph,
                 )
                 response = service.resolve(request)
@@ -3038,7 +3066,7 @@ def _captured_fabric_fetches(
     *,
     plans: Sequence[Any],
     metrics: Sequence[Any],
-    cas_root: Path,
+    store: ArtifactStore,
     catalog: object,
 ) -> list[dict[str, Any]]:
     """Validate and project executor-owned payload/receipt references.
@@ -3061,7 +3089,6 @@ def _captured_fabric_fetches(
 
     if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
         raise ValueError("fabric_fetch_capture_catalog_owner_missing")
-    store = artifacts.FileSystemCAS(cas_root)
     captured: list[dict[str, Any]] = []
     for metric in metrics:
         plan = plans_by_id[str(metric.plan_id)]
@@ -3127,7 +3154,7 @@ def _captured_fabric_fetches(
 
 
 def _validate_fabric_capture_ref(
-    store: artifacts.FileSystemCAS,
+    store: ArtifactStore,
     ref: Any,
     *,
     expected_kind: str,

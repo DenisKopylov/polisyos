@@ -5205,7 +5205,7 @@ class NaturalLanguageRunMixin:
                     )
                     retrieval = RetrievalService(
                         curated_dir=curated_dir,
-                        cas_root=self._cas_root,
+                        artifact_store=self._artifact_store,
                         dataset_catalog=retrieval_catalog,
                         providers=self._build_retrieval_providers(),
                     )

@@ -1565,7 +1565,7 @@ class ControlPlaneService(
             )
             self._retrieval = RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=self._artifact_store,
                 dataset_catalog=self._retrieval_catalog,
                 providers=self._build_retrieval_providers(),
             )

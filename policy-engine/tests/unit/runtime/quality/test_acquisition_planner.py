@@ -1783,6 +1783,11 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
+    capture_root = tmp_path / "runtime-cas"
+    runtime_store = FileSystemCAS(capture_root).for_tenant("tenant-n7", cell_id="cell-a")
+    foreign_store = FileSystemCAS(capture_root).for_tenant("tenant-other", cell_id="cell-a")
+    services: list[RetrievalService] = []
+
     with build_recorded_file_fetch_owner(
         tmp_path, canonicalize_catalog_source=True
     ) as owner:
@@ -1791,14 +1796,17 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
             return owner.graph
 
         def _local_service_factory(
-            curated_dir: Path, cas_root: Path, graph: object
+            curated_dir: Path, store: object, graph: object
         ) -> object:
-            return RetrievalService(
+            assert store is runtime_store
+            service = RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=store,
                 dataset_catalog=graph,
                 providers=owner.providers,
             )
+            services.append(service)
+            return service
 
         def _unexpected_replay(*args: object, **kwargs: object) -> None:
             del args, kwargs
@@ -1825,6 +1833,7 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
             repo_root=tmp_path,
             dataset_catalog_factory=_catalog_factory,
             retrieval_service_factory=_local_service_factory,
+            artifact_store=runtime_store,
             captured_at=datetime(2026, 7, 17, tzinfo=UTC),
         )
 
@@ -1843,10 +1852,14 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
         payload_ref = artifacts.ArtifactRef.model_validate(captured["payload_ref"])
         receipt_ref = artifacts.ArtifactRef.model_validate(captured["fetch_receipt_ref"])
         binding_ref = artifacts.ArtifactRef.model_validate(captured["catalog_binding_ref"])
-        capture_store = FileSystemCAS(tmp_path / ".n7-live-cas")
+        assert services[0].artifact_store is runtime_store
+        capture_store = runtime_store
         assert capture_store.has(payload_ref.artifact_id)
         assert capture_store.has(receipt_ref.artifact_id)
         assert capture_store.has(binding_ref.artifact_id)
+        assert not foreign_store.has(receipt_ref.artifact_id)
+        with pytest.raises(PermissionError, match="not readable by tenant"):
+            foreign_store.get_bytes(receipt_ref.artifact_id)
         captured_receipt = FabricFetchReceipt.model_validate(
             canon.from_canonical_bytes(capture_store.get_bytes(receipt_ref.artifact_id))
         )
@@ -1936,28 +1949,37 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
 ) -> None:
     from dataclasses import replace
 
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
     with build_recorded_file_fetch_owner(
         tmp_path, canonicalize_catalog_source=True
     ) as owner:
+        resolve_calls: list[object] = []
 
         def _catalog_factory(_db_path: Path, _index_dir: Path) -> object:
             return owner.graph
 
         def _service_factory(
-            curated_dir: Path, cas_root: Path, graph: object
+            curated_dir: Path, _store: object, graph: object
         ) -> object:
             service = RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store_config=ArtifactStoreConfig(
+                    backend="filesystem", root=str(tmp_path / "cardinality-local-cas")
+                ),
                 dataset_catalog=graph,
                 providers=owner.providers,
             )
 
             class _CardinalityService:
+                @property
+                def artifact_store(self) -> object | None:
+                    return service.artifact_store
+
                 def resolve(self, request: object) -> object:
+                    resolve_calls.append(request)
                     resolved = service.resolve(request)
                     assert resolved.fetch_plans
                     if plan_count == 0:
@@ -2004,11 +2026,13 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
             )
             is None
         )
+        assert len(resolve_calls) == 1
 
 
 def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_execute(
     tmp_path: Path,
 ) -> None:
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
@@ -2023,7 +2047,9 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
         )
         service = RetrievalService(
             curated_dir=tmp_path,
-            cas_root=tmp_path / ".n7-live-cas",
+            artifact_store_config=ArtifactStoreConfig(
+                backend="filesystem", root=str(tmp_path / "remote-effective-cas")
+            ),
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
@@ -2053,7 +2079,7 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
         gateway = RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
             dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
-            retrieval_service_factory=lambda _curated_dir, _cas_root, _graph: service,
+            retrieval_service_factory=lambda _curated_dir, _store, _graph: service,
         )
 
         assert (
@@ -2069,6 +2095,7 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
 def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatch(
     tmp_path: Path,
 ) -> None:
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
@@ -2085,7 +2112,9 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
         )
         service = RetrievalService(
             curated_dir=tmp_path,
-            cas_root=tmp_path / ".n7-live-cas",
+            artifact_store_config=ArtifactStoreConfig(
+                backend="filesystem", root=str(tmp_path / "empty-params-cas")
+            ),
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
@@ -2114,7 +2143,7 @@ def test_real_owner_gateway_capture_rejects_empty_catalog_params_locator_mismatc
         gateway = RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
             dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
-            retrieval_service_factory=lambda _curated_dir, _cas_root, _graph: service,
+            retrieval_service_factory=lambda _curated_dir, _store, _graph: service,
         )
 
         assert (
@@ -2131,6 +2160,7 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
@@ -2152,7 +2182,9 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
         )
         service = RetrievalService(
             curated_dir=tmp_path,
-            cas_root=approved_root / ".n7-live-cas",
+            artifact_store_config=ArtifactStoreConfig(
+                backend="filesystem", root=str(approved_root / "relative-effective-cas")
+            ),
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
@@ -2181,7 +2213,7 @@ def test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd
         gateway = RealAcquisitionOwnerGateway(
             repo_root=approved_root,
             dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
-            retrieval_service_factory=lambda _curated_dir, _cas_root, _graph: service,
+            retrieval_service_factory=lambda _curated_dir, _store, _graph: service,
         )
 
         assert (
@@ -2217,11 +2249,15 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
 
     from polisyos.core import artifacts, canon
     from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
     from polisyos.fabric.retrieval import custody
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
+    runtime_store = build_artifact_store(
+        ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "fetch-capture-cas"))
+    )
     with build_recorded_file_fetch_owner(
         tmp_path, canonicalize_catalog_source=True
     ) as owner:
@@ -2262,7 +2298,7 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
                 plan = plans[0]
                 receipt_ref = metric.fetch_receipt_ref
                 assert receipt_ref is not None
-                receipt_store = FileSystemCAS(tmp_path / ".n7-live-cas")
+                receipt_store = runtime_store
                 receipt = FabricFetchReceipt.model_validate(
                     canon.from_canonical_bytes(
                         original_get_bytes(receipt_store, receipt_ref.artifact_id)
@@ -2321,7 +2357,7 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
             else:
                 receipt_ref = metric.fetch_receipt_ref
                 assert receipt_ref is not None
-                receipt_store = FileSystemCAS(tmp_path / ".n7-live-cas")
+                receipt_store = runtime_store
                 receipt = FabricFetchReceipt.model_validate(
                     canon.from_canonical_bytes(
                         original_get_bytes(receipt_store, receipt_ref.artifact_id)
@@ -2377,12 +2413,13 @@ def test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs(
         gateway = RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
             dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
-            retrieval_service_factory=lambda curated_dir, cas_root, graph: RetrievalService(
+            retrieval_service_factory=lambda curated_dir, store, graph: RetrievalService(
                 curated_dir=curated_dir,
-                cas_root=cas_root,
+                artifact_store=store,
                 dataset_catalog=graph,
                 providers=owner.providers,
             ),
+            artifact_store=runtime_store,
             captured_at=datetime(2026, 7, 17, tzinfo=UTC),
         )
 
@@ -2837,3 +2874,68 @@ def _compiled_requirement_specs() -> tuple[
         sponsor_disclosure="sponsor_disclosed",
     )
     return data_spec, legal_spec, method_spec, scholar_spec, participation_spec
+
+
+def test_real_owner_gateway_store_removal_probe_refuses_before_fetch(tmp_path: Path) -> None:
+    """A root-local executor cannot satisfy markers while a runtime store is supplied."""
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    runtime_root = tmp_path / "runtime-cas"
+    runtime_store = FileSystemCAS(runtime_root).for_tenant("tenant-n7", cell_id="cell-a")
+    local_config = ArtifactStoreConfig(
+        backend="filesystem", root=str(tmp_path / "unbound-local-cas")
+    )
+    execute_calls: list[object] = []
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True
+    ) as owner:
+        def _local_service_factory(
+            curated_dir: Path, _store: object, graph: object
+        ) -> object:
+            service = RetrievalService(
+                curated_dir=curated_dir,
+                artifact_store_config=local_config,
+                dataset_catalog=graph,
+                providers=owner.providers,
+            )
+            original_execute = service.execute_fetch_plans
+
+            def _track_execute(*args: object, **kwargs: object) -> object:
+                execute_calls.append((args, kwargs))
+                return original_execute(*args, **kwargs)
+
+            service.execute_fetch_plans = _track_execute  # type: ignore[method-assign]
+            return service
+
+        base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+        base_spec.update(
+            {
+                "requirement_id": "data-requirement:fetch-capture-store-removal",
+                "claim_id": "claim-fetch-capture-store-removal",
+                "required_data_families": ("metric.test",),
+                "metadata": {"fabric_capture_mode": "persisted_payload"},
+            }
+        )
+        gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+        report = plan_requirement_gap_acquisition(
+            run_id="run-n7-fetch-capture-store-removal",
+            requirement_gaps=(gap,),
+            generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+        )
+        gateway = RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            dataset_catalog_factory=lambda _db_path, _index_dir: owner.graph,
+            retrieval_service_factory=_local_service_factory,
+            artifact_store=runtime_store,
+        )
+
+        artifact = gateway.acquire(
+            record=report.acquisition_records[0],
+            compiled_requirement_spec=base_spec,
+        )
+
+        assert artifact is None
+        assert execute_calls == []
+        assert runtime_store.iter_artifact_ids() == []

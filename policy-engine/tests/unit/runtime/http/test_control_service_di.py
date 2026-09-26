@@ -1318,6 +1318,7 @@ def test_control_service_preserves_real_catalog_ownership(
         assert service._retrieval_catalog is None
     else:
         assert selected is service._retrieval_catalog
+        assert service._retrieval.artifact_store is service._artifact_store
     # The concrete catalog resolves the declared metric; this test exercises
     # service construction/lifetime, not the separate fetch-to-N9 falsifier.
     response = service._retrieval.resolve(DataResolveRequest(

@@ -8,12 +8,12 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ArtifactStore, FileSystemCAS
 from polisyos.data_requirement import (
     DataQualityMinimums,
     DataRequirementScope,
@@ -60,6 +60,7 @@ from polisyos.runtime.quality.substrate_registry import (
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+_ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 
 
 def _problem(
@@ -973,6 +974,7 @@ def _build_acq01_real_route_controller(
     simulation: Any,
     repo_root: Path,
     authority_scope: str = "contract_testing",
+    artifact_store: object = _ACQ01_ROUTE_STORE_UNSPECIFIED,
 ) -> GenerationCycleController:
     class _RouteGenerationPort:
         async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
@@ -997,12 +999,22 @@ def _build_acq01_real_route_controller(
     )
     gateway.catalog = route.catalog
     gateway.providers = route.providers
+    selected_store = (
+        route.store
+        if artifact_store is _ACQ01_ROUTE_STORE_UNSPECIFIED
+        else artifact_store
+    )
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
         grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
         simulation_port=simulation,
         value_port=_PendingFixtureValue(),
         acquisition_owner_gateway=gateway,
+        artifact_store=(
+            cast("ArtifactStore | None", selected_store)
+            if authority_scope == "contract_testing"
+            else None
+        ),
         repo_root=repo_root,
         cycle_substrate_context=case.before_context,
         authority_scope=authority_scope,
@@ -1122,6 +1134,54 @@ async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
             route.world_build.record.content_hash,
         }
         assert simulation.world_refs[-1] != receipt["grown_world_after_ref"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("selected_store_kind", ["missing", "foreign_store"])
+async def test_n7_acq01_route_requires_controller_selected_store(
+    tmp_path: Path,
+    selected_store_kind: str,
+) -> None:
+    """A hashed v1 path cannot override the controller's selected CAS view."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_foreign_selected_store")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        historical_hash = route.owner_artifact.content_hash
+        assert route.owner_artifact.payload["acq01_route"]["capture_store_root"] == str(  # noqa: S101
+            route.store.root
+        )
+        foreign_store = FileSystemCAS(tmp_path / "foreign-selected-store")
+        selected_store = None if selected_store_kind == "missing" else foreign_store
+        expected_error = (
+            "n7_acq01_route_store_not_supplied"
+            if selected_store_kind == "missing"
+            else "n7_acq01_route_cas_ref_invalid"
+        )
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+            artifact_store=selected_store,
+        )
+
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match=expected_error,
+        ):
+            await controller.run(
+                case.problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                ),
+                max_cycles=1,
+            )
+
+        assert route.owner_artifact.content_hash == historical_hash  # noqa: S101
 
 
 @pytest.mark.asyncio
@@ -1271,7 +1331,7 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 return self._delegate.run(request)
 
         n5 = _RecordingN5Controller()
-        runtime_store = FileSystemCAS(tmp_path / "n5-runtime-store")
+        runtime_store = route.store
         gateway = RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={
                 case.data_spec.requirement_id: route.owner_artifact,

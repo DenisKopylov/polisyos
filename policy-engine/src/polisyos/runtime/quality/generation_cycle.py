@@ -5597,13 +5597,15 @@ class GenerationCycleController:
         if not isinstance(build_inputs, Mapping):
             raise GenerationCycleError("n7_acq01_route_build_inputs_missing")
 
-        capture_store_root = route.get("capture_store_root")
-        if not isinstance(capture_store_root, str) or not capture_store_root.strip():
-            raise GenerationCycleError("n7_acq01_route_store_missing")
-        store_root = Path(capture_store_root)
-        if not store_root.is_absolute() or not store_root.is_dir():
-            raise GenerationCycleError("n7_acq01_route_store_unresolved")
-        store = FileSystemCAS(store_root)
+        # Keep the v1 hashed route payload as historical input. Its
+        # capture_store_root is not storage authority; this contract-testing
+        # reader uses only the exact store supplied by its controller owner.
+        store = self._artifact_store
+        if store is None:
+            raise GenerationCycleError(
+                "n7_acq01_route_store_not_supplied",
+                "The route requires the controller's supplied artifact store.",
+            )
 
         def cas_ref(
             raw: object,

@@ -1,6 +1,38 @@
 # E02-R2 write leases
 
-## Active integration lease at `341985355` (2026-09-26)
+## Active integration lease at `ce54d6f16` (2026-09-26)
+
+- The root integrator is the sole writer to `codex/e02-r2`; the branch is clean.
+  The R11 S8 bounded repair and H ledger refinements are committed. The strict
+  current four-base P41 denominator is 21 files × 4 = 84 cells: 42 completed
+  JUnit cells, 20 missing paths and 22 present `UNRUN`, as reconciled in
+  `BASELINES.md`. Selected green tests do not fill whole-file cells.
+- R5 v3 is **NO-GO** after independent review: DataTrust labels still route to
+  EvalSafety, malformed jobs remain pending before worker refusal, and sealed
+  route authorization is not bound to the durable job. Its writer owns a new
+  five-band dispatch candidate only in scratch; it must preserve candidate and
+  simulate-only work, represent missing DataTrust bridge as typed limitation,
+  and prove served permission consumption. Do not apply v3 to the branch.
+- R1's full scratch worktree owns the job-scoped context producer and served
+  N4→N5 seam. Its write set includes the existing HTTP composition/lifecycle,
+  a narrow context owner, `design_problem.py` for exact qualified slot syntax,
+  and mirrored tests. It follows R5 in the shared `run_lifecycle.py` lease.
+  Owner-admitted population/time profile and current S8 value authority are not
+  present on the production path; a test fixture cannot grant general S8 authority.
+- R2 has frozen scratch owner-only and historical-schema candidates. The owner
+  census has a bounded source-tree removal probe; its exact patch is under
+  review. Package-only N6 authority remains `UNRUN`: no appointed build/deploy
+  issuer or installed attestation binds the route census to canonical loaded
+  code and lock. Integrate only a compatible, reviewed combined delta, preserve
+  v1–v3 historical bytes, and keep the package limitation explicit.
+- Disk is near 11 GiB free, just above the mandatory 10 GiB reserve. Do not
+  create a new worktree/environment or start an unbounded test. Reuse the
+  existing venv and read-only production-data symlink. Four or five measured
+  light process groups may run only with 20–30% RAM free and sufficient disk;
+  heavy native tests and the architecture guardrail require a larger margin.
+  No tree is edited while a test reads it. Only the user empties macOS Trash.
+
+## Previous integration lease at `341985355` (2026-09-26)
 
 - The root integrator is the only writer to `codex/e02-r2`; the branch was clean
   after the reviewed R11 S8 commit. R11's bounded S8 guard passed its direct

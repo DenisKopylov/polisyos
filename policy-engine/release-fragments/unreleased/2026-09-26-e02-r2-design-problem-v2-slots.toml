@@ -1,0 +1,33 @@
+id = "2026-09-26-e02-r2-design-problem-v2-slots"
+title = "Version canonical DesignProblem target slots"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "The current natural-language compiler emits DesignProblem v2, which accepts canonical dotted target slots while historical v1 problems keep their original slot grammar and default version."
+evidence = [
+  "tests/unit/runtime/quality/test_design_problem.py",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+  "architecture/policy_design_case/layer3_gy_design_problem_contract.json",
+]
+compatibility = "Unversioned and explicit v1 DesignProblem payloads retain the v1 default and unqualified target-slot rule. The current NL compiler explicitly emits v2; explicit legacy-version provider output is refused instead of silently relabelled."
+change_class = "persisted-artifact-format"
+surface_classification = "public_experimental: polisyos.runtime.quality.DesignProblem; internal: natural-language compiler provider contract"
+migration = "Persist and replay each DesignProblem with its explicit schema version. Existing v1 records remain readable byte-for-byte; consumers of current NL output must accept v2 target-slot syntax and still resolve the slot against an owner-bound world model."
+api = "No Runtime HTTP request or response schema changes in this slice."
+limitations = "A syntactically valid v2 slot is not evidence that the slot exists in the selected world model and does not authorize N5 simulation or S8 publication."
+generated_client_compatibility = "declared_compatible"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "design-problem-v2-target-slot-grammar"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_experimental: persisted DesignProblem; internal: NL compiler provider payload"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "No v1 deprecation is scheduled; claim currentness remains separately epoch-governed."
+release_note = "New NL DesignProblems carry v2 for canonical dotted slots; v1 records and unversioned inputs preserve the prior grammar and hash interpretation."
+migration_docs = ["docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md"]
+runbook_docs = []

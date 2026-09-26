@@ -1188,3 +1188,32 @@ The complete changed test-tree census contains **390 tracked paths**: **374** `t
 - Reproducible census script: `/Users/deniskopylov/.codex/scratch/e02-r14-p41-current-coverage-20260926/inventory.py@sha256:fc714420c445503af7d6203a8a9837c9c131ce02327d151151b434f466d36352`
 
 Patch base: `BASELINES.md` at HEAD `5034ed5402915639269c927d12bbc5be5a2a587f`, SHA-256 `a0996172751f315c0fbafa54db39e75b5f00a7cfd2f1a5466f272343c0505acb`.
+
+## R1 versioned-slot slice: exact parent replay (2026-09-26)
+
+This comparison isolates the versioned-slot candidate against its immediate
+parent `829004139a7bca1e021c9c27133d085a5b4cbd4b`. Both checkouts had Git,
+the same Python environment and flags, and a symlink to the same read-only
+`production_data`. Each test imported its checkout-local `src`. The denominator
+is the **46 test identities common to the two whole-file JUnit runs** of
+`tests/unit/runtime/http/test_nl_pipeline_materialization.py`.
+
+| Snapshot | Whole-file cases | Pass | Fail | Error | JUnit |
+|---|---:|---:|---:|---:|---|
+| Parent `829004139` | 46 | 34 | 12 | 0 | `/Users/deniskopylov/.codex/scratch/e02-r1-p41-base-829-20260926/base-http.junit.xml@sha256:4df7a4222198d45848ed79ec6e84427e80dcc9c248ac499b121b4f968b3f72e3` |
+| Parent + R1 versioned-slot patch | 48 | 36 | 12 | 0 | `/Users/deniskopylov/.codex/scratch/e02-r2-r1-grammar-integrated-20260926/full-http.junit.xml@sha256:41cfc2c706cb909597a056863d6a6fefe1fd3a36601e7f609a3c51b30cdae36a` |
+
+All 46 common identities have the same pass/fail status and first-line failure
+message: **zero pass→fail and zero fail→pass**. The two current-only grammar
+tests pass. Complete machine comparison:
+`/Users/deniskopylov/.codex/scratch/e02-r2-r1-grammar-integrated-20260926/full-http-parent-comparison.json@sha256:a55e2e198e113b5be5bbcc436bf3b5a55307c77b401de7a8ba72300723fb213b`.
+The 12 reds were present at the parent, but the R1 changed paths intersect
+this file's imports; this receipt does not label them inherited under strict
+P41. It only establishes that this slice added no same-identity regression.
+
+The focused run of the complete `test_design_problem.py` file plus three NL
+provider/schema selectors passed **15/15** (`focused.junit.xml@sha256:5f88ce907919623937b181fe8922f08f8ae7decd25e66ce0ef297818b50f3a2d`
+in the same scratch directory). The generated DesignProblem contract owner's
+standalone `--check --output-format json` returned `status=pass`, `issues=[]`,
+exit 0. These slice results do not fill the 21-file four-base Appendix A/B
+matrix or the full changed-test-tree replay.

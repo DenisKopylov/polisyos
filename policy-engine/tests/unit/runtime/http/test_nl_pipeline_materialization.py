@@ -491,6 +491,7 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     )
 
     assert problem.design_problem_id == "design_problem_ua_msme_credit"
+    assert problem.schema_version == "policyos.runtime.design_problem.v2"
     assert problem.authority_profile.requested_authority_level == "research"
     assert problem.jurisdiction_time.region == "UA"
     assert problem.outcome_of_interest.target_variable == "firm_survival"
@@ -501,6 +502,11 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     assert gateway.generate_calls[0]["tool_choice"]["function"]["name"] == "emit_design_problem"
     assert gateway.generate_calls[0]["max_tokens"] == 8192
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
+    assert tool_schema["properties"]["schema_version"] == {
+        "const": "policyos.runtime.design_problem.v2",
+        "type": "string",
+    }
+    assert "schema_version" in tool_schema["required"]
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
     time_object = tool_schema["properties"]["jurisdiction_time"]["properties"]["time_semantics"][
@@ -517,6 +523,30 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
         },
     ]
     assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_explicit_legacy_schema_version() -> None:
+    """The current compiler cannot relabel an explicit legacy provider payload."""
+
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments={
+            **_design_problem_tool_args(),
+            "schema_version": "policyos.runtime.design_problem.v1",
+        },
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee for wartime MSMEs.",
+            context=_intent_context(),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_compiler_schema_version_mismatch"
 
 
 @pytest.mark.asyncio
@@ -654,6 +684,37 @@ def test_design_problem_provider_constraint_exposes_existing_time_rule() -> None
                 "step_count": None,
                 "end_date": None,
             }
+        )
+
+
+def test_design_problem_provider_schema_matches_versioned_slot_grammar() -> None:
+    """Constrained generation must expose the parser's versioned slot boundary."""
+
+    from jsonschema import Draft202012Validator
+
+    schema = design_problem_provider_constraint_schema()
+    validator = Draft202012Validator(schema)
+    cases = (
+        (None, "credit_access", False),
+        ("policyos.runtime.design_problem.v1", "government.balance", False),
+        ("policyos.runtime.design_problem.v1", "credit_access", False),
+        ("policyos.runtime.design_problem.v2", "government.balance", True),
+        ("policyos.runtime.design_problem.v2", "credit_access", True),
+        ("policyos.runtime.design_problem.legacy-import", "credit_access", False),
+        ("policyos.runtime.design_problem.legacy-import", "government.balance", False),
+    )
+    for schema_version, target_slot, expected in cases:
+        payload = _design_problem_tool_args()
+        if schema_version is None:
+            payload.pop("schema_version", None)
+        else:
+            payload["schema_version"] = schema_version
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+            target_slot
+        )
+        assert validator.is_valid(payload) is expected, (
+            schema_version,
+            target_slot,
         )
 
 

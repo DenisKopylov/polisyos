@@ -11593,28 +11593,30 @@
       "appendix_c_status": "held",
       "status": "held",
       "appendix_c_comparison": {
-        "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one smallest_missing_capability blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "relation": "agreement_held_with_repaired_owner_behavior_and_refined_residual",
+        "detail": "Appendix C held status is retained. The owner-level Monte Carlo/report defect has bounded behavioral, removal/control, importer, and compatibility evidence after commit b347c3326765f4d5be8e9e0daaaac59386d92ed0. The historical 12c 515/485 gate-eligible result is kept only as a pre-repair snapshot. The remaining finding is one served/source-bound simulation-evaluator to shared verified authority-intake capability; no finding-level closure or full four-base replay is claimed."
       },
-      "residual": "One smallest missing capability: a production simulation-evaluation contract that supplies typed outcomes for each requested draw and carries source-bound support through the existing Monte Carlo result, persisted propagation report, derived envelope support, and one verified intake consumed by ConfidencePass, normative arbitration, and decision_packet.enrichment. The sole production PropagationDispatcher caller is PropagateUncertaintyNode.execute, whose callback is a frozen-metric affine sensitivity function rather than the simulation solver and has no input-domain refusal boundary; a served positive witness therefore needs an actual producer bridge. ConfidencePass trusts gate_eligible without denominator reconciliation; normative arbitration may rank a syntactically valid successful-only conditional interval; decision_packet.enrichment emits point/bounds/CI without support. Keep useful successful values conditional for candidates, but authority consumers must carry a typed limitation or withhold the bounds. The result/report/envelope witness, shared verified intake, marker-retaining removal probe, controls, and four-base P41 remain UNRUN. This is an engineering capability blocker, not a data or external-institution blocker.",
+      "residual": "One smallest missing capability remains: a served simulation evaluator must produce source/deployment-bound per-draw support, carry it through the persisted Monte Carlo result/report/envelope, and feed one shared verified authority intake consumed by ConfidencePass, normative arbitration, and decision-packet enrichment. The only current production PropagationDispatcher caller is PropagateUncertaintyNode.execute; it constructs an affine sensitivity function over frozen base metrics and does not call the simulation evaluator (caller census covers all 2,695 tracked policy-engine/src/**/*.py files). Adaptive-width stopping remains candidate-only because there is no anytime-valid Monte Carlo confidence-sequence rule; this is a bounded admission limitation, not a second blocker for the fixed-draw repair. Full four-base P41 replay and production reader/history replay remain UNRUN. Preserve successful values as candidate evidence; the unreconciled served authority path must not treat them as admissible.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
-        "name": "Production simulation evaluator → PropagationDispatcher / MonteCarloPropagator / source-bound PropagationReport → verified ConfidencePass, normative arbitration, and decision-packet intake",
-        "appointment_status": "The only tracked production dispatcher caller is affine and does not provide solver outcomes; the served typed-outcome producer bridge is not established. No individual owner appointment or behavioral result is claimed."
+        "name": "Served simulation evaluator → source/deployment-bound per-draw support → shared verified authority intake for ConfidencePass, normative arbitration, and decision-packet enrichment",
+        "appointment_status": "The current tracked production caller is the affine PropagateUncertaintyNode bridge, not an actual simulation evaluator. The one served source-bound producer-to-consumer capability is not established; no individual owner appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "direct_behavioral_probe",
-          "identity": "real Monte Carlo failed-draw completeness probe; valid-draw control",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B194",
+          "identity": "B194 Monte Carlo partial-draw/report semantics; low-valid marker-retaining removal probe and paired controls; four importer files; UQP consumer",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#B194",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Direct probe reproduces 515 failed / 485 valid requested draws while confidence interval remains present and gate_eligible is true; 1000/1000 valid control passes. Persisted report binding and adaptive-stop policy remain absent; no closure.",
+          "scope": "At b347c3326765f4d5be8e9e0daaaac59386d92ed0, 515/1000 failed draws retain samples only as candidate evidence, with gate authority withdrawn and typed per-draw outcomes; the 0/100 all-exception case preserves insufficient_valid_samples while marking incompleteness. Persisted v1.1 report aggregation distinguishes absent outputs from invalid/incomplete outputs; Delta missing and valid controls exercise the shared classifier. The historical low-valid status-removal probe is red and paired controls pass 2/2. Four importers pass 34/34 and the UQP consumer passes 1/1. This is bounded owner behavior, not served authority-chain closure. Full four-base P41 and production reader/history replay are UNRUN.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integration-importer-files-restored.junit.xml@sha256:b6beb16e8e8c0cb92631d856e98b092cd41a573bac3cd89b525b17bbc6bd920d",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integrated-uqp-restored.junit.xml@sha256:5a08780c855d5dc9d0f345650675082a7e0d3d0b6aac1394f016406fbc6e4cd0",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/B194_P41_COMPATIBILITY_INDEPENDENT_REVIEW.md@sha256:284c1827c849e3168ed6f521017105b215ba4b69e5dc529dc718c0bff6ae3803",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-current-caller-census.out@sha256:1f54b4f3a72419386e2467bc757c5c142bbd8f7595dff9d59d1497bf3ffbb526"
           ]
         },
         "package_record": "e02_package_projection",
@@ -11669,6 +11671,45 @@
           ],
           "scope": "Direct probe reproduces 515 failed / 485 valid requested draws while confidence interval remains present and gate_eligible is true; 1000/1000 valid control passes. Persisted report binding and adaptive-stop policy remain absent; no closure."
         }
+      },
+      "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@git-blob:ef85325624efa365cd716b9633dc7ed6f1fe4e56#L127,L130,L320",
+      "blocker_path_scope": "At the only tracked production PropagationDispatcher caller, lines 127–140 dispatch an affine callback; _build_propagation_fn begins at line 320 and uses frozen base metric values plus configured sensitivities. It does not connect an actual simulation evaluator to source-bound draw support or the shared authority consumers. This source-path census scopes the missing capability; it does not claim repository-wide absence of other evaluator types.",
+      "held_audit_receipt_status": "Read-only H-card audit complete; bounded owner-level B194 repair and importer behavior verified at b347c3326765f4d5be8e9e0daaaac59386d92ed0; held pending one served/source-bound producer-to-shared-authority-intake capability. Full four-base P41 and production reader/history replay remain UNRUN.",
+      "bounded_implementation_review": {
+        "identity": "B194 P41 compatibility correction independent review",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/B194_P41_COMPATIBILITY_INDEPENDENT_REVIEW.md@sha256:284c1827c849e3168ed6f521017105b215ba4b69e5dc529dc718c0bff6ae3803",
+        "behavioral_verdict": "GO_BOUNDED",
+        "scope": "Independent review approves the low-valid status correction as the same B194 class, with the legacy insufficient_valid_samples failure label preserved and typed incompleteness carried separately. Review records the marker-retaining removal probe red, paired controls 2/2, importers 34/34, and UQP consumer 1/1; it explicitly leaves full four-base replay, production reader/history replay, deployment identity, anytime-valid stopping, and provenance-size bounds open."
+      },
+      "historical_prior_probe": {
+        "identity": "historical pre-repair partial-draw probe at integration snapshot 12c1c8dba4716e206d72f332caab78d40e2a7f6f",
+        "behavioral_verdict": "PARTIAL",
+        "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
+        "scope": "Historical result: 515 failed / 485 valid requested draws retained a 95% confidence interval and gate_eligible=true; the 1000/1000 valid control passed. This is pre-repair evidence and is not the current implementation result.",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:a02dd569f3a3f6455b4d975642bf356be6f4c3862a16d30b5e23170fe5143286#B194",
+        "witness_refs": [
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+        ]
+      },
+      "h_n_review_disposition": [
+        "smallest_missing_capability",
+        "A served simulation evaluator must produce source/deployment-bound draw support, persist it through the Monte Carlo result/report/envelope, and feed the shared verified authority intake for ConfidencePass, normative arbitration, and decision-packet enrichment.",
+        "Adaptive-width stopping remains candidate-only absent an anytime-valid Monte Carlo confidence-sequence rule; this is a bounded limitation rather than a second blocker to the fixed-draw owner repair."
+      ],
+      "current_hn_review": {
+        "identity": "E02-R2 H/N current evidence reconciliation after bounded B194 owner repair",
+        "classification_at_review": "held",
+        "behavioral_verdict": "PARTIAL",
+        "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#B194",
+        "reviewed_head_or_snapshot": "b347c3326765f4d5be8e9e0daaaac59386d92ed0",
+        "witness_refs": [
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integration-importer-files-restored.junit.xml@sha256:b6beb16e8e8c0cb92631d856e98b092cd41a573bac3cd89b525b17bbc6bd920d",
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integrated-uqp-restored.junit.xml@sha256:5a08780c855d5dc9d0f345650675082a7e0d3d0b6aac1394f016406fbc6e4cd0",
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/B194_P41_COMPATIBILITY_INDEPENDENT_REVIEW.md@sha256:284c1827c849e3168ed6f521017105b215ba4b69e5dc529dc718c0bff6ae3803",
+          "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-current-caller-census.out@sha256:1f54b4f3a72419386e2467bc757c5c142bbd8f7595dff9d59d1497bf3ffbb526"
+        ],
+        "scope": "Current owner-level Monte Carlo/report defect is repaired and bounded behavior is verified: 515/1000 failures remain candidate-only with typed per-draw outcomes; persisted report aggregation and Delta missing/valid controls are exercised; compatibility removal/control and importer receipts pass. The one missing capability is the served source/deployment-bound simulation evaluator to shared verified authority-intake chain. Adaptive stopping remains candidate-only; full four-base and production reader/history replay are UNRUN. The pre-repair 12c result is preserved separately as historical evidence."
       }
     },
     {

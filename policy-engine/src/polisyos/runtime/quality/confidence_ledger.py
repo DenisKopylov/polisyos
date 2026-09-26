@@ -774,6 +774,7 @@ class LoadedDeploymentIdentityObservation(_StrictModel):
     reason_code: Literal[
         "canonical_loaded_runtime_mismatch",
         "canonical_deployment_identity_invalid",
+        "packaged_deployment_identity_issuer_unavailable",
     ] | None = None
 
     @model_validator(mode="after")
@@ -784,6 +785,29 @@ class LoadedDeploymentIdentityObservation(_StrictModel):
         elif self.deployment_identity is not None or self.reason_code is None:
             raise ValueError("loaded_deployment_identity_observation_invalid")
         return self
+
+
+class PackagedDeploymentIdentityReadiness(_StrictModel):
+    """Three-valued installed-package identity readiness from the ledger owner.
+
+    This inspection does not mint a deployment identity or authority receipt.
+    It states which installed-package inputs are absent and keeps the N6
+    strangle census separate from historical replay.
+    """
+
+    schema_version: Literal[
+        "policyos.runtime.confidence_ledger.packaged_identity_readiness.v1"
+    ] = "policyos.runtime.confidence_ledger.packaged_identity_readiness.v1"
+    verdict: Literal["PASS", "FAIL", "UNRUN"]
+    inputs: dict[str, str | bool]
+    unresolved_by_construction: tuple[
+        Literal[
+            "packaged_build_identity_issuer_not_appointed",
+            "n6_strangle_census_not_established",
+            "deployment_authority_issuer_not_appointed",
+        ],
+        ...,
+    ]
 
 
 class ConfidenceLedgerReceipt(_StrictModel):
@@ -4410,9 +4434,16 @@ def _fraction_display(value: Fraction) -> str:
 
 
 def _loaded_policy_engine_root() -> Path:
-    """Return the checkout that supplied the currently imported runtime module."""
+    """Return the source checkout or installed package root for this module."""
 
-    return Path(__file__).resolve().parents[4]
+    module_path = Path(__file__).resolve()
+    checkout_root = module_path.parents[4]
+    if (checkout_root / "src" / "polisyos").is_dir():
+        return checkout_root
+    installed_root = module_path.parents[3]
+    if (installed_root / "polisyos").is_dir():
+        return installed_root
+    return checkout_root
 
 
 def capture_loaded_deployment_identity() -> LoadedDeploymentIdentityObservation:
@@ -4427,7 +4458,7 @@ def capture_loaded_deployment_identity() -> LoadedDeploymentIdentityObservation:
     if not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
         return LoadedDeploymentIdentityObservation(
             status="not_established",
-            reason_code="canonical_loaded_runtime_mismatch",
+            reason_code=_IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON,
         )
     try:
         identity = _deployment_identity_from_baseline(_IMPORT_TIME_DEPLOYMENT_BASELINE)
@@ -4439,6 +4470,40 @@ def capture_loaded_deployment_identity() -> LoadedDeploymentIdentityObservation:
     return LoadedDeploymentIdentityObservation(
         status="established",
         deployment_identity=identity,
+    )
+
+
+def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadiness:
+    """Report installed identity inputs without trusting a self-issued manifest."""
+
+    root = _loaded_policy_engine_root()
+    package_root = root / "polisyos"
+    manifest_path = (
+        package_root
+        / "runtime"
+        / "quality"
+        / "_packaged_deployment_identity.json"
+    )
+    source_checkout = bool(
+        (root / "pyproject.toml").is_file()
+        and (root / "uv.lock").is_file()
+        and (root / "src" / "polisyos").is_dir()
+    )
+    return PackagedDeploymentIdentityReadiness(
+        verdict="UNRUN",
+        inputs={
+            "canonical_identity_owner": "polisyos.runtime.quality.confidence_ledger",
+            "installed_package_root": package_root.as_posix(),
+            "source_checkout_inputs_present": source_checkout,
+            "package_manifest_present": manifest_path.is_file(),
+            "lockfile_present_at_runtime": (root / "uv.lock").is_file(),
+            "n6_census_verdict": "UNRUN",
+        },
+        unresolved_by_construction=(
+            "packaged_build_identity_issuer_not_appointed",
+            "n6_strangle_census_not_established",
+            "deployment_authority_issuer_not_appointed",
+        ),
     )
 
 
@@ -4887,7 +4952,14 @@ def _repository_module_source(
     if module_root not in {"polisyos", "tools"}:
         return None
     module_parts = module_name.split(".")
-    base = Path("src") if module_root == "polisyos" else Path()
+    if module_root == "polisyos":
+        base = (
+            Path("src")
+            if (repo_root / "src" / "polisyos").is_dir()
+            else Path()
+        )
+    else:
+        base = Path()
     package_path = base.joinpath(*module_parts, "__init__.py")
     module_path = base.joinpath(*module_parts).with_suffix(".py")
     # FileFinder resolves a package directory before a same-named module file.
@@ -5826,10 +5898,12 @@ __all__ = [
     "OwnerCertificateBinding",
     "OwnerCertificateEvidence",
     "OwnerCertificateVerification",
+    "PackagedDeploymentIdentityReadiness",
     "PredictableClaimSpec",
     "PromotionCertificateOffer",
     "RationalSpec",
     "capture_loaded_deployment_identity",
+    "inspect_packaged_deployment_identity",
     "load_confidence_ledger_registry",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
@@ -5843,23 +5917,44 @@ __all__ = [
     "validate_confidence_ledger_receipt_structure",
 ]
 
-_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
-    _loaded_policy_engine_root(),
-    __name__,
-)
-(
-    _IMPORT_TIME_DEPLOYMENT_BASELINE,
-    _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
-) = _stable_deployment_snapshot(_loaded_policy_engine_root())
-
-_import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
-
-(
-    _IMPORT_TIME_LOADED_CODE_MANIFEST,
-    _IMPORT_TIME_LOADED_CODE_CONSISTENT,
-) = _loaded_code_manifest(
-    _loaded_policy_engine_root(),
-    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
-)
-if _deployment_quick_fence(_loaded_policy_engine_root()) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
-    raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+_IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "canonical_loaded_runtime_mismatch"
+_IMPORT_TIME_OWNER_ROOT = _loaded_policy_engine_root()
+if (
+    (_IMPORT_TIME_OWNER_ROOT / "pyproject.toml").is_file()
+    and (_IMPORT_TIME_OWNER_ROOT / "uv.lock").is_file()
+    and (_IMPORT_TIME_OWNER_ROOT / "src" / "polisyos").is_dir()
+):
+    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
+        _IMPORT_TIME_OWNER_ROOT,
+        __name__,
+    )
+    (
+        _IMPORT_TIME_DEPLOYMENT_BASELINE,
+        _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
+    ) = _stable_deployment_snapshot(_IMPORT_TIME_OWNER_ROOT)
+    _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
+    (
+        _IMPORT_TIME_LOADED_CODE_MANIFEST,
+        _IMPORT_TIME_LOADED_CODE_CONSISTENT,
+    ) = _loaded_code_manifest(
+        _IMPORT_TIME_OWNER_ROOT,
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+    )
+    if (
+        _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT)
+        != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+else:
+    # An installed package lacks the source checkout's canonical lock/build
+    # inputs until the confidence-ledger build issuer is appointed and wired.
+    # Do not synthesize currentness; history-only callers may still use the
+    # dedicated replay path when their import graph permits it.
+    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = ()
+    _IMPORT_TIME_DEPLOYMENT_BASELINE = None
+    _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = ()
+    _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
+    _IMPORT_TIME_LOADED_CODE_CONSISTENT = False
+    _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = (
+        "packaged_deployment_identity_issuer_unavailable"
+    )

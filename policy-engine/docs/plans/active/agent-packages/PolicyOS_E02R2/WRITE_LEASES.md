@@ -1,5 +1,38 @@
 # E02-R2 write leases
 
+## Active integration lease after `95f082bfd` (2026-09-26)
+
+- The root integrator alone writes `codex/e02-r2`. The R2 package-issuer
+  decision draft is committed; no owner or epoch reissue is authorized.
+- R2's first owner candidate is **NO-GO for class-wide PASS**. An unlisted
+  served sibling can call `run_fixture` yet be excluded from its fixed-root
+  import closure. The independent review is
+  `/Users/deniskopylov/.codex/scratch/e02-r2-owner-attestation-final-20260926/INDEPENDENT_REVIEW.md@sha256:252ff01a35c1da460c13b459aa589574fe42a408a5eb80ea106d6a93e2d7f085`.
+  A widened all-source candidate catches unlisted direct/alias siblings but
+  still returns PASS for an opaque computed `getattr` route outside the fixed
+  closure. This is the second finding of the same P38/P40 class: no more
+  per-route scanner patches; seek a structural owner guard or declare a
+  bounded residual. Package-only currentness remains `UNRUN` without an
+  appointed issuer.
+- The R2 history/currentness patch must be independently admissible while the
+  owner remains `UNRUN`: its GY checker owner import is being made lazy, and a
+  frozen v1–v3 `CandidateLever.target_slot` constraint is being added. R1 owns
+  only `design_problem.py` and mirrored tests until that history lease lands;
+  qualified-slot grammar cannot silently widen historical v3 validation.
+- R5 owns the isolated five-band HTTP/quality dispatch candidate. Its earlier
+  v3 remains **NO-GO**; no R5 source is in the integration tree. The R1 served
+  context bridge follows R5 in overlapping HTTP lifecycle files. R11's public
+  OWR audit found the existing blocked-run validator boundary and prepared a
+  test-only scratch candidate; do not add a duplicate runtime gate without a
+  failing property witness.
+- The strict current Appendix A/B denominator remains 21 files × 4 bases:
+  42 completed JUnit cells, 20 verified absent paths, 22 present `UNRUN`.
+  Small test groups may run concurrently in separate frozen trees while disk
+  stays above 10 GiB and free RAM above 20–30%; no tree is edited during its
+  own run. The full matrix, generated families, guarded epochs, and native
+  jobs remain queued for source freeze and adequate disk. Only Denis empties
+  macOS Trash.
+
 ## Active integration lease at `ce54d6f16` (2026-09-26)
 
 - The root integrator is the sole writer to `codex/e02-r2`; the branch is clean.

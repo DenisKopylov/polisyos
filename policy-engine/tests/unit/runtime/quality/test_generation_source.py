@@ -376,6 +376,122 @@ def test_actual_source_roundtrip_and_repeat_identity(actual_n4_source, tmp_path)
     assert receipt.status == "strangled", receipt.issues
 
 
+def _stub_repeated_occurrence_repository(monkeypatch, problem):
+    """Model replayed handoffs with one candidate identity at two source occurrences."""
+    from types import SimpleNamespace
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import generation_source
+    from polisyos.runtime.quality.generation_cycle import CandidateSummary
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    candidate_id = "candidate-repeated-across-cycles"
+    atom_hash = "sha256:" + "1" * 64
+    identity = (gy_content_hash(problem.model_dump(mode="json")), candidate_id, atom_hash)
+    context = SimpleNamespace(world_model_record=object(), intervention_substrate=None)
+    intervention = SimpleNamespace(intervention_id="intervention-repeated", params={})
+    bundle = SimpleNamespace(
+        policy_spec=SimpleNamespace(interventions=(intervention,)),
+    )
+    handoffs = {
+        f"handoff-cycle-{cycle_index}": SimpleNamespace(
+            cycle_index=cycle_index,
+            identities=lambda: (identity,),
+            source_identity_hash=lambda: "sha256:" + "2" * 64,
+            candidate_sources=(
+                SimpleNamespace(
+                    candidate_id=candidate_id,
+                    intervention_id="intervention-repeated",
+                    grounding_decision_certificate=object(),
+                ),
+            ),
+            generation_result=SimpleNamespace(
+                candidates=(SimpleNamespace(candidate_id=candidate_id, atom=object()),),
+            ),
+            cycle_substrate_context=context,
+            reference=lambda: None,
+            trinity_bundle=bundle,
+        )
+        for cycle_index in (0, 1)
+    }
+    repository = GenerationSourceRepository(store=object())
+    monkeypatch.setattr(repository, "load", lambda ref, *, run_id: handoffs[ref])
+    monkeypatch.setattr(
+        generation_source,
+        "revalidate_cycle_substrate_context",
+        lambda _context: context,
+    )
+    monkeypatch.setattr(n4, "_candidate_parameter_value", lambda *_args, **_kwargs: None)
+
+    def summary(cycle_index):
+        return CandidateSummary(
+            candidate_id=candidate_id,
+            content_hash=atom_hash,
+            cycle_index=cycle_index,
+            proxy_score=0.0,
+            voi_estimate=0.0,
+            grounding_status="grounding_failed",
+            grounding_score=0.0,
+            current_valid=False,
+            front="research",
+            high_proxy=False,
+            low_grounding=True,
+        )
+
+    return repository, handoffs, summary
+
+
+def test_repeated_source_occurrence_preserves_same_occurrence_control(monkeypatch):
+    """A cycle-zero summary resolves to the cycle-zero source returned by replay."""
+    problem = _test_design_problem()
+    repository, handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=tuple(handoffs),
+        run_id="run-with-repeated-source",
+        summary=summary(0),
+        problem=problem,
+    )
+
+    assert resolved.status == "resolved", resolved.code
+    assert resolved.source_ref == "handoff-cycle-0"
+    assert handoffs[resolved.source_ref].cycle_index == 0
+
+
+def test_repeated_candidate_resolves_requested_later_cycle_occurrence(monkeypatch):
+    """The resolver selects cycle one when identity-equivalent sources occur at 0 and 1."""
+    problem = _test_design_problem()
+    repository, handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=tuple(handoffs),
+        run_id="run-with-repeated-source",
+        summary=summary(1),
+        problem=problem,
+    )
+
+    assert resolved.status == "resolved", resolved.code
+    assert resolved.source_ref == "handoff-cycle-1"
+    assert handoffs[resolved.source_ref].cycle_index == 1
+
+
+def test_wrong_source_occurrence_cannot_satisfy_later_cycle_summary(monkeypatch):
+    """A matching candidate from cycle zero cannot stand in for missing cycle one."""
+    problem = _test_design_problem()
+    repository, _handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=("handoff-cycle-0",),
+        run_id="run-with-repeated-source",
+        summary=summary(1),
+        problem=problem,
+    )
+
+    assert resolved.status == "not_established"
+    assert resolved.code == "source_occurrence_missing"
+    assert not resolved.context
+
+
 def test_contract_scope_marks_each_persisted_capsule(tmp_path):
     """Explicit synthetic execution marks the new artifact even with unknown old inputs."""
     from polisyos.core import artifacts

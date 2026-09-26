@@ -535,23 +535,31 @@ class GenerationSourceRepository:
         summary: CandidateSummary,
         problem: DesignProblem,
     ) -> GenerationSourceResolution:
-        """Resolve the whole source set before selecting one exact candidate identity."""
+        """Resolve the whole source set before selecting one exact candidate occurrence."""
         if len(refs) != len(set(refs)):
             return GenerationSourceResolution(status="not_established", code="source_ref_duplicate")
         problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         identity = (problem_ref, summary.candidate_id, summary.content_hash)
+        identity_matches = []
         matched = []
         try:
             for ref in refs:
                 artifact = self.load(ref, run_id=run_id)
                 if identity in artifact.identities():
-                    matched.append((ref, artifact))
+                    identity_matches.append((ref, artifact))
+                    if artifact.cycle_index == summary.cycle_index:
+                        matched.append((ref, artifact))
         except (KeyError, OSError, ValueError, TypeError):
             return GenerationSourceResolution(status="not_established", code="source_replay_failed")
-        if not matched or len({item.source_identity_hash() for _, item in matched}) != 1:
+        if not matched:
             return GenerationSourceResolution(
                 status="not_established",
-                code="source_missing" if not matched else "source_ambiguous",
+                code="source_occurrence_missing" if identity_matches else "source_missing",
+            )
+        if len({item.source_identity_hash() for _, item in matched}) != 1:
+            return GenerationSourceResolution(
+                status="not_established",
+                code="source_ambiguous",
             )
         ref, artifact = matched[0]
         source = next(

@@ -1,5 +1,36 @@
 # E02-R2 write leases
 
+## Active integration lease at `02b7f5e3c` (2026-09-26)
+
+- The root integrator is the only writer to `codex/e02-r2`. The branch contains
+  the reviewed LA-049 bounded repair. Three uncommitted R2 prototype files are
+  owned by the root: `generation_cycle.py`, `recursive_generation_cycle.py`, and
+  `test_generation_cycle.py`. The prototype is **NO-GO** until the canonical
+  deployment identity binds an N6 route attestation; its complete patch is kept
+  at `/Users/deniskopylov/.codex/scratch/e02-r2-currentness-prototype-20260926/NO_GO_PROTOTYPE.patch@sha256:09a74c989dc53868d2bfcf6cbb19bdab0f2be868322c94a0eeb2deb6755447b5`.
+- R2 confidence-ledger attestation and v4 history/schema authors work only in
+  scratch against the committed head. They share the R2 interface but do not
+  edit the integration tree. The root integrates one reviewed combined delta,
+  verifies historical replay and the served authority/candidate split, then
+  commits the class. A separate independent reviewer examines that combined
+  delta before integration.
+- R14 guardrail interruption has a four-file scratch patch touching only
+  `tools/cli.py`, `tools/devx/architecture/guardrails.py`, and their mirrored
+  repository-quality tests. Its second review found a same-class run-cursor
+  escape; the author is widening that one mechanism. Admit it only after a
+  delta review and marker-retaining removal probes. The full guardrail is
+  deferred until source is frozen and disk remains at least 13 GiB free.
+- R11 S8 blocked-run work owns only `value_choice_provenance.py` and its
+  normative consumer test in scratch, behind R2's schema handoff. B88's replay
+  mode candidate owns `run_lifecycle.py` before the R5 durable-intent candidate;
+  R5 stays read-only on that shared source until B88 is integrated. These
+  candidates do not write the integration tree or each other's scratch files.
+- Limit measured test process groups to four or five light jobs while retaining
+  20–30% RAM and 10 GiB free disk. Heavy native jobs and the full guardrail are
+  exclusive. Production data remains a read-only symlink; never copy or write it.
+  No source tree is edited during its test run. No branch is pushed or merged to
+  main, and only the user empties macOS Trash.
+
 ## Handoff after `0c80c296c` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator remains the sole writer of `codex/e02-r2`; the branch is

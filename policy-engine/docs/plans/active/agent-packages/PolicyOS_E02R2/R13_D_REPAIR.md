@@ -58,9 +58,8 @@ Implementation inputs: `src/polisyos/runtime/quality/generation_cycle.py@sha256:
   base JUnit:
   `/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/value_gate_selector/junit.xml@sha256:578e563669c056b11fbd281a3f4d438067f07d141a5b38718187465542f3629e`.
 
-The tests use a symlink to read-only
-`/Users/deniskopylov/polisyos/policy-engine/production_data`; its
-`manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`
+The tests use a symlink to read-only `production_data`;
+`/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`
 identifies the data input. No bulk data is copied into receipts.
 
 ## Gate predicates and limits

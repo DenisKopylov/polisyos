@@ -2054,6 +2054,12 @@
             "identity": "B31 production N8 uncertainty bridge source investigation",
             "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-emp01-held-investigation-20260925.md@sha256:a012e839dbbab3b4e5eb59accfac04b2aa6c5808df0d642e418cf944a1f5a459",
             "scope": "Read-only owner/call-path census; no test, removal probe, served positive result, or P41 closure."
+          },
+          {
+            "behavioral_verdict": "UNRUN",
+            "identity": "B31 complete tracked production-source census",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/B31-HELD-FOLLOWUP-20260926.md@sha256:02cd897dc540ac01ee55edbd6ea861133296d084fb625f33ca84daa5aba7711c",
+            "scope": "Static source-only inventory pinned at d4c5ae77751db0e681c520e5823952a4a451094b: 3,929 tracked production-source files; instrument /Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.py@sha256:21cff62ad2a9cdc0cd417780c1389ec4b02af26dfc0097c61767c1edad70d86e; result /Users/deniskopylov/.codex/scratch/e02-r2-b31-production-census-20260925/census-v4.json@sha256:7341d659b72f4cd488a296b0e5604cb1d9c22e13a66efaa0736ebc16d97b3375. The helper has no product-source callsite and the served path stops before a positive estimator result. No behavioral closure, removal/control, or P41 evidence."
           }
         ]
       }
@@ -6597,7 +6603,7 @@
       "appendix_c_status": "no_finding_level_record",
       "status": "partial",
       "appendix_c_comparison": {
-        "detail": "Appendix C accurately records that E02 had no finding-level record. The later N finding-level matrix supports only partial status for B111; it does not claim closure or package acceptance as finding evidence. Current R6 whole-file selectors show the direct changed-population/model and revised-occurrence checks pass. Full positive second-cycle promotion/consumer and other residuals remain.",
+        "detail": "Appendix C had no finding-level record. Source review finds ordinary evaluator canonical JSON persistence rejects non-finite values, while ChampionRegistry genesis checks for `None` and may skip numeric comparison; a raw/legacy typed-reference bypass is only a source-level hypothesis. The cited whole-file snapshot is 35/35 passing but does not establish B111's non-finite metric/genesis discriminator. Registry-boundary NaN/+infinity/-infinity negative, finite-value control, and exact four-base replay remain UNRUN. This is an evidence gap, not behavior failure or closure.",
         "relation": "source_review_refines_no_record"
       },
       "residual": "B111 requires input permutations not to change the numeric Pareto front; invalid entries retain their reason; reference-point/hypervolume values are finite or explicitly unavailable; first-champion genesis and later promotion never publish undefined scores. Ordinary evaluator persistence rejects non-finite JSON, but `ChampionRegistry` genesis checks for `None` and can skip comparison. A raw/legacy typed-ref bypass is plausible, not runtime-proven. Next step: run the Pareto selectors and add a native-store registry-boundary NaN/±infinity test before genesis, with finite positive control; trace raw/legacy ref admission through that boundary. P38: Pareto filtering does not guard the separate registry promotion path. Provisional source-review status is open; all selectors/four-base replay are UNRUN.\n\nFinding-level matrix addendum (partial; no closure): Preserve invalid reason through native CAS and upstream guard; no genesis or champion change publishes undefined metric/hypervolume.",

@@ -1,5 +1,44 @@
 # E02-R2 write leases
 
+## Handoff after `5619eae65` (2026-09-26; supersedes older snapshots below)
+
+- The root integrator remains the sole writer of `codex/e02-r2`; it is clean at
+  this handoff. R13-D is committed at `ea422219b` with exact N5/N8 runtime-store
+  continuity, nine focused passes, removal-red probes, and zero pass→fail in
+  its two whole-file slice-base comparisons. Persistent acquisition/parent
+  reds reproduce at the slice base, but strict P41 ownership is
+  `not_established`, not inherited. R13-D does not close R13.
+- The R2 confidence-ledger **leaf** identity boundary is committed at
+  `5619eae65`: integrated 8/8, Ruff PASS, installed identity absence typed
+  `UNRUN`. It does not establish ordinary source-free package import or N6
+  history replay. The scratch eager-initializer attempt is NO-GO under P40;
+  the dedicated history-owner candidate now owns only its own scratch files.
+- R13-G has the isolated writer branch `codex/e02-r13-g-candidate` at
+  `/Users/deniskopylov/.codex/worktrees/e02-r13-g-candidate/polisyos`, starting
+  from `ea422219b`. It is the sole writer there. Its write set is the existing
+  composed-WMR producer/reader and named HTTP runtime-store handoff; no NCM
+  producer is appointed, so it must not synthesize one or claim a positive
+  served NCM result. It must finish independent review and focused tests before
+  any application to the integration branch. This candidate tree shares the
+  read-only production-data symlink and existing `.venv` by symlink.
+- R1's selector/profile bridge is scratch-only. The principal chose the real
+  owner-bound N4→N5→S8 path for the old normative fixtures. A bounded
+  candidate-only change may be reviewed separately but does not discharge
+  that choice. Its source lease must follow R13-G's WMR/store handoff because
+  both touch `intervention_substrate.py` and HTTP composition. R2 history-owner
+  work also overlaps `generation_cycle.py` and waits for a clean integration
+  lease; no scratch agent writes the shared tree.
+- H14 and N18 record reconciliation runs in scratch without heavy tests.
+  The shared branch has no H/N ledger edit admitted yet. The full 21-file
+  four-base matrix, all touched-file replay, R2 packaged history, R1 positive
+  S8, and R13 WMR/NCM custody remain explicit open gates.
+- Resource admission: at most four to five measured test groups, at least
+  20–30% RAM free and 10 GiB free disk. Current available disk was about
+  12.4 GiB after the R13-G worktree; new worktrees/environments require a
+  fresh `df` check. Reuse `.venv`, never copy or write `production_data`, and
+  never edit a tree under test. Trash may receive retired worktrees, but only
+  the user empties it.
+
 ## Handoff after `d76fbf022` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator is the sole writer of `codex/e02-r2`. R13-E is committed at

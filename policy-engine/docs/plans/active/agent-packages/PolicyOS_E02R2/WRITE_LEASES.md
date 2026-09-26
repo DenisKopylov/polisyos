@@ -1,6 +1,6 @@
 # E02-R2 write leases
 
-## Handoff after `d782e7ea1` (2026-09-26; supersedes older snapshots below)
+## Handoff after `d76fbf022` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator is the sole writer of `codex/e02-r2`. R13-E is committed at
   `d782e7ea1`: the supplied Foundry store and selected CAS view pass the integrated
@@ -15,10 +15,12 @@
   N5/N8 revision; independent delta review must precede integration. R13-F's
   contract-only route store and R2's currentness consumer wait for that lease.
 - R1's target-scope profile is a scratch-only candidate. Its existing write set is
-  `data_state_substrate.py`, `cycle_substrate.py`, HTTP control generation/lifecycle,
+  `data_state_substrate.py`, `world_model_record.py`, HTTP control generation/lifecycle,
   and their tests. It lacks a production job producer/consumer bridge and a served
   N4→N5 witness; protected S8 still requires an appointed scope issuer and current
-  evidence. Do not integrate it as a completed R1 capability. The R2 cold-start
+  evidence. Independent review is NO-GO for completed R1; the profile DTO also
+  advertises arbitrary scope while its WMR builder remains fixed to UA. Do not
+  integrate it as a completed R1 capability. The R2 cold-start
   package-identity candidate remains scratch-only and cannot grant authority from
   a synthetic manifest or an UNRUN N6 census.
 - **P41 test-origin correction:** the first supplementary R13-C four-base wave
@@ -28,7 +30,9 @@
   establish those bases' test outcomes. The corrected harness uses an absolute
   target test path and checks every collected item's path and Git blob. The broker
   runs historical trees separately; current-head tests wait for the next source
-  freeze. Preserve the invalid receipts with their `UNRUN` attribution.
+  freeze. Preserve the invalid receipts with their `UNRUN` attribution. The
+  corrected three-base history and 364-module R14 denominator are committed in
+  `BASELINES.md` at `d76fbf022`; neither is a current-head green replay.
 - B72 and B111 candidates are reviewed or under review in isolated scratch and
   wait behind the R classes. Keep no more than four or five measured test process
   groups, at least 20–30% RAM free and 10 GiB disk free. Never edit a tree during

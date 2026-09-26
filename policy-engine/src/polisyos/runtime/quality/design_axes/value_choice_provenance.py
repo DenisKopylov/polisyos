@@ -8,8 +8,7 @@ from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from contextvars import ContextVar
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any, Literal, Self, cast
+from typing import TYPE_CHECKING, Any, Literal, Self, cast
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
@@ -21,6 +20,9 @@ from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     P26ResponsibilityIntegrityError,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s8_value_choice.v1"
 LAYER2_S8_VALUE_CHOICE_RULE_VERSION = "policyos.layer2.s8.value_choice.v1"
@@ -1086,7 +1088,12 @@ class NormativeValueScheduleOwner:
         result = None
         bundle_ref = None
         reason = input_limitation or "p20_normative_authorization_missing"
-        if evidence is not None and input_limitation is None:
+        if run.terminal_status == "blocked":
+            # A signed value schedule cannot reopen a blocked generation source.
+            # Keep the unvalued fronts and the source-bound request visible, but
+            # never call the S8 ranking owner for this run.
+            reason = "p20_normative_generation_source_blocked"
+        elif evidence is not None and input_limitation is None:
             try:
                 frontier = ParetoArchive.model_validate(
                     self._read(

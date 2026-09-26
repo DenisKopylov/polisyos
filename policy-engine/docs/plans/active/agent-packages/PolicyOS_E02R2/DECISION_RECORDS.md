@@ -51,17 +51,26 @@ evidence must exist before S8 may emit a ranked recommendation?
    selector; neither `execution_profile` nor caller context is that selector.
    For candidate-only work, try the existing canonical producer with absent context
    typed `not_established`. Candidate computation may proceed without claiming N5
-   simulation or authority. Persist the typed unknown in the existing
-   content-hashed `CompiledRecursiveGenerationCycleRun` as schema v2 and preserve
-   byte-exact historical v1 serialization. S8 remains blocked/limited until it
+   simulation or authority. When the job has both tenant and cell IDs, a successful
+   no-context proposal is persisted as `N4CandidateProposalRecord.v1` with the
+   `cycle_substrate_context_unavailable` limitation. Without that owner scope,
+   proposal persistence remains `not_established` and there is no proposal ref.
+   This proposal-only route does not produce a `CompiledRecursiveGenerationCycleRun`.
+   If N4 returns `generation_unavailable` or `preflight_rejected`, complete the job
+   with result status `not_established`, no proposal ref or artifact, and
+   N5/N8/N9/S8 stage statuses `not_run`. S8 authority remains unavailable on all
+   these limited paths. Do not enter recursive simulation to manufacture
+   blocked observations. A later compiled-run route would need its own versioned
+   limitation and byte-exact historical serializer. S8 remains blocked/limited until it
    loads the real persisted N4 handoff and existing owners establish tenant binding
-   and context currentness. Cost: payload/event binding, dispatch reconciliation,
-   and v2/v1 replay. This reuses the job payload, event/outbox, CAS, and
+   and context currentness. Cost: payload/event binding and dispatch reconciliation;
+   a later compiled-run route would additionally require versioned replay. This
+   reuses the job payload, event/outbox, CAS, and
    `GenerationSourceRepository`; it adds no standalone admission artifact, public
    status DTO, or second context owner. The ControlPlane/HTTP and runtime-quality
    owners pay for payload/event binding and dispatch wiring; the N4 source owner
    pays the handoff integration; test and package owners pay for served witnesses
-   and historical v1/v2 replay.
+   and any compiled-run historical replay needed by that later route.
 4. **Conditional only — add a standalone CAS admission artifact or retry-successor
    chain.** These duplicate intent already bound by the payload and event/outbox and
    add artifact lifecycle, read paths, and retry machinery. Consider a separate CAS
@@ -132,10 +141,11 @@ store write set and requires its shared lease. R1 must not build a competing own
 authority. No independent pre-N4 owner persists and resolves a tenant-bound root
 context. The compiled wrapper records `cycle_substrate_context_ref` as a
 content-hash string, not an `ArtifactRef` or tenant-bound manifest, and currently
-has no typed field preserving an absent context as `not_established`. Extend this
-same hashed wrapper to schema v2 with that typed limitation and an exact v1
-historical projection; S8 must load/consume the v2 limitation alongside signed
-evidence. The current
+has no typed field preserving an absent context as `not_established`. If a later
+compiled-run route carries absent context, version this hashed wrapper with that
+typed limitation and an exact historical projection; S8 must load and consume the
+limitation alongside signed evidence. The current no-context proposal-only route
+does not write this wrapper. The current
 `GenerationSourceRepository` persists an actual `DesignGenerationOrganRun` and its
 context through the runtime store, then validates its owner profile, CAS bytes,
 problem, candidate, and context on replay. This existing handoff is the durable N4
@@ -237,13 +247,16 @@ ruling and witness.
   remains current against its WMR and tenant scope is `not_established`. A stale or
   unknown context blocks S8 authority. Signed-value decisions still require their
   own owner verifier and current epoch evidence (`independently_reconciled`).
-- When context is absent, or tenant binding/currentness lacks owner evidence,
-  persist a typed `not_established` substrate-context limitation in the existing
-  content-hashed compiled wrapper v2, with a byte-exact v1 historical projection
-  that excludes the new field. S8 must consume this limitation alongside signed
-  evidence; signed-frontier validity cannot establish tenant binding or context
-  currentness, which remain `not_established` until their existing owners provide
-  those predicates.
+- On the no-context proposal-only route with tenant and cell IDs,
+  `N4CandidateProposalRecord.v1` carries `cycle_substrate_context_unavailable`
+  after successful N4 work. Without that scope, persistence is `not_established`
+  with no proposal ref. A terminal N4 unavailability completes the job with
+  result `not_established`, no proposal artifact, and N5/N8/N9/S8 `not_run`;
+  this stage status does not grant S8 authority. If a later compiled-run route admits absent context,
+  version its hashed wrapper and preserve historical serialization. S8 must consume
+  any such limitation alongside signed evidence; signed-frontier validity cannot
+  establish tenant binding or context currentness, which remain
+  `not_established` until their existing owners provide those predicates.
 
 **P38 — property and divergence.** Property: ordinary requests retain candidate
 reachability under unknown context, while S8 ranking requires a real N4 handoff,

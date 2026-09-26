@@ -4085,28 +4085,36 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
+            if (
+                terminal_status != "blocked"
+                and cycle.voi_decision.next_action == "blocked"
+            ):
+                terminal_status = "blocked"
+                blocked_reason = cycle.voi_decision.reason
+                cycle = _blocked_cycle(cycle, reason=blocked_reason)
             acquisition_receipt: AcquisitionReceipt | None = None
-            try:
-                planned_route = self._plan_n7_requirement_gap_if_requested(
-                    current_problem,
-                    cycle=cycle,
-                )
-                if planned_route is not None:
-                    routing_report, cost_basis = planned_route
-                    cycle = _cycle_with_acquisition_routing_report(
-                        cycle,
-                        report=routing_report,
-                        cost_basis=cost_basis,
-                    )
-                else:
-                    acquisition_receipt = self._run_n7_acquisition_if_requested(
+            if terminal_status != "blocked":
+                try:
+                    planned_route = self._plan_n7_requirement_gap_if_requested(
                         current_problem,
                         cycle=cycle,
                     )
-            except GenerationCycleError as exc:
-                if exc.code not in _N7_ROUTING_FAILURE_CODES:
-                    raise
-                cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
+                    if planned_route is not None:
+                        routing_report, cost_basis = planned_route
+                        cycle = _cycle_with_acquisition_routing_report(
+                            cycle,
+                            report=routing_report,
+                            cost_basis=cost_basis,
+                        )
+                    else:
+                        acquisition_receipt = self._run_n7_acquisition_if_requested(
+                            current_problem,
+                            cycle=cycle,
+                        )
+                except GenerationCycleError as exc:
+                    if exc.code not in _N7_ROUTING_FAILURE_CODES:
+                        raise
+                    cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
             if acquisition_receipt is not None:
                 cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
                     current_problem,
@@ -4142,12 +4150,21 @@ class GenerationCycleController:
 
         promotion_summaries = _current_candidate_summaries(tuple(summaries))
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
-        promotion = self._promote_completed_generation(
-            summaries=promotion_summaries,
-            problem=last_cycle_problem,
-            design_problem_basis_ref=promotion_basis_ref,
-            deployment_identity=deployment_identity,
-        )
+        if terminal_status == "blocked":
+            promotion = PromotionPortObservation(
+                status="not_promoted",
+                reason=(
+                    "generation_cycle_blocked_before_n9:"
+                    f"{blocked_reason or 'generation_cycle_blocked'}"
+                ),
+            )
+        else:
+            promotion = self._promote_completed_generation(
+                summaries=promotion_summaries,
+                problem=last_cycle_problem,
+                design_problem_basis_ref=promotion_basis_ref,
+                deployment_identity=deployment_identity,
+            )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
             promotion,
@@ -6418,6 +6435,64 @@ def _validate_generation_cycle_run(
         issues.append({"code": "terminal_denominator_not_derived"})
     if not run.cycles:
         issues.append({"code": "cycle_denominator_empty"})
+    if run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+        blocked_action_indexes = tuple(
+            index
+            for index, cycle in enumerate(run.cycles)
+            if cycle.voi_decision.next_action == "blocked"
+        )
+        if blocked_action_indexes:
+            if blocked_action_indexes != (len(run.cycles) - 1,):
+                issues.append({"code": "voi_blocked_action_not_final"})
+            if run.terminal_status != "blocked":
+                issues.append({"code": "voi_blocked_action_run_terminal_mismatch"})
+
+        if run.terminal_status == "blocked":
+            if not run.blocked_reason:
+                issues.append({"code": "generation_cycle_blocked_reason_missing"})
+            elif run.cycles:
+                final_cycle = run.cycles[-1]
+                if (
+                    final_cycle.refinement_decision.decision != "block_candidate"
+                    or final_cycle.search_iteration.status != "blocked_no_retry"
+                ):
+                    issues.append(
+                        {"code": "generation_cycle_blocked_terminal_projection_mismatch"}
+                    )
+                if final_cycle.refinement_decision.reason != run.blocked_reason:
+                    issues.append(
+                        {"code": "generation_cycle_blocked_reason_projection_mismatch"}
+                    )
+                voi_reason = (
+                    final_cycle.voi_decision.reason
+                    if final_cycle.voi_decision.next_action == "blocked"
+                    else None
+                )
+                recomputed_guard_reason = _generation_cycle_block_guard_reason(run)
+                cause_is_reconciled = run.blocked_reason == voi_reason or (
+                    run.blocked_reason == recomputed_guard_reason
+                )
+                safety_cap_has_expected_shape = (
+                    run.blocked_reason == "voi_safety_cap_reached_without_scheduler_stop"
+                    and final_cycle.voi_decision.next_action == "advance"
+                )
+                if not (cause_is_reconciled or safety_cap_has_expected_shape):
+                    issues.append({"code": "generation_cycle_block_cause_not_reconciled"})
+
+            expected_n9_refusal = (
+                "generation_cycle_blocked_before_n9:"
+                f"{run.blocked_reason or 'generation_cycle_blocked'}"
+            )
+            if (
+                run.promotion_port.status != "not_promoted"
+                or run.promotion_port.reason != expected_n9_refusal
+                or run.promotion_port.certified_candidate_ids
+                or run.promotion_port.receipts
+                or run.promotion_port.strangle_receipt is not None
+                or run.promotion_port.pre_n9_open_world_gates
+            ):
+                issues.append({"code": "blocked_generation_cycle_n9_admission_mismatch"})
+
     for index, cycle in enumerate(run.cycles):
         if cycle.terminal_kind not in expected_denominator:
             issues.append(
@@ -6600,6 +6675,16 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             kind=SearchTerminalKind.RECURSIVE_BLOCKED,
             reason="The canonical generation cycle emitted no executable cycle.",
             blocking_obligations=["cycle_denominator_empty"],
+        )
+    if (
+        run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+        and run.terminal_status != "blocked"
+        and any(cycle.voi_decision.next_action == "blocked" for cycle in run.cycles)
+    ):
+        return SearchTerminalState(
+            kind=SearchTerminalKind.RECURSIVE_BLOCKED,
+            reason="The N6 VOI action is blocked but its enclosing run is not.",
+            blocking_obligations=["voi_blocked_action_run_terminal_mismatch"],
         )
     if run.terminal_status == "blocked":
         reason = run.blocked_reason or "generation_cycle_blocked"
@@ -9576,6 +9661,43 @@ def _cycle_record(
     )
 
 
+def _generation_cycle_block_guard_reason(run: GenerationCycleRun) -> str | None:
+    """Recompute an N6 progress guard from the final persisted cycle where possible.
+
+    The safety-cap cause cannot be recomputed because ``max_cycles`` is not a run
+    field. A first-cycle owner-grammar refusal can also lack its pre-cycle problem
+    snapshot. Callers must keep those limits distinct from VOI-originated blocks.
+    """
+
+    if not run.cycles:
+        return None
+    final_cycle = run.cycles[-1]
+    if len(run.cycles) > 1:
+        prior_cycle = run.cycles[-2]
+        fake_reason = _fake_cycle_reason(prior_cycle, final_cycle)
+        if fake_reason is not None:
+            return fake_reason
+        current_problem = prior_cycle.revision_request.revised_problem
+    else:
+        current_problem = None
+    try:
+        enforce_no_retry_without_new_grammar(
+            previous_candidate_ref=final_cycle.selected_candidate_ref,
+            next_candidate_ref=final_cycle.revision_request.next_candidate_ref,
+            previous_grammar_elements=(
+                final_cycle.revision_request.previous_grammar_elements
+            ),
+            next_grammar_elements=final_cycle.revision_request.next_grammar_elements,
+            introduced_grammar_elements=(
+                final_cycle.revision_request.new_grammar_elements
+            ),
+            design_problem=current_problem,
+        )
+    except GenerationCycleError as exc:
+        return exc.code
+    return None
+
+
 def _cycle_basis_ref(cycle: GenerationCycleRecord) -> str:
     """Return the active problem basis for one cycle record.
 
@@ -9596,22 +9718,10 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
         }
     )
     iteration = cycle.search_iteration.model_copy(update={"status": "blocked_no_retry"})
-    voi = cycle.voi_decision.model_copy(
-        update={
-            "next_action": "blocked",
-            "reason": reason,
-            "scheduler_action": (
-                cycle.voi_decision.scheduler_action
-                if cycle.voi_decision.scheduler_action != "pending"
-                else "blocked"
-            ),
-        }
-    )
     return cycle.model_copy(
         update={
             "refinement_decision": decision,
             "search_iteration": iteration,
-            "voi_decision": voi,
         }
     )
 

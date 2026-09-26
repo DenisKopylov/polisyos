@@ -516,6 +516,30 @@ class _CurrentValidGrounding:
         )
 
 
+class _CurrentValidRepairGrounding:
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="current_valid",
+            grounding_score=0.95,
+            issue_codes=("missing_supporting_data",),
+            evidence_refs=("evidence://b29/current-valid-repair",),
+            current_valid=True,
+            report_ref="grounding://b29/current-valid-repair",
+            grounding_source="cgf_firewall",
+            grounding_disposition="current_valid",
+            quarantine_action="adversarial_validate",
+        )
+
+
 def _ready_value_observation(candidate_id: str) -> ValuePortObservation:
     """Build a small owner-shaped N8 receipt for terminal projection tests."""
 
@@ -3468,13 +3492,103 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     )
     assert run.cycles[1].revision_driver == "counterexample"
     assert run.cycles[0].voi_decision.next_action == "advance"
-    assert run.cycles[-1].voi_decision.next_action in {"stop", "escalate"}
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "fake_cycle_same_candidate_repeated"
+    assert run.cycles[-1].voi_decision.next_action == "advance"
+    assert run.cycles[-1].voi_decision.reason == "voi_scheduler_advanced"
+    assert run.cycles[-1].refinement_decision.decision == "block_candidate"
+    assert run.cycles[-1].search_iteration.status == "blocked_no_retry"
     assert run.fronts.decision.candidate_ids == ()
     assert run.fronts.quarantine.candidate_ids == ("candidate_cycle_1",)
     assert run.fronts.research.candidate_ids == ("candidate_cycle_2",)
     assert run.fronts.portfolio.candidate_ids == ()
     assert run.value_port.status == "value_pending_n8"
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    validation_codes = {
+        issue.get("code")
+        for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+    }
+    # This hash-only repeat guard remains diagnostic, not producer-byte proof.
+    assert "fake_cycle_same_candidate_repeated" in validation_codes
+
+
+@pytest.mark.asyncio
+async def test_blocked_voi_action_blocks_run_and_recursive_terminal(tmp_path: Path) -> None:
+    class _BlockedActionController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.n7_route_checks = 0
+            self.promotion_calls = 0
+
+        def _promote_completed_generation(self, **kwargs: Any) -> Any:
+            self.promotion_calls += 1
+            return generation_cycle_module.PromotionPortObservation(
+                status="not_promoted", reason="scratch_promotion_spy"
+            )
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "blocked", "reason": "explicit_voi_block"}
+            )
+
+        def _plan_n7_requirement_gap_if_requested(
+            self, problem: DesignProblem, *, cycle: Any
+        ) -> None:
+            del problem, cycle
+            self.n7_route_checks += 1
+            return None
+
+    controller = _BlockedActionController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+    )
+    run = await controller.run(
+        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
+    )
+
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "explicit_voi_block"
+    assert len(run.cycles) == 1
+    assert run.cycles[-1].voi_decision.next_action == "blocked"
+    assert run.cycles[-1].voi_decision.reason == "explicit_voi_block"
+    assert run.cycles[-1].refinement_decision.decision == "block_candidate"
+    assert run.cycles[-1].search_iteration.status == "blocked_no_retry"
+    assert controller.n7_route_checks == 0
+    assert controller.promotion_calls == 0
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == "generation_cycle_blocked_before_n9:explicit_voi_block"
+    terminal = generation_cycle_terminal_state(run)
+    assert terminal.kind.value == "recursive_blocked"
+    assert terminal.blocking_obligations == ["explicit_voi_block"]
+
+    removed_projection = run.model_copy(
+        update={"terminal_status": "completed", "blocked_reason": None}
+    )
+    issues = generation_cycle_module._validate_generation_cycle_run(
+        removed_projection, require_currentness=False
+    )
+    assert "voi_blocked_action_run_terminal_mismatch" in {
+        issue.get("code") for issue in issues
+    }
+    assert generation_cycle_terminal_state(removed_projection).kind.value == "recursive_blocked"
+
+    retained_promotion_marker = run.model_copy(
+        update={
+            "promotion_port": generation_cycle_module.PromotionPortObservation(
+                status="certified_current_valid",
+                certified_candidate_ids=("candidate_cycle_1",),
+                receipts=({"marker": "retained_without_n9_owner"},),
+            )
+        }
+    )
+    promotion_issues = generation_cycle_module._validate_generation_cycle_run(
+        retained_promotion_marker, require_currentness=False
+    )
+    assert "blocked_generation_cycle_n9_admission_mismatch" in {
+        issue.get("code") for issue in promotion_issues
+    }
 
 
 @pytest.mark.asyncio
@@ -3790,11 +3904,104 @@ async def test_controller_refuses_live_retry_without_new_grammar() -> None:
 
     assert run.terminal_status == "blocked"
     assert run.blocked_reason == "no_retry_without_new_grammar"
+    assert run.cycles[0].voi_decision.next_action == "advance"
+    assert run.cycles[0].voi_decision.reason == "voi_scheduler_advanced"
     assert run.cycles[0].refinement_decision.decision == "block_candidate"
+    assert run.cycles[0].refinement_decision.reason == "no_retry_without_new_grammar"
     assert run.cycles[0].search_iteration.status == "blocked_no_retry"
+    guard_issues = generation_cycle_module._validate_generation_cycle_run(
+        run, require_currentness=False
+    )
+    assert "generation_cycle_block_cause_not_reconciled" not in {
+        issue.get("code") for issue in guard_issues
+    }
     terminal = generation_cycle_terminal_state(run)
     assert terminal.kind.value == "recursive_blocked"
     assert terminal.blocking_obligations == ["no_retry_without_new_grammar"]
+
+
+@pytest.mark.parametrize(
+    ("block_path", "expected_reason", "max_cycles"),
+    [
+        ("retry_guard", "no_retry_without_new_grammar", 3),
+        (
+            "cycle_safety_cap",
+            "voi_safety_cap_reached_without_scheduler_stop",
+            1,
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_guard_or_safety_cap_block_skips_n9_for_current_valid_candidate(
+    block_path: str,
+    expected_reason: str,
+    max_cycles: int,
+) -> None:
+    class _PromotionSpyController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.promotion_calls = 0
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            # Isolate the guard/cap boundary with the same candidate-bearing action.
+            return decision.model_copy(
+                update={"next_action": "advance", "reason": "voi_scheduler_advanced"}
+            )
+
+        def _promote_completed_generation(self, **kwargs: Any) -> Any:
+            self.promotion_calls += 1
+            return generation_cycle_module.PromotionPortObservation(
+                status="not_promoted", reason="scratch_promotion_spy"
+            )
+
+    controller = _PromotionSpyController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidRepairGrounding(),
+        value_port=PendingN8ValuePort(),
+        revision_policy=(
+            _NoNewGrammarRevision() if block_path == "retry_guard" else None
+        ),
+    )
+    run = await controller.run(
+        _problem(f"blocked_valid_candidate_{block_path}"),
+        budget_state=_budget(),
+        max_cycles=max_cycles,
+    )
+
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == expected_reason
+    assert len(run.cycles) == 1
+    assert run.cycles[0].grounding.current_valid is True
+    assert run.cycles[0].voi_decision.next_action == "advance"
+    assert run.cycles[0].voi_decision.reason == "voi_scheduler_advanced"
+    assert controller.promotion_calls == 0
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == (
+        f"generation_cycle_blocked_before_n9:{expected_reason}"
+    )
+    issues = generation_cycle_module._validate_generation_cycle_run(
+        run, require_currentness=False
+    )
+    assert "blocked_generation_cycle_n9_admission_mismatch" not in {
+        issue.get("code") for issue in issues
+    }
+
+    forged_promotion = run.model_copy(
+        update={
+            "promotion_port": generation_cycle_module.PromotionPortObservation(
+                status="certified_current_valid",
+                certified_candidate_ids=(run.cycles[0].selected_candidate_ref,),
+                receipts=({"marker": "retained_without_n9_owner"},),
+            )
+        }
+    )
+    forged_issues = generation_cycle_module._validate_generation_cycle_run(
+        forged_promotion, require_currentness=False
+    )
+    assert "blocked_generation_cycle_n9_admission_mismatch" in {
+        issue.get("code") for issue in forged_issues
+    }
 
 
 @pytest.mark.asyncio
@@ -6290,3 +6497,71 @@ def test_generation_cycle_contract_cli_preserves_final_scope_and_reports_open_cu
         for issue in report["issues"]
     )
     assert any(issue.get("code") == "strangle_receipt_stale" for issue in report["issues"])
+
+
+@pytest.mark.asyncio
+async def test_blocked_voi_action_does_not_enter_n9_promotion_owner(tmp_path: Path) -> None:
+    class _PromotionSpyController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.promotion_calls = 0
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "blocked", "reason": "explicit_voi_block"}
+            )
+
+        def _promote_completed_generation(self, **kwargs: Any) -> Any:
+            self.promotion_calls += 1
+            return generation_cycle_module.PromotionPortObservation(
+                status="not_promoted", reason="scratch_promotion_spy"
+            )
+
+    controller = _PromotionSpyController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+    )
+    run = await controller.run(
+        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
+    )
+    # Put the owner-entry predicate first to identify the N9-boundary removal red.
+    assert controller.promotion_calls == 0
+    assert run.terminal_status == "blocked"
+    assert run.promotion_port.status == "not_promoted"
+
+
+@pytest.mark.asyncio
+async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) -> None:
+    class _PromotionSpyController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.promotion_calls = 0
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+        def _promote_completed_generation(self, **kwargs: Any) -> Any:
+            self.promotion_calls += 1
+            return generation_cycle_module.PromotionPortObservation(
+                status="not_promoted", reason="scratch_promotion_spy"
+            )
+
+    controller = _PromotionSpyController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+    )
+    run = await controller.run(
+        _problem(), budget_state=_budget(), min_cycles=2, max_cycles=3
+    )
+    assert run.terminal_status == "completed"
+    assert run.cycles[0].grounding.current_valid is True
+    assert run.promotion_port.status == "not_promoted"
+    assert controller.promotion_calls == 1

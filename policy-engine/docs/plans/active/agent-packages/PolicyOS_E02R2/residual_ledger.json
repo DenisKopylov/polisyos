@@ -3913,9 +3913,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one data_record blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held retained. Complete current-source census confirms the resolver reads selected SKG bytes before recording version/ref and keys idempotency from declared path state. Reusable SourceSnapshot exists elsewhere but does not wrap this live query. One data_record remains; no behavior test or P41 is claimed."
       },
-      "residual": "One data-record blocker: the SKG source owner must issue an immutable snapshot/read-handle identity binding the exact bytes consumed by both the ResolveParameters query and its cache key. SourceSnapshot exists but does not wrap the live SKGQuery path; recording a version/ref after selection does not establish same-run byte identity. Same-path mutation, removal, and preserving controls remain UNRUN.",
+      "residual": "One data_record blocker: the SKG source owner must supply an immutable snapshot/read-handle identity binding the exact bytes consumed by ResolveParametersNode and its cache key. The complete 2,696-file source census found a separate SourceSnapshot bridge but it is explicitly not_established and not accepted by this resolver; the version/ref is read after query selection and does not bind the same-run bytes. Same-path mutation, removal, preserving control and P41 remain UNRUN.",
       "residual_owner": {
         "kind": "data_record",
         "name": "SKG source owner and ResolveParametersNode run-scope binding",
@@ -3925,29 +3925,29 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "source_review_or_unrun_test_candidates",
-          "identity": "ResolveParametersNode live SKG selection/source-byte binding review",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#B61",
+          "kind": "complete_source_review_no_behavior_run",
+          "identity": "B61 ResolveParametersNode live SKG selection/cache-key owner census",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B61",
           "behavioral_verdict": "UNRUN",
-          "scope": "Read-only current source trace only; the SKG version/ref is resolved after live query selection. No current-head behavioral closure, removal/control probe or four-base replay.",
+          "scope": "Complete 2,696-file product Python and 2,732-file test Python census plus resolver/source trace. No resolver mutation/removal test was run; no behavioral closure or P41. P38: cache key uses declared path state while selected SKG bytes are consumed through a live query before the version/ref is read.",
           "package_test_selector_groups": [
             "bundle_test_selectors/STA-02"
           ],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a"
           ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py@git-blob:365ce2b0efcd55b1e47f823057b2201e37c68cb3",
-        "blocker_path_scope": "ResolveParameters live query and cache-key binding path; existing SourceSnapshot does not wrap this query.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as data_record; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "blocker_path_scope": "ResolveParameters live SKG query, selected source bytes and cache-key binding; a separate SourceSnapshot path exists but does not wrap this query.",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one data_record; complete source census and P38 divergence recorded; mutation/removal/control and P41 remain UNRUN",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f",
+          "identity": "current source/card and complete owner-census review; no behavior run",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B61",
           "behavioral_verdict": "UNRUN",
-          "scope": "Blocker refinement only; no behavioral closure or repository-wide semantic absence is claimed."
+          "scope": "One source/data-record blocker remains. This memo did not run pytest or mutation/removal/control behavior."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B61",
@@ -3963,19 +3963,22 @@
         },
         "h_n_review_disposition": [
           "data_record",
-          "Record an owner-issued immutable SKG snapshot/read handle proving the exact bytes selected are the bytes consumed and named by the cache key; mutation refusal and frozen-byte reuse remain unrun."
+          "Record an owner-issued immutable SKG snapshot/read handle proving selected bytes are the bytes consumed and named by the cache key; mutation refusal and frozen-byte reuse remain unrun."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B61",
           "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f#B61",
-          "reviewed_head_or_snapshot": "7bc009b5637983a69863b7323a810f171c0c7802",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B61",
+          "reviewed_head_or_snapshot": "source census at 9d20cabe72a46d98a4d80da5c28b37b456857d44; 7f162d98 changes ledger docs only; no test or P41 replay",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/source-census.json@sha256:4105b5765328fa1a84688e497039f5c29365e9bc3d5692291120ed3547a838c5"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a"
           ],
-          "scope": "Read-only current source trace only; the SKG version/ref is resolved after live query selection. No current-head behavioral closure, removal/control probe or four-base replay."
-        }
+          "scope": "Across 2,696 tracked source Python files, SourceSnapshot occurs in five files/11 occurrences with one class and one constructor in a different path; the resolver does not consume that handle. The resolver key hashes declared path state, selects data through a live query, then records a version. This is source-only evidence; behavioral mutation/removal is UNRUN."
+        },
+        "h_n_review_notes": [
+          "Keep held with exactly one data_record. Do not claim snapshot primitives are absent globally: SourceSnapshot exists but is on a separate bridge and is not accepted by ResolveParametersNode. The required record and live-query binding are not established."
+        ]
       }
     },
     {
@@ -11644,17 +11647,17 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "direct_behavioral_probe",
-          "identity": "B194 Monte Carlo partial-draw/report semantics; low-valid marker-retaining removal probe and paired controls; four importer files; UQP consumer",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
+          "kind": "bounded_behavior_and_complete_caller_census",
+          "identity": "B194 post-b347 owner repair receipts plus current source/caller census",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B194",
           "behavioral_verdict": "PARTIAL",
-          "scope": "At b347c3326765f4d5be8e9e0daaaac59386d92ed0, 515/1000 failed draws retain samples only as candidate evidence, with gate authority withdrawn and typed per-draw outcomes; the 0/100 all-exception case preserves insufficient_valid_samples while marking incompleteness. Persisted v1.1 report aggregation distinguishes absent outputs from invalid/incomplete outputs; Delta missing and valid controls exercise the shared classifier. The historical low-valid status-removal probe is red and paired controls pass 2/2. Four importers pass 34/34 and the UQP consumer passes 1/1. This is bounded owner behavior, not served authority-chain closure. Full four-base P41 and production reader/history replay are UNRUN.",
+          "scope": "The memo did not rerun pytest. It cites prior 34/34 importer tests, UQP consumer 1/1, marker-retaining removal probe and paired controls 2/2 after b347c332. Current AST census over 2,696 source Python files finds the only PropagationDispatcher construction uses an affine function over frozen base metrics, not the actual simulation evaluator; per-draw implementation identity is not_established. No served source-bound evaluator-to-authority bridge or four-base P41.",
           "package_test_selector_groups": [],
           "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194_b197_owner_census_9d20cabe7.json@sha256:d04128c71997d77691f1980241f4cb2903397fab425b5e3502cbc2df31fc7b61",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integration-importer-files-restored.junit.xml@sha256:b6beb16e8e8c0cb92631d856e98b092cd41a573bac3cd89b525b17bbc6bd920d",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integrated-uqp-restored.junit.xml@sha256:5a08780c855d5dc9d0f345650675082a7e0d3d0b6aac1394f016406fbc6e4cd0",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/B194_P41_COMPATIBILITY_INDEPENDENT_REVIEW.md@sha256:284c1827c849e3168ed6f521017105b215ba4b69e5dc529dc718c0bff6ae3803",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-current-caller-census.out@sha256:1f54b4f3a72419386e2467bc757c5c142bbd8f7595dff9d59d1497bf3ffbb526"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integrated-uqp-restored.junit.xml@sha256:5a08780c855d5dc9d0f345650675082a7e0d3d0b6aac1394f016406fbc6e4cd0"
           ]
         },
         "package_record": "e02_package_projection",
@@ -11662,12 +11665,12 @@
         "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@git-blob:7bd39d2e9e437a4b98a292a8da7b3744f7f3182c",
         "blocker_path_scope": "Served typed-outcome producer plus shared verified support intake across the Monte Carlo report/envelope and all three authority consumers; one owner-path capability, not a repository-wide absence claim.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; held status retained; one smallest_missing_capability; bounded repaired owner behavior and source census recorded; served source-bound evaluator/intake, history and full P41 remain UNRUN",
         "held_review": {
-          "identity": "B194 held residual task and independent review",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B194_HELD_TASK.md@git-blob:7c98a035aa663b27c1351d72eacfd6b3acc69891",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Design handoff only; retains held status and names missing served producer capability. No implementation or closure."
+          "identity": "B194 current owner repair and served-path residual review",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B194",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Post-b347 importer/consumer/removal/control receipts are bounded. The production caller remains affine rather than a simulation evaluator; no served source/deployment-bound path or current four-base replay."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B194",
@@ -11701,13 +11704,15 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B194",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/HELD_FINDINGS_REPORT.md@sha256:34bcfff272b89c43c581b1b2b337b0d5f854fdd8dd940db05c8e06a0edbd1885#L22",
-          "reviewed_head_or_snapshot": "12c1c8dba4716e206d72f332caab78d40e2a7f6f",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B194",
+          "reviewed_head_or_snapshot": "memo source snapshot 9d20cabe72a46d98a4d80da5c28b37b456857d44; later 7f162d98 changed ledger docs only; tests cited are earlier receipts, not rerun in this recheck",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/held_probes.out@sha256:3e3abb9d6af1c1a16792b198926aaf0896783e03451586dc2e0756f7b7a2c5e7",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194_b197_owner_census_9d20cabe7.json@sha256:d04128c71997d77691f1980241f4cb2903397fab425b5e3502cbc2df31fc7b61",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integration-importer-files-restored.junit.xml@sha256:b6beb16e8e8c0cb92631d856e98b092cd41a573bac3cd89b525b17bbc6bd920d",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-integrated-uqp-restored.junit.xml@sha256:5a08780c855d5dc9d0f345650675082a7e0d3d0b6aac1394f016406fbc6e4cd0"
           ],
-          "scope": "The report observation base is historical 12c1c8dba4716e206d72f332caab78d40e2a7f6f: its 515/485 gate_eligible probe is pre-repair. Lines 7–22 separately record bounded owner behavior at b347c3326765f4d5be8e9e0daaaac59386d92ed0; this is not a fresh later-head four-base P41 or production reader/history replay. The served source/deployment-bound evaluator-to-authority-intake capability remains unestablished; status stays held."
+          "scope": "Keep held with one missing served simulation-evaluator to source/deployment-bound support to shared verified intake capability. Bounded owner repair does not admit successful partial draws as ordinary gate-eligible evidence; adaptive-width stopping remains candidate-only. P41/history replay UNRUN."
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@git-blob:ef85325624efa365cd716b9633dc7ed6f1fe4e56#L127,L130,L320",
@@ -11883,16 +11888,18 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "direct_behavioral_probe",
-          "identity": "tied-group field/covariance projection probe",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/B197-current-head-investigation.md@sha256:3220a34eb732e5369f80981bfb118e6957f1619971eeaa965e70ed35248d6619#B197",
+          "kind": "current_owner_function_probe_with_preserving_control",
+          "identity": "B197 tied-coordinate projection and untied-field preserving control (two cases)",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Direct probe yields zero field envelopes for the tied A.rate/B.rate group with shared covariance coordinate; current report/adapter path lacks persisted group-to-field projection. A separate welfare-STD probe is diagnostic and not counted as B197 closure.",
+          "scope": "Read-only call to CalibrationReport and envelopes_from_calibration: tied A.rate/B.rate group produced zero field envelopes; untied control produced both fields. No full Calibrator optimization, CAS reopen or served welfare call ran. Complete AST census finds no served Calibrator/report-persistence/welfare composition. P38 divergence: report group covariance and field values exist separately but the adapter requires exact field/group-name membership and does not project the tied basis.",
           "package_test_selector_groups": [],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe.log@sha256:b952b25903513b26484b4672ae2da4108d9250344a4a827d683539e4a27e97d9",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/production_caller_census.json@sha256:f820bccbf1035282ab7d66e15595c179e7632a9101f3935f333a584a5d97a902",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe_9d20cabe7.log@sha256:c832f8eaf4eded60fbbeef9931256963d10f8a34b8ce9692d7713a718112cb5c",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe.py@sha256:99634570233c3d0f624ecb6932f084cab1ad92747a5b0e23777e786aee920afe",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/production_caller_census_9d20cabe7.json@sha256:82fb7519004c67d549def6316a26f5e0c48fcc8e4bbc8babc7a6bcd37a88af77",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194_b197_owner_census_9d20cabe7.json@sha256:d04128c71997d77691f1980241f4cb2903397fab425b5e3502cbc2df31fc7b61"
           ]
         },
         "package_record": "e02_package_projection",
@@ -11900,12 +11907,12 @@
         "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:d547b27f4f64091ea399c7bf7d8c6f557504c774",
         "blocker_path_scope": "Current calibration report-to-uncertainty adapter path; B198 tests are not evidence for this tied-group property.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one blocker classified as smallest_missing_capability; no behavior closure; finding-level selectors and P41 remain UNRUN",
+        "held_audit_receipt_status": "read_only_h_card_audit_complete; held status retained; one smallest_missing_capability; tied-group failure and untied control reproduced; served persisted welfare bridge and P41 remain UNRUN",
         "held_review": {
-          "identity": "B197 held-finding source/design review",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b197-tied-group-design-20260925.md@sha256:10f814f76b010740a2a1d8717d4be3766f85cf1ed1af40c80f1d8ed51178bbb6",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Identifies one missing report-to-adapter group/field projection; no behavioral proof or closure."
+          "identity": "B197 current tied/untied behavioral probe, source census and owner-first path review",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
+          "behavioral_verdict": "PARTIAL",
+          "scope": "Tied group emits no field envelopes, untied control emits both; no full optimization, persistence/reopen, or served welfare path."
         },
         "h14_source_review": {
           "identity": "H14 source-owner capability map:B197",
@@ -11933,14 +11940,16 @@
           "identity": "E02-R2 H/N current evidence reconciliation:B197",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/B197-current-head-investigation.md@sha256:3220a34eb732e5369f80981bfb118e6957f1619971eeaa965e70ed35248d6619#B197",
-          "reviewed_head_or_snapshot": "95635737b54177e147cd8fef2a4cc5178c03080d",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
+          "reviewed_head_or_snapshot": "memo source snapshot 9d20cabe72a46d98a4d80da5c28b37b456857d44; later 7f162d98 changed ledger docs only; no pytest suite was run by the memo",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe.log@sha256:b952b25903513b26484b4672ae2da4108d9250344a4a827d683539e4a27e97d9",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/production_caller_census.json@sha256:f820bccbf1035282ab7d66e15595c179e7632a9101f3935f333a584a5d97a902",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/existing-controls.junit.xml@sha256:8c79626c4adc6ecbae14ab2f3a9a3993447d21fb7745e124cba66e47f52db158"
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe_9d20cabe7.log@sha256:c832f8eaf4eded60fbbeef9931256963d10f8a34b8ce9692d7713a718112cb5c",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/current_behavior_probe.py@sha256:99634570233c3d0f624ecb6932f084cab1ad92747a5b0e23777e786aee920afe",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/B197/production_caller_census_9d20cabe7.json@sha256:82fb7519004c67d549def6316a26f5e0c48fcc8e4bbc8babc7a6bcd37a88af77",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194_b197_owner_census_9d20cabe7.json@sha256:d04128c71997d77691f1980241f4cb2903397fab425b5e3502cbc2df31fc7b61"
           ],
-          "scope": "Direct probe yields zero field envelopes for the tied A.rate/B.rate group with shared covariance coordinate; current report/adapter path lacks persisted group-to-field projection. A separate welfare-STD probe is diagnostic and not counted as B197 closure."
+          "scope": "The complete source census covers 2,696 product Python files and 2,732 test Python files. Only Calibrator.run calls envelopes_from_calibration in production; no served Calibrator construction/report persistence/welfare composition exists in the source census. Tied group gives []; untied control gives both fields. Missing projection is one capability; external/dynamic caller remains not_established."
         }
       }
     },
@@ -13200,9 +13209,9 @@
       "status": "open",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C held B219 on environment_not_established. The current per-finding H-card source review instead admits the owner path and identifies one missing multiedge-preserving export capability, so status is open. Selector replay, behavioral test, removal probe, single-edge control and P41 remain UNRUN; downstream ID-engine harm is not established. A separate bounded B219 triage recommended partial because the only tracked caller discards the converted graph and downstream effect is not established. This reconciliation retains open for the defective public `to_networkx()` owner contract itself; it does not claim ID-engine harm. The H-card audit is the status decision; the triage report is retained as a documented disagreement."
+        "detail": "Appendix C held B219 on environment_not_established. The current owner-path review admits one missing multiedge-preserving public export capability, so current status remains open. NetworkX runtime is unavailable in the inspected environments, therefore the existing four-order selector, removal probe, one-edge control and P41 are UNRUN. A separate triage recommends partial because the tracked ID-engine caller discards the conversion; this ledger retains open for the defective public owner contract and does not claim downstream harm."
       },
-      "residual": "Actionable owner-path capability gap: CausalGraphModel.to_networkx constructs a DiGraph, so repeated same-endpoint typed/lagged edges overwrite one another; the export must preserve parallel edge identity and metadata. The existing four-insertion-order direct test is a candidate but its P41 replay is UNRUN. id_engine/core.py builds its own mixed graph from original edges and discards the exporter result, so downstream ID-engine impact is not established. Single-edge control and property-removal probe remain UNRUN.",
+      "residual": "One smallest_missing_capability remains: CausalGraphModel.to_networkx must preserve parallel typed/lagged edges with their attributes instead of allowing DiGraph.add_edge to overwrite same-endpoint relations. Full source census finds one definition and one caller; that caller discards the conversion, so downstream ID-engine harm is not established. Existing four-insertion-order selector is behaviorally designed but UNRUN because NetworkX runtime is absent in three inspected environments; removal probe, one-edge preserving control and P41 also remain UNRUN.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
         "name": "CausalGraphModel.to_networkx owner — multiedge-preserving NetworkX export",
@@ -13212,27 +13221,31 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "source_review_or_unrun_test_candidates",
-          "identity": "GRF-02 edge-preserving export source review",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B219",
+          "kind": "complete_source_and_environment_recheck_no_behavior_run",
+          "identity": "B219 typed multiedge export contract and runtime dependency availability review",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
           "behavioral_verdict": "UNRUN",
-          "scope": "H-card owner audit classifies the public `to_networkx()` capability gap as open; no downstream ID-engine harm is claimed and the existing four-order behavior selector, removal probe, single-edge control and P41 are UNRUN. The separate B219 triage recommends partial because its tracked caller discards the export; this reconciliation keeps open for the defective public owner contract, while explicitly not asserting caller impact.",
+          "scope": "Complete 2,696-file product and 2,732-file test Python census: to_networkx definition plus one production call, and one test caller. Runtime NetworkX is absent from three existing Python 3.14 environments; no install or test was run. Existing four-order test, removal probe, one-edge control and P41 remain UNRUN.",
           "package_test_selector_groups": [
             "bundle_test_selectors/GRF-02"
           ],
-          "witness_refs": []
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a",
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@sha256:4ce655cd0050665c3874685766f3eff066738acb3e90f3686a80576ddb59ab04",
+            "policy-engine/tests/unit/ir/analytics/test_causal_graph_contract.py@sha256:215646c9adbc4973d2823c0d5864860d12387a87e421bf2f9e643751b3ec0a59"
+          ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:f8758f86a0e78fb748e658fdc7d92addbb54df88",
         "blocker_path_scope": "Actual CausalGraphModel.to_networkx export path. The ID-engine conversion result is discarded, so consumer impact is not established.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; B219 is open on one smallest_missing_capability (multiedge-preserving typed graph export); selector P41, semantic test, removal probe and single-edge control remain UNRUN",
+        "held_audit_receipt_status": "source-owner review promotes Appendix C held to current open for one smallest_missing_capability; NetworkX runtime unavailable so selector P41, semantic test, removal and one-edge control remain UNRUN; no downstream ID-engine harm claimed",
         "held_review": {
-          "identity": "current source/card review context; behavior remains UNRUN",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c",
+          "identity": "current source-owner and runtime-environment recheck; Appendix C hold superseded for current status",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
           "behavioral_verdict": "UNRUN",
-          "scope": "Historical held-only review is superseded for current status/blocker by the H-card source-owner audit: B219 is open on a missing multiedge-preserving export capability. No behavioral closure or ID-engine harm is established; P41 and probes remain UNRUN."
+          "scope": "Public owner contract is open on missing multiedge-preserving export. Runtime selector unavailable because dependency is absent; no behavior closure, caller impact, or P41 is claimed."
         },
         "blocker_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-20260924.md@sha256:70047d13784b61630f99ab921aedd13368aac37351f50cf5b10e1fb39637153e",
         "blocker_audit_scope": "Historical aggregate H14 blocker census only; it predates the current B219 open/smallest_missing_capability classification and must not be read as a current zero-missing-capability result.",
@@ -13250,25 +13263,23 @@
         },
         "h_n_review_disposition": [
           "smallest_missing_capability",
-          "Add multiedge-preserving CausalGraphModel.to_networkx export that retains parallel edge identity/metadata; selector replay, marker-retaining removal probe and single-edge control are unrun."
+          "Preserve parallel typed/lagged relations and attributes in the public CausalGraphModel.to_networkx representation; run existing four-order test, removal probe and one-edge control once a compatible runtime is available."
         ],
         "h_n_review_notes": [
-          "Current status open is correct; Appendix-C held status is historical and the disagreement is explicit.",
-          "Correct stale evidence_refs.held_audit_receipt_status: it currently says data_record and held; current H-card audit establishes an actionable smallest_missing_capability and open status.",
-          "Correct evidence_refs.held_review.scope, which also says the blocker is evidence/data record; mark that historical review superseded by the H-card owner-path audit.",
-          "Qualify or remove evidence_refs.blocker_audit_scope/path as a historical aggregate: its “0 justified missing-capability claims” conflicts with B219’s present classification."
+          "Current status open; Appendix C held disagreement remains explicit. Separate triage recommends partial because the sole tracked ID-engine caller discards the converted graph. NetworkX is absent in three inspected environments; no test ran and no downstream harm is asserted."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B219",
           "classification_at_review": "open",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B219",
-          "reviewed_head_or_snapshot": "6253a2629b22b59b29020f7ea07e49d495d6b1d7",
-          "witness_refs": [],
-          "scope": "H-card owner audit classifies the public `to_networkx()` capability gap as open; no downstream ID-engine harm is claimed and the existing four-order behavior selector, removal probe, single-edge control and P41 are UNRUN. The separate B219 triage recommends partial because its tracked caller discards the export; this reconciliation keeps open for the defective public owner contract, while explicitly not asserting caller impact.",
-          "related_review_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-triage-b219-la005-la026-la027-20260925/REPORT.md@sha256:e458e1b3733fd856c3a841c74556ad3b71acad93d0d95f4828394b3bc41fdf6b"
-          ]
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
+          "reviewed_head_or_snapshot": "source/environment recheck at 9d20cabe72a46d98a4d80da5c28b37b456857d44; 7f162d98 changed ledger docs only; selector not run",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a",
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@sha256:4ce655cd0050665c3874685766f3eff066738acb3e90f3686a80576ddb59ab04",
+            "policy-engine/tests/unit/ir/analytics/test_causal_graph_contract.py@sha256:215646c9adbc4973d2823c0d5864860d12387a87e421bf2f9e643751b3ec0a59"
+          ],
+          "scope": "Appendix C records held; current H-card owner review places B219 open on a missing multiedge-preserving exporter. The existing test discriminator remains UNRUN due missing NetworkX runtime. The bounded B219 triage partial recommendation is retained as disagreement; current path has one production caller that discards the conversion, so downstream impact is not established."
         }
       }
     },

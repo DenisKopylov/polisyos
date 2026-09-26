@@ -411,7 +411,7 @@ def _canonical_trinity_payload() -> dict[str, Any]:
     }
 
 
-def test_real_ir_callback_remains_registered_with_its_ir_owner() -> None:
+def test_legacy_ir_identity_helper_remains_callable_with_its_owner() -> None:
     from polisyos.ir.migrations.policy_ir import migrate_policy_ir_identity
 
     migrated = migrate_policy_ir_identity(_canonical_trinity_payload())

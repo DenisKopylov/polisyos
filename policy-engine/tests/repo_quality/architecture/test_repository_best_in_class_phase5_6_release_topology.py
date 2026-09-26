@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -39,15 +40,51 @@ def test_phase5_6_python_helper_bindings_point_to_live_contracts() -> None:
         assert binding.release_gate.startswith("ops/release/promotion-gates.toml#")
 
 
-def test_phase5_6_policy_ir_helper_uses_bound_ir_registry(tmp_path: Path) -> None:
+def test_phase5_6_policy_ir_cli_validates_and_preserves_same_version_trinity_bundle(
+    tmp_path: Path,
+) -> None:
     from tools.ops_runners.migrations import migrate
 
+    payload = {
+        "schema_version": "1.0",
+        "problem_frame": {
+            "schema_version": "1.0",
+            "problem_id": "pf_migration_topology",
+            "domain": "custom",
+            "objectives": [],
+            "kpis": [],
+            "success_criteria": [],
+            "hard_constraints": [],
+            "soft_constraints": [],
+            "stakeholders": [],
+            "labels": [],
+            "notes": [],
+        },
+        "policy_spec": {
+            "schema_version": "1.0",
+            "policy_id": "ps_migration_topology",
+            "interventions": [],
+            "mechanism_bindings": [],
+            "parameters": [],
+            "labels": [],
+            "notes": [],
+        },
+        "model_spec": {
+            "schema_version": "1.0",
+            "model_id": "ms_migration_topology",
+            "data_snapshot_ref": "sha256:" + "0" * 64,
+            "registry_bundle_ref": None,
+            "assumptions": [],
+            "labels": [],
+            "notes": [],
+        },
+    }
     source = tmp_path / "policy_ir.json"
     target = tmp_path / "migrated.json"
-    source.write_text('{"schema_version":"1.0","payload":"same-version smoke"}', encoding="utf-8")
+    source.write_text(json.dumps(payload), encoding="utf-8")
 
     assert migrate.main(["policy_ir", str(source), str(target)]) == 0
-    assert '"schema_version": "1.0"' in target.read_text(encoding="utf-8")
+    assert json.loads(target.read_text(encoding="utf-8")) == payload
 
 
 def test_phase5_6_release_topology_declares_cli_and_breaking_migration_gate() -> None:

@@ -83,11 +83,10 @@ def migrate_policy_ir(
         )
 
     if current_version == target:
-        # The shared engine intentionally preserves its no-op identity and
-        # therefore cannot run the registered 1.0 -> 1.0 self-edge.  Validate
-        # the canonical payload at this public boundary before returning the
-        # unchanged mapping so a version field is never mistaken for Trinity
-        # admission.
+        # The shared engine returns its no-op result before looking up edges.
+        # Validate the canonical payload at this public boundary before
+        # returning the unchanged mapping so a version field is never mistaken
+        # for Trinity admission.
         TrinityBundle.model_validate(data)
         return data
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from polisyos.ir.migrations.base import (
     CompatibilityMode,
-    register_migration,
     register_schema_version,
 )
 from polisyos.ir.trinity import TrinityBundle
@@ -21,9 +20,8 @@ register_schema_version(
 )
 
 
-@register_migration("policy_ir", "1.0", "1.0", compatibility=CompatibilityMode.FULL)
 def migrate_policy_ir_identity(data: dict) -> dict:
-    """Identity migration for canonical Trinity policy payloads."""
+    """Validate canonical Trinity policy identity for existing helper callers."""
     bundle = TrinityBundle.model_validate(data)
     return bundle.model_dump(mode="python")
 

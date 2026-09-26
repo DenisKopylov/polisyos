@@ -16500,13 +16500,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C says held. The principal-selected current-version Trinity validation at the policy_ir boundary is implemented, so the former owner_decision blocker is no longer current. Preserve the explicit Appendix C disagreement and partial status for the missing native compatibility record. Source review also found the registered 1.0→1.0 identity edge still present even though the same-version runner bypasses it; remove that dead registration after retaining the explicit wrapper postcondition, as the LA-049 source card directs. Behavior, marker-retaining removal/control probes and P41 remain UNRUN."
+        "detail": "Appendix C says held. The principal-selected current-version Trinity validation at the policy_ir boundary is implemented, so the former owner_decision blocker is no longer current. The unreachable 1.0→1.0 registration has now been removed while preserving the public validation boundary and legacy helper. Current integrated tests and a marker-retaining removal probe pass within their stated scopes; full four-base P41 and the historical/external compatibility matrix remain UNRUN. Current status is partial on one data-record blocker."
       },
-      "residual": "The public migrate_policy_ir same-version boundary already calls TrinityBundle.model_validate and preserves the original mapping. A separate dead registration remains: policy_ir.py still decorates migrate_policy_ir_identity as a 1.0→1.0 migration, but the shared runner’s same-version no-op makes this edge unreachable. Remove only the registration (preserve the helper callable if compatibility requires it); do not change the generic migration engine. One data-record blocker remains for the public wrapper and canonical CLI: exercise native current-valid, incomplete and malformed nested inputs, ready models, JSON/YAML/UTF-8 and legacy markers; assert real validator invocation, exception identity, output bytes/return semantics and valid no-op identity. Proposed closure signal (new selector, not run): policy-engine/tests/unit/remediation/test_mig_01.py@git-blob:48bb51735c406de067ade8a3c0d8cdc95dfb0dff::test_current_version_validation_has_no_registered_self_edge; it must invoke the public wrapper and canonical CLI, prove invalid nested payloads are refused by the real validator after the dead registration is removed, assert no registered 1.0→1.0 edge, and retain an unchanged-valid control. Removal of the explicit wrapper validation while retaining explanatory markers must make the negative red. Existing candidate tests and the bounded 14/14 group are not full-file evidence: removal/control probes, whole-file test_mig_01.py and four-base P41 remain UNRUN. Keep status partial and generic runner behavior unchanged.",
+      "residual": "The public migrate_policy_ir same-version boundary validates with TrinityBundle and preserves the original mapping; the unreachable 1.0→1.0 registration is removed while its legacy helper remains callable. Integrated test_mig_01.py is 14/14 and the companion migration/topology files are 24/24; the marker-retaining removal probe turns red when wrapper validation is removed, and a valid CLI round trip is a preserving control. One data-record blocker remains: assemble a native historical/external helper-and-CLI compatibility matrix across ready models, JSON/YAML/UTF-8, legacy markers, exception identity, output bytes and return semantics, then complete four-base whole-file P41. The one-time registry census reports no policy_ir migration edges; an ongoing in-tree registry assertion is still needed if this fact is claimed as a permanent gate. Keep status partial and generic runner behavior unchanged.",
       "residual_owner": {
         "kind": "data_record",
         "name": "MIG-01 current-version Trinity validation boundary and canonical CLI compatibility-data owner",
-        "appointment_status": "The principal choice is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; execution/compatibility evidence is absent and no individual owner appointment is claimed."
+        "appointment_status": "The principal choice is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; bounded current execution evidence exists, but the native historical/external compatibility record is absent and no individual owner appointment is claimed."
       },
       "r_class": null,
       "p_triage": null,
@@ -16523,12 +16523,26 @@
             "policy-engine/tests/unit/remediation/test_mig_01.py@git-blob:48bb51735c406de067ade8a3c0d8cdc95dfb0dff"
           ]
         },
+        "la049_current_integration": {
+          "identity": "LA-049 same-version validation and dead self-edge removal on codex/e02-r2",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Three whole current-head files pass 38/38, with a valid CLI preserving control; the isolated marker-retaining removal of wrapper Trinity validation makes the expected negative red. A separate one-time registry probe reports no policy_ir migration edges. Independent delta review GO. Native historical/external compatibility matrix and full four-base P41 remain UNRUN.",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/LA049-integrated-e66388e34.junit.xml@sha256:d8fde1da1af4703025c53835537a5796dc7d687f9a3e5ba8619d8a48c4cffd37",
+            "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/LA049-integrated-mig01-e66388e34.junit.xml@sha256:e7e0b0a20d76898dc7603c8146642c5a75972c39364bb69588946bb6d521496c",
+            "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/current-head-removal-probe.junit.xml@sha256:799317a06085aa9e59cc426dff59b9bd5365bd0453cff0789d7b697bd4872b8e",
+            "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/current-head-registry-probe.txt@sha256:ca94708db44afb9d63020326b5b14e0f4bdd286b52da6611f4851a5f31b3d38d",
+            "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/REVIEW_R1.md@sha256:1d9433f89503f43bd8b4cf0860379a9af04ec7cdbfbb646fc5f425abdde7e0dd",
+            "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:0a89e03c890dc1bfe3cf274bd11aac34dfb99c89",
+            "policy-engine/src/polisyos/ir/migrations/__init__.py@git-blob:21ce235c3e1f0afecbdda07088452814277ab714"
+          ]
+        },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "PASS_BOUNDED",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:14f1c0319522800ebd7c9023be6177b40ffd16fd",
-        "blocker_path_scope": "policy_ir 1.0→1.0 edge and generic migration no-op boundary; separate from LA-010 root CLI delegation.",
-        "held_audit_receipt_status": "Appendix C held label retained; current status partial after explicit disagreement; principal owner decision is selected by commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; one data_record blocker remains; behavior, removal/control and P41 remain UNRUN",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/ir/migrations/policy_ir.py@git-blob:0a89e03c890dc1bfe3cf274bd11aac34dfb99c89",
+        "blocker_path_scope": "Dead policy_ir 1.0→1.0 edge removed; native historical/external CLI and helper compatibility data remains unrecorded, separate from LA-010 root CLI delegation.",
+        "held_audit_receipt_status": "Appendix C held label retained; current status partial after explicit disagreement; principal owner decision selected by commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; one data_record blocker remains; bounded behavior and removal/control pass; full four-base P41 UNRUN",
         "held_review": {
           "identity": "current source/card review context; behavior remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-registry-migrations-20260926/H_FINDINGS_REPORT.md@sha256:ac93c7dcb9adc106fe5e693c0ac188a06b5edafcc48901d88afcd4d618342f0f",
@@ -16561,7 +16575,7 @@
         },
         "h_n_review_disposition": [
           "data_record",
-          "The principal-selected same-version validation contract is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; collect the missing native CLI/helper compatibility record, exception/depth/import acceptance, marker-retaining removal probe and four-base replay while preserving generic same-version runner semantics."
+          "The principal-selected same-version validation contract is recorded in commit 5e3e30bffda1b904cfb5e8fc24abee42c5c60180; dead self-edge removed with bounded current CLI/helper, removal and preserving-control evidence. Collect the missing native historical/external CLI/helper compatibility record and four-base replay while preserving generic same-version runner semantics."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:LA-049",

@@ -10,7 +10,7 @@ non-Trinity surface.
 ## Where to Start
 
 - [`__init__.py`](./__init__.py) — public migration entrypoints, version parsing и guarded major-bump behavior.
-- [`policy_ir.py`](./policy_ir.py) — current policy IR version и registered identity migration.
+- [`policy_ir.py`](./policy_ir.py) — current policy IR version, schema rule, and legacy identity helper.
 - [`trinity_migration.py`](./trinity_migration.py) — Trinity-specific helper routines.
 - [`schema_registry.py`](./schema_registry.py) — compatibility tables и schema rules.
 - [`base.py`](./base.py) — generic migration registry / negotiation primitives.

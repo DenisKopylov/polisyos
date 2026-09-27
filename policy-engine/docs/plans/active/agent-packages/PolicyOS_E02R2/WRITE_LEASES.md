@@ -1,6 +1,22 @@
 # E02-R2 write leases
 
-## Active integration lease at `43d4f4783` (2026-09-27)
+## Coordination and evidence snapshot (2026-09-27)
+
+- Root integration is the sole writer of `codex/e02-r2`. The last observed branch pointer during this revision is `768ef3ca1400663f3667baa0069481019ad14878`; that pointer is context only, not the source of every status below. The report/lease patch base is the unchanged pair of document blobs at `5b215d430` (`FINAL_REPORT.md@sha256:73151733f621981234eb4f8fe5d5be081d2cf5b2fefa1143bb5c8f7a138a6728`, `WRITE_LEASES.md@sha256:9d470ae44c3589aa9668baddb4d68cfe46a9d70a5d9fdfaa91f7edc7744d0e71`).
+- Evidence pins are intentionally independent: code through `6c7168566d51b22a4de8c0895c18291b3c697ca4`; `BASELINES.md` at `cfcf5ff1caff41c91efdc10f50c59eddaf7f424b` (`sha256:47faae4a26c59d111d9d5fa921c9cc627a0e82ae206b76c4cdd94d80a881a9c2`); ledger and triage at `da3b395f356b4581f1920fb520973ab5117a974d`; `CROSSWALK.md` at `5b215d4302525d927e42d2d289fafc7d72c46d52`; R5 decision addendum at `0fcc58c3c0ceb92723a8b33650b55e19d3b22ed6`. The `6f5b6f613` baseline addendum and any later changes are outside the pinned baseline/report snapshot; `9c989fbe8` is likewise beyond the report code cutoff. Do not describe this document as latest branch status.
+- The source tree is frozen during tests. The resource note used for this coordination snapshot recorded about 10.21 GiB free against the 10 GiB hard reserve; serialize test jobs until a fresh measurement confirms more disk and memory headroom. Preserve the root's integration lease, read-only production-data symlink, and existing test receipts.
+- R1 commit `5ea4b1a18` has the 27/27 guarded current-job witness, but the 2,696-file source census found no production composition caller for the context owner; the served positive chain remains unestablished. Census `/Users/deniskopylov/.codex/scratch/e02-r2-r1-owner-caller-census-6c716856.md@sha256:18091997f95d5822ac60e242e7cee3aade2e685e92e975ff91323a60b5a27bed`.
+- R2 frozen-history replay is committed at `b363204ba` with 22/22; source-free currentness and the authorized package issuer remain `UNRUN`. The new standalone-reader follow-up exists only in a tiny scratch tree and owns `runtime/quality/generation_cycle.py` plus the new reader owner. Sequence it before any future R11 edit to that shared module; no shared lease is currently held for it.
+- R5 commit `f7d66883f` has corrected integrated 28/28 evidence. Denis's non-simulation fail-closed direction is recorded in the R5 addendum; positive DataTrust and per-active-basis work remain open. Whole-file `test_modes.py` is 15/15 but not a four-base replay.
+- R11 frozen v6 candidate `/Users/deniskopylov/.codex/scratch/e02-r11-owner-admission-20260927/R11_BLOCKED_N6_CANDIDATE_v6.patch@sha256:d5f27d3046eba8064bb383c762d5a45b6ddf8932c59a6a82dc2b8b1675f286d4` released its `generation_cycle.py` lease. Its blocked→N9 property replay is `UNRUN`: the test produced and replayed an owner receipt with different `repo_root` inputs, so it failed before exercising the predicate. Frozen result `/Users/deniskopylov/.codex/scratch/e02-r11-owner-admission-20260927/R11_V6_FROZEN_RESULT_AND_NEXT_STEP.md@sha256:16b818baa00c8c78da8e61806c3667e89444621e1fd2ab84d08f38a81f567246`; root diagnosis `/Users/deniskopylov/.codex/scratch/e02-r11-owner-admission-20260927/R11_V6_OWNER_REPLAY_ROOT_DIAGNOSIS.md@sha256:a9a4fc9707fe9f8b6896a2a2e2f53483a32a3a8e75ae4b999f468b01a0eab6d8`. Keep it separate from the earlier committed bounded 7/7 guard and 2/2 persisted-source witness; do not count it as a new pass/fail.
+- The R13-L5 hash candidate named in the earlier dispatch landed at `9c989fbe8` after the report code cutoff, changing `core/contracts/epoch.py`, `substrate_registry.py`, and `test_substrate_registry.py` with a recorded 2/2 witness. Its scratch write lease is released; its effect on the earlier native diagnostic and ledger row remains to be reconciled. Remaining scratch-only candidate write sets are serialized by owner: R9 claim-root work owns `head_index.py` and its test; R9 public-record work owns two governance files and their tests; R14 WS-2D owns the release-ledger file and test. These candidates are not integrated or independently verified by this lease note.
+- The pinned ledger at `da3b395f` is 282 rows: 2 closed / 268 partial / 11 held / 1 open. The pinned P triage is 84 engineering / 16 principal decisions / 18 typed blockers. The separate 5b crosswalk has 291 memberships, 77 GY scopes, 22 Atlas scopes and 74 live A/B rows; 35 edges across 28 findings cover 36 membership-target cells, leaving 50,307 membership-target and 48,751 distinct-pair opportunities without admitted edges. Exact file hashes are in `FINAL_REPORT.md`.
+- Commit `6c7168566` bounds B72 Ray outcome-status transport: 79 pass / 1 Temporal skip over 80 postpatch outcomes, versus 65 pass / one Ray failure / one Temporal skip over 67 prepatch outcomes; 67 common identities have no pass-to-fail. B72 is partial in the pinned ledger, Temporal remains skipped, and B73 atomicity remains open. The cfcf baseline pin is not the later `6f5b6f613` version.
+- The earlier lease sections below are retained as historical records. Their “active” labels and present-tense language describe the snapshot at their named commit, not the current write allocation. Shared-branch edits remain serialized under the root's lease; candidates and reviews stay in scratch until explicitly admitted. No one edits the tree while its tests are in flight.
+
+## Historical lease snapshots (not active)
+
+### Lease snapshot at `43d4f4783` (2026-09-27)
 
 - The root integrator alone writes `codex/e02-r2`. Its committed HEAD is
   `43d4f4783`; a 16-path R5 v6 candidate is dirty in the shared tree. No
@@ -57,7 +73,7 @@
   test waves pause below an 11 GiB launch margin. Production data remains a
   read-only symlink; no one copies it or empties macOS Trash.
 
-## Active integration lease after `1ed0df830` (2026-09-26)
+### Lease snapshot after `1ed0df830` (2026-09-26)
 
 - The root integrator alone writes `codex/e02-r2`. The DFK H14 owner-decision
   ledger correction is committed; P118 triage must be rebuilt on this head
@@ -88,7 +104,7 @@
   RAM stays at least 20–30% and disk above 10 GiB. No generated families,
   governed epochs, receipts or production data are restamped or copied.
 
-## Active integration lease after `95f082bfd` (2026-09-26)
+### Lease snapshot after `95f082bfd` (2026-09-26)
 
 - The root integrator alone writes `codex/e02-r2`. The R2 package-issuer
   decision draft is committed; no owner or epoch reissue is authorized.
@@ -121,7 +137,7 @@
   jobs remain queued for source freeze and adequate disk. Only Denis empties
   macOS Trash.
 
-## Active integration lease at `ce54d6f16` (2026-09-26)
+### Lease snapshot at `ce54d6f16` (2026-09-26)
 
 - The root integrator is the sole writer to `codex/e02-r2`; the branch is clean.
   The R11 S8 bounded repair and H ledger refinements are committed. The strict
@@ -153,7 +169,7 @@
   heavy native tests and the architecture guardrail require a larger margin.
   No tree is edited while a test reads it. Only the user empties macOS Trash.
 
-## Previous integration lease at `341985355` (2026-09-26)
+### Lease snapshot at `341985355` (2026-09-26)
 
 - The root integrator is the only writer to `codex/e02-r2`; the branch was clean
   after the reviewed R11 S8 commit. R11's bounded S8 guard passed its direct
@@ -184,7 +200,7 @@
   against that tree. Production data stays a read-only symlink, no branch is
   pushed or merged into main, and only the user empties macOS Trash.
 
-## Historical integration lease at `02b7f5e3c` (2026-09-26)
+### Lease snapshot at `02b7f5e3c` (2026-09-26)
 
 - The root integrator is the only writer to `codex/e02-r2`. The branch contains
   the reviewed LA-049 bounded repair. Three uncommitted R2 prototype files are
@@ -215,7 +231,7 @@
   No source tree is edited during its test run. No branch is pushed or merged to
   main, and only the user empties macOS Trash.
 
-## Handoff after `0c80c296c` (2026-09-26; supersedes older snapshots below)
+### Handoff snapshot after `0c80c296c` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator remains the sole writer of `codex/e02-r2`; the branch is
   clean at this handoff. R13-G is committed as a **bounded residual**, not a
@@ -239,7 +255,7 @@
   tree during its tests, copy or write `production_data`, restamp governed
   artifacts, or empty macOS Trash.
 
-## Handoff after `5619eae65` (2026-09-26; supersedes older snapshots below)
+### Handoff snapshot after `5619eae65` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator remains the sole writer of `codex/e02-r2`; it is clean at
   this handoff. R13-D is committed at `ea422219b` with exact N5/N8 runtime-store
@@ -278,7 +294,7 @@
   never edit a tree under test. Trash may receive retired worktrees, but only
   the user empties it.
 
-## Handoff after `d76fbf022` (2026-09-26; supersedes older snapshots below)
+### Handoff snapshot after `d76fbf022` (2026-09-26; supersedes older snapshots below)
 
 - The root integrator is the sole writer of `codex/e02-r2`. R13-E is committed at
   `d782e7ea1`: the supplied Foundry store and selected CAS view pass the integrated
@@ -317,7 +333,7 @@
   its test, copy or write `production_data`, reissue governed artifacts without an
   authorized transition, or empty macOS Trash.
 
-## Current handoff at `ff07e89fa` (supersedes older snapshots below)
+### Handoff snapshot at `ff07e89fa` (supersedes older snapshots below)
 
 - The root integrator is the sole writer of `codex/e02-r2`. R1's narrow served
   N4 terminal repair is committed at `679f096e3`; its reviewed decision-draft
@@ -346,7 +362,7 @@
   offline `.venv` and the read-only `production_data` symlink. No governed
   artifact reissue, branch publication, or Trash emptying is authorized here.
 
-## Current handoff at `0ee329300` (supersedes every older snapshot below)
+### Handoff snapshot at `0ee329300` (supersedes every older snapshot below)
 
 - The sole integration writer owns `codex/e02-r2`. R1/R5 is merged at
   `8b748e334`; the R1 reader/profile integration correction is committed at
@@ -376,7 +392,7 @@
   available disk. Reuse the existing `.venv` and the read-only production-data
   symlink; never copy production data or restamp governed artifacts.
 
-## Current handoff at `62d9456d4` (supersedes earlier snapshots below)
+### Handoff snapshot at `62d9456d4` (supersedes earlier snapshots below)
 
 - The sole integration writer owns `codex/e02-r2`. R7's journal-owned live permit
   scope is committed at `349c6e3e7`; R9's honest CAS view and v1 ownership-history
@@ -428,7 +444,7 @@ fresh recursive producer through history-only validation and left the repeated
 S8 source scans in place. Review:
 `/Users/deniskopylov/.codex/scratch/e02-r2-r2-history-sublease-v10-independent-review-20260925.md@sha256:8b5834c75b2063920b5420b8a47fc3674893cada19f92c92a5f63c80bd533e38`.
 
-## Active handoffs at `021658cd8` (supersedes the prior handoff snapshot)
+### Handoff snapshot at `021658cd8` (supersedes the prior handoff snapshot)
 
 Snapshot: `codex/e02-r2` is clean at `021658cd87380727f367b0b60a7946ff9668567c`. The integrated bounded repairs are R3 (`79fac987e`), R4 (`efb0f1664`, checker follow-up `c0d290e0a`), R6 (`a8533c688`), R7 (`9426d868a`), R8 (`6baa2e21d`), R10 (`6e1597672`), and the bounded R12/R13 route fence (`da41f2e8c`). These commits close only the recorded properties and scopes; the finding ledger remains the status authority. Commits `314d77c72` and `021658cd8` after the B73 run are documentation-only, so its source/test inputs are unchanged.
 

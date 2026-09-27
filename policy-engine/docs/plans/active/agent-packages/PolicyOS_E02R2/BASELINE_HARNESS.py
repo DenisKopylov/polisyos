@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the fixed four-checkout E02-R2 JUnit baseline matrices.
+"""Run the fixed four-checkout E02-R2 JUnit baseline matrices with the current integration head.
 
 The harness inspects only tracked test sources and existing local checkouts. It
 does not edit a checkout while pytest is running. JUnit, caches, temporary
@@ -135,7 +135,13 @@ def _run_with_stop_handlers(action: Callable[[], int]) -> int:
         for signum, handler in prior_handlers.items():
             signal.signal(signum, handler)
 
-REVISIONS: tuple[dict[str, str], ...] = (
+PHASE0_REVISION = {
+    "key": "phase0_merge",
+    "label": "73c656744",
+    "commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-r2-baseline/polisyos",
+}
+BASE_REVISIONS: tuple[dict[str, str], ...] = (
     {
         "key": "e02_execution_base",
         "label": "78187878e",
@@ -154,16 +160,33 @@ REVISIONS: tuple[dict[str, str], ...] = (
         "commit": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
         "checkout": "/Users/deniskopylov/polisyos/.worktrees/integration",
     },
-    {
-        "key": "phase0_merge",
-        "label": "73c656744",
-        "commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
-        "checkout": "/Users/deniskopylov/.codex/worktrees/e02-r2-baseline/polisyos",
-    },
 )
+INTEGRATION_HEAD_KEY = "integration_head"
+INTEGRATION_HEAD_UNRUN = {
+    "key": INTEGRATION_HEAD_KEY,
+    "label": "integration_head:UNRUN",
+    "commit": "UNRUN",
+    "checkout": str(INTEGRATION_CHECKOUT),
+}
+REVISIONS: tuple[dict[str, str], ...] = (*BASE_REVISIONS, INTEGRATION_HEAD_UNRUN)
+
+
+def _set_integration_head_revision(commit: str | None) -> None:
+    """Pin the fourth cell set to this invocation's committed branch HEAD."""
+    global REVISIONS
+    if commit is None or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        revision = dict(INTEGRATION_HEAD_UNRUN)
+    else:
+        revision = {
+            "key": INTEGRATION_HEAD_KEY,
+            "label": f"integration_head@{commit[:12]}",
+            "commit": commit,
+            "checkout": str(INTEGRATION_CHECKOUT),
+        }
+    REVISIONS = (*BASE_REVISIONS, revision)
 
 # Appendix A/B, plus the three merge-review files that may be touched under R14
-# and the two new test files needed to measure the Phase 0 composition.
+# and the two new test files needed to measure the current integration composition.
 INITIAL_TEST_PATHS: tuple[str, ...] = (
     "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
     "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
@@ -297,9 +320,9 @@ REQUESTED_TEST_PATHS: tuple[str, ...] = INITIAL_TEST_PATHS
 
 COMPARISON_PAIRS: tuple[tuple[str, str, str], ...] = (
     ("e02_execution_base", "e02_head", "E02 base → E02 head"),
-    ("main", "phase0_merge", "main → Phase 0 merge"),
-    ("e02_head", "phase0_merge", "E02 head → Phase 0 merge"),
-    ("e02_execution_base", "phase0_merge", "E02 base → Phase 0 merge"),
+    ("main", "integration_head", "main → current integration head"),
+    ("e02_head", "integration_head", "E02 head → current integration head"),
+    ("e02_execution_base", "integration_head", "E02 base → current integration head"),
 )
 R6_DISCRIMINATING_CASE = (
     "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
@@ -392,22 +415,22 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ("tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
         ("tests.integration.core_runtime.test_acquisition_authority_provider::test_real_worker_replay_refuses_absent_decision_verification_appointment",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
         ("tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_tenant_custody.py",
         ("tests.integration.core_runtime.test_acquisition_tenant_custody::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
         (
             "tests.integration.core_runtime.test_acquisition_world_growth_chain::test_actual_wdi_admits_delta_and_reenters_same_case[False]",
@@ -418,7 +441,7 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py",
         (
             "tests.integration.runtime_quality.test_evaluation_safety_promotion_bridge::test_compiled_source_content_binding_survives_retained_semantic_markers",
@@ -433,27 +456,27 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
         ("tests.unit.runtime.http.test_human_decision_guarded_custody::test_guarded_store_custodies_record_and_recovers_signed_orphan[True]",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
         ("tests.unit.runtime.http.test_human_decision_service::test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
         ("tests.unit.runtime.http.test_nl_pipeline_materialization::test_plain_language_front_door_calls_real_design_problem_compiler",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
         ("tests.unit.runtime.http.test_runtime_deployment_security::test_epoch_privileged_source_ports_are_captured_and_attested",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py",
         (
             "tests.unit.runtime.quality.test_acquisition_movement_positive::test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board",
@@ -461,7 +484,7 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py",
         (
             "tests.unit.runtime.quality.test_epoch_deployment::test_configured_policy_exchange_reaches_native_verifier_limitation",
@@ -469,12 +492,12 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_epoch_deployment.py",
         ("tests.unit.runtime.quality.test_promotion_epoch_deployment::test_configured_positive_carrier_still_hits_unchanged_ep_d03_refusal",),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_safety.py",
         (
             "tests.unit.runtime.quality.test_promotion_safety::test_canonical_port_and_independent_reader_share_fixed_source_trust",
@@ -482,7 +505,7 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
         (
             "tests.unit.runtime.quality.test_promotion_sequence::test_frozen_v6_capture_preserves_history_and_refuses_current_admission",
@@ -491,7 +514,7 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
         (
             "tests.unit.runtime.quality.test_generation_cycle::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry",
@@ -502,7 +525,7 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "phase0_merge",
+        "B", "main", "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py",
         ("tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",),
     ),
@@ -647,31 +670,63 @@ def _owned_package_paths(package_dir: Path, checkout: Path) -> set[str]:
     }
 
 
+def _allowed_integration_dirty_paths(package_dir: Path, checkout: Path) -> set[str]:
+    if checkout.resolve() != INTEGRATION_CHECKOUT.resolve():
+        return set()
+    return _owned_package_paths(package_dir, checkout) | {
+        "policy-engine/.gitignore",
+        REVIEWED_RELEASE_FRAGMENT_RELATIVE,
+    }
+
+
 def _inspect_integration_checkout() -> dict[str, Any]:
-    """Prove the output branch is attached and differs from Phase 0 only in this package."""
+    """Pin the attached integration branch and reject dirty test inputs."""
     top = _git(INTEGRATION_CHECKOUT, "rev-parse", "--show-toplevel")
     branch = _git(INTEGRATION_CHECKOUT, "symbolic-ref", "-q", "--short", "HEAD")
     head = _git(INTEGRATION_CHECKOUT, "rev-parse", "HEAD")
     _require(top.returncode == 0 and Path(top.stdout.strip()) == INTEGRATION_CHECKOUT, "integration checkout root mismatch")
     _require(branch.returncode == 0 and branch.stdout.strip() == "codex/e02-r2", "integration output checkout is not attached to codex/e02-r2")
-    _require(head.returncode == 0, "integration checkout HEAD inspection failed")
-    phase0_commit = next(revision["commit"] for revision in REVISIONS if revision["key"] == "phase0_merge")
+    full_commit = re.fullmatch(r"[0-9a-f]{40}", head.stdout.strip()) is not None
+    _require(
+        head.returncode == 0 and full_commit,
+        "integration checkout HEAD is not a full commit identity",
+    )
+    phase0_commit = PHASE0_REVISION["commit"]
     ancestry = _git(INTEGRATION_CHECKOUT, "merge-base", "--is-ancestor", phase0_commit, head.stdout.strip())
     _require(ancestry.returncode == 0, "integration output checkout is not a descendant of the Phase 0 merge")
     committed = _git(INTEGRATION_CHECKOUT, "diff", "--name-only", f"{phase0_commit}..{head.stdout.strip()}")
     _require(committed.returncode == 0, f"integration-vs-Phase0 path census failed: {committed.stderr.strip()}")
     dirty_paths = list(_checkout_status(INTEGRATION_CHECKOUT))
-    changed_paths = sorted(set(committed.stdout.splitlines()) | set(dirty_paths))
-    allowed_prefix = INTEGRATION_PACKAGE_RELATIVE + "/"
     raw_ignore_path = "policy-engine/.gitignore"
+    allowed_dirty_paths = _allowed_integration_dirty_paths(
+        INTEGRATION_CHECKOUT / INTEGRATION_PACKAGE_RELATIVE,
+        INTEGRATION_CHECKOUT,
+    )
+    unexpected_dirty = sorted(set(dirty_paths) - allowed_dirty_paths)
+    dirty_test_inputs = sorted(
+        path for path in dirty_paths
+        if path.startswith((
+            "policy-engine/src/", "policy-engine/tests/", "policy-engine/architecture/"
+        ))
+    )
+    _require(
+        not dirty_test_inputs,
+        f"integration checkout has dirty source/test inputs: {dirty_test_inputs}",
+    )
+    _require(
+        not unexpected_dirty,
+        "integration checkout has dirty paths outside the measurement package "
+        "and exact docs exceptions: "
+        f"{unexpected_dirty}",
+    )
     reviewed_release_fragment = {
         "path": REVIEWED_RELEASE_FRAGMENT_RELATIVE,
         "expected_git_blob_oid": REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
-        "status": "not_in_delta",
+        "status": "not_dirty",
         "head_git_blob_oid": None,
         "worktree_git_blob_oid": None,
     }
-    if REVIEWED_RELEASE_FRAGMENT_RELATIVE in changed_paths:
+    if REVIEWED_RELEASE_FRAGMENT_RELATIVE in dirty_paths:
         fragment_head = _git(
             INTEGRATION_CHECKOUT,
             "rev-parse",
@@ -699,7 +754,7 @@ def _inspect_integration_checkout() -> dict[str, Any]:
             "head_git_blob_oid": head_oid,
             "worktree_git_blob_oid": worktree_oid,
         })
-    if raw_ignore_path in changed_paths:
+    if raw_ignore_path in dirty_paths:
         original_ignore = _git(INTEGRATION_CHECKOUT, "show", f"{phase0_commit}:{raw_ignore_path}")
         _require(original_ignore.returncode == 0, "Phase 0 gitignore inspection failed")
         marker = "docs/superpowers/journals/**/raw/\n"
@@ -712,40 +767,16 @@ def _inspect_integration_checkout() -> dict[str, Any]:
             (INTEGRATION_CHECKOUT / raw_ignore_path).read_text() == expected_ignore,
             "integration gitignore differs from the single E02R2 raw-output rule",
         )
-    unexpected = [
-        path
-        for path in changed_paths
-        if path != INTEGRATION_PACKAGE_RELATIVE
-        and not path.startswith(allowed_prefix)
-        and path != raw_ignore_path
-        and path != REVIEWED_RELEASE_FRAGMENT_RELATIVE
-    ]
-    _require(
-        not unexpected,
-        "integration tree differs from Phase 0 outside the baseline package, "
-        "the exact raw-ignore rule, and the pinned release fragment: "
-        f"{unexpected}",
-    )
-    source_test_schema_tree_delta = [
-        path
-        for path in changed_paths
-        if path not in {INTEGRATION_PACKAGE_RELATIVE, raw_ignore_path, REVIEWED_RELEASE_FRAGMENT_RELATIVE}
-        and not path.startswith(allowed_prefix)
-    ]
-    source_test_schema_matches_phase0 = not source_test_schema_tree_delta
-    _require(
-        source_test_schema_matches_phase0,
-        "product source/test/schema tree differs from Phase 0: "
-        f"{source_test_schema_tree_delta}",
-    )
+    tracked_delta = sorted(set(committed.stdout.splitlines()))
     return {
         "checkout": str(INTEGRATION_CHECKOUT),
         "branch": branch.stdout.strip(),
         "head": head.stdout.strip(),
         "phase0_commit": phase0_commit,
-        "changed_paths_from_phase0": changed_paths,
-        "source_test_schema_tree_delta_paths": source_test_schema_tree_delta,
-        "source_test_schema_tree_matches_phase0": source_test_schema_matches_phase0,
+        "tracked_delta_from_phase0": tracked_delta,
+        "status_paths": dirty_paths,
+        "changed_paths_from_phase0": sorted(set(tracked_delta) | set(dirty_paths)),
+        "dirty_test_inputs": dirty_test_inputs,
         "reviewed_release_fragment": reviewed_release_fragment,
     }
 
@@ -754,9 +785,7 @@ def _integration_checkout_inspection_inputs(
     *, stage: str, expected_identity: dict[str, Any] | None = None
 ) -> list[dict[str, Any]]:
     """Declare the local identities and complete deltas used by checkout admission."""
-    phase0_commit = next(
-        revision["commit"] for revision in REVISIONS if revision["key"] == "phase0_merge"
-    )
+    phase0_commit = PHASE0_REVISION["commit"]
     inputs = [
         {"name": "integration_checkout", "path": str(INTEGRATION_CHECKOUT), "purpose": "Git root and local status"},
         {"name": "expected_branch", "value": "codex/e02-r2", "purpose": "attached output branch"},
@@ -769,7 +798,14 @@ def _integration_checkout_inspection_inputs(
             "expected_git_blob_oid": REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
             "purpose": "single docs exception; HEAD blob and worktree bytes must match",
         },
-        {"name": "tracked_delta", "range": f"{phase0_commit}..HEAD", "purpose": "complete committed path delta"},
+        {
+            "name": "tracked_delta",
+            "range": f"{phase0_commit}..HEAD",
+            "purpose": (
+                "complete committed integration input delta; recorded, "
+                "not treated as uncommitted drift"
+            ),
+        },
         {"name": "worktree_delta", "purpose": "complete porcelain status, including untracked paths"},
         {"name": "integration_HEAD", "purpose": "current attached output revision"},
     ]
@@ -778,26 +814,65 @@ def _integration_checkout_inspection_inputs(
             "name": "preflight_identity",
             "branch": expected_identity.get("branch"),
             "head": expected_identity.get("head"),
-            "purpose": "postflight equality guard against branch or HEAD movement",
+            "status_paths": expected_identity.get("status_paths"),
+            "purpose": (
+                "postflight equality guard against branch, HEAD, "
+                "or worktree-status movement"
+            ),
         })
     return [{"stage": stage, **item} for item in inputs]
+
+
+def _observe_integration_checkout() -> dict[str, Any]:
+    """Capture Git identity even when an admission predicate returns UNRUN."""
+    observation: dict[str, Any] = {"checkout": str(INTEGRATION_CHECKOUT)}
+    for name, args in (
+        ("git_root", ("rev-parse", "--show-toplevel")),
+        ("branch", ("symbolic-ref", "-q", "--short", "HEAD")),
+        ("head", ("rev-parse", "HEAD")),
+    ):
+        result = _git(INTEGRATION_CHECKOUT, *args)
+        observation[name] = result.stdout.strip() if result.returncode == 0 else None
+        if result.returncode != 0:
+            observation.setdefault("observation_errors", []).append(
+                f"{name}: {result.stderr.strip() or 'git command failed'}"
+            )
+    status = _git(INTEGRATION_CHECKOUT, "status", "--porcelain=v1", "--untracked-files=all")
+    observation["status_paths"] = (
+        sorted(line[3:] for line in status.stdout.splitlines() if len(line) >= 4)
+        if status.returncode == 0
+        else None
+    )
+    if status.returncode != 0:
+        observation.setdefault("observation_errors", []).append(
+            f"status: {status.stderr.strip() or 'git command failed'}"
+        )
+    return observation
 
 
 def _inspect_integration_checkout_verdict(
     *, stage: str, postflight: bool = False, expected_identity: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     """Return a typed PASS, UNRUN, or INVALIDATED checkout-inspection result."""
-    declared_inputs = _integration_checkout_inspection_inputs(
-        stage=stage, expected_identity=expected_identity
-    )
+    observed = _observe_integration_checkout()
+    declared_inputs = [
+        *_integration_checkout_inspection_inputs(
+            stage=stage, expected_identity=expected_identity
+        ),
+        {"stage": stage, "name": "observed_checkout_identity", **observed},
+    ]
     failure_verdict = "INVALIDATED" if postflight else "UNRUN"
     try:
         checkout = _inspect_integration_checkout()
         if expected_identity is not None and (
             checkout["head"] != expected_identity["head"]
             or checkout["branch"] != expected_identity["branch"]
+            or checkout["status_paths"] != expected_identity["status_paths"]
         ):
-            raise RuntimeError("integration output checkout branch or HEAD moved during baseline run")
+            raise RuntimeError(
+                "integration output checkout branch, HEAD, or worktree status "
+                "moved during baseline run"
+            )
     except Exception as exc:
         return {
             "verdict": failure_verdict,
@@ -805,6 +880,7 @@ def _inspect_integration_checkout_verdict(
             "stage": stage,
             "inspection_error": f"{type(exc).__name__}: {exc}",
             "declared_inputs": declared_inputs,
+            "observed_checkout": observed,
             "checkout": None,
         }
     return {
@@ -813,8 +889,37 @@ def _inspect_integration_checkout_verdict(
         "stage": stage,
         "inspection_error": None,
         "declared_inputs": declared_inputs,
+        "observed_checkout": observed,
         "checkout": checkout,
     }
+
+
+def _assert_fixed_baseline_postflight_unchanged(
+    revisions: tuple[dict[str, str], ...],
+    revision_records: list[dict[str, Any]],
+) -> dict[str, list[str]]:
+    """Check immutable historical bases; defer the moving output head to typed custody.
+
+    Integration-head drift must be returned as INVALIDATED by the typed output-checkout
+    inspector, so its observed identity can be retained in the receipt.
+    """
+    post_status: dict[str, list[str]] = {}
+    for revision, record in zip(revisions, revision_records, strict=True):
+        if revision["key"] == INTEGRATION_HEAD_KEY:
+            continue
+        checkout = Path(revision["checkout"])
+        head = _git(checkout, "rev-parse", "HEAD")
+        _require(
+            head.returncode == 0 and head.stdout.strip() == record["commit"],
+            f"HEAD moved during run: {revision['label']}",
+        )
+        status = list(_checkout_status(checkout))
+        _require(
+            not status,
+            f"unexpected post-run dirty paths at {revision['label']}: {status}",
+        )
+        post_status[revision["key"]] = status
+    return post_status
 
 
 def _invalidate_run_outcomes(
@@ -848,16 +953,30 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
     top = _git(checkout, "rev-parse", "--show-toplevel")
     head = _git(checkout, "rev-parse", "HEAD")
     symbolic = _git(checkout, "symbolic-ref", "-q", "--short", "HEAD")
-    _require(top.returncode == 0 and head.returncode == 0, f"Git inspection failed: {checkout}")
+    _require(
+        top.returncode == 0
+        and Path(top.stdout.strip()) == checkout.resolve()
+        and head.returncode == 0,
+        f"Git root/identity inspection failed: {checkout}",
+    )
     actual_head = head.stdout.strip()
     _require(
         actual_head == revision["commit"],
         f"{revision['label']} checkout HEAD drift: expected {revision['commit']}, got {actual_head}",
     )
     status = _checkout_status(checkout)
-    allowed = _owned_package_paths(package_dir, checkout) if revision["key"] == "phase0_merge" else set()
+    allowed = (
+        _allowed_integration_dirty_paths(package_dir, checkout)
+        if revision["key"] == INTEGRATION_HEAD_KEY
+        else set()
+    )
     unexpected = sorted(set(status) - allowed)
     _require(not unexpected, f"unexpected dirty paths at {revision['label']}: {unexpected}")
+    if revision["key"] == INTEGRATION_HEAD_KEY:
+        _require(
+            symbolic.returncode == 0 and symbolic.stdout.strip() == "codex/e02-r2",
+            "integration_head is not attached to codex/e02-r2",
+        )
 
     data_entry = checkout / "policy-engine/production_data"
     _require(data_entry.exists(), f"production_data absent at {revision['label']}")
@@ -2526,19 +2645,66 @@ def _verified_reuse_rows(
         ):
             _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "source import policy is absent or differs")
             continue
-        prior_revisions = {row["key"]: row for row in prior.get("revisions", [])}
-        _require(set(prior_revisions) == set(revisions), f"reuse revision set differs: {result_path}")
-        legacy_revision_identity = True
+        prior_revision_rows = prior.get("revisions", [])
+        prior_rows_valid = isinstance(prior_revision_rows, list) and all(
+            isinstance(row, dict) and isinstance(row.get("key"), str)
+            for row in prior_revision_rows
+        )
+        if not prior_rows_valid:
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "reuse revision records are malformed"
+            )
+            continue
+        prior_revisions = {row["key"]: row for row in prior_revision_rows}
+        if len(prior_revisions) != len(prior_revision_rows):
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "reuse revision keys are duplicated"
+            )
+            continue
+        unknown_revision_keys = set(prior_revisions) - set(revisions)
+        historical_phase0_identity = prior_revisions.get("phase0_merge", {})
+        allowed_historical_key = (
+            unknown_revision_keys == {"phase0_merge"}
+            and historical_phase0_identity.get("commit") == PHASE0_REVISION["commit"]
+            and historical_phase0_identity.get("checkout") == PHASE0_REVISION["checkout"]
+        )
+        if unknown_revision_keys and not allowed_historical_key:
+            _reject_invalid_checkpoint_cell(
+                result_path,
+                strict_checkpoint,
+                "reuse contains unknown revision keys "
+                f"{sorted(unknown_revision_keys)}; no revision key is aliased",
+            )
+            continue
+        legacy_revision_identity = (
+            not unknown_revision_keys and set(prior_revisions) == set(revisions)
+        )
+        incompatible_shared_revision = False
         for key, record in revisions.items():
+            prior_record = prior_revisions.get(key)
+            if prior_record is None:
+                legacy_revision_identity = False
+                continue
             revision_match = (
-                prior_revisions[key].get("commit") == record["commit"]
-                and prior_revisions[key].get("checkout") == record["checkout"]
-                and prior_revisions[key].get("pytest_ini_blob") == record["pytest_ini_blob"]
-                and prior_revisions[key].get("module_import_origins") == record.get("module_import_origins")
+                prior_record.get("commit") == record["commit"]
+                and prior_record.get("checkout") == record["checkout"]
+                and prior_record.get("pytest_ini_blob") == record["pytest_ini_blob"]
+                and prior_record.get("module_import_origins") == record.get("module_import_origins")
             )
             legacy_revision_identity = legacy_revision_identity and revision_match
-            if not legacy_policy_candidate:
-                _require(revision_match, f"reuse checkout/config identity differs for {key}: {result_path}")
+            if not revision_match:
+                if legacy_policy_candidate:
+                    legacy_revision_identity = False
+                    continue
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"reuse checkout/config identity differs for {key}",
+                )
+                incompatible_shared_revision = True
+                break
+        if incompatible_shared_revision:
+            continue
         if legacy_policy_candidate and not legacy_revision_identity:
             raise RuntimeError(f"legacy checkpoint revision identity differs: {result_path}")
         prior_path_list = prior.get("requested_test_paths")
@@ -2552,7 +2718,10 @@ def _verified_reuse_rows(
             if key[1] not in REQUESTED_TEST_PATHS:
                 continue
             current_revision = revisions.get(key[0])
-            _require(current_revision is not None, f"reuse cell has unknown revision: {key}")
+            if current_revision is None:
+                # Keep historical-only rows under their original key. In particular,
+                # phase0_merge is never reinterpreted as the invocation's integration_head.
+                continue
             if row.get("commit") != current_revision["commit"]:
                 _reject_invalid_checkpoint_cell(
                     result_path,
@@ -3209,7 +3378,8 @@ def _write_report(
     lines = [
         "# Four-base P41 test baselines",
         "",
-        f"Run: `{report['run_id']}`. This is a measurement of the Phase 0 merge head before repair.",
+        f"Run: `{report['run_id']}`. The fourth revision is the committed "
+        "`codex/e02-r2` integration head captured at invocation.",
         "",
         "## Discrepancies and scope",
         "",
@@ -3253,7 +3423,17 @@ def _write_report(
         "",
         "## Revision and environment identity",
         "",
-        f"The report/output checkout is `{report['output_checkout']['checkout']}` on `{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` (postflight `{report['output_checkout']['postflight_head']}`). Its complete tracked/dirty path delta from Phase 0 is confined to `{INTEGRATION_PACKAGE_RELATIVE}`, the one byte-checked `policy-engine/.gitignore` rule for that package's ignored `raw/` outputs, and (when present) the exact reviewed documentation fragment `{REVIEWED_RELEASE_FRAGMENT_RELATIVE}` whose HEAD and worktree Git blob IDs must both equal `{REVIEWED_RELEASE_FRAGMENT_BLOB_OID}`. The `source_test_schema_tree_matches_phase0` predicate is recomputed from the complete tracked-plus-dirty path delta: no changed path may occur outside those named output/docs exceptions; any runtime source, test, generated schema or public-surface path outside them fails preflight. The fragment exception is release metadata only, and the tested Phase 0 checkout remains the separate exact 73c worktree.",
+        f"The report/output checkout is `{report['output_checkout']['checkout']}` on "
+        f"`{report['output_checkout']['branch']}` at `{report['output_checkout']['head']}` "
+        f"(postflight `{report['output_checkout']['postflight_head']}`); the fourth test "
+        "revision uses this same full commit identity. The complete committed delta from "
+        "Phase 0 is recorded in `output_checkout.tracked_delta_from_phase0` and is part of "
+        "the measured integration state. Admission requires the attached `codex/e02-r2` "
+        "branch, Phase 0 ancestry, exact requested-test Git blobs, checkout-local import "
+        "origins, and no dirty paths outside the named measurement outputs/docs exceptions. "
+        "The Phase 0 revision remains an ancestry and historical-receipt identity only. "
+        "Prior `phase0_merge` receipt rows remain unchanged and cannot be relabeled or reused "
+        "as `integration_head`.",
         "",
         "| Revision | Commit | Branch | Worktree | Tracked test `.py` paths / `test_*.py` modules | Requested present | Data root mode | pytest.ini blob |",
         "|---|---|---|---|---:|---:|---:|---|",
@@ -3300,7 +3480,10 @@ def _write_report(
             "",
             f"### {label}",
             "",
-            "| Test file | 78187878e | 00d946c2b | 5fd3ebcc1 | 73c656744 |",
+            (
+                f"| Test file | 78187878e | 00d946c2b | 5fd3ebcc1 | "
+                f"{report['revisions'][3]['label']} |"
+            ),
             "|---|---|---|---|---|",
         ])
         for test_path in selected_paths:
@@ -3436,7 +3619,10 @@ def _publish_typed_unrun_receipt(
         output_checkout_inspection = _inspect_integration_checkout_verdict(
             stage="typed_unrun_receipt_output_checkout"
         )
-    output_checkout = output_checkout_inspection.get("checkout")
+    output_checkout = (
+        output_checkout_inspection.get("checkout")
+        or output_checkout_inspection.get("observed_checkout")
+    )
     report = {
         "schema": "policyos.e02r2.p41-baseline.v1",
         "verdict": "UNRUN",
@@ -3570,6 +3756,12 @@ def run_matrix(args: argparse.Namespace) -> int:
     try:
         output_checkout_preflight = _inspect_integration_checkout_verdict(
             stage="run_matrix_preflight"
+        )
+        _set_integration_head_revision(
+            (
+                output_checkout_preflight.get("checkout")
+                or output_checkout_preflight.get("observed_checkout", {})
+            ).get("head")
         )
         if output_checkout_preflight["verdict"] != "PASS":
             return _publish_typed_unrun_receipt(
@@ -3899,22 +4091,20 @@ def run_matrix(args: argparse.Namespace) -> int:
 
     # A post-run P41 custody check catches branch movement or unexpected source
     # changes. It runs only after all pytest processes have completed.
-    post_status: dict[str, list[str]] = {}
-    for revision, record in zip(REVISIONS, revision_records, strict=True):
-        checkout = Path(revision["checkout"])
-        head = _git(checkout, "rev-parse", "HEAD")
-        _require(head.returncode == 0 and head.stdout.strip() == record["commit"], f"HEAD moved during run: {revision['label']}")
-        status = list(_checkout_status(checkout))
-        allowed = _owned_package_paths(package_dir, checkout) if revision["key"] == "phase0_merge" else set()
-        unexpected = sorted(set(status) - allowed)
-        _require(not unexpected, f"unexpected post-run dirty paths at {revision['label']}: {unexpected}")
-        post_status[revision["key"]] = status
+    post_status: dict[str, list[str] | None] = (
+        _assert_fixed_baseline_postflight_unchanged(REVISIONS, revision_records)
+    )
     output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
         stage="run_matrix_postflight",
         postflight=True,
         expected_identity=output_checkout_identity,
     )
     output_checkout_postflight = output_checkout_postflight_verdict.get("checkout") or {}
+    post_status[INTEGRATION_HEAD_KEY] = (
+        output_checkout_postflight.get("status_paths")
+        if output_checkout_postflight
+        else (output_checkout_postflight_verdict.get("observed_checkout") or {}).get("status_paths")
+    )
     if output_checkout_postflight_verdict["verdict"] != "PASS":
         _invalidate_run_outcomes(runs, output_checkout_postflight_verdict)
 
@@ -3973,6 +4163,19 @@ def run_matrix(args: argparse.Namespace) -> int:
         },
         "measured_light_profile_count": len(light_profiles),
         "reused_cell_count": len(reuse_cells),
+        "receipt_migration_policy": {
+            "legacy_revision_key": "phase0_merge",
+            "legacy_revision_commit": PHASE0_REVISION["commit"],
+            "legacy_revision_action": (
+                "preserve under its original key; never alias it to integration_head"
+            ),
+            "reuse_rule": (
+                "reuse only shared revision keys with exact commit, checkout, pytest.ini, "
+                "import-origin, test-blob, command, environment, and JUnit identity; "
+                "unmatched integration_head cells run fresh"
+            ),
+            "inputs": _reuse_input_disclosures(reuse_paths),
+        },
         "excluded_safety_reuse_cells": [
             {"revision_key": revision_key, "test_path": test_path}
             for revision_key, test_path in excluded_safety_reuse_cells
@@ -4050,7 +4253,11 @@ def run_matrix(args: argparse.Namespace) -> int:
             "Native libraries loaded transitively or dynamically when no direct marker exists in a test module.",
             "Ignored-path mutations produced inside tests.",
             "Owner attribution for reds until retained failure output is reviewed.",
-            "The four non-output pinned-checkout postflight Git identity/status checks still use legacy raising guards; a failure there can interrupt receipt publication before the integration-checkout postflight verdict is reached.",
+            (
+                "The three fixed historical checkouts retain raising identity/status guards; "
+                "integration-head postflight uses typed INVALIDATED inspection, preserving "
+                "the observed identity and demoted outcomes."
+            ),
         ],
     }
 
@@ -4221,6 +4428,12 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     output_checkout_preflight = _inspect_integration_checkout_verdict(
         stage="timeout_rerun_preflight"
     )
+    _set_integration_head_revision(
+        (
+            output_checkout_preflight.get("checkout")
+            or output_checkout_preflight.get("observed_checkout", {})
+        ).get("head")
+    )
     if output_checkout_preflight["verdict"] != "PASS":
         return _publish_timeout_rerun_unrun_receipt(
             package_dir=package_dir,
@@ -4233,17 +4446,109 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
             inspection=output_checkout_preflight,
         )
     output_checkout_identity = output_checkout_preflight["checkout"]
-    revision_records = [_inspect_checkout(revision, package_dir) for revision in REVISIONS]
-    for revision_record in revision_records:
-        revision_record["module_import_origins"] = _verify_import_origins(
-            Path(revision_record["checkout"]), probe_env
+    try:
+        revision_records = [_inspect_checkout(revision, package_dir) for revision in REVISIONS]
+        for revision_record in revision_records:
+            revision_record["module_import_origins"] = _verify_import_origins(
+                Path(revision_record["checkout"]), probe_env
+            )
+        revision_by_key = {record["key"]: record for record in revision_records}
+        runtime = _runtime_versions(probe_env)
+    except Exception as exc:
+        inspection = {
+            "verdict": "UNRUN",
+            "inspection_status": "UNRUN",
+            "stage": "timeout_rerun_revision_preflight",
+            "inspection_error": f"{type(exc).__name__}: {exc}",
+            "declared_inputs": [
+                *output_checkout_preflight["declared_inputs"],
+                {
+                    "name": "current_integration_identity",
+                    "branch": output_checkout_identity["branch"],
+                    "head": output_checkout_identity["head"],
+                    "purpose": "invocation-pinned fourth revision admission",
+                },
+                {
+                    "name": "prior_matrix",
+                    "path": str(prior_path),
+                    "sha256": prior_sha256,
+                    "purpose": "exact timeout source receipt",
+                },
+            ],
+        }
+        return _publish_timeout_rerun_unrun_receipt(
+            package_dir=package_dir,
+            external_run_dir=external_run_dir,
+            run_id=run_id,
+            prior_path=prior_path,
+            prior_sha256=prior_sha256,
+            selected_targets=selected_targets,
+            prior_cells=prior_cells,
+            inspection=inspection,
         )
-    revision_by_key = {record["key"]: record for record in revision_records}
-    runtime = _runtime_versions(probe_env)
-    _require(
-        {record["pytest_ini_blob"] for record in revision_records} == {record["pytest_ini_blob"] for record in prior["revisions"]},
-        "pytest.ini blob changed since the initial matrix",
+    raw_prior_revision_rows = prior.get("revisions")
+    prior_rows_valid = isinstance(raw_prior_revision_rows, list) and all(
+        isinstance(record, dict) and isinstance(record.get("key"), str)
+        for record in raw_prior_revision_rows
     )
+    prior_revision_rows = raw_prior_revision_rows if prior_rows_valid else []
+    prior_revisions = {record["key"]: record for record in prior_revision_rows}
+    current_revisions = {record["key"]: record for record in revision_records}
+    revision_identity_match = (
+        prior_rows_valid
+        and len(prior_revisions) == len(prior_revision_rows)
+        and set(prior_revisions) == set(current_revisions)
+        and all(
+            prior_revisions[key].get("commit") == record.get("commit")
+            and prior_revisions[key].get("checkout") == record.get("checkout")
+            and prior_revisions[key].get("pytest_ini_blob") == record.get("pytest_ini_blob")
+            and prior_revisions[key].get("module_import_origins")
+            == record.get("module_import_origins")
+            for key, record in current_revisions.items()
+        )
+    )
+    if not revision_identity_match:
+        inspection = {
+            "verdict": "UNRUN",
+            "inspection_status": "UNRUN",
+            "stage": "timeout_rerun_revision_identity",
+            "inspection_error": (
+                "current revision commit/checkout/import-origin set differs from the prior "
+                "matrix; historical phase0_merge rows are not aliased to integration_head"
+            ),
+            "declared_inputs": [{
+                "name": "prior_revision_identities",
+                "prior_results_path": str(prior_path),
+                "prior_results_sha256": prior_sha256,
+                "prior_keys": sorted(prior_revisions),
+                "current_keys": sorted(current_revisions),
+                "prior_commits": {
+                    key: value.get("commit") for key, value in prior_revisions.items()
+                },
+                "current_commits": {
+                    key: value.get("commit") for key, value in current_revisions.items()
+                },
+                "prior_import_origins": {
+                    key: value.get("module_import_origins")
+                    for key, value in prior_revisions.items()
+                },
+                "current_import_origins": {
+                    key: value.get("module_import_origins")
+                    for key, value in current_revisions.items()
+                },
+                "purpose": "exact P41 timeout-rerun identity admission",
+            }],
+        }
+        return _publish_timeout_rerun_unrun_receipt(
+            package_dir=package_dir,
+            external_run_dir=external_run_dir,
+            run_id=run_id,
+            prior_path=prior_path,
+            prior_sha256=prior_sha256,
+            selected_targets=selected_targets,
+            prior_cells=prior_cells,
+            inspection=inspection,
+        )
 
     jobs: list[Job] = []
     prior_attempts: list[dict[str, Any]] = []
@@ -4294,22 +4599,20 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         start_snapshot["system_swap_used_bytes"],
         workers,
     )
-    post_status: dict[str, list[str]] = {}
-    for revision, record in zip(REVISIONS, revision_records, strict=True):
-        checkout = Path(revision["checkout"])
-        head = _git(checkout, "rev-parse", "HEAD")
-        _require(head.returncode == 0 and head.stdout.strip() == record["commit"], f"HEAD moved during rerun: {revision['label']}")
-        status = list(_checkout_status(checkout))
-        allowed = _owned_package_paths(package_dir, checkout) if revision["key"] == "phase0_merge" else set()
-        unexpected = sorted(set(status) - allowed)
-        _require(not unexpected, f"unexpected post-rerun dirty paths at {revision['label']}: {unexpected}")
-        post_status[revision["key"]] = status
+    post_status: dict[str, list[str] | None] = (
+        _assert_fixed_baseline_postflight_unchanged(REVISIONS, revision_records)
+    )
     output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
         stage="timeout_rerun_postflight",
         postflight=True,
         expected_identity=output_checkout_identity,
     )
     output_checkout_postflight = output_checkout_postflight_verdict.get("checkout") or {}
+    post_status[INTEGRATION_HEAD_KEY] = (
+        output_checkout_postflight.get("status_paths")
+        if output_checkout_postflight
+        else (output_checkout_postflight_verdict.get("observed_checkout") or {}).get("status_paths")
+    )
     if output_checkout_postflight_verdict["verdict"] != "PASS":
         _invalidate_run_outcomes(runs, output_checkout_postflight_verdict)
 
@@ -4369,9 +4672,18 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         "post_run_status_paths": post_status,
         "runs": sorted(runs, key=lambda row: (row["revision_key"], row["test_path"])),
         "unresolved_by_construction": [
-            "The rerun settles only the initially selected timed-out cells; all other cells remain in the linked initial matrix.",
+            (
+                "The rerun settles only initially timed-out cells when all four full commit, "
+                "checkout, pytest configuration, and import-origin identities match; "
+                "any identity drift is recorded UNRUN."
+            ),
             "Native libraries loaded transitively or dynamically without a direct marker remain unresolved by construction.",
-            "Timeout-rerun baseline inspection of the four pinned source checkouts, import origins, runtime versions, and pytest.ini plus the four non-output postflight Git identity/status checks still use legacy raising guards; failures there may interrupt receipt publication before or after the test processes.",
+            (
+                "Timeout-rerun baseline inspection of the four pinned source checkouts, import "
+                "origins, runtime versions, and pytest.ini plus the three fixed historical "
+                "postflight Git identity/status checks still use legacy raising guards; "
+                "integration-head postflight is deferred to typed INVALIDATED inspection."
+            ),
         ],
     }
 

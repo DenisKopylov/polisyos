@@ -30,7 +30,10 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
-from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CheckpointError,
+    compute_workflow_fingerprint,
+)
 from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
@@ -173,6 +176,7 @@ class AsyncWorkflowExecutor:
             self._registry.get(inv.node_id)
 
         tiers = topo_sort_tiers(invocations)
+        self._require_atomic_tier_checkpoint(tiers)
         workflow_started = time.perf_counter()
         self._workflow_deadline = (
             workflow_started + self._workflow_timeout_s
@@ -406,7 +410,6 @@ class AsyncWorkflowExecutor:
                         )
                         abort = True
                     elif tier_completed:
-                        completed_before_tier = list(completed_nodes)
                         completed_nodes.extend(tier_completed)
                         checkpoint_alias = tier_completed[-1]
                         state = await self._handle_tier_checkpoint(
@@ -414,11 +417,6 @@ class AsyncWorkflowExecutor:
                             aliases=tier_completed,
                             alias=checkpoint_alias,
                             node_id=str(invocations[checkpoint_alias].node_id),
-                            node_ids={
-                                alias: str(invocations[alias].node_id)
-                                for alias in tier_completed
-                            },
-                            completed_nodes_before_tier=completed_before_tier,
                             completed_nodes=completed_nodes,
                             workflow=workflow,
                             workflow_fingerprint=workflow_fingerprint,
@@ -1960,8 +1958,6 @@ class AsyncWorkflowExecutor:
         aliases: list[str],
         alias: str,
         node_id: str,
-        node_ids: dict[str, str],
-        completed_nodes_before_tier: list[str],
         completed_nodes: list[str],
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
@@ -2037,20 +2033,17 @@ class AsyncWorkflowExecutor:
                         )
             return state
 
-        # Legacy node-level hooks retain the former per-success callback contract.
-        legacy_completed = list(completed_nodes_before_tier)
-        for successful_alias in aliases:
-            legacy_completed.append(successful_alias)
-            state = await self._handle_checkpoint(
-                state,
-                successful_alias,
-                node_ids[successful_alias],
-                list(legacy_completed),
-                workflow,
-                workflow_fingerprint,
-                cache_entry_ref=cache_entry_refs_by_alias.get(successful_alias),
-            )
-        return state
+        raise CheckpointError("parallel_tier_requires_atomic_checkpoint_hook")
+
+    def _require_atomic_tier_checkpoint(self, tiers: list[list[str]]) -> None:
+        """Reject a node-only hook before executing a workflow with parallel tiers."""
+        if self._checkpoint_hook is None or not any(len(tier) > 1 for tier in tiers):
+            return
+        if callable(getattr(self._checkpoint_hook, "on_tier_complete_async", None)):
+            return
+        if callable(getattr(self._checkpoint_hook, "on_tier_complete", None)):
+            return
+        raise CheckpointError("parallel_tier_requires_atomic_checkpoint_hook")
 
     async def _handle_checkpoint(
         self,

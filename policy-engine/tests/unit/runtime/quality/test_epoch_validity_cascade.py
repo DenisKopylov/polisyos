@@ -214,6 +214,7 @@ def _persist_epoch_receipt(
     manifest_ref: artifacts.ArtifactRef,
     history_receipt_ref: artifacts.ArtifactRef,
     epoch_ref: str | None = None,
+    chronology_projection_ref: artifacts.ArtifactRef | None = None,
 ) -> semantic_epoch_runtime.PersistedSemanticEpochProductionReceipt:
     return semantic_epoch_runtime.persist_semantic_epoch_production_receipt(
         store=store,
@@ -234,6 +235,7 @@ def _persist_epoch_receipt(
                 store,
                 kind="chronology.verifier.result",
             ),
+            chronology_projection_ref=chronology_projection_ref,
             requested_query_context_ref=manifest.requested_query_context_ref,
             failure_codes=(),
         ),
@@ -254,8 +256,11 @@ class _TransitionHistoryFixture:
 
 
 def _transition_history_fixture(
-    tmp_path: Path, *, authority_purpose: str = "decision_validity",
+    tmp_path: Path,
+    *,
+    authority_purpose: str = "decision_validity",
     store: artifacts.FileSystemCAS | None = None,
+    with_chronology_projection: bool = False,
 ) -> _TransitionHistoryFixture:
     store = store if store is not None else artifacts.FileSystemCAS(tmp_path / "cas")
     history = FileSemanticEpochHistoryRepository(
@@ -302,11 +307,17 @@ def _transition_history_fixture(
         resulting_heads=(current.epoch_ref,),
     )
     assert current_append.history_receipt_ref is not None
+    projection_ref = (
+        _put_epoch_dummy(store, kind="chronology.semantic_projection")
+        if with_chronology_projection
+        else None
+    )
     current_receipt = _persist_epoch_receipt(
         store,
         manifest=current,
         manifest_ref=current_ref,
         history_receipt_ref=current_append.history_receipt_ref,
+        chronology_projection_ref=projection_ref,
     )
     return _TransitionHistoryFixture(
         store=store,
@@ -341,6 +352,27 @@ def test_file_transition_history_adapter_resolves_exact_declared_predecessor(
         authority_purpose="decision_validity",
     )
 
+    assert previous == fixture.previous
+    assert current == fixture.current
+
+
+def test_file_transition_history_adapter_replays_projection_input(tmp_path: Path) -> None:
+    fixture = _transition_history_fixture(tmp_path, with_chronology_projection=True)
+    receipt = fixture.current_receipt
+    projection_ref = receipt.chronology_projection_ref
+    assert projection_ref is not None
+    manifest = fixture.store.get_manifest(receipt.receipt_ref.artifact_id)
+    assert any(
+        item.artifact_id == projection_ref.artifact_id
+        and item.role == "epoch_production_input"
+        for item in manifest.inputs
+    )
+
+    previous, current = _transition_history_adapter(fixture).resolve_transition_manifests(
+        previous_epoch_ref=fixture.previous_ref,
+        current_epoch_receipt_ref=receipt.receipt_ref,
+        authority_purpose="decision_validity",
+    )
     assert previous == fixture.previous
     assert current == fixture.current
 

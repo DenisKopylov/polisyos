@@ -495,6 +495,8 @@ class _Passport(Protocol):
 
     def model_dump(self, *, mode: str) -> dict[str, Any]: ...
 
+    def statement_projection(self) -> dict[str, Any]: ...
+
 
 class _PreparedSemanticEpoch(Protocol):
     prepared_epoch_ref: ArtifactRef
@@ -504,7 +506,7 @@ class _PreparedSemanticEpoch(Protocol):
     boundary_candidate_refs: tuple[ArtifactRef, ...]
     status: object
 
-    def model_dump(self, *, mode: str) -> dict[str, Any]: ...
+    def statement_projection(self) -> dict[str, Any]: ...
 
 
 class _SemanticEpochProductionReceipt(Protocol):
@@ -1109,11 +1111,7 @@ class CatalogAcquisitionOverlay:
             )
         except ValueError as exc:
             raise OverlayAdmissionError("prepared_epoch_candidate_cas_readback_failed") from exc
-        expected_prepared = {
-            name: value
-            for name, value in prepared_epoch.model_dump(mode="python").items()
-            if name not in {"prepared_epoch_ref", "prepared_content_hash"}
-        }
+        expected_prepared = prepared_epoch.statement_projection()
         if (
             _enum_value(prepared_epoch.status) != "prepared"
             or persisted_candidate != boundary_candidate.statement
@@ -1382,31 +1380,7 @@ class CatalogAcquisitionOverlay:
         ):
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
         persisted = _single_framed_json(production_raw)
-        expected = {
-            name: _model_json_value(getattr(production_receipt, name))
-            for name in (
-                "production_mode",
-                "status",
-                "prepared_epoch_ref",
-                "admitted_boundary_evidence_ref",
-                "epoch_ref",
-                "semantic_manifest_ref",
-                "owner_denominator_receipt_refs",
-                "history_append_receipt_ref",
-                "chronology_bundle_ref",
-                "chronology_verification_ref",
-                "chronology_projection_ref",
-                "requested_query_context_ref",
-                "failure_codes",
-            )
-        }
-        if (
-            "chronology_projection_ref" not in persisted
-            and expected["chronology_projection_ref"] is None
-        ):
-            # The original receipt grammar omitted this subsequently added field.
-            # Preserve its exact bytes; absence supplies no native custody proof.
-            expected.pop("chronology_projection_ref")
+        expected = production_receipt.statement_projection()
         if persisted != expected:
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
         if production_receipt.receipt_content_hash != _semantic_content_hash(

@@ -231,7 +231,14 @@ class FileEpochTransitionOriginOwner:
         ):
             raise ValueError("epoch_origin_retained_source_mismatch")
         value = model.model_validate(canon.from_canonical_bytes(frames[0]))
-        if raw != contracts.chronology._frame_record(contracts.epoch.canonical_epoch_bytes(value)):
+        statement = (
+            value.statement_projection()
+            if isinstance(value, SemanticEpochProductionReceipt)
+            else value
+        )
+        if raw != contracts.chronology._frame_record(
+            contracts.epoch.canonical_epoch_bytes(statement)
+        ):
             raise ValueError("epoch_origin_retained_source_noncanonical")
         if isinstance(value, SemanticEpochProductionReceipt):
             expected_inputs = tuple(
@@ -243,6 +250,7 @@ class FileEpochTransitionOriginOwner:
                     value.history_append_receipt_ref,
                     value.chronology_bundle_ref,
                     value.chronology_verification_ref,
+                    value.chronology_projection_ref,
                 )
                 if source is not None
             )

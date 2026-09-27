@@ -439,7 +439,7 @@ class _PreparedSemanticEpoch(Protocol):
     boundary_candidate_refs: tuple[ArtifactRef, ...]
     status: object
 
-    def model_dump(self, *, mode: str) -> dict[str, Any]: ...
+    def statement_projection(self) -> dict[str, Any]: ...
 
 
 class _CatalogAcquisitionOverlay(Protocol):
@@ -1533,11 +1533,7 @@ def _require_semantic_handshake(
             "basis_mismatch",
             "prepared epoch stamp carries another manifest content hash",
         )
-    expected_mapping = {
-        name: value
-        for name, value in prepared_epoch.model_dump(mode="python").items()
-        if name not in {"prepared_epoch_ref", "prepared_content_hash"}
-    }
+    expected_mapping = prepared_epoch.statement_projection()
     if epoch_contract.canonical_epoch_bytes(
         prepared_mapping
     ) != epoch_contract.canonical_epoch_bytes(
@@ -2124,6 +2120,17 @@ def resolve_activated_semantic_epoch_admission(
             or manifest.media_type != ref.media_type
         ):
             raise ValueError("activation evidence CAS binding differs")
+        if model is SemanticEpochProductionReceipt:
+            frames = chronology._split_framed_records(raw)
+            if len(frames) != 1:
+                raise ValueError("activation production receipt frame denominator differs")
+            production = model.model_validate(from_canonical_bytes(frames[0]))
+            expected_raw = chronology._frame_record(
+                epoch_contract.canonical_epoch_bytes(production.statement_projection())
+            )
+            if expected_raw != raw:
+                raise ValueError("activation production receipt canonical bytes differ")
+            return production
         return security.parse_canonical_statement(raw, model)
 
     try:

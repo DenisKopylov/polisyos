@@ -129,10 +129,7 @@ def run_admission(
         expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
     )
     epoch_contract.SemanticEpochProductionReceiptStatement.model_validate(statement)
-    projected = receipt.model_dump(
-        mode="json",
-        include=set(epoch_contract.SemanticEpochProductionReceiptStatement.model_fields),
-    )
+    projected = receipt.statement_projection()
     if statement != projected:
         raise ValueError("acquisition_epoch_production_receipt_content_mismatch")
     return semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(

@@ -22,6 +22,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
 )
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CatalogAcquisitionOverlay,
+    OverlayAdmissionError,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.connectors.profiles.models import SourceProfile
@@ -315,6 +316,11 @@ def _persist_fabricated_prepared(
             "prepared_content_hash": prepared_hash,
         }
 
+    def statement_projection() -> dict[str, object]:
+        return semantic_epoch_runtime.PreparedSemanticEpoch.canonical_statement_projection(
+            mapping
+        )
+
     stamp_mapping = mapping["stamp"]
     assert isinstance(stamp_mapping, dict)
     return SimpleNamespace(
@@ -325,6 +331,7 @@ def _persist_fabricated_prepared(
         boundary_candidate_refs=(candidate.candidate_ref,),
         status="prepared",
         model_dump=model_dump,
+        statement_projection=statement_projection,
     )
 
 
@@ -880,6 +887,50 @@ def _real_epoch_scenario(tmp_path: Path, *, epoch_id: int = 1) -> SimpleNamespac
         passport=passport,
         pending=pending,
     )
+
+
+def test_prepared_owner_projection_replays_through_both_admission_consumers(
+    tmp_path: Path,
+) -> None:
+    """Persisted owner bytes pass handshake and overlay admission without serializer drift."""
+
+    scenario = _real_epoch_scenario(tmp_path)
+    persisted = epoch_contract.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=scenario.prepared.prepared_epoch_ref,
+        expected_kind="epoch.prepared",
+    )
+    projection = scenario.prepared.statement_projection()
+
+    assert persisted["boundary_candidate_refs"][0]["manifest_profile_sha256"] is None
+    assert (
+        persisted["query"]["valid_effect_coordinate_evidence_ref"][
+            "manifest_profile_sha256"
+        ]
+        is None
+    )
+    assert epoch_contract.canonical_epoch_bytes(projection) == epoch_contract.canonical_epoch_bytes(
+        persisted
+    )
+    assert scenario.pending.activation_state == "pending_epoch_activation"
+
+    tampered = scenario.prepared.model_copy(
+        update={"prepared_content_hash": "sha256:" + "0" * 64}
+    )
+    with pytest.raises(ValueError, match="prepared_semantic_epoch_cas_binding_mismatch"):
+        _require_semantic_handshake(
+            artifact_store=scenario.store,
+            boundary_candidate=scenario.candidate,
+            prepared_epoch=tampered,
+        )
+    with pytest.raises(OverlayAdmissionError, match="prepared_epoch_candidate_binding_mismatch"):
+        scenario.overlay.admit_epoch(
+            passport=scenario.passport,
+            prepared_epoch=tampered,
+            boundary_candidate=scenario.candidate,
+            artifact_store=scenario.store,
+            authority=scenario.authority,
+        )
 
 
 def _test_positive_production_receipt(scenario: SimpleNamespace):

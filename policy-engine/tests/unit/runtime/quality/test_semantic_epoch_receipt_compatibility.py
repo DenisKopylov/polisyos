@@ -8,7 +8,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, PutOptions
+from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.runtime.quality import semantic_epoch
@@ -59,6 +60,17 @@ def test_legacy_production_receipt_cas_readback_preserves_exact_statement(
         expected_media_type=ref.media_type,
     )
     assert decoded == statement
+    base_receipt = semantic_epoch.SemanticEpochProductionReceipt.model_validate(decoded)
+    assert base_receipt.statement_projection() == statement
+    assert "chronology_projection_ref" not in base_receipt.statement_projection()
+    explicitly_null = semantic_epoch.SemanticEpochProductionReceipt.model_validate(
+        {**decoded, "chronology_projection_ref": None}
+    )
+    explicit_null_projection = explicitly_null.statement_projection()
+    assert "chronology_projection_ref" in explicit_null_projection
+    assert explicit_null_projection["chronology_projection_ref"] is None
+    if positive:
+        assert "manifest_profile_sha256" not in decoded["semantic_manifest_ref"]
     receipt = semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(
         {**decoded, "receipt_ref": ref, "receipt_content_hash": content_hash}
     )
@@ -88,3 +100,99 @@ def test_legacy_production_receipt_cas_readback_preserves_exact_statement(
             semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(
                 {**serialized, "chronology_projection_ref": projection}
             )
+
+
+def test_production_receipt_persists_a_selected_manifest_view(tmp_path: Path) -> None:
+    """The exact receipt payload distinguishes the selected view of identical bytes."""
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a")
+    anchor_ref = store.put_bytes(
+        b"owner-anchor",
+        PutOptions(kind="epoch.owner_anchor", media_type="application/vnd.polisyos.epoch+json"),
+    )
+    manifest_bytes = b"same semantic manifest bytes"
+    default_manifest_ref = store.put_bytes(
+        manifest_bytes,
+        PutOptions(
+            kind="epoch.semantic_manifest",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+    )
+    selected_manifest_ref = store.put_bytes(
+        manifest_bytes,
+        PutOptions(
+            kind="epoch.semantic_manifest",
+            media_type="application/vnd.polisyos.epoch+json",
+            inputs=[InputRef(artifact_id=anchor_ref.artifact_id, role="semantic_basis")],
+        ),
+    )
+    assert default_manifest_ref.artifact_id == selected_manifest_ref.artifact_id
+    assert default_manifest_ref.kind == selected_manifest_ref.kind
+    assert default_manifest_ref.media_type == selected_manifest_ref.media_type
+    assert default_manifest_ref.manifest_profile_sha256 is None
+    assert selected_manifest_ref.manifest_profile_sha256 is not None
+
+    history_ref = store.put_bytes(
+        b"history receipt",
+        PutOptions(
+            kind="epoch.history_append_receipt", media_type="application/vnd.polisyos.epoch+json"
+        ),
+    )
+    chronology_ref = store.put_bytes(
+        b"chronology proof",
+        PutOptions(
+            kind="chronology.full_prefix.bundle", media_type="application/vnd.polisyos.epoch+json"
+        ),
+    )
+    verification_ref = store.put_bytes(
+        b"chronology verification",
+        PutOptions(
+            kind="chronology.verifier.result", media_type="application/vnd.polisyos.epoch+json"
+        ),
+    )
+    digest = "sha256:" + hashlib.sha256(b"same-epoch").hexdigest()
+
+    def persist(
+        manifest_ref: ArtifactRef,
+    ) -> semantic_epoch.PersistedSemanticEpochProductionReceipt:
+        return semantic_epoch.persist_semantic_epoch_production_receipt(
+            store=store,
+            receipt=semantic_epoch.SemanticEpochProductionReceipt(
+                production_mode="ordinary",
+                status="appended",
+                prepared_epoch_ref=None,
+                admitted_boundary_evidence_ref=None,
+                epoch_ref=digest,
+                semantic_manifest_ref=manifest_ref,
+                owner_denominator_receipt_refs=(),
+                history_append_receipt_ref=history_ref,
+                chronology_bundle_ref=chronology_ref,
+                chronology_verification_ref=verification_ref,
+                requested_query_context_ref=digest,
+                failure_codes=(),
+            ),
+        )
+
+    default_receipt = persist(default_manifest_ref)
+    selected_receipt = persist(selected_manifest_ref)
+    assert default_receipt.receipt_ref.artifact_id != selected_receipt.receipt_ref.artifact_id
+    assert default_receipt.receipt_content_hash != selected_receipt.receipt_content_hash
+
+    selected_statement = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=selected_receipt.receipt_ref,
+        expected_kind="epoch.production_receipt",
+        expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
+    )
+    assert "chronology_projection_ref" in selected_statement
+    assert selected_statement["chronology_projection_ref"] is None
+    assert (
+        selected_statement["semantic_manifest_ref"]["manifest_profile_sha256"]
+        == selected_manifest_ref.manifest_profile_sha256
+    )
+    default_statement = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=default_receipt.receipt_ref,
+        expected_kind="epoch.production_receipt",
+        expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
+    )
+    assert "manifest_profile_sha256" not in default_statement["semantic_manifest_ref"]

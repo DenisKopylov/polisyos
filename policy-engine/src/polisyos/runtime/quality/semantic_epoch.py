@@ -1225,13 +1225,36 @@ class PreparedSemanticEpoch(_EpochModel):
     owner_denominator_receipt_refs: tuple[ArtifactRef, ...]
     status: Literal["prepared"]
 
+    @classmethod
+    def canonical_statement_projection(
+        cls, value: PreparedSemanticEpoch | dict[str, object]
+    ) -> dict[str, object]:
+        """Select the exact owner statement persisted for this prepared epoch.
+
+        The projection reads declared model fields directly so nullable artifact
+        view selectors remain explicit in the canonical bytes. It is shared by
+        the producer, validator, and every admission consumer.
+        """
+
+        fields = tuple(
+            name
+            for name in cls.model_fields
+            if name not in {"prepared_epoch_ref", "prepared_content_hash"}
+        )
+        if isinstance(value, cls):
+            return {name: getattr(value, name) for name in fields}
+        if set(value) != set(fields):
+            raise ValueError("prepared semantic epoch statement fields differ")
+        return {name: value[name] for name in fields}
+
+    def statement_projection(self) -> dict[str, object]:
+        """Return the canonical persisted statement owned by this epoch."""
+
+        return self.canonical_statement_projection(self)
+
     @model_validator(mode="after")
     def _candidate_mapping_is_complete(self) -> Self:
-        statement = {
-            name: getattr(self, name)
-            for name in self.__class__.model_fields
-            if name not in {"prepared_epoch_ref", "prepared_content_hash"}
-        }
+        statement = self.statement_projection()
         raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
         if (
             str(self.prepared_epoch_ref.artifact_id) != _raw_cas_hash(raw)
@@ -1264,6 +1287,27 @@ class PreparedSemanticEpoch(_EpochModel):
 class SemanticEpochProductionReceipt(epoch_contract.SemanticEpochProductionReceiptStatement):
     """Runtime name for the import-safe exact production statement."""
 
+    def statement_projection(self) -> dict[str, object]:
+        """Return the exact historical wire mapping owned by this producer.
+
+        Pydantic JSON serialization omits nullable selected-view fields. The
+        owner also preserves historical absence of chronology projection for
+        base and persisted receipt models while retaining explicit null and any
+        non-null selected manifest profile.
+
+        Returns:
+            The owner receipt statement, excluding only persistence wrapper fields.
+        """
+        payload = self.model_dump(
+            mode="json",
+            include=set(epoch_contract.SemanticEpochProductionReceiptStatement.model_fields),
+        )
+        if not isinstance(payload, dict):
+            raise TypeError("semantic epoch receipt projection is not a mapping")
+        if "chronology_projection_ref" not in self.model_fields_set:
+            payload.pop("chronology_projection_ref", None)
+        return payload
+
 
 class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
     """CAS identity for exact production-receipt bytes.
@@ -1278,11 +1322,7 @@ class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
 
     @model_validator(mode="after")
     def _bind_exact_statement(self) -> Self:
-        statement = {
-            name: getattr(self, name)
-            for name in SemanticEpochProductionReceipt.model_fields
-            if name != "chronology_projection_ref" or name in self.model_fields_set
-        }
+        statement = self.statement_projection()
         raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
         if (
             str(self.receipt_ref.artifact_id) != _raw_cas_hash(raw)
@@ -1342,7 +1382,12 @@ def persist_semantic_epoch_production_receipt(
 ) -> PersistedSemanticEpochProductionReceipt:
     """Persist and reread one exact production receipt without self-reference."""
 
-    statement = receipt.model_dump(mode="json")
+    # Current writes keep the v1 explicit-null field. Historical reads use
+    # model_fields_set to preserve an absent field from older receipt bytes.
+    current_receipt = receipt.model_copy(
+        update={"chronology_projection_ref": receipt.chronology_projection_ref}
+    )
+    statement = current_receipt.statement_projection()
     raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
     receipt_ref = store.put_bytes(
         raw,
@@ -2562,6 +2607,7 @@ class SemanticEpochService:
             ),
             "status": "prepared",
         }
+        statement = PreparedSemanticEpoch.canonical_statement_projection(statement)
         framed = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
         prepared_ref = self._artifact_store.put_bytes(
             framed,

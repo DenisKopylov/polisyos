@@ -27,6 +27,7 @@ def _producer_fixture(
     disposition: str | None = None,
     store: artifacts.FileSystemCAS | None = None,
     trusted_signer: bool = True,
+    with_chronology_projection: bool = False,
 ):
     module = _module()
     from polisyos.runtime.quality import epoch_validity_cascade as cascade
@@ -37,7 +38,10 @@ def _producer_fixture(
     )
 
     fixture = _transition_history_fixture(
-        tmp_path, authority_purpose=authority_purpose, store=store
+        tmp_path,
+        authority_purpose=authority_purpose,
+        store=store,
+        with_chronology_projection=with_chronology_projection,
     )
     target = fixture.store.put_bytes(
         b"isolated-test-target",
@@ -247,6 +251,28 @@ def test_canonical_producer_persists_independently_readable_execution_origin(
         signing_profiles=profiles,
     )
     assert _read(restarted, result) == origin
+
+
+def test_origin_reader_replays_current_receipt_projection_input(tmp_path: Path) -> None:
+    producer, owner, _, fixture, _, kwargs = _producer_fixture(
+        tmp_path, with_chronology_projection=True
+    )
+    receipt = fixture.current_receipt
+    projection_ref = receipt.chronology_projection_ref
+    assert projection_ref is not None
+    manifest = fixture.store.get_manifest(receipt.receipt_ref.artifact_id)
+    assert any(
+        item.artifact_id == projection_ref.artifact_id
+        and item.role == "epoch_production_input"
+        for item in manifest.inputs
+    )
+
+    from polisyos.runtime.quality import epoch_validity_cascade as cascade
+
+    result = producer.produce_and_persist(**kwargs)
+    assert isinstance(result, cascade.PersistedEpochValidityTransition)
+    origin = _read(owner, result)
+    assert origin.current_epoch_production_receipt_ref == receipt.receipt_ref
 
 
 def test_cas_origin_copy_cannot_substitute_for_owner_execution_membership(tmp_path: Path) -> None:

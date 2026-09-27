@@ -953,7 +953,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         except (TypeError, ValueError) as exc:
             raise ValueError("epoch transition receipt CAS readback failed") from exc
         expected_raw = core_contracts.chronology._frame_record(
-            core_contracts.epoch.canonical_epoch_bytes(receipt)
+            core_contracts.epoch.canonical_epoch_bytes(receipt.statement_projection())
         )
         expected_inputs = self._sorted_inputs(
             tuple(
@@ -968,6 +968,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
                     receipt.history_append_receipt_ref,
                     receipt.chronology_bundle_ref,
                     receipt.chronology_verification_ref,
+                    receipt.chronology_projection_ref,
                 )
                 if ref is not None
             )

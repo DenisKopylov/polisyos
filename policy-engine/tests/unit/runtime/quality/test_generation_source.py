@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -13,10 +15,239 @@ from tests.unit.runtime.quality.test_design_generation import (
     RecordedClientWithCatalog,
     _bundle,
     _intervention,
+    _owner_context_for_problem,
     _recording_with_successful_first_response,
     _test_design_problem,
 )
 from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
+
+
+def _frozen_generated_n4_organ():
+    payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    result = n4.GenerationUnderAResult.model_validate(payload["generation_results"][0])
+    assert result.status == "generated"
+    return n4.DesignGenerationOrganRun(result=result)
+
+
+def _owner_bound_generated_n4_outcome():
+    recording = _recording_with_successful_first_response()
+    problem = contract._design_problem(recording)
+    organ = _frozen_generated_n4_organ()
+    assert organ.result.design_problem_ref == n4.gy_content_hash(
+        problem.model_dump(mode="json")
+    )
+    context = _owner_context_for_problem(problem)
+    organ_run = n4.DesignGenerationOrganRun(
+        result=organ.result,
+        cycle_substrate_context=context,
+    )
+    outcome = n4.N4GenerationOutcome(
+        kind="organ_run",
+        target_world_binding="pass",
+        target_world_binding_code=None,
+        grounding_status="evaluated",
+        organ_run=organ_run,
+        design_problem=problem,
+    )
+    return problem, context, outcome
+
+
+def test_n4_outcome_rejects_unknown_variant_with_grounded_markers():
+    """An unknown discriminator cannot reuse pass/evaluated/organ-run markers."""
+    organ = _frozen_generated_n4_organ()
+
+    with pytest.raises(ValueError, match="n4_outcome_kind_invalid"):
+        n4.N4GenerationOutcome(
+            kind="unrecognized_variant",  # type: ignore[arg-type]
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="evaluated",
+            organ_run=organ,
+        )
+
+
+def test_n4_generated_result_requires_evaluated_grounding():
+    """A generated owner result and evaluated-grounding state are one invariant."""
+    organ = _frozen_generated_n4_organ()
+
+    with pytest.raises(ValueError, match="n4_grounding_result_status_mismatch"):
+        n4.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="UNRUN",
+            organ_run=organ,
+        )
+
+
+def test_generated_n4_outcome_cannot_claim_grounding_without_context():
+    """Pass/evaluated markers cannot substitute for the context they assert."""
+    organ = _frozen_generated_n4_organ()
+    assert organ.result.status == "generated"
+
+    with pytest.raises(
+        ValueError,
+        match="n4_outcome_cycle_substrate_context_missing",
+    ):
+        n4.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="evaluated",
+            organ_run=organ,
+        )
+
+
+def test_owner_bound_generated_n4_outcome_revalidates_problem_and_jurisdiction():
+    """A matching owner context can carry a generated result through the common gate."""
+    problem, context, outcome = _owner_bound_generated_n4_outcome()
+
+    assert outcome.design_problem == problem
+    assert outcome.revalidated_target_world_context().content_hash == context.content_hash
+    validated_run = outcome.require_grounded_organ_run()
+    assert validated_run.result.design_problem_ref == context.design_problem_ref
+    assert (
+        validated_run.cycle_substrate_context.world_model_record.region_or_jurisdiction
+        == problem.jurisdiction_time.region
+    )
+
+
+def test_owner_bound_generated_n4_outcome_rejects_valid_foreign_context():
+    """A valid context for another DesignProblem cannot bind this generated result."""
+    recording = _recording_with_successful_first_response()
+    problem = contract._design_problem(recording)
+    foreign_problem = problem.model_copy(
+        update={
+            "design_problem_id": f"{problem.design_problem_id}_foreign",
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                update={"region": "DE"}
+            ),
+        }
+    )
+    foreign_context = _owner_context_for_problem(foreign_problem)
+    organ = _frozen_generated_n4_organ()
+    assert organ.result.design_problem_ref == n4.gy_content_hash(
+        problem.model_dump(mode="json")
+    )
+    assert foreign_context.design_problem_ref == n4.gy_content_hash(
+        foreign_problem.model_dump(mode="json")
+    )
+    assert foreign_context.design_problem_ref != organ.result.design_problem_ref
+    assert (
+        foreign_context.world_model_record.region_or_jurisdiction
+        == foreign_problem.jurisdiction_time.region
+    )
+    assert (
+        foreign_context.world_model_record.region_or_jurisdiction
+        != problem.jurisdiction_time.region
+    )
+    organ_run = n4.DesignGenerationOrganRun(
+        result=organ.result,
+        cycle_substrate_context=foreign_context,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="n4_outcome_cycle_substrate_context_invalid",
+    ):
+        n4.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="evaluated",
+            organ_run=organ_run,
+            design_problem=problem,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "error_code"),
+    [
+        ("target_world_binding", "unclassified", "n4_target_world_binding_status_invalid"),
+        ("grounding_status", "assumed", "n4_grounding_status_invalid"),
+    ],
+)
+def test_n4_outcome_rejects_unrecognized_status_fields(
+    field: str,
+    value: str,
+    error_code: str,
+) -> None:
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable",
+            model_id="synthetic-c2",
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+    kwargs = {
+        "kind": "organ_run",
+        "target_world_binding": "pass",
+        "target_world_binding_code": None,
+        "grounding_status": "UNRUN",
+        "organ_run": result.as_organ_run(),
+    }
+    kwargs[field] = value
+
+    with pytest.raises(ValueError, match=error_code):
+        n4.N4GenerationOutcome(**kwargs)  # type: ignore[arg-type]
+
+
+def test_n4_unavailable_result_cannot_claim_evaluated_grounding():
+    """A terminal generation result cannot claim that grounding was evaluated."""
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable",
+            model_id="synthetic-c2",
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+
+    with pytest.raises(ValueError, match="n4_grounding_result_status_mismatch"):
+        n4.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="evaluated",
+            organ_run=result.as_organ_run(),
+        )
+
+
+def test_grounded_contract_consumer_requires_organ_run_discriminant() -> None:
+    """A forged variant marker cannot pass the contract's grounding consumer."""
+    _problem, _context, outcome = _owner_bound_generated_n4_outcome()
+    object.__setattr__(outcome, "kind", "unrecognized_variant")
+
+    with pytest.raises(contract.N4ContractFailureError, match="n4_outcome_kind_invalid"):
+        contract._require_grounded_n4_outcome(outcome)
+
+
+def test_grounded_contract_consumer_revalidates_mutated_owner_context() -> None:
+    """A context removed after construction cannot pass a grounded consumer."""
+    _problem, _context, outcome = _owner_bound_generated_n4_outcome()
+    assert outcome.organ_run is not None
+    object.__setattr__(outcome.organ_run, "cycle_substrate_context", None)
+
+    with pytest.raises(
+        contract.N4ContractFailureError,
+        match="n4_outcome_cycle_substrate_context_missing",
+    ):
+        contract._require_grounded_n4_outcome(outcome)
 
 
 @pytest.mark.asyncio
@@ -38,18 +269,53 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
     organ = result.as_organ_run(trinity_bundle=_bundle([intervention]))
     incoming_context = object()  # Transport-only witness, never an admitted/persisted context.
 
+    outcome = n4.N4GenerationOutcome(
+        kind="organ_run",
+        target_world_binding="UNRUN",
+        target_world_binding_code="cycle_substrate_context_not_established",
+        grounding_status="UNRUN",
+        organ_run=organ,
+    )
+
     async def produce(_problem, **kwargs):
         assert _problem is problem
         assert kwargs["cycle_substrate_context"] is incoming_context
-        return organ
+        return outcome
 
     monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
     port = N4GenerationPort(model_id="synthetic-c2", cycle_substrate_context=incoming_context)
 
     observed = await port(problem, cycle_index=0)
 
-    assert observed is organ
-    assert observed.trinity_bundle is organ.trinity_bundle
+    assert observed is outcome
+    assert observed.organ_run is organ
+    assert observed.organ_run.trinity_bundle is organ.trinity_bundle
+
+
+@pytest.mark.asyncio
+async def test_n4_port_keeps_candidate_work_when_target_context_is_missing():
+    """The recursive-cycle adapter returns the common N4 UNRUN outcome."""
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    problem = contract._design_problem(recording)
+    port = N4GenerationPort(
+        model_id=model_id,
+        llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
+        repo_root=REPO_ROOT,
+    )
+
+    outcome = await port(problem, cycle_index=0)
+
+    assert isinstance(outcome, n4.N4GenerationOutcome)
+    assert outcome.kind == "candidate_proposal"
+    assert outcome.target_world_binding == "UNRUN"
+    assert outcome.grounding_status == "UNRUN"
+    assert outcome.candidate_proposal is not None
+    assert outcome.candidate_proposal.status == "candidate_limited"
+    assert outcome.candidate_proposal.schema_version == (
+        "policyos.runtime.quality.n4_candidate_proposal.v1"
+    )
+    assert outcome.organ_run is None
 
 
 @pytest.mark.asyncio
@@ -73,12 +339,14 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
             )
         }
     )
-    proposal = await n4.generate_design_candidate_proposal_under_a(
+    outcome = await n4.generate_design_candidate_proposal_under_a(
         problem,
         model_id=model_id,
         llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
         repo_root=REPO_ROOT,
     )
+    proposal = outcome.candidate_proposal
+    assert proposal is not None
     repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
 
     proposal_ref = repository.persist_candidate_proposal(
@@ -138,12 +406,14 @@ async def test_candidate_proposal_writer_rejects_inner_scope_from_another_owner(
             )
         }
     )
-    proposal = await n4.generate_design_candidate_proposal_under_a(
+    outcome = await n4.generate_design_candidate_proposal_under_a(
         problem,
         model_id=model_id,
         llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
         repo_root=REPO_ROOT,
     )
+    proposal = outcome.candidate_proposal
+    assert proposal is not None
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     proposal = proposal.model_copy(update={"design_problem_ref": problem_ref})
     repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
@@ -190,12 +460,14 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
             )
         }
     )
-    proposal = await n4.generate_design_candidate_proposal_under_a(
+    outcome = await n4.generate_design_candidate_proposal_under_a(
         problem,
         model_id=model_id,
         llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
         repo_root=REPO_ROOT,
     )
+    proposal = outcome.candidate_proposal
+    assert proposal is not None
     repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
     valid_ref = repository.persist_candidate_proposal(
         job_id=owner_context["job_id"],

@@ -99,7 +99,9 @@ from polisyos.runtime.quality.cycle_substrate import (
 from polisyos.runtime.quality.design_generation import (
     DesignGenerationOrganRun,
     EffectiveGenerationRuntimeConfig,
+    N4GenerationOutcome,
     generate_design_candidate_bundle_under_a,
+    require_grounded_n4_organ_run,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -323,6 +325,30 @@ class GapWitnessTargetMissingError(RuntimeError):
 
 class SourceHashCheckoutPathError(ValueError):
     """Raised when evidence would bind a checkout-specific source path."""
+
+
+class SecondDomainN4UnrunError(RuntimeError):
+    """Raised when the N4 positive owner replay cannot be inspected."""
+
+
+def _require_n4_organ_run(outcome: N4GenerationOutcome, *, site: str) -> DesignGenerationOrganRun:
+    """Require one exact-context N4 grounding run before projecting its owner result."""
+
+    if not isinstance(outcome, N4GenerationOutcome):
+        raise ValueError(f"{site}:n4_outcome_type_invalid")
+    if outcome.target_world_binding == "UNRUN":
+        raise SecondDomainN4UnrunError(
+            f"{site}:target_world_binding_unrun:{outcome.target_world_binding_code}"
+        )
+    if outcome.target_world_binding == "fail":
+        raise ValueError(
+            f"{site}:target_world_binding_fail:{outcome.target_world_binding_code}"
+        )
+    if outcome.kind != "organ_run":
+        raise ValueError(f"{site}:n4_outcome_kind_invalid")
+    if outcome.grounding_status != "evaluated" or outcome.organ_run is None:
+        raise SecondDomainN4UnrunError(f"{site}:n4_grounding_not_evaluated")
+    return require_grounded_n4_organ_run(outcome)
 
 
 @dataclass(frozen=True)
@@ -558,13 +584,14 @@ class _RecordedN4OwnerPort:
             return organ_run.result
         client = RecordedGenerationReplayClient(self._capture)
         with _n4_recorded_runtime_environment(self._capture):
-            organ_run = await generate_design_candidate_bundle_under_a(
+            outcome = await generate_design_candidate_bundle_under_a(
                 problem,
                 model_id=str(self._capture.get("model_id") or ""),
                 llm_client=client,
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
             )
+        organ_run = _require_n4_organ_run(outcome, site="education_n4_replay")
         self.last_organ_run = organ_run
         return organ_run.result
 
@@ -3202,13 +3229,14 @@ async def _capture_live_n4_owner(
         "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path),
     }
     with _temporary_environment(live_environment):
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             problem,
             model_id=N4_CAPTURE_MODEL_ID,
             repo_root=root,
             min_diverse_candidates=3,
             cycle_substrate_context=cycle_substrate_context,
         )
+    organ_run = _require_n4_organ_run(outcome, site="education_n4_live_capture")
     return _n4_owner_capture_from_organ_run(
         organ_run,
         problem=problem,
@@ -3241,7 +3269,7 @@ async def _capture_n4_owner_from_journal(
         "responses": responses,
     }
     with _temporary_environment(_N4_LIVE_CAPTURE_ENV):
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             problem,
             model_id=N4_CAPTURE_MODEL_ID,
             llm_client=RecordedGenerationReplayClient(recording),
@@ -3249,6 +3277,7 @@ async def _capture_n4_owner_from_journal(
             min_diverse_candidates=3,
             cycle_substrate_context=cycle_substrate_context,
         )
+    organ_run = _require_n4_organ_run(outcome, site="education_n4_journal_replay")
     return _n4_owner_capture_from_organ_run(
         organ_run,
         problem=problem,
@@ -3572,7 +3601,7 @@ async def _replay_historical_n4_owner_capture(
         "responses": responses,
     }
     with _n4_recorded_runtime_environment(capture):
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             problem,
             model_id=N4_CAPTURE_MODEL_ID,
             llm_client=RecordedGenerationReplayClient(recording),
@@ -3580,6 +3609,7 @@ async def _replay_historical_n4_owner_capture(
             min_diverse_candidates=3,
             cycle_substrate_context=cycle_substrate_context,
         )
+    organ_run = _require_n4_organ_run(outcome, site="education_n4_historical_replay")
     journal_receipt = copy.deepcopy(_mapping(capture.get("journal_receipt")))
     replay_receipt = _historical_n4_replay_receipt(
         capture=capture,
@@ -7607,6 +7637,15 @@ def main(argv: list[str] | None = None) -> int:
                 root,
                 expected_source_freeze=args.expected_source_freeze,
             )
+    except SecondDomainN4UnrunError as exc:
+        report = {
+            "status": "UNRUN",
+            "measured": ["N4 owner-context presence and target-world binding"],
+            "not_measured": [
+                "N4 grounding, owner projection, and downstream cycle replay"
+            ],
+            "issues": [{"code": "n4_target_world_binding_unrun", "error": str(exc)}],
+        }
     except GapWitnessTargetMissingError as exc:
         report = {
             "status": "fail",
@@ -7639,6 +7678,8 @@ def main(argv: list[str] | None = None) -> int:
     }
     if args.corrupt_field_drift_check:
         exit_code = 1 if report.get("status") == "fail" else 2
+    elif report.get("status") == "UNRUN":
+        exit_code = 2
     else:
         exit_code = 0 if report.get("status") == "pass" else 1
     mode = next(

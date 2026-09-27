@@ -4227,10 +4227,6 @@ class ControlPlaneService(
                     )
 
                     if isinstance(compiled, N4CandidateProposalExecution):
-                        from polisyos.runtime.quality.design_generation import (
-                            DesignGenerationOrganRun,
-                        )
-
                         target_scope_progress = {
                             "target_world_scope_profile_id": (
                                 compiled.target_world_scope_profile_id
@@ -4246,9 +4242,9 @@ class ControlPlaneService(
                             ),
                         }
 
-                        proposal_result = compiled.proposal
-                        if isinstance(proposal_result, DesignGenerationOrganRun):
-                            generation_status = proposal_result.result.status
+                        n4_outcome = compiled.outcome
+                        if n4_outcome.organ_run is not None:
+                            generation_status = n4_outcome.organ_run.result.status
                             limitation_code_by_status = {
                                 "generation_unavailable": "n4_generation_unavailable",
                                 "preflight_rejected": "n4_model_preflight_rejected",
@@ -4327,6 +4323,36 @@ class ControlPlaneService(
                             self._control_store.complete_job(
                                 job_id=job.job_id,
                                 run_id=run_id,
+                                capability_manifest_ref=str(capability_manifest_ref),
+                                progress=progress,
+                            )
+                            return
+
+                        proposal_result = n4_outcome.candidate_proposal
+                        if proposal_result is None:
+                            progress = {
+                                "state": "completed",
+                                "phase": "natural_language_run",
+                                "status": "not_established",
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "proposal_persistence_status": "not_run",
+                                "limitation_code": (
+                                    n4_outcome.target_world_binding_code
+                                    or "n4_candidate_proposal_unavailable"
+                                ),
+                                "target_world_binding": n4_outcome.target_world_binding,
+                                "run_id": str(job.run_id or payload.get("run_id") or ""),
+                                "candidate_proposal_ref": None,
+                                "n5_status": "not_run",
+                                "n8_status": "not_run",
+                                "n9_status": "not_run",
+                                "s8_status": "not_run",
+                                **target_scope_progress,
+                            }
+                            self._control_store.complete_job(
+                                job_id=job.job_id,
+                                run_id=str(job.run_id or payload.get("run_id") or ""),
                                 capability_manifest_ref=str(capability_manifest_ref),
                                 progress=progress,
                             )

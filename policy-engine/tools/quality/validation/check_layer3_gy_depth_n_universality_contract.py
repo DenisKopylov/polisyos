@@ -318,6 +318,10 @@ class UniversalityContractError(RuntimeError):
         self._replay_drift = replay_drift
         super().__init__(message)
 
+
+class UniversalityContractUnrunError(UniversalityContractError):
+    """The requested positive N4 grounding replay lacks an inspectable context."""
+
     @property
     def safe_replay_drift_detail(self) -> str | None:
         """Return only an owner-created, identity-only replay diagnostic."""
@@ -3610,6 +3614,7 @@ async def _replay_n4_recording(
 
     from polisyos.runtime.quality.design_generation import (
         generate_design_candidate_bundle_under_a,
+        require_grounded_n4_organ_run,
     )
     from tools.quality.validation.check_layer3_gy_design_generation_contract import (
         RecordedGenerationReplayClient,
@@ -3631,7 +3636,7 @@ async def _replay_n4_recording(
                 "proof_n4_projection_rebind_receipt_invalid:" + ",".join(receipt_issues)
             )
     with _temporary_environment(_mapping(recording.get("effective_environment"))):
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             problem,
             model_id=str(recording.get("model_id") or ""),
             llm_client=RecordedGenerationReplayClient(dict(recording)),
@@ -3639,6 +3644,25 @@ async def _replay_n4_recording(
             min_diverse_candidates=3,
             cycle_substrate_context=cycle_substrate_context,
         )
+    if outcome.target_world_binding == "UNRUN":
+        raise UniversalityContractUnrunError(
+            "proof_n4_target_world_binding_unrun:"
+            + str(outcome.target_world_binding_code)
+        )
+    if outcome.target_world_binding == "fail":
+        raise UniversalityContractError(
+            "proof_n4_target_world_binding_fail:" + str(outcome.target_world_binding_code)
+        )
+    if outcome.kind != "organ_run":
+        raise UniversalityContractError("proof_n4_outcome_kind_invalid")
+    if outcome.grounding_status != "evaluated" or outcome.organ_run is None:
+        raise UniversalityContractUnrunError("proof_n4_owner_grounding_not_evaluated")
+    try:
+        organ_run = require_grounded_n4_organ_run(outcome)
+    except ValueError as exc:
+        raise UniversalityContractError(
+            "proof_n4_grounded_context_invalid:" + str(exc)
+        ) from exc
     projection = _n4_owner_projection(organ_run)
     if projection != _mapping(recording.get("owner_result_projection")):
         if historical_receipt:
@@ -3743,6 +3767,7 @@ async def _n4_recording_from_journal(
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.design_generation import (
         generate_design_candidate_bundle_under_a,
+        require_grounded_n4_organ_run,
     )
     from polisyos.runtime.quality.design_problem import DesignProblem
     from tools.quality.validation.check_layer3_gy_design_generation_contract import (
@@ -3753,7 +3778,7 @@ async def _n4_recording_from_journal(
     responses = _n4_responses_from_journal(journal_path)
     seed_recording = {"model_id": PROOF_MODEL_ID, "responses": responses}
     with _temporary_environment(_N4_CAPTURE_ENV):
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             resolved_problem,
             model_id=PROOF_MODEL_ID,
             llm_client=RecordedGenerationReplayClient(seed_recording),
@@ -3761,6 +3786,25 @@ async def _n4_recording_from_journal(
             min_diverse_candidates=3,
             cycle_substrate_context=cycle_substrate_context,
         )
+    if outcome.target_world_binding == "UNRUN":
+        raise UniversalityContractUnrunError(
+            "proof_n4_target_world_binding_unrun:"
+            + str(outcome.target_world_binding_code)
+        )
+    if outcome.target_world_binding == "fail":
+        raise UniversalityContractError(
+            "proof_n4_target_world_binding_fail:" + str(outcome.target_world_binding_code)
+        )
+    if outcome.kind != "organ_run":
+        raise UniversalityContractError("proof_n4_outcome_kind_invalid")
+    if outcome.grounding_status != "evaluated" or outcome.organ_run is None:
+        raise UniversalityContractUnrunError("proof_n4_owner_grounding_not_evaluated")
+    try:
+        organ_run = require_grounded_n4_organ_run(outcome)
+    except ValueError as exc:
+        raise UniversalityContractError(
+            "proof_n4_grounded_context_invalid:" + str(exc)
+        ) from exc
     projection = _n4_owner_projection(organ_run)
     if projection.get("status") != "generated":
         raise UniversalityContractError(
@@ -7965,7 +8009,17 @@ def _rederive_audit(repo_root: Path) -> dict[str, Any]:
             "status": "fail",
             "issues": [{"code": "universality_contract_artifact_missing"}],
         }
-    live, comparison_plan = _build_live_payload_with_plan(repo_root, lane="cached")
+    try:
+        live, comparison_plan = _build_live_payload_with_plan(repo_root, lane="cached")
+    except UniversalityContractUnrunError as exc:
+        return {
+            "status": "UNRUN",
+            "measured": ["N4 target-context admission"],
+            "not_measured": [
+                "positive N4 grounding projection and dependent depth-N replay"
+            ],
+            "issues": [{"code": "proof_n4_target_world_binding_unrun", "error": str(exc)}],
+        }
     committed = _read_json(path)
     issues = list(validate_payload(committed)["issues"])
     try:
@@ -7986,7 +8040,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         return report, 0 if report["status"] == "pass" else 1
     if args.rederive_audit:
         report = _rederive_audit(REPO_ROOT)
-        return report, 0 if report["status"] == "pass" else 1
+        return report, 0 if report["status"] == "pass" else 2 if report["status"] == "UNRUN" else 1
     if args.characterize_compiler:
         with _temporary_environment(
             {
@@ -8023,6 +8077,13 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     if args.capture_proof_runs:
         try:
             data = capture_and_write_payload(REPO_ROOT)
+        except UniversalityContractUnrunError as exc:
+            return {
+                "status": "UNRUN",
+                "measured": ["N4 target-context admission"],
+                "not_measured": ["positive N4 grounding projection"],
+                "issues": [{"code": "proof_n4_target_world_binding_unrun", "error": str(exc)}],
+            }, 2
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",
@@ -8043,6 +8104,13 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return {"status": "fail", "issues": stability.get("issues", [])}, 1
         try:
             data = write_payload(REPO_ROOT, REPO_ROOT / OUTPUT_PATH)
+        except UniversalityContractUnrunError as exc:
+            return {
+                "status": "UNRUN",
+                "measured": ["N4 target-context admission"],
+                "not_measured": ["positive N4 grounding projection"],
+                "issues": [{"code": "proof_n4_target_world_binding_unrun", "error": str(exc)}],
+            }, 2
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",

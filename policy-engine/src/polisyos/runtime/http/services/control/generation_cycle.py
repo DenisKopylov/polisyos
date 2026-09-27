@@ -55,10 +55,7 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
-    from polisyos.runtime.quality.design_generation import (
-        DesignGenerationOrganRun,
-        N4CandidateProposalSource,
-    )
+    from polisyos.runtime.quality.design_generation import N4GenerationOutcome
     from polisyos.runtime.quality.evaluation_safety import (
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
@@ -493,10 +490,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
 
 @dataclass(frozen=True, slots=True)
 class N4CandidateProposalExecution:
-    """Proposal-only N4 result stopped before recursive execution when scope is unknown."""
+    """Candidate-only N4 outcome stopped before recursion when scope is unknown."""
 
     design_problem: DesignProblem
-    proposal: N4CandidateProposalSource | DesignGenerationOrganRun
+    outcome: N4GenerationOutcome
     target_world_scope_profile_id: str | None = None
     target_world_scope_status: Literal["not_established"] = "not_established"
     target_world_scope_profile_status: Literal[
@@ -665,14 +662,14 @@ async def compile_and_run_recursive_generation_cycle(
             generate_design_candidate_proposal_under_a,
         )
 
-        proposal = await generate_design_candidate_proposal_under_a(
+        outcome = await generate_design_candidate_proposal_under_a(
             problem,
             model_id=model_name,
             repo_root=repo_root,
         )
         return N4CandidateProposalExecution(
             design_problem=problem,
-            proposal=proposal,
+            outcome=outcome,
             target_world_scope_profile_id=target_world_scope_profile_id,
             target_world_scope_status="not_established",
             target_world_scope_profile_status=(

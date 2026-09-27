@@ -2096,16 +2096,6 @@ class RevisionPolicy(Protocol):
         """Return the next revision request."""
 
 
-@dataclass(frozen=True)
-class _N4OwnerContextUnavailableResult:
-    """Typed U4 refusal before a fixed Scientist vertical can become authority."""
-
-    status: str = "cycle_substrate_context_unavailable"
-    candidates: tuple[object, ...] = ()
-    surrogate_rankings: tuple[object, ...] = ()
-    grounding_dispositions: tuple[object, ...] = ()
-
-
 class N4GenerationPort:
     """Default N4 port calling the real design generation owner."""
 
@@ -2140,13 +2130,11 @@ class N4GenerationPort:
         """Call N4 generation for this cycle."""
 
         del cycle_index
-        if self._cycle_substrate_context is None:
-            return _N4OwnerContextUnavailableResult()
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_bundle_under_a,
         )
 
-        organ_run = await generate_design_candidate_bundle_under_a(
+        outcome = await generate_design_candidate_bundle_under_a(
             problem,
             model_id=self._model_id,
             llm_client=self._llm_client,
@@ -2154,7 +2142,7 @@ class N4GenerationPort:
             cycle_substrate_context=self._cycle_substrate_context,
             grounding_run_budget=self._grounding_run_budget,
         )
-        return organ_run
+        return outcome
 
 
 class PolicyGroundingPort:
@@ -6335,7 +6323,9 @@ class GenerationCycleController:
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
         from polisyos.runtime.quality.design_generation import (
             DesignGenerationOrganRun,
+            N4GenerationOutcome,
             ShadowGeneratedCandidate,
+            require_grounded_n4_organ_run,
         )
 
         result = self._generation_port(
@@ -6344,6 +6334,19 @@ class GenerationCycleController:
         )
         if inspect.isawaitable(result):
             result = await result
+        if isinstance(result, N4GenerationOutcome):
+            if result.target_world_binding != "pass":
+                raise GenerationCycleError(
+                    result.target_world_binding_code or "n4_target_world_binding_unrun"
+                )
+            if result.kind != "organ_run":
+                raise GenerationCycleError("n4_outcome_kind_invalid")
+            if result.organ_run is None or result.grounding_status != "evaluated":
+                raise GenerationCycleError("n4_grounding_unrun")
+            try:
+                result = require_grounded_n4_organ_run(result)
+            except ValueError as exc:
+                raise GenerationCycleError(str(exc)) from exc
         organ = result if isinstance(result, DesignGenerationOrganRun) else None
         from polisyos.runtime.quality.generation_source import generation_source_synthetic
 

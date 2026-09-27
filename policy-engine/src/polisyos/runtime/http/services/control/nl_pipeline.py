@@ -5010,12 +5010,18 @@ class NaturalLanguageRunMixin:
                             "design_problem_unavailable",
                             "N4 cannot route an unavailable gateway without a DesignProblem.",
                         )
-                    n4_run = await generate_design_candidate_bundle_under_a(
+                    n4_outcome = await generate_design_candidate_bundle_under_a(
                         design_problem,
                         model_id=str(model_name),
                         llm_client=None,
                         repo_root=Path(__file__).resolve().parents[6],
                     )
+                    n4_run = n4_outcome.organ_run
+                    if n4_run is None:
+                        raise NaturalLanguagePipelineRefusalError(
+                            n4_outcome.target_world_binding_code
+                            or "n4_gateway_terminal_outcome_missing"
+                        )
                     n4_terminal = n4_run.result.model_dump(mode="json")
                     terminal_reason = (
                         n4_run.result.degraded_artifacts[0].reason

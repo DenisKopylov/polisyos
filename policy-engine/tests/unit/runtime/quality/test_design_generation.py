@@ -11,7 +11,6 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -30,7 +29,6 @@ from polisyos.runtime.quality.design_generation import (
     SUPPORTED_GENERATION_MODEL_IDS,
     DesignGenerationError,
     SurrogateRanking,
-    firewall_issues_for_result,
     generate_design_candidates_under_a,
     validate_design_generation_strangle_receipts,
 )
@@ -110,6 +108,35 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
         intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
     )
     return problem, context
+
+
+def _owner_context_for_problem(problem: DesignProblem) -> object:
+    """Build a test context through the existing registry/WMR owner path."""
+
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    selected_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
+    outcome = problem.outcome_of_interest.target_variable
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome=outcome,
+        policy_slot_ids=(outcome,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    problem_ref = dg.gy_content_hash(problem.model_dump(mode="json"))
+    return build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world,
+        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=None,
+    )
 
 
 def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
@@ -810,7 +837,11 @@ async def test_terminal_critic_persistent_failure_stays_degraded(
 
 def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
     problem = _test_design_problem()
-    reference = build_credal_reference(REPO_ROOT)
+    context = _owner_context_for_problem(problem)
+    reference = build_credal_reference(
+        REPO_ROOT,
+        world_model_record=context.world_model_record,
+    )
     intervention = InterventionSpec(
         intervention_id="tax_credit_alias_probe",
         kind="tax_credit_rate",
@@ -829,7 +860,7 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
 
     candidates, dispositions = dg._content_bound_candidates(
         design_problem=problem,
-        design_problem_ref="sha256:" + "d" * 64,
+        design_problem_ref=dg.gy_content_hash(problem.model_dump(mode="json")),
         bundle=_bundle([intervention]),
         model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
         draft_path="model_generated",
@@ -838,8 +869,9 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
         critique_verdict="unit_probe",
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
-        world_model_record_ref=_WORLD_MODEL_RECORD_REF,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
         reference=reference,
+        cycle_substrate_context=context,
     )
 
     assert len(candidates) == 1
@@ -886,7 +918,10 @@ def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
         world_model_record_ref=context.world_model_record.world_model_record_id,
-        reference=build_credal_reference(REPO_ROOT),
+        reference=build_credal_reference(
+            REPO_ROOT,
+            world_model_record=context.world_model_record,
+        ),
         cycle_substrate_context=context,
     )
 
@@ -991,7 +1026,10 @@ def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind() 
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
         world_model_record_ref=context.world_model_record.world_model_record_id,
-        reference=build_credal_reference(REPO_ROOT),
+        reference=build_credal_reference(
+            REPO_ROOT,
+            world_model_record=context.world_model_record,
+        ),
         cycle_substrate_context=context,
     )
 
@@ -1314,7 +1352,13 @@ async def test_n4_replay_applies_recorded_effective_config_and_restores_host(
                 ),
             }
         )
-        return SimpleNamespace(effective_runtime_config=emitted)
+        return dg.N4GenerationOutcome(
+            kind="context_rejected",
+            target_world_binding="fail",
+            target_world_binding_code="test_context_rejected",
+            grounding_status="UNRUN",
+            effective_runtime_config=emitted,
+        )
 
     monkeypatch.setattr(
         contract,
@@ -1448,10 +1492,14 @@ async def test_n4_replay_refuses_owner_emitted_effective_config_drift(
 
     async def _emit_drift(*args: object, **kwargs: object) -> object:
         del args, kwargs
-        return SimpleNamespace(
+        return dg.N4GenerationOutcome(
+            kind="context_rejected",
+            target_world_binding="fail",
+            target_world_binding_code="test_context_rejected",
+            grounding_status="UNRUN",
             effective_runtime_config=expected.model_copy(
                 update={"formalizer_retry_count": expected.formalizer_retry_count - 1}
-            )
+            ),
         )
 
     monkeypatch.setattr(contract, "generate_design_candidates_under_a", _emit_drift)
@@ -1517,6 +1565,93 @@ def test_n4_current_wmr_rebind_preserves_historical_recording_and_raw_bytes() ->
         }
     ]
     contract._validate_recording_fixture(reissued)
+
+
+def test_n4_contract_cli_uses_exit_two_for_unrun_rederive(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """An inspection the tool cannot perform is a typed UNRUN verdict."""
+
+    monkeypatch.setattr(
+        contract,
+        "validate_rederive_audit",
+        lambda _root: {
+            "status": "UNRUN",
+            "measured": ["historical N4 recording integrity"],
+            "not_measured": ["target-world grounding without admitted context"],
+            "issues": [{"code": "n4_target_world_context_unrun"}],
+        },
+    )
+
+    exit_code = contract.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--rederive-audit",
+            "--output-format",
+            "json",
+        ]
+    )
+
+    assert exit_code == 2
+
+
+@pytest.mark.parametrize(
+    ("exception_type", "expected_status"),
+    [
+        (contract.N4ContractUnrunError, "UNRUN"),
+        (contract.N4ContractFailureError, "fail"),
+    ],
+)
+def test_n4_rederive_returns_typed_context_verdict(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    exception_type: type[RuntimeError],
+    expected_status: str,
+) -> None:
+    """The governed rederive tool maps missing and invalid context to verdicts."""
+
+    def refuse(_root: Path) -> dict[str, Any]:
+        raise exception_type("cycle_substrate_context_probe")
+
+    monkeypatch.setattr(contract, "build_live_payload", refuse)
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert report["status"] == expected_status
+    assert report["issues"][0]["reason"] == "cycle_substrate_context_probe"
+
+
+@pytest.mark.asyncio
+async def test_n4_capture_cli_reports_unrun_without_writing_proposal_as_grounded(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A bare WMR display ID cannot authorize the capture writer."""
+
+    called = False
+
+    async def forbidden_generation(*_args: object, **_kwargs: object) -> Any:
+        nonlocal called
+        called = True
+        raise AssertionError("capture without owner context reached N4")
+
+    monkeypatch.setattr(
+        capture,
+        "generate_design_candidate_bundle_under_a",
+        forbidden_generation,
+        raising=False,
+    )
+    args = capture._parse_args(["--repo-root", str(tmp_path), "--attempts", "1"])
+
+    exit_code = await capture._run(args)
+
+    assert exit_code == 2
+    assert called is False
+    assert not (tmp_path / contract.RECORDING_FIXTURE_PATH).exists()
+    assert '"status": "UNRUN"' in capsys.readouterr().out
 
 
 def test_n4_current_wmr_rebind_rejects_forged_owner_projection() -> None:
@@ -2164,10 +2299,7 @@ def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    recording = {
-        "design_problem_id": "gy_n4_prompt_size_emission_probe",
-        "domain": "prompt_size_emission_probe",
-    }
+    recording = _recordings()[0]
     monkeypatch.setattr(contract, "_load_recordings", lambda _repo_root: [recording])
     monkeypatch.setattr(
         contract,
@@ -2195,11 +2327,36 @@ def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
             base_frame,
             lever_space_prompt_slice=lever_slice,
         )
-        return SimpleNamespace(
-            lever_space_prompt_slice=lever_slice,
-            effective_runtime_config=SimpleNamespace(
-                prompt_size_estimate=dg._prompt_size_estimate(base_frame, sliced_frame),
-            ),
+        payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+        result = dg.GenerationUnderAResult.model_validate(payload["generation_results"][0])
+        assert result.design_problem_ref == dg.gy_content_hash(problem.model_dump(mode="json"))
+        runtime_config = result.effective_runtime_config
+        assert runtime_config is not None
+        result = result.model_copy(
+            update={
+                "lever_space_prompt_slice": lever_slice,
+                "effective_runtime_config": runtime_config.model_copy(
+                    update={
+                        "prompt_size_estimate": dg._prompt_size_estimate(
+                            base_frame,
+                            sliced_frame,
+                        )
+                    }
+                ),
+            }
+        )
+        context = _owner_context_for_problem(problem)
+        organ_run = dg.DesignGenerationOrganRun(
+            result=result,
+            cycle_substrate_context=context,
+        )
+        return dg.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="pass",
+            target_world_binding_code=None,
+            grounding_status="evaluated",
+            organ_run=organ_run,
+            design_problem=problem,
         )
 
     monkeypatch.setattr(contract, "_run_live_generation", _measured_result)
@@ -3126,7 +3283,11 @@ async def test_formalizer_preserves_candidate_grounding_axis_params() -> None:
 
 def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
     problem = _test_design_problem()
-    reference = build_credal_reference(REPO_ROOT)
+    context = _owner_context_for_problem(problem)
+    reference = build_credal_reference(
+        REPO_ROOT,
+        world_model_record=context.world_model_record,
+    )
     intervention = InterventionSpec(
         intervention_id="household_transfer_tax_credit_like_probe",
         kind="household_transfer",
@@ -3140,7 +3301,7 @@ def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
 
     candidates, dispositions = dg._content_bound_candidates(
         design_problem=problem,
-        design_problem_ref="sha256:" + "d" * 64,
+        design_problem_ref=dg.gy_content_hash(problem.model_dump(mode="json")),
         bundle=_bundle([intervention]),
         model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
         draft_path="model_generated",
@@ -3149,8 +3310,9 @@ def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
         critique_verdict="unit_probe",
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
-        world_model_record_ref=_WORLD_MODEL_RECORD_REF,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
         reference=reference,
+        cycle_substrate_context=context,
     )
 
     assert candidates == ()
@@ -3166,39 +3328,148 @@ def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
 @pytest.mark.asyncio
 async def test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority() -> None:
     recording = _recordings()[0]
-    result = await generate_design_candidates_under_a(
+    outcome = await generate_design_candidates_under_a(
         contract._design_problem(recording),
         model_id=str(recording["model_id"]),
         llm_client=contract.RecordedGenerationReplayClient(recording),
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "generated", [item.reason for item in result.degraded_artifacts]
-    assert result.preflight.status == "supported"
-    assert result.diversity_report.diverse_enough is True
-    assert result.diversity_report.unique_diversity_key_count == 3
-    assert len(result.grounding_dispositions) == 3
-    assert result.grounding_disposition_summary.total_candidates == 3
-    assert result.grounding_disposition_summary.novel_cg3 == 3
-    assert result.candidates == ()
-    assert result.surrogate_rankings == ()
-    assert all(call.status == "success" for call in result.llm_calls)
-    assert {call.role_hint for call in result.llm_calls} >= {
+    assert outcome.kind == "candidate_proposal"
+    assert outcome.target_world_binding == "UNRUN"
+    assert outcome.grounding_status == "UNRUN"
+    proposal = outcome.candidate_proposal
+    assert proposal is not None
+    assert proposal.preflight.status == "supported"
+    assert proposal.trinity_bundle.policy_spec.interventions
+    assert all(call.status == "success" for call in proposal.llm_calls)
+    assert {call.role_hint for call in proposal.llm_calls} >= {
         "draft",
         "formalizer",
         "critic",
     }
-    proposal_ids = set()
-    for disposition in result.grounding_dispositions:
-        assert disposition.status == "candidate_unverified"
-        assert disposition.disposition == "novel_cg3"
-        assert disposition.cg3_decision == "acquire_then_decide"
-        assert disposition.candidate_id is None
-        assert disposition.shadow_atom_content_hash is None
-        assert disposition.raw_candidate_hash.startswith("sha256:")
-        proposal_ids.add(disposition.proposal_id)
-    assert len(proposal_ids) == 3
-    assert firewall_issues_for_result(result) == ()
+
+
+@pytest.mark.asyncio
+async def test_unscoped_n4_outcome_preserves_candidate_and_marks_grounding_unrun(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unknown target scope keeps N4 candidate work but never chooses a default world."""
+    recording = _recording_with_successful_first_response()
+
+    def forbidden_world_read(*_args: object, **_kwargs: object) -> Any:
+        raise AssertionError("unscoped N4 must not read a world or grounding reference")
+
+    monkeypatch.setattr(dg, "build_credal_reference", forbidden_world_read)
+    monkeypatch.setattr(dg, "_content_bound_candidates", forbidden_world_read)
+
+    outcome = await dg.generate_design_candidate_bundle_under_a(
+        contract._design_problem(recording),
+        model_id=str(recording["model_id"]),
+        llm_client=contract.RecordedGenerationReplayClient(recording),
+        repo_root=REPO_ROOT,
+        world_model_record_ref=_WORLD_MODEL_RECORD_REF,
+    )
+
+    assert isinstance(outcome, dg.N4GenerationOutcome)
+    assert outcome.target_world_binding == "UNRUN"
+    assert outcome.grounding_status == "UNRUN"
+    assert outcome.organ_run is None
+    assert outcome.candidate_proposal is not None
+    assert outcome.candidate_proposal.status == "candidate_limited"
+    assert outcome.candidate_proposal.draft.narrative
+    assert outcome.candidate_proposal.trinity_bundle.policy_spec.interventions
+    assert len(outcome.candidate_proposal.llm_calls) >= 3
+
+
+def test_n4_outcome_cannot_claim_grounding_without_world_binding() -> None:
+    with pytest.raises(
+        ValueError,
+        match="n4_grounding_requires_passed_target_world_binding",
+    ):
+        dg.N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="UNRUN",
+            target_world_binding_code="cycle_substrate_context_not_established",
+            grounding_status="evaluated",
+            organ_run=object(),  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.asyncio
+async def test_invalid_supplied_n4_context_fails_before_generation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A supplied foreign context is a failure, never equivalent to missing context."""
+    recording = _recording_with_successful_first_response()
+    problem = contract._design_problem(recording)
+    matched_context = _owner_context_for_problem(problem)
+    foreign_context = matched_context.model_copy(
+        update={"design_problem_ref": "sha256:" + "f" * 64}
+    )
+    called = False
+
+    async def forbidden_generation(*_args: object, **_kwargs: object) -> Any:
+        nonlocal called
+        called = True
+        raise AssertionError("invalid supplied context reached N4 organs")
+
+    monkeypatch.setattr(dg, "_generate_design_candidate_bundle_under_a", forbidden_generation)
+
+    outcome = await dg.generate_design_candidates_under_a(
+        problem,
+        model_id=str(recording["model_id"]),
+        llm_client=contract.RecordedGenerationReplayClient(recording),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=foreign_context,
+    )
+
+    assert called is False
+    assert outcome.kind == "context_rejected"
+    assert outcome.target_world_binding == "fail"
+    assert outcome.target_world_binding_code.startswith("cycle_substrate_context_")
+    assert outcome.grounding_status == "UNRUN"
+    assert outcome.organ_run is outcome.candidate_proposal is None
+
+
+@pytest.mark.asyncio
+async def test_matched_n4_context_runs_candidate_grounding() -> None:
+    """An exact owner context preserves the positive grounded N4 path."""
+    recording = _recording_with_successful_first_response()
+    problem = _test_design_problem()
+    context = _owner_context_for_problem(problem)
+
+    outcome = await dg.generate_design_candidates_under_a(
+        problem,
+        model_id=str(recording["model_id"]),
+        llm_client=contract.RecordedGenerationReplayClient(recording),
+        repo_root=REPO_ROOT,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        cycle_substrate_context=context,
+    )
+
+    assert outcome.kind == "organ_run"
+    assert outcome.target_world_binding == "pass"
+    assert outcome.target_world_binding_code is None
+    assert outcome.design_problem == problem
+    assert outcome.revalidated_target_world_context().content_hash == context.content_hash
+    assert outcome.organ_run is not None
+    assert outcome.organ_run.cycle_substrate_context == context
+    assert outcome.lever_space_prompt_slice.status in {"derived", "unavailable"}
+    assert outcome.candidate_proposal is None
+    if outcome.organ_run.result.status == "generated":
+        assert outcome.grounding_status == "evaluated"
+        assert outcome.organ_run.result.candidates
+        assert (
+            outcome.require_grounded_organ_run().cycle_substrate_context.content_hash
+            == context.content_hash
+        )
+    else:
+        assert outcome.grounding_status == "UNRUN"
+        assert outcome.organ_run.result.status == "generation_unavailable"
+        assert outcome.lever_space_prompt_slice.failure_reason == (
+            "credal_reference_unavailable:ValueError"
+        )
 
 
 @pytest.mark.asyncio
@@ -3217,9 +3488,11 @@ async def test_problem_variation_recordings_produce_different_candidate_sets() -
         repo_root=REPO_ROOT,
     )
 
-    assert first.status == "generated"
-    assert second.status == "generated"
-    assert _candidate_set(first) != _candidate_set(second)
+    assert first.candidate_proposal is not None
+    assert second.candidate_proposal is not None
+    first_bundle = first.candidate_proposal.trinity_bundle.model_dump(mode="json")
+    second_bundle = second.candidate_proposal.trinity_bundle.model_dump(mode="json")
+    assert first_bundle != second_bundle
 
 
 @pytest.mark.asyncio
@@ -3322,10 +3595,11 @@ async def test_gateway_unavailable_returns_terminal_not_mock_candidate() -> None
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "generation_unavailable"
-    assert result.candidates == ()
-    assert result.degraded_artifacts[0].generator_path == "degraded_mock_fallback"
-    assert "models_endpoint_unavailable" in result.degraded_artifacts[0].reason
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "generation_unavailable"
+    assert result.organ_run.result.candidates == ()
+    assert result.organ_run.result.degraded_artifacts[0].generator_path == "degraded_mock_fallback"
+    assert "models_endpoint_unavailable" in result.organ_run.result.degraded_artifacts[0].reason
 
 
 @pytest.mark.asyncio
@@ -3345,10 +3619,11 @@ async def test_proposal_only_n4_preserves_gateway_unavailable_terminal(
         repo_root=REPO_ROOT,
     )
 
-    assert isinstance(result, dg.DesignGenerationOrganRun)
-    assert result.result.status == "generation_unavailable"
-    assert result.result.preflight.status == "gateway_unavailable"
-    assert result.result.candidates == ()
+    assert isinstance(result, dg.N4GenerationOutcome)
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "generation_unavailable"
+    assert result.organ_run.result.preflight.status == "gateway_unavailable"
+    assert result.organ_run.result.candidates == ()
 
 
 @pytest.mark.asyncio
@@ -3364,9 +3639,10 @@ async def test_unsupported_model_profile_rejects_before_generation() -> None:
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "preflight_rejected"
-    assert result.preflight.status == "unsupported"
-    assert result.candidates == ()
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "preflight_rejected"
+    assert result.organ_run.result.preflight.status == "unsupported"
+    assert result.organ_run.result.candidates == ()
 
 
 @pytest.mark.asyncio
@@ -3386,7 +3662,8 @@ async def test_generation_closes_factory_owned_gateway_client(
         repo_root=REPO_ROOT,
     )
 
-    assert result.result.status == "preflight_rejected"
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "preflight_rejected"
     assert client.closed is True
 
 
@@ -3402,7 +3679,8 @@ async def test_generation_does_not_close_caller_owned_gateway_client() -> None:
         repo_root=REPO_ROOT,
     )
 
-    assert result.result.status == "preflight_rejected"
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "preflight_rejected"
     assert client.closed is False
 
 
@@ -3417,9 +3695,9 @@ async def test_gateway_only_model_is_accepted_from_live_catalog() -> None:
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "generated"
-    assert result.preflight.status == "supported"
-    assert result.model_id == gateway_only
+    assert result.candidate_proposal is not None
+    assert result.candidate_proposal.preflight.status == "supported"
+    assert result.candidate_proposal.model_id == gateway_only
 
 
 @pytest.mark.asyncio
@@ -3436,7 +3714,7 @@ async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
 
     monkeypatch.setattr(dg, "_content_bound_candidates", reject_atom_binding)
     produce = dg.generate_design_candidate_proposal_under_a
-    proposal = await produce(
+    outcome = await produce(
         problem,
         model_id=model_id,
         llm_client=RecordedClientWithCatalog(
@@ -3446,6 +3724,8 @@ async def test_unknown_substrate_candidate_proposal_stops_before_atom_binding(
         repo_root=REPO_ROOT,
     )
 
+    proposal = outcome.candidate_proposal
+    assert proposal is not None
     assert proposal.design_problem_ref == contract.gy_content_hash(
         problem.model_dump(mode="json")
     )
@@ -3481,15 +3761,17 @@ async def test_degraded_organs_are_labeled_and_excluded(bad_role: str, reason: s
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "generation_unavailable"
-    assert result.candidates == ()
-    assert result.degraded_artifacts[0].generator_path == "degraded_mock_fallback"
-    assert result.degraded_artifacts[0].reason == reason
+    assert result.organ_run is not None
+    assert result.organ_run.result.status == "generation_unavailable"
+    assert result.organ_run.result.candidates == ()
+    assert result.organ_run.result.degraded_artifacts[0].generator_path == "degraded_mock_fallback"
+    assert result.organ_run.result.degraded_artifacts[0].reason == reason
 
 
 @pytest.mark.asyncio
 async def test_fake_surrogate_owner_ref_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
     recording = _recordings()[0]
+    problem, context = _education_cycle_context()
     monkeypatch.setattr(
         dg,
         "_SEARCH_SURROGATE_OWNERS",
@@ -3497,16 +3779,17 @@ async def test_fake_surrogate_owner_ref_fails_closed(monkeypatch: pytest.MonkeyP
     )
 
     result = await generate_design_candidates_under_a(
-        contract._design_problem(recording),
+        problem,
         model_id=str(recording["model_id"]),
         llm_client=contract.RecordedGenerationReplayClient(recording),
         repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
     )
 
-    assert result.status == "generation_unavailable"
-    assert result.candidates == ()
-    assert result.degraded_artifacts[0].organ == "surrogate"
-    assert "surrogate_owner_ref_unresolved" in result.degraded_artifacts[0].reason
+    assert result.kind == "organ_run"
+    assert result.target_world_binding == "pass"
+    assert result.organ_run is not None
+    assert result.organ_run.result.surrogate_rankings == ()
 
 
 def test_surrogate_score_below_certified_cannot_promote() -> None:

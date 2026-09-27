@@ -4894,25 +4894,28 @@ async def test_empty_llm_generation_uses_grammar_fallback_without_promotion() ->
 
 
 @pytest.mark.asyncio
-async def test_n4_port_without_owner_context_refuses_before_scientist_generation(
+async def test_n4_port_without_owner_context_routes_candidate_work_to_n4_owner(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A no-pack cycle cannot borrow the fixed Scientist vertical vocabulary."""
+    """The adapter does not refuse candidate computation before its owner runs."""
 
     from polisyos.runtime.quality import design_generation
 
     calls = 0
+    outcome = object()
+    problem = _problem()
 
-    async def _forbidden_generation(*args: Any, **kwargs: Any) -> object:
+    async def _owner_generation(*args: Any, **kwargs: Any) -> object:
         nonlocal calls
-        del args, kwargs
+        assert args[0] is problem
+        assert kwargs["cycle_substrate_context"] is None
         calls += 1
-        raise AssertionError("scientist_generation_reached_without_owner_context")
+        return outcome
 
     monkeypatch.setattr(
         design_generation,
         "generate_design_candidate_bundle_under_a",
-        _forbidden_generation,
+        _owner_generation,
     )
     port = N4GenerationPort(
         model_id="owner-selected-model",
@@ -4920,11 +4923,10 @@ async def test_n4_port_without_owner_context_refuses_before_scientist_generation
         cycle_substrate_context=None,
     )
 
-    result = await port(_problem(), cycle_index=0)
+    result = await port(problem, cycle_index=0)
 
-    assert calls == 0
-    assert result.status == "cycle_substrate_context_unavailable"
-    assert result.candidates == ()
+    assert calls == 1
+    assert result is outcome
 
 
 @pytest.mark.asyncio

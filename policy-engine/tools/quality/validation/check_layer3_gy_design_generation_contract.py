@@ -23,13 +23,10 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_generation import (
     DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION,
@@ -39,14 +36,14 @@ from polisyos.runtime.quality.design_generation import (
     EffectiveGenerationRuntimeConfig,
     GenerationUnderAResult,
     GroundingDispositionRecord,
-    _content_bound_candidates,
-    _grounding_disposition_summary,
+    N4GenerationOutcome,
     _grounding_proposal_for_intervention,
     _json_for_prompt_size,
     _with_generation_cycle_revision_context,
     _with_lever_space_prompt_slice,
     firewall_issues_for_result,
     generate_design_candidates_under_a,
+    require_grounded_n4_organ_run,
     validate_design_generation_strangle_receipts,
 )
 from polisyos.runtime.quality.design_problem import (
@@ -215,6 +212,14 @@ class RecordedGatewayError(RuntimeError):
         self.status = status
         self.error_code = error_code
         self.retry_after_s = retry_after_s
+
+
+class N4ContractUnrunError(RuntimeError):
+    """Raised when the live N4 grounder lacks an admitted target-world context."""
+
+
+class N4ContractFailureError(RuntimeError):
+    """Raised when a supplied target-world context fails owner revalidation."""
 
 
 def _recorded_response_label(recorded: dict[str, Any], index: int) -> str:
@@ -561,7 +566,7 @@ async def _run_live_generation(
     repo_root: Path,
     *,
     recording: dict[str, Any],
-) -> GenerationUnderAResult:
+) -> N4GenerationOutcome:
     client = RecordedGenerationReplayClient(recording)
     world_model_record_ref = recording.get("world_model_record_ref")
     with _recorded_runtime_environment(recording) as expected_config:
@@ -574,22 +579,33 @@ async def _run_live_generation(
                 str(world_model_record_ref) if world_model_record_ref else None
             ),
         )
-        emitted_config = getattr(result, "effective_runtime_config", None)
-        try:
-            emitted = EffectiveGenerationRuntimeConfig.model_validate(emitted_config)
-        except (TypeError, ValueError) as exc:
-            raise RuntimeError("recorded_effective_runtime_config_emission_missing") from exc
-        expected_inputs = _recorded_runtime_input_projection(expected_config)
-        emitted_inputs = _recorded_runtime_input_projection(emitted)
-        if emitted_inputs != expected_inputs:
-            raise RuntimeError(
-                "recorded_effective_runtime_config_drift:"
-                + json.dumps(
-                    {"expected": expected_inputs, "emitted": emitted_inputs},
-                    sort_keys=True,
-                    separators=(",", ":"),
+        if not isinstance(result, N4GenerationOutcome):
+            raise RuntimeError("n4_generation_outcome_contract_missing")
+        emitted_config = result.effective_runtime_config
+        if emitted_config is None:
+            if (
+                result.target_world_binding == "pass"
+                and result.grounding_status == "evaluated"
+            ):
+                raise RuntimeError("recorded_effective_runtime_config_emission_missing")
+        else:
+            try:
+                emitted = EffectiveGenerationRuntimeConfig.model_validate(emitted_config)
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError(
+                    "recorded_effective_runtime_config_emission_missing"
+                ) from exc
+            expected_inputs = _recorded_runtime_input_projection(expected_config)
+            emitted_inputs = _recorded_runtime_input_projection(emitted)
+            if emitted_inputs != expected_inputs:
+                raise RuntimeError(
+                    "recorded_effective_runtime_config_drift:"
+                    + json.dumps(
+                        {"expected": expected_inputs, "emitted": emitted_inputs},
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
                 )
-            )
     # Historical fixtures can include retry/repair tail calls that current live
     # assembly no longer reaches. The fixture loader still validates every
     # recorded raw_response_hash; replay only gates the outputs actually served
@@ -608,10 +624,11 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         historical_recordings,
         owner_projection=owner_projection,
     )
-    results = [
+    outcomes = [
         asyncio.run(_run_live_generation(repo_root.resolve(), recording=recording))
         for recording in recordings
     ]
+    results = [_require_grounded_n4_outcome(item) for item in outcomes]
     prompt_size_frame_issues = [
         issue
         for recording, replay_result in zip(recordings, results, strict=True)
@@ -799,6 +816,29 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         *_recording_fixture_mutation_reports(recordings),
     ]
     return base
+
+
+def _require_grounded_n4_outcome(outcome: N4GenerationOutcome) -> GenerationUnderAResult:
+    """Require a context-bound, actually evaluated result before contract projection."""
+
+    if not isinstance(outcome, N4GenerationOutcome):
+        raise N4ContractFailureError("n4_outcome_type_invalid")
+    if outcome.target_world_binding == "UNRUN":
+        raise N4ContractUnrunError(
+            outcome.target_world_binding_code or "cycle_substrate_context_not_established"
+        )
+    if outcome.target_world_binding == "fail":
+        raise N4ContractFailureError(
+            outcome.target_world_binding_code or "cycle_substrate_context_invalid"
+        )
+    if outcome.kind != "organ_run":
+        raise N4ContractFailureError("n4_outcome_kind_invalid")
+    if outcome.grounding_status != "evaluated" or outcome.organ_run is None:
+        raise N4ContractUnrunError("n4_grounding_not_evaluated")
+    try:
+        return require_grounded_n4_organ_run(outcome).result
+    except ValueError as exc:
+        raise N4ContractFailureError(str(exc)) from exc
 
 
 def _grounding_payoff_report(
@@ -1179,67 +1219,24 @@ def _prompt_size_projection_issues(
 def _synthetic_cg3_handoff_probe(repo_root: Path, recording: dict[str, Any]) -> dict[str, Any]:
     """Run a labeled near-miss addition through the N4 CGF handoff path."""
 
-    problem = _design_problem(recording)
-    intervention = InterventionSpec(
-        intervention_id="synthetic_false_analog_household_transfer_tax_credit",
-        kind="household_transfer",
-        target=SelectorPredicate(
-            field="id",
-            operator=SelectorOperator.EQUALS,
-            value="all",
-        ),
-        schedule=ScheduleSpec(start_step=0, duration_steps=1),
-        params={
-            "rate": Decimal("0.08"),
-        },
-        notes=[
-            (
-                "Synthetic false-analog probe: household tax credit-like transfer near "
-                "fiscal relief text; not a recorded model output."
-            )
-        ],
-    )
-    bundle = TrinityBundle(
-        problem_frame=ProblemFrame(
-            problem_id="problem_synthetic_false_analog",
-            domain=ProblemDomain.FISCAL,
-        ),
-        policy_spec=PolicySpec(
-            policy_id="policy_synthetic_false_analog",
-            problem_frame_ref="sha256:" + "a" * 64,
-            interventions=[intervention],
-        ),
-        model_spec=ModelSpec(
-            model_id="model_synthetic_false_analog",
-            data_snapshot_ref="sha256:" + "b" * 64,
-        ),
-    )
-    candidates, dispositions = _content_bound_candidates(
-        design_problem=problem,
-        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
-        bundle=bundle,
-        model_id=str(recording["model_id"]),
-        draft_path="model_generated",
-        formalizer_path="model_generated",
-        critic_path="model_generated",
-        critique_verdict="synthetic_probe",
-        calls=(),
-        repo_root=repo_root,
-        world_model_record_ref=None,
-        reference=None,
-    )
-    summary = _grounding_disposition_summary(dispositions)
+    del repo_root, recording
     return {
+        "status": "UNRUN",
+        "reason": "cycle_substrate_context_not_established",
         "recording_source": "synthetic_addition_not_model_recording",
-        "expected_mapping": "proposal_level_novel_candidate_with_false_analog_evidence_routes_to_cg3",
-        "candidate_count": len(candidates),
-        "summary": summary.model_dump(mode="json"),
-        "dispositions": [item.model_dump(mode="json") for item in dispositions],
+        "expected_mapping": (
+            "proposal_level_novel_candidate_with_false_analog_evidence_routes_to_cg3"
+        ),
+        "candidate_count": None,
+        "summary": None,
+        "dispositions": [],
     }
 
 
 def _synthetic_cg3_handoff_probe_passed(value: object) -> bool:
     if not isinstance(value, dict):
+        return False
+    if value.get("status") != "pass":
         return False
     if value.get("recording_source") != "synthetic_addition_not_model_recording":
         return False
@@ -1679,7 +1676,26 @@ def validate(repo_root: Path) -> dict[str, Any]:
 def validate_rederive_audit(repo_root: Path) -> dict[str, Any]:
     """Run the optional live replay audit; routine --check does not call this."""
 
-    live = build_live_payload(repo_root)
+    try:
+        live = build_live_payload(repo_root)
+    except N4ContractUnrunError as exc:
+        return {
+            "status": "UNRUN",
+            "measured": [
+                "historical N4 recording integrity",
+                "recorded effective runtime configuration when emitted",
+            ],
+            "not_measured": [
+                "target-world grounded N4 results",
+                "dependent CGF handoff and positive generation-cycle projection",
+            ],
+            "issues": [{"code": "n4_target_world_grounding_unrun", "reason": str(exc)}],
+        }
+    except N4ContractFailureError as exc:
+        return {
+            "status": "fail",
+            "issues": [{"code": "n4_target_world_context_rejected", "reason": str(exc)}],
+        }
     report = validate_payload(live)
     mutation_failures = [
         item
@@ -3974,7 +3990,11 @@ def main(argv: list[str] | None = None) -> int:
     elif report["status"] != "pass":
         for issue in report["issues"]:
             print(f"{issue.get('code')}: {issue}")
-    return 0 if report["status"] == "pass" else 1
+    if report["status"] == "pass":
+        return 0
+    if report["status"] == "UNRUN":
+        return 2
+    return 1
 
 
 if __name__ == "__main__":

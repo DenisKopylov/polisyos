@@ -76,7 +76,6 @@ from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     intervention_generation_registry_bundle,
     load_l6_intervention_substrate,
-    production_composed_world_model_record,
     resolve_intervention_lever,
     resolve_observation_manifest_routes,
 )
@@ -796,6 +795,171 @@ class DesignGenerationOrganRun:
     candidate_sources: tuple[GenerationCandidateSource, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class N4GenerationOutcome:
+    """Ephemeral result of one N4 call, including its target-world assessment.
+
+    ``pass`` means the supplied context was revalidated and matched the exact
+    DesignProblem and jurisdiction. It does not establish independent issuance
+    of that context; the served caller remains responsible for using its owner
+    intake path. Missing context is ``UNRUN`` and rejected supplied context is
+    ``fail``. This wrapper is never persisted or included in proposal identity.
+    """
+
+    kind: Literal["organ_run", "candidate_proposal", "context_rejected"]
+    target_world_binding: Literal["pass", "fail", "UNRUN"]
+    target_world_binding_code: str | None
+    grounding_status: Literal["evaluated", "UNRUN"]
+    organ_run: DesignGenerationOrganRun | None = None
+    candidate_proposal: N4CandidateProposalSource | None = None
+    design_problem: DesignProblem | None = field(default=None, repr=False)
+    effective_runtime_config: EffectiveGenerationRuntimeConfig | None = None
+    lever_space_prompt_slice: LeverSpacePromptSlice = field(
+        default_factory=lambda: LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="target_world_context_not_established",
+        )
+    )
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.kind, str) or self.kind not in {
+            "organ_run",
+            "candidate_proposal",
+            "context_rejected",
+        }:
+            raise ValueError("n4_outcome_kind_invalid")
+        if not isinstance(self.target_world_binding, str) or self.target_world_binding not in {
+            "pass",
+            "fail",
+            "UNRUN",
+        }:
+            raise ValueError("n4_target_world_binding_status_invalid")
+        if not isinstance(self.grounding_status, str) or self.grounding_status not in {
+            "evaluated",
+            "UNRUN",
+        }:
+            raise ValueError("n4_grounding_status_invalid")
+        if self.target_world_binding == "pass":
+            if self.target_world_binding_code is not None:
+                raise ValueError("n4_target_world_binding_code_invalid")
+        elif (
+            not isinstance(self.target_world_binding_code, str)
+            or not self.target_world_binding_code.strip()
+        ):
+            raise ValueError("n4_target_world_binding_code_invalid")
+        if not isinstance(self.lever_space_prompt_slice, LeverSpacePromptSlice):
+            raise ValueError("n4_outcome_lever_space_slice_invalid")
+        if self.effective_runtime_config is not None and not isinstance(
+            self.effective_runtime_config,
+            EffectiveGenerationRuntimeConfig,
+        ):
+            raise ValueError("n4_outcome_runtime_config_invalid")
+        if self.grounding_status == "evaluated" and self.target_world_binding != "pass":
+            raise ValueError("n4_grounding_requires_passed_target_world_binding")
+        if self.kind == "organ_run":
+            if (
+                not isinstance(self.organ_run, DesignGenerationOrganRun)
+                or self.candidate_proposal is not None
+            ):
+                raise ValueError("n4_organ_run_outcome_shape_invalid")
+            if not isinstance(self.organ_run.result, GenerationUnderAResult):
+                raise ValueError("n4_organ_run_outcome_result_invalid")
+            if self.target_world_binding == "fail":
+                raise ValueError("n4_rejected_context_cannot_return_organ_run")
+            is_generated = self.organ_run.result.status == "generated"
+            is_evaluated = self.grounding_status == "evaluated"
+            if is_generated != is_evaluated:
+                raise ValueError("n4_grounding_result_status_mismatch")
+            if self.target_world_binding == "pass":
+                self.revalidated_target_world_context()
+        elif self.kind == "candidate_proposal":
+            if (
+                not isinstance(self.candidate_proposal, N4CandidateProposalSource)
+                or self.organ_run is not None
+                or self.design_problem is not None
+                or self.target_world_binding != "UNRUN"
+                or self.grounding_status != "UNRUN"
+            ):
+                raise ValueError("n4_candidate_proposal_outcome_shape_invalid")
+        elif (
+            self.target_world_binding != "fail"
+            or self.organ_run is not None
+            or self.candidate_proposal is not None
+            or self.design_problem is not None
+            or self.grounding_status != "UNRUN"
+        ):
+            raise ValueError("n4_context_rejected_outcome_shape_invalid")
+
+    def revalidated_target_world_context(self) -> CycleSubstrateContext:
+        """Revalidate the owner context against this run's exact problem identity.
+
+        This verifies content, problem-reference, and jurisdiction consistency.
+        It does not prove how a served caller obtained or custody-bound the context.
+        """
+
+        if self.kind != "organ_run" or self.organ_run is None:
+            raise ValueError("n4_outcome_kind_invalid")
+        if self.target_world_binding != "pass" or self.target_world_binding_code is not None:
+            raise ValueError("n4_target_world_context_not_validated")
+        context = self.organ_run.cycle_substrate_context
+        if context is None:
+            raise ValueError("n4_outcome_cycle_substrate_context_missing")
+
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+        from polisyos.runtime.quality.design_problem import DesignProblem
+
+        if not isinstance(context, CycleSubstrateContext):
+            raise ValueError("n4_outcome_cycle_substrate_context_invalid")
+        if not isinstance(self.design_problem, DesignProblem):
+            raise ValueError("n4_outcome_design_problem_missing")
+        problem = DesignProblem.model_validate(self.design_problem.model_dump(mode="python"))
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        if self.organ_run.result.design_problem_ref != problem_ref:
+            raise ValueError("n4_outcome_problem_ref_mismatch")
+        try:
+            verified_context = _cycle_substrate_context_for_problem(
+                context,
+                design_problem=problem,
+            )
+        except DesignGenerationError as exc:
+            raise ValueError(
+                f"n4_outcome_cycle_substrate_context_invalid:{exc.code}"
+            ) from exc
+        if verified_context.design_problem_ref != self.organ_run.result.design_problem_ref:
+            raise ValueError("n4_outcome_context_problem_ref_mismatch")
+        if (
+            verified_context.world_model_record.region_or_jurisdiction
+            != problem.jurisdiction_time.region
+        ):
+            raise ValueError("n4_outcome_target_jurisdiction_mismatch")
+        return verified_context
+
+    def require_grounded_organ_run(self) -> DesignGenerationOrganRun:
+        """Return a fresh organ run only when grounding and context both validate."""
+
+        if self.kind != "organ_run" or self.organ_run is None:
+            raise ValueError("n4_outcome_kind_invalid")
+        if self.target_world_binding != "pass":
+            raise ValueError(
+                self.target_world_binding_code or "n4_target_world_binding_unrun"
+            )
+        if (
+            self.grounding_status != "evaluated"
+            or self.organ_run.result.status != "generated"
+        ):
+            raise ValueError("n4_grounding_not_evaluated")
+        context = self.revalidated_target_world_context()
+        return replace(self.organ_run, cycle_substrate_context=context)
+
+
+def require_grounded_n4_organ_run(outcome: object) -> DesignGenerationOrganRun:
+    """Require the common N4 outcome contract before a consumer uses grounding."""
+
+    if not isinstance(outcome, N4GenerationOutcome):
+        raise ValueError("n4_outcome_type_invalid")
+    return outcome.require_grounded_organ_run()
+
+
 class GenerationCandidateSource(_StrictModel):
     """Actual N4 inputs and certificates retained when its shadow atom is emitted."""
 
@@ -812,6 +976,8 @@ class _N4SourceCapture:
     reference: CredalReference | None = None
     context: CycleSubstrateContext | None = None
     candidates: list[GenerationCandidateSource] = field(default_factory=list)
+    effective_runtime_config: EffectiveGenerationRuntimeConfig | None = None
+    lever_space_prompt_slice: LeverSpacePromptSlice | None = None
 
 
 async def preflight_model_profile(client: object, *, model_id: str) -> ModelProfilePreflight:
@@ -855,10 +1021,10 @@ async def generate_design_candidates_under_a(
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     grounding_run_budget: GroundingRunBudget | None = None,
-) -> GenerationUnderAResult:
-    """Generate shadow candidates by reusing the real LLM organs and N2 atom bridge."""
+) -> N4GenerationOutcome:
+    """Generate candidate work and report whether target-world grounding ran."""
 
-    organ_run = await generate_design_candidate_bundle_under_a(
+    return await generate_design_candidate_bundle_under_a(
         design_problem,
         model_id=model_id,
         llm_client=llm_client,
@@ -869,7 +1035,6 @@ async def generate_design_candidates_under_a(
         cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=grounding_run_budget,
     )
-    return organ_run.result
 
 
 def _with_generation_cycle_revision_context(
@@ -938,10 +1103,10 @@ async def generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     grounding_run_budget: GroundingRunBudget | None = None,
-) -> DesignGenerationOrganRun:
-    """Run the canonical N4 organ path and own any gateway client it creates."""
+) -> N4GenerationOutcome:
+    """Run the canonical N4 path and return its explicit world-binding outcome."""
 
-    result = await _run_design_generation_under_a(
+    return await _run_design_generation_under_a(
         design_problem,
         model_id=model_id,
         llm_client=llm_client,
@@ -953,9 +1118,6 @@ async def generate_design_candidate_bundle_under_a(
         grounding_run_budget=grounding_run_budget,
         candidate_proposal_only=False,
     )
-    if not isinstance(result, DesignGenerationOrganRun):
-        raise DesignGenerationError("n4_candidate_bundle_result_not_organ_run")
-    return result
 
 
 async def generate_design_candidate_proposal_under_a(
@@ -966,8 +1128,8 @@ async def generate_design_candidate_proposal_under_a(
     repo_root: Path | None = None,
     data_context: dict[str, Any] | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
-) -> N4CandidateProposalSource | DesignGenerationOrganRun:
-    """Run proposal-only N4 while preserving successful or typed terminal organ output."""
+) -> N4GenerationOutcome:
+    """Run N4 and retain a proposal v1 only when target-world context is absent."""
 
     return await _run_design_generation_under_a(
         design_problem,
@@ -995,10 +1157,50 @@ async def _run_design_generation_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None,
     candidate_proposal_only: bool,
-) -> DesignGenerationOrganRun | N4CandidateProposalSource:
-    """Own one gateway client while selecting the canonical N4 output boundary."""
+) -> N4GenerationOutcome:
+    """Own the gateway client and normalize all N4 branches into one outcome."""
+
+    binding_status: Literal["pass", "fail", "UNRUN"] = "UNRUN"
+    binding_code: str | None = None
+    if cycle_substrate_context is None:
+        binding_code = "cycle_substrate_context_not_established"
+    else:
+        try:
+            cycle_substrate_context = _cycle_substrate_context_for_problem(
+                cycle_substrate_context,
+                design_problem=design_problem,
+            )
+            if (
+                world_model_record_ref is not None
+                and world_model_record_ref
+                != cycle_substrate_context.world_model_record.world_model_record_id
+            ):
+                raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
+        except (DesignGenerationError, ValueError) as exc:
+            binding_code = (
+                exc.code
+                if isinstance(exc, DesignGenerationError)
+                else _cycle_substrate_error_code(exc)
+            )
+            return N4GenerationOutcome(
+                kind="context_rejected",
+                target_world_binding="fail",
+                target_world_binding_code=binding_code,
+                grounding_status="UNRUN",
+                lever_space_prompt_slice=LeverSpacePromptSlice(
+                    status="unavailable",
+                    failure_reason=binding_code,
+                ),
+            )
+        binding_status = "pass"
+    # Proposal v1 describes unknown scope. It is only emitted for a missing
+    # context; a supplied valid context follows the ordinary N4 owner route.
+    candidate_proposal_only = candidate_proposal_only and cycle_substrate_context is None
+    if cycle_substrate_context is None:
+        candidate_proposal_only = True
 
     owned_llm_client: object | None = None
+    capture = _N4SourceCapture()
     if llm_client is None:
         from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 
@@ -1009,7 +1211,7 @@ async def _run_design_generation_under_a(
         )
         llm_client = owned_llm_client
     try:
-        organ_run = await _generate_design_candidate_bundle_under_a(
+        body = await _generate_design_candidate_bundle_under_a(
             design_problem,
             model_id=model_id,
             llm_client=llm_client,
@@ -1020,15 +1222,39 @@ async def _run_design_generation_under_a(
             cycle_substrate_context=cycle_substrate_context,
             grounding_run_budget=grounding_run_budget,
             candidate_proposal_only=candidate_proposal_only,
+            source_capture=capture,
         )
-        if isinstance(organ_run, DesignGenerationOrganRun):
-            return replace(
-                organ_run,
-                cycle_substrate_context=(
-                    organ_run.cycle_substrate_context or cycle_substrate_context
-                ),
+        if isinstance(body, DesignGenerationOrganRun):
+            organ_run = replace(
+                body,
+                cycle_substrate_context=(body.cycle_substrate_context or cycle_substrate_context),
             )
-        return organ_run
+            result = organ_run.result
+            return N4GenerationOutcome(
+                kind="organ_run",
+                target_world_binding=binding_status,
+                target_world_binding_code=binding_code,
+                grounding_status=("evaluated" if result.status == "generated" else "UNRUN"),
+                organ_run=organ_run,
+                design_problem=design_problem,
+                effective_runtime_config=result.effective_runtime_config,
+                lever_space_prompt_slice=result.lever_space_prompt_slice,
+            )
+        return N4GenerationOutcome(
+            kind="candidate_proposal",
+            target_world_binding="UNRUN",
+            target_world_binding_code=binding_code,
+            grounding_status="UNRUN",
+            candidate_proposal=body,
+            effective_runtime_config=capture.effective_runtime_config,
+            lever_space_prompt_slice=(
+                capture.lever_space_prompt_slice
+                or LeverSpacePromptSlice(
+                    status="unavailable",
+                    failure_reason="target_world_context_not_established",
+                )
+            ),
+        )
     finally:
         await _close_owned_generation_client(owned_llm_client)
 
@@ -1056,6 +1282,7 @@ async def _generate_design_candidate_bundle_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None = None,
     candidate_proposal_only: bool = False,
+    source_capture: _N4SourceCapture | None = None,
 ) -> DesignGenerationOrganRun | N4CandidateProposalSource:
     """Execute N4 with an already resolved caller- or owner-supplied client."""
 
@@ -1096,7 +1323,7 @@ async def _generate_design_candidate_bundle_under_a(
         ).as_organ_run()
 
     reference: CredalReference | None = None
-    if candidate_proposal_only and cycle_substrate_context is None:
+    if cycle_substrate_context is None:
         lever_space_prompt_slice = LeverSpacePromptSlice(
             status="unavailable",
             failure_reason="target_world_scope_not_established",
@@ -1185,6 +1412,9 @@ async def _generate_design_candidate_bundle_under_a(
         critic=critic,
         prompt_size_estimate=prompt_size_estimate,
     )
+    if source_capture is not None:
+        source_capture.effective_runtime_config = effective_runtime_config
+        source_capture.lever_space_prompt_slice = lever_space_prompt_slice
     relation_engine: GroundingRelationEngine | None = None
     if reference is not None:
         relation_engine = GroundingRelationEngine(reference)
@@ -1360,7 +1590,7 @@ async def _generate_design_candidate_bundle_under_a(
             llm_calls=tuple(recording_client.calls),
         )
 
-    source_capture = _N4SourceCapture()
+    source_capture = source_capture or _N4SourceCapture()
     try:
         candidates, dispositions = _content_bound_candidates(
             design_problem=design_problem,
@@ -2641,37 +2871,42 @@ def _content_bound_candidates(
     grounding_run_budget: GroundingRunBudget | None = None,
     source_capture: _N4SourceCapture | None = None,
 ) -> tuple[tuple[ShadowGeneratedCandidate, ...], tuple[GroundingDispositionRecord, ...]]:
-    context = None
+    if cycle_substrate_context is None:
+        raise DesignGenerationError("cycle_substrate_context_not_established")
+    context = _cycle_substrate_context_for_problem(
+        cycle_substrate_context,
+        design_problem=design_problem,
+    )
     context_l6_bundle = None
-    if cycle_substrate_context is not None:
-        context = _cycle_substrate_context_for_problem(
-            cycle_substrate_context,
-            design_problem=design_problem,
+    world_record = context.world_model_record
+    resolved_world_model_record_ref = world_record.world_model_record_id
+    if (
+        world_model_record_ref is not None
+        and world_model_record_ref != resolved_world_model_record_ref
+    ):
+        raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
+    if context.candidate_levers:
+        context_l6_bundle = (
+            context.intervention_substrate
+            or load_l6_intervention_substrate(repo_root.resolve())
         )
-        world_record = context.world_model_record
-        resolved_world_model_record_ref = world_record.world_model_record_id
-        if (
-            world_model_record_ref is not None
-            and world_model_record_ref != resolved_world_model_record_ref
-        ):
-            raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
-        if context.candidate_levers:
-            context_l6_bundle = (
-                context.intervention_substrate
-                or load_l6_intervention_substrate(repo_root.resolve())
-            )
-    else:
-        world_record = None
-        resolved_world_model_record_ref = world_model_record_ref
-    if resolved_world_model_record_ref is None:
-        world_record = production_composed_world_model_record(repo_root.resolve())
-        resolved_world_model_record_ref = world_record.world_model_record_id
     if str(resolved_world_model_record_ref).startswith("world_model_record_pending:"):
         raise DesignGenerationError(
             "world_model_record_ref_pending",
             str(resolved_world_model_record_ref),
         )
-    reference = reference or build_credal_reference(repo_root)
+    if reference is None:
+        reference = build_credal_reference(
+            repo_root,
+            world_model_record=world_record,
+        )
+    elif reference.component_versions.get("WMR") != world_record.content_hash:
+        raise DesignGenerationError("cycle_substrate_credal_reference_wmr_mismatch")
+    if relation_engine is not None and (
+        getattr(getattr(relation_engine, "reference", None), "reference_hash", None)
+        != reference.reference_hash
+    ):
+        raise DesignGenerationError("cycle_substrate_relation_engine_reference_mismatch")
     relation_engine = relation_engine or GroundingRelationEngine(reference)
     bind_gate = GroundingBindGate(reference, run_budget=grounding_run_budget)
     if source_capture is not None:
@@ -2970,6 +3205,11 @@ def derive_lever_space_prompt_slice(
 ) -> LeverSpacePromptSlice:
     """Derive the non-authoritative RAG-in-prompt lever slice from live owners."""
 
+    if cycle_substrate_context is None:
+        return LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="target_world_scope_not_established",
+        )
     if cycle_substrate_context is not None:
         context = _cycle_substrate_context_for_problem(
             cycle_substrate_context,
@@ -3243,14 +3483,27 @@ def _cycle_substrate_context_for_problem(
     """Revalidate one context and reject cross-problem substitution."""
 
     from polisyos.runtime.quality.cycle_substrate import (
-        revalidate_cycle_substrate_context,
+        resolve_cycle_substrate_context_for_world,
     )
 
-    context = revalidate_cycle_substrate_context(cycle_substrate_context)
     expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
-    if context.design_problem_ref != expected_problem_ref:
-        raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
-    return context
+    try:
+        return resolve_cycle_substrate_context_for_world(
+            (cycle_substrate_context,),
+            design_problem_ref=expected_problem_ref,
+            region_or_jurisdiction=design_problem.jurisdiction_time.region,
+        )
+    except ValueError as exc:
+        raise DesignGenerationError(_cycle_substrate_error_code(exc), str(exc)) from exc
+
+
+def _cycle_substrate_error_code(exc: ValueError) -> str:
+    """Normalize an owner context refusal to its stable code when present."""
+
+    code = str(exc).split(":", 1)[0].strip()
+    if code.startswith("cycle_substrate_") or code.startswith("wmr_"):
+        return code
+    return "cycle_substrate_context_invalid"
 
 
 def _with_lever_space_prompt_slice(
@@ -4261,8 +4514,8 @@ def run_generate_design_candidates_under_a(
     llm_client: object | None = None,
     repo_root: Path | None = None,
     min_diverse_candidates: int = 3,
-) -> GenerationUnderAResult:
-    """Synchronous wrapper for contract validators."""
+) -> N4GenerationOutcome:
+    """Synchronous wrapper returning the same typed outcome as the async owner."""
 
     return asyncio.run(
         generate_design_candidates_under_a(
@@ -4293,6 +4546,7 @@ __all__ = [
     "LLMGenerationCall",
     "ModelProfilePreflight",
     "N4CandidateProposalSource",
+    "N4GenerationOutcome",
     "RecordingLLMClient",
     "ShadowGeneratedCandidate",
     "SurrogateRanking",
@@ -4305,6 +4559,7 @@ __all__ = [
     "measure_generation_diversity",
     "preflight_model_profile",
     "rank_shadow_candidates_with_graph_causal_surrogate",
+    "require_grounded_n4_organ_run",
     "run_generate_design_candidates_under_a",
     "validate_design_generation_strangle_receipts",
 ]

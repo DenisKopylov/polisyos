@@ -15,7 +15,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
+    from polisyos.runtime.quality.design_generation import (
+        GenerationUnderAResult,
+        N4GenerationOutcome,
+    )
 
 DEFAULT_MODELS = (
     "moonshotai/Kimi-K2.6",
@@ -40,19 +43,14 @@ DEFAULT_ENV = {
 }
 
 gy_content_hash: Any
-generate_design_candidate_bundle_under_a: Any
 contract: Any
 
 
 def _load_runtime_symbols() -> None:
-    global contract, generate_design_candidate_bundle_under_a, gy_content_hash
+    global contract, gy_content_hash
     if "contract" in globals():
         return
     gy_content_hash = importlib.import_module("polisyos.pdc").gy_content_hash
-    design_generation = importlib.import_module("polisyos.runtime.quality.design_generation")
-    generate_design_candidate_bundle_under_a = (
-        design_generation.generate_design_candidate_bundle_under_a
-    )
     contract = importlib.import_module(
         "tools.quality.validation.check_layer3_gy_design_generation_contract"
     )
@@ -76,125 +74,32 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument(
         "--world-model-record-ref",
         default=None,
-        help="Optional assertion of the current owner-resolved WMR ref.",
+        help="Display-only WMR assertion; does not supply owner-bound cycle context.",
     )
     parser.add_argument("--models", nargs="*", default=list(DEFAULT_MODELS))
     return parser.parse_args(argv)
 
 
 async def _run(args: argparse.Namespace) -> int:
-    repo_root = args.repo_root.resolve()
-    owner_projection = contract._resolve_current_wmr_owner_projection(repo_root)
-    world_model_record_ref = _resolve_capture_world_model_record_ref(
-        owner_projection,
-        requested=args.world_model_record_ref,
+    del args
+    print(
+        json.dumps(
+            {
+                "status": "UNRUN",
+                "measured": ["capture CLI has no owner-bound CycleSubstrateContext intake"],
+                "not_measured": [
+                    "target-world grounding",
+                    "positive N4 capture suitable for the v1 grounded replay fixture",
+                ],
+                "issues": [
+                    {"code": "cycle_substrate_context_not_established"}
+                ],
+            },
+            sort_keys=True,
+        ),
+        flush=True,
     )
-    fixture_path = repo_root / contract.RECORDING_FIXTURE_PATH
-    fixture = _load_fixture(fixture_path)
-    recordings = _recordings(fixture)
-    results = await _replay_existing(
-        repo_root,
-        recordings,
-        owner_projection=owner_projection,
-    )
-    _print_coverage("INITIAL_COVERAGE", results)
-
-    attempts = max(0, int(args.attempts))
-    model_plan = _model_plan(args.models, attempts)
-    for index, model_id in enumerate(model_plan, start=1):
-        problem_id = f"{args.problem_id_prefix}_{index}_{_timestamp_id()}"
-        print(f"ATTEMPT_START {index}/{attempts} model={model_id} problem={problem_id}", flush=True)
-        journal_path = (
-            repo_root / ".tmp" / "gy-n4-capture-journals" / f"{problem_id}.jsonl"
-        )
-        previous_journal = os.environ.get("POLISYOS_N4_CALL_JOURNAL_PATH")
-        os.environ["POLISYOS_N4_CALL_JOURNAL_PATH"] = str(journal_path)
-        try:
-            run = await generate_design_candidate_bundle_under_a(
-                contract._design_problem(
-                    {
-                        "design_problem_id": problem_id,
-                        "domain": str(args.domain),
-                    }
-                ),
-                model_id=str(model_id),
-                repo_root=repo_root,
-                min_diverse_candidates=3,
-                world_model_record_ref=world_model_record_ref,
-            )
-        except Exception as exc:
-            fixture = _load_fixture(fixture_path)
-            diagnostic = _diagnostic_from_exception(
-                exc,
-                design_problem_id=problem_id,
-                domain=str(args.domain),
-                model_id=str(model_id),
-                world_model_record_ref=world_model_record_ref,
-                journal_path=journal_path,
-            )
-            fixture.setdefault("diagnostic_archive", []).insert(0, diagnostic)
-            _write_fixture(fixture_path, fixture)
-            print(
-                "ATTEMPT_WRITE diagnostic_archive "
-                f"reason={diagnostic['archive_reason']} exception={type(exc).__name__}",
-                flush=True,
-            )
-            coverage = _print_coverage("ACCUMULATED_COVERAGE", results)
-            if coverage and coverage.get("coverage_status") == "covered":
-                print("CAPTURE_SET_COVERED", json.dumps(coverage, sort_keys=True), flush=True)
-                return 0
-            if index < attempts and float(args.pace_s) > 0:
-                print(f"PACE_SLEEP seconds={float(args.pace_s):.1f}", flush=True)
-                await asyncio.sleep(float(args.pace_s))
-            continue
-        finally:
-            if previous_journal is None:
-                os.environ.pop("POLISYOS_N4_CALL_JOURNAL_PATH", None)
-            else:
-                os.environ["POLISYOS_N4_CALL_JOURNAL_PATH"] = previous_journal
-        result = run.result
-        _print_result(result)
-        fixture = _load_fixture(fixture_path)
-        if _recordable(result):
-            recording = _recording_from_result(
-                result,
-                design_problem_id=problem_id,
-                domain=str(args.domain),
-                model_id=str(model_id),
-                world_model_record_ref=world_model_record_ref,
-            )
-            _recordings(fixture).append(recording)
-            results.append(result)
-            _write_fixture(fixture_path, fixture)
-            print(
-                "ATTEMPT_WRITE recordings[] "
-                f"id={recording['recording_id']} hash={recording['recording_content_hash']}",
-                flush=True,
-            )
-        else:
-            diagnostic = _diagnostic_from_result(
-                result,
-                design_problem_id=problem_id,
-                domain=str(args.domain),
-                model_id=str(model_id),
-                world_model_record_ref=world_model_record_ref,
-            )
-            fixture.setdefault("diagnostic_archive", []).insert(0, diagnostic)
-            _write_fixture(fixture_path, fixture)
-            print(
-                "ATTEMPT_WRITE diagnostic_archive "
-                f"reason={diagnostic['archive_reason']} status={result.status}",
-                flush=True,
-            )
-        coverage = _print_coverage("ACCUMULATED_COVERAGE", results)
-        if coverage and coverage.get("coverage_status") == "covered":
-            print("CAPTURE_SET_COVERED", json.dumps(coverage, sort_keys=True), flush=True)
-            return 0
-        if index < attempts and float(args.pace_s) > 0:
-            print(f"PACE_SLEEP seconds={float(args.pace_s):.1f}", flush=True)
-            await asyncio.sleep(float(args.pace_s))
-    print("CAPTURE_SET_INCOMPLETE", flush=True)
-    return 1
+    return 2
 
 
 def _resolve_capture_world_model_record_ref(
@@ -227,8 +132,38 @@ async def _replay_existing(
     )
     results: list[GenerationUnderAResult] = []
     for recording in reissued:
-        results.append(await contract._run_live_generation(repo_root, recording=recording))
+        outcome = await contract._run_live_generation(repo_root, recording=recording)
+        results.append(_require_grounded_n4_outcome(outcome, site="historical_replay"))
     return results
+
+
+def _require_grounded_n4_outcome(
+    outcome: N4GenerationOutcome,
+    *,
+    site: str,
+) -> GenerationUnderAResult:
+    """Require evaluated target-world grounding before a capture can be recorded."""
+
+    if outcome.target_world_binding == "UNRUN":
+        raise RuntimeError(
+            f"{site}:n4_target_world_binding_unrun:"
+            f"{outcome.target_world_binding_code or 'cycle_substrate_context_not_established'}"
+        )
+    if outcome.target_world_binding == "fail":
+        raise RuntimeError(
+            f"{site}:n4_target_world_binding_fail:"
+            f"{outcome.target_world_binding_code or 'cycle_substrate_context_invalid'}"
+        )
+    if outcome.kind != "organ_run":
+        raise RuntimeError(f"{site}:n4_outcome_kind_invalid")
+    if outcome.grounding_status != "evaluated" or outcome.organ_run is None:
+        raise RuntimeError(f"{site}:n4_grounding_not_evaluated")
+    try:
+        from polisyos.runtime.quality.design_generation import require_grounded_n4_organ_run
+
+        return require_grounded_n4_organ_run(outcome).result
+    except ValueError as exc:
+        raise RuntimeError(f"{site}:n4_grounded_context_invalid:{exc}") from exc
 
 
 def _recordable(result: GenerationUnderAResult) -> bool:

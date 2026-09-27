@@ -459,7 +459,10 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     from polisyos.runtime.http.services.control.generation_cycle import (
         N4CandidateProposalExecution,
     )
-    from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationOrganRun,
+        N4GenerationOutcome,
+    )
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
@@ -512,10 +515,11 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
 
     assert compiler_calls == 1
     assert isinstance(compiled, N4CandidateProposalExecution)
-    assert isinstance(compiled.proposal, DesignGenerationOrganRun)
+    assert isinstance(compiled.outcome, N4GenerationOutcome)
+    assert isinstance(compiled.outcome.organ_run, DesignGenerationOrganRun)
     assert compiled.design_problem == problem
-    assert compiled.proposal.result.status == "generation_unavailable"
-    assert compiled.proposal.result.candidates == ()
+    assert compiled.outcome.organ_run.result.status == "generation_unavailable"
+    assert compiled.outcome.organ_run.result.candidates == ()
 
 
 @pytest.mark.asyncio

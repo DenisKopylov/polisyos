@@ -618,6 +618,7 @@ async def test_data_trust_band_keeps_candidate_compute_and_persists_bridge_limit
         GenerationDiversityReport,
         GenerationUnderAResult,
         ModelProfilePreflight,
+        N4GenerationOutcome,
     )
     from polisyos.runtime.quality.generation_cycle import gy_content_hash
     from tests.unit.runtime.quality.test_generation_cycle import _problem
@@ -641,7 +642,13 @@ async def test_data_trust_band_keeps_candidate_compute_and_persists_bridge_limit
     )
     compiler_result = N4CandidateProposalExecution(
         design_problem=problem,
-        proposal=DesignGenerationOrganRun(result=terminal_generation),
+        outcome=N4GenerationOutcome(
+            kind="organ_run",
+            target_world_binding="UNRUN",
+            target_world_binding_code="cycle_substrate_context_not_established",
+            grounding_status="UNRUN",
+            organ_run=DesignGenerationOrganRun(result=terminal_generation),
+        ),
     )
     request = NaturalLanguageRunRequest(
         request="Explore a retrospective policy option as a candidate.",

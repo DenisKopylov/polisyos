@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, CanonViolation
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.contracts.skip_blockers import (
     SkippedNodeBlocker,
     build_skip_blocker_record,
@@ -55,8 +55,8 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
-    execute_with_retry_sync,
     _preserve_retry_spend,
+    execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state,
@@ -141,6 +141,17 @@ class NodeRunRecord(BaseModel):
         return self
 
 
+class _WorkflowReportCanonicalizationError(ValueError):
+    """Workflow report diagnostics cannot be represented by the strict CAS profile."""
+
+    def __init__(self, *, node_alias: str, cause: CanonViolation) -> None:
+        self.node_alias = node_alias
+        self.cause = cause
+        super().__init__(
+            f"Workflow report error details for node {node_alias!r} are not canonical: {cause}"
+        )
+
+
 class WorkflowReport(BaseModel):
     """Workflow report data model."""
 
@@ -152,6 +163,26 @@ class WorkflowReport(BaseModel):
     error_policy: ErrorPolicy
     status: str
     nodes: list[NodeRunRecord] = Field(default_factory=list)
+
+    def _validated_payload(self) -> dict[str, Any]:
+        """Return a detached payload after strict CAS-profile admission of error details.
+
+        NodeError remains permissive when reading historical workflow histories. New
+        report writes validate dynamic details here, at the persistence boundary, before
+        asking the artifact store to persist them.
+        """
+        payload = self.model_dump()
+        for record in payload["nodes"]:
+            error = record["error"]
+            if error is not None:
+                try:
+                    to_canonical_bytes(error["details"])
+                except CanonViolation as exc:
+                    raise _WorkflowReportCanonicalizationError(
+                        node_alias=record["alias"],
+                        cause=exc,
+                    ) from exc
+        return payload
 
 
 @dataclass(frozen=True)
@@ -1023,10 +1054,9 @@ class WorkflowExecutor:
                         outcome = NodeOutcome(
                             status="fail",
                             state=state,
-                            error=NodeError(
-                                code="node.timeout",
+                            error=NodeError.for_timeout(
                                 message=str(exc),
-                                details={"timeout_s": inv.timeout_s},
+                                timeout_s=inv.timeout_s,
                             ),
                         )
                     except RetryExhaustedError as exc:
@@ -1413,7 +1443,7 @@ class WorkflowExecutor:
 
     def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
         return self._ctx.store.put_json(
-            report.model_dump(),
+            report._validated_payload(),
             PutOptions(
                 kind="scientist.workflow_report",
                 media_type="application/json",

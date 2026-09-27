@@ -1275,10 +1275,10 @@ class AsyncWorkflowExecutor:
                         NodeOutcome(
                             status="fail",
                             state=state,
-                            error=NodeError(
+                            error=NodeError.for_timeout(
                                 code="node.semaphore_timeout",
                                 message=f"Node {alias} timed out waiting for execution slot",
-                                details={"timeout_s": self._semaphore_timeout_s},
+                                timeout_s=self._semaphore_timeout_s,
                             ),
                         ),
                         0,
@@ -1748,13 +1748,14 @@ class AsyncWorkflowExecutor:
                 )
 
             retry_policy = inv.retry or RetryPolicy()
+            node_timeout_s = self._remaining_deadline_seconds(cache_deadline)
             try:
                 raw_outcome = await execute_with_retry_async(
                     node,
                     self._ctx,
                     node_state,
                     retry_policy=retry_policy,
-                    timeout_s=self._remaining_deadline_seconds(cache_deadline),
+                    timeout_s=node_timeout_s,
                     alias=alias,
                     retry_stats=retry_stats,
                 )
@@ -1764,8 +1765,9 @@ class AsyncWorkflowExecutor:
                 outcome = NodeOutcome(
                     status="fail",
                     state=node_state,
-                    error=NodeError(
-                        code="node.timeout", message=str(exc), details={"timeout_s": inv.timeout_s}
+                    error=NodeError.for_timeout(
+                        message=str(exc),
+                        timeout_s=node_timeout_s,
                     ),
                 )
             except RetryExhaustedError as exc:
@@ -2189,7 +2191,7 @@ class AsyncWorkflowExecutor:
 
     async def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
         return await self._async_store.put_json(
-            report.model_dump(),
+            report._validated_payload(),
             ArtifactWriteOptions(
                 kind="scientist.workflow_report",
                 media_type="application/json",

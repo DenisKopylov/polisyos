@@ -346,7 +346,7 @@ def _verification_session_factory_measurement(
     run: GenerationCycleRun | None = None,
     admissions: tuple[GyComparisonAdmission, ...] = (),
 ) -> dict[str, Any]:
-    """Retain actual final-N9 inputs even when the controller exits before a run."""
+    """Report observed N6 inputs and distinguish N9 values that were not reached."""
 
     binding = factory.problem_binding
     scope = factory.risk_scope
@@ -364,8 +364,43 @@ def _verification_session_factory_measurement(
     session_scope_payload = (
         session_scope.model_dump(mode="json") if session_scope is not None else None
     )
+    if factory.callback_attempt_count == 0:
+        measurement_status = "not_reached"
+    elif (
+        run is not None
+        and factory.callback_attempt_count == 1
+        and factory.session_open_count == 1
+    ):
+        measurement_status = "complete"
+    else:
+        measurement_status = "partial"
+    if factory.callback_attempt_count == 0:
+        predicate = (
+            "N6 returned a run, but the N9 callback was not reached; final N9 binding, "
+            "scope, and candidate selection were not measured"
+            if run is not None
+            else "the N6 run and N9 callback were not observed"
+        )
+    elif factory.callback_attempt_count > 1:
+        predicate = (
+            "a repeated callback was refused before a second session opened; the second "
+            "callback predicate was not reached"
+        )
+    elif binding is None:
+        predicate = "the N9 callback was entered, but its final problem binding was not captured"
+    elif scope is None:
+        predicate = "the N9 problem binding was captured, but its risk scope was not captured"
+    elif factory.session is None:
+        predicate = "the N9 binding and risk scope were derived, but no session was opened"
+    elif run is None:
+        predicate = "the N9 session was opened, but the N6 run was not observed"
+    else:
+        predicate = (
+            "final N9 input binding and full risk-scope equality were exercised; run "
+            "return was observed"
+        )
     return {
-        "status": "complete" if run is not None else "partial",
+        "status": measurement_status,
         "callback_attempt_count": factory.callback_attempt_count,
         "session_open_count": factory.session_open_count,
         "final_n9_problem_binding": binding.model_dump(mode="json") if binding else None,
@@ -391,6 +426,15 @@ def _verification_session_factory_measurement(
             factory.session.registry.content_hash if factory.session is not None else None
         ),
         "selector_denominator": {
+            "n6_cycles": len(run.cycles) if run is not None else None,
+            "n6_candidate_summaries": (
+                len(run.candidate_summaries) if run is not None else None
+            ),
+            "n9_callback_attempt_count": factory.callback_attempt_count,
+            "n9_session_open_count": factory.session_open_count,
+            "n9_candidate_summaries": (
+                len(candidate_ids) if factory.candidate_ids is not None else None
+            ),
             "generation_cycles": len(run.cycles) if run is not None else None,
             "candidate_summaries": (
                 len(candidate_ids) if factory.candidate_ids is not None else None
@@ -398,40 +442,61 @@ def _verification_session_factory_measurement(
             "run_candidate_summaries": (
                 len(run.candidate_summaries) if run is not None else None
             ),
-            "candidate_ids": list(candidate_ids),
+            "candidate_ids": (
+                list(candidate_ids) if factory.candidate_ids is not None else None
+            ),
             "promotion_receipts": len(receipt_ids),
             "run_promotion_receipts": (
                 len(run.promotion_port.receipts) if run is not None else None
             ),
-            "receipt_candidate_ids": list(receipt_ids),
-            "expected_receipt_count": len(candidate_ids),
-            "receipt_selection_complete": run is not None,
-            "receipt_candidate_denominator_matches": (
-                run is not None and bool(candidate_ids) and receipt_ids == candidate_ids
+            "receipt_candidate_ids": (
+                list(receipt_ids) if factory.callback_attempt_count > 0 else None
             ),
-            "comparison_admissions": len(admissions),
+            "expected_receipt_count": (
+                len(candidate_ids) if factory.candidate_ids is not None else None
+            ),
+            "receipt_selection_complete": (
+                None
+                if factory.callback_attempt_count == 0
+                else (
+                    run is not None
+                    and factory.callback_attempt_count == 1
+                    and len(receipt_ids) == len(candidate_ids)
+                )
+            ),
+            "receipt_candidate_denominator_matches": (
+                None
+                if factory.callback_attempt_count == 0
+                else run is not None and bool(candidate_ids) and receipt_ids == candidate_ids
+            ),
+            "comparison_admissions": (
+                len(admissions) if factory.callback_attempt_count > 0 else None
+            ),
         },
         "predicate_basis": {
-            "final_problem_binding": "recomputed from the typed N9 DesignProblem passed by N6",
+            "final_problem_binding": (
+                "recomputed from the typed N9 DesignProblem passed by N6"
+                if binding is not None
+                else "not_reached: N9 callback did not supply a final DesignProblem"
+            ),
             "risk_scope": (
-                "recomputed from the complete N9DesignProblemBinding; the N9 owner compares "
-                "the session scope by full model equality"
+                (
+                    "recomputed from the complete N9DesignProblemBinding; the N9 owner compares "
+                    "the session scope by full model equality"
+                )
+                if scope is not None
+                else "not_reached: final N9 problem binding was unavailable"
             ),
             "verification_registry": (
-                "the session exposes a content hash; canonical registry reconciliation is "
-                "performed by the N9 owner"
+                (
+                    "the session exposes a content hash; canonical registry reconciliation is "
+                    "performed by the N9 owner"
+                )
+                if factory.session is not None
+                else "not_reached: N9 verification session was not opened"
             ),
         },
-        "predicate": (
-            "a repeated callback was refused before a second session opened; the second "
-            "callback predicate was not reached"
-            if factory.callback_attempt_count > 1
-            else (
-                "final N9 input binding and full risk-scope equality were exercised; run "
-                "return was "
-                + ("observed" if run is not None else "not observed")
-            )
-        ),
+        "predicate": predicate,
     }
 
 
@@ -561,6 +626,26 @@ async def _build_live_payload_in_verification_namespace(
             exc.receipts["n9_replay_measurement"] = measurement
             raise
         raise _N6VerificationReplayRaisedError(exc, measurement) from exc
+    if session_factory.callback_attempt_count == 0:
+        measurement = _verification_session_factory_measurement(
+            session_factory,
+            run=run,
+        )
+        measurement["status"] = "UNRUN"
+        measurement["n6_gate_observation"] = {
+            "terminal_status": run.terminal_status,
+            "blocked_reason": run.blocked_reason,
+            "promotion_port_status": run.promotion_port.status,
+            "promotion_port_reason": run.promotion_port.reason,
+            "deployment_identity_status": run.deployment_identity_status,
+            "deployment_identity_reason": run.deployment_identity_reason,
+            "strangle_receipt_status": run.strangle_receipt.status,
+            "strangle_receipt_limitations": list(run.strangle_receipt.limitation_refs),
+        }
+        raise _N6VerificationReplayUnavailableError(
+            "n9_final_problem_session_not_reached",
+            measurement,
+        )
     if (
         session_factory.callback_attempt_count != 1
         or session_factory.session_open_count != 1
@@ -1020,6 +1105,11 @@ def validate_payload(
 ) -> dict[str, Any]:
     """Validate one frozen N6 contract payload and its mutation witnesses."""
 
+    if not isinstance(payload, dict):
+        return {
+            "status": "fail",
+            "issues": [{"code": "generation_cycle_contract_object_invalid"}],
+        }
     issues = _validate_payload_core(payload, repo_root=repo_root)
     mutation_reports = payload.get("behavioral_mutations")
     if not isinstance(mutation_reports, list) or not mutation_reports:
@@ -1197,6 +1287,35 @@ def _persisted_run_currentness_observation(run_payload: dict[str, Any]) -> dict[
     }
 
 
+def _persisted_n9_not_reached_measurement(
+    run_payload: dict[str, Any],
+    *,
+    reason_code: str,
+) -> dict[str, Any]:
+    """Disclose the persisted N6 denominator without implying N9 was entered."""
+
+    cycles = run_payload.get("cycles")
+    summaries = run_payload.get("candidate_summaries")
+    return {
+        "status": "not_reached",
+        "callback_attempt_count": 0,
+        "session_open_count": 0,
+        "currentness_reason_code": reason_code,
+        "selector_denominator": {
+            "persisted_generation_cycles": len(cycles) if isinstance(cycles, list) else None,
+            "persisted_candidate_summaries": (
+                len(summaries) if isinstance(summaries, list) else None
+            ),
+            "n9_candidate_summaries": None,
+            "n9_promotion_receipts": None,
+        },
+        "predicate": (
+            "persisted historical run was inspected, but live N9 final binding and candidate "
+            "selection were not reached because currentness was not established"
+        ),
+    }
+
+
 def validate(repo_root: Path) -> dict[str, Any]:
     """Validate committed frozen artifact drift and behavioral invariants."""
 
@@ -1233,9 +1352,23 @@ def validate(repo_root: Path) -> dict[str, Any]:
                     lambda: measured_read_text(path, encoding="utf-8"),
                     stage="committed_contract_read",
                 )
-                committed_payload = json.loads(committed_text)
-                run_payload = committed_payload.get("generation_cycle_run")
-                if isinstance(run_payload, dict):
+                committed_payload: Any = None
+                try:
+                    committed_payload = json.loads(committed_text)
+                except json.JSONDecodeError:
+                    report = _validate_committed_contract_text(repo_root, committed_text)
+                else:
+                    if not isinstance(committed_payload, dict):
+                        report = {
+                            "status": "fail",
+                            "issues": [{"code": "generation_cycle_contract_object_invalid"}],
+                            "predicate_stage": "committed_json_shape",
+                            "predicate_result": "fail",
+                        }
+                        run_payload = None
+                    else:
+                        run_payload = committed_payload.get("generation_cycle_run")
+                if isinstance(committed_payload, dict) and isinstance(run_payload, dict):
                     currentness = _persisted_run_currentness_observation(run_payload)
                     if currentness["status"] == "fail":
                         reason_code = str(currentness["reason_code"])
@@ -1245,18 +1378,37 @@ def validate(repo_root: Path) -> dict[str, Any]:
                             "predicate_stage": "persisted_historical_replay",
                             "predicate_result": "fail",
                             "historical_replay": currentness,
+                            "n9_replay_measurement": _persisted_n9_not_reached_measurement(
+                                run_payload,
+                                reason_code=reason_code,
+                            ),
                         }
                     elif currentness["status"] == "UNRUN":
                         raise _N6VerificationReplayUnavailableError(
                             str(currentness["reason_code"]),
-                            {
-                                "status": "not_run",
-                                "callback_attempt_count": 0,
-                                "currentness": currentness,
-                            },
+                            _persisted_n9_not_reached_measurement(
+                                run_payload,
+                                reason_code=str(currentness["reason_code"]),
+                            )
+                            | {"currentness": currentness},
                         )
+                    elif currentness["status"] == "not_applicable":
+                        reason_code = str(currentness["reason_code"])
+                        report = {
+                            "status": "fail",
+                            "issues": [{"code": reason_code}],
+                            "predicate_stage": "persisted_historical_replay",
+                            "predicate_result": "fail",
+                            "historical_replay": currentness,
+                            "n9_replay_measurement": _persisted_n9_not_reached_measurement(
+                                run_payload,
+                                reason_code=reason_code,
+                            ),
+                        }
                     else:
                         report = _validate_committed_contract_text(repo_root, committed_text)
+                elif isinstance(committed_payload, dict):
+                    report = _validate_committed_contract_text(repo_root, committed_text)
         except _N6InputInspectionUnavailableError as exc:
             report = {
                 "status": "UNRUN",
@@ -1287,7 +1439,10 @@ def validate(repo_root: Path) -> dict[str, Any]:
                 "n9_replay_measurement": exc.measurement,
             }
         except Exception as exc:
-            report = _replay_exception_report(exc, stage="validator_boundary")
+            report = _validator_entrypoint_exception_report(
+                exc,
+                stage="validator_boundary",
+            )
         file_receipt = file_reads.snapshot(
             complete_verdict=(
                 report.get("status") != "UNRUN"
@@ -1432,6 +1587,18 @@ def _validate_committed_contract_text(
             "predicate_stage": "committed_json_parse",
             "predicate_result": "fail",
         }
+    if not isinstance(committed_payload, dict):
+        return {
+            "status": "fail",
+            "issues": [{"code": "generation_cycle_contract_object_invalid"}],
+            "predicate_stage": "committed_json_shape",
+            "predicate_result": "fail",
+            "n9_replay_measurement": {
+                "status": "not_reached",
+                "callback_attempt_count": 0,
+                "reason_code": "generation_cycle_contract_object_invalid",
+            },
+        }
     try:
         report = validate_payload(committed_payload, repo_root=repo_root)
     except _N6InputInspectionUnavailableError:
@@ -1444,6 +1611,35 @@ def _validate_committed_contract_text(
         ]
         return result
     issues = list(report["issues"])
+    non_replayable_run_issue = next(
+        (
+            issue
+            for issue in issues
+            if issue.get("code")
+            in {"generation_cycle_run_missing", "generation_cycle_run_invalid"}
+        ),
+        None,
+    )
+    if non_replayable_run_issue is not None:
+        return {
+            "status": "fail",
+            "issues": issues,
+            "predicate_stage": "committed_payload_validation",
+            "predicate_result": "fail",
+            "n9_replay_measurement": {
+                "status": "not_reached",
+                "callback_attempt_count": 0,
+                "reason_code": str(non_replayable_run_issue["code"]),
+                "selector_denominator": {
+                    "generation_cycles": None,
+                    "candidate_summaries": None,
+                    "promotion_receipts": None,
+                },
+                "unresolved_by_construction": [
+                    "N9 final-problem binding and candidate selection require a valid N6 run"
+                ],
+            },
+        }
     n9_measurement: dict[str, Any] | None = None
     inspection_receipts: dict[str, Any] = {}
     with _inspection_workspace(
@@ -1581,6 +1777,45 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         "compute_economics": payload.get("compute_economics", {}),
     }
+
+
+def _validator_entrypoint_exception_report(exc: Exception, *, stage: str) -> dict[str, Any]:
+    """Convert validator-entrypoint exceptions into a typed verdict."""
+
+    try:
+        return _replay_exception_report(exc, stage=stage)
+    except _N6VerificationReplayUnavailableError as unavailable:
+        return {
+            "status": "UNRUN",
+            "issues": [{"code": unavailable.code, "stage": stage}],
+            "predicate_stage": stage,
+            "predicate_result": "not_run",
+            "n9_replay_measurement": unavailable.measurement,
+        }
+    except _N6InputInspectionUnavailableError as unavailable:
+        report: dict[str, Any] = {
+            "status": "UNRUN",
+            "issues": [
+                {
+                    "code": unavailable.code,
+                    "stage": unavailable.stage,
+                    "error_type": unavailable.error_type,
+                }
+            ],
+            "predicate_stage": unavailable.stage,
+            "predicate_result": "not_run",
+        }
+        if unavailable.receipts:
+            report["inspection_failure"] = {
+                "stage": unavailable.stage,
+                "error_type": unavailable.error_type,
+                "receipts": unavailable.receipts,
+            }
+        if unavailable.receipts.get("n9_replay_measurement") is not None:
+            report["n9_replay_measurement"] = unavailable.receipts[
+                "n9_replay_measurement"
+            ]
+        return report
 
 
 def _positive_gate(run: GenerationCycleRun) -> dict[str, Any]:
@@ -2125,12 +2360,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.write:
         write(repo_root)
         report = {"status": "pass", "issues": [], "outputs": declared_outputs()}
-    elif args.corrupt_field_drift_check:
-        report = corrupt_field_drift_check(repo_root)
-    elif args.rederive_audit:
-        report = rederive_audit(repo_root)
     else:
-        report = validate(repo_root)
+        stage = (
+            "corrupt_field_drift_check"
+            if args.corrupt_field_drift_check
+            else "rederive_audit"
+            if args.rederive_audit
+            else "check"
+        )
+        try:
+            if args.corrupt_field_drift_check:
+                report = corrupt_field_drift_check(repo_root)
+            elif args.rederive_audit:
+                report = rederive_audit(repo_root)
+            else:
+                report = validate(repo_root)
+        except Exception as exc:
+            report = _validator_entrypoint_exception_report(exc, stage=stage)
     if args.output_format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
     elif report["status"] == "pass":

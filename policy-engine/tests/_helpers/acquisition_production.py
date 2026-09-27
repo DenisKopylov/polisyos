@@ -89,6 +89,30 @@ class _RevisedCycleWdiValuePort:
         return fixtures.PendingN8ValuePort()(**kwargs)
 
 
+class _RevisedCycleWdiGrounding:
+    """Drive revision on cycle 0, then allow the cycle-1 value gap to request N7."""
+
+    def __call__(
+        self,
+        *,
+        candidate,
+        problem,
+        cycle_index,
+        generation_result=None,
+    ):
+        grounding_port = (
+            fixtures._AlwaysLowGrounding()
+            if cycle_index == 0
+            else fixtures._StableShadowGrounding()
+        )
+        return grounding_port(
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+            generation_result=generation_result,
+        )
+
+
 async def persist_wdi_route(
     control,
     *,
@@ -121,7 +145,7 @@ async def persist_wdi_route(
         ) -> GenerationCycleController:
             return GenerationCycleController(
                 generation_port=fixtures._SameCandidateNewBasisGenerator(),
-                grounding_port=fixtures._AlwaysLowGrounding(),
+                grounding_port=_RevisedCycleWdiGrounding(),
                 value_port=_RevisedCycleWdiValuePort(),
                 repo_root=generation_cycle_repo_root,
             )

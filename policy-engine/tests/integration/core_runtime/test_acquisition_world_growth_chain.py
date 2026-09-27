@@ -18,6 +18,7 @@ from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecuti
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
+    GenerationCycleController,
     currentness_for_generation_cycle_run,
     validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
@@ -128,6 +129,15 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
 ):
     """A source-bound candidate re-enters while N6 authority stays typed UNRUN."""
 
+    def reject_local_route_rebuild(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("native bridge must not enter the contract-test ACQ-01 helper")
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "_rebuild_n7_acq01_route_context",
+        reject_local_route_rebuild,
+    )
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(tmp_path / "control")
     source_root = Path(__file__).resolve().parents[3]

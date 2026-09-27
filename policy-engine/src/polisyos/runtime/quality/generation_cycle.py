@@ -5837,6 +5837,12 @@ class GenerationCycleController:
         admission; this local helper is not that owner.
         """
 
+        if self._authority_scope != "contract_testing":
+            raise GenerationCycleError(
+                "n7_acq01_route_contract_testing_only",
+                "Local ACQ-01 WMR reconstruction requires explicit contract-testing scope.",
+            )
+
         route_artifacts = tuple(
             artifact
             for artifact in acquisition_receipt.owner_artifacts

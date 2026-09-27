@@ -1091,6 +1091,75 @@ async def test_production_n7_acq01_route_is_limited_before_route_cas_and_n5(
 
 
 @pytest.mark.asyncio
+async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid_route(
+    tmp_path: Path,
+) -> None:
+    """The local route cannot rebuild a WMR outside explicit contract testing."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_helper_production_scope")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        contract_controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+        )
+        run = await contract_controller.run(
+            case.problem,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            max_cycles=1,
+        )
+        receipt = AcquisitionReceipt.model_validate(run.acquisition_receipts[0])
+        assert run.synthetic is True
+        route_payload = route.owner_artifact.payload["acq01_route"]
+        assert isinstance(route_payload, dict)
+        assert any(
+            artifact.payload.get("acq01_route") == route_payload
+            for artifact in receipt.owner_artifacts
+        )
+        contract_context = contract_controller._rebuild_n7_acq01_route_context(
+            case.problem,
+            acquisition_receipt=receipt,
+            candidate_id=case.candidate.candidate_id,
+            candidate_content_hash=case.candidate.atom.content_hash,
+            target_world_slots=tuple(case.candidate.atom.target_world_slots),
+        )
+        assert contract_context is not None
+        assert (
+            contract_context.world_model_record.world_model_record_id
+            != case.before_context.world_model_record.world_model_record_id
+        )
+
+        production_controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=_WorldBoundSimulation(),
+            repo_root=tmp_path,
+            authority_scope="production",
+        )
+        # Give the direct-helper probe the exact fixture-selected store, so a
+        # missing-store refusal cannot make the scope property appear to pass.
+        production_controller._artifact_store = route.store
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match="n7_acq01_route_contract_testing_only",
+        ):
+            production_controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=receipt,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+
+
+@pytest.mark.asyncio
 async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
     tmp_path: Path,
 ) -> None:

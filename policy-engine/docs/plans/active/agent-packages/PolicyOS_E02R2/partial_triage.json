@@ -3,8 +3,8 @@
   "base_commit": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
   "denominator": 118,
   "counts": {
-    "engineering_a": 84,
-    "principal_b": 16,
+    "engineering_a": 87,
+    "principal_b": 13,
     "typed_blocker_c": 18
   },
   "triage_rule": {
@@ -813,12 +813,12 @@
     },
     {
       "finding_id": "LA-053",
-      "bucket": "b",
-      "disposition": "principal",
-      "owner": "Principal (Denis)",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "polisyos.calibration owner and Scientist backtesting migration/test owner",
       "blocker_kind": null,
-      "e02_residual": "PCL-01: mixed valid/empty, skipped-level identity open",
-      "next_step": "Decide skipped-level identity semantics and the compatibility cost; record which identity binds and what evidence would falsify the decision.",
+      "e02_residual": "Historical E02 bundle label PCL-01 is package provenance only; its mixed/identity residual is distinct from the LA-053 source card, which concerns calibration_curve import/re-export migration to polisyos.calibration. LA-052 interval semantics remain separate.",
+      "next_step": "Move ordinary backtesting imports/tests to polisyos.calibration; preserve the three exported objects and existing numerical behavior; complete the FQN/import/config/notebook census before retiring the alias. The proposed behavioral witness remains UNRUN.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-053",
       "e02_residual_source_refs": [
         {
@@ -830,29 +830,7 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-053"
         }
-      ],
-      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-053",
-      "principal_decision_draft": {
-        "status": "awaiting_principal",
-        "question": "Should the old Scientist import address remain a supported compatibility facade, or retire after consumers move to the public calibration owner?",
-        "premise": "The original card finds the old address re-exports the shared calibration owner; ordinary tests still use the old path. A full external compatibility contract/caller census is not established.",
-        "options": [
-          {
-            "name": "Retain a time-bounded compatibility facade",
-            "choice": "Keep the old re-export while internal and documented external consumers migrate; publish a compatibility window and preserve equivalent types/exceptions.",
-            "cost": "Low immediate breakage; ongoing alias, docs, import-surface, and maintenance cost until retirement."
-          },
-          {
-            "name": "Retire after caller and contract census",
-            "choice": "Move ordinary tests/imports to polisyos.calibration, keep only a necessary compatibility test during the declared window, then remove the alias if no supported external consumer remains.",
-            "cost": "Medium migration and release coordination; possible breaking change if the external contract census is incomplete."
-          }
-        ],
-        "residual": "The E02 PCL-01 note also names mixed valid/empty and skipped-level identity; that package residual is not settled by choosing this import-address lifetime.",
-        "revisit_falsifier": "Reopen retirement if a supported external import/config reference is observed after the census, or reopen retention if the declared window ends and no supported caller remains.",
-        "binding_seam": "Scientist backtesting calibration_curve import/FQN, root exports, package docs, and the release compatibility contract.",
-        "scope_note": "The source card is a calibration_curve address migration. The Appendix C PCL-01 residual uses different mixed/identity wording; retain that as a separate residual."
-      }
+      ]
     },
     {
       "finding_id": "LA-051",
@@ -2802,12 +2780,12 @@
     },
     {
       "finding_id": "LA-018",
-      "bucket": "b",
-      "disposition": "principal",
-      "owner": "Principal (Denis)",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Fabric world reader owner and Lex facade migration/test owner",
       "blocker_kind": null,
       "e02_residual": "HYG-02: Lex factlog facade; _shim retirement; aliases retained",
-      "next_step": "Decide the compatibility lifetime for retained aliases and the cost of preserving or retiring them; state the falsifier.",
+      "next_step": "Complete the tracked source/test/docs/config/notebook/serialized-FQN census for polisyos.lex.factlog; move the identity test to polisyos.fabric.world.load_world_facts; retire only the re-export shim after that census. The proposed behavioral witness checks canonical import identity, authorization/provenance and an old-FQN negative; it remains UNRUN.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-018",
       "e02_residual_source_refs": [
         {
@@ -2819,29 +2797,7 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-018"
         }
-      ],
-      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-018",
-      "principal_decision_draft": {
-        "status": "awaiting_principal",
-        "question": "Is the old Lex factlog reader a supported external facade or an internal alias to retire after callers migrate?",
-        "premise": "The owner has moved to Fabric; the current source does not establish the complete caller census or external API status.",
-        "options": [
-          {
-            "name": "Retain a documented compatibility facade",
-            "choice": "Keep a thin re-export for a declared compatibility window; preserve authorization and provenance behavior and publish the support boundary.",
-            "cost": "Low immediate breakage; continued API/docs/test maintenance and import-surface complexity."
-          },
-          {
-            "name": "Retire after complete consumer census",
-            "choice": "Move all supported internal callers to the Fabric public owner, verify root exports/config/imports, then delete the alias with a release note.",
-            "cost": "Medium caller/release coordination and possible external break if census is incomplete; lowers ongoing duplication."
-          }
-        ],
-        "residual": "External support status and full caller census remain unestablished; no arbitrary sunset date is justified.",
-        "revisit_falsifier": "Reopen alias removal if a supported external consumer still resolves it, or reopen retention after the agreed window if no supported caller remains.",
-        "binding_seam": "Lex factlog alias import path, root exports, package docs/config strings, and compatibility policy.",
-        "scope_note": null
-      }
+      ]
     },
     {
       "finding_id": "LA-011",
@@ -2887,12 +2843,12 @@
     },
     {
       "finding_id": "LA-043",
-      "bucket": "b",
-      "disposition": "principal",
-      "owner": "Principal (Denis)",
+      "bucket": "a",
+      "disposition": "engineering",
+      "owner": "Runtime API client package generator owner and direct-consumer migration/test owner",
       "blocker_kind": null,
       "e02_residual": "CLI-01: full client LA not closed",
-      "next_step": "Decide the public compatibility promise for the full legacy client surface and the cost of removal or ongoing support.",
+      "next_step": "Enumerate direct raw-file consumers; migrate public consumers to the package root and keep raw files only as inputs/intermediates required by the package-owned generator/canonicalizer. Preserve request/response/type checks and complete generated-family freshness. The proposed witness remains UNRUN.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-043",
       "e02_residual_source_refs": [
         {
@@ -2904,29 +2860,7 @@
           "sha256": "148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e",
           "finding_id": "LA-043"
         }
-      ],
-      "principal_decision_draft_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md#la-043",
-      "principal_decision_draft": {
-        "status": "awaiting_principal",
-        "question": "Should the raw generated client pair remain a supported compatibility artifact, or move to canonical public outputs and scratch-only intermediates?",
-        "premise": "Package exports already point to the canonical twin, while repository tests and the standalone checker still consume raw files; broader generated-family freshness exists and should be reused.",
-        "options": [
-          {
-            "name": "Keep raw pair during a declared compatibility window",
-            "choice": "Treat raw TS/JS as managed generated intermediates while migrating tests/checker/direct consumers; retain one canonical generator and full-family freshness verification.",
-            "cost": "Medium ongoing generated-output, registry, test, and duplicate-surface maintenance."
-          },
-          {
-            "name": "Retire committed raw pair after full consumer migration",
-            "choice": "Move tests and verifier to canonical public exports; redirect generation to isolated scratch/managed outputs; remove raw committed files only after the full caller and output-family census passes.",
-            "cost": "Medium to high migration/typecheck/release cost; may break an undiscovered filesystem consumer."
-          }
-        ],
-        "residual": "External filesystem imports and full endpoint correctness remain unestablished; byte agreement alone is not endpoint execution evidence.",
-        "revisit_falsifier": "Reopen removal if a supported raw-file consumer appears or the full required-generated-family gate does not cover a canonical output; reopen retention if the declared window ends with no supported raw consumer.",
-        "binding_seam": "runtime-api-client package exports, generator/output ownership, public imports, tests, standalone contract checker, and generated-artifact registry.",
-        "scope_note": null
-      }
+      ]
     },
     {
       "finding_id": "LA-044",
@@ -2969,5 +2903,20 @@
       "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
     ]
   },
-  "decision_draft_count": 16
+  "decision_draft_count": 13,
+  "classification_review_20260927": {
+    "review_ref": "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_INDEPENDENT_REVIEW.md@sha256:43124200564f97343d2e3bc5b5acfdff99cfda32fab172873910992978f995ce",
+    "reviewed_proposal_refs": [
+      "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.md@sha256:31afc11ef17a4de1631439469966dca2cd6ca5d2d15c885b173892b233fc4667",
+      "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.json@sha256:26a7e1ff92e48bb91d6266684c01fb613b92b64f99e3b3364d35ad4d18ea9a6d"
+    ],
+    "reviewed_proposal_head": "8034cfc76d73466316522ae3faad0f8924912593",
+    "decisions": {
+      "LA-014": "BLOCK reclassification; retain c owner_appointment because no tracked production SearchService consumer is established; SearchLoopRunner is not a production caller and the hierarchical adapter is distinct.",
+      "LA-018": "GO b-to-a as engineering next step under user direction against broad backward-compatibility work.",
+      "LA-043": "GO b-to-a as engineering next step under user direction against broad backward-compatibility work.",
+      "LA-053": "GO b-to-a as engineering next step for the source-card import migration; historical PCL-01 label is package provenance, not semantic identity evidence."
+    },
+    "scope": "Triage classification only. No finding status changes; behavioral witnesses and current four-base replays for the three GO rows remain UNRUN."
+  }
 }

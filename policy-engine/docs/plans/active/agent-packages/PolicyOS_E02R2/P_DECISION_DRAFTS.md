@@ -1,8 +1,8 @@
 # Principal decision drafts for E02-R2 partial findings
 
-**Status: proposals only.** These are drafts extracted without changing the embedded triage source. None is a principal ruling, authorization to implement a principal choice, or finding closure. Every decision is `awaiting_principal`; no test result or closure evidence is asserted. The row-by-row reconciliation distinguishes card-level decisions from broader triage next steps. LA-053’s skipped-level-identity next step remains mismatched to its cited alias-migration card and is explicitly left unresolved; LA-055 carries a second, independent applicability-scope question.
+**Status: proposals only.** These drafts are reconciled against the reviewed current P118 triage. None is a principal ruling, authorization to implement a principal choice, or finding closure. Every listed decision is `awaiting_principal`; no test result or closure evidence is asserted. The row-by-row reconciliation distinguishes card-level decisions from broader triage next steps. The LA-018/043/053 compatibility-only drafts were superseded by reviewed engineering next steps; they are not pending principal choices. LA-055 carries a separate applicability-scope question.
 
-**Denominator.** All 16 rows marked `bucket=b` in `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json` (118 rows in the P118 Appendix C partial-finding triage cohort; counts: 84 engineering a / 16 principal b / 18 typed blocker c). All 16 embedded objects carry the §9.7 fields, but a populated draft object is not by itself proof that its question matches the triage next step; see each reconciliation below. The source declares `decision_draft_count: 16`. Source JSON: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994`.
+**Denominator.** All 13 rows marked `bucket=b` in `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json` (118 rows in the P118 Appendix C partial-finding triage cohort; counts: 87 engineering a / 13 principal b / 18 typed blocker c). All 13 embedded objects carry the §9.7 fields, but a populated draft object is not by itself proof that its question matches the triage next step; see each reconciliation below. The source declares `decision_draft_count: 13`. Source JSON: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:30d0de358ecfa1481258e3968ffa68eea0ed5553da66253ae20c95c3bbdb3393`.
 
 **Census and relation rule.** The current `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md` scans 77 GY task scopes, 22 Atlas slice scopes, and 74 current open/blocked A/B register rows using exact owner-scope matches. For rows below marked `not_established`, the scan admitted no direct relation; this is not proof of no dependency. Scan inputs: `policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5`; `policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725`; `policy-engine/docs/plans/active/DEBT-REGISTER.md@sha256:133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e`. Crosswalk: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05`.
 
@@ -137,39 +137,6 @@ E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.super
 E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#B133`.
 
 **Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L190`.
-
-## la-053
-
-**Question.** Should the old Scientist import address remain a supported compatibility facade, or retire after consumers move to the public calibration owner?
-
-**Owner/status.** Principal (Denis); `awaiting_principal`. No ruling is recorded.
-
-**Options and costs.**
-
-1. **Retain a time-bounded compatibility facade.** Keep the old re-export while internal and documented external consumers migrate; publish a compatibility window and preserve equivalent types/exceptions. **Cost:** Low immediate breakage; ongoing alias, docs, import-surface, and maintenance cost until retirement.
-
-2. **Retire after caller and contract census.** Move ordinary tests/imports to polisyos.calibration, keep only a necessary compatibility test during the declared window, then remove the alias if no supported external consumer remains. **Cost:** Medium migration and release coordination; possible breaking change if the external contract census is incomplete.
-
-**Premises.** The original card finds the old address re-exports the shared calibration owner; ordinary tests still use the old path. A full external compatibility contract/caller census is not established.
-
-**Scope note.** The source card is a calibration_curve address migration. The Appendix C PCL-01 residual uses different mixed/identity wording; retain that as a separate residual.
-
-**Remainder.** The E02 PCL-01 note also names mixed valid/empty and skipped-level identity; that package residual is not settled by choosing this import-address lifetime.
-
-**Falsifier / revisit trigger.** Reopen retirement if a supported external import/config reference is observed after the census, or reopen retention if the declared window ends and no supported caller remains.
-
-**Where it binds.** Scientist backtesting calibration_curve import/FQN, root exports, package docs, and the release compatibility contract.
-
-**Triage next step and card reconciliation.** The recorded triage step is: “Decide skipped-level identity semantics and the compatibility cost; record which identity binds and what evidence would falsify the decision.” The cited LA-053 card is the Scientist `calibration_curve` alias/import migration. The triage step instead asks for skipped-level identity semantics. This card-derived draft covers only alias lifetime and does not answer the skipped-level identity question; the source card/triage pairing supplies no identity-specific options or premise here, so do not infer that the alias decision resolves it. The package’s mixed-valid/empty residual is separate as well. **Open reconciliation:** the triage’s skipped-level identity decision has no matching source-card premise/options in the cited material and remains undrafted/unresolved; do not count the alias-lifetime draft as answering that distinct question.
-
-**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-053`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md@sha256:3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7`.
-
-**Associated E02 package residual (context only; not a closure claim).** PCL-01: mixed valid/empty, skipped-level identity open
-
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-053`.
-
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L335`.
 
 ## b169
 
@@ -469,72 +436,10 @@ This companion addresses the LA-055 triage next step about deployment/live-feed 
 
 **Where it binds.** DDM-02 applicability/profile contract at the readiness input and `ReadinessStateEvent`/`ModelRegistryReadinessRecord` projection, with evidence admission before `evaluate_registry_gate` and the consumer’s eligibility interpretation. Any external deployment action remains with its appointed owner.
 
-**Sources for this separate scope question.** Triage: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994#LA-055`; separate capability blocker LA-054 plus live-feed residual: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:f9cf1d49ed73eb54b2a1302bc44fa9654d121a97184618dfac9d6e5ab8029c1d#LA-054`.
+**Sources for this separate scope question.** Triage: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:30d0de358ecfa1481258e3968ffa68eea0ed5553da66253ae20c95c3bbdb3393#LA-055`; separate capability blocker LA-054 plus live-feed residual: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-054` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:90e132408671e7c110ce4696e992adea3eed0027ffb8fbe87a7188eeb734bdd3#LA-054`.
 
 **Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L337`.
 
-## la-018
-
-**Question.** Is the old Lex factlog reader a supported external facade or an internal alias to retire after callers migrate?
-
-**Owner/status.** Principal (Denis); `awaiting_principal`. No ruling is recorded.
-
-**Options and costs.**
-
-1. **Retain a documented compatibility facade.** Keep a thin re-export for a declared compatibility window; preserve authorization and provenance behavior and publish the support boundary. **Cost:** Low immediate breakage; continued API/docs/test maintenance and import-surface complexity.
-
-2. **Retire after complete consumer census.** Move all supported internal callers to the Fabric public owner, verify root exports/config/imports, then delete the alias with a release note. **Cost:** Medium caller/release coordination and possible external break if census is incomplete; lowers ongoing duplication.
-
-**Premises.** The owner has moved to Fabric; the current source does not establish the complete caller census or external API status.
-
-**Remainder.** External support status and full caller census remain unestablished; no arbitrary sunset date is justified.
-
-**Falsifier / revisit trigger.** Reopen alias removal if a supported external consumer still resolves it, or reopen retention after the agreed window if no supported caller remains.
-
-**Where it binds.** Lex factlog alias import path, root exports, package docs/config strings, and compatibility policy.
-
-**Triage next step and card reconciliation.** The recorded triage step is: “Decide the compatibility lifetime for retained aliases and the cost of preserving or retiring them; state the falsifier.” This draft follows the card and triage next step on the compatibility lifetime of the Lex factlog alias. It does not claim that every downstream consumer has been enumerated.
-
-**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-018`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md@sha256:745a0c9188e2a3e50850be4c089dbbbf1b0c06c790b67fb927b1e1e1544cf1fe`.
-
-**Associated E02 package residual (context only; not a closure claim).** HYG-02: Lex factlog facade; _shim retirement; aliases retained
-
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-018`.
-
-**Plan/register relation.** The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L300`.
-
-## la-043
-
-**Question.** Should the raw generated client pair remain a supported compatibility artifact, or move to canonical public outputs and scratch-only intermediates?
-
-**Owner/status.** Principal (Denis); `awaiting_principal`. No ruling is recorded.
-
-**Options and costs.**
-
-1. **Keep raw pair during a declared compatibility window.** Treat raw TS/JS as managed generated intermediates while migrating tests/checker/direct consumers; retain one canonical generator and full-family freshness verification. **Cost:** Medium ongoing generated-output, registry, test, and duplicate-surface maintenance.
-
-2. **Retire committed raw pair after full consumer migration.** Move tests and verifier to canonical public exports; redirect generation to isolated scratch/managed outputs; remove raw committed files only after the full caller and output-family census passes. **Cost:** Medium to high migration/typecheck/release cost; may break an undiscovered filesystem consumer.
-
-**Premises.** Package exports already point to the canonical twin, while repository tests and the standalone checker still consume raw files; broader generated-family freshness exists and should be reused.
-
-**Remainder.** External filesystem imports and full endpoint correctness remain unestablished; byte agreement alone is not endpoint execution evidence.
-
-**Falsifier / revisit trigger.** Reopen removal if a supported raw-file consumer appears or the full required-generated-family gate does not cover a canonical output; reopen retention if the declared window ends with no supported raw consumer.
-
-**Where it binds.** runtime-api-client package exports, generator/output ownership, public imports, tests, standalone contract checker, and generated-artifact registry.
-
-**Triage next step and card reconciliation.** The recorded triage step is: “Decide the public compatibility promise for the full legacy client surface and the cost of removal or ongoing support.” This draft follows the card and triage next step on the public compatibility promise for the legacy generated client. The direct Atlas DS3 artifact overlap is not evidence that all filesystem callers have been found or that the compatibility decision is closed.
-
-**Audit card and package mapping.** Card: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-043`. Mapping source: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/legacy_to_bundles.json@sha256:5390bc21cab5901487c00b2fa68b6396294a5b95e809fd91bc2053d9f2ab6a8e`; Declared bundle(s): `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CLI-01.md@sha256:ec10690675c935d253d1f8498a311c755d6cab2f9a89a23b8ce9f405c33ef8e2`.
-
-**Associated E02 package residual (context only; not a closure claim).** CLI-01: full client LA not closed
-
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md@sha256:b4d502df4c9a086e085d155f44528903eaad708ad7af68bc48a9fdfcbe3c051c`.
-E02 record: `/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/progress.md@sha256:148a2ff9b3c456916afd13969484ccb5769dc3fdca11b69b9234449bc6ce9a6e#LA-043`.
-
-**Plan/register relation.** The admitted relation is `touches code named by` Atlas DS3 for runtime-client compatibility artifacts. It does not establish caller compatibility, generated-surface acceptance, or closure; no direct GY or live-register relation is admitted. See `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L48`, `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L325` and `policy-engine/docs/plans/active/atlas-slices/DS3-runtime-producers.md@sha256:e87bb63c8c34fc5993e06d97ed607e938bcc544abe9158d48130ca96aae51408`.
-
 ## Link compatibility
 
-Projection reconciliation: the 16 lowercase decision headings in this committed file match exactly the 16 bucket=b IDs in partial_triage.json. LA-055 keeps a separate applicability-scope question from LA-054’s P40 capability blocker. Triage source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:f9cf1d49ed73eb54b2a1302bc44fa9654d121a97184618dfac9d6e5ab8029c1d; JSON source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994.
+Projection reconciliation: the 13 lowercase decision headings in this committed file match exactly the 13 bucket=b IDs in partial_triage.json. LA-055 keeps a separate applicability-scope question from LA-054’s P40 capability blocker. Triage source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@sha256:90e132408671e7c110ce4696e992adea3eed0027ffb8fbe87a7188eeb734bdd3; JSON source: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/partial_triage.json@sha256:30d0de358ecfa1481258e3968ffa68eea0ed5553da66253ae20c95c3bbdb3393.

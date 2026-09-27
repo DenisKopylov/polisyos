@@ -3968,11 +3968,11 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
 
 
 @pytest.mark.asyncio
-async def test_deployment_identity_mismatch_blocks_n9_but_keeps_n6_candidates(
+async def test_blocked_n6_preempts_deployment_identity_mismatch_and_keeps_candidates(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Removing the owner-identity comparison lets mismatched runs reach N9 prep."""
+    """A blocked N6 run is terminal for N9 even when identity would also refuse."""
 
     current = confidence_ledger_module.capture_loaded_deployment_identity()
     assert current.status == "established"
@@ -4008,13 +4008,69 @@ async def test_deployment_identity_mismatch_blocks_n9_but_keeps_n6_candidates(
         max_cycles=2,
     )
 
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "voi_safety_cap_reached_without_scheduler_stop"
     assert run.cycles
     assert run.candidate_summaries
     assert run.deployment_identity_status == "established"
     assert run.deployment_identity == mismatched
     assert run.promotion_port.status == "not_promoted"
-    assert run.promotion_port.reason == "confidence_ledger_refused:deployment_identity_mismatch"
+    assert run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
+    )
+    assert run.promotion_port.receipts == ()
     assert n9_preparation == []
+    assert generation_cycle_module.eligible_n9_source_for_run(run) is None
+
+
+@pytest.mark.asyncio
+async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -> None:
+    class _SchedulerStopController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+    problem = _problem("nonblocked_identity_gate_control")
+    run = await _SchedulerStopController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=REPO_ROOT,
+    ).run(
+        problem,
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+    assert run.terminal_status == "completed"
+    n9_source = generation_cycle_module.eligible_n9_source_for_run(run)
+    assert n9_source is not None
+    assert n9_source.run is run
+
+    current = promotion_sequence_module.capture_loaded_deployment_identity()
+    assert current.status == "established"
+    assert current.deployment_identity is not None
+    mismatched = "policy-engine-deployment:sha256:" + "f" * 64
+    if mismatched == current.deployment_identity:
+        mismatched = "policy-engine-deployment:sha256:" + "e" * 64
+    port = CanonicalN9PromotionPort(repo_root=REPO_ROOT)
+    refusal = port(
+        admitted_batch=None,
+        problem=problem,
+        deployment_identity=mismatched,
+    )
+    assert refusal.reason == "confidence_ledger_refused:deployment_identity_mismatch"
+    matching_identity_control = port(
+        admitted_batch=None,
+        problem=problem,
+        deployment_identity=current.deployment_identity,
+    )
+    assert matching_identity_control.reason == (
+        "epoch_validity_refused:promotion_runtime_not_established"
+    )
 
 
 @pytest.mark.asyncio
@@ -4069,22 +4125,19 @@ async def test_missing_deployment_identity_does_not_refuse_candidate_computation
 
 
 @pytest.mark.asyncio
-async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
+async def test_blocked_run_preserves_current_occurrence_and_basis_without_n9(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The owner sees one current occurrence and the last executed basis."""
+    """The current N6 occurrence survives a terminal block without entering N9."""
 
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
-    observed: dict[str, object] = {}
-    prepare = runtime._prepare_completed_generation
-
-    def capture_prepare(*, problem: DesignProblem, summaries: Any) -> Any:
-        observed["problem"] = problem
-        observed["summaries"] = tuple(summaries)
-        return prepare(problem=problem, summaries=summaries)
-
-    monkeypatch.setattr(runtime, "_prepare_completed_generation", capture_prepare)
+    n9_preparation: list[bool] = []
+    monkeypatch.setattr(
+        runtime,
+        "_prepare_completed_generation",
+        lambda **_kwargs: n9_preparation.append(True),
+    )
     run = await GenerationCycleController(
         generation_port=_SameCandidateNewBasisGenerator(),
         grounding_port=_AlwaysLowGrounding(),
@@ -4098,18 +4151,144 @@ async def test_controller_promotion_uses_current_occurrence_and_revised_basis(
         max_cycles=2,
     )
 
-    owner_summaries = observed["summaries"]
-    assert isinstance(owner_summaries, tuple)
-    assert len(owner_summaries) == 1
-    assert owner_summaries[0].content_hash == "sha256:" + "2" * 64
-    owner_problem = observed["problem"]
-    assert isinstance(owner_problem, DesignProblem)
-    assert gy_content_hash(owner_problem.model_dump(mode="json")) == (
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "voi_safety_cap_reached_without_scheduler_stop"
+    assert len(run.cycles) == 2
+    assert run.cycles[0].design_problem_ref != run.cycles[1].design_problem_ref
+    assert run.cycles[-1].design_problem_basis_ref == run.cycles[-1].design_problem_ref
+    assert tuple(summary.content_hash for summary in run.candidate_summaries) == (
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+    )
+    front_ids = tuple(
+        candidate_id
+        for candidate_ids in run.fronts.candidate_ids_by_front().values()
+        for candidate_id in candidate_ids
+    )
+    assert front_ids == ("candidate_same_subject",)
+    assert n9_preparation == []
+    assert run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
+    )
+    assert generation_cycle_module.eligible_n9_source_for_run(run) is None
+
+
+@pytest.mark.asyncio
+async def test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness_unrun(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep ordinary N6 work visible and pass its latest basis when currentness permits."""
+
+    generator = _SameCandidateNewBasisGenerator()
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    observed: dict[str, object] = {}
+    prepare = runtime._prepare_completed_generation
+
+    def capture_prepare(*, problem: DesignProblem, summaries: Any) -> Any:
+        observed["problem"] = problem
+        observed["summaries"] = tuple(summaries)
+        return prepare(problem=problem, summaries=summaries)
+
+    monkeypatch.setattr(runtime, "_prepare_completed_generation", capture_prepare)
+
+    class _CurrentValidOnSecondCycleGrounding:
+        def __init__(self) -> None:
+            self._initial_gap = _AlwaysLowGrounding()
+            self._current_grounding = _CurrentValidGrounding()
+
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            problem: DesignProblem,
+            cycle_index: int,
+            generation_result: Any | None = None,
+        ) -> CandidateGroundingObservation:
+            grounding = (
+                self._initial_gap if cycle_index == 0 else self._current_grounding
+            )
+            return grounding(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                generation_result=generation_result,
+            )
+
+    problem = _problem("same_subject_owner_basis_nonblocked_control")
+    run = await GenerationCycleController(
+        generation_port=generator,
+        grounding_port=_CurrentValidOnSecondCycleGrounding(),
+        value_port=_ReadyValuePort(),
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+    ).run(
+        problem,
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+
+    assert run.terminal_status == "completed"
+    assert run.blocked_reason is None
+    assert len(run.cycles) == 2
+    assert run.cycles[0].terminal_kind == "search_ceiling_repair_required"
+    assert run.cycles[0].voi_decision.next_action == "advance"
+    assert run.cycles[0].voi_decision.reason == "voi_scheduler_advanced"
+    assert run.cycles[-1].terminal_kind == "grounded_admissible"
+    assert run.cycles[-1].voi_decision.next_action == "stop"
+    assert run.cycles[-1].voi_decision.reason == (
+        "terminal_stops_loop:grounded_admissible"
+    )
+    assert run.cycles[0].design_problem_ref != run.cycles[-1].design_problem_ref
+    assert gy_content_hash(generator.problems[-1].model_dump(mode="json")) == (
         run.cycles[-1].design_problem_basis_ref
     )
-    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
-    assert len(run.promotion_port.pre_n9_open_world_gates) == 1
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    assert tuple(summary.content_hash for summary in run.candidate_summaries) == (
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+    )
+    front_ids = tuple(
+        candidate_id
+        for candidate_ids in run.fronts.candidate_ids_by_front().values()
+        for candidate_id in candidate_ids
+    )
+    assert front_ids == ("candidate_same_subject",)
+
+    currentness = confidence_ledger_module.observe_n6_deployment_currentness(
+        recorded_identity_status=run.deployment_identity_status,
+        recorded_deployment_identity=run.deployment_identity,
+    )
+    unrun_reason = (
+        "generation_cycle_n6_census_not_established:"
+        "n6_census_issuer_not_appointed"
+    )
+    if run.promotion_port.reason != unrun_reason:
+        assert currentness.status == "current"
+        assert currentness.census_verdict == "PASS"
+        assert run.promotion_port.status == "not_promoted"
+        assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+        owner_summaries = observed.get("summaries")
+        assert isinstance(owner_summaries, tuple)
+        assert len(owner_summaries) == 1
+        assert owner_summaries[0].candidate_id == "candidate_same_subject"
+        assert owner_summaries[0].content_hash == "sha256:" + "2" * 64
+        owner_problem = observed.get("problem")
+        assert isinstance(owner_problem, DesignProblem)
+        assert owner_problem == generator.problems[-1]
+        assert gy_content_hash(owner_problem.model_dump(mode="json")) == (
+            run.cycles[-1].design_problem_basis_ref
+        )
+    else:
+        assert currentness.status == "not_established"
+        assert currentness.census_verdict == "UNRUN"
+        assert currentness.reason_code == "n6_census_issuer_not_appointed"
+        assert run.strangle_receipt.status == "not_established"
+        assert "n6_census_issuer_not_appointed" in run.strangle_receipt.limitation_refs
+        assert run.promotion_port.status == "not_promoted"
+        assert run.promotion_port.reason == unrun_reason
+        assert observed == {}
 
 
 def test_changed_population_and_model_rebind_owner_basis_and_occurrence(

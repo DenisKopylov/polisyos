@@ -15,7 +15,9 @@ from pydantic import ValidationError
 
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_outcome,
     deserialize_state,
+    serialize_outcome,
     serialize_state,
 )
 
@@ -27,7 +29,7 @@ _METRICS_INIT_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValueE
 
 
 async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
-    """Execute a single node and return serialised final state bytes.
+    """Execute one node and return its typed, serialised outcome.
 
     This is the async entry point used by Temporal activities.
 
@@ -40,7 +42,7 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
     Returns
     -------
     bytes
-        Serialised ``ExperimentState`` after node execution.
+        Serialised ``NodeOutcome`` including native status and state.
     """
     node_id: str = payload["node_id"]
     alias: str = payload["alias"]
@@ -115,9 +117,7 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
                 alias=alias,
             )
 
-        # Return updated state
-        final_state = outcome.state
-        return cast("bytes", serialize_state(final_state))
+        return cast("bytes", serialize_outcome(outcome))
     finally:
         if _token is not None:
             _detach_parent_trace_context(
@@ -130,6 +130,18 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
 def run_node_in_worker_sync(payload: dict[str, Any]) -> bytes:
     """Synchronous wrapper for Ray remote tasks."""
     return asyncio.run(run_node_in_worker(payload))
+
+
+async def run_node_state_in_worker(payload: dict[str, Any]) -> bytes:
+    """Return the historical state-only activity result for old Temporal histories."""
+    outcome_bytes = await run_node_in_worker(payload)
+    outcome = deserialize_outcome(outcome_bytes)
+    return serialize_state(outcome.state)
+
+
+def run_node_state_in_worker_sync(payload: dict[str, Any]) -> bytes:
+    """Synchronous wrapper for the history-compatible Temporal result."""
+    return asyncio.run(run_node_state_in_worker(payload))
 
 
 async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[str, Any]:
@@ -162,6 +174,9 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
 
         workflow = WorkflowSpec.model_validate(payload["workflow_spec_json"])
         invocations = {inv.alias: inv for inv in workflow.nodes}
+        result_format = payload.get("result_format", "state")
+        if result_format not in {"node_outcome", "state"}:
+            raise ValueError("distributed_result_format_unsupported")
 
         registry = NodeRegistry()
         discover_nodes(registry)
@@ -208,6 +223,7 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
             workflow_fingerprint=str(payload["workflow_fingerprint"]),
             conflict_policy=MergeConflictPolicy(payload["merge_conflict_policy"]),
             logger=_logger,
+            result_format=result_format,
         )
         updated_checkpoint_meta = (
             checkpoint_hook.export_runtime_metadata() if checkpoint_hook is not None else None
@@ -215,6 +231,7 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
         return {
             "state_bytes": tier_result.state_bytes,
             "completed_nodes": tier_result.completed_nodes,
+            "should_abort": tier_result.should_abort,
             "checkpoint_hook_meta": updated_checkpoint_meta,
         }
     finally:

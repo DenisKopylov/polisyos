@@ -31,13 +31,15 @@ except ImportError:
 
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
+    build_distributed_execution_result,
     merge_and_checkpoint_tier,
+    project_distributed_node_outcomes,
     seed_runner_cache,
 )
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     HealthFailureDisposition,
-    _HealthFailureSample,
     _classify_health_probe_exception,
+    _HealthFailureSample,
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -256,6 +258,7 @@ class RayWorkflowRunner:
         workflow_fingerprint = compute_workflow_fingerprint(workflow)
         checkpoint_hook_meta = serialize_checkpoint_hook_runtime_metadata(checkpoint_hook)
         completed_nodes: list[str] = []
+        node_reports_by_alias: dict[str, dict[str, Any]] = {}
 
         for tier in tiers:
             tier_state_bytes = state_bytes
@@ -305,6 +308,13 @@ class RayWorkflowRunner:
 
             # Merge parallel node results into unified state
             if tier_results:
+                node_reports_by_alias.update(
+                    project_distributed_node_outcomes(
+                        workflow=workflow,
+                        tier_aliases=tier,
+                        outcome_bytes_by_alias=tier_results,
+                    )
+                )
                 if checkpoint_hook is not None and checkpoint_hook_meta is not None:
                     merge_result = await asyncio.wrap_future(
                         merge_checkpoint_tier_task.remote(
@@ -318,6 +328,7 @@ class RayWorkflowRunner:
                                 "completed_nodes": completed_nodes,
                                 "merge_conflict_policy": self._merge_conflict_policy.value,
                                 "checkpoint_hook_meta": checkpoint_hook_meta,
+                                "result_format": "node_outcome",
                                 "trace_carrier": _inject_trace_carrier(),
                             }
                         ).future()
@@ -325,6 +336,7 @@ class RayWorkflowRunner:
                     state_bytes = merge_result["state_bytes"]
                     completed_nodes = list(merge_result.get("completed_nodes") or completed_nodes)
                     checkpoint_hook_meta = merge_result.get("checkpoint_hook_meta")
+                    should_abort = bool(merge_result.get("should_abort"))
                 else:
                     tier_result = merge_and_checkpoint_tier(
                         workflow=workflow,
@@ -339,26 +351,21 @@ class RayWorkflowRunner:
                         workflow_fingerprint=workflow_fingerprint,
                         conflict_policy=self._merge_conflict_policy,
                         logger=_logger,
+                        result_format="node_outcome",
                     )
                     state_bytes = tier_result.state_bytes
                     completed_nodes = tier_result.completed_nodes
-
-        final_state = deserialize_state(state_bytes)
-
-        from polisyos.scientist.orchestration.engine.executor import (
-            WorkflowExecutionResult,
-            WorkflowReport,
-        )
+                    should_abort = tier_result.should_abort
+                if should_abort:
+                    break
 
         run_id = getattr(state, "run_id", "unknown")
-        report = WorkflowReport(
-            workflow_id=workflow.workflow_id,
+        return build_distributed_execution_result(
+            workflow=workflow,
             run_id=run_id,
-            error_policy=workflow.error_policy,
-            status="ok",
-            nodes=[],
+            state_bytes=state_bytes,
+            node_reports_by_alias=node_reports_by_alias,
         )
-        return WorkflowExecutionResult(state=final_state, report=report)
 
 
 def _inject_trace_carrier() -> dict[str, str]:

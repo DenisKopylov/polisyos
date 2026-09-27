@@ -34,13 +34,15 @@ except ImportError:
 
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
+    build_distributed_execution_result,
     merge_and_checkpoint_tier,
+    project_distributed_node_outcomes,
     seed_runner_cache,
 )
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
     HealthFailureDisposition,
-    _HealthFailureSample,
     _classify_health_probe_exception,
+    _HealthFailureSample,
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -48,6 +50,7 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     serialize_context_meta,
     serialize_state,
 )
+from polisyos.scientist.orchestration.engine.runner.state_merge import merge_tier_outcomes
 from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
 
 _logger = logging.getLogger(__name__)
@@ -115,11 +118,17 @@ if _HAS_TEMPORAL:
 
     @activity.defn(name="scientist_execute_node")
     async def execute_node_activity(payload_dict: dict[str, Any]) -> bytes:
-        """Execute a single scientist node as a Temporal activity.
+        """Keep the state-only activity contract for older workflow histories."""
+        from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+            run_node_state_in_worker,
+        )
 
-        Reconstructs state from bytes, executes the node in-process,
-        and returns the serialised ``NodeOutcome``.
-        """
+        return await run_node_state_in_worker(payload_dict)
+
+    @activity.defn(name="scientist_execute_node_outcome_v1")
+    async def execute_node_outcome_activity(payload_dict: dict[str, Any]) -> bytes:
+        """Execute one node and return its typed, status-bearing outcome."""
+
         from polisyos.scientist.orchestration.engine.runner._activity_worker import (
             run_node_in_worker,
         )
@@ -147,11 +156,12 @@ if _HAS_TEMPORAL:
         """Temporal workflow that executes a scientist DAG tier-by-tier."""
 
         @workflow.run
-        async def run(self, payload_dict: dict[str, Any]) -> bytes:
-            """Execute the full DAG and return final state bytes."""
+        async def run(self, payload_dict: dict[str, Any]) -> Any:
+            """Execute the DAG, retaining typed outcomes on the versioned status path."""
             from polisyos.scientist.orchestration.engine.topo import topo_sort_tiers
             from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
+            carries_node_status = workflow.patched("distributed-node-outcome-status-v1")
             spec = WorkflowSpec.model_validate(payload_dict["workflow_spec_json"])
             state_bytes: bytes = payload_dict["initial_state_bytes"]
             max_par = max(1, int(payload_dict.get("max_parallelism", 4) or 4))
@@ -169,6 +179,10 @@ if _HAS_TEMPORAL:
 
             invocations = {inv.alias: inv for inv in spec.nodes}
             tiers = topo_sort_tiers(invocations)
+            node_reports_by_alias: dict[str, dict[str, Any]] = {}
+            node_activity = (
+                execute_node_outcome_activity if carries_node_status else execute_node_activity
+            )
 
             for tier in tiers:
                 # Build activity payloads without scheduling them; chunking below enforces
@@ -207,7 +221,7 @@ if _HAS_TEMPORAL:
                     chunk = activity_specs[offset : offset + max_par]
                     tasks = [
                         workflow.execute_activity(
-                            execute_node_activity,
+                            node_activity,
                             act_payload,
                             start_to_close_timeout=timeout,
                             retry_policy=retry_policy,
@@ -226,20 +240,31 @@ if _HAS_TEMPORAL:
 
                 # Merge parallel node results into unified state
                 if tier_results:
+                    if carries_node_status:
+                        node_reports_by_alias.update(
+                            project_distributed_node_outcomes(
+                                workflow=spec,
+                                tier_aliases=list(tier),
+                                outcome_bytes_by_alias=tier_results,
+                            )
+                        )
                     if checkpoint_meta is not None:
+                        merge_payload = {
+                            "workflow_spec_json": payload_dict["workflow_spec_json"],
+                            "tier_aliases": list(tier),
+                            "result_bytes_by_alias": tier_results,
+                            "base_state_bytes": tier_state_bytes,
+                            "context_meta": ctx_meta,
+                            "workflow_fingerprint": workflow_fingerprint,
+                            "completed_nodes": completed_nodes,
+                            "merge_conflict_policy": conflict_policy.value,
+                            "checkpoint_hook_meta": checkpoint_meta,
+                        }
+                        if carries_node_status:
+                            merge_payload["result_format"] = "node_outcome"
                         merge_result = await workflow.execute_activity(
                             merge_checkpoint_tier_activity,
-                            {
-                                "workflow_spec_json": payload_dict["workflow_spec_json"],
-                                "tier_aliases": list(tier),
-                                "result_bytes_by_alias": tier_results,
-                                "base_state_bytes": tier_state_bytes,
-                                "context_meta": ctx_meta,
-                                "workflow_fingerprint": workflow_fingerprint,
-                                "completed_nodes": completed_nodes,
-                                "merge_conflict_policy": conflict_policy.value,
-                                "checkpoint_hook_meta": checkpoint_meta,
-                            },
+                            merge_payload,
                             start_to_close_timeout=timedelta(minutes=10),
                             retry_policy=TemporalRetryPolicy(maximum_attempts=1),
                         )
@@ -248,17 +273,43 @@ if _HAS_TEMPORAL:
                             merge_result.get("completed_nodes") or completed_nodes
                         )
                         checkpoint_meta = merge_result.get("checkpoint_hook_meta")
+                        if bool(merge_result.get("should_abort")):
+                            break
                     else:
-                        from polisyos.scientist.orchestration.engine.runner.state_merge import (
-                            merge_tier_states,
-                        )
+                        if carries_node_status:
+                            outcome_merge = merge_tier_outcomes(
+                                tier_state_bytes,
+                                tier_results,
+                                requested_aliases=tier,
+                                conflict_policy=conflict_policy,
+                            )
+                            tier_failed = any(
+                                outcome.status == "fail"
+                                for outcome in outcome_merge.node_outcomes.values()
+                            )
+                            state_bytes = (
+                                tier_state_bytes
+                                if tier_failed and spec.error_policy == "fail_fast"
+                                else outcome_merge.state_bytes
+                            )
+                            if tier_failed and spec.error_policy == "fail_fast":
+                                break
+                        else:
+                            from polisyos.scientist.orchestration.engine.runner.state_merge import (
+                                merge_tier_states,
+                            )
 
-                        state_bytes = merge_tier_states(
-                            tier_state_bytes,
-                            tier_results,
-                            conflict_policy=conflict_policy,
-                        )
+                            state_bytes = merge_tier_states(
+                                tier_state_bytes,
+                                tier_results,
+                                conflict_policy=conflict_policy,
+                            )
 
+            if carries_node_status:
+                return {
+                    "state_bytes": state_bytes,
+                    "node_reports_by_alias": node_reports_by_alias,
+                }
             return state_bytes
 
 
@@ -392,6 +443,7 @@ class TemporalWorkflowRunner:
             invocations = {inv.alias: inv for inv in workflow.nodes}
             tiers = topo_sort_tiers(invocations)
             completed_nodes: list[str] = []
+            node_reports_by_alias: dict[str, dict[str, Any]] = {}
             effective_max_parallelism = max(
                 1,
                 int(max_parallelism or self._max_parallelism or 1),
@@ -425,7 +477,7 @@ class TemporalWorkflowRunner:
                 for offset in range(0, len(activity_specs), effective_max_parallelism):
                     chunk = activity_specs[offset : offset + effective_max_parallelism]
                     tasks = [
-                        execute_node_activity(act_payload)
+                        execute_node_outcome_activity(act_payload)
                         for _alias, act_payload, _timeout, _retry_policy in chunk
                     ]
                     results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -454,22 +506,23 @@ class TemporalWorkflowRunner:
                 )
                 state_bytes = tier_result.state_bytes
                 completed_nodes = tier_result.completed_nodes
-
-            final_state = deserialize_state(state_bytes)
-            from polisyos.scientist.orchestration.engine.executor import (
-                WorkflowExecutionResult,
-                WorkflowReport,
-            )
+                node_reports_by_alias.update(
+                    project_distributed_node_outcomes(
+                        workflow=workflow,
+                        tier_aliases=list(tier),
+                        outcome_bytes_by_alias=tier_results,
+                    )
+                )
+                if tier_result.should_abort:
+                    break
 
             run_id = getattr(state, "run_id", "unknown")
-            report = WorkflowReport(
-                workflow_id=workflow.workflow_id,
+            return build_distributed_execution_result(
+                workflow=workflow,
                 run_id=run_id,
-                error_policy=workflow.error_policy,
-                status="ok",
-                nodes=[],
+                state_bytes=state_bytes,
+                node_reports_by_alias=node_reports_by_alias,
             )
-            return WorkflowExecutionResult(state=final_state, report=report)
 
         payload = {
             "workflow_spec_json": workflow.model_dump(),
@@ -482,29 +535,39 @@ class TemporalWorkflowRunner:
         }
 
         run_id = getattr(state, "run_id", "unknown")
-        result_bytes: bytes = await client.execute_workflow(
+        workflow_result: Any = await client.execute_workflow(
             ScientistWorkflow.run,
             payload,
             id=f"scientist-{run_id}",
             task_queue=self._task_queue,
         )
 
-        final_state = deserialize_state(result_bytes)
+        if isinstance(workflow_result, dict):
+            return build_distributed_execution_result(
+                workflow=workflow,
+                run_id=run_id,
+                state_bytes=workflow_result["state_bytes"],
+                node_reports_by_alias=workflow_result.get("node_reports_by_alias", {}),
+            )
 
-        # Build a minimal WorkflowExecutionResult
+        # Histories recorded before the patch marker return state-only bytes.
         from polisyos.scientist.orchestration.engine.executor import (
             WorkflowExecutionResult,
             WorkflowReport,
         )
 
-        report = WorkflowReport(
-            workflow_id=workflow.workflow_id,
-            run_id=run_id,
-            error_policy=workflow.error_policy,
-            status="ok",
-            nodes=[],
+        return WorkflowExecutionResult(
+            state=deserialize_state(workflow_result),
+            report=WorkflowReport(
+                workflow_id=workflow.workflow_id,
+                run_id=run_id,
+                error_policy=workflow.error_policy,
+                # Old histories contain only final state bytes. Replaying them
+                # preserves state but cannot establish native node outcomes.
+                status="not_established",
+                nodes=[],
+            ),
         )
-        return WorkflowExecutionResult(state=final_state, report=report)
 
 
 def _inject_trace_carrier() -> dict[str, str]:

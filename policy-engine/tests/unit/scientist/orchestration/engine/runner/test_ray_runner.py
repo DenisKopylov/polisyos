@@ -6,18 +6,27 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resolve_latest_checkpoint
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
+    resolve_latest_checkpoint,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
-from polisyos.scientist.orchestration.engine.runner import _activity_worker as activity_worker_module
+from polisyos.scientist.orchestration.engine.runner import (
+    _activity_worker as activity_worker_module,
+)
 from polisyos.scientist.orchestration.engine.runner import ray_runner as ray_runner_module
 from polisyos.scientist.orchestration.engine.runner.ray_runner import RayWorkflowRunner
-from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_state, serialize_state
+from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_state,
+    serialize_outcome,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
@@ -170,6 +179,10 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     runner = RayWorkflowRunner(address="ray://unused", namespace="test", max_parallelism=2)
     monkeypatch.setattr(runner, "_ensure_init", lambda: None)
 
+    registry = NodeRegistry()
+    registry.register(RayLeftNode())
+    registry.register(RayRightNode())
+
     def _discover_nodes(registry: NodeRegistry) -> None:
         registry.register(RayLeftNode())
         registry.register(RayRightNode())
@@ -189,7 +202,7 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
             updated_state.params["final"] = int(updated_state.params.get("left", 0)) + int(
                 updated_state.params.get("right", 0)
             )
-        return serialize_state(updated_state)
+        return serialize_outcome(NodeOutcome(status="ok", state=updated_state))
 
     def _merge_tier_remote(payload: dict[str, object]) -> dict[str, object]:
         merge_calls.append(list(payload["tier_aliases"]))  # type: ignore[index]
@@ -221,6 +234,7 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     )
 
     assert result.report.status == "ok"
+    assert [node.status for node in result.report.nodes] == ["ok", "ok", "ok"]
     assert result.state.params["left"] == 1
     assert result.state.params["right"] == 2
     assert result.state.params["final"] == 3
@@ -233,6 +247,78 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     assert checkpoint_artifact.metadata.completed_nodes == ["left", "right", "final"]
     assert checkpoint_artifact.state is not None
     assert checkpoint_artifact.state["params"]["final"] == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("max_parallelism", [1, 2])
+async def test_ray_no_checkpoint_branch_preserves_skip_without_merging_its_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    max_parallelism: int,
+) -> None:
+    monkeypatch.setattr(ray_runner_module, "_HAS_RAY", True)
+    monkeypatch.setattr(
+        ray_runner_module,
+        "ray",
+        SimpleNamespace(is_initialized=lambda: True, init=lambda **kwargs: None),
+        raising=False,
+    )
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_ray_status_without_checkpoint"
+    workflow = WorkflowSpec(
+        workflow_id="wf_ray_status_without_checkpoint",
+        required_binds=["run_id"],
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias="skipped",
+                node_id=ComponentId.parse("scientist.node_ray_left@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="accepted",
+                node_id=ComponentId.parse("scientist.node_ray_right@1.0.0"),
+            ),
+        ],
+    )
+    ctx, bundle_ref = _context(store, run_id)
+    state = ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref})
+    runner = RayWorkflowRunner(
+        address="ray://unused",
+        namespace="test",
+        max_parallelism=max_parallelism,
+    )
+    monkeypatch.setattr(runner, "_ensure_init", lambda: None)
+
+    registry = NodeRegistry()
+    registry.register(RayLeftNode())
+    registry.register(RayRightNode())
+
+    def _run_node_remote(**payload):
+        worker_state = deserialize_state(payload["state_bytes"])
+        if payload["alias"] == "skipped":
+            node_state = worker_state.model_copy(deep=True)
+            node_state.params["left"] = True
+            return serialize_outcome(NodeOutcome(status="skip", state=node_state))
+        node_state = worker_state.model_copy(deep=True)
+        node_state.params["right"] = True
+        return serialize_outcome(NodeOutcome(status="ok", state=node_state))
+
+    monkeypatch.setattr(
+        ray_runner_module,
+        "execute_node_task",
+        _FakeTask(_run_node_remote),
+        raising=False,
+    )
+
+    result = await runner.execute_workflow(workflow, state, ctx, registry)
+
+    assert result.report.status == "ok"
+    assert {record.alias: record.status for record in result.report.nodes} == {
+        "skipped": "skip",
+        "accepted": "ok",
+    }
+    assert result.report.nodes[0].skip_blocker is not None
+    assert result.state.params == {"right": True}
 
 
 def test_ray_runner_inject_trace_carrier_records_degraded_path_on_runtime_error(

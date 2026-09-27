@@ -44,7 +44,8 @@ logger = get_logger(__name__)
 
 
 CHECKPOINT_KIND = "scientist.checkpoint"
-CHECKPOINT_SCHEMA_VERSION = "1.2"
+CHECKPOINT_SCHEMA_VERSION = "1.3"
+COMPLETED_NODE_STATUS_CONTRACT = "native_node_outcome_v1"
 CHECKPOINT_HEAD_FILENAME = "checkpoint_head.json"
 CHECKPOINT_HISTORY_FILENAME = "checkpoint_history.json"
 RUN_LOCK_FILENAME = "run.lock"
@@ -134,6 +135,12 @@ class CheckpointScopeMismatchError(CheckpointError):
     default_category = ErrorCategory.VALIDATION
 
 
+class CheckpointStatusNotEstablishedError(CheckpointError):
+    """A historical completed-node list has no evidence that each node was ok."""
+
+    default_category = ErrorCategory.VALIDATION
+
+
 def _active_checkpoint_scope() -> tuple[str | None, str | None]:
     """Resolve tenant/cell scope from the active authenticated execution context."""
 
@@ -187,6 +194,7 @@ class CheckpointMetadata(BaseModel):
     completed_node_alias: str
     completed_node_id: str
     completed_nodes: list[str] = Field(default_factory=list)
+    completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None
     workflow_id: str
     workflow_fingerprint: str = Field(min_length=64, max_length=64)
     # The current fingerprint may describe a pruned residual workflow after a
@@ -316,6 +324,14 @@ class CreatedCheckpoint:
 
 class CheckpointHook(Protocol):
     """Checkpoint hook public type."""
+
+    def mark_completed_node_status_established(
+        self,
+        *,
+        prior_completed_nodes: list[str],
+    ) -> None: ...
+
+    def mark_completed_node_status_unestablished(self) -> None: ...
 
     def on_node_complete(
         self,
@@ -632,6 +648,8 @@ class CASCheckpointHook:
         cell_id: str | None = None,
         initial_cache_entry_refs: list[ArtifactRef] | None = None,
         initial_completed_nodes: list[str] | None = None,
+        initial_completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None,
+        initial_status_contract_established: bool = True,
         gc_policy: CheckpointGCPolicy | None = None,
         checkpoint_store: CheckpointStore | None = None,
         initial_checkpoint_ref: ArtifactRef | None = None,
@@ -653,6 +671,15 @@ class CASCheckpointHook:
         )
         self._cache_entry_refs: list[ArtifactRef] = list(initial_cache_entry_refs or [])
         self._completed_nodes: list[str] = _dedupe_aliases(initial_completed_nodes or [])
+        self._completed_node_status_contract = None
+        if initial_status_contract_established:
+            self._completed_node_status_contract = (
+                initial_completed_node_status_contract
+                if initial_completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
+                else (
+                    COMPLETED_NODE_STATUS_CONTRACT if not self._completed_nodes else None
+                )
+            )
         self._gc_policy = gc_policy or CheckpointGCPolicy()
         self._checkpoint_store = checkpoint_store
         self._previous_checkpoint_ref = initial_checkpoint_ref
@@ -697,6 +724,7 @@ class CASCheckpointHook:
             completed_node_alias=alias,
             completed_node_id=node_id,
             completed_nodes=merged_completed_nodes,
+            completed_node_status_contract=self._completed_node_status_contract,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
             origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -765,6 +793,7 @@ class CASCheckpointHook:
             completed_node_alias=alias,
             completed_node_id=node_id,
             completed_nodes=merged_completed_nodes,
+            completed_node_status_contract=self._completed_node_status_contract,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
             origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -885,6 +914,23 @@ class CASCheckpointHook:
             workflow_fingerprint=workflow_fingerprint,
             cache_entry_refs=[cache_entry_ref] if cache_entry_ref is not None else [],
         )
+
+    def mark_completed_node_status_unestablished(self) -> None:
+        """Clear status assurance when a restored frontier came from state-only data."""
+        self._completed_node_status_contract = None
+
+    def mark_completed_node_status_established(
+        self,
+        *,
+        prior_completed_nodes: list[str],
+    ) -> None:
+        """Admit native status only when no earlier completion lacks that evidence."""
+        if (
+            self._completed_node_status_contract is None
+            and not self._completed_nodes
+            and not prior_completed_nodes
+        ):
+            self._completed_node_status_contract = COMPLETED_NODE_STATUS_CONTRACT
 
     def on_tier_complete(
         self,
@@ -1031,6 +1077,7 @@ class CASCheckpointHook:
             "origin_workflow_fingerprint": self._origin_workflow_fingerprint,
             "cache_entry_refs": [ref.model_dump(mode="json") for ref in self._cache_entry_refs],
             "completed_nodes": list(self._completed_nodes),
+            "completed_node_status_contract": self._completed_node_status_contract,
             "gc_policy": self._gc_policy.model_dump(mode="json"),
             "previous_checkpoint_ref": (
                 self._previous_checkpoint_ref.model_dump(mode="json")
@@ -1131,6 +1178,13 @@ def restore_checkpoint_hook_from_runtime_metadata(
         cell_id=cell_id,
         initial_cache_entry_refs=cache_entry_refs,
         initial_completed_nodes=list(metadata.get("completed_nodes", [])),
+        initial_completed_node_status_contract=metadata.get(
+            "completed_node_status_contract"
+        ),
+        initial_status_contract_established=(
+            metadata.get("completed_node_status_contract")
+            == COMPLETED_NODE_STATUS_CONTRACT
+        ),
         gc_policy=gc_policy,
         initial_checkpoint_ref=previous_checkpoint_ref,
         initial_state=metadata.get("previous_state"),
@@ -1291,6 +1345,7 @@ def _checkpoint_payload(
     completed_node_alias: str,
     completed_node_id: str,
     completed_nodes: list[str],
+    completed_node_status_contract: Literal["native_node_outcome_v1"] | None,
     workflow_id: str,
     workflow_fingerprint: str,
     origin_workflow_fingerprint: str | None,
@@ -1312,6 +1367,7 @@ def _checkpoint_payload(
             completed_node_alias=completed_node_alias,
             completed_node_id=completed_node_id,
             completed_nodes=completed_nodes,
+            completed_node_status_contract=completed_node_status_contract,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
             origin_workflow_fingerprint=origin_workflow_fingerprint or workflow_fingerprint,
@@ -1336,6 +1392,7 @@ def create_checkpoint(
     completed_node_alias: str,
     completed_node_id: str,
     completed_nodes: list[str],
+    completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None,
     workflow_id: str,
     workflow_fingerprint: str,
     fsm_phase: str,
@@ -1386,6 +1443,7 @@ def create_checkpoint(
         completed_node_alias=completed_node_alias,
         completed_node_id=completed_node_id,
         completed_nodes=completed_nodes,
+        completed_node_status_contract=completed_node_status_contract,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
         origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -1429,6 +1487,7 @@ async def create_checkpoint_async(
     completed_node_alias: str,
     completed_node_id: str,
     completed_nodes: list[str],
+    completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None,
     workflow_id: str,
     workflow_fingerprint: str,
     fsm_phase: str,
@@ -1479,6 +1538,7 @@ async def create_checkpoint_async(
         completed_node_alias=completed_node_alias,
         completed_node_id=completed_node_id,
         completed_nodes=completed_nodes,
+        completed_node_status_contract=completed_node_status_contract,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
         origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -2018,6 +2078,7 @@ def resume_from_checkpoint(
 ) -> Any:
     # Local imports avoid circular dependency at module import time.
     """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
     from polisyos.scientist.orchestration.engine.executor import (
         WorkflowExecutionResult,
         WorkflowReport,
@@ -2026,7 +2087,6 @@ def resume_from_checkpoint(
         WorkflowRunnerConfig,
         build_workflow_runner,
     )
-    from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
     from polisyos.scientist.orchestration.workflows.builder import (
         build_default_registry,
         build_execution_context,
@@ -2065,6 +2125,14 @@ def resume_from_checkpoint(
             checkpoint.metadata.schema_version,
             CHECKPOINT_SCHEMA_VERSION,
         )
+        if (
+            checkpoint.metadata.completed_nodes
+            and checkpoint.metadata.completed_node_status_contract
+            != COMPLETED_NODE_STATUS_CONTRACT
+        ):
+            raise CheckpointStatusNotEstablishedError(
+                "checkpoint_completed_node_status_not_established"
+            )
         restored_state = ExperimentState.model_validate(checkpoint.state)
 
         workflow_spec = workflow or default_workflow_spec()
@@ -2153,6 +2221,13 @@ def resume_from_checkpoint(
             cell_id=checkpoint.metadata.cell_id,
             initial_cache_entry_refs=checkpoint.metadata.cache_entry_refs,
             initial_completed_nodes=checkpoint.metadata.completed_nodes,
+            initial_completed_node_status_contract=(
+                checkpoint.metadata.completed_node_status_contract
+            ),
+            initial_status_contract_established=(
+                checkpoint.metadata.completed_node_status_contract
+                == COMPLETED_NODE_STATUS_CONTRACT
+            ),
             initial_checkpoint_ref=head.checkpoint_ref,
             initial_state=checkpoint.state,
             initial_chain_depth=head.chain_depth,
@@ -2223,6 +2298,7 @@ __all__ = [
     "CHECKPOINT_HISTORY_FILENAME",
     "CHECKPOINT_KIND",
     "CHECKPOINT_SCHEMA_VERSION",
+    "COMPLETED_NODE_STATUS_CONTRACT",
     "RUN_LOCK_FILENAME",
     "CASCheckpointHook",
     "CheckpointArtifact",
@@ -2240,6 +2316,7 @@ __all__ = [
     "CheckpointResumeStrategy",
     "CheckpointSchemaError",
     "CheckpointScopeMismatchError",
+    "CheckpointStatusNotEstablishedError",
     "CheckpointSnapshotMode",
     "CheckpointStore",
     "CheckpointWriteResult",

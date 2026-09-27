@@ -14,6 +14,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods.causal import PanelObservationalData
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
@@ -25,7 +26,12 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     resolve_latest_checkpoint,
 )
 from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.runner import (
     _activity_worker as activity_worker_module,
 )
@@ -36,6 +42,7 @@ from polisyos.scientist.orchestration.engine.runner._activity_worker import (
     run_node_in_worker,
 )
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_outcome,
     deserialize_state,
     serialize_state,
 )
@@ -324,6 +331,123 @@ class PolicyOutputNode:
 
     def execute(self, ctx, state) -> NodeOutcome:
         return NodeOutcome(status="ok", state=state)
+
+
+class SkippedWorkerNode:
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_worker_skip@1.0.0", "WorkerSkip"),
+        state_reads=[],
+        state_writes=[],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx, state) -> NodeOutcome:
+        del ctx
+        state = state.model_copy(deep=True)
+        state.params["worker_status_mutation"] = "skip"
+        return NodeOutcome(
+            status="skip",
+            state=state,
+            artifacts=[_artifact_ref("worker-skip-output")],
+            events=[NodeEvent(code="worker.skip", message="worker skipped")],
+            skip_blocker=SkippedNodeBlocker(
+                node_id=str(self._spec.metadata.component_id),
+                alias="skipped",
+                node_kind="other_optional_analytic",
+                reason="fixture_skip",
+                missing_input="fixture input",
+                owner="test",
+                phase="test",
+                downstream_impact="test only",
+                allowed_profile="dev",
+                closeout_blocking_policy="blocks_serious_closeout",
+                scorecard_blocking_policy="blocks_scorecard_pass",
+                approval_blocking_policy="blocks_approval_ready",
+                public_export_blocking_policy="blocks_public_export",
+            ),
+        )
+
+
+class FailedWorkerNode:
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_worker_fail@1.0.0", "WorkerFail"),
+        state_reads=[],
+        state_writes=[],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx, state) -> NodeOutcome:
+        del ctx
+        failed_state = state.model_copy(deep=True)
+        failed_state.params["worker_status_mutation"] = "fail"
+        return NodeOutcome(
+            status="fail",
+            state=failed_state,
+            artifacts=[_artifact_ref("worker-fail-output")],
+            events=[NodeEvent(code="worker.fail", message="worker failed")],
+            error=NodeError(code="node.worker_failure", message="returned failure"),
+        )
+
+
+@pytest.mark.parametrize(
+    ("node", "node_id", "expected_status"),
+    [
+        (SkippedWorkerNode, "scientist.node_worker_skip@1.0.0", "skip"),
+        (FailedWorkerNode, "scientist.node_worker_fail@1.0.0", "fail"),
+    ],
+)
+def test_node_worker_transport_preserves_native_non_ok_status(
+    tmp_path: Path,
+    monkeypatch,
+    node,
+    node_id: str,
+    expected_status: str,
+) -> None:
+    def _discover_nodes(registry) -> None:
+        registry.register(node())
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
+    state = ExperimentState(run_id="R_worker_native_status")
+
+    result = asyncio.run(
+        run_node_in_worker(
+            {
+                "node_id": node_id,
+                "alias": "skipped",
+                "params": {},
+                "state_bytes": serialize_state(state),
+                "context_meta": {
+                    "run_id": state.run_id,
+                    "store_config": {
+                        "backend": "filesystem",
+                        "root": str(tmp_path),
+                    },
+                },
+            }
+        )
+    )
+
+    outcome = deserialize_outcome(result)
+    assert outcome.status == expected_status
+    assert outcome.state.run_id == state.run_id
+    assert outcome.state.params["worker_status_mutation"] == expected_status
+    assert len(outcome.artifacts) == 1
+    assert outcome.events[0].code == f"worker.{expected_status}"
+    if expected_status == "skip":
+        assert outcome.skip_blocker is not None
+        assert outcome.skip_blocker.reason == "fixture_skip"
+    else:
+        assert outcome.error is not None
+        assert outcome.error.code == "node.worker_failure"
 
 
 def test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract(

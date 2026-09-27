@@ -19,14 +19,16 @@ import binascii
 import hashlib
 import math
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 
 try:
     import orjson
@@ -61,6 +63,43 @@ _WIRE_MODEL = "model"
 _WIRE_MAPPING = "mapping"
 _WIRE_DATE = "date"
 _WIRE_DATETIME = "datetime"
+NATIVE_NODE_OUTCOME_STATUS_CONTRACT = "native_node_outcome_v1"
+
+
+@dataclass(frozen=True)
+class NativeNodeOutcomeBatch:
+    """Worker outcomes whose native status fields passed the typed wire decoder."""
+
+    outcomes: dict[str, NodeOutcome]
+    status_contract: Literal["native_node_outcome_v1"] = NATIVE_NODE_OUTCOME_STATUS_CONTRACT
+
+    def admits_success(self, alias: str, outcome: NodeOutcome) -> bool:
+        """Admit one outcome only when its decoded native status proves success."""
+        return (
+            self.status_contract == NATIVE_NODE_OUTCOME_STATUS_CONTRACT
+            and self.outcomes.get(alias) is outcome
+            and isinstance(outcome, NodeOutcome)
+            and outcome.status == "ok"
+        )
+
+    @property
+    def successful_outcomes(self) -> dict[str, NodeOutcome]:
+        """Return only status-verified outcomes admitted to the success band."""
+        return {
+            alias: outcome
+            for alias, outcome in self.outcomes.items()
+            if self.admits_success(alias, outcome)
+        }
+
+
+def deserialize_outcome_batch(data_by_alias: dict[str, bytes]) -> NativeNodeOutcomeBatch:
+    """Decode a complete batch through the canonical typed outcome boundary."""
+    return NativeNodeOutcomeBatch(
+        outcomes={
+            alias: deserialize_outcome(data)
+            for alias, data in data_by_alias.items()
+        }
+    )
 
 # Transport models keep their established v0 mapping shape.  Artifact models
 # are wrapped with their import identity so a nested reference cannot silently

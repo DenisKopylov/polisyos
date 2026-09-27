@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -609,6 +610,100 @@ async def test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_tr
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 2
+
+
+
+class _SimulatedWorkerStopError(RuntimeError):
+    """Stop immediately after a checkpoint becomes the durable head."""
+
+
+class _StopAfterTierCheckpoint(CASCheckpointHook):
+    async def on_tier_complete_async(
+        self,
+        *,
+        state: ExperimentState,
+        alias: str,
+        node_id: str,
+        completed_nodes: list[str],
+        workflow_id: str,
+        workflow_fingerprint: str,
+        cache_entry_refs: list[ArtifactRef],
+    ) -> None:
+        await super().on_tier_complete_async(
+            state=state,
+            alias=alias,
+            node_id=node_id,
+            completed_nodes=completed_nodes,
+            workflow_id=workflow_id,
+            workflow_fingerprint=workflow_fingerprint,
+            cache_entry_refs=cache_entry_refs,
+        )
+        raise _SimulatedWorkerStopError("worker stopped after checkpoint publication")
+
+
+@pytest.mark.asyncio
+async def test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ParallelLeftNode.calls = 0
+    ParallelRightNode.calls = 0
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = True
+
+    store = FileSystemCAS(tmp_path)
+    workflow = _parallel_workflow()
+    run_id = "R_async_parallel_stop_after_tier_checkpoint"
+    ctx, bundle_ref = _context(store, run_id)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={"registry_bundle_ref": bundle_ref},
+        params={"seed": 29},
+    )
+    hook = _StopAfterTierCheckpoint(
+        store=store,
+        run_dir=tmp_path / "runs" / run_id,
+        checkpoint_policy="strict",
+    )
+
+    with pytest.raises(_SimulatedWorkerStopError):
+        await AsyncWorkflowExecutor(
+            ctx,
+            _parallel_registry(),
+            checkpoint_hook=hook,
+            max_parallelism=2,
+        ).execute(workflow, state)
+
+    resolved = resolve_latest_checkpoint(store, run_id)
+    assert resolved is not None
+    head, checkpoint_artifact = resolved
+    assert checkpoint_artifact.metadata.completed_nodes == ["left", "right"]
+    assert checkpoint_artifact.state is not None
+    assert checkpoint_artifact.state["params"]["left"] == 1
+    assert checkpoint_artifact.state["params"]["right"] == 2
+    assert ParallelLeftNode.calls == 1
+    assert ParallelRightNode.calls == 1
+    assert FlakyAfterParallelNode.calls == 0
+
+    FlakyAfterParallelNode.fail_once = False
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    resumed = resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=_parallel_registry(),
+        registry_bundle_ref=bundle_ref,
+        checkpoint_policy="strict",
+    )
+
+    assert resumed.report.status == "ok"
+    assert resumed.state.params["left"] == 1
+    assert resumed.state.params["right"] == 2
+    assert resumed.state.params["final"] is True
+    assert head.sequence_number == 1
+    assert ParallelLeftNode.calls == 1
+    assert ParallelRightNode.calls == 1
+    assert FlakyAfterParallelNode.calls == 1
 
 
 @pytest.mark.asyncio

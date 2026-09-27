@@ -170,6 +170,60 @@ def test_single_skip_is_not_added_to_checkpoint_completed_set() -> None:
     assert [call["completed_nodes"] for call in hook.node_calls] == [["after"]]
 
 
+
+def test_independent_neighbor_does_not_promote_parallel_skip_to_completed() -> None:
+    state = ExperimentState(run_id="res-02-parallel-skip")
+    hook = _RecordingCheckpointHook()
+    workflow = WorkflowSpec(
+        workflow_id="res_02_parallel_skip",
+        nodes=[
+            NodeInvocation(
+                alias="skipped",
+                node_id=ComponentId.parse("scientist.node_skipped@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="independent",
+                node_id=ComponentId.parse("scientist.node_independent@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="after",
+                node_id=ComponentId.parse("scientist.node_after@1.0.0"),
+                depends_on=["skipped", "independent"],
+            ),
+        ],
+    )
+    outcomes = {
+        "skipped": NodeOutcome(status="skip", state=state),
+        "independent": NodeOutcome(
+            status="ok",
+            state=state.model_copy(update={"params": {"independent": True}}),
+        ),
+        "after": NodeOutcome(
+            status="ok",
+            state=state.model_copy(
+                update={"params": {"independent": True, "after": True}},
+            ),
+        ),
+    }
+    executor = _executor(
+        workflow,
+        outcomes,
+        {"independent": _ref("parallel-independent"), "after": _ref("parallel-after")},
+        hook,
+    )
+
+    result = asyncio.run(executor.execute(workflow, state))
+
+    assert result.report.status == "ok"
+    assert hook.tier_calls[0]["completed_nodes"] == ["independent"]
+    assert hook.node_calls[0]["completed_nodes"] == ["independent", "after"]
+    assert all(
+        "skipped" not in call["completed_nodes"]
+        for call in [*hook.tier_calls, *hook.node_calls]
+    )
+    assert result.state.params == {"independent": True, "after": True}
+
+
 def test_parallel_tier_publishes_one_checkpoint_with_full_completed_set_and_cache_refs() -> None:
     state = ExperimentState(run_id="res-02-tier-atomic")
     left = state.model_copy(update={"params": {"left": 1}})

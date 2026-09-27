@@ -16119,13 +16119,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "Residual transcribed; current behavior not independently measured."
+        "detail": "Appendix C partial status retained. Static source trace refines the residual to source-version metadata/lineage fallback; behavior remains UNRUN."
       },
-      "residual": "The producer handshake is absent from the evidenced path. Require an owner-issued request/response bound to producer identity, scope and epoch; test missing, mismatched and valid handshake at the served consumer.",
+      "residual": "Production empty-seed search→enrich already carries content-addressed bytes: the API persists the WebEvidenceBundle, resolves the selected source to `SourceSpec(kind=bytes)`, reads CAS content by ArtifactID and verifies digest/size; `_acquire_bytes` verifies again without URL re-fetch. The remaining defect is source-metadata binding. `build_source_metadata` copies content digest/type but omits the same FetchResult’s ArtifactRef/artifact_id, byte_size, final_url, redirect_chain, ETag, Last-Modified, license, fetch_profile, lineage_parent_artifact_id and refresh_reason. SourceMetadata derives only an ArtifactID from the digest; the other fields stay at defaults. `_source_spec_from_snapshot` fills missing artifact_id, final_url, redirect_chain, ETag, Last-Modified, fetch_profile, refresh lineage, byte_size and license from `cache.get(source_url)`, which is the URL’s current record rather than the retained source snapshot. A retained v1 can therefore keep v1 bytes while inheriting same-URL v2 metadata; if v2 byte_size differs, the API rejects the valid v1 bytes. The handoff also reduces full ArtifactRef to ArtifactID, losing kind/media_type/manifest_profile_sha256. The live fetcher leaves effective fetch_profile at its default `{}`; DocSourceSpec/DocMeta do not persist fetch profile or refresh lineage, and WebEvidenceBundle retains only fields its producer supplied. Residual: bind ArtifactRef, digest, final URL/redirects/headers/license/size/effective fetch profile/refresh lineage to the same FetchResult through the persisted consumer. Prove v1 no-egress replay, same-URL v2 isolation and lineage, current-cache mutation does not contaminate/refuse v1, plus typed missing/access failure. Keep partial; behavioral and four-base evidence remain UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
-        "name": "SCL producer handshake owner",
-        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+        "name": "Scholar search metadata producer and Scholar API snapshot-enrichment bridge owners (roles identified by source path; no individual appointment is claimed)",
+        "appointment_status": "owner roles identified by current production source paths; no individual appointment is claimed"
       },
       "r_class": null,
       "p_triage": {
@@ -16150,11 +16150,11 @@
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
         "card_discriminator_review": {
-          "identity": "LA-025 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt",
+          "identity": "LA-025 exact search-to-enrichment snapshot metadata handoff and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L1114",
-          "candidate_test_identity": "proposed:LA025_owner_producer_handshake",
+          "candidate_test_identity": "proposed:LA025_snapshot_metadata_refresh_lineage_at_enrichment_consumer",
           "behavioral_verdict": "UNRUN",
-          "scope": "Card property and distinguishing seam recorded from the source card and supplied read-only audit. The candidate identity is not a test receipt unless explicitly labeled as an accepted prior receipt; current four-base replay remains UNRUN."
+          "scope": "Static source trace at code snapshot 8ffeb702e confirms that build_source_metadata omits snapshot-specific metadata and _source_spec_from_snapshot falls back to the current URL-cache record for final_url, redirect_chain, ETag, Last-Modified, fetch_profile, refresh lineage, byte_size and license; a byte-size difference can refuse the selected old bytes. Source citations: policy-engine/src/polisyos/scholar/search/fetcher.py@sha256:7b547777bb8bd00359e0438f4dd3ea2492077f012e50c06d6d8f31a0739397da#L30; policy-engine/src/polisyos/scholar/search/cache.py@sha256:a8abc6219b7c135f73d7d824931b1dcbede9c18dc621dcbab6e7829dfe0e3042#L112; policy-engine/src/polisyos/scholar/search/scoring.py@sha256:73ece3ad82d743776cdef9749efcfdb7531305bff96fa754f3edad584da73bfc#L56; policy-engine/src/polisyos/scholar/search/models.py@sha256:8ffd9f8223bcc416b1c1dcacb68f730703cd365be92bccef757683f7b062a784#L120; policy-engine/src/polisyos/scholar/api.py@sha256:d001df0ab42c8723b19a76985f32ad4d57dca4f9e299adb2b44daff64de6f036#L39; policy-engine/src/polisyos/scholar/orchestrator/enrich.py@sha256:2f64c63883a5f2a9a50582e57a2abab4d9d33bc2fee8674f1deb493e819611e5#L127; policy-engine/src/polisyos/fabric/docs/ingestion.py@sha256:9ecdfdea75b389b405c434667a901a23a04aba602320a74fbf4eb2bc8116937d#L56; policy-engine/src/polisyos/fabric/docs/types.py@sha256:d972d92061ef35ab1abf8231bd1da60a613aebd50adf47a4ae6f37cd9d4b905f#L21; policy-engine/src/polisyos/core/artifacts/manifest.py@sha256:12bad8ca7d869a91fc0bebe75825c869ce1ecaab3acab992f4dc04962c730b0f#L246. This is source inspection, not behavioral evidence. The candidate identity is not a test receipt unless explicitly labeled as an accepted prior receipt; behavior and four-base replay remain UNRUN."
         }
       }
     },

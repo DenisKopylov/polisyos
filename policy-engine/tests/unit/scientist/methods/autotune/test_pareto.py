@@ -95,6 +95,14 @@ class TestParetoFront:
         dominated = _eval(acc=0.5, speed=0.4)
         assert promoter.is_dominated(dominated, front) is True
 
+    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        front = promoter.compute_front([_eval(acc=0.9, speed=0.8)])
+
+        for candidate in (_eval(acc=0.5), _eval(acc=0.5, speed=math.inf)):
+            with pytest.raises(ValueError, match="candidate is unassessed"):
+                promoter.is_dominated(candidate, front)
+
     def test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group(self):
         """A strictly better first coordinate plus equal second still dominates."""
         # Catches the production mutation from <= to < in the accelerated
@@ -351,13 +359,22 @@ class TestParetoFront:
         payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
 
         assert set(payload) == {
+            "schema_version",
             "members",
             "hypervolume",
             "reference_point",
             "coordinate_schema",
             "coordinate_reference_point",
+            "input_assessment",
         }
+        assert payload["schema_version"] == "2.0"
         assert set(payload["coordinate_schema"]) == {"version", "status", "coordinates"}
+        assert set(payload["input_assessment"]) == {
+            "status",
+            "input_count",
+            "assessed_count",
+            "unassessed_evaluations",
+        }
         assert set(payload["members"][0]) == {
             "candidate_ref_id",
             "objectives",
@@ -379,6 +396,22 @@ class TestParetoFront:
         assert set(payload["members"][0]["coordinate_values"]) == coordinate_ids
         assert set(payload["coordinate_reference_point"]) == coordinate_ids
         assert set(payload["reference_point"]) == set(payload["members"][0]["objectives"])
+
+        # Historical v1 omitted the new coverage contract; its owner serializer
+        # must keep that projection available without pretending v2 was v1.
+        old_payload = {
+            key: payload[key]
+            for key in (
+                "members",
+                "hypervolume",
+                "reference_point",
+                "coordinate_schema",
+                "coordinate_reference_point",
+            )
+        }
+        historical = ParetoFront.model_validate(old_payload)
+        assert historical.schema_version == "1.0"
+        assert historical.historical_v1_payload() == old_payload
 
     def test_empty_and_invalid_front_preserves_schema_as_incomplete(self):
         """Empty producer output retains known coordinates with an incomplete state."""
@@ -444,6 +477,47 @@ class TestParetoFront:
         assert all(math.isfinite(value) for member in front.members for value in member.objectives.values())
         assert all(math.isfinite(value) for value in front.reference_point.values())
         assert math.isfinite(front.hypervolume)
+
+    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self):
+        """Omitted inputs retain provenance while complete rows still form a front."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        best = _eval(acc=0.9, speed=0.8)
+        dominated = _eval(acc=0.8, speed=0.7)
+        missing = _eval(acc=0.7)
+        non_finite = _eval(acc=0.8, speed=math.inf)
+
+        front = promoter.compute_front([best, missing, non_finite, dominated])
+        assessment = front.input_assessment
+
+        assert assessment.status == "partial"
+        assert assessment.input_count == 4
+        assert assessment.assessed_count == 2
+        assert [item.input_index for item in assessment.unassessed_evaluations] == [1, 2]
+        assert assessment.unassessed_evaluations[0].candidate_ref_id == str(
+            missing.candidate_ref.artifact_id
+        )
+        assert assessment.unassessed_evaluations[0].missing_coordinate_ids == [
+            front.coordinate_schema.coordinates[1].coordinate_id
+        ]
+        assert assessment.unassessed_evaluations[1].candidate_ref_id == str(
+            non_finite.candidate_ref.artifact_id
+        )
+        assert assessment.unassessed_evaluations[1].non_finite_coordinate_ids == [
+            front.coordinate_schema.coordinates[1].coordinate_id
+        ]
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(best.candidate_ref.artifact_id)
+        ]
+
+        finite_control = promoter.compute_front([best, dominated])
+        assert assessment.status != "complete"
+        assert finite_control.input_assessment.status == "complete"
+        assert finite_control.input_assessment.input_count == 2
+        assert finite_control.input_assessment.assessed_count == 2
+        assert finite_control.input_assessment.unassessed_evaluations == []
+        assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
+            [best, missing, non_finite, dominated]
+        ).model_dump(mode="json")["members"]
 
     def test_invalid_reference_point_does_not_emit_non_finite_hypervolume(self):
         """Hypervolume refuses an invalid reference point instead of propagating it."""

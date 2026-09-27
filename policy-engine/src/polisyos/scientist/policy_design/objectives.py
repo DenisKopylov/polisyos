@@ -21,13 +21,13 @@ from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope as IRUncertaintyEnvelope
 from polisyos.scientist.agent.constraint_context import extract_budget_envelope
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope as SearchUncertaintyEnvelope,
 )
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyType,
 )
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
 class ObjectiveKind(str, Enum):
@@ -160,6 +160,8 @@ class PolicyEvaluationVector(BaseModel):
 
     def frontier_objectives(self, view: str) -> dict[str, float]:
         value_axis = self._first_value_axis()
+        if value_axis is None:
+            return {}
         axes: dict[str, float] = {}
         if view == "global_feasible":
             axes[value_axis.name] = value_axis.higher_is_better
@@ -186,7 +188,10 @@ class PolicyEvaluationVector(BaseModel):
         return axes
 
     def as_legacy_objectives(self) -> list[Any]:
-        from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+        from polisyos.scientist.methods.search.objective import (
+            ObjectiveValue,
+            OptimizationDirection,
+        )
 
         channels = [
             *self.primary.values(),
@@ -209,19 +214,14 @@ class PolicyEvaluationVector(BaseModel):
             for channel in channels
         ]
 
-    def _first_value_axis(self) -> ObjectiveChannelValue:
+    def _first_value_axis(self) -> ObjectiveChannelValue | None:
         for name in ("policy_value", "welfare", "gdp_growth", "employment"):
             channel = self.primary.get(name)
             if channel is not None:
                 return channel
         if self.primary:
             return next(iter(self.primary.values()))
-        return ObjectiveChannelValue(
-            name="policy_value",
-            kind=ObjectiveKind.PRIMARY,
-            value=0.0,
-            direction=ObjectiveDirection.MAXIMIZE,
-        )
+        return None
 
 
 class ObjectiveStack:

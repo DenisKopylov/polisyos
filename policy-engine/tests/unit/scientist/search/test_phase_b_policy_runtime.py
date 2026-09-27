@@ -92,7 +92,13 @@ from polisyos.scientist.methods.search.judge_stack import (
 )
 from polisyos.scientist.methods.search.latent_governance import latent_governance_metadata
 from polisyos.scientist.methods.search.objective import CompositeObjective
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoBasisScope,
+    ParetoRegistry,
+    ParetoRegistrySnapshot,
+    ParetoView,
+    ParetoViewAssessment,
+)
 from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessEvaluator,
@@ -111,7 +117,11 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime impor
     _PolicyRuntimeWorkflowEngine,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveStack,
+    PolicyEvaluationBundle,
+    PolicyEvaluationVector,
+)
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
@@ -520,6 +530,14 @@ def _evaluation_vector(candidate: PolicyCandidateSchema):
     )
 
 
+def _declared_global_pareto_basis() -> ParetoBasisScope:
+    return ParetoBasisScope(
+        scope="declared",
+        coordinate_ids=["policy_value", "employment"],
+        basis_ref="test:objective-stack.global-feasible.v1",
+    )
+
+
 def _persist_replay_support(
     store: FileSystemCAS,
     *,
@@ -707,7 +725,13 @@ def test_pareto_registry_tracks_frontiers_and_voi_snapshot(tmp_path) -> None:
     )
 
     registry.update(
-        "loop", candidate_hash="sha256:" + "a" * 64, evaluation=vector_a, candidate_id="candidate_b"
+        "loop",
+        candidate_hash="sha256:" + "a" * 64,
+        evaluation=vector_a,
+        candidate_id="candidate_b",
+        objective_basis_by_view={
+            "global_feasible": _declared_global_pareto_basis(),
+        },
     )
     registry.update(
         "loop", candidate_hash="sha256:" + "b" * 64, evaluation=vector_b, candidate_id="candidate_c"
@@ -734,6 +758,213 @@ def test_pareto_registry_tracks_frontiers_and_voi_snapshot(tmp_path) -> None:
     assert "sha256:" + "c" * 64 in snapshot.frontier_candidate_hashes
     assert "sha256:" + "b" * 64 in snapshot.near_frontier_candidate_hashes
     assert "sha256:" + "d" * 64 in snapshot.dominated_candidate_hashes
+
+
+def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto")
+    candidate = _candidate()
+    template = _evaluation_vector(candidate)
+    complete = template.model_copy(
+        update={
+            "candidate_id": "complete",
+            "primary": {
+                "policy_value": template.primary["policy_value"].model_copy(
+                    update={"value": 1.0}
+                ),
+                "employment": template.primary["employment"].model_copy(
+                    update={"value": 1.0}
+                ),
+            },
+        }
+    )
+    complete_hash = "sha256:" + "f" * 64
+    registry.update(
+        "loop",
+        candidate_hash=complete_hash,
+        evaluation=complete,
+        objective_basis_by_view={
+            "global_feasible": _declared_global_pareto_basis(),
+        },
+    )
+
+    missing_hashes = ["sha256:" + f"{index:064x}" for index in range(1, 7)]
+    for index, candidate_hash in enumerate(missing_hashes, start=2):
+        source = template
+        unassessed = source.model_copy(
+            update={
+                "candidate_id": f"missing_{index}",
+                "primary": {
+                    "policy_value": source.primary["policy_value"].model_copy(
+                        update={"value": float(index)}
+                    )
+                },
+            }
+        )
+        registry.update("loop", candidate_hash=candidate_hash, evaluation=unassessed)
+
+    empty_axes_hash = "sha256:" + "0" * 64
+    no_primary = template.model_copy(update={"candidate_id": "no_primary", "primary": {}})
+    assert PolicyEvaluationVector().frontier_objectives("global_feasible") == {}
+    registry.update("loop", candidate_hash=empty_axes_hash, evaluation=no_primary)
+
+    no_axis_registry = ParetoRegistry(root=tmp_path / "no-axis")
+    no_axis_registry.update("empty", candidate_hash=empty_axes_hash, evaluation=no_primary)
+    no_axis_assessment = no_axis_registry.get_snapshot("empty").view_assessments[
+        "global_feasible"
+    ]
+
+    snapshot = registry.get_snapshot("loop")
+    view = snapshot.view_assessments["global_feasible"]
+    voi_snapshot = registry.to_voi_snapshot("loop")
+
+    assert snapshot.schema_version == "2.0"
+    assert view.status == "partial"
+    assert view.input_count == 8
+    assert view.assessed_count == 1
+    assert set(view.unassessed_candidate_hashes) == (
+        set(missing_hashes) | {empty_axes_hash}
+    )
+    assert view.missing_coordinate_ids_by_candidate_hash
+    assert complete_hash in snapshot.frontiers["global_feasible"]
+    assert voi_snapshot.assessment_status == "partial"
+    assert not voi_snapshot.frontier_candidate_hashes
+    assert voi_snapshot.position_for(complete_hash) == "unassessed"
+    assert voi_snapshot.position_for(missing_hashes[0]) == "unassessed"
+    assert missing_hashes[0] not in voi_snapshot.dominated_candidate_hashes
+    assert voi_snapshot.position_for(empty_axes_hash) == "unassessed"
+    assert no_axis_assessment.status == "basis_limited"
+    assert no_axis_assessment.basis_scope.scope == "not_established"
+    assert no_axis_assessment.coverage_status == "no_usable_inputs"
+    assert no_axis_assessment.unresolved_axis_contract_candidate_hashes == [empty_axes_hash]
+
+
+def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto")
+    template = _evaluation_vector(_candidate())
+    candidate_hashes = ["sha256:" + "1" * 64, "sha256:" + "2" * 64]
+    for index, candidate_hash in enumerate(candidate_hashes):
+        evaluation = template.model_copy(
+            update={
+                "candidate_id": f"observed_only_{index}",
+                "primary": {"policy_value": template.primary["policy_value"]},
+            }
+        )
+        registry.update("observed-only", candidate_hash=candidate_hash, evaluation=evaluation)
+
+    assessment = registry.get_snapshot("observed-only").view_assessments[
+        "global_feasible"
+    ]
+    voi_snapshot = registry.to_voi_snapshot("observed-only")
+
+    assert assessment.status == "basis_limited"
+    assert assessment.coverage_status == "complete"
+    assert assessment.basis_scope.scope == "observed_axis_union"
+    assert assessment.basis_scope.coordinate_ids == ["policy_value"]
+    assert set(voi_snapshot.unassessed_candidate_hashes) == set(candidate_hashes)
+    assert not voi_snapshot.frontier_candidate_hashes
+    assert all(voi_snapshot.position_for(item) == "unassessed" for item in candidate_hashes)
+
+
+def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_control_ranks(
+    tmp_path,
+) -> None:
+    template = _evaluation_vector(_candidate())
+    declared_basis = _declared_global_pareto_basis()
+    missing_registry = ParetoRegistry(root=tmp_path / "missing")
+    missing_hashes = ["sha256:" + "3" * 64, "sha256:" + "4" * 64]
+    for index, candidate_hash in enumerate(missing_hashes):
+        evaluation = template.model_copy(
+            update={
+                "candidate_id": f"missing_employment_{index}",
+                "primary": {"policy_value": template.primary["policy_value"]},
+            }
+        )
+        missing_registry.update(
+            "missing-basis-axis",
+            candidate_hash=candidate_hash,
+            evaluation=evaluation,
+            objective_basis_by_view={"global_feasible": declared_basis},
+        )
+
+    missing_assessment = missing_registry.get_snapshot(
+        "missing-basis-axis"
+    ).view_assessments["global_feasible"]
+    missing_voi = missing_registry.to_voi_snapshot("missing-basis-axis")
+
+    assert missing_assessment.basis_scope == declared_basis
+    assert missing_assessment.status == "no_usable_inputs"
+    assert missing_assessment.coverage_status == "no_usable_inputs"
+    assert set(missing_assessment.unassessed_candidate_hashes) == set(missing_hashes)
+    missing_coordinate_sets = [
+        missing_assessment.missing_coordinate_ids_by_candidate_hash[item]
+        for item in missing_hashes
+    ]
+    assert all(len(coordinates) == 1 for coordinates in missing_coordinate_sets)
+    assert len({coordinates[0] for coordinates in missing_coordinate_sets}) == 1
+    assert set(missing_voi.unassessed_candidate_hashes) == set(missing_hashes)
+    assert not missing_voi.frontier_candidate_hashes
+
+    finite_registry = ParetoRegistry(root=tmp_path / "finite")
+    finite_hashes = ["sha256:" + "5" * 64, "sha256:" + "6" * 64]
+    for index, candidate_hash in enumerate(finite_hashes):
+        evaluation = template.model_copy(
+            update={
+                "candidate_id": f"finite_{index}",
+                "primary": {
+                    "policy_value": template.primary["policy_value"].model_copy(
+                        update={"value": float(index + 1)}
+                    ),
+                    "employment": template.primary["employment"].model_copy(
+                        update={"value": float(index + 1)}
+                    ),
+                },
+            }
+        )
+        finite_registry.update(
+            "finite-control",
+            candidate_hash=candidate_hash,
+            evaluation=evaluation,
+            objective_basis_by_view={"global_feasible": declared_basis},
+        )
+
+    finite_snapshot = finite_registry.get_snapshot("finite-control")
+    finite_assessment = finite_snapshot.view_assessments["global_feasible"]
+    finite_voi = finite_registry.to_voi_snapshot("finite-control")
+    assert finite_assessment.status == "complete"
+    assert finite_assessment.coverage_status == "complete"
+    assert finite_snapshot.frontiers["global_feasible"] == [finite_hashes[1]]
+    assert finite_voi.position_for(finite_hashes[1]) == "frontier"
+
+
+def test_v1_pareto_registry_projection_excludes_v2_assessment_fields() -> None:
+    historical = ParetoRegistrySnapshot(schema_version="1.0", loop_id="historical")
+
+    payload = historical.historical_v1_payload()
+
+    assert payload["schema_version"] == "1.0"
+    assert set(payload) == {
+        "schema_version",
+        "loop_id",
+        "task_family",
+        "domain",
+        "updated_at",
+        "entries",
+        "frontiers",
+        "hypervolume_by_view",
+    }
+    assert ParetoRegistrySnapshot.model_validate(payload).schema_version == "1.0"
+
+
+def test_basisless_v2_assessment_is_limited_on_read() -> None:
+    assessment = ParetoViewAssessment(
+        status="complete",
+        input_count=1,
+        assessed_count=1,
+    )
+
+    assert assessment.status == "basis_limited"
+    assert assessment.coverage_status == "complete"
+    assert assessment.basis_scope.scope == "not_established"
 
 
 def test_judge_stack_reduced_mode_and_human_gate() -> None:

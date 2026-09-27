@@ -5854,8 +5854,10 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         budget_state: BudgetState,
         previous_cycle: object,
         value_port_override: object,
+        stable_design_problem_ref: str,
     ) -> tuple[object, tuple[CandidateSummary, ...]]:
         assert received_problem is problem
+        assert stable_design_problem_ref == source_run.design_problem_ref
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
         assert isinstance(

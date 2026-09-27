@@ -121,31 +121,29 @@ product’s ordinary front door must remain usable as the causal model grows
 (`docs/system-design-decisions/policy-design-causal-operating-system-north-star.md`
 §§5–6).
 
-The HTTP function calls `_build_cycle_substrate_context_from_owner` whenever its
-ordinary caller supplies no context; this is a production path, including the
-`ControlPlaneService` worker, not only a test fallback. The
-`root_n4_generation_port` argument defaults to `None`; the early refusal occurs
-only when context is absent and a caller explicitly injects that port. The default
-production route omits the explicit port, so removing that refusal can reach the
-default N6 `grammar_fallback` candidate path. That path does not itself create a
-real N4 `DesignGenerationOrganRun` or persisted `GenerationSourceHandoff`, and
-therefore is not a B01–B03 served HTTP→N4→N5 witness. The ordinary candidate
-control proves only candidate reachability. The helper calls
-`production_composed_world_model_record(repo_root)`, whose implementation creates
-`build_artifact_store(ArtifactStoreConfig(... root=.tmp/gy-s-composed-wmr-cas))`,
-and separately builds a registry from repo-root catalogs. That path does not use
-the runtime-supplied tenant-bound store and therefore does not establish root
-context custody, even when the resulting context hashes validate
-(`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`;
-`src/polisyos/runtime/quality/intervention_substrate.py@e4c7c30f81438908688a169cb3d51fbd3f66be20`).
+When an ordinary `candidate_only` HTTP request has no context and no explicit N4
+port, the composition returns `N4CandidateProposalExecution` before the recursive
+route. The worker persists and reopens a successful proposal when tenant/cell
+job scope is available; terminal N4 outcomes and absent scope produce no proposal
+ref. N5 and S8 are `not_run`
+(`src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:db84338772e43cb55a57c1bb91e78e85468b5c7788ccf8d709aec2e8194526a3`).
+An explicit N4 port without context is refused. The HTTP function has no call to
+`_build_cycle_substrate_context_from_owner`, and no production caller of
+`CycleSubstrateContextArtifactOwner` was found in the served route. These facts
+establish candidate reachability, not a B01–B03 served N4→N5 witness
+(`src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:4425b37053189b66f2d49124f8033218e9c936719798c29acae8817fcfe90a0e`).
+The separate composed-WMR fallback still rebuilds a root-local store, so it
+cannot supply tenant context for a future full N4 route
+(`src/polisyos/runtime/quality/intervention_substrate.py@sha256:1783a4ecfd67e0010e4e4ccc5c19a022da5786e517c70f356cd5f639cbc726df`).
 The underlying `build_production_data_state_world_model_record(store, ...)` accepts
-a supplied store; correcting the wrapper to use it belongs to R13's root-rebuilt-
-store write set and requires its shared lease. R1 must not build a competing owner.
+a supplied store; R13 owns wiring that existing producer to the runtime store.
 
 `CycleSubstrateContext` is a candidate-only in-memory envelope: its typed
 `authority_purpose` is `cycle_input_candidate_only`, and `may_not_use_for` excludes
-authority. No independent pre-N4 owner persists and resolves a tenant-bound root
-context. The compiled wrapper records `cycle_substrate_context_ref` as a
+authority. `CycleSubstrateContextArtifactOwner` can persist and resolve an
+already-built context under the current job and tenant, but no served caller
+builds the source-bound context and invokes that owner. The compiled wrapper
+records `cycle_substrate_context_ref` as a
 content-hash string, not an `ArtifactRef` or tenant-bound manifest, and currently
 has no typed field preserving an absent context as `not_established`. If a later
 compiled-run route carries absent context, version this hashed wrapper with that
@@ -184,8 +182,8 @@ cases currently expecting `authorized` also use `_CgfGenerationPort`, not real N
 these five returning `blocked`; this is not yet the four-base P41/JUnit receipt
 (`tests/unit/runtime/http/test_normative_generation_bridge.py@ef8ec18a438afe790a0b03f35f90b9e90d6288d4`).
 
-**Proposed choice; principal status.** Adopt option 3 as the lane proposal, subject
-to Denis's ruling. Its preferred mechanism is one server-selected typed intent
+**Earlier lane proposal (before Denis's dated option-A ruling below).** Option 3
+was proposed here. Its preferred mechanism is one server-selected typed intent
 carried in the existing persisted payload and bound by the existing job-created
 event/outbox, with readback reconciliation before dispatch. A standalone CAS
 admission artifact remains conditional on a focused test showing that this existing
@@ -204,17 +202,17 @@ that verifies the full handoff. The handoff's owner profile must bind
 `tenant_context`; do not make a second artifact for the embedded context. The
 existing `build_production_data_state_world_model_record(store, ...)` is the named
 WMR producer to wire through the runtime-supplied store under R13. It owns WMR
-production; no separate pre-N4 tenant-context persistence/resolution owner is
-identified. If that capability proves necessary, it remains `not_established` until
-an existing owner is demonstrated, and R1 does not create one. Context currentness
+production. The existing `CycleSubstrateContextArtifactOwner` persists and
+resolves an already-built tenant/job-bound context; its served source-profile
+producer/caller remains missing. Context currentness
 must likewise be established by an existing owner or remain `not_established`;
 ambient CAS custody and content-valid handoff replay alone do not prove it. A
 matching hash or caller-injected context is insufficient. An N7 re-entry's prior
 handoff does not prove its post-growth context; until a complete post-growth witness
-exists, S8 remains blocked for that source. The principal choice between fixture
-options A and B remains open. Four-base fixture replay and the comparability choice
-remain pending/UNRUN; no fixture may be counted as positive S8 evidence before that
-ruling and witness.
+exists, S8 remains blocked for that source. At this earlier snapshot, the fixture
+choice was open; Denis later chose option A in the dated addendum. Four-base
+fixture replay remains pending/UNRUN, and no fixture counts as positive S8
+evidence before the served witness.
 
 **P37 — gate predicates at admission.**
 
@@ -306,23 +304,26 @@ served ordinary request without context must still return candidate work while N
 remain limited or blocked.
 
 **Remainder.** This decision does not appoint a WMR/catalog owner, create a second
-world store, or convert an LLM candidate into evidence. The HTTP root builder is a
-production caller but is not a compliant tenant-store owner path; its storage fix
-belongs to R13's shared owner work. The existing `GenerationSourceRepository`
+world store, or convert an LLM candidate into evidence. The ordinary HTTP worker
+persists a successful proposal when owner context is absent and tenant/cell job
+scope is available. The separate
+root-local WMR fallback needs R13's runtime-store repair before a full N4 caller
+can use it. The existing `GenerationSourceRepository`
 persists the full handoff containing the embedded post-N4 context, but S8 still needs
 to load it; its write profile needs tenant binding, and context currentness must come
 from an existing owner. The typed absent-context limitation must also persist in the
 content-hashed compiled wrapper v2; its v1 historical projection must preserve old
 bytes, and S8 must consume the limitation. No
-separate pre-N4 context artifact/resolver owner is identified, so that requirement
-remains `not_established` unless an existing owner is demonstrated. No S8 positive
+served source-profile resolver is identified, so construction of the exact
+pre-N4 context remains `not_established` until the existing context owner is
+wired to an admitted source. No S8 positive
 claim is supported by the current `[authorized]` fixture alone. Its
 signed-frontier semantics must remain covered. For the five normative fixtures, the
-principal must choose whether to upgrade their base-pass authorization expectations
-to real served N4/handoff/context-currentness witnesses or allow them to remain
-blocked until the owner capability exists. Until the choice and four-base replay are
-recorded, they are not positive S8 witnesses and their baseline disposition is not
-finalized. The separate control-service `[authorized]` tenant-scope fixture also
+principal chose option A: upgrade their base-pass authorization expectations to
+real served N4/handoff/context-currentness witnesses. Until the implementation
+and four-base replay are recorded, they are not positive S8 witnesses and their
+baseline disposition is not finalized. The separate control-service `[authorized]`
+tenant-scope fixture also
 needs a real owner/handoff witness or its own comparability ruling.
 N7 currently rebinds a post-growth context without emitting a post-growth source
 handoff, so that context remains `not_established` and S8 stays blocked until the
@@ -331,10 +332,11 @@ canonical owner path supplies a complete witness.
 **Remainder standing and signatory.** An absent or unmatched substrate fact has
 standing `not_established`; that does not put the ordinary request or candidate
 capability on hold. The registered source owner signs any source fact it supplies.
-If a separate pre-N4 tenant-context owner proves necessary, it remains
-`unallocated/not_established` until an existing owner is named; R13 may wire the
-existing WMR producer to the runtime store and use the existing N4 handoff boundary,
-but does not appoint a separate context owner or institution. The HTTP/runtime composition owns carrying the typed unknown and
+The existing context artifact owner must be wired to an exact source-profile
+resolver and served caller; that resolver remains `not_established`. R13 may wire
+the existing WMR producer to the runtime store and use the existing N4 handoff
+boundary, but does not appoint another context owner or institution. The
+HTTP/runtime composition owns carrying the typed unknown and
 gating authority, not signing source facts. Denis, as principal, remains the pending
 signatory for this proposed candidate/authority boundary; this draft is not
 ratification.
@@ -367,10 +369,10 @@ ranked recommendation. The schema-v2 hashed wrapper must retain its new limitati
 while historical schema-v1 replays serialize to their exact prior projection.
 
 **Where it binds.** HTTP entry at
-`src/polisyos/runtime/http/services/control/generation_cycle.py@055cca6c9424deac61fa61543143a2a2d2310b1a`
-and the served `ControlPlaneService` caller; current fallback
-`_build_cycle_substrate_context_from_owner`; WMR construction at
-`src/polisyos/runtime/quality/intervention_substrate.py@e4c7c30f81438908688a169cb3d51fbd3f66be20::_production_composed_world_model_record`
+`src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:4425b37053189b66f2d49124f8033218e9c936719798c29acae8817fcfe90a0e`
+and the served `ControlPlaneService` caller; the currently unserved composed-WMR
+fallback and WMR construction at
+`src/polisyos/runtime/quality/intervention_substrate.py@sha256:1783a4ecfd67e0010e4e4ccc5c19a022da5786e517c70f356cd5f639cbc726df::_production_composed_world_model_record`
 (store repair assigned to R13); candidate-only context contract at
 `src/polisyos/runtime/quality/cycle_substrate.py@f24fcc8ded61aa07c0c4145ea27f929995533f11`;
 N4 at

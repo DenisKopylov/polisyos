@@ -16,9 +16,11 @@ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflow
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import (
     NodeRunRecord,
+    WorkflowExecutionStatus,
     WorkflowExecutor,
     WorkflowReport,
     _WorkflowReportCanonicalizationError,
+    _WorkflowReportStatusError,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -256,3 +258,72 @@ def test_report_writer_rejects_float_details_with_timeout_markers_intact() -> No
 
     assert raised.value.node_alias == "reported"
     assert report.nodes[0].error is error
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("executor_kind", ["sync", "async"])
+async def test_workflow_report_writer_rejects_unrecognized_status(
+    tmp_path,
+    executor_kind: str,
+) -> None:
+    report = WorkflowReport(
+        workflow_id="canonical_report_test",
+        run_id=f"unrecognized-status-{executor_kind}",
+        error_policy="fail_fast",
+        status="bogus",
+        nodes=[],
+    )
+    _, ctx = _build_context(tmp_path)
+    registry = MagicMock(spec=NodeRegistry)
+
+    if executor_kind == "sync":
+        with pytest.raises(_WorkflowReportStatusError, match="status"):
+            WorkflowExecutor(ctx, registry)._persist_report(report)
+    else:
+        with pytest.raises(_WorkflowReportStatusError, match="status"):
+            await AsyncWorkflowExecutor(ctx, registry)._persist_report(report)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("executor_kind", ["sync", "async"])
+@pytest.mark.parametrize(
+    "status",
+    [WorkflowExecutionStatus.OK.value, WorkflowExecutionStatus.FAIL.value],
+)
+async def test_workflow_report_writer_accepts_current_producer_statuses(
+    tmp_path,
+    executor_kind: str,
+    status: str,
+) -> None:
+    report = WorkflowReport(
+        workflow_id="canonical_report_test",
+        run_id=f"current-status-{executor_kind}-{status}",
+        error_policy="fail_fast",
+        status=status,
+        nodes=[],
+    )
+    store, ctx = _build_context(tmp_path)
+    registry = MagicMock(spec=NodeRegistry)
+
+    if executor_kind == "sync":
+        report_ref = WorkflowExecutor(ctx, registry)._persist_report(report)
+    else:
+        report_ref = await AsyncWorkflowExecutor(ctx, registry)._persist_report(report)
+
+    payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
+    assert payload["status"] == status
+
+
+def test_historical_workflow_report_status_remains_readable_without_write_gate() -> None:
+    historical = WorkflowReport.model_validate(
+        {
+            "schema_version": "1.0",
+            "workflow_id": "canonical_report_test",
+            "run_id": "historical-state-only-result",
+            "error_policy": "fail_fast",
+            "status": "not_established",
+            "nodes": [],
+        }
+    )
+
+    assert historical.status == "not_established"

@@ -126,6 +126,7 @@ def build_distributed_execution_result(
     from polisyos.scientist.orchestration.engine.executor import (
         NodeRunRecord,
         WorkflowExecutionResult,
+        WorkflowExecutionStatus,
         WorkflowReport,
     )
 
@@ -134,7 +135,9 @@ def build_distributed_execution_result(
         for invocation in workflow.nodes
         if invocation.alias in node_reports_by_alias
     ]
-    status = "fail" if any(record.status == "fail" for record in records) else "ok"
+    status = WorkflowExecutionStatus.from_failures(
+        any(record.status == "fail" for record in records)
+    ).value
     return WorkflowExecutionResult(
         state=deserialize_state(state_bytes),
         report=WorkflowReport(

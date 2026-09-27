@@ -47,6 +47,7 @@ from polisyos.scientist.orchestration.engine.executor import (
     NodeBindError,
     NodeRunRecord,
     WorkflowExecutionResult,
+    WorkflowExecutionStatus,
     WorkflowReport,
     _log_node_events,
     _merge_cached_outcome_state,
@@ -694,7 +695,7 @@ class AsyncWorkflowExecutor:
         else:
             await execution_body()
 
-        overall_status = "fail" if failed else "ok"
+        overall_status = WorkflowExecutionStatus.from_failures(bool(failed)).value
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_workflow_completed(
                 workflow_id=workflow.workflow_id,

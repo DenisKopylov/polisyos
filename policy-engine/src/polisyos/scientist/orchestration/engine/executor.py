@@ -6,6 +6,7 @@ import logging
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -103,6 +104,20 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_enrich_knowledge@1.1.0",
     }
 )
+
+
+class WorkflowExecutionStatus(StrEnum):
+    """Terminal statuses emitted by current workflow execution-result producers."""
+
+    OK = "ok"
+    FAIL = "fail"
+
+    @classmethod
+    def from_failures(cls, failed: bool) -> WorkflowExecutionStatus:
+        """Derive the result status from the executor's failed-node signal."""
+        return cls.FAIL if failed else cls.OK
+
+
 _EXECUTOR_DEGRADED_ERRORS = (
     ArithmeticError,
     AssertionError,
@@ -152,6 +167,16 @@ class _WorkflowReportCanonicalizationError(ValueError):
         )
 
 
+class _WorkflowReportStatusError(ValueError):
+    """A report status is outside the current execution-result contract."""
+
+    def __init__(self, *, status: Any) -> None:
+        self.status = status
+        super().__init__(
+            f"Workflow report status {status!r} is not emitted by current execution producers"
+        )
+
+
 class WorkflowReport(BaseModel):
     """Workflow report data model."""
 
@@ -168,10 +193,16 @@ class WorkflowReport(BaseModel):
         """Return a detached payload after strict CAS-profile admission of error details.
 
         NodeError remains permissive when reading historical workflow histories. New
-        report writes validate dynamic details here, at the persistence boundary, before
-        asking the artifact store to persist them.
+        report writes validate current producer status and dynamic details here, at the
+        persistence boundary, before asking the artifact store to persist them. The
+        status field itself stays broad for historical read compatibility.
         """
         payload = self.model_dump()
+        try:
+            WorkflowExecutionStatus(payload["status"])
+        except (TypeError, ValueError) as exc:
+            raise _WorkflowReportStatusError(status=payload["status"]) from exc
+
         for record in payload["nodes"]:
             error = record["error"]
             if error is not None:
@@ -1320,7 +1351,7 @@ class WorkflowExecutor:
                 if outcome.status == "fail" and workflow.error_policy == "fail_fast":
                     break
 
-        overall_status = "fail" if failed else "ok"
+        overall_status = WorkflowExecutionStatus.from_failures(bool(failed)).value
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_workflow_completed(
                 workflow_id=workflow.workflow_id,

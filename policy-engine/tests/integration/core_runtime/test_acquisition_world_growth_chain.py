@@ -126,7 +126,7 @@ def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
 async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
     tmp_path, monkeypatch
 ):
-    """A current source-bound route reaches native admission and direct bridge re-entry."""
+    """A source-bound candidate re-enters while N6 authority stays typed UNRUN."""
 
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(tmp_path / "control")
@@ -135,7 +135,39 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
         control,
         generation_cycle_repo_root=source_root,
     )
-    assert validate_generation_cycle_run(closure.generation_run, repo_root=source_root) == ()
+    run = closure.generation_run
+    assert run.deployment_identity_status == "established"
+    assert run.deployment_identity is not None
+    currentness = currentness_for_generation_cycle_run(run)
+    assert currentness.status == "not_established"
+    assert currentness.census_verdict == "UNRUN"
+    assert currentness.reason_code == "n6_census_issuer_not_appointed"
+    assert currentness.unresolved_by_construction == (
+        "packaged_build_identity_issuer_not_appointed",
+        "n6_strangle_census_not_established",
+        "deployment_authority_issuer_not_appointed",
+    )
+    assert run.strangle_receipt.status == "not_established"
+    assert {
+        "n6_census_issuer_not_appointed",
+        "deployment_authority_issuer_not_appointed",
+        "source_census_is_tooling_evidence_only",
+    }.issubset(set(run.strangle_receipt.limitation_refs))
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issues = validate_generation_cycle_run(run)
+    currentness_issue = next(
+        issue
+        for issue in strict_issues
+        if issue["code"] == "strangle_receipt_currentness_not_established"
+    )
+    assert currentness_issue == {
+        "code": "strangle_receipt_currentness_not_established",
+        "reason": "n6_census_issuer_not_appointed",
+        "census_verdict": "UNRUN",
+        "unresolved_by_construction": currentness.unresolved_by_construction,
+    }
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.receipts == ()
     case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
 
     quarantined = case.port.execute(closure)

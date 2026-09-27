@@ -143,9 +143,9 @@ async def test_control_service_serves_n7_through_runtime_store_with_tenant_custo
     from polisyos.runtime.quality.acquisition_planner import AcquisitionWorldSnapshot
     from tests.unit.runtime.quality.test_generation_cycle import (
         _AcquisitionGrounding,
-        _CounterexampleAwareGenerator,
         _budget,
         _canonical_n7_test_atom,
+        _CounterexampleAwareGenerator,
         _n7_substrate_registry,
         _problem,
     )
@@ -244,11 +244,6 @@ async def test_control_service_serves_n7_through_runtime_store_with_tenant_custo
                 control_fixture.generation_cycle_service,
                 "build_design_problem_from_nl_request",
                 compile_problem,
-            )
-            monkeypatch.setattr(
-                control_fixture.generation_cycle_service,
-                "_build_cycle_substrate_context_from_owner",
-                lambda **_kwargs: None,
             )
             from polisyos.runtime.quality import substrate_registry
 

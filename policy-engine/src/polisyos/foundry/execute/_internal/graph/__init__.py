@@ -19,7 +19,11 @@ from polisyos.core.artifacts.environment import (
     capture_environment,
 )
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -41,6 +45,7 @@ from polisyos.foundry.execute._internal.models import (
     FailureKind,
     FailureSeverity,
     artifact_id,
+    artifact_input_ref,
     get_state_path,
     load_model,
     load_payload,
@@ -240,29 +245,26 @@ def execute_program_graph(
         if report is None or not persist_welfare_bound_reports:
             return
         report_inputs = [
-            InputRef(artifact_id=artifact_id(exec_plan_ref), role="exec_plan"),
+            artifact_input_ref(exec_plan_ref, role="exec_plan"),
         ]
         if base_ref is not None:
             report_inputs.append(
-                InputRef(artifact_id=base_ref.artifact_id, role="base_state_snapshot")
+                input_ref_from_artifact_ref(base_ref, role="base_state_snapshot")
             )
         if node.params_ref is not None:
             report_inputs.append(
-                InputRef(artifact_id=node.params_ref.artifact_id, role="mechanism_params")
+                input_ref_from_artifact_ref(node.params_ref, role="mechanism_params")
             )
         if parameter_override_bundle_ref is not None:
             report_inputs.append(
-                InputRef(
-                    artifact_id=parameter_override_bundle_ref.artifact_id,
+                input_ref_from_artifact_ref(
+                    parameter_override_bundle_ref,
                     role="parameter_override_bundle",
                 )
             )
         if observed_range_bundle_ref is not None:
             report_inputs.append(
-                InputRef(
-                    artifact_id=observed_range_bundle_ref.artifact_id,
-                    role="observed_range_bundle",
-                )
+                input_ref_from_artifact_ref(observed_range_bundle_ref, role="observed_range_bundle")
             )
         report_ref = persist_welfare_bound_report(store, report, inputs=report_inputs)
         derived_artifacts.append((f"welfare_bound_report:{node.node_id}", report_ref))
@@ -472,23 +474,23 @@ def execute_program_graph(
     latency_ms = int((time.perf_counter() - start_time) * 1000)
 
     inputs = [
-        InputRef(artifact_id=artifact_id(program_ref), role="program_graph"),
-        InputRef(artifact_id=artifact_id(exec_plan_ref), role="exec_plan"),
+        artifact_input_ref(program_ref, role="program_graph"),
+        artifact_input_ref(exec_plan_ref, role="exec_plan"),
     ]
     if program_graph.lowered_ir_ref is not None:
         inputs.append(
-            InputRef(artifact_id=program_graph.lowered_ir_ref.artifact_id, role="lowered_ir")
+            input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir")
         )
     if parameter_override_bundle_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=parameter_override_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                parameter_override_bundle_ref,
                 role="parameter_override_bundle",
             )
         )
     for op in ops:
         if op.value_ref is not None:
-            inputs.append(InputRef(artifact_id=op.value_ref.artifact_id, role="patch_value"))
+            inputs.append(input_ref_from_artifact_ref(op.value_ref, role="patch_value"))
 
     state_delta = StateDelta(base_ref=base_ref, ops=ops)
     state_delta_ref = store.put_json(
@@ -1035,7 +1037,7 @@ def _persist_environment_manifest(
                 name="polisyos.core.artifacts.environment.EnvironmentManifest",
                 version="1.0",
             ),
-            inputs=[InputRef(artifact_id=artifact_id(exec_plan_ref), role="exec_plan")],
+            inputs=[artifact_input_ref(exec_plan_ref, role="exec_plan")],
         ),
     )
     return EnvironmentManifestRef(artifact_id=artifact_ref.artifact_id)

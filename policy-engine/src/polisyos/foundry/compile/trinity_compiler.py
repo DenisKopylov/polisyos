@@ -9,7 +9,12 @@ artifacts into CAS with explicit provenance edges.
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
@@ -50,7 +55,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         `treasury_plan` refs when compilation succeeds.
     """
     policy_ref = request.policy_ref
-    payload = from_canonical_bytes(store.get_bytes(policy_ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(policy_ref))
     bundle = TrinityBundle.model_validate(payload)
 
     registry_bundle_ref = _resolve_registry_bundle_ref(
@@ -81,8 +86,8 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     )
 
     link_inputs = [
-        InputRef(artifact_id=policy_ref.artifact_id, role="ir"),
-        InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"),
+        input_ref_from_artifact_ref(policy_ref, role="ir"),
+        input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"),
     ]
     linked_bundle, link_report = link_trinity(
         bundle,
@@ -230,7 +235,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             kind="foundry.exec_plan",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
-            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
+            inputs=[input_ref_from_artifact_ref(program_graph_ref, role="program_graph")],
         ),
     )
     exec_plan_ref = ExecPlanRef(artifact_id=exec_plan_payload_ref.artifact_id)
@@ -244,7 +249,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             schema=SchemaInfo(
                 name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version
             ),
-            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
+            inputs=[input_ref_from_artifact_ref(program_graph_ref, role="program_graph")],
         ),
     )
 
@@ -257,7 +262,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             schema=SchemaInfo(
                 name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version
             ),
-            inputs=[InputRef(artifact_id=program_ref.artifact_id, role="program_graph")],
+            inputs=[input_ref_from_artifact_ref(program_ref, role="program_graph")],
         ),
     )
 
@@ -326,15 +331,15 @@ def _program_graph_inputs(
     lowered_ir_ref: ArtifactRef | None,
     params_refs: dict[str, ArtifactRef],
 ) -> list[InputRef]:
-    inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
+    inputs = [input_ref_from_artifact_ref(policy_ref, role="ir")]
     if registry_bundle_ref is not None:
-        inputs.append(InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"))
+        inputs.append(input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"))
     if link_report_ref is not None:
-        inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
+        inputs.append(input_ref_from_artifact_ref(link_report_ref, role="link_report"))
     if lowered_ir_ref is not None:
-        inputs.append(InputRef(artifact_id=lowered_ir_ref.artifact_id, role="lowered_ir"))
+        inputs.append(input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"))
     for node_id, ref in sorted(params_refs.items()):
-        inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"params:{node_id}"))
+        inputs.append(input_ref_from_artifact_ref(ref, role=f"params:{node_id}"))
     return inputs
 
 
@@ -349,21 +354,21 @@ def _compile_inputs(
     slot_layout_ref: ArtifactRef | None,
     treasury_plan_ref: ArtifactRef | None,
 ) -> list[InputRef]:
-    inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
+    inputs = [input_ref_from_artifact_ref(policy_ref, role="ir")]
     if registry_bundle_ref is not None:
-        inputs.append(InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"))
+        inputs.append(input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"))
     if link_report_ref is not None:
-        inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
+        inputs.append(input_ref_from_artifact_ref(link_report_ref, role="link_report"))
     if lowered_ir_ref is not None:
-        inputs.append(InputRef(artifact_id=lowered_ir_ref.artifact_id, role="lowered_ir"))
+        inputs.append(input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"))
     if program_graph_ref is not None:
-        inputs.append(InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph"))
+        inputs.append(input_ref_from_artifact_ref(program_graph_ref, role="program_graph"))
     if exec_plan_ref is not None:
-        inputs.append(InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan"))
+        inputs.append(input_ref_from_artifact_ref(exec_plan_ref, role="exec_plan"))
     if slot_layout_ref is not None:
-        inputs.append(InputRef(artifact_id=slot_layout_ref.artifact_id, role="slot_layout"))
+        inputs.append(input_ref_from_artifact_ref(slot_layout_ref, role="slot_layout"))
     if treasury_plan_ref is not None:
-        inputs.append(InputRef(artifact_id=treasury_plan_ref.artifact_id, role="treasury_plan"))
+        inputs.append(input_ref_from_artifact_ref(treasury_plan_ref, role="treasury_plan"))
     return inputs
 
 

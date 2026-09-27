@@ -34,6 +34,13 @@ def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
     return ArtifactID.model_validate(value)
 
 
+def _store_read_ref(value: ArtifactRef | ArtifactID | str) -> ArtifactRef | ArtifactID:
+    """Keep a selected manifest profile intact at the ArtifactStore boundary."""
+    if isinstance(value, ArtifactRef):
+        return value
+    return _artifact_id(value)
+
+
 def _artifact_ref(
     value: ArtifactRef | ArtifactID | str, *, kind: str, media_type: str
 ) -> ArtifactRef:
@@ -47,7 +54,7 @@ def _load_model[ModelT: BaseModel](
     ref: ArtifactRef | ArtifactID | str,
     model_cls: type[ModelT],
 ) -> ModelT:
-    data = store.get_bytes(_artifact_id(ref))
+    data = store.get_bytes(_store_read_ref(ref))
     payload = from_canonical_bytes(data)
     return model_cls.model_validate(payload)
 
@@ -72,7 +79,7 @@ def load_registry_bundle_payload(
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load only the bundle payload graph without dereferencing member registries."""
-    data = store.get_bytes(_artifact_id(bundle_ref))
+    data = store.get_bytes(_store_read_ref(bundle_ref))
     payload = from_canonical_bytes(data)
     return RegistryBundlePayload.model_validate(payload)
 

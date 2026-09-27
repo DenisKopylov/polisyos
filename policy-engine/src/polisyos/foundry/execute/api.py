@@ -14,7 +14,12 @@ from dataclasses import dataclass
 import numpy as np
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.foundry import (
@@ -179,8 +184,8 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             if isinstance(values, dict)
         }
         parameter_override_inputs.append(
-            InputRef(
-                artifact_id=request.parameter_override_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.parameter_override_bundle_ref,
                 role="parameter_override_bundle",
             )
         )
@@ -276,10 +281,10 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         notes=list(execution_notes),
     )
     sim_inputs = [
-        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
-        InputRef(artifact_id=exec_artifacts.metrics_ref.artifact_id, role="metrics"),
-        InputRef(artifact_id=exec_artifacts.state_delta_ref.artifact_id, role="state_delta"),
-        InputRef(artifact_id=applied.state_snapshot_ref.artifact_id, role="state_snapshot"),
+        input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+        input_ref_from_artifact_ref(exec_artifacts.metrics_ref, role="metrics"),
+        input_ref_from_artifact_ref(exec_artifacts.state_delta_ref, role="state_delta"),
+        input_ref_from_artifact_ref(applied.state_snapshot_ref, role="state_snapshot"),
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
@@ -311,16 +316,10 @@ def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _R
         state_snapshot_ref=bindings.bound_state_snapshot_ref,
         notes=("state_source:input_bindings_ref",),
         input_refs=(
-            InputRef(
-                artifact_id=bindings_ref.artifact_id,
-                role="input.input_bindings_ref",
-            ),
-            InputRef(
-                artifact_id=bindings.data_snapshot_ref.artifact_id,
-                role="input.data_snapshot_ref",
-            ),
-            InputRef(
-                artifact_id=bindings.bound_state_snapshot_ref.artifact_id,
+            input_ref_from_artifact_ref(bindings_ref, role="input.input_bindings_ref"),
+            input_ref_from_artifact_ref(bindings.data_snapshot_ref, role="input.data_snapshot_ref"),
+            input_ref_from_artifact_ref(
+                bindings.bound_state_snapshot_ref,
                 role="input.bound_state_snapshot_ref",
             ),
         ),
@@ -329,7 +328,7 @@ def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _R
 
 def _ensure_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
     """Raise if `ref` does not resolve to a readable CAS manifest."""
-    store.get_manifest(ref.artifact_id)
+    store.get_manifest(ref)
 
 
 def _load_model[ModelT: BaseModel](
@@ -338,7 +337,7 @@ def _load_model[ModelT: BaseModel](
     model_cls: type[ModelT],
 ) -> ModelT:
     """Deserialize a CAS JSON artifact into the requested Pydantic model."""
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return model_cls.model_validate(payload)
 
 
@@ -539,22 +538,22 @@ def _execute_with_feedback(
     )
 
     feedback_base_inputs = [
-        InputRef(
-            artifact_id=resolved_state.state_snapshot_ref.artifact_id,
+        input_ref_from_artifact_ref(
+            resolved_state.state_snapshot_ref,
             role="input.bound_state_snapshot_ref",
         )
     ]
     if request.feedback_config_ref is not None:
         feedback_base_inputs.append(
-            InputRef(
-                artifact_id=request.feedback_config_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.feedback_config_ref,
                 role="input.feedback_config_ref",
             )
         )
     if final_override_bundle_ref is not None:
         feedback_base_inputs.append(
-            InputRef(
-                artifact_id=final_override_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                final_override_bundle_ref,
                 role="feedback.parameter_override_bundle",
             )
         )
@@ -723,17 +722,17 @@ def _execute_with_feedback(
         notes=feedback_notes,
     )
     sim_inputs = [
-        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
-        InputRef(artifact_id=exec_artifacts.metrics_ref.artifact_id, role="metrics"),
-        InputRef(artifact_id=exec_artifacts.state_delta_ref.artifact_id, role="state_delta"),
-        InputRef(artifact_id=applied.state_snapshot_ref.artifact_id, role="state_snapshot"),
-        InputRef(
-            artifact_id=feedback_base_state_snapshot_ref.artifact_id,
+        input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+        input_ref_from_artifact_ref(exec_artifacts.metrics_ref, role="metrics"),
+        input_ref_from_artifact_ref(exec_artifacts.state_delta_ref, role="state_delta"),
+        input_ref_from_artifact_ref(applied.state_snapshot_ref, role="state_snapshot"),
+        input_ref_from_artifact_ref(
+            feedback_base_state_snapshot_ref,
             role="input.feedback_base_state_snapshot_ref",
         ),
-        InputRef(artifact_id=feedback_result_ref.artifact_id, role="artifact.feedback_result_ref"),
-        InputRef(
-            artifact_id=feedback_certificate_ref.artifact_id,
+        input_ref_from_artifact_ref(feedback_result_ref, role="artifact.feedback_result_ref"),
+        input_ref_from_artifact_ref(
+            feedback_certificate_ref,
             role="artifact.feedback_convergence_certificate_ref",
         ),
     ]
@@ -741,15 +740,15 @@ def _execute_with_feedback(
     sim_inputs.extend(parameter_override_inputs)
     if request.feedback_config_ref is not None:
         sim_inputs.append(
-            InputRef(
-                artifact_id=request.feedback_config_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.feedback_config_ref,
                 role="input.feedback_config_ref",
             )
         )
     if final_override_bundle_ref is not None:
         sim_inputs.append(
-            InputRef(
-                artifact_id=final_override_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                final_override_bundle_ref,
                 role="feedback.parameter_override_bundle",
             )
         )
@@ -921,8 +920,8 @@ def _persist_parameter_override_bundle(
             schema=SchemaInfo(name="polisyos.core.ParameterOverrideBundle", version="1.0"),
             inputs=(
                 [
-                    InputRef(
-                        artifact_id=request.parameter_override_bundle_ref.artifact_id,
+                    input_ref_from_artifact_ref(
+                        request.parameter_override_bundle_ref,
                         role="input.original_parameter_override_bundle_ref",
                     )
                 ]
@@ -931,8 +930,8 @@ def _persist_parameter_override_bundle(
             )
             + (
                 [
-                    InputRef(
-                        artifact_id=request.feedback_config_ref.artifact_id,
+                    input_ref_from_artifact_ref(
+                        request.feedback_config_ref,
                         role="input.feedback_config_ref",
                     )
                 ]
@@ -997,7 +996,7 @@ def _evaluate_welfare_bound_requirement(
 
     failures: list[str] = []
     for ref in report_refs:
-        payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        payload = from_canonical_bytes(store.get_bytes(ref))
         status = str(payload.get("status", "")).strip().lower()
         if status == "ok":
             continue
@@ -1039,12 +1038,12 @@ def _persist_feedback_trace(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.FeedbackTrace", version="1.0"),
             inputs=[
-                InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
+                input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
             ]
             + (
                 [
-                    InputRef(
-                        artifact_id=request.feedback_config_ref.artifact_id,
+                    input_ref_from_artifact_ref(
+                        request.feedback_config_ref,
                         role="input.feedback_config_ref",
                     )
                 ]
@@ -1086,12 +1085,12 @@ def _persist_feedback_jacobian(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.FeedbackJacobianDiagnostics", version="1.0"),
             inputs=[
-                InputRef(artifact_id=trace_ref.artifact_id, role="artifact.feedback_trace_ref"),
+                input_ref_from_artifact_ref(trace_ref, role="artifact.feedback_trace_ref"),
             ]
             + (
                 [
-                    InputRef(
-                        artifact_id=request.feedback_config_ref.artifact_id,
+                    input_ref_from_artifact_ref(
+                        request.feedback_config_ref,
                         role="input.feedback_config_ref",
                     )
                 ]
@@ -1148,20 +1147,20 @@ def _persist_feedback_convergence_certificate(
         ),
     )
     inputs = [
-        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
-        InputRef(artifact_id=trace_ref.artifact_id, role="artifact.feedback_trace_ref"),
+        input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+        input_ref_from_artifact_ref(trace_ref, role="artifact.feedback_trace_ref"),
     ]
     if request.feedback_config_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=request.feedback_config_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.feedback_config_ref,
                 role="input.feedback_config_ref",
             )
         )
     if jacobian_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=jacobian_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                jacobian_ref,
                 role="artifact.feedback_jacobian_diagnostics_ref",
             )
         )
@@ -1191,24 +1190,24 @@ def _persist_equilibrium_multiplicity_report(
     convergence_certificate_ref: FeedbackConvergenceCertificateRef,
 ) -> EquilibriumMultiplicityReportRef:
     inputs = [
-        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
-        InputRef(artifact_id=trace_ref.artifact_id, role="artifact.feedback_trace_ref"),
-        InputRef(
-            artifact_id=convergence_certificate_ref.artifact_id,
+        input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+        input_ref_from_artifact_ref(trace_ref, role="artifact.feedback_trace_ref"),
+        input_ref_from_artifact_ref(
+            convergence_certificate_ref,
             role="artifact.feedback_convergence_certificate_ref",
         ),
     ]
     if request.feedback_config_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=request.feedback_config_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.feedback_config_ref,
                 role="input.feedback_config_ref",
             )
         )
     if jacobian_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=jacobian_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                jacobian_ref,
                 role="artifact.feedback_jacobian_diagnostics_ref",
             )
         )
@@ -1278,43 +1277,43 @@ def _persist_feedback_result(
         notes=notes,
     )
     inputs = [
-        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
-        InputRef(artifact_id=trace_ref.artifact_id, role="artifact.feedback_trace_ref"),
+        input_ref_from_artifact_ref(request.exec_plan_ref, role="exec_plan"),
+        input_ref_from_artifact_ref(trace_ref, role="artifact.feedback_trace_ref"),
     ]
     if exec_artifacts is not None:
-        inputs.append(InputRef(artifact_id=exec_artifacts.metrics_ref.artifact_id, role="metrics"))
+        inputs.append(input_ref_from_artifact_ref(exec_artifacts.metrics_ref, role="metrics"))
     if request.feedback_config_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=request.feedback_config_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                request.feedback_config_ref,
                 role="input.feedback_config_ref",
             )
         )
     if jacobian_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=jacobian_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                jacobian_ref,
                 role="artifact.feedback_jacobian_diagnostics_ref",
             )
         )
     if convergence_certificate_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=convergence_certificate_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                convergence_certificate_ref,
                 role="artifact.feedback_convergence_certificate_ref",
             )
         )
     if final_override_bundle_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=final_override_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                final_override_bundle_ref,
                 role="feedback.parameter_override_bundle",
             )
         )
     if multiplicity_report_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=multiplicity_report_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                multiplicity_report_ref,
                 role="artifact.equilibrium_multiplicity_report_ref",
             )
         )

@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import PatchOp, StateDelta
 from polisyos.foundry.execute._internal.models import (
     ApplyArtifacts,
-    artifact_id,
+    artifact_input_ref,
     get_state_path,
     load_model,
     set_state_path,
@@ -167,10 +167,10 @@ def apply_state_delta_and_snapshot(
         state=state,
         step=step,
         inputs=[
-            InputRef(artifact_id=artifact_id(state_delta_ref), role="state_delta"),
+            artifact_input_ref(state_delta_ref, role="state_delta"),
         ]
         + (
-            [InputRef(artifact_id=base_ref.artifact_id, role="base_state")]
+            [input_ref_from_artifact_ref(base_ref, role="base_state")]
             if base_ref is not None
             else []
         ),

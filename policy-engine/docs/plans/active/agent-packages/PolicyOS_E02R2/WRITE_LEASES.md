@@ -1,37 +1,14 @@
 # E02-R2 write leases
 
-## Active coordination (2026-09-27, after `077147d86`)
+## Active coordination (2026-09-28, latest integrated HEAD `782652222cece9899adea0a171c08166544901b9`)
 
-- The root integrator is the sole writer to `codex/e02-r2`. The branch was read
-  back clean at `077147d86af4f55c542c9344a3fcbc11e48ac836`. Candidate
-  authors and independent reviewers write only in separate scratch locations;
-  they do not edit or run tests against a shared tree while that tree changes.
-- The current write-set lease order is: R2 owns
-  `runtime/quality/generation_cycle.py`, `recursive_generation_cycle.py`, the
-  N6 contract checker and their tests; the frozen R11 blocked→N9 candidate
-  follows R2 in `generation_cycle.py`. R13 DataState store work owns
-  `data_state_substrate.py` and `intervention_substrate.py` in scratch; R1
-  candidate/S8 work follows it on the runtime store and HTTP lifecycle seam.
-  The rejected R1 generic data-time guard is under independent review and has
-  no integration lease. B219's MultiDiGraph/deterministic-key implementation and
-  tests are committed at `077147d86`; its source-write lease is released. NetworkX
-  permutation/round-trip behavior and removal probes remain UNRUN because the
-  pinned 3.6.1 offline runtime artifact is absent; B219 is held on that data_record.
-- The R13 live-route fixture correction is committed at `d966d007c`; its
-  served WDI file is 4/9 at that source state (five R2 currentness refusals),
-  and the separate live-executor fixture file is 49/49. The later `077147d86`
-  commit only changes B219 graph source/tests and this coordination record. R7/R8
-  marker-retaining mutants and restored controls are complete at d966; the temporary mutations were reversed
-  and the tree read back clean. Receipt:
-  `/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R7_R8_CURRENT_MUTANT_RECEIPT.md@sha256:e38d626dd42c780d37d84607ce0cb51b7f2ddbb3e25387571fbd42f17c80ff84`.
-  Source and tests remain frozen during every subsequent run.
-- Current free disk was about 8.7 GiB. Denis set the floor at **8 GiB** on
-  2026-09-27; recheck before every resource-bearing job and retain 20–30%
-  free RAM. Run four or five light process groups only when measured headroom
-  permits, and serialize native/heavy jobs, generated artifacts, governed
-  epochs, fixed ports and the integration branch. Reuse the local venv and
-  read-only production-data symlink. Verified disposable test directories may
-  move to macOS Trash; only Denis empties it.
+- Canonical integration branch `codex/e02-r2` is clean at committed HEAD `782652222cece9899adea0a171c08166544901b9`. R2 production changes landed at `a877f8abc918ff46f6db2a3f0ae64fb4d07fe856`; the follow-on `782652222` commit changes only the R13 re-entry test double. Root remains the sole branch writer. The R2 whole-file wave is complete at a877; the RES-02 782 wave comprises complete `test_res_02.py` (6/6), complete `test_distributed_tier.py` (8/8), and one CAS stop/reopen selector (1/1), 15/15 total. A separate B73 expected-red probe reproduces persisted state containing `right=2` while `completed_nodes=["left"]`; B73 remains partial pending repair/control. The prior R2 prototype scratch workspace is retired to macOS Trash per root; no active R2 prototype lease remains. Keep candidate writers in scratch and do not edit the canonical tree during any root-owned run.
+- Integrated and released leases include WDI/tenant custody (`6a508368`), R13 entry fence (`84ac676f`), RES-02 finding tests (`add75e473`), R4 checker/generation-cycle block (`355225dd`), and R11 V3 test-only block (`1544073dd`). Bounded exact receipts are pinned in `FINAL_REPORT.md`; none is a four-base replay or class closure.
+- R11 V3 whole-file result at 154 collected 148 tests: 139 pass / 9 fail / 0 errors or skips, exit 1. Compared with 355, 144 identities are common and there are zero pass→fail outcomes; positive owner-issued N9 remains `UNRUN`. This is historical to 154; R2's later exact comparison is recorded in `FINAL_REPORT.md`.
+- R2 commit `a877f8abc` distinguishes a census failure from unavailable identity. At that head, `test_generation_cycle.py` was 145/149 with four reds; compared with 154, 148 identities had zero pass→fail, five fail→pass, four fail→fail, plus one new passing removal/control case. `test_generation_cycle_history.py` was 26/26. R2 remains partial: packaged N6 issuer, positive N9 and touched-file four-base replay are `UNRUN`. R13 test-double correction `782652222` passed its focused selector 1/1; no whole-file rerun is claimed. Receipts are in `FINAL_REPORT.md`.
+- R1 default-world, served-context and generic time-scope candidates remain BLOCKed and unapplied. The current served unknown-scope path exits before the suspected fixed-UA API fallback; API production reachability remains under investigation. R9 serializer proposals remain scratch-only after independent P07 BLOCKs. R12 planner strangle passed at 154, but its N7 synthetic-receipt/real-grounding residual folds into R13 canonical world growth; no runtime patch is claimed.
+- The add75 ledger/N source-audit snapshot plus subsequent bounded tests remains incomplete P41 evidence. R4 `--check --output-format json` at 355 returns typed `UNRUN`/exit 2, historical replay passes, N9 callbacks/sessions are zero, and candidate/receipt denominators are null. Full four-base/touched-file replay and architecture guardrails remain `UNRUN`.
+- The earlier coordination snapshot of about 16 GiB free disk and 56% free RAM is historical and superseded. A fresh `df -k` measurement at clean code HEAD `782652222` on 2026-09-27 22:01 UTC reported 9,235,008 KiB free (about 8.81 GiB), only about 0.81 GiB above the 8 GiB floor. Recheck disk and RAM before any heavy replay; admit up to four or five resource-bearing process groups only if a fresh measurement supports the requested headroom. Serialize exclusive native resources, governed artifacts/epochs, fixed ports and the canonical integration branch. Reuse the shared `.venv` and read-only `production_data` symlink. Never edit a source tree while its tests are in flight.
 
 ## Historical coordination and evidence snapshot (2026-09-27)
 
@@ -233,14 +210,9 @@
   against that tree. Production data stays a read-only symlink, no branch is
   pushed or merged into main, and only the user empties macOS Trash.
 
-### Lease snapshot at `02b7f5e3c` (2026-09-26)
+### Historical lease snapshot at `02b7f5e3c` (2026-09-26; superseded by a877f8abc)
 
-- The root integrator is the only writer to `codex/e02-r2`. The branch contains
-  the reviewed LA-049 bounded repair. Three uncommitted R2 prototype files are
-  owned by the root: `generation_cycle.py`, `recursive_generation_cycle.py`, and
-  `test_generation_cycle.py`. The prototype is **NO-GO** until the canonical
-  deployment identity binds an N6 route attestation; its complete patch is kept
-  at `/Users/deniskopylov/.codex/scratch/e02-r2-currentness-prototype-20260926/NO_GO_PROTOTYPE.patch@sha256:09a74c989dc53868d2bfcf6cbb19bdab0f2be868322c94a0eeb2deb6755447b5`.
+- At this dated snapshot, the root integrator was the only writer to `codex/e02-r2`. Three uncommitted R2 prototype files were owned by root: `generation_cycle.py`, `recursive_generation_cycle.py`, and `test_generation_cycle.py`; the candidate was then marked **NO-GO** pending a canonical deployment identity/N6 route attestation. This is historical coordination, not an active lease. R2's bounded reviewed repair later committed at `a877f8abc`; root reports the prototype scratch workspace was retired to macOS Trash, with branch history preserved. The old patch remains a historical artifact at `/Users/deniskopylov/.codex/scratch/e02-r2-currentness-prototype-20260926/NO_GO_PROTOTYPE.patch@sha256:09a74c989dc53868d2bfcf6cbb19bdab0f2be868322c94a0eeb2deb6755447b5`.
 - R2 confidence-ledger attestation and v4 history/schema authors work only in
   scratch against the committed head. They share the R2 interface but do not
   edit the integration tree. The root integrates one reviewed combined delta,

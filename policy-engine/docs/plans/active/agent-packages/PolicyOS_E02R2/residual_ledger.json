@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02r2.residual-ledger.v1",
-  "census_head": "73c656744f051d9f40667da7f8bc91c61d8b4ebf",
+  "census_head": "782652222cece9899adea0a171c08166544901b9",
   "denominator": {
     "B": 225,
     "LA": 57,
@@ -27,9 +27,9 @@
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Complete four-base P41 status remains UNRUN unless a row cites a complete four-base receipt; current-head finding-specific witnesses do not fill that matrix. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
     "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. The complete ledger status census is 3 closed / 267 partial / 12 held / 0 open across 282 findings.",
-    "The 18 Appendix-C no-record items now have individual finding-level audit records, but none is newly closed: all 18 are now partial after B72 advances on bounded post-code evidence. B09 stays partial because the active overlay route exists but a changed admitted basis has not been shown through a second N5 cycle. CYC-03 is 5/6 at saved snapshot 95f082b, before R5 changed the overlapping recursive context gate; current post-R5 replay is UNRUN. SIM-03 is 14/14 at ff07e89 and OPT-01 is 88/88 at 679f096e3; these are bounded historical receipts, not fresh current-head or four-base runs. B57-B59, B73 and B88 retain their row-specific bounded evidence; B72 is now partial after the Ray/non-Temporal status-loss path received a bounded typed-admission repair; the Temporal collection remained skipped because temporalio is unavailable, and the persisted width-one/width-two resume discriminator remains UNRUN. B111 typed-omission evidence is scratch-candidate-only; the 88/88 suite is from unpatched source. The candidate does not reach sibling legacy projections or PolicyArtifactBuilder/PolicyFrontierReport consumers, and a static duplicate-omission-identity escape is not yet executed. Native CAS rejection and in-memory Pareto omission are distinct properties; P40 now requires widening the same class, not another instance patch. LA-021's 7,761-record receipts stop at earlier ledger blobs; the current 43d ledger blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both inventories. Latest-ledger input parity, the exact 418-input selector and the 140-file caller replay remain UNRUN. Appendix-C labels stay no_finding_level_record; no finding status promotion is inferred. Sources: /Users/deniskopylov/.codex/scratch/e02-r2-report-audit-20260927/REPORT_AUDIT.md@sha256:5d25e18302596a88eed69377b81aa1b13654f40e9987c2d1bd9d2bef01554080; /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e; /Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67",
-    "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 84 engineering / 16 principal decision drafts / 18 typed blockers, recorded in partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994 and citation_catalog.partial_triage. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
-    "H14 current status partition: held=11; closed_bounded=2 (LA-010, LA-049); open=1 (B219). Residual-owner partition over the 12 non-closed rows is owner_decision=6, data_record=2 (B61, LA-031), smallest_missing_capability=4 (B194, B197, B219, LA-032). The two closures are bounded to the in-repository owner/caller contracts under the principal no-blanket-compatibility clarification; broad historical/external compatibility is not claimed. No full four-base P41 is claimed. Exact current Appendix-C H14 owner partition was recomputed from all 14 rows: owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027); data_record=2 (B61, LA-031); smallest_missing_capability=4 (B194, B197, B219, LA-032). After bounded LA-010/LA-049 closure, row status counts are 11 held, 2 closed (LA-010, LA-049), and 1 open (B219). No H14 finding-level closure or full four-base P41 is established. B194 has prior bounded repair/importer/consumer/removal/control evidence; B197 includes an untied preserving control, while its property-removal probe, report CAS round-trip, served welfare path and P41 remain UNRUN. B31/B201/B202 and LA-032 have bounded diagnostics; LA-010/LA-031/LA-049 have bounded tests; B61/B219 current behavior probes remain UNRUN. The three DFK rows remain held: a local inventory is not an owner ruling, external support record, behavior witness, package-output check, or P41 replay. Do not describe every H behavioral witness as UNRUN: B197 has a recorded untied preserving control; its removal probe, persisted report-CAS round-trip, served Calibrator-to-welfare witness, and P41 remain UNRUN. The B194 census denominator is 2,696 tracked src/polisyos Python files.",
+    "The 18 Appendix-C no-record items now have individual finding-level audit records, but none is newly closed: all 18 are now partial after B72 advances on bounded post-code evidence. B09 remains partial: the add75 audit confirms synthetic same-candidate history/unchanged-input refusal, but no new admitted Data Forge bytes drive a real second N6 evaluation. The add75 source/test audits for CYC-03 (B09/B27/B28) and OPT-01 (B108/B109/B111) ran no tests and leave four-base P41 UNRUN. SIM-03 is 14/14 at ff07e89 and OPT-01 is 88/88 at 679f096e3 as historical focused receipts; the current add75 OPT-01 whole file is 35/35, but its other three bases remain UNRUN. B57-B59 have an add75 read-only audit with current four-base replay UNRUN; B72/B73 have integrated add75 finding tests (unit 6/6, checkpoint-resume 8/8) but retain real-CAS/distributed residuals; B88 has a 15/15 owner-only test_modes.py run at 84ac with served real-owner/output-evidence binding still absent; B72 is now partial after the Ray/non-Temporal status-loss path received a bounded typed-admission repair; the Temporal collection remained skipped because temporalio is unavailable, and the persisted width-one/width-two resume discriminator remains UNRUN. B111 typed-omission evidence remains scratch-candidate-only; current whole-file 35/35 does not exercise mixed typed omission/partial projection. The candidate does not reach sibling legacy projections or PolicyArtifactBuilder/PolicyFrontierReport consumers, and a static duplicate-omission-identity escape is not yet executed. Native CAS rejection and in-memory Pareto omission are distinct properties; P40 now requires widening the same class, not another instance patch. LA-021's 7,761-record receipts stop at earlier ledger blobs; the current 43d ledger blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both inventories. Latest-ledger input parity, the exact 418-input selector and the 140-file caller replay remain UNRUN. Appendix-C labels stay no_finding_level_record; no finding status promotion is inferred. Current add75 read-only audits: /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f; /Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0; current OPT-01 JUnit /Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6; Sources: /Users/deniskopylov/.codex/scratch/e02-r2-report-audit-20260927/REPORT_AUDIT.md@sha256:5d25e18302596a88eed69377b81aa1b13654f40e9987c2d1bd9d2bef01554080; /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e; /Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67",
+    "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 87 engineering / 13 principal decision drafts / 18 typed blockers, as summarized in FINAL_REPORT.md. This reclassification does not change finding status or provide implementation evidence. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
+    "H14 current add75 row walk (14 IDs): status=12 held, 2 bounded closed (LA-010, LA-049), 0 open; blocker kinds among the 12 held are owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027), data_record=3 (B61, B219, LA-031), smallest_missing_capability=3 (B194, B197, LA-032). The LA-only migration audit memo's 6/2/4 partition places B219 in smallest_missing_capability; the separate B219 current audit and ledger row establish data_record because the pinned NetworkX 3.6.1 runtime artifact is unavailable while the implementation owner exists. This disagreement is explicit and resolved from the complete 14-row current ledger plus B219 owner audit. Current head add75e473; source census receipts: /Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b; /Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4. The two LA closures are bounded to in-repository owner/caller contracts; external/history compatibility is not blanket-scoped. No four-base P41 is claimed.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
     "Phase 0 may require owner-authorized reissue of trust-posture pins, the canonical loaded-runtime manifest, and GY promotion-contract epochs; no restamp is recorded.",
@@ -39,7 +39,17 @@
     "R3 bounded historical-replay census: 42 complete receipt instances (8 v1, 16 v3, 1 compressed v5, 17 v6; 33 unique canonical contents) from 2,870 tracked JSON files, one compressed v5 fixture, and five pinned Git JSON carriers found by a 6,381-file tracked-Python source-reference census. Corpus/pinned inventories: /Users/deniskopylov/.codex/scratch/e02-r2-r3-receipt-corpus-20260925.json@sha256:f8473042678669c2d28e5c46b2af269e9f1456dac8d3b116f28f9a428f4c9702; /Users/deniskopylov/.codex/scratch/e02-r2-r3-pinned-n9-carriers-20260925.json@sha256:39086967490651bf1dd3ad8d3e731dab80b0c4b3eb565e5b1e1445286edb6c2a. R3_REPAIR: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R3_REPAIR.md@sha256:aed54118934c744e71bccf3a8fdcece7ccc065abc687280f4091fb05e6e2d3b4. No B/LA row is assigned to R3 by adjacency; no status or register closure follows from this class receipt.",
     "R12/R13 bounded repair at committed da41f2e8c: the production N7 receiver refuses route-shaped local FileTabular growth before route context/WMR/N5; ACQ-01 suite 20/20, nonroute control 3/3, marker-preserving removal red, planner 70 pass/1 intentional skip, two N7 selectors 2/2, and direct bridge fixture 1/1. Boundary/evidence: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R12_R13_BOUNDARY.md@sha256:a4d7312f2ccd40d777839d25b2e9565c332f06ca62330cf092bb10327682d3f1. This does not establish a production ACQ-01 authority/journal producer, served WDI, tenant-bound guarded-store custody, post-admission W1 context, or full four-base replay. B12 stays partial/R13 because its admitted-data-impact discriminator remains UNRUN; the R13 option-3 principal ruling is pending and DS15 positive qualification remains absent/unallocated. No new crosswalk edge or register closure.",
     "R4 bounded class result at committed 2012dd84b: the governed N6 `--check` returns structured fail/exit 1 with one final N9 callback/session and four measured issues (strangle_receipt_stale, two embedded_promotion_open_world_reissue_required, and generation_cycle_comparison_admission_manifest_drift), not a traceback. Postcommit receipt: /Users/deniskopylov/.codex/scratch/e02-r4-candidate-20260925/r4-integrated-validator-postcommit.stdout.json@sha256:f587c01f945a4142b8ca1be13b959ee445bf4703d9600da06ddabe1aa550c9b2; repair record: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R4_REPAIR.md@sha256:036465b973830246d4fde26f607e06fd13882f24025b1e8040419dff3342a8fe. This proves typed verdict delivery, not a green contract or full R4 closure: the full repository-quality checker is UNRUN, four-base postrepair replay remains pending, and authorized reissue remains required. No B/LA row discriminator mapping was established, so no finding-row status/evidence change is assigned to R4.",
-    "Independent LA-010/LA-049 source census correction: the complete tracked Python-blob denominator under policy-engine/src, policy-engine/tools, and policy-engine/tests is 5,861 = 2,693 + 445 + 2,723. The prior 5,855 denominator is incorrect; this source census is not behavioral or P41 evidence."
+    "Independent LA-010/LA-049 source census correction: the complete tracked Python-blob denominator under policy-engine/src, policy-engine/tools, and policy-engine/tests is 5,861 = 2,693 + 445 + 2,723. The prior 5,855 denominator is incorrect; this source census is not behavioral or P41 evidence.",
+    "Latest committed code head a5141d432912efc5611129ce0b22d13a30762dfc leaves the 282 row IDs and current status counts unchanged (3 closed / 267 partial / 12 held / 0 open). P118 reviewed classification is 87 engineering / 13 principal decisions / 18 typed blockers over the same 118 Appendix-C partial IDs; this classification does not close findings.",
+    "R11 commit 11feb2108 has bounded component receipts: the focused public export group is 2/2, including test_terminal_blocked_n6_refuses_public_n9_projection_before_receipt_parse and a public-surface control; the historical v3 run suite is 26/26. These JUnits predate later shared-file commits and do not establish a current a5141d432 whole-file/four-base replay, complete board/consumer coverage, or finding-level assignment to B10/B11 whose card discriminators differ from R11.",
+    "R2 commit a0d820c22 has a bounded candidate currentness/stale-identity RED/GREEN and removal witness (JUnit hashes are recorded on B30). The previously captured WDI chronology.InputRef red for test_actual_wdi_admits_delta_and_reenters_same_case[False] is superseded on exact source head a5141d432 by a 1/1 green result after the signed-evidence InputRef integration. This resolves only that selector; the broader WDI file and four-base current-head replay remain UNRUN.",
+    "R13 commit 9192b5830 has seven selected N5 runtime-store cases passing before a lint-only exception-name cleanup; final exact-source replay is UNRUN. Served N4 and nondefault manifest-profile witnesses remain UNRUN, and B12 remains partial.",
+    "R9 commit 99887f92a makes a static signed-evidence lineage InputRef owner correction; exact a5141d432 first-wave replay passes the full signed-evidence file 6/6, including selected and unselected profile cases, and the WDI [False] served re-entry selector 1/1. Receipts are in /Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/FIRST_WAVE_RECEIPT.json@sha256:7e8b94e776f91d30bb27ebfd67cc008b191f2f332a35b718ad401db161cb1033. This is bounded evidence only; the R9/P07 independent review remains BLOCK and the remaining R9 class work is open.",
+    "R14 commit a5141d432 adds the two-store served chronology qualification seam; exact first-wave replay passes both touched chronology test files 46/46 at source head a5141d432, including test_served_qualification_reads_policy_store_and_writes_runtime_store and test_shared_policy_and_runtime_store_remains_a_qualified_control. Receipt is in /Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/FIRST_WAVE_RECEIPT.json@sha256:7e8b94e776f91d30bb27ebfd67cc008b191f2f332a35b718ad401db161cb1033. This is bounded whole-file evidence, not a four-base replay or full R14 class closure.",
+    "R5 commit ce18d7445 repairs the served control-service fixture contract and derives the test owner-source context through the served path. Focused DI/N4 cases passed 3/3 and preserving controls passed 3/3; receipts: /Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R5_FOCUSED_AFTER_R11.junit.xml@sha256:5131156e89ddc5dc9e715af741522328fe158890ba81f1327b7fa8fb3bcd8799 and R5_CONTROL_AFTER_R11.junit.xml@sha256:e6d4828a1a7be9a802057338b8ba1b2e2692056848ad5e03041de07226537db9. This is fixture-path evidence, not R5 closure, a full control-service file result, or four-base replay; the positive DataTrust bridge and whole-file P41 remain open.",
+    "Second a5141d432 current-head wave ran eight whole test files with git, the production_data symlink, and the shared .venv; exact JUnit/log hashes are in /Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/SECOND_WAVE_RECEIPT.json@sha256:aa63fbcb3f40e6a402f9da092c4b94a27c093e9f16db57454c8b4f82d0d19b5c. Results: WDI 8/9, tenant custody 2/3, generation_cycle 119/140, control_service_di 35/40, runtime_deployment_security 44/54, live_acquisition_executor 49/49, dur_02 5/5, human_decision_guarded_custody 2/2. These are one-base outcomes; attribution of the red cases requires the exact-base P41 replay and is not established by this receipt. No finding status or class closure is inferred.",
+    "R1 profile/time residuals at a5141d432: the V2 served-context handoff independent review is BLOCK; its 0/2,907 named candidate-context providers census does not mean there is no WMR producer. A read-only owner census (`R1_WORLD_PROFILE_OWNER_CENSUS_A514.md`, /Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e) finds a fixed Ukraine/fiscal-credit DataState→WMR producer, but no capability-neutral profile admission/selection producer and no initial served job-scoped context bridge. The exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so no served fallback is proven and API production reachability is under investigation. The same census finds requested period bounds are metadata not enforced by inspected queries. A separate generic time-scope candidate is BLOCKed because it equates request data_time with generic WMR valid_time_scope and can over-refuse legitimate retrospective/unknown-time candidates. Both are the same R1 class one level deeper under P40; no tests/removal/control/four-base receipts are admitted. Preserve ordinary candidate work with typed unknown; require an appointed source/profile owner to distinguish covered/outside/unknown and a served N4→qualified same-store N5→separate S8 authority witness. Reviews: /Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae; /Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42.",
+    "R2 packaged-identity issuer checkpoint at a5141d432: no production build/deploy owner issues and admits one signed identity binding exact installed-code bytes, canonical lock, and complete N6 route census. Keep the confidence-ledger owner as sole identity reader and installed strict currentness typed UNRUN; no self-attested package-local manifest, parallel issuer, code patch, or reissue. Candidate computation remains available with declared unknown. Read-only blocker/decision draft: /Users/deniskopylov/.codex/scratch/e02-r2-loaded-manifest-owner-design-20260927/R2_IMPLEMENTATION_BLOCKER.md@sha256:3a2900be1f4cab2ed92c780d95f48d5719b129dc35919bc0181eff1bd6636453; current confidence-ledger source blob policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:9a8945227abf9638f97740639ba9856e53ae08cf7b11cc7fd4ad064d280c62fd."
   ],
   "citation_catalog": {
     "B_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
@@ -231,7 +241,179 @@
         "path_at_sha": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@c101c5d2a2f25da0bce6cf6a265eff4a99a2bdc2",
         "scope": "Appendix A/B reported candidate test; not replayed by this ledger writer"
       }
-    ]
+    ],
+    "workspace_typecheck_add75_20260927": {
+      "command": "corepack pnpm run typecheck",
+      "source_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+      "exit_code": 0,
+      "script_count": 5,
+      "tsc_project_count": 7,
+      "log_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-tsc-run-20260927/typecheck.log@sha256:f71ce568ad9d8538e6c204fa3bf8644c7b0050949518bc1ec51a4b92bc554054",
+      "scope": "Workspace TypeScript gate only; generated-owner scanner and architecture guardrails are separate and remain UNRUN."
+    },
+    "opt01_add75_current_whole_file": {
+      "identity": "OPT-01 current-head whole-file replay at add75",
+      "source_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+      "results": {
+        "tests/unit/scientist/methods/search/test_objective.py": "10/10 PASS",
+        "tests/unit/scientist/methods/autotune/test_pareto.py": "25/25 PASS"
+      },
+      "combined": "35/35 PASS, exit 0, zero fail/error/skip",
+      "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6",
+      "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
+      "status_retained": "partial",
+      "four_base_replay": "UNRUN at other three bases"
+    },
+    "r10_human_decision_service_add75_r4_disjoint_20260927": {
+      "identity": "human decision service whole-file replay at add75 with disjoint parent R4 edits in tree",
+      "tree_label": "add75+R4-reviewed-uncommitted",
+      "test_file": "tests/unit/runtime/http/test_human_decision_service.py",
+      "result": "77/77 PASS, exit 0",
+      "r4_edit_scope": "checker and test_generation_cycle; disjoint from this test file; no source changed during run",
+      "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r10-current-head-add75-20260927/human-decision/full.junit.xml@sha256:2c8ea20b229ecc5eb3fdd05ff78a392b7e80c5fb1cb91982d620b67cfa8c2565",
+      "four_base_replay": "UNRUN; this is one whole-file result, not class closure"
+    },
+    "r4_integrated_commit_355225_20260927": {
+      "identity": "R4 governed GY-N6 checker and generation-cycle whole-file verification",
+      "source_head": "355225dd863c55fd54030e2abb166858983bb439",
+      "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r4-integrated-add75-20260927/INTEGRATED_RECEIPT.md@sha256:f6d8d67abeb6f20ce802f21f70a48fdebad47505ede7a5784d7b7411477ced3b",
+      "checker_result": {
+        "command": "--check --output-format json",
+        "exit_code": 2,
+        "verdict": "UNRUN",
+        "issues": [
+          "generation_cycle_currentness_reissue_required",
+          "n6_source_census_not_established"
+        ],
+        "historical_replay": "pass",
+        "n9_callbacks_or_sessions": 0,
+        "candidate_receipt_denominators": null
+      },
+      "whole_file": {
+        "test_file": "tests/unit/runtime/quality/test_generation_cycle.py",
+        "cases": 146,
+        "passed": 135,
+        "failed": 11,
+        "errors": 0,
+        "skipped": 0,
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r4-integrated-add75-20260927/cycle/full.junit.xml@sha256:95b347dff75942c458e9f8613842db1671450ad5d6681ee88822cd5dddd37bad",
+        "same_environment_comparison_base": "a5141d432",
+        "base_cases": 140,
+        "base_failures": 21,
+        "common_identities": 138,
+        "pass_to_fail": 0,
+        "fail_to_pass": 8,
+        "remaining_reds": "not attributed as inherited without exact four-base P41"
+      },
+      "review": "independent GO bounded",
+      "class_status": "R4 remains open on positive N9 authority/currentness; no reissue"
+    },
+    "r10_355_r11_testonly_adjunct_20260927": {
+      "identity": "R10 current whole-file adjunct at committed source HEAD 355225dd",
+      "source_head": "355225dd863c55fd54030e2abb166858983bb439",
+      "tree_label": "355225dd plus uncommitted R11 test-only patch; R10 files are disjoint from the R11 block",
+      "production_source_changed_by_adjunct": "no",
+      "results": {
+        "tests/unit/runtime/quality/test_promotion_safety.py": "14/14 PASS, exit 0",
+        "tests/unit/runtime/http/test_human_decision_guarded_custody.py": "2/2 PASS, exit 0"
+      },
+      "junit_paths_at_sha": [
+        "/Users/deniskopylov/.codex/scratch/e02-r10-promotion-safety-355-r11test-20260927/full.junit.xml@sha256:1a57964d82cd7ab48a3356894660ae86641e1566c537892bc9e0c976cb250bfd",
+        "/Users/deniskopylov/.codex/scratch/e02-r10-guarded-custody-355-r11test-20260927/full.junit.xml@sha256:c9450be0eae82b9fcde66c437f00c34d64de57a46bb1cec841e102b8949676a"
+      ],
+      "four_base_replay": "UNRUN",
+      "status_retained": "R10 remains open; no finding row or class closure is inferred"
+    },
+    "r11_v3_integrated_1544073_20260928": {
+      "identity": "R11 V3 test-only correction and exact-head integration result",
+      "source_head": "1544073dd4b6dd82cbaf77b5b2c22dea19cd3889",
+      "production_source_head": "355225dd863c55fd54030e2abb166858983bb439",
+      "changed_test_source_path_at_sha": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:cdc5213dbb6700a42e6b5a7b22cfe553bd864c770982fd7f743b3776708298da",
+      "focused": "4/4 PASS, exit 0",
+      "whole_file": {
+        "test_file": "tests/unit/runtime/quality/test_generation_cycle.py",
+        "collected": 148,
+        "passed": 139,
+        "failed": 9,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r11-v3-integrated-355225-20260927/full/test.junit.xml@sha256:0835e2ba4e6e9be3f6c4f984b3edff02b1809d1663ff44c86eefff1fac076a71",
+        "log_sha256": "f693cffc0fcae827860502e3f580ec4e37922b39524fafd0f6562345aaf5eaa5"
+      },
+      "comparison_to_355225dd": {
+        "prior_cases": 146,
+        "prior_pass": 135,
+        "prior_fail": 11,
+        "common_identities": 144,
+        "common_outcomes": {
+          "pass_to_pass": 135,
+          "fail_to_fail": 9,
+          "pass_to_fail": 0
+        },
+        "changed_identity_delta": "two former failing identities absent; four new identities pass",
+        "interpretation": "same-head test-contract comparison only, not four-base P41"
+      },
+      "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r11-v3-natural-terminal-355225-20260927/R11_V3_V2_INDEPENDENT_REVIEW.md@sha256:a0a3edc52fb495b840056379284046fa4cdd889ae5fa1eb842ffcc7a1a8c7c34",
+      "focused_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r11-v3-integrated-355225-20260927/focused/test.junit.xml@sha256:6ffce55fd929069d048a4b7b26fc372cf8720198d8e0f331712562420ab554f6",
+      "positive_n9_issuer_path": "UNRUN",
+      "status_retained": "R11 remains partial; no class closure"
+    },
+    "r5_served_fixture_ce18d7445_20260927": {
+      "identity": "R5 served fixture alignment bounded selectors",
+      "source_head": "ce18d7445",
+      "results": {
+        "focused_DI_N4": "3/3 PASS",
+        "candidate_path_controls": "3/3 PASS"
+      },
+      "junit_paths_at_sha": [
+        "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R5_FOCUSED_AFTER_R11.junit.xml@sha256:5131156e89ddc5dc9e715af741522328fe158890ba81f1327b7fa8fb3bcd8799",
+        "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R5_CONTROL_AFTER_R11.junit.xml@sha256:e6d4828a1a7be9a802057338b8ba1b2e2692056848ad5e03041de07226537db9"
+      ],
+      "scope": "Fixture alignment only; positive DataTrust bridge, four-base P41 and R5 class closure remain open."
+    },
+    "r12_current_1544073_20260928": {
+      "identity": "R12 current acquisition-planner strangle check and whole-file result",
+      "source_head": "1544073dd4b6dd82cbaf77b5b2c22dea19cd3889",
+      "focused_selector": "test_generation_cycle_bootstrap_authority_is_strangled: 1/1 PASS",
+      "whole_file": {
+        "test_file": "tests/unit/runtime/quality/test_acquisition_planner.py",
+        "collected": 72,
+        "passed": 71,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 1,
+        "skip": "intentional cloud skip",
+        "exit_code": 0,
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/full/planner.junit.xml@sha256:51d18ce704c60a784aea8c2033511b9ea966f0b11ddd5c1a4925e599174668fb"
+      },
+      "focused_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/planner-strangle.junit.xml@sha256:5d1a8ec940406eca40ad68a52363f96d43ede20041c146c627759a61152f161c",
+      "diagnosis_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-diagnosis-20260927/R12_DIAGNOSIS.md@sha256:77b55664b7b5ee1800e422f7fd6911035b6481ab63e8dcd00f3908479439e328",
+      "scope": "Planner strangle only. Synthetic N7 receipts do not prove real grounding; fold admitted-world N4 gap into R13. Finding status and four-base P41 remain unchanged/UNRUN."
+    },
+    "r14_http_deployment_security_p41_1544073_20260928": {
+      "identity": "R14 Appendix B HTTP deployment-security exact four-base whole-file replay",
+      "source_head": "1544073dd4b6dd82cbaf77b5b2c22dea19cd3889",
+      "test_file": "tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "current": {
+        "collected": 54,
+        "passed": 44,
+        "failed": 10,
+        "exit_code": 1
+      },
+      "main": {
+        "collected": 54,
+        "same_outcomes_as_current": true,
+        "main_pass_to_current_fail": 0
+      },
+      "execution_and_e02_head": {
+        "cases": 52,
+        "base_pass_to_current_fail": 10,
+        "attribution": "main later work; same exact failure identities occur on main/current"
+      },
+      "four_base_comparison_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-p41-current-154407-20260928/HTTP_DEPLOYMENT_SECURITY_P41.md@sha256:5fcace2a6364dd84ff09f0f6d9256a83d9f6b0e3818def1590c6a1dc319b082d",
+      "scope": "This file only. R14 and the complete Appendix A/B/touched-file matrix remain incomplete."
+    }
   },
   "rows": [
     {
@@ -321,6 +503,31 @@
           "script_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/r1_scoped_profile_census.py@sha256:424e7167a400ffe6a5ed06c435957466161ae02147bff5400f71e90b0e1f2a88",
           "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/R1_SCOPED_PROFILE_CENSUS.json@sha256:62ec16b0943a78096a743f404270092df32b8e5868d56645f48188ffd1b78001",
           "scope": "Complete tracked Python denominator at 8ffeb702e8f4fdc3389b0b3ba701ff9fc6a6a0a2; lexical direct-caller inventory and AST explicit-constructor census; dynamic/aliased and serialized inputs remain outside scope."
+        },
+        "r1_served_context_handoff_v2_independent_review_2026_09_27": {
+          "identity": "R1 served context handoff V2 independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae",
+          "candidate_patch_sha256": "df25bb63b13754ca8ee5b561074213a70a653e64a9efeadcc4fef959e3abff0a",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The reviewed V2 is an optional context-handoff injection seam, not a production profile resolver or initial served bridge. Its source search found 0/2,907 tracked policy-engine/src files with the named CycleSubstrateContextCandidateSource / cycle_substrate_context_candidate_source / resolve_candidate_context providers. This does not mean no WMR producer exists: a fixed Ukraine/fiscal-credit DataState→WMR producer is separately present, but it does not select a capability-neutral profile or bind the served job handoff. Candidate tests, marker-retaining removal, ordinary no-resolver front-door control and four-base replay are UNRUN. P40: same R1 class one level deeper; stop instance callbacks/scope patches. The missing closure capability is an appointed profile source binding selection to current data/epoch and installed in served composition. See the owner census and distinct time-scope review in the row refs."
+        },
+        "r1_time_scope_candidate_independent_review_2026_09_27": {
+          "identity": "R1 generic DataState time-scope candidate independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The proposed generic check compares request data_time with WorldModelRecord.valid_time_scope, which has a different generic bitemporal role; it can refuse valid retrospective candidate work and hard-refuses unknown/unparsed time. It is not an evidence-based source-coverage predicate, has no served production caller, and does not close the selector→profile producer/bridge gap. The reviewer classifies this as the same R1 class one level deeper under P40; do not add parser cases. This is a review of an unapplied patch; author-reported RED/GREEN is not an independent removal receipt. Four-base replay remains UNRUN."
+        },
+        "r1_world_profile_owner_census_a514_2026_09_27": {
+          "identity": "R1 world-profile owner and served-path census at a5141d432",
+          "kind": "read_only_source_callgraph_census",
+          "review_verdict": "PASS_BOUNDED_SOURCE_CENSUS",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
         }
       }
     },
@@ -411,6 +618,31 @@
           "script_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/r1_scoped_profile_census.py@sha256:424e7167a400ffe6a5ed06c435957466161ae02147bff5400f71e90b0e1f2a88",
           "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/R1_SCOPED_PROFILE_CENSUS.json@sha256:62ec16b0943a78096a743f404270092df32b8e5868d56645f48188ffd1b78001",
           "scope": "Complete tracked Python denominator at 8ffeb702e8f4fdc3389b0b3ba701ff9fc6a6a0a2; lexical direct-caller inventory and AST explicit-constructor census; dynamic/aliased and serialized inputs remain outside scope."
+        },
+        "r1_served_context_handoff_v2_independent_review_2026_09_27": {
+          "identity": "R1 served context handoff V2 independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae",
+          "candidate_patch_sha256": "df25bb63b13754ca8ee5b561074213a70a653e64a9efeadcc4fef959e3abff0a",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The reviewed V2 is an optional context-handoff injection seam, not a production profile resolver or initial served bridge. Its source search found 0/2,907 tracked policy-engine/src files with the named CycleSubstrateContextCandidateSource / cycle_substrate_context_candidate_source / resolve_candidate_context providers. This does not mean no WMR producer exists: a fixed Ukraine/fiscal-credit DataState→WMR producer is separately present, but it does not select a capability-neutral profile or bind the served job handoff. Candidate tests, marker-retaining removal, ordinary no-resolver front-door control and four-base replay are UNRUN. P40: same R1 class one level deeper; stop instance callbacks/scope patches. The missing closure capability is an appointed profile source binding selection to current data/epoch and installed in served composition. See the owner census and distinct time-scope review in the row refs."
+        },
+        "r1_time_scope_candidate_independent_review_2026_09_27": {
+          "identity": "R1 generic DataState time-scope candidate independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The proposed generic check compares request data_time with WorldModelRecord.valid_time_scope, which has a different generic bitemporal role; it can refuse valid retrospective candidate work and hard-refuses unknown/unparsed time. It is not an evidence-based source-coverage predicate, has no served production caller, and does not close the selector→profile producer/bridge gap. The reviewer classifies this as the same R1 class one level deeper under P40; do not add parser cases. This is a review of an unapplied patch; author-reported RED/GREEN is not an independent removal receipt. Four-base replay remains UNRUN."
+        },
+        "r1_world_profile_owner_census_a514_2026_09_27": {
+          "identity": "R1 world-profile owner and served-path census at a5141d432",
+          "kind": "read_only_source_callgraph_census",
+          "review_verdict": "PASS_BOUNDED_SOURCE_CENSUS",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
         }
       }
     },
@@ -501,6 +733,31 @@
           "script_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/r1_scoped_profile_census.py@sha256:424e7167a400ffe6a5ed06c435957466161ae02147bff5400f71e90b0e1f2a88",
           "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-production-census-docs-20260927/R1_SCOPED_PROFILE_CENSUS.json@sha256:62ec16b0943a78096a743f404270092df32b8e5868d56645f48188ffd1b78001",
           "scope": "Complete tracked Python denominator at 8ffeb702e8f4fdc3389b0b3ba701ff9fc6a6a0a2; lexical direct-caller inventory and AST explicit-constructor census; dynamic/aliased and serialized inputs remain outside scope."
+        },
+        "r1_served_context_handoff_v2_independent_review_2026_09_27": {
+          "identity": "R1 served context handoff V2 independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae",
+          "candidate_patch_sha256": "df25bb63b13754ca8ee5b561074213a70a653e64a9efeadcc4fef959e3abff0a",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The reviewed V2 is an optional context-handoff injection seam, not a production profile resolver or initial served bridge. Its source search found 0/2,907 tracked policy-engine/src files with the named CycleSubstrateContextCandidateSource / cycle_substrate_context_candidate_source / resolve_candidate_context providers. This does not mean no WMR producer exists: a fixed Ukraine/fiscal-credit DataState→WMR producer is separately present, but it does not select a capability-neutral profile or bind the served job handoff. Candidate tests, marker-retaining removal, ordinary no-resolver front-door control and four-base replay are UNRUN. P40: same R1 class one level deeper; stop instance callbacks/scope patches. The missing closure capability is an appointed profile source binding selection to current data/epoch and installed in served composition. See the owner census and distinct time-scope review in the row refs."
+        },
+        "r1_time_scope_candidate_independent_review_2026_09_27": {
+          "identity": "R1 generic DataState time-scope candidate independent review at a5141d432",
+          "kind": "independent_static_review",
+          "review_verdict": "BLOCK",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "The proposed generic check compares request data_time with WorldModelRecord.valid_time_scope, which has a different generic bitemporal role; it can refuse valid retrospective candidate work and hard-refuses unknown/unparsed time. It is not an evidence-based source-coverage predicate, has no served production caller, and does not close the selector→profile producer/bridge gap. The reviewer classifies this as the same R1 class one level deeper under P40; do not add parser cases. This is a review of an unapplied patch; author-reported RED/GREEN is not an independent removal receipt. Four-base replay remains UNRUN."
+        },
+        "r1_world_profile_owner_census_a514_2026_09_27": {
+          "identity": "R1 world-profile owner and served-path census at a5141d432",
+          "kind": "read_only_source_callgraph_census",
+          "review_verdict": "PASS_BOUNDED_SOURCE_CENSUS",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
         }
       }
     },
@@ -936,6 +1193,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B09",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Unchanged-input retry refusal and synthetic same-candidate history are tested; no new admitted Data Forge bytes drive a real second N6 evaluation. Full current four-base replay UNRUN."
       }
     },
     {
@@ -1068,7 +1333,7 @@
         "relation": "aligned_refined",
         "detail": "Appendix C keeps B12 partial. The served revised-basis/native-admission/re-entry selector now passes at the d966 source state, while its whole 9-case file is 4/9 because five cases hit R2 currentness. The separate 49/49 live-executor fixture file is a bounded control. Neither establishes the source-card discriminator that admitted new data changes the dependent same-case calculation; keep partial and retain the production ACQ-01 producer/journal handshake residual."
       },
-      "residual": "At the d966d007c source state (the 077147d86 follow-up changes only B219 source/tests and coordination docs), the served WDI file has 4/9 passing cases; the five failures all stop at R2 strangle currentness because a live repo_root is required. The passing revised-basis selector records cycle-1 stable subject/revised basis, one native observation, same-case cycle-2 re-entry preserving that basis, and a marker-preserving predecessor-basis refusal. It does not assert that the admitted data changes the dependent calculation. The separate live-executor fixture file is 49/49 after basis alignment. Production ACQ-01 owner/journal admission and the B12 card discriminator remain UNRUN; B12 remains partial. Full-file four-base replay remains UNRUN.",
+      "residual": "At integration HEAD 84ac676f, the complete served WDI file passes 9/9 with a sentinel proving the native overlay/passport/semantic-epoch/same-case re-entry route does not call the local FileTabular helper. The helper-entry negative and contract-testing-only positive pass 1/1; removing the entry guard while retaining markers turns the negative red. The complete ACQ-01 remediation file is 11/23 versus 10/22 at a514 across 22 common selectors, with 0 pass→fail, 0 fail→pass and the same 12 reds; because generation_cycle.py is an input to the checker, this is not the strict zero-input-intersection proof for inherited attribution. N6 currentness remains typed UNRUN. This proves a bounded route/helper boundary only: no admitted ACQ-01 delta is shown to change the dependent same-case calculation, and production owner/journal admission, the B12 card discriminator and full four-base replay remain UNRUN. Keep partial. R12 current-head supplement: at 1544073dd, the planner bootstrap-strangle selector passes and the whole test_acquisition_planner.py file is 71 passed / 1 intentional cloud skip (72 collected, exit 0). This resolves the selected planner check only. The R12 diagnosis says two N7 synthetic-receipt expectations do not establish grounding; actual grounding needs owner-produced N4 on an admitted world through AcquisitionWorldGrowthBridge, so fold this residual into R13, not R2. No test expectation or status changed; B12 remains partial and four-base replay remains UNRUN. Receipts: /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/planner-strangle.junit.xml@sha256:5d1a8ec940406eca40ad68a52363f96d43ede20041c146c627759a61152f161c; /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/full/planner.junit.xml@sha256:51d18ce704c60a784aea8c2033511b9ea966f0b11ddd5c1a4925e599174668fb; diagnosis /Users/deniskopylov/.codex/scratch/e02-r12-diagnosis-20260927/R12_DIAGNOSIS.md@sha256:77b55664b7b5ee1800e422f7fd6911035b6481ab63e8dcd00f3908479439e328.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
@@ -1147,7 +1412,118 @@
             "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@git-blob:94416843125e16276e856926fca91c3818dd9eb0#L170-L243",
             "/Users/deniskopylov/.codex/scratch/e02-r13-wdi-basis-20260927/R13_WDI_SERVED_GROUP_AFTER_FIXTURE.junit.xml@sha256:f9b94eeff2eea0daee8dc7bd622424cb6b47181ef9bc392258416b36d96a52a4"
           ]
+        },
+        "r13_runtime_ncm_store_selected_cases_2026_09_27": {
+          "identity": "seven selected N5 cases for context-selected NCM runtime-store resolution",
+          "kind": "bounded_pre_cleanup_candidate_receipt",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Seven selected owner-path cases passed before a lint-only exception-name cleanup in commit 9192b5830; final exact committed-source replay is UNRUN. This only covers selected N5 NCM storage cases; the served N4 producer, nondefault manifest profile, production ACQ-01 overlay/passport/native-epoch admission, B12 admitted-data impact on the dependent calculation, and complete four-base replay remain open. It does not change B12 status or the existing DS15/GY-N13b conflict relation.",
+          "receipt": "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R13_N5_SEVEN_CASES.junit.xml@sha256:057175946beb0e69f3180e04e3055c4bc3ed88a7b879330fbac21a35bb2b1c97",
+          "source": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:920a4695ddecc4856471411ca6437f650e511170",
+          "commit": "9192b5830"
+        },
+        "wdi_chronology_inputref_red_2026_09_27": {
+          "identity": "test_actual_wdi_admits_delta_and_reenters_same_case[False]",
+          "kind": "separate_downstream_import_error_diagnostic",
+          "behavioral_verdict": "FAIL_DIAGNOSTIC",
+          "scope": "Earlier captured candidate fails with AttributeError because polisyos.core.contracts.chronology has no InputRef attribute. The same selected WDI case is green 1/1 on exact source head a5141d432 after the signed-evidence InputRef integration (receipt is recorded in the current-head measurement limits). The earlier red is superseded for this selector only; it does not establish the broader WDI file or B12 admitted-data discriminator. Four-base replay remains UNRUN.",
+          "receipt": "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R2_WDI_DOWNSTREAM_FALSE.junit.xml@sha256:a6cce27f9c049cec2b9a3c325227072dee4494efafb3eb8b7f68d19f5922400b",
+          "latest_head_green_receipt": "/Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/wdi/false.junit.xml@sha256:dce268d078c61cd8fa152b2e6fd499e3e224a97160bc27cf18fe10ca84dcdf3c"
+        },
+        "current_head_wdi_full_2026_09_27": {
+          "identity": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py at a5141d432",
+          "kind": "one_base_whole_file_outcome",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "test_file": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+          "outcome": {
+            "tests": 9,
+            "passed": 8,
+            "failures": 1,
+            "errors": 0,
+            "skipped": 0
+          },
+          "failing_selector": "tests.integration.core_runtime.test_acquisition_world_growth_chain::test_bridge_resume_reenters_after_current_source_passport_and_epoch",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/wdi-full/full.junit.xml@sha256:6dae929fd54b663c7831e795dfe30530ee2c95204045f5dcad0a1c0af2265e21",
+          "receipt": "/Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/SECOND_WAVE_RECEIPT.json@sha256:aa63fbcb3f40e6a402f9da092c4b94a27c093e9f16db57454c8b4f82d0d19b5c",
+          "behavioral_verdict": "MIXED_BOUNDED",
+          "p41_attribution": "UNRUN",
+          "scope": "Exact one-base whole-file outcome only. Do not infer whether the remaining failure belongs to R2 or another class. This receipt does not exercise the B12 source-card discriminator that admitted data changes the dependent same-case calculation, does not establish the full served ACQ-01 owner/journal chain, and is not a four-base replay."
         }
+      },
+      "post_a514_r13_integration_20260927": {
+        "identity": "R13 helper-entry fence and current served WDI boundary",
+        "head": "84ac676fda21cc13b21cb6c0e265d020647a02c1",
+        "behavioral_verdict": "PASS_BOUNDED",
+        "classification": "B12 remains partial; no finding-status promotion",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-entry-integrated-6a508-20260927/INTEGRATED_RECEIPT.md@sha256:19f69713f23894768cded0c181a1861f4c814d7dd6d4983a3c1e218e4f8dc8be",
+        "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-entry-fence-candidate-20260927/R13_ENTRY_FENCE_INDEPENDENT_REVIEW.md@sha256:359708663dcdd1aaa9c113f8308df144084887469fac4b41d665210ebdbd56c4",
+        "scopes": [
+          {
+            "identity": "helper-entry negative + contract-testing positive",
+            "result": "1/1 PASS",
+            "junit_sha256": "b5b39076100496ab62838f367bdc700f879a38413098eb39de281d593b4a8035"
+          },
+          {
+            "identity": "complete served WDI file with native-bridge sentinel",
+            "result": "9/9 PASS",
+            "junit_sha256": "12fd613fc3c80ed932e6fcf55b1d0a236887b7fb11962ebb3efd58e9bb970aab"
+          },
+          {
+            "identity": "complete ACQ-01 remediation file at candidate",
+            "result": "11/23 PASS, 12 FAIL",
+            "junit_sha256": "0b4aba9ec0283191ef6f36521f4ef7e01b55e456078ac138f0992974aa50502b"
+          },
+          {
+            "identity": "same ACQ-01 file at unpatched a514 base",
+            "result": "10/22 PASS, 12 FAIL",
+            "junit_sha256": "6a8aad785aac73173ae15173e1d8b399bf7513a176397d1ef09925c1a6edb5ab"
+          },
+          {
+            "identity": "22 common test identities",
+            "result": "0 pass→fail, 0 fail→pass; 12 red identities remain at both sources"
+          },
+          {
+            "identity": "marker-retaining helper-entry removal",
+            "result": "negative red; restored control passes 1/1",
+            "mutant_junit_sha256": "bb17b5ee1eece84fb55d25abc88a803f3e29a92f868cfa6530fc13431364fe70"
+          }
+        ],
+        "limits": "The comparison is not a strict zero-input-intersection inherited-red proof because generation_cycle.py is an input to the checker. Full four-base replay, production ACQ-01 owner/journal admission, same-case dependent-calculation change, and B12 card closure remain UNRUN."
+      },
+      "wdi_tenant_test_file_replay_20260927": {
+        "identity": "WDI world-growth chain and tenant-custody whole-file replay after test integration",
+        "head": "6a508368df881854a8a78f3ec6cfbc0b2ee1c8e7",
+        "behavioral_verdict": "PASS_BOUNDED",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-wdi-tenant-a514-plus-20260927/INTEGRATED_RECEIPT.md@sha256:299c30afab9b1e1a22464e973ed39fb97fde89c916567b5279e52a9d2c50d3e3",
+        "results": {
+          "WDI world-growth chain": "9/9 PASS",
+          "tenant custody": "3/3 PASS"
+        },
+        "junit_shas": {
+          "WDI": "bbc7faa5c12d22a5ace10be9e53b85f49a98b0e8b5f064742fbb316c6e1da026",
+          "tenant": "ee812f047d87a56d420ffe0c62e404bd686a39e24c1e83ae2c97090326cddba2"
+        },
+        "p41": "NOT_ESTABLISHED: the exact test-file paths/blobs were absent from all three historical comparison bases; this test-file pass is not a four-base replay or class closure."
+      },
+      "r12_r13_diagnosis_355_20260927": {
+        "identity": "R12 root-cause diagnosis folded into R13/ACQ-01",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-diagnosis-20260927/R12_DIAGNOSIS.md@sha256:77b55664b7b5ee1800e422f7fd6911035b6481ab63e8dcd00f3908479439e328",
+        "source_head": "355225dd863c55fd54030e2abb166858983bb439",
+        "behavioral_verdict": "PARTIAL",
+        "summary": "The noncanonical-atom symptom was a fixture boundary defect and its typed atom fix is already evidenced. Current zero-real-grounding N7 assertions still expect a synthetic receipt to count as a real N4 result; a post-admission N4/N5/N8 run through AcquisitionWorldGrowthBridge is the missing capability. Fold R12 into R13, not R2; retain the N6 deployment-currentness question under R2.",
+        "planner_bootstrap_strangle": "UNRUN at 355225dd",
+        "four_base_replay": "UNRUN",
+        "status_retained": "partial",
+        "no_test_or_gate_run_by_memo": true
+      },
+      "r13_stub_correction_2026_09_28": {
+        "commit": "782652222cece9899adea0a171c08166544901b9",
+        "identity": "test_active_overlay_reentry_is_exact_direct_and_read_only",
+        "kind": "focused_test_only_receipt",
+        "behavioral_verdict": "PASS_FOCUSED_TEST_ONLY",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-stub-integrated-a877-20260928/test.junit.xml@sha256:3b00943c720a0218765f5fea2ebf8f318e5854923aa73e8001a2da09a86c8aa6",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-stub-integrated-a877-20260928/R13_STUB_INTEGRATION_RECEIPT.md@sha256:02931471171fef0f75f0a97605541c983af1618e1f06f7be4d1d535394ffbe3d",
+        "scope": "The fixture uses a stable subject and a test callback for _run_cycle. It does not establish served post-growth N4/CGF, a production overlay-to-WMR producer, or admitted-data impact on the dependent calculation. B12 stays partial; complete four-base replay remains UNRUN."
       }
     },
     {
@@ -1609,6 +1985,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B19",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Controller evidence/absence/comparator arithmetic tests exist; comparator_refs are not bound to the same WMR, horizon and scope. Full current four-base replay UNRUN."
       }
     },
     {
@@ -1787,6 +2171,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B21",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Distinct-seed and replication-count tests exist; per-outcome/per-step sampling error and separate world-model uncertainty are not established. Full current four-base replay UNRUN."
       }
     },
     {
@@ -1964,6 +2356,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B23",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Same physical spec reuse and selected identity fields have tests; meaning-changing seed/method variation through one cache lifetime is not tested. Full current four-base replay UNRUN."
       }
     },
     {
@@ -2147,6 +2547,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B25",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Missing-required-moment blocking tests exist; optional metric denominator and persisted metric-set identity remain unestablished. Full current four-base replay UNRUN."
       }
     },
     {
@@ -2271,6 +2679,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B26",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Three-atom non-additivity and checked-order tests exist; additive output can arise from only order-1/2 trajectories, and served reachability is UNRUN. Full current four-base replay UNRUN."
       }
     },
     {
@@ -2407,6 +2823,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B27",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Basis/population binding and PromotionRuntime preparation have witnesses; no fresh owner-issued CycleSubstrateContext carries changed evidence through real N5. Full current four-base replay UNRUN."
       }
     },
     {
@@ -2543,6 +2967,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B28",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Occurrence/history/current-front projection is tested; persisted downstream signed N9/OWR/epoch readback is not bound to the second occurrence. Full current four-base replay UNRUN."
       }
     },
     {
@@ -2628,7 +3060,7 @@
         "relation": "disagrees",
         "detail": "Appendix C says closed_bounded, but R2 verifies historical replay separately while the live StrangleReceipt currentness path remains source-checkout and complete-src-byte bound. Unrelated-edit reuse versus significant-dependency invalidation has not been distinguished at the loaded-deployment identity boundary; full currentness/P41 is UNRUN."
       },
-      "residual": "R2 now separates historical replay from currentness: the 22/22 history suite replays current and pinned historical runs byte-exactly (2,883 tracked JSON/JSONL inputs), verifies history replay does not consult current source, and preserves the saved historical status when currentness is unknown. This closes the prior historical-replay break only. The live `StrangleReceipt.verify_current` path still requires a source checkout and recomputes the direct AST census/content hash over `src/polisyos`; its own contract declares deployment identity unavailable, so unrelated source-byte changes can still stale live currentness. The remaining B30 property is currentness keyed to canonical loaded-deployment identity with significant-dependency invalidation and unrelated-edit reuse, including source-less packaged use. That distinction and the full four-base P41 remain UNRUN; keep partial.",
+      "residual": "R2 now separates historical replay from currentness: the 22/22 history suite replays current and pinned historical runs byte-exactly (2,883 tracked JSON/JSONL inputs), verifies history replay does not consult current source, and preserves the saved historical status when currentness is unknown. This closes the prior historical-replay break only. The live `StrangleReceipt.verify_current` path still requires a source checkout and recomputes the direct AST census/content hash over `src/polisyos`; its own contract declares deployment identity unavailable, so unrelated source-byte changes can still stale live currentness. The remaining B30 property is currentness keyed to canonical loaded-deployment identity with significant-dependency invalidation and unrelated-edit reuse, including source-less packaged use. That distinction and the full four-base P41 remain UNRUN; keep partial. At R2 commit a877f8abc, the full test_generation_cycle.py file collected 149 cases: 145 passed and 4 failed, with no errors or skips. Against 154, 148 identities were common: 139 pass→pass, 5 fail→pass, 4 fail→fail, 0 pass→fail, plus one new passing removal/control case. The complete test_generation_cycle_history.py file passed 26/26 at a877. A later 782 focused R13 fixture correction passed 1/1; the full generation-cycle file was not rerun at 782. These results bound R2 behavior but do not close B30 currentness or four-base P41.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CYC-05 scope owner for broader capability; E02-R2 baseline broker for current four-base replay",
@@ -2680,6 +3112,53 @@
             "An unrelated source edit can affect live source-bound currentness; significance is not separated by this historical replay suite.",
             "Current-authority consumers and source-less packaged currentness were not exercised by this 22-case history suite."
           ]
+        },
+        "r2_candidate_currentness_boundary_2026_09_27": {
+          "identity": "test_non_simulation_leaf_requires_current_eval_safety_head",
+          "kind": "bounded_candidate_and_stale_deployment_identity_witness",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "At R2 commit a0d820c, the candidate leaf carries not_established currentness with a declared limitation, while strict authority validation still rejects it; a foreign deployment identity is typed stale and refused. The marker-retaining removal probe substitutes strict validation at the recursive boundary and turns the otherwise valid candidate leaf red. This does not witness unrelated source edits preserving historical runs, source-free packaged currentness, or the complete B30 property; current-head four-base replay remains UNRUN.",
+          "green_receipt": "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R2_RECURSIVE_LEAF_FOCUSED_V2.junit.xml@sha256:3c83bc32c98aa7657c4bbfbe07b243a15981965b565177cec0d41989eee8059b",
+          "removal_red_receipt": "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R2_STALE_TEST_RED.junit.xml@sha256:9726f1b78cf46b798c1f34771de679ce5d1fe41509881e74f52777451e66e0d6",
+          "stale_restored_green_receipt": "/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R2_STALE_TEST_GREEN.junit.xml@sha256:e099951ff584cdfb1c4f91a065faabfccad66174e84298ae0e3626f09a88fec0",
+          "source": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:920a4695ddecc4856471411ca6437f650e511170",
+          "test_source": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@git-blob:d331961ca312ba6f10eaa53710c756d0dbb6bcef"
+        },
+        "r2_packaged_identity_issuer_blocker_2026_09_27": {
+          "identity": "R2 installed packaged-identity issuer blocker checkpoint at a5141d432",
+          "kind": "bounded_read_only_owner_and_production_path_census",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-loaded-manifest-owner-design-20260927/R2_IMPLEMENTATION_BLOCKER.md@sha256:3a2900be1f4cab2ed92c780d95f48d5719b129dc35919bc0181eff1bd6636453",
+          "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+          "current_owner_source": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:9a8945227abf9638f97740639ba9856e53ae08cf7b11cc7fd4ad064d280c62fd",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only checkpoint finds no authorized production build/deploy owner issuing and admitting the exact installed-code manifest, canonical lock and complete N6 route-census evidence. The existing confidence-ledger owner remains the only identity reader; installed strict currentness stays typed UNRUN, and no self-attested package-local manifest, parallel issuer, positive path, code patch, or epoch reissue is admitted. Candidate computation remains available under declared unknown. This is an issuer appointment/decision blocker, not a source-free behavior test."
+        },
+        "r2_integrated_whole_file_2026_09_28": {
+          "identity": "R2 full generation-cycle and historical-replay whole-file integration at commit a877f8abc",
+          "kind": "bounded_whole_file_integration_receipt",
+          "source_head": "a877f8abc918ff46f6db2a3f0ae64fb4d07fe856",
+          "generation_cycle": {
+            "collected": 149,
+            "passed": 145,
+            "failed": 4,
+            "errors": 0,
+            "skipped": 0,
+            "exit_code": 1,
+            "pass_to_fail_vs_154": 0
+          },
+          "history_file": {
+            "collected": 26,
+            "passed": 26,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "exit_code": 0
+          },
+          "integration_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/R2_INTEGRATION_RECEIPT.md@sha256:064aac803a3091a2296d67606a0820bbd24e925d33be6b01dd1499b25ce85e29",
+          "generation_cycle_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/full/test.junit.xml@sha256:fc59fc3f8143d279947102c8af389b884846a8d264f7ca6f97b49374133dd813",
+          "comparison_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/full/compare-to-154.json@sha256:b8dcc3b3876d5f33e68dc3ac70efb6713a53204ae638f67f8ae3aa83ecceea33",
+          "history_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/history/test.junit.xml@sha256:bf2fac94bb6a40e11f5de981c0972b0ab2b8a7a793c0f48753b0dff7b8b519e7",
+          "scope": "One-base integration evidence only. The separate 782 focused fixture correction was not followed by a full generation-cycle file rerun. R2/B30 remain partial and exact four-base P41 remains UNRUN."
         }
       }
     },
@@ -2802,7 +3281,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "latest_h14_source_review": {
@@ -2827,6 +3306,18 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_closeout_current_6a508_84ac_20260927": {
+        "identity": "H closeout source census at 6a508 and relevant-source comparison at 84ac",
+        "status_retained": "held",
+        "blocker_kind": "owner_decision",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-current-6a508-20260927/H_B31_B61_CURRENT_6A508.md@sha256:d21ec008682cccd12185ea84459ef4aa9ce6971a53068494935c131e7d6ea230",
+        "84ac_source_delta": {
+          "_value_outer_set_from_foundry_result_body_sha256": "150d41f01beaaeeec78777e0ef6b72c50bbc6a0209f4fed410b477649cb12fbe",
+          "same_at_43d4_6a508_and_84ac": true
+        },
+        "current_behavioral_and_p41_status": "UNRUN",
+        "residual": "DS16/IR must admit a versioned public representation keeping identification bounds separate from statistical/model uncertainty, bound to one estimand and units. No served N8 receipt producer/positive consumer exists; preserve held."
       }
     },
     {
@@ -4310,6 +4801,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B57",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Cache-hit unrelated-state and same-value merge helper tests exist; one real warm-hit scenario combining same-value intent, deletion/non-resurrection and broad cached output is missing. Full current four-base replay UNRUN."
       }
     },
     {
@@ -4427,6 +4926,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B58",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Merge-helper delete/null/order controls exist; allowed delete across parallel execution plus cache persistence/readback is missing. Full current four-base replay UNRUN."
       }
     },
     {
@@ -4546,6 +5053,14 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_sim03_sta01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B59",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Direct declared-path dict/list/Pydantic isolation tests exist; canonical executor sibling-reader plus failed/cancelled branch publication is missing. Full current four-base replay UNRUN."
       }
     },
     {
@@ -4709,6 +5224,15 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_closeout_current_6a508_84ac_20260927": {
+        "identity": "H closeout source census at 6a508 and relevant-source comparison at 84ac",
+        "status_retained": "held",
+        "blocker_kind": "data_record",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-current-6a508-20260927/H_B31_B61_CURRENT_6A508.md@sha256:d21ec008682cccd12185ea84459ef4aa9ce6971a53068494935c131e7d6ea230",
+        "84ac_source_delta": "B61 resolver/read paths are unchanged from 6a508; this source comparison does not establish current behavior.",
+        "current_behavioral_and_p41_status": "UNRUN",
+        "residual": "The SKG source owner must issue an immutable snapshot/read-handle identity for the exact bytes ResolveParametersNode consumes, resolved before selection and bound into its cache key. The existing SourceSnapshot bridge is not consumed by this resolver; preserve held."
       }
     },
     {
@@ -5263,7 +5787,7 @@
         "relation": "disagrees",
         "detail": "Appendix C classifies B72 as lacking a finding-level record. Current post-code evidence now supports a bounded distributed status repair, so the ledger advances from open to partial; it does not close the full finding because Temporal runtime/event-history replay and the complete persisted width-one/width-two resume discriminator remain UNRUN. B73 atomic checkpoint consistency is a separate residual."
       },
-      "residual": "The bounded distributed status repair now transports native ok/skip/fail outcomes through the worker and tier merge, admits only typed ok as successful cache/frontier evidence, and rejects out-of-tier aliases before merge/checkpoint. Ray plus the non-Temporal changed-file focus is green, and the marker-retaining removal probe turns red for both status admission and alias admission. The six-file current-head before/after comparison has 67 common outcomes with zero pass→fail, one fail→pass, and 13 new postpatch outcomes; all 79 runnable postpatch outcomes pass. Temporal is the same skipped collection as prepatch because temporalio is absent. Keep partial: no Temporal event-history execution, and no complete persisted width-one/width-two skip plus independent-success close/reopen/resume witness was run. B73 checkpoint interruption/atomicity remains separate and open; finding-specific four-base replay remains UNRUN.",
+      "residual": "The bounded distributed status repair transports native ok/skip/fail outcomes through the worker and tier merge, admits only typed ok as successful cache/frontier evidence, and rejects out-of-tier aliases before merge/checkpoint. The integrated RES-02 whole unit file passed 6/6 and checkpoint-resume integration file passed 8/8 at the add75 test commit; the skipped peer is absent from published completed-node lists while the successful peer and successor remain. This is scheduler-level evidence only. Real CAS skip-width resume remains unmeasured; Temporal history, four-base replay and a removal mutation remain UNRUN. B72 stays partial; B73 residuals are separate.",
       "residual_owner": {
         "appointment_status": "Owner role identified by the changed runtime paths and independent bounded review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5412,6 +5936,20 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "res02_integrated_finding_tests_add75_20260927": {
+        "identity": "RES-02 finding-level integrated tests at add75 (source base 84ac)",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-res02-integrated-84ac-20260927/INTEGRATION_RECEIPT.md@sha256:b863d1e978a67865924eb6c5a72b40b8bc332c9d6cf023496e6f78fe403a2a55",
+        "status_retained": "partial",
+        "results": {
+          "tests/unit/remediation/test_res_02.py": "6/6 PASS",
+          "tests/integration/scientist/test_checkpoint_resume.py": "8/8 PASS",
+          "targeted Ruff": "exit 0"
+        },
+        "unit_junit_sha256": "a06f17de34ac5ae08fc86c01d0014df7bea1ec96911764ef95dd6058cb2e3974",
+        "integration_junit_sha256": "c464306970d3d32bbb0dd3ed369d234267b52ddb530c42d3844927fb85935684",
+        "bounded_property": "The independent skipped peer is absent from both published completed-node lists while the successful peer and successor remain; this is scheduler-level evidence only.",
+        "residual": "Real CAS skip-width resume, Temporal event-history execution, four-base replay and a removal mutation remain unmeasured."
       }
     },
     {
@@ -5431,7 +5969,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "Local tier checkpointing writes one merged checkpoint with the full successful set; fail-fast drops the state checkpoint and continue preserves successful output. The legacy async per-node callback and distributed route may publish merged state while growing completed_nodes by alias prefix. No crash/reopen/resume witness proves state plus the full completion set at that publication point. Keep partial.",
+      "residual": "The integrated add75 RES-02 files passed 6/6 unit and 8/8 checkpoint-resume tests. The clean-782 current wave passed 15/15 across test_res_02.py (6), test_distributed_tier.py (8), and one CAS stop/reopen selector (1). Separately, the expected-red legacy async per-node callback probe reproduced a split boundary: checkpoint metadata completed_nodes=[\"left\"] while persisted merged state already included right=2. This confirms a callback-path defect; no repair, preserving control, crash/reopen consistency witness, or complete four-base replay is established. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5461,10 +5999,10 @@
           "implementation_divergence": "legacy on_node_complete hook receives merged tier state repeatedly with a prefix completion list",
           "production_caller_path_at_sha": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py@3d789d27667fb75bbcac07e03a446a5255b31b82",
           "mechanism_path_at_sha": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py@c12f3bd3ec67ff61e9707d615729d82003b0a767",
-          "candidate_test_identity": "tests/unit/remediation/test_res_02.py::test_parallel_tier_supports_async_only_legacy_checkpoint_hook",
+          "candidate_test_identity": "test_checkpoint_resume.py::test_b73_legacy_node_callback_persists_only_completed_frontier (copied expected-red probe at clean 782)",
           "candidate_test_path_at_sha": "policy-engine/tests/unit/remediation/test_res_02.py@bbdd69d3fcbdd072c366291ffac704bbde084128",
-          "candidate_test_scope": "exercises the legacy hook path but does not assert merged-state/completed-set consistency; not run in this ledger lane",
-          "behavioral_verdict": "UNRUN"
+          "candidate_test_scope": "The copied selector directly reproduces merged persisted state containing right=2 while completed_nodes=[\"left\"]. The probe is expected red; fix and preserving control remain UNRUN.",
+          "behavioral_verdict": "COUNTEREXAMPLE_REPRODUCED"
         },
         "source_review": {
           "identity": "reviewed B73 card-level audit with compensation/cache/seed-ref closure signal",
@@ -5518,9 +6056,35 @@
           "residual": "Local tier checkpointing writes one merged checkpoint with the full successful set; fail-fast drops the state checkpoint and continue preserves successful output. The legacy async per-node callback and distributed route may publish merged state while growing completed_nodes by alias prefix. No crash/reopen/resume witness proves state plus the full completion set at that publication point. Keep partial.",
           "residual_owner": "RES-02 local checkpoint owner plus Temporal/Ray/activity distributed checkpoint route",
           "next_step": "Inject stop after possible A/B publication, reopen and resume while checking state and full occurrence set, no double application, and separate fail-fast/continue semantics on legacy and distributed paths."
+        },
+        "current_res02_wave_2026_09_28": {
+          "identity": "RES-02 current bounded wave at clean 782",
+          "kind": "current_head_bounded_test_wave",
+          "source_head": "782652222cece9899adea0a171c08166544901b9",
+          "case_counts": {
+            "test_res_02.py": 6,
+            "test_distributed_tier.py": 8,
+            "b73_cas_stop_reopen_selector": 1,
+            "passed": 15,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "exit_code": 0
+          },
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/current.junit.xml@sha256:a9127be0e8fafd596b973648e9ed242f67f5b20c81a3db8916fab55c8b245372",
+          "scope": "These bounded tests do not exercise the legacy async callback publication boundary isolated by the separate expected-red probe; B73 remains partial."
+        },
+        "current_b73_legacy_callback_probe_2026_09_28": {
+          "identity": "expected-red copied probe for test_checkpoint_resume.py::test_b73_legacy_node_callback_persists_only_completed_frontier",
+          "kind": "behavioral_counterexample_probe",
+          "behavioral_verdict": "COUNTEREXAMPLE_REPRODUCED",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.junit.xml@sha256:41aa778b3f607a7e214145e487b3fdd489c80a6cb876d5b83260a68367ce0606",
+          "log_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.log@sha256:6e934261db30afaac38a22d67082a2c35a4d17fcf339d3924125dff19f4ea8cd",
+          "observed": "completed_nodes=[\"left\"] while the persisted merged state contains right=2",
+          "scope": "The scratch probe copied the named tracked selector. It demonstrates state/completion-set divergence on the legacy callback boundary, not a repair. B73 remains partial pending a fix, preserving control and complete class replay."
         }
       },
-      "finding_test_status": "PASS_BOUNDED",
+      "finding_test_status": "MIXED_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {
           "behavioral_verdict": "PASS_BOUNDED",
@@ -5541,6 +6105,20 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "res02_integrated_finding_tests_add75_20260927": {
+        "identity": "RES-02 finding-level integrated tests at add75 (source base 84ac)",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-res02-integrated-84ac-20260927/INTEGRATION_RECEIPT.md@sha256:b863d1e978a67865924eb6c5a72b40b8bc332c9d6cf023496e6f78fe403a2a55",
+        "status_retained": "partial",
+        "results": {
+          "tests/unit/remediation/test_res_02.py": "6/6 PASS",
+          "tests/integration/scientist/test_checkpoint_resume.py": "8/8 PASS",
+          "targeted Ruff": "exit 0"
+        },
+        "unit_junit_sha256": "a06f17de34ac5ae08fc86c01d0014df7bea1ec96911764ef95dd6058cb2e3974",
+        "integration_junit_sha256": "c464306970d3d32bbb0dd3ed369d234267b52ddb530c42d3844927fb85935684",
+        "bounded_property": "A full-tier CAS checkpoint stores both peers state and the completed set, then real resume_from_checkpoint reuses them once after a simulated stop.",
+        "residual": "Node-only callback fallback and durable fail-fast/continue/output/cache/seed/compensation matrix remain unresolved; four-base replay and a removal mutation remain UNRUN."
       }
     },
     {
@@ -6345,7 +6923,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The integrated served route dispatches every explicit replay_ref, including an empty ref which must fail replay validation before ordinary batch_full ingress. Success/failure report replay mode. Real ReplayStore/CAS fixtures cover missing, corrupt and valid replay through APISimulator with zero ordinary-delegate calls or native aiohttp requests; the marker-retaining fallback-removal probe is red. The route tests still stub run_replay_mode, output evidence is not reopened to bind source session/replay ref/request hash/exact bytes, and egress instrumentation covers aiohttp only. Keep partial.",
+      "residual": "The complete a514 source census finds one production run_replay_mode caller in the served control lifecycle and a real ReplayStore/CAS/APISimulator replay owner with no ordinary-ingress fallback. The complete owner-only test_modes.py file passes 15/15 at 84ac, with the same source and test blobs at a514; this is a bounded lower-layer witness. The current served-route test file still mocks the replay owner, so one served request does not traverse the real CAS/ReplayStore/connector chain. Exact output evidence is not rebound to source session, replay ref, request and response bytes, and egress instrumentation observes aiohttp only (P38 boundary). A current-head served-composition removal probe and full four-base replay remain UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -6446,6 +7024,45 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_a514_census_and_84ac_owner_suite_20260927": {
+        "identity": "B88 complete source/caller census and current-head owner-suite evidence",
+        "census_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+        "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/B88_A514_CENSUS_20260927.md@sha256:3b936d17112716d926c663235b59040db7f3d7265fe44700477b2728325a3a90",
+        "classification": "partial; status retained",
+        "denominator": {
+          "tracked_python_files_total": 5432,
+          "source": 2696,
+          "tests": 2736
+        },
+        "census": {
+          "production_run_replay_mode_callers": 1,
+          "focused_selectors_present": 7
+        },
+        "owner_suite": {
+          "head": "84ac676fda21cc13b21cb6c0e265d020647a02c1",
+          "test_file": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+          "result": "15/15 PASS",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-b88-current-84ac-20260927/modes/full.junit.xml@sha256:9c03ef80b684f48fa7b321edeb43a812043aaa41456652e9f555a7c0efc971f8",
+          "same_source_test_blobs_at_a514": true,
+          "selected_b88_cases": [
+            "test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure",
+            "test_run_replay_mode_fixture_failure_stays_in_replay_transport[missing-fixture]",
+            "test_run_replay_mode_fixture_failure_stays_in_replay_transport[corrupt-fixture]",
+            "test_run_replay_mode_uses_recorded_bytes_without_native_transport"
+          ]
+        },
+        "served_route_blobs": {
+          "run_lifecycle.py": "6c6bcc357edb77a1fe1b7d95a912a94b04021e41",
+          "test_control_api.py": "a50870137eca765bbfc5b32d6ae91db7f5b28cdc"
+        },
+        "behavioral_verdict": "PASS_BOUNDED for owner-only suite; served-to-real-owner chain UNRUN",
+        "limits": [
+          "Served-route tests mock run_replay_mode for success/failure; no request traverses real served API → CAS/ReplayStore → connector → response.",
+          "Output evidence is not rebound to exact source session, replay ref, request and response bytes.",
+          "Egress instrumentation observes aiohttp, not every possible transport.",
+          "Full finding-specific four-base replay and a current-head served-composition removal probe remain UNRUN."
+        ]
       }
     },
     {
@@ -7654,6 +8271,27 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B108",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Deficit alias/zero/missing/nonfinite/conflict tests exercise the local objective; units and a served objective caller are absent, and sibling default-zero heuristics remain. Full current four-base replay UNRUN."
+      },
+      "current_add75_opt01_whole_file": {
+        "identity": "OPT-01 current-head whole-file replay at add75",
+        "source_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "results": {
+          "tests/unit/scientist/methods/search/test_objective.py": "10/10 PASS",
+          "tests/unit/scientist/methods/autotune/test_pareto.py": "25/25 PASS"
+        },
+        "combined": "35/35 PASS, exit 0, zero fail/error/skip",
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
+        "status_retained": "partial",
+        "four_base_replay": "UNRUN at other three bases"
       }
     },
     {
@@ -7883,6 +8521,27 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B109",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Strict 2D/3D boundary and tie behavior have owner tests; served ParetoRegistry wiring and full direction/permutation coverage are unestablished. Full current four-base replay UNRUN."
+      },
+      "current_add75_opt01_whole_file": {
+        "identity": "OPT-01 current-head whole-file replay at add75",
+        "source_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "results": {
+          "tests/unit/scientist/methods/search/test_objective.py": "10/10 PASS",
+          "tests/unit/scientist/methods/autotune/test_pareto.py": "25/25 PASS"
+        },
+        "combined": "35/35 PASS, exit 0, zero fail/error/skip",
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
+        "status_retained": "partial",
+        "four_base_replay": "UNRUN at other three bases"
       }
     },
     {
@@ -8131,6 +8790,27 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "current_add75_cyc03_opt01_audit": {
+        "identity": "current add75 read-only card-discriminator audit:B111",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f",
+        "status_retained": "partial",
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "finding_scope": "Numeric exclusion and all-invalid schema tests exist; mixed valid/invalid inputs lack typed omission reasons and partial coverage projection. Full current four-base replay UNRUN."
+      },
+      "current_add75_opt01_whole_file": {
+        "identity": "OPT-01 current-head whole-file replay at add75",
+        "source_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "results": {
+          "tests/unit/scientist/methods/search/test_objective.py": "10/10 PASS",
+          "tests/unit/scientist/methods/autotune/test_pareto.py": "25/25 PASS"
+        },
+        "combined": "35/35 PASS, exit 0, zero fail/error/skip",
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
+        "status_retained": "partial",
+        "four_base_replay": "UNRUN at other three bases"
       }
     },
     {
@@ -10235,7 +10915,7 @@
         "relation": "aligned_refined",
         "detail": "Appendix C marks B150 closed_bounded. The source-record inspection correctly found no E02 package selector mapped to this card discriminator, but the direct d966 current-code whole-file receipt now supplies an exact positive, same-profile preserving control, selected-view removal negative with both sidecars present, and selectorless-history controls (11/11). B150 is closed bounded only for direct FileSystemCAS manifest views; this does not close the broader R9 consumer/backend/custody class or four-base P41."
       },
-      "residual": "Closed bounded to B150’s source-card claim about honest returned and persisted typed views of identical bytes in the direct FileSystemCAS owner. The complete tests/unit/remediation/test_cas_01.py file passes 11/11 at d966d007c: the distinct-profile case returns two refs for one blob and reads each persisted profile back; the same-profile control preserves its first manifest/ref; selectorless historical projection/signature controls remain valid; and the selected-view removal probe turns red with both sidecars present. This is finding-specific bounded evidence, not the four-base whole-file replay. Broader R9 consumer selector propagation, custody/backends, and the principal decision remain open at class level.",
+      "residual": "Closed bounded to B150’s source-card claim about honest returned and persisted typed views of identical bytes in the direct FileSystemCAS owner. The complete tests/unit/remediation/test_cas_01.py file passes 11/11 at d966d007c: the distinct-profile case returns two refs for one blob and reads each persisted profile back; the same-profile control preserves its first manifest/ref; selectorless historical projection/signature controls remain valid; and the selected-view removal probe turns red with both sidecars present. This is finding-specific bounded evidence, not the four-base whole-file replay. Broader R9 consumer selector propagation, custody/backends, and the principal decision remain open at class level. A separate owner-level v1/v2 projection candidate was BLOCKed by static review: three runtime repository constructor sites exist but no production persist_signed caller; seven downstream DTO consumers remain strict-v1 and reject v2; the two C3 v1 golden vectors still need replay. This is a P40 same-class projection residual, not a B150 behavior reversal; no per-consumer patch or R9 class closure is admitted.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "E02-R2 four-base baseline broker for the full-file replay; CAS-01 owner for broader R9 consumers/backends",
@@ -10287,6 +10967,23 @@
           "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion excerpt: 'S/M.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
           "package_test_selector_groups": []
         }
+      },
+      "r9_projection_owner_review_20260927": {
+        "identity": "R9/P07 owner-root projection candidate independent review",
+        "head": "a5141d432912efc5611129ce0b22d13a30762dfc",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r9-p07-wire-registry-20260927/INDEPENDENT_REVIEW.md@sha256:fd5fd30a4d8b0f73d561264723eabd507de6ea3b100f4dbe97574296dde25c63",
+        "behavioral_verdict": "BLOCK (static review; no tests run)",
+        "class_status": "R9 remains partial; no finding status is changed by this class-level review",
+        "complete_source_census": {
+          "runtime_repository_constructors": 3,
+          "production_persist_signed_invocations": 0,
+          "downstream_v1_dto_source_files": 7
+        },
+        "additional_evidence_required": [
+          "Replay the two committed C3 v1 signed-evidence golden vectors",
+          "serve a named production v2 producer and all readers or prevent v2 emission until readers migrate"
+        ],
+        "p40": "Treat downstream v2 rejection as the same R9 projection class. Stop per-site serializer patches; widen the owner path or retain this bounded residual."
       }
     },
     {
@@ -12897,6 +13594,19 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
+        "current_status": "held",
+        "blocker_kind": "smallest_missing_capability",
+        "disposition": "One served simulation-evaluator → source/deployment-bound per-draw support → persisted result/report/envelope → shared verified authority intake consumed by ConfidencePass, normative arbitration and decision-packet enrichment.",
+        "tracked_source_python_files": 2696,
+        "tracked_test_python_files": 2736,
+        "ast_parse_errors": 0,
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
     {
@@ -13120,6 +13830,19 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
+        "current_status": "held",
+        "blocker_kind": "smallest_missing_capability",
+        "disposition": "Persist a typed group-to-field covariance projection from the calibration owner through report/CAS and uncertainty adapter to an identified served welfare consumer.",
+        "tracked_source_python_files": 2696,
+        "tracked_test_python_files": 2736,
+        "ast_parse_errors": 0,
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
     {
@@ -13348,7 +14071,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {
@@ -13411,6 +14134,19 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
+        "current_status": "held",
+        "blocker_kind": "owner_decision",
+        "disposition": "Public-IR owner must version point-functional and interval-functional semantics separately and define historical v1.1 replay.",
+        "tracked_source_python_files": 2696,
+        "tracked_test_python_files": 2736,
+        "ast_parse_errors": 0,
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
     {
@@ -13473,7 +14209,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:00a335053b755e1e49e402983191b67eadd6b9de418f10ec21a52d57aa03227f#DS16-versioned-public-uncertainty-representation-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {
@@ -13537,6 +14273,19 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
+        "current_status": "held",
+        "blocker_kind": "owner_decision",
+        "disposition": "Public-IR owner must choose reuse of the existing PosteriorSamplesCarrier versus a content-bound persisted reference, and define ordered joint-draw identity, axes, weights and historical replay.",
+        "tracked_source_python_files": 2696,
+        "tracked_test_python_files": 2736,
+        "ast_parse_errors": 0,
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
     {
@@ -14521,6 +15270,19 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B219",
           "scope": "Historical source review predating commit 077147d86; its missing-capability/open classification is superseded by the committed implementation. Its finding that the sole production caller discards the conversion remains relevant; no downstream impact is established."
         }
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
+        "current_status": "held",
+        "blocker_kind": "data_record",
+        "disposition": "Pinned NetworkX 3.6.1 wheel/runtime artifact is absent locally/offline. The canonical MultiDiGraph exporter and tests exist; direct mixed/lagged edge permutation/round-trip, removal probes and downstream ID-engine effect remain UNRUN.",
+        "tracked_source_python_files": 2696,
+        "tracked_test_python_files": 2736,
+        "ast_parse_errors": 0,
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
     {
@@ -15180,6 +15942,22 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "held",
+        "disposition": "PolicyOS public-surface owner and Foundry schema owner must admit/retire the exact FQN; 2,696 source + 445 tools census finds no caller, while the DFK test still imports it.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "appendix_c_relation": "held label agrees"
       }
     },
     {
@@ -15518,6 +16296,22 @@
         "typed_blocker": null,
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "closed",
+        "disposition": "Root migration entrypoint delegates to the one canonical runner; 14-case MIG-01 evidence supports bounded in-repository closure, with no blanket external/history compatibility claim.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "not claimed by this audit",
+        "appendix_c_relation": "Appendix C historical held label superseded for LA-010/049 bounded closure only"
       }
     },
     {
@@ -16587,6 +17381,22 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "held",
+        "disposition": "Data Forge schema owner must decide whether the empty schema codegen descriptor has a retained producer/consumer role or is retired.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "appendix_c_relation": "held label agrees"
       }
     },
     {
@@ -16679,6 +17489,22 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "held",
+        "disposition": "Data Forge and architecture-plan owners must select canonical kernel/schemas versus pipeline/schemas and state alias sunset; current plan/source owner conflict remains.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "appendix_c_relation": "held label agrees"
       }
     },
     {
@@ -16956,6 +17782,22 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "held",
+        "disposition": "One registry-to-output parity record across five direct common importers and selected stages; existing 17/17 UDF evidence does not compare all bytes, diagnostics, warnings and writes.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "appendix_c_relation": "held label agrees"
       }
     },
     {
@@ -17082,6 +17924,22 @@
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "held",
+        "disposition": "Persist one demographic source inventory/read-replay binding shared by composite and sibling readers and connect it to an actual public consumer.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "UNRUN",
+        "appendix_c_relation": "held label agrees"
       }
     },
     {
@@ -18104,6 +18962,22 @@
         "typed_blocker": null,
         "behavioral_test_status": "UNRUN in this read-only audit",
         "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      },
+      "h_current_add75_audit_20260927": {
+        "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b",
+        "current_status": "closed",
+        "disposition": "Public same-version Trinity validation, removed unreachable self-edge, no live retained-helper caller, 38 matching outcomes and marker-retaining removal red; bounded in-repository scope only.",
+        "source_tool_census": {
+          "source_python_files": 2696,
+          "tool_python_files": 445,
+          "test_python_files": 2736,
+          "source_tools_ast_files": 3141,
+          "ast_parse_errors": 0
+        },
+        "tests_run_by_audit": false,
+        "four_base_replay": "not claimed by this audit",
+        "appendix_c_relation": "Appendix C historical held label superseded for LA-010/049 bounded closure only"
       }
     },
     {

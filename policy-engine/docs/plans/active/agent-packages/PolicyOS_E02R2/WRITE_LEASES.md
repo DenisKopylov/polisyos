@@ -1,5 +1,62 @@
 # E02-R2 write leases
 
+## Active integration lease at `43d4f4783` (2026-09-27)
+
+- The root integrator alone writes `codex/e02-r2`. Its committed HEAD is
+  `43d4f4783`; a 16-path R5 v6 candidate is dirty in the shared tree. No
+  agent may write or test this tree while the root integrates a reviewed class.
+  R5's v10 work and test source are isolated in
+  `/Users/deniskopylov/.codex/scratch/e02-r5-owner-candidate-20260926/tree`.
+  The 14/14 v9 wave is provisional; v10 has a 5/5 focused green after two
+  property-red owner-scope probes. It still needs a frozen delta, independent
+  review, B88 preservation check, integration replay, and a class commit.
+- R11's sole writer uses branch `codex/e02-r11-owner-admission-candidate` in
+  `/Users/deniskopylov/.codex/scratch/e02-r11-owner-admission-20260927/polisyos`.
+  Its lease is the typed blocked-N6 admission predicate, persisted EvalSafety
+  reader and public projection/tests. The R1-dependent served fixture fails
+  before R11's property; the candidate must keep its independent persisted
+  owner witness. R11 follows R5 on shared generation/consumer files.
+- B72/B73's sole writer uses branch
+  `codex/e02-r2-b72-distributed-status-candidate` in
+  `/Users/deniskopylov/.codex/scratch/e02-b72-distributed-status-20260927/polisyos`.
+  Its lease is the existing distributed `NodeOutcome`/codec, Temporal and Ray
+  merge/checkpoint/report consumers and mirrored tests. It does not edit R5,
+  R11 or R13 sources. An independent reviewer checks skipped/failing native
+  results and status-blind old cache/checkpoint admission.
+- R13 revised-basis WDI's sole writer uses branch
+  `codex/e02-r2-r13-basis-candidate` in
+  `/Users/deniskopylov/.codex/scratch/e02-r13-wdi-basis-20260927/polisyos`.
+  Its lease is `runtime/http/services/acquisition_surface_execution.py` and
+  the actual WDI/native-growth integration test. It must select jurisdiction
+  and year from verified revised basis B, retain subject S, and refuse an
+  unauthorized B before egress. This is separate from R13-G's absent NCM
+  producer and R9 selected-view residual. No test launches below 11 GiB free.
+- R1's reviewed `b396d1...` patch is only a current-job identity prerequisite
+  with 27/27 and a removal-red receipt. The later `21a050...` import variant
+  is NO-GO on Python 3.14. Neither proves the principal's selected positive
+  N4→N5→S8 path; an owner-issued, scope-grounded profile and production caller
+  are still missing. R1 integration follows R5 in the shared store/context
+  files. R2's v3 history-only scratch slice has 22/22 current-tree replay,
+  while source-free currentness and authorized deployment census remain UNRUN;
+  a superseded synthetic development fixture from Git history is not a
+  standing authority claim and does not justify a blanket compatibility
+  migration. R2 follows R5 on `generation_cycle.py`.
+- H14 and N18 ledger writers work in scratch only. Their combined 282-row
+  JSON/Markdown candidate must correct B219's stale test path and receive an
+  independent evidence review before integration. The principal's latest
+  direction is to avoid broad old/external compatibility work without a live
+  E02 or custody purpose. `WRITE_LEASES.md` is this coordination record; plans,
+  the debt register and excluded E02 records stay untouched.
+- P41 has a complete E02-head CYC-05 whole-file cell (21/21), and the same
+  workspace-loop test-source blob has 17 pass/1 inherited fail on the E02
+  execution base, E02 head and main. The final integration-head cell and full
+  21-file Appendix A/B matrix remain UNRUN. Source tests and generated families
+  are frozen during their own runs. At most four or five measured light process
+  groups may run if memory remains 20–30% free and disk stays at least 10 GiB;
+  heavy native jobs are exclusive. Current disk is about 10.9 GiB, so new
+  test waves pause below an 11 GiB launch margin. Production data remains a
+  read-only symlink; no one copies it or empties macOS Trash.
+
 ## Active integration lease after `1ed0df830` (2026-09-26)
 
 - The root integrator alone writes `codex/e02-r2`. The DFK H14 owner-decision

@@ -6307,34 +6307,111 @@ async def test_k_sim_does_not_shrink_k_world() -> None:
 
 
 @pytest.mark.asyncio
-async def test_generation_cycle_contract_live_replay_types_n9_currentness_gap(
+async def test_generation_cycle_contract_mutations_turn_red(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    with pytest.raises(contract._N6VerificationReplayUnavailableError) as raised:
-        await contract._build_live_payload_in_verification_namespace(
+    census_count = 0
+    collect_census = generation_cycle_module._collect_strangle_source_census
+
+    def count_census(repo_root: Path) -> Any:
+        nonlocal census_count
+        census_count += 1
+        return collect_census(repo_root)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "_collect_strangle_source_census",
+        count_census,
+    )
+    try:
+        payload, replay_context = await contract._build_live_payload_in_verification_namespace(
             REPO_ROOT,
             state_root=tmp_path,
         )
+    except contract._N6VerificationReplayUnavailableError as unavailable:
+        # Preserve the two-cycle/12-mutation proof when the owner issues N9. The
+        # current head has no appointed N9 issuer, so the honest result is a
+        # typed UNRUN with zero callback/session activity, never synthetic green.
+        measurement = unavailable.measurement
+        if unavailable.code != "n9_final_problem_session_not_reached":
+            pytest.fail(f"unexpected unavailable replay code: {unavailable.code}")
+        assert measurement["status"] == "UNRUN"
+        assert measurement["callback_attempt_count"] == 0
+        assert measurement["session_open_count"] == 0
+        assert measurement["n6_gate_observation"]["deployment_identity_status"] == "established"
+        assert measurement["n6_gate_observation"]["promotion_port_reason"].startswith(
+            "generation_cycle_n6_census_not_established:"
+        )
+        assert measurement["selector_denominator"]["n6_cycles"] > 0
+        assert measurement["selector_denominator"]["n6_candidate_summaries"] > 0
+        assert measurement["selector_denominator"]["n9_callback_attempt_count"] == 0
+        assert measurement["selector_denominator"]["n9_candidate_summaries"] is None
+        assert measurement["selector_denominator"]["candidate_ids"] is None
+        assert measurement["selector_denominator"]["receipt_candidate_denominator_matches"] is None
+        assert measurement["selector_denominator"]["comparison_admissions"] is None
+        assert measurement["predicate_basis"]["final_problem_binding"].startswith("not_reached:")
+        assert "N9 callback was not reached" in measurement["predicate"]
+        return
 
-    assert raised.value.code == "n9_final_problem_session_not_reached"
-    measurement = raised.value.measurement
-    assert measurement["status"] == "UNRUN"
-    assert measurement["callback_attempt_count"] == 0
-    assert measurement["session_open_count"] == 0
-    assert measurement["n6_gate_observation"]["deployment_identity_status"] == "established"
-    assert measurement["n6_gate_observation"]["promotion_port_reason"].startswith(
-        "generation_cycle_n6_census_not_established:"
+    # This is the original positive semantic witness, retained for a head where
+    # a real N9 owner callback becomes available.
+    assert census_count == 1
+    strangle_mutation = next(
+        item
+        for item in payload["behavioral_mutations"]
+        if item["mutation_id"] == "single_pass_fixture_survives_as_production_cycle"
     )
-    assert measurement["selector_denominator"]["n6_cycles"] > 0
-    assert measurement["selector_denominator"]["n6_candidate_summaries"] > 0
-    assert measurement["selector_denominator"]["n9_callback_attempt_count"] == 0
-    assert measurement["selector_denominator"]["n9_candidate_summaries"] is None
-    assert measurement["selector_denominator"]["candidate_ids"] is None
-    assert measurement["selector_denominator"]["receipt_candidate_denominator_matches"] is None
-    assert measurement["selector_denominator"]["comparison_admissions"] is None
-    assert measurement["predicate_basis"]["final_problem_binding"].startswith("not_reached:")
-    assert "N9 callback was not reached" in measurement["predicate"]
+    assert strangle_mutation["status"] == "red"
+    assert "strangle_receipt_stale" in strangle_mutation["issue_codes"]
+    report = contract.validate_payload(payload, repo_root=REPO_ROOT)
+    assert census_count == 2
 
+    assert report["status"] == "pass", report["issues"]
+    assert len(replay_context.run.cycles) >= 2
+    assert replay_context.callback_count == 1
+    assert replay_context.session_open_count == 1
+    assert replay_context.problem_binding == contract.N9DesignProblemBinding.from_problem(
+        replay_context.problem
+    )
+    assert replay_context.risk_scope == contract.confidence_risk_scope_for_problem(
+        replay_context.problem_binding
+    )
+    assert replay_context.session.risk_scope == replay_context.risk_scope
+    run_candidate_ids = {
+        summary.candidate_id for summary in replay_context.run.candidate_summaries
+    }
+    assert replay_context.session_factory.candidate_ids
+    assert set(replay_context.session_factory.candidate_ids) <= run_candidate_ids
+    initial_binding = contract.N9DesignProblemBinding.from_problem(contract._design_problem())
+    assert replay_context.problem_binding.problem_content_hash != initial_binding.problem_content_hash
+    assert len(replay_context.comparison_admissions) == len(
+        replay_context.run.promotion_port.receipts
+    )
+    mutation_statuses = {
+        item["mutation_id"]: item["status"] for item in payload["behavioral_mutations"]
+    }
+    assert mutation_statuses == {
+        "revision_not_terminal_driven": "red",
+        "retry_without_new_grammar_admitted": "red",
+        "voi_scheduler_ignored_fixed_cycle_count": "red",
+        "single_pass_fixture_survives_as_production_cycle": "red",
+        "proxy_gap_candidate_promoted_without_adversarial_validate": "red",
+        "decision_front_admitted_non_current_valid": "red",
+        "grounding_bypassed_cgf_firewall": "red",
+        "coverage_depends_on_llm": "red",
+        "k_sim_shrank_k_world": "red",
+        "full_denominator_curated_subset": "red",
+        "incoherent_single_terminal_run": "red",
+        "empty_cycle_run": "red",
+    }
+    assert payload["denominators"]["counts"] == {
+        "front_kinds": 4,
+        "grounding_dispositions": 5,
+        "grounding_statuses": 5,
+        "scheduling_actions": 4,
+        "terminal_kinds": 12,
+    }
 
 def test_generation_cycle_contract_validator_fails_on_known_scope_mismatch(
     monkeypatch: pytest.MonkeyPatch,
@@ -6581,6 +6658,47 @@ def test_generation_cycle_contract_write_refuses_when_n9_is_not_reached() -> Non
 
     assert raised.value.code == "n9_final_problem_session_not_reached"
     assert raised.value.measurement["callback_attempt_count"] == 0
+
+
+def test_generation_cycle_contract_owner_refuses_stale_comparison_admission(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The frozen-contract owner refuses stale comparison identity independently of N9."""
+
+    frozen = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    plan = contract.build_gy_comparison_projection_plan_from_manifest(
+        frozen,
+        manifest=frozen["comparison_admission_manifest"],
+        owner_rule_registry=(
+            contract.canonical_promotion_verification_comparison_owner_rule_registry()
+        ),
+    )
+    live = copy.deepcopy(frozen)
+    stale = copy.deepcopy(frozen)
+    stale_manifest = stale["comparison_admission_manifest"]
+    assert stale_manifest
+    stale_manifest[0]["predicate_provenance"] = "not_established"
+    stale["contract_content_hash"] = contract._contract_content_hash(stale)
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text(json.dumps(stale), encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="generation_cycle_comparison_admission_manifest_drift",
+    ):
+        contract._reconcile_frozen_contract(tmp_path, live, plan)
+
+    # Removal probe: with the owner comparison predicate removed, this stale
+    # admission is accepted and rewritten under the live plan's identity.
+    monkeypatch.setattr(
+        contract,
+        "_frozen_comparison_identity_admissible",
+        lambda _frozen, _plan: True,
+    )
+    reconciled = contract._reconcile_frozen_contract(tmp_path, live, plan)
+    assert reconciled["comparison_admission_manifest"] == plan.manifest
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:
@@ -6862,6 +6980,91 @@ def test_generation_cycle_contract_validator_removal_probe_rejects_missing_run_w
         issue.get("code") == "generation_cycle_run_missing"
         for issue in cli_report["issues"]
     )
+
+
+def test_generation_cycle_contract_validator_removal_probe_rejects_stale_factory_scope_at_real_cli_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    original_run = contract.GenerationCycleController.run
+    observed = {"mutation_applied": False}
+
+    async def return_run_with_stale_factory_scope(
+        controller: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        run = await original_run(controller, *args, **kwargs)
+        promotion_port = controller._promotion_port
+        factory = getattr(promotion_port, "_confidence_ledger_session_factory", None)
+        if (
+            factory is None
+            or factory.callback_attempt_count == 0
+            or factory.problem is None
+            or factory.problem_binding is None
+            or factory.session is None
+        ):
+            return run
+
+        recomputed_binding = contract.N9DesignProblemBinding.from_problem(factory.problem)
+        recomputed_scope = contract.confidence_risk_scope_for_problem(recomputed_binding)
+        assert factory.problem_binding == recomputed_binding
+        assert factory.risk_scope == recomputed_scope
+        assert factory.session.risk_scope == recomputed_scope
+
+        same_subject_prior_problem = contract._design_problem()
+        stale_binding = contract.N9DesignProblemBinding.from_problem(same_subject_prior_problem)
+        assert stale_binding.design_problem_id == recomputed_binding.design_problem_id
+        assert stale_binding.problem_content_hash != recomputed_binding.problem_content_hash
+        stale_scope = contract.confidence_risk_scope_for_problem(stale_binding)
+        assert stale_scope != recomputed_scope
+
+        # Corrupt only the retained basis after the real N9 owner consumed the
+        # matching session. The callback/session markers remain present.
+        factory.risk_scope = stale_scope
+        assert factory.session.risk_scope == recomputed_scope
+        observed["mutation_applied"] = True
+        return run
+
+    monkeypatch.setattr(
+        contract.GenerationCycleController,
+        "run",
+        return_run_with_stale_factory_scope,
+    )
+    exit_code = contract.main(
+        ["--repo-root", str(REPO_ROOT), "--check", "--output-format", "json"]
+    )
+
+    report = json.loads(capsys.readouterr().out)
+    n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
+    if not observed["mutation_applied"]:
+        # Currentness/source-census can legitimately stop before a real N9
+        # session exists. Preserve the real CLI probe as typed UNRUN in that
+        # case; do not manufacture a session or treat its markers as evidence.
+        assert exit_code == 2
+        assert report["status"] == "UNRUN"
+        assert n9["callback_attempt_count"] == 0
+        assert n9["session_open_count"] == 0
+        assert n9["status"] == "not_reached"
+        assert any(
+            issue.get("code")
+            in {
+                "generation_cycle_currentness_reissue_required",
+                "n6_source_census_not_established",
+                "n9_final_problem_session_not_reached",
+            }
+            for issue in report["issues"]
+        )
+        return
+
+    assert exit_code == 1
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == "confidence_ledger_scope_binding_mismatch"
+        for issue in report["issues"]
+    )
+    assert n9["session_matches_final_n9_risk_scope"] is False
+    assert n9["callback_attempt_count"] == 1
 
 
 @pytest.mark.parametrize(

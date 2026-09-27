@@ -171,14 +171,16 @@ def _route_closure(
 ) -> object:
     """Return the exact route projection consumed by the live binding resolver."""
 
+    route_problem = SimpleNamespace(
+        jurisdiction_time=SimpleNamespace(region=region, data_time=data_time)
+    )
     return SimpleNamespace(
         tenant_id="tenant-a",
         cell_id="cell-a",
         run_id="run-acquisition",
         route_id="sha256:" + "1" * 64,
-        design_problem=SimpleNamespace(
-            jurisdiction_time=SimpleNamespace(region=region, data_time=data_time)
-        ),
+        design_problem=route_problem,
+        design_problem_basis=route_problem,
         planner_record=SimpleNamespace(
             gap_type="data_snapshot_release",
             requirement_family="data_requirement",

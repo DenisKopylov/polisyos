@@ -1,5 +1,24 @@
 # Four-base P41 test baselines
 
+## B72 six-file current-head comparison (2026-09-27)
+
+The whole-file JUnit cells compare prepatch `42060f584a4edbc4370aa5df93175869acaed5a2` to committed postpatch
+`6c7168566d51b22a4de8c0895c18291b3c697ca4`. Prepatch has 67 identities (65 pass, 1 Ray failure, 1 Temporal skip);
+postpatch has 80 (79 pass and the same 1 Temporal skip). Of the 67 common
+identities, 0 pass-to-fail, 1 fail-to-pass, and 66 have unchanged outcomes; 13
+newly collected identities pass. The repaired identity is
+`tests.unit.scientist.orchestration.engine.runner.test_ray_runner::test_ray_runner_executes_remote_checkpoint_merge_task`.
+
+JUnit: prepatch
+`/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/prepatch/whole-six.junit.xml@sha256:4bb58a920f11f796c12db6e4f303b33d5f06553c0a193b9e9b6f2802e996fc5b`; postpatch
+`/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/postpatch/whole-six.junit.xml@sha256:40657aa78583fa8613372495c959eaefd354b121d431aaec5720e7b133bb35c4`. The exact six test-module
+blobs and eight changed runtime-source blobs at both commits, plus complete
+JUnit identity-set digests, are recorded in
+`/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/addendum/B72_WHOLE_SIX_SOURCE_TEST_BLOBS.json@sha256:737f4df75f9de455d8db8370f00bd88dcb2ad7c369e4eaa5bf3b78a0f8baa390`.
+
+This same-lane before/after comparison is not a four-base replay and does not
+close the touched-file baseline denominator.
+
 ## P41 supplementary whole-file observations (2026-09-27)
 
 These are additional historical cells only; they do not reconcile, replace, or

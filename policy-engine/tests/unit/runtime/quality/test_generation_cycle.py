@@ -6307,86 +6307,33 @@ async def test_k_sim_does_not_shrink_k_world() -> None:
 
 
 @pytest.mark.asyncio
-async def test_generation_cycle_contract_mutations_turn_red(
+async def test_generation_cycle_contract_live_replay_types_n9_currentness_gap(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    census_count = 0
-    collect_census = generation_cycle_module._collect_strangle_source_census
+    with pytest.raises(contract._N6VerificationReplayUnavailableError) as raised:
+        await contract._build_live_payload_in_verification_namespace(
+            REPO_ROOT,
+            state_root=tmp_path,
+        )
 
-    def count_census(repo_root: Path) -> Any:
-        nonlocal census_count
-        census_count += 1
-        return collect_census(repo_root)
-
-    monkeypatch.setattr(
-        generation_cycle_module,
-        "_collect_strangle_source_census",
-        count_census,
+    assert raised.value.code == "n9_final_problem_session_not_reached"
+    measurement = raised.value.measurement
+    assert measurement["status"] == "UNRUN"
+    assert measurement["callback_attempt_count"] == 0
+    assert measurement["session_open_count"] == 0
+    assert measurement["n6_gate_observation"]["deployment_identity_status"] == "established"
+    assert measurement["n6_gate_observation"]["promotion_port_reason"].startswith(
+        "generation_cycle_n6_census_not_established:"
     )
-    payload, replay_context = await contract._build_live_payload_in_verification_namespace(
-        REPO_ROOT,
-        state_root=tmp_path,
-    )
-    assert census_count == 1
-    strangle_mutation = next(
-        item
-        for item in payload["behavioral_mutations"]
-        if item["mutation_id"] == "single_pass_fixture_survives_as_production_cycle"
-    )
-    assert strangle_mutation["status"] == "red"
-    assert "strangle_receipt_stale" in strangle_mutation["issue_codes"]
-    report = contract.validate_payload(payload, repo_root=REPO_ROOT)
-    assert census_count == 2
-
-    assert report["status"] == "pass", report["issues"]
-    assert len(replay_context.run.cycles) >= 2
-    assert replay_context.callback_count == 1
-    assert replay_context.session_open_count == 1
-    assert replay_context.problem_binding == contract.N9DesignProblemBinding.from_problem(
-        replay_context.problem
-    )
-    assert replay_context.risk_scope == contract.confidence_risk_scope_for_problem(
-        replay_context.problem_binding
-    )
-    assert replay_context.session.risk_scope == replay_context.risk_scope
-    run_candidate_ids = {
-        summary.candidate_id for summary in replay_context.run.candidate_summaries
-    }
-    assert replay_context.session_factory.candidate_ids
-    assert set(replay_context.session_factory.candidate_ids) <= run_candidate_ids
-    initial_binding = contract.N9DesignProblemBinding.from_problem(contract._design_problem())
-    assert (
-        replay_context.problem_binding.problem_content_hash
-        != initial_binding.problem_content_hash
-    )
-    assert len(replay_context.comparison_admissions) == len(
-        replay_context.run.promotion_port.receipts
-    )
-    mutation_statuses = {
-        item["mutation_id"]: item["status"] for item in payload["behavioral_mutations"]
-    }
-    assert mutation_statuses == {
-        "revision_not_terminal_driven": "red",
-        "retry_without_new_grammar_admitted": "red",
-        "voi_scheduler_ignored_fixed_cycle_count": "red",
-        "single_pass_fixture_survives_as_production_cycle": "red",
-        "proxy_gap_candidate_promoted_without_adversarial_validate": "red",
-        "decision_front_admitted_non_current_valid": "red",
-        "grounding_bypassed_cgf_firewall": "red",
-        "coverage_depends_on_llm": "red",
-        "k_sim_shrank_k_world": "red",
-        "full_denominator_curated_subset": "red",
-        "incoherent_single_terminal_run": "red",
-        "empty_cycle_run": "red",
-    }
-    assert payload["denominators"]["counts"] == {
-        "front_kinds": 4,
-        "grounding_dispositions": 5,
-        "grounding_statuses": 5,
-        "scheduling_actions": 4,
-        "terminal_kinds": 12,
-    }
+    assert measurement["selector_denominator"]["n6_cycles"] > 0
+    assert measurement["selector_denominator"]["n6_candidate_summaries"] > 0
+    assert measurement["selector_denominator"]["n9_callback_attempt_count"] == 0
+    assert measurement["selector_denominator"]["n9_candidate_summaries"] is None
+    assert measurement["selector_denominator"]["candidate_ids"] is None
+    assert measurement["selector_denominator"]["receipt_candidate_denominator_matches"] is None
+    assert measurement["selector_denominator"]["comparison_admissions"] is None
+    assert measurement["predicate_basis"]["final_problem_binding"].startswith("not_reached:")
+    assert "N9 callback was not reached" in measurement["predicate"]
 
 
 def test_generation_cycle_contract_validator_fails_on_known_scope_mismatch(
@@ -6406,6 +6353,11 @@ def test_generation_cycle_contract_validator_fails_on_known_scope_mismatch(
         contract,
         "_build_live_payload_in_verification_namespace",
         known_scope_mismatch,
+    )
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload, **_kwargs: {"status": "pass", "issues": []},
     )
     report = contract._validate_committed_contract_text(REPO_ROOT, "{}")
 
@@ -6453,6 +6405,11 @@ def test_generation_cycle_contract_arbitrary_owner_oserror_is_fail_not_unrun(
         "_build_live_payload_in_verification_namespace",
         owner_io_defect,
     )
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload, **_kwargs: {"status": "pass", "issues": []},
+    )
     report = contract._validate_committed_contract_text(REPO_ROOT, "{}")
 
     assert report["status"] == "fail"
@@ -6470,6 +6427,11 @@ def test_generation_cycle_contract_unexpected_failure_is_fail_not_unrun(
         contract,
         "_build_live_payload_in_verification_namespace",
         unexpected_error,
+    )
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload, **_kwargs: {"status": "pass", "issues": []},
     )
     report = contract._validate_committed_contract_text(REPO_ROOT, "{}")
 
@@ -6579,35 +6541,22 @@ def test_generation_cycle_contract_cli_uses_exit_two_for_unrun(
 
 
 def test_generation_cycle_contract_check_discloses_measured_inputs_and_n9_denominator(
-    monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     tmp_path: Path,
 ) -> None:
     artifact_path = tmp_path / contract.OUTPUT_PATH
     artifact_path.parent.mkdir(parents=True)
-    artifact_path.write_text("seed", encoding="utf-8")
-    n9_measurement = {"candidate_summaries": 2, "promotion_receipts": 2}
-
-    monkeypatch.setattr(
-        contract,
-        "_validate_committed_contract_text",
-        lambda _repo_root, _text: {
-            "status": "pass",
-            "issues": [],
-            "predicate_stage": "test_check",
-            "predicate_result": "pass",
-            "n9_replay_measurement": n9_measurement,
-        },
-    )
+    artifact_path.write_bytes((REPO_ROOT / contract.OUTPUT_PATH).read_bytes())
 
     exit_code = contract.main(
         ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
     )
 
     report = json.loads(capsys.readouterr().out)
-    assert exit_code == 0
+    assert exit_code == 2
+    assert report["status"] == "UNRUN"
     files = report["measurement"]["files"]
-    assert files["complete_verdict"] is True
+    assert files["complete_verdict"] is False
     assert files["finding_coverage"] == "explicit file-reader operations only"
     assert any(
         item.get("path") == contract.OUTPUT_PATH
@@ -6615,18 +6564,23 @@ def test_generation_cycle_contract_check_discloses_measured_inputs_and_n9_denomi
         and item.get("status") == "read"
         for item in files["inputs"]
     )
-    assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == n9_measurement
+    n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
+    assert n9["status"] == "not_reached"
+    assert n9["callback_attempt_count"] == 0
+    assert n9["session_open_count"] == 0
+    assert n9["currentness"]["historical_replay"]["status"] == "pass"
+    assert n9["selector_denominator"]["n9_candidate_summaries"] is None
     assert report["measurement"]["unresolved_by_construction"]
 
 
-def test_generation_cycle_contract_write_refuses_stale_comparison_admission() -> None:
-    """The conditional artifact write stays omitted until its owner reissues N9."""
+def test_generation_cycle_contract_write_refuses_when_n9_is_not_reached() -> None:
+    """The write refuses to mint the artifact before the live N9 predicate is reached."""
 
-    with pytest.raises(
-        ValueError,
-        match="generation_cycle_comparison_admission_manifest_drift",
-    ):
+    with pytest.raises(contract._N6VerificationReplayUnavailableError) as raised:
         contract.build_contract_json_for_write(REPO_ROOT)
+
+    assert raised.value.code == "n9_final_problem_session_not_reached"
+    assert raised.value.measurement["callback_attempt_count"] == 0
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:
@@ -6708,6 +6662,18 @@ def test_generation_cycle_contract_check_maps_temporary_workspace_oserror_to_unr
         "validate_payload",
         lambda _payload, **_kwargs: {"status": "pass", "issues": []},
     )
+    monkeypatch.setattr(
+        contract,
+        "inspect_n6_source_census",
+        lambda _repo_root: contract.N6SourceCensusGateResult(
+            source_verdict="pass",
+            denominator_file_count=1,
+            denominator_complete=True,
+            denominator_path_sha256="0" * 64,
+            semantic_census_sha256="1" * 64,
+            inputs={"source_scope": "src/polisyos"},
+        ),
+    )
     exit_code = contract.main(
         ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
     )
@@ -6769,6 +6735,19 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
         contract,
         "validate_payload",
         lambda _payload, **_kwargs: {"status": "pass", "issues": []},
+    )
+
+    monkeypatch.setattr(
+        contract,
+        "inspect_n6_source_census",
+        lambda _repo_root: contract.N6SourceCensusGateResult(
+            source_verdict="pass",
+            denominator_file_count=1,
+            denominator_complete=True,
+            denominator_path_sha256="0" * 64,
+            semantic_census_sha256="1" * 64,
+            inputs={"source_scope": "src/polisyos"},
+        ),
     )
 
     primary: contract._N6VerificationReplayRaisedError | None = None
@@ -6848,85 +6827,149 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
         assert cleanup_calls == [(None, None)]
 
 
-def test_generation_cycle_contract_validator_removal_probe_rejects_stale_factory_scope_at_real_cli_boundary(
-    monkeypatch: pytest.MonkeyPatch,
+def test_generation_cycle_contract_validator_removal_probe_rejects_missing_run_with_markers(
     capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
 ) -> None:
-    original_run = contract.GenerationCycleController.run
-
-    async def return_run_with_stale_factory_scope(
-        controller: Any,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        run = await original_run(controller, *args, **kwargs)
-        promotion_port = controller._promotion_port
-        factory = promotion_port._confidence_ledger_session_factory
-        assert factory is not None
-        assert factory.problem is not None
-        assert factory.problem_binding is not None
-        assert factory.session is not None
-
-        recomputed_binding = contract.N9DesignProblemBinding.from_problem(factory.problem)
-        recomputed_scope = contract.confidence_risk_scope_for_problem(recomputed_binding)
-        assert factory.problem_binding == recomputed_binding
-        assert factory.risk_scope == recomputed_scope
-        assert factory.session.risk_scope == recomputed_scope
-
-        same_subject_prior_problem = contract._design_problem()
-        stale_binding = contract.N9DesignProblemBinding.from_problem(same_subject_prior_problem)
-        assert stale_binding.design_problem_id == recomputed_binding.design_problem_id
-        assert stale_binding.problem_content_hash != recomputed_binding.problem_content_hash
-        stale_scope = contract.confidence_risk_scope_for_problem(stale_binding)
-        assert stale_scope != recomputed_scope
-
-        # The real N9 owner has already consumed the matching session. Corrupt only
-        # the validator's retained basis record, leaving the opened session and all
-        # owner receipt markers intact; its comparison must be the deciding refusal.
-        factory.risk_scope = stale_scope
-        assert factory.session.risk_scope == recomputed_scope
-        return run
-
-    monkeypatch.setattr(
-        contract.GenerationCycleController,
-        "run",
-        return_run_with_stale_factory_scope,
-    )
-    exit_code = contract.main(
-        ["--repo-root", str(REPO_ROOT), "--check", "--output-format", "json"]
-    )
-
-    report = json.loads(capsys.readouterr().out)
-    assert exit_code == 1
+    markers_only = {
+        "schema_version": contract.GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION,
+        "contract_id": "policyos.runtime.generation_cycle_controller",
+        "producer": "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+        "denominators": contract._denominators(),
+        "positive_gate": {"cycle_count": 2},
+        "strangle_receipt": {"status": "strangled"},
+        "behavioral_mutations": [
+            {"mutation_id": mutation_id, "status": "red"}
+            for mutation_id in contract._EXPECTED_MUTATION_IDS
+        ],
+        "fail_closed_probes": [{"status": "fail_closed"}],
+    }
+    markers_only["contract_content_hash"] = contract._contract_content_hash(markers_only)
+    report = contract.validate_payload(markers_only, repo_root=REPO_ROOT)
     assert report["status"] == "fail"
-    assert any(
-        issue.get("code") == "confidence_ledger_scope_binding_mismatch"
-        for issue in report["issues"]
-    )
-    n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
-    assert n9["session_matches_final_n9_risk_scope"] is False
-    assert n9["callback_attempt_count"] == 1
+    assert any(issue.get("code") == "generation_cycle_run_missing" for issue in report["issues"])
 
-
-def test_generation_cycle_contract_cli_preserves_final_scope_and_reports_open_currentness(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text(json.dumps(markers_only), encoding="utf-8")
     exit_code = contract.main(
-        ["--repo-root", str(REPO_ROOT), "--check", "--output-format", "json"]
+        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
+    )
+    cli_report = json.loads(capsys.readouterr().out)
+    assert exit_code == 1
+    assert cli_report["status"] == "fail"
+    assert any(
+        issue.get("code") == "generation_cycle_run_missing"
+        for issue in cli_report["issues"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("contract_text", "expected_issue"),
+    [
+        ("seed", "generation_cycle_contract_invalid_json"),
+        ("[]", "generation_cycle_contract_object_invalid"),
+        ('{"generation_cycle_run":{}}', "generation_cycle_run_invalid"),
+    ],
+)
+def test_generation_cycle_contract_malformed_committed_input_returns_typed_fail(
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    contract_text: str,
+    expected_issue: str,
+) -> None:
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text(contract_text, encoding="utf-8")
+
+    exit_code = contract.main(
+        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
     )
 
     report = json.loads(capsys.readouterr().out)
     assert exit_code == 1
     assert report["status"] == "fail"
     assert report["predicate_result"] == "fail"
-    n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
-    assert n9["session_matches_final_n9_risk_scope"] is True
-    assert n9["callback_attempt_count"] == 1
-    assert not any(
-        issue.get("code") == "confidence_ledger_scope_binding_mismatch"
-        for issue in report["issues"]
+    assert any(issue.get("code") == expected_issue for issue in report["issues"])
+    assert report["measurement"]["selector_denominator"]["n6_n9_replay"][
+        "callback_attempt_count"
+    ] == 0
+
+
+def test_generation_cycle_contract_cli_reports_unrun_for_unavailable_n9_replay(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    artifact_path = tmp_path / contract.OUTPUT_PATH
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.write_text("{}", encoding="utf-8")
+    measurement = {
+        "status": "UNRUN",
+        "callback_attempt_count": 0,
+        "session_open_count": 0,
+        "predicate": "N9 callback was not reached",
+        "selector_denominator": {"n9_candidate_summaries": None},
+    }
+
+    async def n9_unavailable(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], object]:
+        raise contract._N6VerificationReplayUnavailableError(
+            "n9_final_problem_session_not_reached",
+            measurement,
+        )
+
+    monkeypatch.setattr(
+        contract,
+        "_build_live_payload_in_verification_namespace",
+        n9_unavailable,
     )
-    assert any(issue.get("code") == "strangle_receipt_stale" for issue in report["issues"])
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload, **_kwargs: {"status": "pass", "issues": []},
+    )
+    exit_code = contract.main(
+        ["--repo-root", str(tmp_path), "--check", "--output-format", "json"]
+    )
+
+    report = json.loads(capsys.readouterr().out)
+    assert exit_code == 2
+    assert report["status"] == "UNRUN"
+    assert report["predicate_result"] == "not_run"
+    n9 = report["measurement"]["selector_denominator"]["n6_n9_replay"]
+    assert n9["callback_attempt_count"] == 0
+    assert n9["session_open_count"] == 0
+    assert n9["selector_denominator"]["n9_candidate_summaries"] is None
+    assert "N9 callback was not reached" in n9["predicate"]
+
+
+def test_generation_cycle_contract_rederive_entrypoint_returns_typed_unrun(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    measurement = {
+        "status": "UNRUN",
+        "callback_attempt_count": 0,
+        "predicate": "live N6 currentness was not established",
+    }
+
+    async def unavailable_live_payload(_repo_root: Path) -> dict[str, Any]:
+        raise contract._N6VerificationReplayUnavailableError(
+            "n9_final_problem_session_not_reached",
+            measurement,
+        )
+
+    monkeypatch.setattr(contract, "build_live_payload", unavailable_live_payload)
+    exit_code = contract.main(
+        ["--repo-root", str(tmp_path), "--rederive-audit", "--output-format", "json"]
+    )
+
+    report = json.loads(capsys.readouterr().out)
+    assert exit_code == 2
+    assert report["status"] == "UNRUN"
+    assert report["issues"][0]["code"] == "n9_final_problem_session_not_reached"
+    assert report["n9_replay_measurement"] == measurement
 
 
 @pytest.mark.asyncio

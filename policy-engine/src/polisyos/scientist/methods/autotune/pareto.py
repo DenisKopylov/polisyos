@@ -95,11 +95,65 @@ class ParetoMember(BaseModel):
     evaluation: BenchmarkEvaluation
 
 
+class ParetoUnassessedEvaluation(BaseModel):
+    """Identify an admitted evaluation that lacks one or more required axes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    input_index: int = Field(ge=0)
+    candidate_ref_id: str = Field(min_length=1)
+    missing_coordinate_ids: list[str] = Field(default_factory=list)
+    non_finite_coordinate_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _require_omission_reason(self) -> Self:
+        """Keep omission records tied to a concrete missing or invalid coordinate."""
+        if not self.missing_coordinate_ids and not self.non_finite_coordinate_ids:
+            raise ValueError("unassessed evaluation requires an omission reason")
+        if set(self.missing_coordinate_ids) & set(self.non_finite_coordinate_ids):
+            raise ValueError("a coordinate cannot be both missing and non-finite")
+        return self
+
+
+class ParetoInputAssessment(BaseModel):
+    """Describe objective coverage over the exact evaluation input sequence.
+
+    ``complete`` means that every supplied evaluation had every required
+    coordinate. It does not claim that the supplied sequence exhausts the
+    candidate universe.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["complete", "partial", "no_usable_inputs"]
+    input_count: int = Field(ge=0)
+    assessed_count: int = Field(ge=0)
+    unassessed_evaluations: list[ParetoUnassessedEvaluation] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_coverage_counts(self) -> Self:
+        """Require every supplied row to be assessed or explicitly omitted."""
+        if self.assessed_count + len(self.unassessed_evaluations) != self.input_count:
+            raise ValueError("input assessment counts do not cover the supplied evaluations")
+        if self.status == "complete" and (
+            self.input_count == 0 or self.unassessed_evaluations
+        ):
+            raise ValueError("complete input assessment requires nonempty fully assessed inputs")
+        if self.status == "partial" and (
+            self.assessed_count == 0 or not self.unassessed_evaluations
+        ):
+            raise ValueError("partial input assessment requires assessed and omitted inputs")
+        if self.status == "no_usable_inputs" and self.assessed_count != 0:
+            raise ValueError("no_usable_inputs cannot contain assessed evaluations")
+        return self
+
+
 class ParetoFront(BaseModel):
     """Result of Pareto front computation."""
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: Literal["1.0", "2.0"] = "1.0"
     members: list[ParetoMember] = Field(default_factory=list)
     hypervolume: float = 0.0
     reference_point: dict[str, float] = Field(default_factory=dict)
@@ -107,12 +161,33 @@ class ParetoFront(BaseModel):
         default_factory=lambda: ParetoCoordinateSchema(status="legacy_limited")
     )
     coordinate_reference_point: dict[str, float] = Field(default_factory=dict)
+    input_assessment: ParetoInputAssessment | None = None
 
     @model_validator(mode="after")
     def _validate_coordinate_artifact(self) -> Self:
         """Admit only complete, content-bound v1 coordinate artifacts."""
+        if self.schema_version == "2.0" and self.input_assessment is None:
+            raise ValueError("v2 Pareto front requires input assessment")
+        if self.schema_version == "1.0" and self.input_assessment is not None:
+            raise ValueError("v1 Pareto front cannot carry v2 input assessment")
         _validate_coordinate_artifact(self)
         return self
+
+    def historical_v1_payload(self) -> dict[str, object]:
+        """Serialize the historical front projection without v2 assessment fields."""
+        if self.schema_version != "1.0":
+            raise ValueError("historical v1 serialization requires a v1 Pareto front")
+        payload = self.model_dump(
+            mode="json",
+            include={
+                "members",
+                "hypervolume",
+                "reference_point",
+                "coordinate_schema",
+                "coordinate_reference_point",
+            },
+        )
+        return payload
 
     @property
     def size(self) -> int:
@@ -222,30 +297,59 @@ class ParetoPromoter:
         self._objective_names = tuple(coordinate_ids)
         self._display_objective_names = tuple(display_names)
 
-    def _incomplete_front(self) -> ParetoFront:
+    def _incomplete_front(self, assessment: ParetoInputAssessment) -> ParetoFront:
         """Return an empty result that retains the known coordinate contract."""
         return ParetoFront(
+            schema_version="2.0",
             coordinate_schema=ParetoCoordinateSchema(
                 status="incomplete",
                 coordinates=list(self._coordinates),
-            )
+            ),
+            input_assessment=assessment,
         )
 
     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
         """Compute the Pareto front from a set of evaluations."""
         if not evaluations:
-            return self._incomplete_front()
+            return self._incomplete_front(
+                ParetoInputAssessment(
+                    status="no_usable_inputs",
+                    input_count=0,
+                    assessed_count=0,
+                )
+            )
 
         valid_evaluations: list[BenchmarkEvaluation] = []
         objective_vectors: list[tuple[float, ...]] = []
-        for evaluation in evaluations:
-            vector = self._eval_objective_vector(evaluation)
+        unassessed: list[ParetoUnassessedEvaluation] = []
+        for input_index, evaluation in enumerate(evaluations):
+            vector, missing, non_finite = self._assess_objective_vector(evaluation)
             if vector is None:
+                unassessed.append(
+                    ParetoUnassessedEvaluation(
+                        input_index=input_index,
+                        candidate_ref_id=str(evaluation.candidate_ref.artifact_id),
+                        missing_coordinate_ids=missing,
+                        non_finite_coordinate_ids=non_finite,
+                    )
+                )
                 continue
             valid_evaluations.append(evaluation)
             objective_vectors.append(vector)
+        assessment = ParetoInputAssessment(
+            status=(
+                "no_usable_inputs"
+                if not objective_vectors
+                else "partial"
+                if unassessed
+                else "complete"
+            ),
+            input_count=len(evaluations),
+            assessed_count=len(objective_vectors),
+            unassessed_evaluations=unassessed,
+        )
         if not objective_vectors:
-            return self._incomplete_front()
+            return self._incomplete_front(assessment)
         non_dominated_indices = self._find_non_dominated(objective_vectors)
 
         members = [
@@ -271,6 +375,8 @@ class ParetoPromoter:
             reference_point=ref_point,
             coordinate_schema=self._coordinate_schema,
             coordinate_reference_point=coordinate_ref_point,
+            schema_version="2.0",
+            input_assessment=assessment,
         )
 
     def is_dominated(
@@ -279,17 +385,20 @@ class ParetoPromoter:
         front: ParetoFront,
     ) -> bool:
         """Check if candidate is dominated by any member of the front."""
+        vector, missing, non_finite = self._assess_objective_vector(candidate)
+        if vector is None:
+            reason = "missing" if missing else "non-finite"
+            raise ValueError(
+                f"candidate is unassessed: {reason} required Pareto coordinate"
+            )
         if not front.members:
             return False
-
         schema = front.coordinate_schema
         if schema is None or schema.status != "complete":
             raise ValueError("v1 dominance requires a complete coordinate schema")
         _validate_coordinate_artifact(front)
 
-        cand_obj = self._eval_objectives(candidate)
-        if cand_obj is None:
-            return False
+        cand_obj = self._vector_to_objectives(vector)
         for member in front.members:
             if self._dominates(member.coordinate_values, cand_obj):
                 return True
@@ -322,18 +431,35 @@ class ParetoPromoter:
         ]
 
     def _eval_objective_vector(self, ev: BenchmarkEvaluation) -> tuple[float, ...] | None:
+        vector, _, _ = self._assess_objective_vector(ev)
+        return vector
+
+    def _assess_objective_vector(
+        self,
+        ev: BenchmarkEvaluation,
+    ) -> tuple[tuple[float, ...] | None, list[str], list[str]]:
+        """Return finite coordinates plus exact missing/non-finite omissions."""
         values: list[float] = []
-        for policy in self._policies:
+        missing: list[str] = []
+        non_finite: list[str] = []
+        for policy, coordinate in zip(self._policies, self._coordinates, strict=True):
             value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
-            if value is None or not math.isfinite(value):
-                return None
+            if value is None:
+                missing.append(coordinate.coordinate_id)
+                continue
+            if not math.isfinite(value):
+                non_finite.append(coordinate.coordinate_id)
+                continue
             # Normalize: higher is always better
             if policy.direction == MetricDirection.MINIMIZE:
                 value = -value
             if not math.isfinite(value):
-                return None
+                non_finite.append(coordinate.coordinate_id)
+                continue
             values.append(value)
-        return tuple(values)
+        if missing or non_finite:
+            return None, missing, non_finite
+        return tuple(values), missing, non_finite
 
     def _vector_to_objectives(self, vector: tuple[float, ...]) -> dict[str, float]:
         return dict(zip(self._objective_names, vector, strict=True))

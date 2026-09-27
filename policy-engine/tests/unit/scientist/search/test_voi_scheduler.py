@@ -3,14 +3,25 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoRegistry,
+    ParetoRegistryEntry,
+    ParetoRegistrySnapshot,
+)
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
     SimpleVOIScheduler,
     VOITrainingConfig,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
+    PolicyEvaluationVector,
 )
 
 
@@ -116,9 +127,112 @@ def test_voi_rejects_dominated_candidate() -> None:
             )
         ],
         _budget(),
-        ParetoSnapshot(dominated_candidate_hashes=frozenset({"dom"})),
+        ParetoSnapshot(
+            dominated_candidate_hashes=frozenset({"dom"}),
+            assessment_status="complete",
+        ),
     )[0]
     assert decision.recommended_action == "reject"
+
+
+def test_voi_keeps_unassessed_candidate_in_candidate_computation() -> None:
+    scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
+    frontier = ParetoSnapshot(unassessed_candidate_hashes=frozenset({"unassessed"}))
+    ticket = _ticket(
+        candidate_hash="unassessed",
+        next_level=3,
+        expected_value_proxy=0.9,
+        expected_information_gain=0.2,
+    )
+
+    decision = scheduler.prioritize([ticket], _budget(), frontier)[0]
+
+    assert frontier.position_for("unassessed") == "unassessed"
+    assert decision.economics.current_pareto_position == "unassessed"
+    assert decision.recommended_action == "advance"
+
+
+def test_limited_frontier_snapshot_does_not_receive_frontier_score() -> None:
+    candidate_hash = "sha256:" + "a" * 64
+    frontier = ParetoSnapshot(
+        frontier_candidate_hashes=frozenset({candidate_hash}),
+        assessment_status="legacy_limited",
+    )
+    ticket = _ticket(
+        candidate_hash=candidate_hash,
+        next_level=3,
+        expected_value_proxy=0.9,
+        expected_information_gain=0.2,
+    )
+    scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
+
+    decision = scheduler.prioritize([ticket], _budget(), frontier)[0]
+
+    assert frontier.position_for(candidate_hash) == "unassessed"
+    assert decision.economics.current_pareto_position == "unassessed"
+    assert decision.economics.expected_governance_value == 0.4
+    assert decision.recommended_action == "advance"
+
+
+def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp_path) -> None:
+    candidate_hash = "sha256:" + "b" * 64
+    evaluation = PolicyEvaluationVector(
+        candidate_id="legacy-candidate",
+        primary={
+            "policy_value": ObjectiveChannelValue(
+                name="policy_value",
+                kind=ObjectiveKind.PRIMARY,
+                value=1.0,
+                direction=ObjectiveDirection.MAXIMIZE,
+                source="test",
+            )
+        },
+    )
+    entry = ParetoRegistryEntry(
+        candidate_hash=candidate_hash,
+        candidate_id="legacy-candidate",
+        evaluation=evaluation,
+    )
+    historical = ParetoRegistrySnapshot(
+        schema_version="1.0",
+        loop_id="legacy-loop",
+        entries={candidate_hash: entry},
+        frontiers={"global_feasible": [candidate_hash]},
+    )
+    registry = ParetoRegistry(root=tmp_path / "pareto")
+    registry._write_snapshot("legacy-loop", historical)
+    snapshot_path = registry._snapshot_path("legacy-loop")
+    historical_bytes = snapshot_path.read_bytes()
+
+    loaded = registry.get_snapshot("legacy-loop")
+    voi_snapshot = registry.to_voi_snapshot("legacy-loop")
+    ticket = _ticket(
+        candidate_hash=candidate_hash,
+        next_level=3,
+        expected_value_proxy=0.9,
+        expected_information_gain=0.2,
+    )
+    scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
+    decision = scheduler.prioritize([ticket], _budget(), voi_snapshot)[0]
+    current_basis_control = scheduler.prioritize(
+        [ticket],
+        _budget(),
+        ParetoSnapshot(
+            frontier_candidate_hashes=frozenset({candidate_hash}),
+            assessment_status="complete",
+        ),
+    )[0]
+
+    assert loaded.schema_version == "1.0"
+    assert snapshot_path.read_bytes() == historical_bytes
+    assert voi_snapshot.assessment_status == "legacy_limited"
+    assert candidate_hash in voi_snapshot.unassessed_candidate_hashes
+    assert candidate_hash not in voi_snapshot.frontier_candidate_hashes
+    assert decision.economics.current_pareto_position == "unassessed"
+    assert decision.economics.expected_governance_value < (
+        current_basis_control.economics.expected_governance_value
+    )
+    assert decision.recommended_action == "advance"
 
 
 def test_voi_requests_retry_cheaper_on_high_timeout_risk_before_level4() -> None:
@@ -203,7 +317,10 @@ def test_predictive_voi_uses_observations_and_snapshot_round_trip() -> None:
             )
         ],
         _budget(),
-        ParetoSnapshot(near_frontier_candidate_hashes=frozenset({"future"})),
+        ParetoSnapshot(
+            near_frontier_candidate_hashes=frozenset({"future"}),
+            assessment_status="complete",
+        ),
     )[0]
 
     assert decision.economics.scheduler_mode == "predictive"
@@ -228,7 +345,10 @@ def test_predictive_voi_uses_observations_and_snapshot_round_trip() -> None:
             )
         ],
         _budget(),
-        ParetoSnapshot(near_frontier_candidate_hashes=frozenset({"future"})),
+        ParetoSnapshot(
+            near_frontier_candidate_hashes=frozenset({"future"}),
+            assessment_status="complete",
+        ),
     )[0]
     assert restored_decision.economics.scheduler_mode == "predictive"
 

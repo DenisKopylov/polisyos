@@ -18,13 +18,13 @@ from polisyos.foundry.methods.selection_history import (
     RuntimePredictor,
     SelectionHistoryStore,
 )
-from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
     VOIRunReport,
     stable_voi_decision_id,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 VOI_RUN_REPORT_KIND = "scientist.voi_run_report"
 VOI_RUN_REPORT_SCHEMA_NAME = "polisyos.scientist.search.VOIRunReport"
@@ -32,15 +32,27 @@ VOI_RUN_REPORT_SCHEMA_VERSION = "1.0"
 
 
 class ParetoSnapshot(BaseModel):
-    """Expose frontier/near-frontier/dominated membership used by VOI ranking."""
+    """Expose assessed and unassessed Pareto positions used by VOI ranking."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     frontier_candidate_hashes: frozenset[str] = Field(default_factory=frozenset)
     near_frontier_candidate_hashes: frozenset[str] = Field(default_factory=frozenset)
     dominated_candidate_hashes: frozenset[str] = Field(default_factory=frozenset)
+    unassessed_candidate_hashes: frozenset[str] = Field(default_factory=frozenset)
+    assessment_status: Literal[
+        "complete", "partial", "no_usable_inputs", "basis_limited", "legacy_limited"
+    ] = "legacy_limited"
 
     def position_for(self, candidate_hash: str) -> str:
+        if self.assessment_status != "complete" and (
+            candidate_hash in self.frontier_candidate_hashes
+            or candidate_hash in self.near_frontier_candidate_hashes
+            or candidate_hash in self.dominated_candidate_hashes
+        ):
+            return "unassessed"
+        if candidate_hash in self.unassessed_candidate_hashes:
+            return "unassessed"
         if candidate_hash in self.dominated_candidate_hashes:
             return "dominated"
         if candidate_hash in self.frontier_candidate_hashes:
@@ -327,6 +339,7 @@ class SimpleVOIScheduler:
             "frontier": 1.0,
             "near_frontier": 0.7,
             "unknown": 0.4,
+            "unassessed": 0.4,
             "dominated": 0.0,
         }.get(pareto_position, 0.4)
         return {

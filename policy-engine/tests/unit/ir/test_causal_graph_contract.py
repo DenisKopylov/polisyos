@@ -3,6 +3,7 @@ from __future__ import annotations
 from itertools import permutations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -62,6 +63,27 @@ def _mixed_edge_variants(order: tuple[str, ...]) -> list[CausalEdge]:
             mark_dst=EdgeMark.ARROW,
             lag=2,
             metadata={"relation": "lag2"},
+        ),
+        "same_alpha": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            metadata={"relation": "same-alpha"},
+        ),
+        "same_alpha_duplicate": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            metadata={"relation": "same-alpha"},
+        ),
+        "same_zeta": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            metadata={"relation": "same-zeta"},
         ),
     }
     return [by_kind[kind] for kind in order]
@@ -159,30 +181,19 @@ def test_causal_graph_networkx_preserves_mixed_edge_identity(
     )
 
     exported = graph.to_networkx()
-    if exported.is_multigraph():
-        observed = {
-            (
-                src,
-                dst,
-                data["mark_src"],
-                data["mark_dst"],
-                data["lag"],
-                data["metadata"]["relation"],
-            )
-            for src, dst, _key, data in exported.edges(keys=True, data=True)
-        }
-    else:
-        observed = {
-            (
-                src,
-                dst,
-                data["mark_src"],
-                data["mark_dst"],
-                data["lag"],
-                data["metadata"]["relation"],
-            )
-            for src, dst, data in exported.edges(data=True)
-        }
+    assert exported.is_directed()
+    assert exported.is_multigraph()
+    observed_key_to_relation = {
+        key: (
+            src,
+            dst,
+            data["mark_src"],
+            data["mark_dst"],
+            data["lag"],
+            data["metadata"]["relation"],
+        )
+        for src, dst, key, data in exported.edges(keys=True, data=True)
+    }
 
     expected_by_kind = {
         "directed": ("X", "Y", "tail", "arrow", None, "directed"),
@@ -190,7 +201,114 @@ def test_causal_graph_networkx_preserves_mixed_edge_identity(
         "lag1": ("X", "Y", "tail", "arrow", 1, "lag1"),
         "lag2": ("X", "Y", "tail", "arrow", 2, "lag2"),
     }
-    assert observed == {expected_by_kind[kind] for kind in edge_order}
+    expected_key_by_kind = {
+        "directed": ("tail", "arrow", None, 0),
+        "bidirected": ("arrow", "arrow", None, 0),
+        "lag1": ("tail", "arrow", 1, 0),
+        "lag2": ("tail", "arrow", 2, 0),
+    }
+    assert observed_key_to_relation == {
+        expected_key_by_kind[kind]: expected_by_kind[kind] for kind in edge_order
+    }
+
+
+@pytest.mark.parametrize(
+    "edge_order",
+    list(permutations(("same_alpha", "same_alpha_duplicate", "same_zeta"))),
+    ids=(
+        "alpha-alpha-duplicate-zeta",
+        "alpha-zeta-alpha-duplicate",
+        "alpha-duplicate-alpha-zeta",
+        "alpha-duplicate-zeta-alpha",
+        "zeta-alpha-alpha-duplicate",
+        "zeta-alpha-duplicate-alpha",
+    ),
+)
+def test_causal_graph_networkx_keys_same_relation_payloads_collision_safely(
+    edge_order: tuple[str, ...],
+) -> None:
+    """Distinct payloads and exact duplicates get deterministic, unique relation keys."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=_mixed_edge_variants(edge_order),
+    )
+
+    exported = graph.to_networkx()
+    assert exported.is_directed()
+    assert exported.is_multigraph()
+    observed_key_to_relation = {
+        key: (
+            src,
+            dst,
+            data["mark_src"],
+            data["mark_dst"],
+            data["lag"],
+            data["metadata"]["relation"],
+        )
+        for src, dst, key, data in exported.edges(keys=True, data=True)
+    }
+
+    assert observed_key_to_relation == {
+        ("tail", "arrow", None, 0): (
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            None,
+            "same-alpha",
+        ),
+        ("tail", "arrow", None, 1): (
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            None,
+            "same-alpha",
+        ),
+        ("tail", "arrow", None, 2): (
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            None,
+            "same-zeta",
+        ),
+    }
+
+
+def test_causal_graph_networkx_preserves_single_edge_payload() -> None:
+    """The directed multigraph export keeps ordinary one-edge payloads intact."""
+    edge = CausalEdge(
+        src="A",
+        dst="B",
+        sources=[EdgeSource.DATA],
+        data_confidence=0.6,
+        evidence_refs=["evidence-1"],
+        metadata={"relation": "single"},
+    )
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["A", "B"],
+        edges=[edge],
+    )
+
+    exported = graph.to_networkx()
+
+    assert exported.is_directed()
+    assert exported.number_of_edges("A", "B") == 1
+    if exported.is_multigraph():
+        edge_payload = next(iter(exported.get_edge_data("A", "B").values()))
+    else:
+        edge_payload = exported.get_edge_data("A", "B")
+    assert edge_payload is not None
+    assert edge_payload["mark_src"] == "tail"
+    assert edge_payload["mark_dst"] == "arrow"
+    assert edge_payload["lag"] is None
+    assert edge_payload["data_confidence"] == 0.6
+    assert edge_payload["evidence_refs"] == ["evidence-1"]
+    assert edge_payload["metadata"] == {"relation": "single"}
+
 
 
 def test_causal_graph_rejects_contemporaneous_cycle_even_with_lagged_edges() -> None:

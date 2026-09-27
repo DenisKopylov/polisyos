@@ -378,14 +378,43 @@ class CausalGraphModel(BaseModel):
     def to_networkx(self) -> Any:
         import networkx as nx
 
-        graph = nx.DiGraph()
+        graph = nx.MultiDiGraph()
         graph.add_nodes_from(self.nodes)
+        grouped_edges: dict[
+            tuple[str, str, str, str, int | None],
+            list[tuple[str, dict[str, Any]]],
+        ] = {}
         for edge in self.edges:
-            graph.add_edge(
+            edge_payload = edge.model_dump(mode="json", exclude={"src", "dst"})
+            relation = (
                 edge.src,
                 edge.dst,
-                **edge.model_dump(mode="json", exclude={"src", "dst"}),
+                edge.mark_src.value,
+                edge.mark_dst.value,
+                edge.lag,
             )
+            payload_identity = json.dumps(
+                edge_payload,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            grouped_edges.setdefault(relation, []).append((payload_identity, edge_payload))
+
+        for relation, edges in grouped_edges.items():
+            src, dst, mark_src, mark_dst, lag = relation
+            for ordinal, (_, edge_payload) in enumerate(
+                sorted(edges, key=lambda item: item[0])
+            ):
+                # NetworkX keys are scoped to (src, dst). Typed marks and lag
+                # identify the relation class; payload ordinals separate distinct
+                # payloads and exact duplicates without hash collisions.
+                relation_key = (mark_src, mark_dst, lag, ordinal)
+                graph.add_edge(
+                    src,
+                    dst,
+                    key=relation_key,
+                    **edge_payload,
+                )
         return graph
 
     @cached_property

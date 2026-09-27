@@ -1,5 +1,40 @@
 # Four-base P41 test baselines
 
+## P41 supplementary whole-file observations (2026-09-27)
+
+These are additional historical cells only; they do not reconcile, replace, or
+retroactively alter any earlier matrix snapshot. In particular, the current
+`codex/e02-r2` integration-head outcomes below remain **UNRUN**. The historical
+JUnit files are enumerated in full by the cited receipts.
+
+- E02 head (`00d946c2b7d052522be092f9c70eb9902f6521c2`),
+  `policy-engine/tests/unit/remediation/test_cyc_05.py` (blob
+  `9a9199993498fa60a72a786fcacc45d469324231`): **21/21 pass**, 0 fail/error/skip.
+  JUnit: `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/e02/test_cyc_05.junit.xml@sha256:bf815bbf0de05435ced6d0fe0cecc03247f90f831d82b33cb24a700ad780373c`;
+  run receipt: `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/e02/test_cyc_05.RECEIPT.md@sha256:ad097299c1a7874fea79b4ed9d07c6b86ce73b36f0f00be42b8baec92588135c`.
+
+- `policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py`
+  (identical test blob `29796d251f8de3262e723c337961b34ad96cc30a`) has a
+  whole-file denominator of **18 cases per historical checkout**. Execution base,
+  E02 head, and main each report 17 pass / 1 fail / 0 error / 0 skip. The same
+  identity fails on all three: `test_nl_runs_path_is_legacy_shadow_until_loop_proposer_exists`;
+  the remaining 17 pass at each base. This comparison establishes no pass-to-fail
+  between these three historical bases. JUnit files: execution base
+  `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/execution/test_workspace_loop_transition.junit.xml@sha256:9897255c6fa2c8f73c56d8213df736a7207c8ce4d16b6cc5a81cfdde02ecc610`, E02 head
+  `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/e02/test_workspace_loop_transition.junit.xml@sha256:16464bafd44a485b1e480738cf16490a9f6d64bcd2b26977674a95596fab233e`, and main
+  `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/main/test_workspace_loop_transition.junit.xml@sha256:f11b7b0261e95e3ae18b720ce98ede7c8abfd9edaf94fd88043b2f6e603fdbfb`. The
+  three-base run receipt is
+  `/Users/deniskopylov/.codex/scratch/e02-r2-p41-supplement-20260927/WORKSPACE_LOOP_THREE_BASE_RECEIPT.md@sha256:d73926f798171a38806dd54e56d25a3058e49bb3291fac5d7e5a0dd718ed3d4f`.
+
+The fourth-base integration result for both supplemental files is **UNRUN**. The
+P41 harness revision committed at `7418b0e47891c83f3ea50f4de8b9d10f644b73f5`
+(`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py`,
+SHA-256 `564b7139fc807ddc6b0941410f2253e93b1f01ed7170e0046336a5b3676baa24`) keeps
+Phase 0 as a fixed historical base and binds the fourth cell to the committed
+`codex/e02-r2` HEAD at invocation. No current-head
+result is inferred from the historical JUnit files or from a dynamic-path
+harness update.
+
 Run: `p41-pre-repair-20260924T201448Z-19470`. This is a measurement of the Phase 0 merge head before repair.
 
 ## P41 exact-test-origin correction and R14 denominator (2026-09-26)

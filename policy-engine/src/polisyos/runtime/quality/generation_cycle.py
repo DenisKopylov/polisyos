@@ -78,6 +78,8 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
+    FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS,
+    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -95,7 +97,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     run_acquisition_closed_loop,
     value_input_world_knowledge_requirement_gap,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_modes import (
     EvaluationMode as ValueEvaluationMode,
 )
@@ -454,13 +456,19 @@ def _historical_value_matches_vocabulary(
 
 
 def _historical_generation_cycle_field_tree(
-    value: object, payload: object, *, version: str
+    value: object,
+    payload: object,
+    *,
+    version: str,
+    design_problem_schema_version: str | None = None,
 ) -> object:
-    """Project an N6 object through its frozen v1/v2 typed serializer graph.
+    """Project an N6 object through its frozen v1/v2/v3 typed serializer graph.
 
     Unknown typed owners, changed historical model edges, and current-only
     Literal values fail closed. Fields absent from the persisted model's
     supplied-field set stay absent; opaque mapping leaves remain uninterpreted.
+    Inputs have already passed the current Pydantic parser, so a record rejected
+    before this projection cannot be recovered by historical compatibility.
     """
 
     version_models = FROZEN_N6_HISTORY_SCHEMA.get(version)
@@ -474,6 +482,15 @@ def _historical_generation_cycle_field_tree(
         shape = version_models.get(qualified_name)
         if not isinstance(shape, dict):
             raise ValueError("generation_cycle_history_typed_owner_unmapped")
+
+        nested_design_problem_schema_version = design_problem_schema_version
+        if isinstance(value, DesignProblem):
+            persisted_schema_version = payload.get("schema_version")
+            nested_design_problem_schema_version = (
+                persisted_schema_version
+                if isinstance(persisted_schema_version, str)
+                else FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+            )
 
         current_fields = type(value).model_fields
         declared_fields = shape["declared_fields"]
@@ -501,6 +518,17 @@ def _historical_generation_cycle_field_tree(
             if field_name in excluded_fields:
                 continue
             field = current_fields[field_name]
+            frozen_pattern = FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(
+                nested_design_problem_schema_version or "", {}
+            ).get(qualified_name, {}).get(field_name)
+            if frozen_pattern is not None and field_name in value.model_fields_set:
+                historical_value = getattr(value, field_name)
+                if not isinstance(historical_value, str) or re.fullmatch(
+                    frozen_pattern, historical_value
+                ) is None:
+                    raise ValueError(
+                        "generation_cycle_history_field_pattern_out_of_epoch"
+                    )
             current_vocabulary = _historical_annotation_vocabularies(field.annotation)
             frozen_vocabulary = frozen_field_vocabulary.get(field_name, ())
             frozen_by_identity = {
@@ -559,19 +587,32 @@ def _historical_generation_cycle_field_tree(
                 result[key] = item
                 continue
             result[key] = _historical_generation_cycle_field_tree(
-                getattr(value, field_name), item, version=version
+                getattr(value, field_name),
+                item,
+                version=version,
+                design_problem_schema_version=nested_design_problem_schema_version,
             )
         return result
 
     if isinstance(value, Mapping) and isinstance(payload, dict):
         return {
-            key: _historical_generation_cycle_field_tree(value[key], item, version=version)
+            key: _historical_generation_cycle_field_tree(
+                value[key],
+                item,
+                version=version,
+                design_problem_schema_version=design_problem_schema_version,
+            )
             for key, item in payload.items()
             if key in value
         }
     if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
         return [
-            _historical_generation_cycle_field_tree(original, item, version=version)
+            _historical_generation_cycle_field_tree(
+                original,
+                item,
+                version=version,
+                design_problem_schema_version=design_problem_schema_version,
+            )
             for original, item in zip(value, payload, strict=True)
         ]
     return payload
@@ -1810,6 +1851,22 @@ class GenerationCycleRun(_StrictModel):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
+
+
+def _historical_generation_cycle_run_projection(
+    run: GenerationCycleRun,
+) -> dict[str, Any]:
+    """Return the persisted projection for history replay without changing live v3 output."""
+
+    payload = run.model_dump(mode="json")
+    if not run.schema_version.endswith(".v3"):
+        return payload
+    projection = _historical_generation_cycle_field_tree(
+        run, payload, version="v3"
+    )
+    if not isinstance(projection, dict):
+        raise TypeError("historical_generation_payload_invalid")
+    return projection
 
 
 class GenerationPort(Protocol):
@@ -6437,7 +6494,7 @@ def validate_generation_cycle_run_history(
         spec = CanonSpec(forbid_floats=False)
         persisted_projection_bytes = to_canonical_bytes(dict(run), spec)
         replayed_projection_bytes = to_canonical_bytes(
-            parsed.model_dump(mode="json"), spec
+            _historical_generation_cycle_run_projection(parsed), spec
         )
     except (TypeError, ValueError) as exc:
         return (

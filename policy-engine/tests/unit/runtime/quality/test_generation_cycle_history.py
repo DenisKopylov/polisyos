@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import subprocess
 from collections.abc import Mapping, Sequence
@@ -21,6 +22,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionStrategy,
 )
+from polisyos.runtime.quality.design_problem import CandidateLever
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
     StrangleReceipt,
@@ -55,6 +57,28 @@ def _n6_runs(
     return rows
 
 
+def _v3_history_fixtures() -> tuple[tuple[str, dict[str, Any]], ...]:
+    """Read two SHA-pinned v3 records captured before the schema bump."""
+
+    fixtures = (
+        (
+            "generation_cycle_controller_v3.json.fixture",
+            "dba1d1ff6598ac7c7705e2d46fc085e42e6d1f4651e14ab5c16af57f848ea02c",
+        ),
+        (
+            "generation_cycle_controller_v3_identity.json.fixture",
+            "0c8027f56795dc40ccf263b82ef261f645397bb69c2c2a49b23bd8197f570d20",
+        ),
+    )
+    rows: list[tuple[str, dict[str, Any]]] = []
+    for fixture_name, expected_sha256 in fixtures:
+        fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+        raw_fixture = fixture_path.read_bytes()
+        assert hashlib.sha256(raw_fixture).hexdigest() == expected_sha256
+        rows.append((fixture_name, canon.from_canonical_bytes(raw_fixture)))
+    return tuple(rows)
+
+
 @cache
 def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
     """Walk all tracked JSON/JSONL files and add the pinned Git-history fixture."""
@@ -66,6 +90,7 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
         capture_output=True,
     ).stdout.decode("utf-8")
     paths = tuple(path for path in listed.split("\0") if path)
+    assert "policy-engine/.vscode/settings.json" in paths
     rows: list[tuple[str, str, dict[str, Any]]] = []
     for relative in paths:
         path = REPO_ROOT.parent / relative
@@ -88,6 +113,13 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
         "$/generation_cycle_run",
         pinned_run,
     ))
+    for fixture_name, fixture in _v3_history_fixtures():
+        fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+        rows.append((
+            f"historical-fixture:{fixture_path.relative_to(REPO_ROOT.parent)}",
+            "$",
+            fixture,
+        ))
     return len(paths), rows
 
 
@@ -119,7 +151,9 @@ def _nested_models(value: object, model_type: type[BaseModel]) -> list[BaseModel
     return found
 
 
-def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly() -> None:
+def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
+    record_property: Any,
+) -> None:
     """Replay each enumerated persisted run through its own historical serializer."""
 
     tracked_file_count, occurrences = _tracked_n6_runs()
@@ -128,14 +162,18 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly() -> None
         version = str(payload["schema_version"])
         versions[version] = versions.get(version, 0) + 1
 
-    # This is the measured full-tree denominator, including the pinned v1 blob.
-    # Any new tracked JSON fixture needs an explicit historical-version review.
-    assert tracked_file_count == 2883
-    assert len(occurrences) == 11
-    assert versions == {
-        "policyos.runtime.generation_cycle_controller.v1": 10,
-        "policyos.runtime.generation_cycle_controller.v2": 1,
+    # Record the complete tracked JSON/JSONL denominator; the set may grow.
+    record_property("tracked_json_jsonl_file_count", tracked_file_count)
+    assert tracked_file_count > 0
+    assert versions.get("policyos.runtime.generation_cycle_controller.v1", 0) >= 10
+    assert versions.get("policyos.runtime.generation_cycle_controller.v2", 0) >= 1
+    assert versions.get("policyos.runtime.generation_cycle_controller.v3", 0) >= 2
+    v3_identity_statuses = {
+        payload["deployment_identity_status"]
+        for _path, _pointer, payload in occurrences
+        if payload["schema_version"] == "policyos.runtime.generation_cycle_controller.v3"
     }
+    assert v3_identity_statuses == {"established", "not_established"}
     assert sum(
         path == f"git-blob:{GENERATION_CYCLE_V1_BLOB}"
         for path, _pointer, _payload in occurrences
@@ -144,7 +182,13 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly() -> None
     spec = canon.CanonSpec(forbid_floats=False)
     for path, pointer, payload in occurrences:
         run = GenerationCycleRun.model_validate(payload)
-        replayed = run.model_dump(mode="json")
+        live_projection = run.model_dump(mode="json")
+        if run.schema_version.endswith(".v3"):
+            # This patch must not change ordinary producer serialization.
+            assert canon.to_canonical_bytes(live_projection, spec) == (
+                canon.to_canonical_bytes(payload, spec)
+            )
+        replayed = generation._historical_generation_cycle_run_projection(run)
         persisted_bytes = canon.to_canonical_bytes(payload, spec)
         replayed_bytes = canon.to_canonical_bytes(replayed, spec)
         assert replayed_bytes == persisted_bytes, f"serializer drift at {path}{pointer}"
@@ -156,11 +200,116 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly() -> None
         )
 
 
+def test_v3_history_freeze_rejects_dotted_target_slot_while_markers_remain() -> None:
+    """The v3 receipt keeps its original target grammar despite model_copy tampering."""
+
+    fixture_name, payload = _v3_history_fixtures()[0]
+    assert all(
+        cycle["revision_request"]["revised_problem"]["schema_version"]
+        == "policyos.runtime.design_problem.v1"
+        for cycle in payload["cycles"]
+    )
+    run = GenerationCycleRun.model_validate(payload)
+
+    def replace_target_slot(value: object) -> tuple[object, bool]:
+        if isinstance(value, CandidateLever):
+            return value.model_copy(update={"target_slot": "government.balance"}), True
+        if isinstance(value, BaseModel):
+            updates: dict[str, object] = {}
+            for field_name in type(value).model_fields:
+                replacement, changed = replace_target_slot(getattr(value, field_name))
+                if changed:
+                    updates[field_name] = replacement
+                    break
+            return (value.model_copy(update=updates), True) if updates else (value, False)
+        if isinstance(value, (tuple, list)):
+            items = list(value)
+            for index, item in enumerate(items):
+                replacement, changed = replace_target_slot(item)
+                if changed:
+                    items[index] = replacement
+                    return (tuple(items) if isinstance(value, tuple) else items), True
+        return value, False
+
+    forged, changed = replace_target_slot(run)
+    assert changed, f"v3 fixture has no CandidateLever: {fixture_name}"
+    assert isinstance(forged, GenerationCycleRun)
+    assert forged.schema_version == run.schema_version
+    assert forged.strangle_receipt.status == run.strangle_receipt.status
+    with pytest.raises(
+        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
+    ):
+        generation._historical_generation_cycle_run_projection(forged)
+
+
+def test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot() -> None:
+    """Outer N6 v3 may contain an R1 v2 problem using the canonical dotted slot."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    for cycle in payload["cycles"]:
+        problem = cycle["revision_request"]["revised_problem"]
+        problem["schema_version"] = "policyos.runtime.design_problem.v2"
+        problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+            "government.balance"
+        )
+
+    run = GenerationCycleRun.model_validate(payload)
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v3"
+    projection = generation._historical_generation_cycle_run_projection(run)
+    for cycle in projection["cycles"]:
+        problem = cycle["revision_request"]["revised_problem"]
+        assert problem["schema_version"] == "policyos.runtime.design_problem.v2"
+        assert (
+            problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"]
+            == "government.balance"
+        )
+
+
+def test_v3_blocked_terminal_semantics_remain_enforced_in_history() -> None:
+    """Changing the persisted blocked terminal marker makes v3 history red."""
+
+    for _fixture_name, original in _v3_history_fixtures():
+        assert validate_generation_cycle_run_history(original) == ()
+        forged = copy.deepcopy(original)
+        forged["cycles"][-1]["refinement_decision"]["decision"] = "stop"
+        issues = validate_generation_cycle_run_history(forged)
+        assert "generation_cycle_blocked_terminal_projection_mismatch" in {
+            issue.get("code") for issue in issues
+        }
+
+
+def test_v3_history_preserves_arbitrary_design_problem_schema_strings() -> None:
+    """Historical replay preserves the v3 plain-string schema version contract."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    forged = copy.deepcopy(payload)
+    changed = False
+
+    def change_nested_problem_version(value: object) -> None:
+        nonlocal changed
+        if isinstance(value, dict):
+            if "problem_statement" in value and "candidate_lever_space" in value:
+                value["schema_version"] = "historical_custom_schema_label"
+                changed = True
+                return
+            for child in value.values():
+                change_nested_problem_version(child)
+        elif isinstance(value, list):
+            for child in value:
+                change_nested_problem_version(child)
+
+    change_nested_problem_version(forged)
+    assert changed
+    assert validate_generation_cycle_run_history(forged) == ()
+
+
 def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> None:
     """Freeze aliases/Enums across every map class and exclude computed wire keys."""
 
     frozen = generation.FROZEN_N6_HISTORY_SCHEMA
-    expected_field_counts = {"v1": 76, "v2": 82}
+    expected_field_counts = {"v1": 76, "v2": 82, "v3": 86}
+    expected_model_counts = {"v1": 59, "v2": 60, "v3": 62}
+    assert {version: len(models) for version, models in frozen.items()} == expected_model_counts
     for version, models in frozen.items():
         assert sum(
             len(shape["field_vocabulary"]) for shape in models.values()

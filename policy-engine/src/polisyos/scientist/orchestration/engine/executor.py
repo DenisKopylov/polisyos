@@ -6,6 +6,7 @@ import logging
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -13,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, CanonViolation
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.contracts.skip_blockers import (
     SkippedNodeBlocker,
     build_skip_blocker_record,
@@ -55,8 +56,8 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
-    execute_with_retry_sync,
     _preserve_retry_spend,
+    execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state,
@@ -103,6 +104,20 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_enrich_knowledge@1.1.0",
     }
 )
+
+
+class WorkflowExecutionStatus(StrEnum):
+    """Terminal statuses emitted by current workflow execution-result producers."""
+
+    OK = "ok"
+    FAIL = "fail"
+
+    @classmethod
+    def from_failures(cls, failed: bool) -> WorkflowExecutionStatus:
+        """Derive the result status from the executor's failed-node signal."""
+        return cls.FAIL if failed else cls.OK
+
+
 _EXECUTOR_DEGRADED_ERRORS = (
     ArithmeticError,
     AssertionError,
@@ -141,6 +156,27 @@ class NodeRunRecord(BaseModel):
         return self
 
 
+class _WorkflowReportCanonicalizationError(ValueError):
+    """Workflow report diagnostics cannot be represented by the strict CAS profile."""
+
+    def __init__(self, *, node_alias: str, cause: CanonViolation) -> None:
+        self.node_alias = node_alias
+        self.cause = cause
+        super().__init__(
+            f"Workflow report error details for node {node_alias!r} are not canonical: {cause}"
+        )
+
+
+class _WorkflowReportStatusError(ValueError):
+    """A report status is outside the current execution-result contract."""
+
+    def __init__(self, *, status: Any) -> None:
+        self.status = status
+        super().__init__(
+            f"Workflow report status {status!r} is not emitted by current execution producers"
+        )
+
+
 class WorkflowReport(BaseModel):
     """Workflow report data model."""
 
@@ -152,6 +188,32 @@ class WorkflowReport(BaseModel):
     error_policy: ErrorPolicy
     status: str
     nodes: list[NodeRunRecord] = Field(default_factory=list)
+
+    def _validated_payload(self) -> dict[str, Any]:
+        """Return a detached payload after strict CAS-profile admission of error details.
+
+        NodeError remains permissive when reading historical workflow histories. New
+        report writes validate current producer status and dynamic details here, at the
+        persistence boundary, before asking the artifact store to persist them. The
+        status field itself stays broad for historical read compatibility.
+        """
+        payload = self.model_dump()
+        try:
+            WorkflowExecutionStatus(payload["status"])
+        except (TypeError, ValueError) as exc:
+            raise _WorkflowReportStatusError(status=payload["status"]) from exc
+
+        for record in payload["nodes"]:
+            error = record["error"]
+            if error is not None:
+                try:
+                    to_canonical_bytes(error["details"])
+                except CanonViolation as exc:
+                    raise _WorkflowReportCanonicalizationError(
+                        node_alias=record["alias"],
+                        cause=exc,
+                    ) from exc
+        return payload
 
 
 @dataclass(frozen=True)
@@ -1023,10 +1085,9 @@ class WorkflowExecutor:
                         outcome = NodeOutcome(
                             status="fail",
                             state=state,
-                            error=NodeError(
-                                code="node.timeout",
+                            error=NodeError.for_timeout(
                                 message=str(exc),
-                                details={"timeout_s": inv.timeout_s},
+                                timeout_s=inv.timeout_s,
                             ),
                         )
                     except RetryExhaustedError as exc:
@@ -1290,7 +1351,7 @@ class WorkflowExecutor:
                 if outcome.status == "fail" and workflow.error_policy == "fail_fast":
                     break
 
-        overall_status = "fail" if failed else "ok"
+        overall_status = WorkflowExecutionStatus.from_failures(bool(failed)).value
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_workflow_completed(
                 workflow_id=workflow.workflow_id,
@@ -1413,7 +1474,7 @@ class WorkflowExecutor:
 
     def _persist_report(self, report: WorkflowReport) -> ArtifactRef:
         return self._ctx.store.put_json(
-            report.model_dump(),
+            report._validated_payload(),
             PutOptions(
                 kind="scientist.workflow_report",
                 media_type="application/json",

@@ -26,8 +26,28 @@ class NodeError(BaseModel):
     message: str
     details: dict[str, Any] = Field(
         default_factory=dict,
-        description="Must be canonical-json friendly (no float).",
+        description="Diagnostic details; persisted reports apply the CAS canonical profile.",
     )
+
+    @classmethod
+    def for_timeout(
+        cls,
+        *,
+        message: str,
+        timeout_s: float | None,
+        code: str = "node.timeout",
+    ) -> NodeError:
+        """Build a timeout error with its exact binary64 threshold in seconds.
+
+        The hexadecimal representation round-trips to the same Python float
+        without admitting a JSON float into the strict workflow-report profile.
+        """
+        details = (
+            {"timeout_seconds_binary64_hex": float(timeout_s).hex()}
+            if timeout_s is not None
+            else {}
+        )
+        return cls(code=code, message=message, details=details)
 
 
 class NodeEvent(BaseModel):

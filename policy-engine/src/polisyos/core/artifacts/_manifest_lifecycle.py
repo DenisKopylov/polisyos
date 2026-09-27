@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from polisyos.common.serialization import fast_json_dumps_bytes
@@ -30,6 +31,7 @@ class ManifestLifecycle:
         data: bytes,
         sha: str,
         opts: ArtifactWriteOptions,
+        created_at: datetime | None = None,
     ) -> ArtifactManifest:
         input_refs = [_coerce_input_ref(input_ref) for input_ref in opts.inputs or []]
         manifest_payload = {
@@ -49,13 +51,38 @@ class ManifestLifecycle:
             "integrity": IntegrityInfo(sha256=sha),
             "warnings": list(opts.warnings or []),
         }
-        # v1 omits the version marker and remains byte-compatible with historical
-        # manifests. The selector is a hashed-model extension only when an input
-        # explicitly names a selected manifest view, so bump that projection alone.
-        # Set the marker before model validation so v1 cannot accept new hashed bytes.
-        if any(input_ref.manifest_profile_sha256 is not None for input_ref in input_refs):
-            manifest_payload["manifest_schema_version"] = "v2"
+        if created_at is not None:
+            manifest_payload["created_at"] = created_at
+        # V3 versions the profile projection that binds all consumer-visible
+        # integrity metadata while excluding the derived content digest.
+        manifest_payload["manifest_schema_version"] = "v3"
         return ArtifactManifest.model_validate(manifest_payload)
+
+    @classmethod
+    def expected_for_write(
+        cls,
+        *,
+        artifact_id: ArtifactID,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        created_at: datetime,
+    ) -> ArtifactManifest:
+        """Reconstruct the exact current manifest a CAS write must emit.
+
+        The current write path and readers checking a just-written artifact share
+        this constructor so schema-version and metadata selection cannot drift.
+        Historical sidecar replay uses its explicitly versioned projection instead.
+        """
+        sha = hashlib.sha256(data).hexdigest()
+        if sha != artifact_id.hex:
+            raise ValueError("expected manifest artifact ID does not match payload bytes")
+        return cls.build(
+            artifact_id=artifact_id,
+            data=data,
+            sha=sha,
+            opts=opts,
+            created_at=created_at,
+        )
 
     @staticmethod
     def to_bytes(manifest: ArtifactManifest) -> bytes:
@@ -118,25 +145,36 @@ class ManifestLifecycle:
 
     @staticmethod
     def profile_projection(manifest: ArtifactManifest) -> dict[str, object]:
-        """Return every immutable typed-view field, including warning evidence."""
+        """Return the typed-view projection selected by its persisted schema version.
+
+        Historical v1/v2 manifests keep the original projection, which omitted the
+        complete integrity object. V3 binds consumer-visible optional integrity
+        metadata while excluding only the content-derived SHA-256 value.
+        """
+        excluded: dict[str, object] = {
+            "artifact_id": True,
+            "byte_size": True,
+            "created_at": True,
+        }
+        if manifest.manifest_schema_version in {"v1", "v2"}:
+            excluded["integrity"] = True
+        else:
+            excluded["integrity"] = {"sha256"}
         return manifest.model_dump(
             mode="json",
             by_alias=True,
             exclude_none=True,
-            exclude={
-                "artifact_id",
-                "byte_size",
-                "created_at",
-                "integrity",
-            },
+            exclude=excluded,
         )
 
     @classmethod
     def profile_sha256(cls, manifest: ArtifactManifest) -> str:
-        """Compute a domain-separated digest for one complete persisted view."""
+        """Compute the historical v1 or v3-projection v2 digest for a persisted view."""
         projection = cls.profile_projection(manifest)
         payload = fast_json_dumps_bytes(projection, sort_keys=True)
-        digest = hashlib.sha256(b"polisyos.cas.manifest-profile.v1\0" + payload).hexdigest()
+        profile_version = "v2" if manifest.manifest_schema_version == "v3" else "v1"
+        domain = f"polisyos.cas.manifest-profile.{profile_version}\0".encode("ascii")
+        digest = hashlib.sha256(domain + payload).hexdigest()
         return f"sha256:{digest}"
 
     @staticmethod

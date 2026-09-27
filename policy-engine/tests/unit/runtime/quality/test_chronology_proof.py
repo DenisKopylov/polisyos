@@ -10,7 +10,7 @@ import pickle
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
 
@@ -23,6 +23,7 @@ from polisyos.core.artifacts import (
     InputRef,
     SchemaInfo,
 )
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts import chronology as contract
 from polisyos.core.security.full_prefix import FullPrefixVerifier, build_full_prefix_bundle
@@ -55,6 +56,7 @@ def _put_raw(
     kind: str,
     schema: SchemaInfo | None = None,
     inputs: list[InputRef] | None = None,
+    canon: CanonInfo | None = None,
 ) -> ArtifactRef:
     return store.put_bytes(
         payload,
@@ -62,6 +64,7 @@ def _put_raw(
             kind=kind,
             media_type="application/octet-stream",
             schema=schema,
+            canon=canon,
             inputs=inputs,
         ),
     )
@@ -634,6 +637,90 @@ def test_reader_reloads_raw_bytes_and_reruns_real_verifier(tmp_path: Path) -> No
 
     assert isinstance(observed, contract.FullPrefixVerified)
     assert observed == persisted.verification_statement.result
+
+
+@pytest.mark.parametrize("schema_version", ["v1", "v2"])
+def test_reader_replays_versioned_historical_manifest_projection(
+    tmp_path: Path,
+    schema_version: Literal["v1", "v2"],
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    ref = _put_raw(
+        case.store,
+        case.bundle.bundle_bytes,
+        kind="core.chronology.full_prefix.bundle",
+        schema=SchemaInfo(name="polisyos.chronology.FullPrefixBundle", version="1"),
+        canon=CanonInfo.from_spec(contract.CHRONOLOGY_CANON_SPEC),
+        inputs=(
+            [
+                InputRef(
+                    artifact_id=_dummy_ref("historical-basis").artifact_id,
+                    role="historical_basis",
+                    manifest_profile_sha256="sha256:" + "a" * 64,
+                )
+            ]
+            if schema_version == "v2"
+            else []
+        ),
+    )
+    manifest = case.store.get_manifest(ref.artifact_id)
+    historical = manifest.model_copy(
+        update={"manifest_schema_version": schema_version}
+    )
+    _, sidecar = case.store.get_paths(ref.artifact_id)
+    sidecar.write_bytes(ManifestLifecycle.to_bytes(historical))
+
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
+        query=case.query,
+        bundle_ref=ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+
+    assert isinstance(observed, contract.FullPrefixVerified)
+
+
+@pytest.mark.parametrize("schema_version", ["v1", "v2"])
+def test_reader_rejects_historical_manifest_canon_drift(
+    tmp_path: Path,
+    schema_version: Literal["v1", "v2"],
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    ref = _put_raw(
+        case.store,
+        case.bundle.bundle_bytes,
+        kind="core.chronology.full_prefix.bundle",
+        schema=SchemaInfo(name="polisyos.chronology.FullPrefixBundle", version="1"),
+        canon=CanonInfo.from_spec(contract.CHRONOLOGY_CANON_SPEC),
+        inputs=(
+            [
+                InputRef(
+                    artifact_id=_dummy_ref("historical-basis").artifact_id,
+                    role="historical_basis",
+                    manifest_profile_sha256="sha256:" + "a" * 64,
+                )
+            ]
+            if schema_version == "v2"
+            else []
+        ),
+    )
+    manifest = case.store.get_manifest(ref.artifact_id)
+    historical_with_canon_drift = manifest.model_copy(
+        update={"manifest_schema_version": schema_version, "canon": None}
+    )
+    _, sidecar = case.store.get_paths(ref.artifact_id)
+    sidecar.write_bytes(ManifestLifecycle.to_bytes(historical_with_canon_drift))
+
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
+        query=case.query,
+        bundle_ref=ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+
+    assert isinstance(observed, contract.ChronologyPersistenceManifestMismatch)
 
 
 def test_reader_missing_result_is_query_bound(tmp_path: Path) -> None:

@@ -801,6 +801,7 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert store.verify(persisted.artifact_ref.artifact_id).ok is True
     manifest = store.get_manifest(persisted.artifact_ref.artifact_id)
     assert manifest.kind == "core.chronology.applicable_predicate_denominator"
+    assert manifest.manifest_schema_version == "v3"
     assert manifest.media_type == "application/octet-stream"
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == ("polisyos.chronology.ApplicablePredicateDenominator")
@@ -816,6 +817,34 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert isinstance(corrupted, contract.ApplicablePredicateDenominatorArtifactFailure)
     assert corrupted.status == "not_established"
     assert corrupted.evidence_ref == persisted.artifact_ref
+
+
+def test_denominator_owner_accepts_its_current_v3_manifest(tmp_path: Path) -> None:
+    qualified = _owner_qualified_candidate()
+    policy = qualified.owner_relation_verification.policy_owner_provenance
+    statement = contract.ApplicablePredicateDenominatorStatement(
+        schema_version="polisyos.chronology.applicable-predicate-denominator.v1",
+        policy_ref=policy.policy_ref,
+        policy_content_hash=policy.policy_content_hash,
+        member_subject_refs=tuple(
+            member.member_ref for member in qualified.candidate.ordered_members
+        ),
+        required_member_predicate_pairs=(),
+        required_query_predicate_ids=(),
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    adapter = contract.ChronologyApplicablePredicateDenominatorArtifacts(store=store)
+
+    persisted = adapter.persist_and_verify(
+        query=qualified.candidate.query,
+        statement=statement,
+        owner_qualified_candidate=qualified,
+    )
+
+    assert isinstance(persisted, contract.PersistedApplicablePredicateDenominator)
+    manifest = store.get_manifest(persisted.artifact_ref.artifact_id)
+    assert manifest.manifest_schema_version == "v3"
+    assert manifest.kind == "core.chronology.applicable_predicate_denominator"
 
 
 def test_owner_context_rejects_policy_identity_not_bound_by_owner_receipt() -> None:

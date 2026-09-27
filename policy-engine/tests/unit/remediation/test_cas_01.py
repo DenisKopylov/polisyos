@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -71,12 +72,7 @@ def _assert_manifest_profile(
     assert manifest.authority == options.authority
     assert manifest.integrity.sha256 == manifest.artifact_id.hex
     assert manifest.warnings == []
-    expected_version = (
-        "v2"
-        if any(ref.manifest_profile_sha256 is not None for ref in options.inputs or [])
-        else "v1"
-    )
-    assert manifest.manifest_schema_version == expected_version
+    assert manifest.manifest_schema_version == "v3"
 
 
 def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
@@ -131,7 +127,7 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
     _assert_manifest_profile(second_manifest, second_options, data=PAYLOAD)
     # ID-only callers retain the historical first-writer view and byte identity.
     assert store.get_manifest(first_ref.artifact_id).kind == first_options.kind
-    assert store.get_manifest(first_ref.artifact_id).manifest_schema_version == "v2"
+    assert store.get_manifest(first_ref.artifact_id).manifest_schema_version == "v3"
     assert store.get_bytes(first_ref) == PAYLOAD
     assert store.get_bytes(second_ref) == PAYLOAD
 
@@ -152,12 +148,33 @@ def test_reuse_with_same_profile_preserves_first_manifest_and_ref(tmp_path: Path
 
     first_ref = store.put_bytes(PAYLOAD, options)
     first_manifest = store.get_manifest(first_ref)
-    assert first_manifest.manifest_schema_version == "v1"
+    assert first_manifest.manifest_schema_version == "v3"
     second_ref = store.put_bytes(PAYLOAD, options)
 
     assert second_ref == first_ref
     assert store.get_manifest(first_ref) == first_manifest
     assert store.get_manifest(first_ref.artifact_id).kind == options.kind
+
+
+def test_manifest_lifecycle_reconstructs_the_current_write_manifest(
+    tmp_path: Path,
+) -> None:
+    """Fresh-write expectations use the same v3 schema selection as the CAS owner."""
+    store = FileSystemCAS(tmp_path / "cas")
+    options = _options("cas.expected.current", "application/octet-stream")
+    ref = store.put_bytes(PAYLOAD, options)
+    observed = store.get_manifest(ref)
+
+    expected = ManifestLifecycle.expected_for_write(
+        artifact_id=ref.artifact_id,
+        data=PAYLOAD,
+        opts=options,
+        created_at=observed.created_at,
+    )
+
+    assert expected == observed
+    assert expected.manifest_schema_version == "v3"
+    assert expected.model_copy(update={"manifest_schema_version": "v2"}) != observed
 
 
 def test_selectorless_refs_keep_the_historical_serialized_projection() -> None:
@@ -428,3 +445,154 @@ def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path
 
     assert not waiter.is_alive()
     assert waiter_acquired.is_set()
+
+
+def _historical_profile_fixture(schema_version: str) -> ArtifactManifest:
+    """Build deterministic pre-v3 profile bytes for historical selector replay."""
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64 if schema_version == "v1" else "c" * 64)
+    historical_basis_id = ArtifactID.from_sha256_hex("b" * 64)
+    values: dict[str, object] = {
+        "artifact_id": artifact_id,
+        "kind": "fixture.historical" if schema_version == "v1" else "fixture.historical.selected",
+        "media_type": "application/json",
+        "byte_size": 7 if schema_version == "v1" else 17,
+        "created_at": datetime(2026, 9, 26, tzinfo=UTC),
+        "inputs": [InputRef(artifact_id=historical_basis_id, role="historical_basis")],
+        "integrity": IntegrityInfo(sha256=artifact_id.hex),
+    }
+    if schema_version == "v2":
+        values["manifest_schema_version"] = "v2"
+        values["inputs"] = [
+            InputRef(
+                artifact_id=historical_basis_id,
+                role="selected_basis",
+                manifest_profile_sha256="sha256:" + "1" * 64,
+            )
+        ]
+    return ArtifactManifest.model_validate(values)
+
+
+def test_historical_v1_and_v2_profile_selectors_keep_exact_digest() -> None:
+    """Old default and selected-input manifest keys keep the v1 projection."""
+    assert ManifestLifecycle.profile_sha256(_historical_profile_fixture("v1")) == (
+        "sha256:38e4f96c98d60275375a2b425e68537db875d4797e91f5733f6fd118f7885180"
+    )
+    assert ManifestLifecycle.profile_sha256(_historical_profile_fixture("v2")) == (
+        "sha256:74520648cfc1a9624b5db9e6c8a5acf15b6c4dfd56963df8506af657492479dc"
+    )
+
+
+def test_manifest_profile_digest_binds_optional_integrity_metadata() -> None:
+    """A selected view key distinguishes consumer-visible optional integrity claims."""
+    artifact_id = _synthetic_artifact_id(101)
+    base = ArtifactManifest(
+        manifest_schema_version="v3",
+        artifact_id=artifact_id,
+        kind="cas.integrity.optional",
+        media_type="application/octet-stream",
+        byte_size=len(PAYLOAD),
+        integrity=IntegrityInfo(sha256=artifact_id.hex),
+    )
+    enriched = base.model_copy(
+        update={
+            "integrity": IntegrityInfo(
+                sha256=artifact_id.hex,
+                optional={"verification": "external-check-v1"},
+            )
+        }
+    )
+
+    base_profile = ManifestLifecycle.profile_sha256(base)
+    enriched_profile = ManifestLifecycle.profile_sha256(enriched)
+    base_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind=base.kind,
+        media_type=base.media_type,
+        manifest_profile_sha256=base_profile,
+    )
+    enriched_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind=enriched.kind,
+        media_type=enriched.media_type,
+        manifest_profile_sha256=enriched_profile,
+    )
+
+    assert base_ref.artifact_id == enriched_ref.artifact_id
+    assert base_profile != enriched_profile
+    assert base_ref.manifest_profile_sha256 != enriched_ref.manifest_profile_sha256
+    assert ManifestLifecycle.profile_projection(base)["integrity"] == {}
+    assert ManifestLifecycle.profile_projection(enriched)["integrity"] == {
+        "optional": {"verification": "external-check-v1"}
+    }
+
+
+def test_same_optional_integrity_profile_has_stable_selector() -> None:
+    """Repeated identical typed views resolve to the same profile selector."""
+    artifact_id = _synthetic_artifact_id(105)
+    first = ArtifactManifest(
+        manifest_schema_version="v3",
+        artifact_id=artifact_id,
+        kind="cas.integrity.optional",
+        media_type="application/octet-stream",
+        byte_size=len(PAYLOAD),
+        integrity=IntegrityInfo(
+            sha256=artifact_id.hex,
+            optional={"verification": "external-check-v1"},
+        ),
+    )
+    replay = ArtifactManifest.model_validate(first.model_dump(mode="python"))
+
+    assert ManifestLifecycle.profile_sha256(first) == ManifestLifecycle.profile_sha256(replay)
+
+
+def test_transfer_resolves_distinct_optional_integrity_views(tmp_path: Path) -> None:
+    """CAS transfer preserves both selectors when only optional integrity differs."""
+    source = FileSystemCAS(tmp_path / "source")
+    target = FileSystemCAS(tmp_path / "target")
+    stored_ref = source.put_bytes(
+        PAYLOAD,
+        _options("cas.integrity.optional.transfer", "application/octet-stream"),
+    )
+    stored_manifest = source.get_manifest(stored_ref)
+    base_manifest = stored_manifest.model_copy(update={"manifest_schema_version": "v3"})
+    base_profile = ManifestLifecycle.profile_sha256(base_manifest)
+    base_path = source._layout.view_manifest_path(stored_ref.artifact_id, base_profile)
+    base_path.write_bytes(ManifestLifecycle.to_bytes(base_manifest))
+    base_ref = ArtifactRef(
+        artifact_id=stored_ref.artifact_id,
+        kind=stored_ref.kind,
+        media_type=stored_ref.media_type,
+        manifest_profile_sha256=base_profile,
+    )
+    optional_manifest = base_manifest.model_copy(
+        update={
+            "integrity": IntegrityInfo(
+                sha256=base_manifest.integrity.sha256,
+                optional={"verification": "external-check-v1"},
+            )
+        }
+    )
+    optional_profile = ManifestLifecycle.profile_sha256(optional_manifest)
+    optional_path = source._layout.view_manifest_path(
+        stored_ref.artifact_id, optional_profile
+    )
+    optional_path.write_bytes(ManifestLifecycle.to_bytes(optional_manifest))
+    optional_ref = ArtifactRef(
+        artifact_id=stored_ref.artifact_id,
+        kind=stored_ref.kind,
+        media_type=stored_ref.media_type,
+        manifest_profile_sha256=optional_profile,
+    )
+
+    export = source.export_subgraph(
+        [base_ref, optional_ref], tmp_path / "integrity-views.tar.gz"
+    )
+    report = target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert report.verification_failed == []
+    assert target.get_bytes(base_ref) == PAYLOAD
+    assert target.get_bytes(optional_ref) == PAYLOAD
+    assert target.get_manifest(base_ref).integrity.optional is None
+    assert target.get_manifest(optional_ref).integrity.optional == {
+        "verification": "external-check-v1"
+    }

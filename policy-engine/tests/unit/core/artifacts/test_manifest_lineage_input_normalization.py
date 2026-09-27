@@ -122,7 +122,7 @@ def test_dict_lineage_preserves_selected_manifest_view_across_idempotent_puts(
 
     assert replayed_child == child
     manifest = store.get_manifest(child)
-    assert manifest.manifest_schema_version == "v2"
+    assert manifest.manifest_schema_version == "v3"
     assert manifest.inputs == [
         InputRef(
             artifact_id=selected_parent.artifact_id,
@@ -269,7 +269,7 @@ def test_put_bytes_keeps_duck_typed_options_with_dict_selected_lineage(
 
     assert replayed_child == child
     manifest = store.get_manifest(child)
-    assert manifest.manifest_schema_version == "v2"
+    assert manifest.manifest_schema_version == "v3"
     assert manifest.inputs == [
         InputRef(
             artifact_id=selected_parent.artifact_id,

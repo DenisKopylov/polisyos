@@ -314,7 +314,7 @@ class ArtifactManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    manifest_schema_version: Literal["v1", "v2"] = Field(
+    manifest_schema_version: Literal["v1", "v2", "v3"] = Field(
         default="v1", exclude_if=lambda value: value == "v1"
     )
     artifact_id: ArtifactID
@@ -344,13 +344,13 @@ class ArtifactManifest(BaseModel):
         return str(value)
 
     @model_validator(mode="after")
-    def _require_v2_for_selected_input_views(self) -> ArtifactManifest:
-        """Require the schema marker that versions selected-input hash bytes."""
+    def _require_versioned_schema_for_selected_input_views(self) -> ArtifactManifest:
+        """Require a versioned schema marker for selected-input hash bytes."""
         if self.manifest_schema_version == "v1" and any(
             input_ref.manifest_profile_sha256 is not None for input_ref in self.inputs
         ):
             raise ValueError(
-                "manifest_schema_version v2 is required for selected input manifest views"
+                "manifest_schema_version v2 or later is required for selected input manifest views"
             )
         return self
 

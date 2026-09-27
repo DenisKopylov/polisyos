@@ -15,6 +15,7 @@ from polisyos.core import FullPrefixVerifier
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
 from polisyos.core import contracts as core_contracts
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 
 ArtifactID = core_artifacts.ArtifactID
 ArtifactManifest = core_artifacts.ArtifactManifest
@@ -91,15 +92,18 @@ def _expected_ref(*, payload: bytes, kind: str) -> ArtifactRef:
     )
 
 
-def _expected_manifest(
+def _expected_historical_manifest(
     *,
     payload: bytes,
     ref: ArtifactRef,
     schema: SchemaInfo,
     inputs: list[InputRef],
     created_at: datetime,
+    manifest_schema_version: Literal["v1", "v2"],
 ) -> ArtifactManifest:
+    """Reconstruct one explicitly admitted historical v1/v2 projection."""
     return ArtifactManifest(
+        manifest_schema_version=manifest_schema_version,
         artifact_id=ref.artifact_id,
         kind=ref.kind,
         media_type=ref.media_type,
@@ -109,6 +113,39 @@ def _expected_manifest(
         canon=_CANON,
         inputs=inputs,
         integrity=IntegrityInfo(sha256=ref.artifact_id.hex),
+    )
+
+
+def _expected_replayed_manifest(
+    *,
+    payload: bytes,
+    ref: ArtifactRef,
+    schema: SchemaInfo,
+    inputs: list[InputRef],
+    created_at: datetime,
+    persisted_schema_version: Literal["v1", "v2", "v3"],
+) -> ArtifactManifest:
+    """Reconstruct current v3 or explicitly historical v1/v2 persisted views."""
+    if persisted_schema_version == "v3":
+        return ManifestLifecycle.expected_for_write(
+            artifact_id=ref.artifact_id,
+            data=payload,
+            opts=ArtifactWriteOptions(
+                kind=ref.kind,
+                media_type=ref.media_type,
+                schema=schema,
+                inputs=inputs,
+                canon=_CANON,
+            ),
+            created_at=created_at,
+        )
+    return _expected_historical_manifest(
+        payload=payload,
+        ref=ref,
+        schema=schema,
+        inputs=inputs,
+        created_at=created_at,
+        manifest_schema_version=persisted_schema_version,
     )
 
 
@@ -231,7 +268,7 @@ class ChronologyProofArtifactReader:
                 observed_raw_hash=observed_raw_hash,
                 report=report,
             )
-        expected_manifest = _expected_manifest(
+        expected_manifest = _expected_replayed_manifest(
             payload=payload,
             ref=ArtifactRef(
                 artifact_id=bundle_ref.artifact_id,
@@ -241,6 +278,7 @@ class ChronologyProofArtifactReader:
             schema=_BUNDLE_SCHEMA,
             inputs=list(manifest.inputs),
             created_at=manifest.created_at,
+            persisted_schema_version=manifest.manifest_schema_version,
         )
         if manifest != expected_manifest:
             return _manifest_mismatch(
@@ -422,12 +460,14 @@ class _ChronologyPersistenceOwner:
                     role="applicable_predicate_denominator",
                 ),
             ]
-            ref = self._store.put_bytes(
-                raw,
-                ArtifactWriteOptions(
-                    kind=kind, media_type=_MEDIA_TYPE, schema=schema, inputs=inputs, canon=_CANON
-                ),
+            write_options = ArtifactWriteOptions(
+                kind=kind,
+                media_type=_MEDIA_TYPE,
+                schema=schema,
+                inputs=inputs,
+                canon=_CANON,
             )
+            ref = self._store.put_bytes(raw, write_options)
             manifest = self._store.get_manifest(expected_ref.artifact_id)
             reloaded = self._store.get_bytes(expected_ref.artifact_id)
             if (
@@ -435,11 +475,10 @@ class _ChronologyPersistenceOwner:
                 or reloaded != raw
                 or not self._store.verify(expected_ref.artifact_id).ok
                 or manifest
-                != _expected_manifest(
-                    payload=raw,
-                    ref=expected_ref,
-                    schema=schema,
-                    inputs=inputs,
+                != ManifestLifecycle.expected_for_write(
+                    artifact_id=expected_ref.artifact_id,
+                    data=raw,
+                    opts=write_options,
                     created_at=manifest.created_at,
                 )
                 or not self._registry._owner_is_current(self)
@@ -696,11 +735,10 @@ class _ChronologyPersistenceOwner:
                 code=missing_code,
                 evidence_ref=expected_ref,
             )
-        expected_manifest = _expected_manifest(
-            payload=payload,
-            ref=expected_ref,
-            schema=schema,
-            inputs=inputs,
+        expected_manifest = ManifestLifecycle.expected_for_write(
+            artifact_id=expected_ref.artifact_id,
+            data=payload,
+            opts=options,
             created_at=observed_manifest.created_at,
         )
         if observed_manifest != expected_manifest:

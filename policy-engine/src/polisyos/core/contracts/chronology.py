@@ -20,16 +20,15 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactID,
-    ArtifactManifest,
     ArtifactRef,
     ArtifactSigner,
     ArtifactStore,
     ArtifactWriteOptions,
     CanonInfo,
     InputRef,
-    IntegrityInfo,
     SchemaInfo,
 )
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)]
@@ -1052,16 +1051,11 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
             if observed_bytes != artifact_bytes:
                 raise ValueError("denominator bytes differ after reload")
             observed_manifest = self._store.get_manifest(expected_artifact_id)
-            expected_manifest = ArtifactManifest(
+            expected_manifest = ManifestLifecycle.expected_for_write(
                 artifact_id=expected_artifact_id,
-                kind=expected_ref.kind,
-                media_type=expected_ref.media_type,
-                byte_size=len(artifact_bytes),
+                data=artifact_bytes,
+                opts=write_options,
                 created_at=observed_manifest.created_at,
-                schema=schema,
-                canon=canon,
-                inputs=inputs,
-                integrity=IntegrityInfo(sha256=expected_artifact_id.hex),
             )
             if observed_manifest != expected_manifest:
                 raise ValueError("denominator first-writer manifest differs")

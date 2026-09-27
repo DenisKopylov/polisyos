@@ -8,10 +8,10 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 2,
-    "partial": 268,
-    "held": 11,
-    "open": 1
+    "closed": 3,
+    "partial": 267,
+    "held": 12,
+    "open": 0
   },
   "appendix_c_counts": {
     "closed_bounded": 132,
@@ -25,8 +25,8 @@
     "c": 18
   },
   "measurement_limits": [
-    "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Current four-base status is UNRUN unless a row cites an admitted finding-level result. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
-    "Of the 71 rows formerly labeled closed, 70 lack an inspectable selector/result link from the E02 package receipts to the card discriminator; those 70 remain partial for the evidence gap. B84 is also partial for a distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; this is not a current four-base attribution, and the remaining controls/replay are UNRUN. The other 61 Appendix-C closed_bounded candidates were already partial for their row-specific residuals. All 132 Appendix-C closed_bounded candidates are partial. No behavior failure is inferred from the 70 evidence-only downgrades.",
+    "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Complete four-base P41 status remains UNRUN unless a row cites a complete four-base receipt; current-head finding-specific witnesses do not fill that matrix. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
+    "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. The complete ledger status census is 3 closed / 267 partial / 12 held / 0 open across 282 findings.",
     "The 18 Appendix-C no-record items now have individual finding-level audit records, but none is newly closed: all 18 are now partial after B72 advances on bounded post-code evidence. B09 stays partial because the active overlay route exists but a changed admitted basis has not been shown through a second N5 cycle. CYC-03 is 5/6 at saved snapshot 95f082b, before R5 changed the overlapping recursive context gate; current post-R5 replay is UNRUN. SIM-03 is 14/14 at ff07e89 and OPT-01 is 88/88 at 679f096e3; these are bounded historical receipts, not fresh current-head or four-base runs. B57-B59, B73 and B88 retain their row-specific bounded evidence; B72 is now partial after the Ray/non-Temporal status-loss path received a bounded typed-admission repair; the Temporal collection remained skipped because temporalio is unavailable, and the persisted width-one/width-two resume discriminator remains UNRUN. B111 typed-omission evidence is scratch-candidate-only; the 88/88 suite is from unpatched source. The candidate does not reach sibling legacy projections or PolicyArtifactBuilder/PolicyFrontierReport consumers, and a static duplicate-omission-identity escape is not yet executed. Native CAS rejection and in-memory Pareto omission are distinct properties; P40 now requires widening the same class, not another instance patch. LA-021's 7,761-record receipts stop at earlier ledger blobs; the current 43d ledger blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both inventories. Latest-ledger input parity, the exact 418-input selector and the 140-file caller replay remain UNRUN. Appendix-C labels stay no_finding_level_record; no finding status promotion is inferred. Sources: /Users/deniskopylov/.codex/scratch/e02-r2-report-audit-20260927/REPORT_AUDIT.md@sha256:5d25e18302596a88eed69377b81aa1b13654f40e9987c2d1bd9d2bef01554080; /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e; /Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67",
     "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 84 engineering / 16 principal decision drafts / 18 typed blockers, recorded in partial_triage.json@sha256:ba3b6f086823f44caf204c5c2922021f44fb6c9001eb91e39ea80d733b64f994 and citation_catalog.partial_triage. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
     "H14 current status partition: held=11; closed_bounded=2 (LA-010, LA-049); open=1 (B219). Residual-owner partition over the 12 non-closed rows is owner_decision=6, data_record=2 (B61, LA-031), smallest_missing_capability=4 (B194, B197, B219, LA-032). The two closures are bounded to the in-repository owner/caller contracts under the principal no-blanket-compatibility clarification; broad historical/external compatibility is not claimed. No full four-base P41 is claimed. Exact current Appendix-C H14 owner partition was recomputed from all 14 rows: owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027); data_record=2 (B61, LA-031); smallest_missing_capability=4 (B194, B197, B219, LA-032). After bounded LA-010/LA-049 closure, row status counts are 11 held, 2 closed (LA-010, LA-049), and 1 open (B219). No H14 finding-level closure or full four-base P41 is established. B194 has prior bounded repair/importer/consumer/removal/control evidence; B197 includes an untied preserving control, while its property-removal probe, report CAS round-trip, served welfare path and P41 remain UNRUN. B31/B201/B202 and LA-032 have bounded diagnostics; LA-010/LA-031/LA-049 have bounded tests; B61/B219 current behavior probes remain UNRUN. The three DFK rows remain held: a local inventory is not an owner ruling, external support record, behavior witness, package-output check, or P41 replay. Do not describe every H behavioral witness as UNRUN: B197 has a recorded untied preserving control; its removal probe, persisted report-CAS round-trip, served Calibrator-to-welfare witness, and P41 remain UNRUN. The B194 census denominator is 2,696 tracked src/polisyos Python files.",
@@ -1056,9 +1056,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "aligned_refined",
-        "detail": "R13 advances the WDI revised-basis country/year selector with same-basis and pre-egress refusal controls; it does not meet the card discriminator requiring admitted new data to change the dependent same-case calculation. Keep partial."
+        "detail": "Appendix C keeps B12 partial. The served revised-basis/native-admission/re-entry selector now passes at the d966 source state, while its whole 9-case file is 4/9 because five cases hit R2 currentness. The separate 49/49 live-executor fixture file is a bounded control. Neither establishes the source-card discriminator that admitted new data changes the dependent same-case calculation; keep partial and retain the production ACQ-01 producer/journal handshake residual."
       },
-      "residual": "R13 now derives WDI country/year selector constraints from the revised problem basis: S=UKR/2024 with B=UKR/2023 selects 2023, the same-basis control selects 2024, a foreign-country basis refuses before egress, and selector removal restores the wrong behavior. This is a bounded selector seam only: the S≠B view is synthetic, while the served route still resolves S=B; a native positive attempt ended quarantined_no_growth because the deferred growth receipt was absent. The missing B12 witness is an authorized ACQ-01 request whose returned delta is admitted through the canonical overlay/passport/epoch path and tenant-bound store, produces post-admission W1, re-enters the same case, and changes its dependent calculation. B12 remains partial and its finding-level discriminator remains UNRUN; full-file/four-base replay remains UNRUN.",
+      "residual": "At the d966d007c source state (the 077147d86 follow-up changes only B219 source/tests and coordination docs), the served WDI file has 4/9 passing cases; the five failures all stop at R2 strangle currentness because a live repo_root is required. The passing revised-basis selector records cycle-1 stable subject/revised basis, one native observation, same-case cycle-2 re-entry preserving that basis, and a marker-preserving predecessor-basis refusal. It does not assert that the admitted data changes the dependent calculation. The separate live-executor fixture file is 49/49 after basis alignment. Production ACQ-01 owner/journal admission and the B12 card discriminator remain UNRUN; B12 remains partial. Full-file four-base replay remains UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
@@ -1127,6 +1127,16 @@
             "/Users/deniskopylov/.codex/scratch/e02-r13-wdi-basis-20260927/R13_NATIVE_POSITIVE.junit.xml@sha256:1fb54bb3bf2c70dc2aa2a5e7c3413185436053e070e3d0c78244a69e06e4b0a2"
           ],
           "finding_test_status": "UNRUN"
+        },
+        "post_r13_served_revised_basis_witness": {
+          "identity": "R13 current served revised-basis/native-admission/re-entry selector at d966d007c",
+          "kind": "bounded_behavioral_test_receipt",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The exact selector test_revised_cycle_basis_survives_served_native_admission_and_reentry passes inside the complete 9-case served WDI file: cycle-1 subject/basis lineage, one native observation, same-case cycle-2 re-entry preserving the basis, and a marker-preserving predecessor-basis refusal. The whole file has 4 passes and 5 failures; all five fail at R2 strangle_receipt_currentness_not_established because live repo_root is required. This selector does not assert a dependent-calculation change, so B12 card behavior/finding_test_status remain UNRUN. Not four-base P41.",
+          "witness_refs": [
+            "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@git-blob:94416843125e16276e856926fca91c3818dd9eb0#L170-L243",
+            "/Users/deniskopylov/.codex/scratch/e02-r13-wdi-basis-20260927/R13_WDI_SERVED_GROUP_AFTER_FIXTURE.junit.xml@sha256:f9b94eeff2eea0daee8dc7bd622424cb6b47181ef9bc392258416b36d96a52a4"
+          ]
         }
       }
     },
@@ -10024,31 +10034,35 @@
       "closure_owner": "CAS-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "closed_bounded",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
-        "relation": "disagrees",
-        "detail": "Appendix C marks B150 closed_bounded. The cited E02 CAS-01 receipt (CAS-01 J0530/J0670 bounded current-code verification) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (source card line 3941: 'S/M.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure."
+        "relation": "aligned_refined",
+        "detail": "Appendix C marks B150 closed_bounded. The source-record inspection correctly found no E02 package selector mapped to this card discriminator, but the direct d966 current-code whole-file receipt now supplies an exact positive, same-profile preserving control, selected-view removal negative with both sidecars present, and selectorless-history controls (11/11). B150 is closed bounded only for direct FileSystemCAS manifest views; this does not close the broader R9 consumer/backend/custody class or four-base P41."
       },
-      "residual": "The source-card discriminator is 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion: 'S/M.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L3941). The E02 receipt identifies the finding in the CAS-01 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "Closed bounded to B150’s source-card claim about honest returned and persisted typed views of identical bytes in the direct FileSystemCAS owner. The complete tests/unit/remediation/test_cas_01.py file passes 11/11 at d966d007c: the distinct-profile case returns two refs for one blob and reads each persisted profile back; the same-profile control preserves its first manifest/ref; selectorless historical projection/signature controls remain valid; and the selected-view removal probe turns red with both sidecars present. This is finding-specific bounded evidence, not the four-base whole-file replay. Broader R9 consumer selector propagation, custody/backends, and the principal decision remain open at class level.",
       "residual_owner": {
         "kind": "verification_owner",
-        "name": "CAS-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "name": "E02-R2 four-base baseline broker for the full-file replay; CAS-01 owner for broader R9 consumers/backends",
+        "appointment_status": "Residual owner roles identified; individual appointment is not established"
       },
       "r_class": "R9",
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "record_inspection_probe",
-          "identity": "source_record_inspection:B150",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B150",
-          "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion excerpt: 'S/M.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
-          "package_test_selector_groups": []
+          "identity": "B150 direct CAS manifest-view discriminator and controls at d966d007c",
+          "kind": "bounded_behavioral_test_receipt",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The complete tests/unit/remediation/test_cas_01.py file passes 11/11. The exact positive proves distinct typed manifest profiles for one blob; same-profile reuse is the preserving control; the selected-view resolution removal probe turns red while both sidecars remain; selectorless projection and historical-signature controls preserve history. The receipt is at ancestor source state d966d007c; the 077147d86 commit only changes B219 graph source/tests and coordination documentation. This direct view behavior does not complete R9 consumers/backends/custody or four-base P41.",
+          "package_test_selector_groups": [],
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
+            "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:997cecb2871b696ac4076464af5edd8c9ff1224a"
+          ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": "R9",
-        "finding_test_status": "UNRUN",
+        "finding_test_status": "PASS_BOUNDED",
         "source_bundle_evidence": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-01.md@git-blob:36bcff0953c8b8e010f66ad7a0b355458b0f640d",
           "scope": "CAS-01 declares B150 and its distinguishing behavior/scope."
@@ -10056,7 +10070,7 @@
         "current_r2_replay": {
           "identity": "four-base full-file P41 replay",
           "behavioral_verdict": "UNRUN",
-          "scope": "not a negative result; broker receipt not yet complete"
+          "scope": "The full-file four-base P41 replay remains UNRUN; the direct d966 11/11 finding-specific file receipt is separate and does not fill the matrix."
         },
         "package_level_receipt": {
           "kind": "package_level_receipt",
@@ -10068,6 +10082,14 @@
         "source_card": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L3941",
           "scope": "Original source-card discriminator: Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым. Criterion excerpt: S/M."
+        },
+        "prior_finding_record_inspection": {
+          "kind": "record_inspection_probe",
+          "identity": "source_record_inspection:B150",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B150",
+          "behavioral_verdict": "UNRUN",
+          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion excerpt: 'S/M.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
+          "package_test_selector_groups": []
         }
       }
     },
@@ -14159,47 +14181,50 @@
       "closure_owner": "GRF-02",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "held",
-      "status": "open",
+      "status": "held",
       "appendix_c_comparison": {
-        "relation": "disagrees",
-        "detail": "Appendix C held B219 on environment_not_established. The current owner-path review admits one missing multiedge-preserving public export capability, so current status remains open. NetworkX runtime is unavailable in the inspected environments, therefore the existing four-order selector, removal probe, one-edge control and P41 are UNRUN. A separate triage recommends partial because the tracked ID-engine caller discards the conversion; this ledger retains open for the defective public owner contract and does not claim downstream harm."
+        "relation": "aligned_refined",
+        "detail": "Appendix C held B219 on environment_not_established. Commit 077147d86 now implements the named multiedge export property in the existing owner and is independently reviewed GO for integration; the direct source-level controls pass 2/2 but do not exercise NetworkX conversion. The pinned 3.6.1 wheel/runtime is not available offline, so the behavioral permutation/round-trip, removal probes and P41 remain UNRUN. The status is held on one data_record verification blocker, aligned with Appendix C. The sole production caller discards this conversion, so downstream consumer effect remains unestablished."
       },
-      "residual": "One smallest_missing_capability remains: CausalGraphModel.to_networkx must preserve parallel typed/lagged edges with their attributes instead of allowing DiGraph.add_edge to overwrite same-endpoint relations. Full source census finds one definition and one caller; that caller discards the conversion, so downstream ID-engine harm is not established. Existing four-insertion-order selector is behaviorally designed but UNRUN because NetworkX runtime is absent in three inspected environments; removal probe, one-edge preserving control and P41 also remain UNRUN.",
+      "residual": "The named CausalGraphModel.to_networkx owner path now exports a MultiDiGraph with deterministic keys including endpoint marks, lag and collision ordinal (commit 077147d86; reviewed GO for integration). The current 2/2 passing controls validate existing DAG/CPDAG/PAG construction and unknown-node rejection; neither invokes the NetworkX exporter. The actual mixed/lagged parallel-edge permutation/round-trip behavior and marker-preserving removal probes remain UNRUN because the pinned NetworkX 3.6.1 wheel/runtime is absent from the offline environments and cache. The complete source census found one production caller, which discards the conversion; downstream consumer impact is not established. B219 is held on that one data_record blocker, not on an asserted product-code gap. Full-file four-base P41 remains UNRUN.",
       "residual_owner": {
-        "kind": "smallest_missing_capability",
-        "name": "CausalGraphModel.to_networkx owner — multiedge-preserving NetworkX export",
-        "appointment_status": "Multiedge-preserving export is missing from this owner path; no repository-wide alias/dynamic census or behavioral verdict is claimed."
+        "kind": "data_record",
+        "name": "Pinned NetworkX 3.6.1 runtime artifact/environment for B219 behavioral verification",
+        "appointment_status": "The code owner is present and its patch is committed/reviewed; local offline environments lack the pinned wheel/runtime. No download or install was attempted."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "complete_source_and_environment_recheck_no_behavior_run",
-          "identity": "B219 typed multiedge export contract and runtime dependency availability review",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
+          "kind": "current_head_source_and_environment_followup",
+          "identity": "B219 multiedge export implementation committed; NetworkX behavior remains UNRUN at 077147d86",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b219-networkx-environment-20260927/NETWORKX_LOCAL_ENVIRONMENT.md@sha256:86d848b4d775c84333783e3197bfe4f9b3846b775d15eba225247763db90a599",
           "behavioral_verdict": "UNRUN",
-          "scope": "Complete 2,696-file product and 2,732-file test Python census: to_networkx definition plus one production call, and one test caller. Runtime NetworkX is absent from three existing Python 3.14 environments; no install or test was run. Existing four-order test, removal probe, one-edge control and P41 remain UNRUN.",
+          "scope": "Commit 077147d86 changes the existing CausalGraphModel.to_networkx owner to MultiDiGraph and deterministic relation keys containing endpoint marks, lag and duplicate ordinal. Independent review is GO for integration, not behavioral closure. The only current-head passing JUnit is 2/2 non-NetworkX construction/unknown-edge controls and does not call the exporter. NetworkX 3.6.1 is locked but the wheel/runtime is absent in inspected offline environments. Multiedge permutation/round-trip behavior, all removal probes and whole-file/four-base P41 remain UNRUN; no downstream ID-engine effect is established.",
           "package_test_selector_groups": [
             "bundle_test_selectors/GRF-02"
           ],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a",
-            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@sha256:4ce655cd0050665c3874685766f3eff066738acb3e90f3686a80576ddb59ab04",
-            "policy-engine/tests/unit/ir/test_causal_graph_contract.py@sha256:215646c9adbc4973d2823c0d5864860d12387a87e421bf2f9e643751b3ec0a59",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B219"
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+            "policy-engine/tests/unit/ir/test_causal_graph_contract.py@git-blob:7d4280aa5214ea1d295a82f7f5453998ee1d5881",
+            "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/B219_NON_NETWORKX_CONTROLS.junit.xml@sha256:1cdf151f70ecc4f948d598e40b9cb6dff15f5cc033c174be6b3764a33fb6904a",
+            "/Users/deniskopylov/.codex/scratch/e02-b219-networkx-environment-20260927/NETWORKX_LOCAL_ENVIRONMENT.md@sha256:86d848b4d775c84333783e3197bfe4f9b3846b775d15eba225247763db90a599",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-b219-rev2-independent-review-20260927.md@sha256:b79766804918a86669adf781dad1a9039a0f0f9ce35740be3d51996e4298901e"
           ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:f8758f86a0e78fb748e658fdc7d92addbb54df88",
-        "blocker_path_scope": "Actual CausalGraphModel.to_networkx export path. The ID-engine conversion result is discarded, so consumer impact is not established.",
-        "held_audit_receipt_status": "source-owner review promotes Appendix C held to current open for one smallest_missing_capability; NetworkX runtime unavailable so selector P41, semantic test, removal and one-edge control remain UNRUN; no downstream ID-engine harm claimed",
+        "blocker_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b219-networkx-environment-20260927/NETWORKX_LOCAL_ENVIRONMENT.md@sha256:86d848b4d775c84333783e3197bfe4f9b3846b775d15eba225247763db90a599",
+        "blocker_path_scope": "One data_record verification prerequisite remains: no local offline NetworkX 3.6.1 wheel/runtime exists; the pinned behavior tests cannot yet execute.",
+        "held_audit_receipt_status": "The owner implementation is committed at 077147d86 and reviewed GO for integration; behavioral NetworkX export verification remains UNRUN due to the missing pinned offline runtime data record. Held on that blocker; no downstream consumer effect claimed.",
         "held_review": {
-          "identity": "current source-owner and runtime-environment recheck; Appendix C hold superseded for current status",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
+          "identity": "B219 current-head implementation and offline runtime recheck at 077147d86",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b219-networkx-environment-20260927/NETWORKX_LOCAL_ENVIRONMENT.md@sha256:86d848b4d775c84333783e3197bfe4f9b3846b775d15eba225247763db90a599",
           "behavioral_verdict": "UNRUN",
-          "scope": "Public owner contract is open on missing multiedge-preserving export. Runtime selector unavailable because dependency is absent; no behavior closure, caller impact, or P41 is claimed."
+          "scope": "Appendix C held status is retained and refined: production code owner capability is implemented/committed, but actual NetworkX permutation/round-trip and removal behavior cannot execute without the pinned 3.6.1 runtime. Two current-head passing controls do not call the exporter. The sole production caller discards the conversion; downstream impact is not established.",
+          "implementation_review": "/Users/deniskopylov/.codex/scratch/e02-r2-b219-rev2-independent-review-20260927.md@sha256:b79766804918a86669adf781dad1a9039a0f0f9ce35740be3d51996e4298901e",
+          "non_networkx_control_junit": "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/B219_NON_NETWORKX_CONTROLS.junit.xml@sha256:1cdf151f70ecc4f948d598e40b9cb6dff15f5cc033c174be6b3764a33fb6904a"
         },
         "blocker_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-20260924.md@sha256:70047d13784b61630f99ab921aedd13368aac37351f50cf5b10e1fb39637153e",
         "blocker_audit_scope": "Historical aggregate H14 blocker census only; it predates the current B219 open/smallest_missing_capability classification and must not be read as a current zero-missing-capability result.",
@@ -14216,24 +14241,25 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": [
-          "smallest_missing_capability",
-          "Preserve parallel typed/lagged relations and attributes in the public CausalGraphModel.to_networkx representation; run existing four-order test, removal probe and one-edge control once a compatible runtime is available."
+          "data_record",
+          "The multiedge export implementation is committed and reviewed; run the exact NetworkX permutation/round-trip and removal probes when the pinned 3.6.1 offline runtime artifact is available."
         ],
         "h_n_review_notes": [
-          "Current status open; Appendix C held disagreement remains explicit. Separate triage recommends partial because the sole tracked ID-engine caller discards the converted graph. NetworkX is absent in three inspected environments; no test ran and no downstream harm is asserted."
+          "Current status held and aligned with Appendix C on a data_record blocker. The product owner path has a committed implementation; the actual NetworkX behavior and removal probes remain UNRUN because the pinned runtime is not locally available. The only tracked production caller discards the conversion, so downstream effect is not established."
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:B219",
-          "classification_at_review": "open",
+          "identity": "E02-R2 H/N current evidence reconciliation:B219 at 077147d86",
+          "classification_at_review": "held",
           "behavioral_verdict": "UNRUN",
-          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B219",
-          "reviewed_head_or_snapshot": "source/environment recheck at 9d20cabe72a46d98a4d80da5c28b37b456857d44; 7f162d98 changed ledger docs only; selector not run",
+          "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b219-networkx-environment-20260927/NETWORKX_LOCAL_ENVIRONMENT.md@sha256:86d848b4d775c84333783e3197bfe4f9b3846b775d15eba225247763db90a599",
+          "reviewed_head_or_snapshot": "077147d86af4f55c542c9344a3fcbc11e48ac836; source/test committed, 2 non-NetworkX controls only",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a",
-            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@sha256:4ce655cd0050665c3874685766f3eff066738acb3e90f3686a80576ddb59ab04",
-            "policy-engine/tests/unit/ir/test_causal_graph_contract.py@sha256:215646c9adbc4973d2823c0d5864860d12387a87e421bf2f9e643751b3ec0a59"
+            "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/B219_NON_NETWORKX_CONTROLS.junit.xml@sha256:1cdf151f70ecc4f948d598e40b9cb6dff15f5cc033c174be6b3764a33fb6904a",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-b219-rev2-independent-review-20260927.md@sha256:b79766804918a86669adf781dad1a9039a0f0f9ce35740be3d51996e4298901e",
+            "policy-engine/src/polisyos/ir/analytics/causal_graph.py@git-blob:8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+            "policy-engine/tests/unit/ir/test_causal_graph_contract.py@git-blob:7d4280aa5214ea1d295a82f7f5453998ee1d5881"
           ],
-          "scope": "Appendix C records held; current H-card owner review places B219 open on a missing multiedge-preserving exporter. The existing test discriminator remains UNRUN due missing NetworkX runtime. The bounded B219 triage partial recommendation is retained as disagreement; current path has one production caller that discards the conversion, so downstream impact is not established."
+          "scope": "The public owner implementation now preserves keyed parallel relations. Exact NetworkX behavior and removal probes are UNRUN because the pinned runtime wheel is missing from the offline environment; the available 2/2 controls do not test export. No downstream consumer effect is established."
         },
         "latest_h14_source_review": {
           "identity": "2026-09-27 H-class current-source closeout review:B219",
@@ -14241,6 +14267,11 @@
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. The complete source census finds one to_networkx definition and one production caller; that caller discards the conversion. The DiGraph same-endpoint overwrite is a source-level contract defect, while selector/removal/control behavior and downstream ID-engine harm remain UNRUN. Appendix C held disagreement stays explicit."
+        },
+        "prior_open_source_review": {
+          "identity": "Prior 2026-09-27 H/N review before implementation commit",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B219",
+          "scope": "Historical source review predating commit 077147d86; its missing-capability/open classification is superseded by the committed implementation. Its finding that the sole production caller discards the conversion remains relevant; no downstream impact is established."
         }
       }
     },

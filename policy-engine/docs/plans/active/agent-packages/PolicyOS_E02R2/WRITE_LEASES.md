@@ -1,9 +1,9 @@
 # E02-R2 write leases
 
-## Active coordination (2026-09-27, after `d966d007c`)
+## Active coordination (2026-09-27, after `077147d86`)
 
 - The root integrator is the sole writer to `codex/e02-r2`. The branch was read
-  back clean at `d966d007c2d07150ab1fe849294a993f69d2c018`. Candidate
+  back clean at `077147d86af4f55c542c9344a3fcbc11e48ac836`. Candidate
   authors and independent reviewers write only in separate scratch locations;
   they do not edit or run tests against a shared tree while that tree changes.
 - The current write-set lease order is: R2 owns
@@ -13,11 +13,15 @@
   `data_state_substrate.py` and `intervention_substrate.py` in scratch; R1
   candidate/S8 work follows it on the runtime store and HTTP lifecycle seam.
   The rejected R1 generic data-time guard is under independent review and has
-  no integration lease. B219's graph-export patch is reviewed in scratch but
-  has no shared write lease while its pinned NetworkX runtime witness is UNRUN.
-- The R13 live-route fixture correction is committed at `d966d007c` and its
-  49-case file is green. R7/R8 marker-retaining mutants and restored controls
-  are complete at that source state; the temporary mutations were reversed
+  no integration lease. B219's MultiDiGraph/deterministic-key implementation and
+  tests are committed at `077147d86`; its source-write lease is released. NetworkX
+  permutation/round-trip behavior and removal probes remain UNRUN because the
+  pinned 3.6.1 offline runtime artifact is absent; B219 is held on that data_record.
+- The R13 live-route fixture correction is committed at `d966d007c`; its
+  served WDI file is 4/9 at that source state (five R2 currentness refusals),
+  and the separate live-executor fixture file is 49/49. The later `077147d86`
+  commit only changes B219 graph source/tests and this coordination record. R7/R8
+  marker-retaining mutants and restored controls are complete at d966; the temporary mutations were reversed
   and the tree read back clean. Receipt:
   `/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R7_R8_CURRENT_MUTANT_RECEIPT.md@sha256:e38d626dd42c780d37d84607ce0cb51b7f2ddbb3e25387571fbd42f17c80ff84`.
   Source and tests remain frozen during every subsequent run.

@@ -238,8 +238,10 @@ class ChronologyProofArtifactReader:
         | contract.ChronologyPersistenceStoreIntegrityMismatch
     ):
         """Reload exact bytes and verify them without trusting a sidecar."""
+        if bundle_ref.kind != _BUNDLE_KIND or bundle_ref.media_type != _MEDIA_TYPE:
+            return self._missing(query=query, bundle_ref=bundle_ref)
         try:
-            report = self._store.verify(bundle_ref.artifact_id)
+            report = self._store.verify(bundle_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return self._missing(query=query, bundle_ref=bundle_ref)
         if not report.ok:
@@ -254,8 +256,8 @@ class ChronologyProofArtifactReader:
                 report=report,
             )
         try:
-            payload = self._store.get_bytes(bundle_ref.artifact_id)
-            manifest = self._store.get_manifest(bundle_ref.artifact_id)
+            payload = self._store.get_bytes(bundle_ref)
+            manifest = self._store.get_manifest(bundle_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return self._missing(query=query, bundle_ref=bundle_ref)
         observed_raw_hash = _raw_cas_hash(payload)
@@ -274,6 +276,7 @@ class ChronologyProofArtifactReader:
                 artifact_id=bundle_ref.artifact_id,
                 kind=_BUNDLE_KIND,
                 media_type=_MEDIA_TYPE,
+                manifest_profile_sha256=bundle_ref.manifest_profile_sha256,
             ),
             schema=_BUNDLE_SCHEMA,
             inputs=list(manifest.inputs),
@@ -451,12 +454,12 @@ class _ChronologyPersistenceOwner:
             expected_ref = _expected_ref(payload=raw, kind=kind)
             schema = SchemaInfo(name="polisyos.chronology.NativeProjection", version="1")
             inputs = [
-                InputRef(
-                    artifact_id=reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification.verification_receipt_ref.artifact_id,
+                core_artifacts.input_ref_from_artifact_ref(
+                    reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification.verification_receipt_ref,
                     role="native_owner_verification",
                 ),
-                InputRef(
-                    artifact_id=reconciliation.applicable_predicate_denominator.artifact_ref.artifact_id,
+                core_artifacts.input_ref_from_artifact_ref(
+                    reconciliation.applicable_predicate_denominator.artifact_ref,
                     role="applicable_predicate_denominator",
                 ),
             ]
@@ -468,12 +471,17 @@ class _ChronologyPersistenceOwner:
                 canon=_CANON,
             )
             ref = self._store.put_bytes(raw, write_options)
-            manifest = self._store.get_manifest(expected_ref.artifact_id)
-            reloaded = self._store.get_bytes(expected_ref.artifact_id)
             if (
-                ref != expected_ref
-                or reloaded != raw
-                or not self._store.verify(expected_ref.artifact_id).ok
+                ref.artifact_id != expected_ref.artifact_id
+                or ref.kind != expected_ref.kind
+                or ref.media_type != expected_ref.media_type
+            ):
+                return None
+            manifest = self._store.get_manifest(ref)
+            reloaded = self._store.get_bytes(ref)
+            if (
+                reloaded != raw
+                or not self._store.verify(ref).ok
                 or manifest
                 != ManifestLifecycle.expected_for_write(
                     artifact_id=expected_ref.artifact_id,
@@ -513,11 +521,11 @@ class _ChronologyPersistenceOwner:
         expected_raw_cas_hash: contract.Digest,
     ) -> bytes:
         try:
-            report = self._store.verify(artifact_ref.artifact_id)
+            report = self._store.verify(artifact_ref)
             if not report.ok:
                 raise _OwnerSourceArtifactRejectedError("owner source integrity rejected")
-            payload = self._store.get_bytes(artifact_ref.artifact_id)
-            manifest = self._store.get_manifest(artifact_ref.artifact_id)
+            payload = self._store.get_bytes(artifact_ref)
+            manifest = self._store.get_manifest(artifact_ref)
         except _OwnerSourceArtifactRejectedError:
             raise
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -663,21 +671,21 @@ class _ChronologyPersistenceOwner:
         owner_context = payload.reconciliation.owner_context
         receipt = owner_context.owner_qualified_candidate.owner_relation_verification
         return [
-            InputRef(
-                artifact_id=receipt.verification_receipt_ref.artifact_id,
+            core_artifacts.input_ref_from_artifact_ref(
+                receipt.verification_receipt_ref,
                 role="owner_qualification_receipt",
             ),
-            InputRef(
-                artifact_id=receipt.denominator_identity.artifact_ref.artifact_id,
+            core_artifacts.input_ref_from_artifact_ref(
+                receipt.denominator_identity.artifact_ref,
                 role="native_denominator",
             ),
-            InputRef(
-                artifact_id=receipt.query_context_identity.artifact_ref.artifact_id,
+            core_artifacts.input_ref_from_artifact_ref(
+                receipt.query_context_identity.artifact_ref,
                 role="query_context",
             ),
             *(
-                InputRef(
-                    artifact_id=identity.native_artifact_ref.artifact_id,
+                core_artifacts.input_ref_from_artifact_ref(
+                    identity.native_artifact_ref,
                     role="native_member",
                 )
                 for identity in receipt.member_identities
@@ -721,14 +729,19 @@ class _ChronologyPersistenceOwner:
             observed_ref = self._store.put_bytes(payload, options)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return _not_established(query=query, code=missing_code, evidence_ref=None)
-        if observed_ref != expected_ref:
+        if (
+            observed_ref.artifact_id != expected_ref.artifact_id
+            or observed_ref.kind != expected_ref.kind
+            or observed_ref.media_type != expected_ref.media_type
+        ):
             return _not_established(
                 query=query,
                 code=missing_code,
                 evidence_ref=observed_ref,
             )
+        expected_ref = observed_ref
         try:
-            observed_manifest = self._store.get_manifest(expected_ref.artifact_id)
+            observed_manifest = self._store.get_manifest(expected_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return _not_established(
                 query=query,
@@ -750,7 +763,7 @@ class _ChronologyPersistenceOwner:
                 observed=observed_manifest,
             )
         try:
-            report = self._store.verify(expected_ref.artifact_id)
+            report = self._store.verify(expected_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return _not_established(
                 query=query,
@@ -773,8 +786,8 @@ class _ChronologyPersistenceOwner:
                 report=report,
             )
         try:
-            reloaded = self._store.get_bytes(expected_ref.artifact_id)
-            reloaded_manifest = self._store.get_manifest(expected_ref.artifact_id)
+            reloaded = self._store.get_bytes(expected_ref)
+            reloaded_manifest = self._store.get_manifest(expected_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return _not_established(
                 query=query,
@@ -879,7 +892,12 @@ class _ChronologyPersistenceOwner:
             payload=contract._frame_record(statement_raw),
             kind=_RESULT_KIND,
             schema=_RESULT_SCHEMA,
-            inputs=[InputRef(artifact_id=bundle.ref.artifact_id, role="verified_bundle")],
+            inputs=[
+                core_artifacts.input_ref_from_artifact_ref(
+                    bundle.ref,
+                    role="verified_bundle",
+                )
+            ],
             missing_code="verification_result_write_not_established",
         )
         if not isinstance(sidecar, _StoredArtifact):

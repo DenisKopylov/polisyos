@@ -10,7 +10,15 @@ from pydantic import BaseModel, TypeAdapter, ValidationError
 
 import polisyos.core as core
 import polisyos.core.contracts as core_contracts
-from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    ArtifactWriteOptions,
+    CanonInfo,
+    FileSystemCAS,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.contracts import chronology as contract
 
 
@@ -817,6 +825,82 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert isinstance(corrupted, contract.ApplicablePredicateDenominatorArtifactFailure)
     assert corrupted.status == "not_established"
     assert corrupted.evidence_ref == persisted.artifact_ref
+
+
+def test_denominator_owner_selects_honest_view_after_wrong_first_writer(
+    tmp_path: Path,
+) -> None:
+    qualified = _owner_qualified_candidate()
+    policy = qualified.owner_relation_verification.policy_owner_provenance
+    statement = contract.ApplicablePredicateDenominatorStatement(
+        schema_version="polisyos.chronology.applicable-predicate-denominator.v1",
+        policy_ref=policy.policy_ref,
+        policy_content_hash=policy.policy_content_hash,
+        member_subject_refs=tuple(
+            member.member_ref for member in qualified.candidate.ordered_members
+        ),
+        required_member_predicate_pairs=(),
+        required_query_predicate_ids=(),
+    )
+    raw = contract._frame_record(
+        contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    first_writer_ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="fixture.wrong-denominator-kind",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(
+                name="polisyos.chronology.ApplicablePredicateDenominator", version="1"
+            ),
+            inputs=(),
+            canon=CanonInfo.from_spec(contract.CHRONOLOGY_CANON_SPEC),
+        ),
+    )
+    first_writer_manifest = store.get_manifest(first_writer_ref)
+
+    persisted = contract.ChronologyApplicablePredicateDenominatorArtifacts(
+        store=store
+    ).persist_and_verify(
+        query=qualified.candidate.query,
+        statement=statement,
+        owner_qualified_candidate=qualified,
+    )
+
+    assert isinstance(persisted, contract.PersistedApplicablePredicateDenominator)
+    assert persisted.artifact_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(first_writer_ref) == first_writer_manifest
+    manifest = store.get_manifest(persisted.artifact_ref)
+    assert manifest.kind == "core.chronology.applicable_predicate_denominator"
+    candidate = qualified.candidate
+    owner_relation = qualified.owner_relation_verification
+    expected_inputs = [
+        input_ref_from_artifact_ref(
+            owner_relation.verification_receipt_ref,
+            role="owner_qualification_receipt",
+        ),
+        input_ref_from_artifact_ref(
+            candidate.native_denominator_artifact_ref,
+            role="native_denominator",
+        ),
+        input_ref_from_artifact_ref(
+            candidate.query_context_artifact_ref,
+            role="query_context",
+        ),
+        *(
+            input_ref_from_artifact_ref(member.native_artifact_ref, role="native_member")
+            for member in candidate.ordered_members
+        ),
+    ]
+    assert manifest.inputs == expected_inputs
+    assert store.get_bytes(persisted.artifact_ref) == raw
+    assert store.verify(persisted.artifact_ref).ok
+    default_view_ref = persisted.artifact_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    with pytest.raises(ValueError):
+        store.get_manifest(default_view_ref)
 
 
 def test_denominator_owner_accepts_its_current_v3_manifest(tmp_path: Path) -> None:

@@ -22,6 +22,7 @@ from polisyos.core.artifacts import (
     FileSystemCAS,
     InputRef,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import content_hash
@@ -438,6 +439,30 @@ def _result_statement(
     return statement, contract._frame_record(raw)
 
 
+def _expected_chronology_bundle_inputs(case: _Case) -> list[InputRef]:
+    receipt = (
+        case.reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
+    )
+    return [
+        input_ref_from_artifact_ref(
+            receipt.verification_receipt_ref,
+            role="owner_qualification_receipt",
+        ),
+        input_ref_from_artifact_ref(
+            receipt.denominator_identity.artifact_ref,
+            role="native_denominator",
+        ),
+        input_ref_from_artifact_ref(
+            receipt.query_context_identity.artifact_ref,
+            role="query_context",
+        ),
+        *(
+            input_ref_from_artifact_ref(identity.native_artifact_ref, role="native_member")
+            for identity in receipt.member_identities
+        ),
+    ]
+
+
 class _CountingStore:
     def __init__(self, delegate: FileSystemCAS) -> None:
         self.delegate = delegate
@@ -591,8 +616,10 @@ def test_real_store_round_trip_binds_fixed_manifests_and_distinct_hashes(
     assert result.cas_raw_bytes_hash == str(result.artifact_ref.artifact_id)
     assert result.protocol_bundle_content_hash == case.bundle.bundle_content_hash
     assert result.cas_raw_bytes_hash != result.protocol_bundle_content_hash
-    assert case.store.get_bytes(result.artifact_ref.artifact_id) == case.bundle.bundle_bytes
-    bundle_manifest = case.store.get_manifest(result.artifact_ref.artifact_id)
+    assert result.artifact_ref.manifest_profile_sha256 is None
+    assert result.verifier_result_ref.manifest_profile_sha256 is None
+    assert case.store.get_bytes(result.artifact_ref) == case.bundle.bundle_bytes
+    bundle_manifest = case.store.get_manifest(result.artifact_ref)
     assert bundle_manifest.kind == "core.chronology.full_prefix.bundle"
     assert bundle_manifest.media_type == "application/octet-stream"
     assert bundle_manifest.artifact_schema == SchemaInfo(
@@ -605,21 +632,138 @@ def test_real_store_round_trip_binds_fixed_manifests_and_distinct_hashes(
         "query_context",
         "native_member",
     ]
-    result_manifest = case.store.get_manifest(result.verifier_result_ref.artifact_id)
+    result_manifest = case.store.get_manifest(result.verifier_result_ref)
     assert result_manifest.kind == "core.chronology.full_prefix.verification_result"
     assert result_manifest.artifact_schema == SchemaInfo(
         name="polisyos.chronology.FullPrefixVerificationResult", version="1"
     )
     assert result_manifest.inputs == [
-        InputRef(artifact_id=result.artifact_ref.artifact_id, role="verified_bundle")
+        input_ref_from_artifact_ref(result.artifact_ref, role="verified_bundle")
     ]
-    records = contract._split_framed_records(
-        case.store.get_bytes(result.verifier_result_ref.artifact_id)
-    )
+    records = contract._split_framed_records(case.store.get_bytes(result.verifier_result_ref))
     assert len(records) == 1
     assert contract.FullPrefixVerificationStatement.model_validate_json(records[0]) == (
         result.verification_statement
     )
+
+
+def test_native_projection_selects_honest_view_after_wrong_first_writer(
+    tmp_path: Path,
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    verified = FullPrefixVerifier().verify_bundle(
+        case.bundle.bundle_bytes,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+    assert isinstance(verified, contract.FullPrefixVerified)
+    statement = contract.NativeChronologyProjectionStatement(
+        schema_version="polisyos.chronology.native-projection.v1",
+        reconciliation=case.reconciliation,
+        proof_result=verified,
+    )
+    raw = contract._frame_record(
+        contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+    )
+    receipt = (
+        case.reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
+    )
+    expected_inputs = [
+        input_ref_from_artifact_ref(
+            receipt.verification_receipt_ref,
+            role="native_owner_verification",
+        ),
+        input_ref_from_artifact_ref(
+            case.reconciliation.applicable_predicate_denominator.artifact_ref,
+            role="applicable_predicate_denominator",
+        ),
+    ]
+    first_writer_ref = _put_raw(
+        case.store,
+        raw,
+        kind="fixture.wrong-projection-kind",
+        schema=SchemaInfo(name="polisyos.chronology.NativeProjection", version="1"),
+        inputs=expected_inputs,
+    )
+    first_writer_manifest = case.store.get_manifest(first_writer_ref)
+
+    owner = _appointed_owner(case.store)
+    persisted = owner.project_native_result(
+        reconciliation=case.reconciliation,
+        proof_result=verified,
+        bundle_bytes=case.bundle.bundle_bytes,
+    )
+
+    assert isinstance(persisted, contract.PersistedNativeChronologyProjection)
+    assert persisted.artifact_ref.manifest_profile_sha256 is not None
+    assert persisted.statement == statement
+    assert case.store.get_manifest(first_writer_ref) == first_writer_manifest
+    selected_manifest = case.store.get_manifest(persisted.artifact_ref)
+    assert selected_manifest.kind == "core.chronology.native_projection"
+    assert selected_manifest.inputs == expected_inputs
+    assert case.store.get_bytes(persisted.artifact_ref) == raw
+    assert case.store.verify(persisted.artifact_ref).ok
+    default_view_ref = persisted.artifact_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    with pytest.raises(ValueError):
+        case.store.get_manifest(default_view_ref)
+
+
+def test_owner_source_read_uses_selected_manifest_view(tmp_path: Path) -> None:
+    case = _seed_case(tmp_path / "cas")
+    source_bytes = b"chronology-owner-source-with-two-typed-views"
+    _put_raw(case.store, source_bytes, kind="fixture.wrong-owner-source-kind")
+    selected_ref = _put_raw(case.store, source_bytes, kind="fixture.owner-source")
+    assert selected_ref.manifest_profile_sha256 is not None
+    owner = _appointed_owner(case.store)
+
+    observed = owner._load_bound_source(
+        artifact_ref=selected_ref,
+        expected_raw_cas_hash=str(selected_ref.artifact_id),
+    )
+
+    assert observed == source_bytes
+    default_view_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(_private("_OwnerSourceArtifactRejectedError")):
+        owner._load_bound_source(
+            artifact_ref=default_view_ref,
+            expected_raw_cas_hash=str(default_view_ref.artifact_id),
+        )
+
+
+def test_policy_owner_byte_reader_requires_the_selected_manifest_view(
+    tmp_path: Path,
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    owner_bytes = b"policy-owner-relation-with-two-honest-manifest-views"
+    _put_raw(case.store, owner_bytes, kind="fixture.wrong-owner-relation")
+    selected_ref = _put_raw(case.store, owner_bytes, kind="fixture.owner-relation")
+    assert selected_ref.manifest_profile_sha256 is not None
+    context = contract.PredicatePolicyResolutionContext(
+        query=case.query,
+        key=contract._policy_selection_key_for_query(case.query),
+    )
+    artifacts = contract.ChronologyPredicatePolicyArtifacts(store=case.store)
+
+    selected = artifacts.load_owner_relation_bytes(
+        context=context,
+        relation_ref=selected_ref,
+        expected_content_hash=str(selected_ref.artifact_id),
+    )
+    assert selected == owner_bytes
+
+    # With selection removed, the reference's type disagrees with the first-writer view.
+    # The old by-ID read returned the same blob and incorrectly accepted this reference.
+    default_view_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    default_view = artifacts.load_owner_relation_bytes(
+        context=context,
+        relation_ref=default_view_ref,
+        expected_content_hash=str(selected_ref.artifact_id),
+    )
+    assert isinstance(default_view, contract.PolicyBindingMismatchFailure)
+    assert default_view.status == "rejected"
 
 
 def test_reader_reloads_raw_bytes_and_reruns_real_verifier(tmp_path: Path) -> None:
@@ -781,36 +925,12 @@ def test_reader_does_not_treat_audit_sidecar_as_a_green_input(tmp_path: Path) ->
 
 
 @pytest.mark.parametrize("wrong_field", ["kind", "schema", "lineage"])
-def test_identical_bundle_under_wrong_first_writer_manifest_rejects_without_sidecar(
+def test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view(
     tmp_path: Path,
     wrong_field: str,
 ) -> None:
     case = _seed_case(tmp_path / wrong_field)
-    receipt = (
-        case.reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
-    )
-    expected_inputs = [
-        InputRef(
-            artifact_id=receipt.verification_receipt_ref.artifact_id,
-            role="owner_qualification_receipt",
-        ),
-        InputRef(
-            artifact_id=receipt.denominator_identity.artifact_ref.artifact_id,
-            role="native_denominator",
-        ),
-        InputRef(
-            artifact_id=receipt.query_context_identity.artifact_ref.artifact_id,
-            role="query_context",
-        ),
-        *[
-            InputRef(
-                artifact_id=row.native_artifact_ref.artifact_id,
-                role="native_member",
-            )
-            for row in receipt.member_identities
-        ],
-    ]
-    _put_raw(
+    first_writer_ref = _put_raw(
         case.store,
         case.bundle.bundle_bytes,
         kind=(
@@ -826,40 +946,147 @@ def test_identical_bundle_under_wrong_first_writer_manifest_rejects_without_side
         inputs=(
             [InputRef(artifact_id=_dummy_ref("wrong-lineage").artifact_id, role="native_member")]
             if wrong_field == "lineage"
-            else expected_inputs
+            else _expected_chronology_bundle_inputs(case)
         ),
     )
+    first_writer_manifest = case.store.get_manifest(first_writer_ref)
+    assert first_writer_ref.manifest_profile_sha256 is None
 
     result = _persist(case)
 
-    assert isinstance(result, contract.ChronologyProofPersistenceFailed)
-    assert isinstance(result.failure, contract.ChronologyPersistenceManifestMismatch)
-    assert result.failure.artifact_role == "bundle"
-    kinds = [case.store.get_manifest(aid).kind for aid in case.store.iter_artifact_ids()]
-    assert "core.chronology.full_prefix.verification_result" not in kinds
+    assert isinstance(result, contract.PersistedChronologyProof)
+    assert result.artifact_ref.manifest_profile_sha256 is not None
+    assert case.store.get_manifest(first_writer_ref) == first_writer_manifest
+    selected_manifest = case.store.get_manifest(result.artifact_ref)
+    assert selected_manifest.kind == "core.chronology.full_prefix.bundle"
+    assert selected_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.chronology.FullPrefixBundle", version="1"
+    )
+    assert selected_manifest.inputs == _expected_chronology_bundle_inputs(case)
+    assert case.store.verify(result.artifact_ref).ok
+    assert case.store.get_bytes(result.artifact_ref) == case.bundle.bundle_bytes
+
+    sidecar_manifest = case.store.get_manifest(result.verifier_result_ref)
+    assert sidecar_manifest.inputs == [
+        input_ref_from_artifact_ref(result.artifact_ref, role="verified_bundle")
+    ]
+    assert result.verification_statement.bundle_ref == result.artifact_ref
+    assert "core.chronology.full_prefix.verification_result" in [
+        case.store.get_manifest(artifact_id).kind
+        for artifact_id in case.store.iter_artifact_ids()
+    ]
+
+    reader = chronology_proof.ChronologyProofArtifactReader(store=case.store)
+    selected_read = reader.load_and_verify(
+        query=case.query,
+        bundle_ref=result.artifact_ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+    assert isinstance(selected_read, contract.FullPrefixVerified)
+
+    # Removing selection must fail when the default view carries the wrong type/schema.
+    if wrong_field in {"kind", "schema"}:
+        default_view_ref = result.artifact_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+        default_read = reader.load_and_verify(
+            query=case.query,
+            bundle_ref=default_view_ref,
+            expected_domain=case.query.domain,
+            expected_prefix=case.expected_prefix,
+            expected_bundle_content_hash=case.bundle.bundle_content_hash,
+        )
+        assert not isinstance(default_read, contract.FullPrefixVerified)
 
 
-def test_wrong_first_writer_sidecar_lineage_is_rejected(tmp_path: Path) -> None:
+def test_wrong_first_writer_sidecar_lineage_selects_honest_view_and_reader(
+    tmp_path: Path,
+) -> None:
     case = _seed_case(tmp_path / "cas")
-    _, statement_bytes = _result_statement(case)
-    _put_raw(
+    first_bundle_ref = _put_raw(
+        case.store,
+        case.bundle.bundle_bytes,
+        kind="fixture.wrong-bundle-kind",
+        schema=SchemaInfo(name="polisyos.chronology.FullPrefixBundle", version="1"),
+        inputs=_expected_chronology_bundle_inputs(case),
+    )
+    selected_bundle_ref = case.store.put_bytes(
+        case.bundle.bundle_bytes,
+        ArtifactWriteOptions(
+            kind="core.chronology.full_prefix.bundle",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(name="polisyos.chronology.FullPrefixBundle", version="1"),
+            inputs=_expected_chronology_bundle_inputs(case),
+            canon=CanonInfo.from_spec(contract.CHRONOLOGY_CANON_SPEC),
+        ),
+    )
+    assert selected_bundle_ref.manifest_profile_sha256 is not None
+
+    statement, _ = _result_statement(case)
+    selected_statement = statement.model_copy(update={"bundle_ref": selected_bundle_ref})
+    statement_bytes = contract._frame_record(
+        contract._canonical_raw_bytes(contract._raw_model_mapping(selected_statement))
+    )
+    first_sidecar_ref = _put_raw(
         case.store,
         statement_bytes,
         kind="core.chronology.full_prefix.verification_result",
-        schema=SchemaInfo(name="polisyos.chronology.FullPrefixVerificationResult", version="1"),
-        inputs=[
-            InputRef(
-                artifact_id=_dummy_ref("substituted-bundle").artifact_id,
-                role="verified_bundle",
-            )
-        ],
+        schema=SchemaInfo(
+            name="polisyos.chronology.FullPrefixVerificationResult", version="1"
+        ),
+        inputs=[InputRef(artifact_id=selected_bundle_ref.artifact_id, role="verified_bundle")],
     )
+    first_sidecar_manifest = case.store.get_manifest(first_sidecar_ref)
 
     result = _persist(case)
 
-    assert isinstance(result, contract.ChronologyProofPersistenceFailed)
-    assert isinstance(result.failure, contract.ChronologyPersistenceManifestMismatch)
-    assert result.failure.artifact_role == "verification_result"
+    assert isinstance(result, contract.PersistedChronologyProof)
+    assert result.artifact_ref == selected_bundle_ref
+    assert result.verification_statement == selected_statement
+    assert case.store.get_manifest(first_bundle_ref).kind == "fixture.wrong-bundle-kind"
+    assert case.store.get_manifest(first_sidecar_ref) == first_sidecar_manifest
+    assert result.verifier_result_ref.manifest_profile_sha256 is not None
+    selected_sidecar_manifest = case.store.get_manifest(result.verifier_result_ref)
+    assert selected_sidecar_manifest.inputs == [
+        input_ref_from_artifact_ref(result.artifact_ref, role="verified_bundle")
+    ]
+    assert first_sidecar_manifest.inputs == [
+        InputRef(artifact_id=result.artifact_ref.artifact_id, role="verified_bundle")
+    ]
+
+    reader = chronology_proof.ChronologyProofArtifactReader(store=case.store)
+    selected_read = reader.load_and_verify(
+        query=case.query,
+        bundle_ref=result.artifact_ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+    assert isinstance(selected_read, contract.FullPrefixVerified)
+    default_view_ref = result.artifact_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    default_read = reader.load_and_verify(
+        query=case.query,
+        bundle_ref=default_view_ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+    assert not isinstance(default_read, contract.FullPrefixVerified)
+    forged_view_ref = result.artifact_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    forged_read = reader.load_and_verify(
+        query=case.query,
+        bundle_ref=forged_view_ref,
+        expected_domain=case.query.domain,
+        expected_prefix=case.expected_prefix,
+        expected_bundle_content_hash=case.bundle.bundle_content_hash,
+    )
+    assert not isinstance(forged_read, contract.FullPrefixVerified)
 
 
 @pytest.mark.parametrize("mode", ["bundle_hash", "expected_prefix"])

@@ -25,8 +25,8 @@ from polisyos.core.artifacts import (
     ArtifactStore,
     ArtifactWriteOptions,
     CanonInfo,
-    InputRef,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
@@ -848,7 +848,7 @@ class ChronologyPredicatePolicyArtifacts:
         role: Literal["admission", "policy", "policy_owner_provenance", "owner_relation"],
     ) -> bytes | PredicatePolicyResolutionFailure:
         try:
-            report = self._store.verify(artifact_ref.artifact_id)
+            report = self._store.verify(artifact_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return self._missing(context, role, artifact_ref)
         if not report.ok:
@@ -856,7 +856,7 @@ class ChronologyPredicatePolicyArtifacts:
                 return self._missing(context, role, artifact_ref)
             return self._mismatch(context, artifact_ref)
         try:
-            payload = self._store.get_bytes(artifact_ref.artifact_id)
+            payload = self._store.get_bytes(artifact_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return self._missing(context, role, artifact_ref)
         if _sha256_digest(payload) != str(artifact_ref.artifact_id):
@@ -1007,23 +1007,20 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
             media_type="application/octet-stream",
         )
         inputs = [
-            InputRef(
-                artifact_id=owner_relation.verification_receipt_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                owner_relation.verification_receipt_ref,
                 role="owner_qualification_receipt",
             ),
-            InputRef(
-                artifact_id=candidate.native_denominator_artifact_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                candidate.native_denominator_artifact_ref,
                 role="native_denominator",
             ),
-            InputRef(
-                artifact_id=candidate.query_context_artifact_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                candidate.query_context_artifact_ref,
                 role="query_context",
             ),
             *(
-                InputRef(
-                    artifact_id=member.native_artifact_ref.artifact_id,
-                    role="native_member",
-                )
+                input_ref_from_artifact_ref(member.native_artifact_ref, role="native_member")
                 for member in candidate.ordered_members
             ),
         ]
@@ -1042,15 +1039,20 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
         observed_ref: ArtifactRef | None = None
         try:
             observed_ref = self._store.put_bytes(artifact_bytes, write_options)
-            if observed_ref != expected_ref:
-                raise ValueError("denominator store returned a different artifact ref")
-            report = self._store.verify(expected_artifact_id)
+            if (
+                observed_ref is None
+                or observed_ref.artifact_id != expected_ref.artifact_id
+                or observed_ref.kind != expected_ref.kind
+                or observed_ref.media_type != expected_ref.media_type
+            ):
+                raise ValueError("denominator store returned a different artifact identity")
+            report = self._store.verify(observed_ref)
             if not report.ok:
                 raise ValueError("denominator store integrity was not established")
-            observed_bytes = self._store.get_bytes(expected_artifact_id)
+            observed_bytes = self._store.get_bytes(observed_ref)
             if observed_bytes != artifact_bytes:
                 raise ValueError("denominator bytes differ after reload")
-            observed_manifest = self._store.get_manifest(expected_artifact_id)
+            observed_manifest = self._store.get_manifest(observed_ref)
             expected_manifest = ManifestLifecycle.expected_for_write(
                 artifact_id=expected_artifact_id,
                 data=artifact_bytes,
@@ -1077,7 +1079,7 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
                 evidence_ref=observed_ref,
             )
         return PersistedApplicablePredicateDenominator(
-            artifact_ref=expected_ref,
+            artifact_ref=observed_ref,
             cas_raw_bytes_hash=str(expected_artifact_id),
             denominator_content_hash=denominator_hash,
             statement=reloaded,

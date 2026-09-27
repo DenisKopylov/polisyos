@@ -498,6 +498,101 @@ def test_l5_scope_relation_not_projection_mapping_decides_applicability() -> Non
         )
 
 
+def test_l5_projection_recomputes_hash_from_typed_no_profile_refs() -> None:
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
+    receipt, projection = resolve_l5_schema_regime_projection(
+        l5,
+        scope_identity_ref=scope_ref,
+        valid_effect_value=date(2021, 1, 1),
+        authority_purpose="publication",
+    )
+
+    assert isinstance(projection.owner_source_snapshot_ref, ArtifactRef)
+    assert isinstance(projection.denominator_receipt_ref, ArtifactRef)
+    assert projection.owner_source_snapshot_ref.manifest_profile_sha256 is None
+    assert projection.denominator_receipt_ref.manifest_profile_sha256 is None
+
+    preimage = projection.model_dump(mode="python", exclude={"projection_content_hash"})
+    preimage["owner_source_snapshot_ref"] = projection.owner_source_snapshot_ref.model_dump(
+        mode="json"
+    )
+    preimage["denominator_receipt_ref"] = projection.denominator_receipt_ref.model_dump(
+        mode="json"
+    )
+    expected_hash = (
+        "sha256:" + hashlib.sha256(epoch_contract.canonical_epoch_bytes(preimage)).hexdigest()
+    )
+    assert projection.projection_content_hash == expected_hash
+    historical_v1_payload = {**preimage, "projection_content_hash": expected_hash}
+    assert epoch_contract.canonical_epoch_bytes(projection) == epoch_contract.canonical_epoch_bytes(
+        historical_v1_payload
+    )
+
+    # The same owner projection must be accepted by a downstream consumer that
+    # independently asks L5 to recompute it.
+    entries = substrate_module._entries_from_l5(l5, receipt=receipt, projection=projection)
+    assert entries
+
+
+def test_scoped_projection_binds_selected_view_and_rejects_malformed_profile() -> None:
+    profile_sha256 = "sha256:" + hashlib.sha256(b"same selected profile").hexdigest()
+    owner_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + hashlib.sha256(b"owner").hexdigest()),
+        kind="l5.schema_regime_owner_snapshot",
+        media_type="application/json",
+        manifest_profile_sha256=profile_sha256,
+    )
+    denominator_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + hashlib.sha256(b"denominator").hexdigest()),
+        kind="l5.schema_regime_denominator_receipt",
+        media_type="application/vnd.polisyos.epoch+json",
+        manifest_profile_sha256=profile_sha256,
+    )
+    preimage = {
+        "scope_identity_ref": "sha256:" + hashlib.sha256(b"scope").hexdigest(),
+        "valid_effect_coordinate_ref": "sha256:" + hashlib.sha256(b"valid").hexdigest(),
+        "requested_query_context_ref": "sha256:" + hashlib.sha256(b"query").hexdigest(),
+        "owner_source_snapshot_ref": owner_ref.model_dump(mode="json"),
+        "denominator_receipt_ref": denominator_ref.model_dump(mode="json"),
+        "applicable_regime_ids": ("regime-a",),
+        "applicable_regime_content_hashes": (
+            "sha256:" + hashlib.sha256(b"regime-a").hexdigest(),
+        ),
+        "changepoint_refs": (),
+        "status": "resolved",
+    }
+    projection_hash = (
+        "sha256:" + hashlib.sha256(epoch_contract.canonical_epoch_bytes(preimage)).hexdigest()
+    )
+    projection = epoch_contract.ScopedSchemaRegimeProjection.model_validate(
+        {**preimage, "projection_content_hash": projection_hash}
+    )
+    assert projection.owner_source_snapshot_ref.manifest_profile_sha256 == profile_sha256
+    assert projection.denominator_receipt_ref.manifest_profile_sha256 == profile_sha256
+    assert epoch_contract.canonical_epoch_bytes(projection) == epoch_contract.canonical_epoch_bytes(
+        {**preimage, "projection_content_hash": projection_hash}
+    )
+
+    changed_view = owner_ref.model_dump(mode="json")
+    changed_view["manifest_profile_sha256"] = "sha256:" + hashlib.sha256(
+        b"different selected profile"
+    ).hexdigest()
+    with pytest.raises(ValueError, match="scoped regime projection hash differs"):
+        epoch_contract.ScopedSchemaRegimeProjection.model_validate(
+            {
+                **preimage,
+                "owner_source_snapshot_ref": changed_view,
+                "projection_content_hash": projection_hash,
+            }
+        )
+
+    malformed_view = owner_ref.model_dump(mode="json")
+    malformed_view["manifest_profile_sha256"] = "sha256:not-a-digest"
+    with pytest.raises(ValueError, match="manifest_profile_sha256"):
+        ArtifactRef.model_validate(malformed_view)
+
+
 def test_l5_regime_without_owner_scope_relation_is_epoch_scope_unresolved() -> None:
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
     scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]

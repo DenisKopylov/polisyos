@@ -2124,6 +2124,199 @@ def _build_packet_bound_owner_case(
     return owner, prepared, packet_ref, initial
 
 
+def _unfinalized_packet_owner_case(
+    tmp_path: Path,
+) -> tuple[
+    FileSystemCAS,
+    _RepositoryClaimLedgerOwner,
+    PreparedClaimLedgerInitialization,
+    ArtifactRef,
+]:
+    store = FileSystemCAS(tmp_path / "cas")
+    policy = _fixture_policy(store)
+    owner = _RepositoryClaimLedgerOwner(
+        store=store,
+        policy_resolver=_FixturePolicyResolver(policy),
+        root_issuer=_FixtureRootIssuer(store),
+        issuance_verifier=_FixtureIssuanceVerifier(store),
+        head_index_root=tmp_path / "heads",
+        decision_packets=ArtifactStoreDecisionPacketRootRepository(
+            store=store,
+            verifier_provenance_ref=policy.verifier_provenance_ref,
+        ),
+        independent_walk=FilesystemArtifactStoreClaimRootWalk(
+            store=store,
+            artifact_root=store.root,
+        ),
+    )
+    base_ref = owner.persist_candidate_ledger(ledger=_claim_ledger())
+    prepared = owner.prepare_initial_ledger(
+        base_claims_ref=base_ref,
+        source_artifact_refs=(),
+    )
+    assert isinstance(prepared, PreparedClaimLedgerInitialization)
+    packet_ref = store.put_json(
+        {
+            "schema_version": "fixture.decision-packet.v1",
+            "claim_ledger_v2_ref": str(prepared.initial_ledger_ref.artifact_id),
+        },
+        ArtifactWriteOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.decision-packet", version="1"),
+        ),
+    )
+    return store, owner, prepared, packet_ref
+
+
+def test_root_inventory_counts_one_default_packet_across_verified_manifest_views(
+    tmp_path: Path,
+) -> None:
+    store, owner, prepared, packet_ref = _unfinalized_packet_owner_case(tmp_path)
+    packet_raw = store.get_bytes(packet_ref.artifact_id)
+    selected_packet_ref = store.put_bytes(
+        packet_raw,
+        ArtifactWriteOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.decision-packet", version="2"),
+        ),
+    )
+
+    assert selected_packet_ref.artifact_id == packet_ref.artifact_id
+    assert selected_packet_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(selected_packet_ref).artifact_schema == SchemaInfo(
+        name="fixture.decision-packet",
+        version="2",
+    )
+    assert store.get_bytes(selected_packet_ref) == packet_raw
+    assert store.verify(selected_packet_ref).ok
+    result = owner.finalize_initial_root(
+        preparation_ref=prepared.preparation_ref,
+        decision_packet_ref=packet_ref,
+    )
+    assert isinstance(result, ClaimLedgerHeadAdvanced)
+    assert result.new_head.statement.generation == 0
+
+
+def test_selected_packet_view_without_default_packet_refuses_root_issuance(
+    tmp_path: Path,
+) -> None:
+    store, owner, prepared, packet_ref = _unfinalized_packet_owner_case(tmp_path)
+    secondary_packet_raw = to_canonical_bytes(
+        {
+            "schema_version": "fixture.decision-packet.v1",
+            "claim_ledger_v2_ref": str(prepared.initial_ledger_ref.artifact_id),
+            "view_probe": "selected-packet-view-only",
+        },
+        CHRONOLOGY_CANON_SPEC,
+    )
+    default_ref = store.put_bytes(
+        secondary_packet_raw,
+        ArtifactWriteOptions(
+            kind="fixture.non_decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.non-packet", version="1"),
+        ),
+    )
+    selected_packet_ref = store.put_bytes(
+        secondary_packet_raw,
+        ArtifactWriteOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.decision-packet", version="2"),
+        ),
+    )
+    assert selected_packet_ref.artifact_id == default_ref.artifact_id
+    assert selected_packet_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(default_ref).kind == "fixture.non_decision_packet"
+    assert store.get_manifest(selected_packet_ref).kind == "scientist.decision_packet"
+    assert store.get_bytes(selected_packet_ref) == secondary_packet_raw
+    assert store.verify(selected_packet_ref).ok
+
+    result = owner.finalize_initial_root(
+        preparation_ref=prepared.preparation_ref,
+        decision_packet_ref=packet_ref,
+    )
+
+    assert isinstance(result, ClaimLedgerIssuanceNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_root_selected_packet_view_not_established"
+
+
+def test_root_inventory_refuses_wrong_filesystem_root_hiding_selected_packet_view(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    policy = _fixture_policy(store)
+    packet_raw = to_canonical_bytes(
+        {
+            "schema_version": "fixture.decision-packet.v1",
+            "claim_ledger_v2_ref": str(_ref("b", kind="scientist.claim_ledger_v2").artifact_id),
+        },
+        CHRONOLOGY_CANON_SPEC,
+    )
+    default_ref = store.put_bytes(
+        packet_raw,
+        ArtifactWriteOptions(
+            kind="fixture.non_decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.non-packet", version="1"),
+        ),
+    )
+    selected_packet_ref = store.put_bytes(
+        packet_raw,
+        ArtifactWriteOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.decision-packet", version="1"),
+        ),
+    )
+    assert selected_packet_ref.artifact_id == default_ref.artifact_id
+    assert selected_packet_ref.manifest_profile_sha256 is not None
+    wrong_root = tmp_path / "empty-unrelated-cas"
+    wrong_root.mkdir()
+    inventory = RepositoryClaimLedgerRootInventory(
+        store=store,
+        decision_packets=ArtifactStoreDecisionPacketRootRepository(
+            store=store,
+            verifier_provenance_ref=policy.verifier_provenance_ref,
+        ),
+        independent_walk=FilesystemArtifactStoreClaimRootWalk(
+            store=store,
+            artifact_root=wrong_root,
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="claim_root_filesystem_identity_not_established",
+    ):
+        inventory.resolve_complete_roots()
+
+
+def test_initial_root_issuance_returns_not_established_for_wrong_filesystem_root(
+    tmp_path: Path,
+) -> None:
+    store, owner, prepared, packet_ref = _unfinalized_packet_owner_case(tmp_path)
+    owner = replace(
+        owner,
+        independent_walk=FilesystemArtifactStoreClaimRootWalk(
+            store=store,
+            artifact_root=tmp_path / "empty-unrelated-cas",
+        ),
+    )
+
+    result = owner.finalize_initial_root(
+        preparation_ref=prepared.preparation_ref,
+        decision_packet_ref=packet_ref,
+    )
+
+    assert isinstance(result, ClaimLedgerIssuanceNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_root_filesystem_identity_not_established"
+
+
 def test_packet_bound_snapshot_preserves_raw_ledger_and_public_eligibility(
     packet_bound_owner_case,
 ) -> None:

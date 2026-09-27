@@ -174,6 +174,14 @@ class _ClaimRootDenominatorMismatch(ValueError):
     """Internal discriminator for an independently observed root-set mismatch."""
 
 
+class _ClaimRootSelectedPacketViewNotEstablished(ValueError):
+    """A packet-selected view is outside the owner's default-profile census."""
+
+
+class _ClaimRootFilesystemIdentityNotEstablished(ValueError):
+    """The independent filesystem observer is not bound to the supplied store."""
+
+
 class _ClaimBatchAlreadyApplied(Exception):
     """Internal control result for a fully verified idempotent bridge retry."""
 
@@ -229,6 +237,8 @@ class ClaimLedgerIssuanceNonReceipt(_StrictFrozenModel):
         "claim_root_issuance_not_established",
         "claim_root_issuance_content_mismatch",
         "claim_root_denominator_mismatch",
+        "claim_root_selected_packet_view_not_established",
+        "claim_root_filesystem_identity_not_established",
         "claim_root_provenance_untrusted",
     ]
 
@@ -2081,7 +2091,14 @@ def _resolve_decision_packet_claim_ledger(
 
 @dataclass(frozen=True, slots=True)
 class ArtifactStoreDecisionPacketRootRepository:
-    """Owner-side complete packet snapshot derived from artifact manifests."""
+    """Snapshot decision packets selected by each artifact's default manifest.
+
+    A selected manifest view is a typed interpretation of an existing content
+    identity. It does not add a root identity to this owner's census. The
+    independent walk returns a typed ``not_established`` refusal when it finds
+    a packet-selected view over a non-packet default manifest, since this owner
+    has no admitted selected-view enumeration capability.
+    """
 
     store: ArtifactStore
     verifier_provenance_ref: ArtifactRef
@@ -2132,15 +2149,49 @@ class ArtifactStoreDecisionPacketRootRepository:
 
 @dataclass(frozen=True, slots=True)
 class FilesystemArtifactStoreClaimRootWalk:
-    """Filesystem-side walk independent of `ArtifactStore.iter_artifact_ids`."""
+    """Reconcile bound default packet roots and detect uncensused packet views.
+
+    The owner repository admits packet membership from the default manifest for
+    each content identity. This independent filesystem walk verifies each such
+    identity once, validates packet-selected views against the store, and fails
+    closed when a selected packet view has no admitted default packet identity.
+    It reads only the filesystem root that can be proven to be the supplied
+    store's backing root.
+    A same-identity packet view with the same kind and media type is not a new
+    root; its schema/profile metadata does not change the packet bytes or the
+    owner's root membership.
+    """
 
     store: ArtifactStore
     artifact_root: Path
 
+    def _bound_artifact_root(self) -> Path:
+        """Return the store's resolved root only when the walk path is identical."""
+        try:
+            store_root_value = getattr(self.store, "root", None)
+            if store_root_value is None:
+                raise ValueError("claim_root_filesystem_identity_not_established")
+            store_root = Path(store_root_value).resolve(strict=True)
+            walk_root = Path(self.artifact_root).resolve(strict=True)
+            if (
+                not store_root.is_dir()
+                or not walk_root.is_dir()
+                or not store_root.samefile(walk_root)
+            ):
+                raise ValueError("claim_root_filesystem_identity_not_established")
+            return store_root
+        except (OSError, RuntimeError, TypeError, ValueError):
+            raise _ClaimRootFilesystemIdentityNotEstablished(
+                "claim_root_filesystem_identity_not_established"
+            ) from None
+
     def enumerate_independently(self) -> tuple[DecisionPacketRootRow, ...]:
         rows: list[DecisionPacketRootRow] = []
+        default_packet_ids: set[str] = set()
+        selected_packet_view_ids: set[str] = set()
+        manifest_root = self._bound_artifact_root() / "artifacts" / "sha256"
         for manifest_path in sorted(
-            (self.artifact_root / "artifacts" / "sha256").glob("*/*/*.manifest.json")
+            manifest_root.glob("*/*/*.manifest.json")
         ):
             try:
                 manifest = artifacts.ArtifactManifest.model_validate_json(
@@ -2148,18 +2199,73 @@ class FilesystemArtifactStoreClaimRootWalk:
                 )
             except (OSError, ValueError):
                 raise ValueError("claim_root_independent_manifest_unreadable") from None
+            artifact_id = manifest.artifact_id
+            artifact_id_text = str(artifact_id)
+            artifact_directory = manifest_root / artifact_id.hex[:2] / artifact_id.hex[2:4]
+            default_manifest_path = artifact_directory / f"{artifact_id.hex}.manifest.json"
+            if manifest_path == default_manifest_path:
+                if manifest.kind != "scientist.decision_packet":
+                    continue
+                default_packet_ids.add(artifact_id_text)
+                row = _independent_packet_root_row(
+                    store=self.store,
+                    packet_ref=ArtifactRef(
+                        artifact_id=artifact_id,
+                        kind=manifest.kind,
+                        media_type=manifest.media_type,
+                    ),
+                )
+                if row is not None:
+                    rows.append(row)
+                continue
+
             if manifest.kind != "scientist.decision_packet":
                 continue
-            row = _independent_packet_root_row(
-                store=self.store,
-                packet_ref=ArtifactRef(
-                    artifact_id=manifest.artifact_id,
-                    kind=manifest.kind,
-                    media_type=manifest.media_type,
-                ),
+            view_prefix = f"{artifact_id.hex}.view."
+            manifest_suffix = ".manifest.json"
+            if (
+                manifest_path.parent != artifact_directory
+                or not manifest_path.name.startswith(view_prefix)
+                or not manifest_path.name.endswith(manifest_suffix)
+            ):
+                raise ValueError("claim_root_independent_manifest_path_mismatch")
+            profile_hex = manifest_path.name[
+                len(view_prefix) : -len(manifest_suffix)
+            ]
+            profile_ref = ArtifactRef(
+                artifact_id=artifact_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                manifest_profile_sha256=f"sha256:{profile_hex}",
             )
-            if row is not None:
-                rows.append(row)
+            expected_view_path = artifact_directory / (
+                f"{artifact_id.hex}.view.{profile_hex}{manifest_suffix}"
+            )
+            if manifest_path != expected_view_path:
+                raise ValueError("claim_root_independent_manifest_path_mismatch")
+            try:
+                selected_manifest = self.store.get_manifest(profile_ref)
+                selected_raw = self.store.get_bytes(profile_ref)
+                selected_report = self.store.verify(profile_ref)
+            except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+                raise ValueError("claim_root_independent_manifest_view_unreadable") from None
+            if (
+                selected_manifest != manifest
+                or not selected_report.ok
+                or _raw_content_hash(selected_raw) != artifact_id_text
+            ):
+                raise ValueError("claim_root_independent_manifest_view_mismatch")
+            if manifest.media_type != "application/json":
+                raise _ClaimRootSelectedPacketViewNotEstablished(
+                    "claim_root_selected_packet_view_not_established"
+                )
+            selected_packet_view_ids.add(artifact_id_text)
+
+        for artifact_id in selected_packet_view_ids:
+            if artifact_id not in default_packet_ids:
+                raise _ClaimRootSelectedPacketViewNotEstablished(
+                    "claim_root_selected_packet_view_not_established"
+                )
         return tuple(
             sorted(
                 rows,
@@ -3568,6 +3674,16 @@ class _RepositoryClaimLedgerOwner:
                     statement=head_statement,
                 ),
                 permit=_CLAIM_LEDGER_MUTATION_PERMIT,
+            )
+        except _ClaimRootSelectedPacketViewNotEstablished:
+            return ClaimLedgerIssuanceNonReceipt(
+                status="not_established",
+                code="claim_root_selected_packet_view_not_established",
+            )
+        except _ClaimRootFilesystemIdentityNotEstablished:
+            return ClaimLedgerIssuanceNonReceipt(
+                status="not_established",
+                code="claim_root_filesystem_identity_not_established",
             )
         except _ClaimRootDenominatorMismatch:
             return ClaimLedgerIssuanceNonReceipt(

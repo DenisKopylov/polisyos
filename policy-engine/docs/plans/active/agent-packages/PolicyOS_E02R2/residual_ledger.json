@@ -8696,7 +8696,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The scratch candidate d924383 adds typed metric_missing/metric_non_finite omissions and partial/unavailable coverage in the in-memory promoter and optional registry-to-VOI projection; its focused 3/3 JUnit and registry-propagation removal probe are candidate-only. The current branch has not integrated it. A static follow-up identifies a second same-class escape: duplicate invalid evaluations with the same candidate ref/coordinate may duplicate omission identity and make ParetoFront construction fail; this has not been executed. Per P40, stop instance patching and widen to one typed invariant across admission, existing registry, and output consumers. Native canonical CAS independently rejects NaN/+Inf/-Inf before ref issuance with a finite promotion control. Still open: not_applicable distinction; permutation, missing, infinity, mixed-direction, tie and duplicate-input controls; declared ObjectiveStack/OptimizerObjectiveSpec basis; served registry wiring; coverage propagation through legacy frontier projections and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; and complete historical 1.0 snapshot replay. The sibling projections currently discard coverage and can present omitted candidates as dominated; the default RunHierarchicalPolicySearchNode is an independent frontier producer. Raw/legacy CAS bypass remains not_established. Keep partial.",
+      "residual": "Commit 686ccf159d18e5514f99e13a83e6033029d2d398 integrates a reviewed, bounded Registry→VOI repair: the Pareto owner records typed missing/non-finite omissions and limited coverage, refuses to turn observed-axis unions into declared bases, and the VOI consumer withholds current frontier/dominated preference for partial, basis-limited, or historical views while a complete finite declared-basis control still ranks. Three complete files passed the bounded postpatch comparison (76 cases: 72 pass, 4 fail); all 66 common identities match prepatch (62 pass→pass, 4 fail→fail, zero pass→fail) and 10 new cases pass. The four remaining reds are not attributed: four-base P41 is UNRUN. Keep B111 partial. Residuals: ObjectiveStack still supplies numeric defaults (including zero) for absent measurements; the production registry caller supplies no source-bound OptimizerObjectiveSpec/basis and the registry has no served production constructor/caller; report, legacy-frontier, transfer/catalog and default-hierarchy consumers do not all carry this assessment; authentic historical v1 bytes and durable non-finite reload are not established; and duplicate occurrence identity is not durable. A distinct adjacent OPT-01 status defect excludes infeasible rows before Pareto comparison yet labels them dominated for VOI rejection; this is not the same eligible-input omission mechanism and is recorded as a bounded separate residual in the cited memo. Full four-base replay, served end-to-end and historical replay remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -8706,32 +8706,31 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "behavioral_verdict": "PARTIAL_CANDIDATE_ONLY",
-          "candidate_test_paths_at_sha": [
-            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
+          "behavioral_verdict": "PASS_BOUNDED",
+          "test_paths_at_sha": [
+            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:18fb2bf06882b0a01cc398698f366d0b02418049",
+            "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py@git-blob:ca8c99923d09779f7997a2746dde9fdae28107f8",
+            "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py@git-blob:ef960e48314869f2d8bae544c89bade317d8f7f7"
           ],
-          "identity": "test_empty_and_invalid_front_preserves_schema_as_incomplete; direct mixed numeric-front exclusion case currently retains complete schema without typed reason; candidate test-first red; final3 3/3; removal_probe_red; restored_green 1/1",
-          "kind": "candidate_only_probe_and_test_receipt",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B111",
-          "scope": "The 88/88 current-head Pareto suite is from unpatched source. The isolated candidate has 3/3 focused passes and a registry-to-VOI marker-retaining removal probe, but remains unintegrated and does not test current HEAD. The follow-up audit identifies a second same-class escape: repeated invalid evaluations may duplicate an omission identity and make ParetoFront construction fail; this static case has not been executed. A 2,695-file source census found no production ParetoRegistry construction/injection or to_voi_snapshot call; current candidate output siblings drop coverage.",
+          "identity": "B111 bounded Registry→VOI integration; full three-file pre/post comparison at code commit 686ccf159",
+          "kind": "bounded_behavioral_test_receipt_or_source_audit",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c",
+          "scope": "The complete three-file run has 76 cases (72 pass, 4 fail); exact-JUnit identity comparison to the prepatch 66-case run has 62 pass→pass, 4 fail→fail, zero pass→fail, and 10 new passing cases. The four persistent reds are not attributed by this comparison. This proves only the reviewed Registry→VOI slice. It does not establish a served production registry caller, source-bound objective basis, full output-consumer propagation, authentic historical-byte replay, or four-base P41; those remain UNRUN/partial. Row status remains partial.",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B111",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B111",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/B111_CANDIDATE_AUDIT_ADDENDUM.md@sha256:b297e4b96e39eab8ff4fdf3e7b5acf83087e90418743602f10c83f559c8c6d88",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/B111_CANDIDATE_REPORT.md@sha256:96a176c42d0e481b0b07239c813d48b17d6419393397f2a52bead2f67dce3ae2",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/b111-native-store-probe.log@sha256:5ddcea49953ff8d469439fe707f56e8e206514574d816adbe9242649091f6667",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/test_b111_typed_omission.py@sha256:bb8a68c96b03366ca843739b51d69d8556e6dc2019776315310beaef6cf2c286",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/B111_candidate.patch@sha256:d9243836f084a6fccfba3e2086300022cb66936ee638608c2cacaa84eb575afe",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/final3.junit.xml@sha256:5b0f71cd77614b89de25f38fb43d4936037a47036a4c08c07dd217b8cf8876ff",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/removal_probe_red.junit.xml@sha256:28c8d9edb0f796e134c0bdc7288c2a670ae4527b7b3e7d95398fb934c4c8063c",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/removal_probe_restored_green.junit.xml@sha256:5a64a564c0a17acd50ba0ecc66c16d2b5e1b6376881dc510ae6591b5fc307090",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
+            "/Users/deniskopylov/.codex/scratch/e02-b111-current-db426-prepatch-20260928/prepatch.junit.xml@sha256:63c67e0d5fcf425a713f893c083a1245a98bb711e0b095740f462078f4f75bb9",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/postpatch.junit.xml@sha256:f53953b9cd22ecc085360970ffe43945e7f34f99bf824f5f5ab39ffddd0cad01",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_INDEPENDENT_REVIEW.md@sha256:63230a0a52bab435f753d45dc006464dfe1a31e414e5fce7fea187c77c2171d9",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_MEMO.md@sha256:2652f91fd442fdf07473c8044f8f37569fe26b01f9a42272eeb350e87a5babb4",
+            "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py@git-blob:29d8831bfa492b5254165cfc569b394e28e94155",
+            "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py@git-blob:c14f3425a40d71ae28278157b9e2293f657c6cb1",
+            "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:b1285ebaa78217d4af8949fb7ff65586f381fdf6"
           ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "PARTIAL",
+        "finding_test_status": "PASS_BOUNDED",
         "n18_runtime_audit": {
           "identity": "N18 ordinary-evaluator trace plus native FileSystemCAS invalid-metric and finite-promotion probe",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B111",
@@ -8755,8 +8754,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "The scratch candidate d924383 adds typed metric_missing/metric_non_finite omissions and partial/unavailable coverage in the in-memory promoter and optional registry-to-VOI projection; its focused 3/3 JUnit and registry-propagation removal probe are candidate-only. The current branch has not integrated it. A static follow-up identifies a second same-class escape: duplicate invalid evaluations with the same candidate ref/coordinate may duplicate omission identity and make ParetoFront construction fail; this has not been executed. Per P40, stop instance patching and widen to one typed invariant across admission, existing registry, and output consumers. Native canonical CAS independently rejects NaN/+Inf/-Inf before ref issuance with a finite promotion control. Still open: not_applicable distinction; permutation, missing, infinity, mixed-direction, tie and duplicate-input controls; declared ObjectiveStack/OptimizerObjectiveSpec basis; served registry wiring; coverage propagation through legacy frontier projections and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; and complete historical 1.0 snapshot replay. The sibling projections currently discard coverage and can present omitted candidates as dominated; the default RunHierarchicalPolicySearchNode is an independent frontier producer. Raw/legacy CAS bypass remains not_established. Keep partial.",
-          "next_step": "Stop instance patching and implement one owner-first assessment across the existing promoter, registry, default coordinator, controller/search and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; supply the declared objective basis rather than inferring it from the first candidate map. Make duplicate invalid rows aggregate idempotently, or use stable evaluation identity. Add the same-class intake and consumer removal probes plus missing/not-applicable/infinity/direction/tie/repeated-input controls, enumerate historical v1.0 snapshots, and prove the served chain before four-base P41. Do not add a second registry."
+          "summary": "Commit 686ccf159 integrates the independently reviewed Registry→VOI bounded slice. The whole-file comparison has 76 cases, with 62 common pass→pass, 4 common fail→fail, zero pass→fail, and 10 new passes. B111 remains partial: the production registry caller lacks a source-bound objective basis; served/output consumers and authentic historical replay remain incomplete. Four-base attribution is UNRUN. The adjacent infeasible-as-dominated VOI status defect is a separate bounded residual, not this omission class.",
+          "next_step": "Keep the repair at the existing Pareto owner and carry the assessed basis/coverage through the production objective producer, registry caller, default hierarchy, reports and transfer/catalog readers. Bind the basis to the existing OptimizerObjectiveSpec rather than a caller-asserted label; preserve missing versus measured zero; add a served consumer/removal witness, duplicate-occurrence and mixed invalid-input controls, and enumerate authentic historical snapshots before four-base P41. Separately give infeasible rows a truthful typed VOI status so they are not described as Pareto-dominated without comparison. Do not add a second registry."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -8835,7 +8834,7 @@
           "next_step": "Stop instance patching and implement one owner-first assessment across the existing promoter, registry, default coordinator, controller/search and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; supply the declared objective basis rather than inferring it from the first candidate map. Make duplicate invalid rows aggregate idempotently, or use stable evaluation identity. Add the same-class intake and consumer removal probes plus missing/not-applicable/infinity/direction/tie/repeated-input controls, enumerate historical v1.0 snapshots, and prove the served chain before four-base P41. Do not add a second registry."
         }
       },
-      "finding_test_status": "PARTIAL_CANDIDATE_ONLY",
+      "finding_test_status": "PASS_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {
           "behavioral_verdict": "PARTIAL_CANDIDATE_ONLY",
@@ -8887,6 +8886,56 @@
         "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
         "status_retained": "partial",
         "four_base_replay": "UNRUN at other three bases"
+      },
+      "b111_integrated_registry_voi_2026_09_28": {
+        "code_test_commit": "686ccf159d18e5514f99e13a83e6033029d2d398",
+        "reviewed_candidate_diff_sha256": "a9358bb93b11cabf6baf9e247ae66ae17c06a6b9e26a36afbc924ccaa411ed1e",
+        "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_INDEPENDENT_REVIEW.md@sha256:63230a0a52bab435f753d45dc006464dfe1a31e414e5fce7fea187c77c2171d9",
+        "integration_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c",
+        "prepatch": {
+          "code_head": "db42655626da93c37abc896bdf127730bb0b5f96",
+          "cases": 66,
+          "pass": 62,
+          "fail": 4,
+          "error": 0,
+          "skip": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-current-db426-prepatch-20260928/prepatch.junit.xml@sha256:63c67e0d5fcf425a713f893c083a1245a98bb711e0b095740f462078f4f75bb9"
+        },
+        "integrated_postpatch": {
+          "cases": 76,
+          "pass": 72,
+          "fail": 4,
+          "error": 0,
+          "skip": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/postpatch.junit.xml@sha256:f53953b9cd22ecc085360970ffe43945e7f34f99bf824f5f5ab39ffddd0cad01"
+        },
+        "identity_transition": {
+          "common": 66,
+          "new": 10,
+          "removed": 0,
+          "pass_to_pass": 62,
+          "fail_to_fail": 4,
+          "pass_to_fail": 0,
+          "new_pass": 10,
+          "new_fail": 0,
+          "per_file": {
+            "tests/unit/scientist/methods/autotune/test_pareto.py": "25/25 pass → 27/27 pass",
+            "tests/unit/scientist/search/test_phase_b_policy_runtime.py": "27 pass / 4 fail (31) → 32 pass / 4 fail (36)",
+            "tests/unit/scientist/search/test_voi_scheduler.py": "10/10 pass → 13/13 pass"
+          },
+          "persistent_red_attribution": "UNRUN; comparison does not prove these four failures inherited"
+        },
+        "four_base_p41": "UNRUN",
+        "status_retained": "partial",
+        "bounded_result": "Registry→VOI limited-frontier semantics; no served production closure",
+        "residuals": [
+          "No source-bound objective basis from existing OptimizerObjectiveSpec reaches production registry caller; production ParetoRegistry construction/caller absent in src.",
+          "ObjectiveStack defaults absent metrics, including numeric zero; source truth and measured-zero distinction remain unestablished.",
+          "Legacy frontier, transfer/catalog, report and default hierarchy paths do not all preserve or consume assessment; served end-to-end witness UNRUN.",
+          "No authentic committed historical v1 fixture; external historical bytes and durable non-finite reload remain UNRUN; duplicate occurrence identity is not durable.",
+          "Adjacent distinct status residual: infeasible non-seed rows excluded before comparison can be labeled dominated and routed to VOI reject; see separate memo. Not the same omission class."
+        ],
+        "adjacent_infeasible_voi_status_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/OPT01_INFEASIBLE_VOI_STATUS_MEMO.md@sha256:56d9a8d0061086d1aa2c665b5747fe982ef4dfaec2ad1cdf41ca1607a903309f"
       }
     },
     {

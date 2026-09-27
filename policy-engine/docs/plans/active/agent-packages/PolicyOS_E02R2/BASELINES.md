@@ -1332,3 +1332,16 @@ in the same scratch directory). The generated DesignProblem contract owner's
 standalone `--check --output-format json` returned `status=pass`, `issues=[]`,
 exit 0. These slice results do not fill the 21-file four-base Appendix A/B
 matrix or the full changed-test-tree replay.
+
+## B111 whole-file pre/post comparison at code/test HEAD `686ccf159` (2026-09-28; not four-base P41)
+
+This supplement records the three complete files used to validate the bounded Registry→VOI integration. It is a single pre/post comparison, not the four-base replay and not a claim about the other strict files in the historical 21-file matrix. The postpatch command ran on the exact committed source/test bytes in the integration receipt.
+
+| Test file | Prepatch at `db4265562` | Integrated at `686ccf159` |
+|---|---:|---:|
+| `tests/unit/scientist/methods/autotune/test_pareto.py` | 25/25 pass | 27/27 pass |
+| `tests/unit/scientist/search/test_phase_b_policy_runtime.py` | 27 pass / 4 fail (31) | 32 pass / 4 fail (36) |
+| `tests/unit/scientist/search/test_voi_scheduler.py` | 10/10 pass | 13/13 pass |
+| **Total** | **66: 62 pass / 4 fail** | **76: 72 pass / 4 fail** |
+
+Exact identity denominator: 66 common, 10 new, 0 removed. Transitions: 62 pass→pass, 4 fail→fail, 0 pass→fail; all 10 new cases pass. The four continuing failures include three `canonical_n9_promotion_sequence_required` cases and one stale-module-reload `objective_stack_returned_untyped_result`; this comparison does not establish their ownership or inheritance. Exact prepatch JUnit `/Users/deniskopylov/.codex/scratch/e02-b111-current-db426-prepatch-20260928/prepatch.junit.xml@sha256:63c67e0d5fcf425a713f893c083a1245a98bb711e0b095740f462078f4f75bb9`; integrated JUnit `/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/postpatch.junit.xml@sha256:f53953b9cd22ecc085360970ffe43945e7f34f99bf824f5f5ab39ffddd0cad01`; full integration receipt `/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c`; independent review `/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_INDEPENDENT_REVIEW.md@sha256:63230a0a52bab435f753d45dc006464dfe1a31e414e5fce7fea187c77c2171d9`. The other three bases, authentic historical-byte replay, the full touched-file matrix, and four-base P41 remain `UNRUN`; `BASELINES_DONE` remains unclaimed.

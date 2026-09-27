@@ -150,9 +150,9 @@ def build_epoch_resolution_query_from_evidence(
     )
     coordinate_refs: list[Digest] = []
     for role, ref in evidence:
-        report = artifact_store.verify(ref.artifact_id)
-        manifest = artifact_store.get_manifest(ref.artifact_id)
-        payload = artifact_store.get_bytes(ref.artifact_id)
+        report = artifact_store.verify(ref)
+        manifest = artifact_store.get_manifest(ref)
+        payload = artifact_store.get_bytes(ref)
         if (
             not bool(getattr(report, "ok", False))
             or getattr(manifest, "artifact_id", None) != ref.artifact_id
@@ -1039,7 +1039,7 @@ def _persist_history_view(
             media_type="application/vnd.polisyos.epoch+json",
         ),
     )
-    if _raw_cas_hash(artifacts.get_bytes(ref.artifact_id)) != str(ref.artifact_id):
+    if _raw_cas_hash(artifacts.get_bytes(ref)) != str(ref.artifact_id):
         raise ValueError("epoch scope-history view failed CAS readback")
     return EpochScopeHistory(
         scope=scope,
@@ -1167,7 +1167,7 @@ class SemanticEpochQualificationAdapter(NativeChronologyAuthorityAdapter):
         entries = history.entries
         members: list[chronology_contract.ChronologyMemberInput] = []
         for row in entries:
-            payload = self._artifacts.get_bytes(row.native_member_ref.artifact_id)
+            payload = self._artifacts.get_bytes(row.native_member_ref)
             members.append(
                 chronology_contract.ChronologyMemberInput(
                     member_ref=row.epoch_ref,
@@ -1358,9 +1358,9 @@ def _persist_model(
             inputs=inputs,
         ),
     )
-    report = store.verify(ref.artifact_id)
-    readback = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    report = store.verify(ref)
+    readback = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
     records = chronology_contract._split_framed_records(readback)
     if (
         not report.ok
@@ -1389,29 +1389,30 @@ def persist_semantic_epoch_production_receipt(
     )
     statement = current_receipt.statement_projection()
     raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+    inputs = [
+        artifacts.input_ref_from_artifact_ref(ref, role="epoch_production_input")
+        for ref in (
+            receipt.prepared_epoch_ref,
+            receipt.admitted_boundary_evidence_ref,
+            receipt.semantic_manifest_ref,
+            receipt.history_append_receipt_ref,
+            receipt.chronology_bundle_ref,
+            receipt.chronology_verification_ref,
+            receipt.chronology_projection_ref,
+        )
+        if ref is not None
+    ]
     receipt_ref = store.put_bytes(
         raw,
         ArtifactWriteOptions(
             kind="epoch.production_receipt",
             media_type="application/vnd.polisyos.epoch-production-receipt+json",
-            inputs=[
-                InputRef(artifact_id=ref.artifact_id, role="epoch_production_input")
-                for ref in (
-                    receipt.prepared_epoch_ref,
-                    receipt.admitted_boundary_evidence_ref,
-                    receipt.semantic_manifest_ref,
-                    receipt.history_append_receipt_ref,
-                    receipt.chronology_bundle_ref,
-                    receipt.chronology_verification_ref,
-                    receipt.chronology_projection_ref,
-                )
-                if ref is not None
-            ],
+            inputs=inputs,
         ),
     )
-    report = store.verify(receipt_ref.artifact_id)
-    readback = store.get_bytes(receipt_ref.artifact_id)
-    manifest = store.get_manifest(receipt_ref.artifact_id)
+    report = store.verify(receipt_ref)
+    readback = store.get_bytes(receipt_ref)
+    manifest = store.get_manifest(receipt_ref)
     records = chronology_contract._split_framed_records(readback)
     if (
         not report.ok
@@ -1419,6 +1420,7 @@ def persist_semantic_epoch_production_receipt(
         or manifest.artifact_id != receipt_ref.artifact_id
         or manifest.kind != "epoch.production_receipt"
         or manifest.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
+        or manifest.inputs != inputs
         or len(records) != 1
     ):
         raise RuntimeError("epoch production receipt frame denominator differs from one")
@@ -1516,12 +1518,12 @@ def _admit_owner_snapshot(*, artifacts: ArtifactStore, ref: ArtifactRef, payload
         payload,
         ArtifactWriteOptions(kind=ref.kind, media_type=ref.media_type),
     )
-    report = artifacts.verify(admitted.artifact_id)
-    manifest = artifacts.get_manifest(admitted.artifact_id)
+    report = artifacts.verify(admitted)
+    manifest = artifacts.get_manifest(admitted)
     if (
         admitted != ref
         or not report.ok
-        or artifacts.get_bytes(admitted.artifact_id) != payload
+        or artifacts.get_bytes(admitted) != payload
         or manifest.artifact_id != ref.artifact_id
         or manifest.kind != ref.kind
         or manifest.media_type != ref.media_type
@@ -1989,8 +1991,8 @@ class ArtifactSemanticFacetProvider:
             ref = self._source_refs[registration.source_binding_ref]
             if registration.source_binding_ref != str(ref.artifact_id):
                 raise ValueError("semantic facet source binding is not content-addressed")
-            report = self._artifacts.verify(ref.artifact_id)
-            raw = self._artifacts.get_bytes(ref.artifact_id)
+            report = self._artifacts.verify(ref)
+            raw = self._artifacts.get_bytes(ref)
             if not report.ok or _raw_cas_hash(raw) != str(ref.artifact_id):
                 raise ValueError("semantic facet source failed CAS verification")
             try:
@@ -2129,9 +2131,9 @@ class SemanticEpochService:
         | epoch_contract.AcquisitionBoundaryResolutionQuery
     ):
         def raw(ref: ArtifactRef) -> bytes:
-            report = self._artifact_store.verify(ref.artifact_id)
-            payload = self._artifact_store.get_bytes(ref.artifact_id)
-            manifest = self._artifact_store.get_manifest(ref.artifact_id)
+            report = self._artifact_store.verify(ref)
+            payload = self._artifact_store.get_bytes(ref)
+            manifest = self._artifact_store.get_manifest(ref)
             if (
                 not report.ok
                 or _raw_cas_hash(payload) != str(ref.artifact_id)
@@ -2357,7 +2359,7 @@ class SemanticEpochService:
         )
         staged_entries = current_history.entries
         if manifest.epoch_ref not in {row.epoch_ref for row in staged_entries}:
-            manifest_raw = self._artifact_store.get_bytes(manifest_ref.artifact_id)
+            manifest_raw = self._artifact_store.get_bytes(manifest_ref)
             staged_entries = (
                 *staged_entries,
                 EpochHistoryEntry(
@@ -2485,7 +2487,7 @@ class SemanticEpochService:
                     SemanticEpochManifest.model_validate(
                         from_canonical_bytes(
                             chronology_contract._split_framed_records(
-                                self._artifact_store.get_bytes(row.manifest_ref.artifact_id)
+                                self._artifact_store.get_bytes(row.manifest_ref)
                             )[0]
                         )
                     )
@@ -2528,7 +2530,7 @@ class SemanticEpochService:
                 SemanticEpochManifest.model_validate(
                     from_canonical_bytes(
                         chronology_contract._split_framed_records(
-                            self._artifact_store.get_bytes(row.manifest_ref.artifact_id)
+                            self._artifact_store.get_bytes(row.manifest_ref)
                         )[0]
                     )
                 )
@@ -2614,7 +2616,11 @@ class SemanticEpochService:
             ArtifactWriteOptions(
                 kind="epoch.prepared",
                 media_type="application/vnd.polisyos.epoch+json",
-                inputs=[InputRef(artifact_id=manifest_ref.artifact_id, role="semantic_manifest")],
+                inputs=[
+                    artifacts.input_ref_from_artifact_ref(
+                        manifest_ref, role="semantic_manifest"
+                    )
+                ],
             ),
         )
         prepared_readback = epoch_contract.load_verified_epoch_statement(
@@ -2683,9 +2689,9 @@ class SemanticEpochService:
         try:
 
             def load_mapping(ref: ArtifactRef, *, kind: str) -> dict[str, object]:
-                report = self._artifact_store.verify(ref.artifact_id)
-                payload = self._artifact_store.get_bytes(ref.artifact_id)
-                manifest = self._artifact_store.get_manifest(ref.artifact_id)
+                report = self._artifact_store.verify(ref)
+                payload = self._artifact_store.get_bytes(ref)
+                manifest = self._artifact_store.get_manifest(ref)
                 records = chronology_contract._split_framed_records(payload)
                 if (
                     not report.ok
@@ -2831,11 +2837,11 @@ class SemanticEpochService:
                     admitted.native_member_content_hash,
                 ),
                 (
-                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.passport_ref.artifact_id))[0]).hexdigest()}",
+                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.passport_ref))[0]).hexdigest()}",
                     admitted.passport_content_hash,
                 ),
                 (
-                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.pending_overlay_receipt_ref.artifact_id))[0]).hexdigest()}",
+                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.pending_overlay_receipt_ref))[0]).hexdigest()}",
                     admitted.pending_overlay_receipt_content_hash,
                 ),
                 (
@@ -2903,7 +2909,7 @@ class SemanticEpochService:
                     SemanticEpochManifest.model_validate(
                         from_canonical_bytes(
                             chronology_contract._split_framed_records(
-                                self._artifact_store.get_bytes(row.manifest_ref.artifact_id)
+                                self._artifact_store.get_bytes(row.manifest_ref)
                             )[0]
                         )
                     )

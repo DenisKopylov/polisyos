@@ -341,6 +341,58 @@ def test_origin_index_is_scoped_at_operation_time_and_survives_restart(tmp_path:
                 tmp_path / f"{tenant}-{cell}", store=store,
                 authority_purpose=f"origin-scope:{tenant}:{cell}",
             )
+            receipt = _fixture.current_receipt
+            bundle_ref = receipt.chronology_bundle_ref
+            assert bundle_ref is not None
+            receipt_manifest = store.get_manifest(receipt.receipt_ref)
+            bundle_edge = next(
+                edge
+                for edge in receipt_manifest.inputs
+                if edge.artifact_id == bundle_ref.artifact_id
+                and edge.role == "epoch_production_input"
+            )
+            if (tenant, cell) == ("tenant-a", "cell-a"):
+                # The originating owner still writes and reads the default view.
+                assert bundle_ref.manifest_profile_sha256 is None
+                assert bundle_edge.manifest_profile_sha256 is None
+            if (tenant, cell) == ("tenant-b", "cell-a"):
+                # Reused bytes get a tenant-owned selected view, and the receipt
+                # manifest must bind that exact view rather than only the blob ID.
+                assert bundle_ref.manifest_profile_sha256 is not None
+                assert (
+                    bundle_edge.manifest_profile_sha256
+                    == bundle_ref.manifest_profile_sha256
+                )
+                with pytest.raises(
+                    artifacts.ArtifactOwnershipError,
+                    match=r"write input manifest:epoch_production_input",
+                ):
+                    store.put_bytes(
+                        b"r9-selector-removal-probe",
+                        artifacts.ArtifactWriteOptions(
+                            kind="test.epoch_input_binding",
+                            media_type="application/octet-stream",
+                            inputs=[
+                                artifacts.InputRef(
+                                    artifact_id=bundle_ref.artifact_id,
+                                    role="epoch_production_input",
+                                )
+                            ],
+                        ),
+                    )
+                selected_control = store.put_bytes(
+                    b"r9-selector-preserving-control",
+                    artifacts.ArtifactWriteOptions(
+                        kind="test.epoch_input_binding",
+                        media_type="application/octet-stream",
+                        inputs=[
+                            artifacts.input_ref_from_artifact_ref(
+                                bundle_ref, role="epoch_production_input"
+                            )
+                        ],
+                    ),
+                )
+                assert store.verify(selected_control).ok
             owner = _module().FileEpochTransitionOriginOwner(
                 root=root, artifacts=store, signed_artifacts=repository, signing_profiles=profiles
             )

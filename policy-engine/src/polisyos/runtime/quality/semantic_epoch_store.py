@@ -167,9 +167,9 @@ class FileSemanticEpochHistoryRepository:
                 scratch.unlink()
 
     def _manifest(self, manifest_ref: ArtifactRef) -> tuple[SemanticEpochManifest, bytes]:
-        report = self._artifacts.verify(manifest_ref.artifact_id)
-        raw = self._artifacts.get_bytes(manifest_ref.artifact_id)
-        manifest = self._artifacts.get_manifest(manifest_ref.artifact_id)
+        report = self._artifacts.verify(manifest_ref)
+        raw = self._artifacts.get_bytes(manifest_ref)
+        manifest = self._artifacts.get_manifest(manifest_ref)
         if (
             manifest_ref.kind != "epoch.semantic_manifest"
             or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
@@ -199,8 +199,8 @@ class FileSemanticEpochHistoryRepository:
         manifest_ref = ArtifactRef.model_validate(row.get("manifest_ref"))
         manifest, _ = self._manifest(manifest_ref)
         native_ref = ArtifactRef.model_validate(row.get("native_member_ref"))
-        native_report = self._artifacts.verify(native_ref.artifact_id)
-        native_raw = self._artifacts.get_bytes(native_ref.artifact_id)
+        native_report = self._artifacts.verify(native_ref)
+        native_raw = self._artifacts.get_bytes(native_ref)
         expected = {
             "scope_key": _key(scope=scope, authority_purpose=authority_purpose),
             "scope": scope.model_dump(mode="json"),
@@ -235,8 +235,8 @@ class FileSemanticEpochHistoryRepository:
         manifest, _ = self._manifest(manifest_ref)
         if manifest.predecessor_refs != predecessor_refs:
             raise ValueError("manifest predecessors differ from append request")
-        native_report = self._artifacts.verify(native_member_ref.artifact_id)
-        native_bytes = self._artifacts.get_bytes(native_member_ref.artifact_id)
+        native_report = self._artifacts.verify(native_member_ref)
+        native_bytes = self._artifacts.get_bytes(native_member_ref)
         if not native_report.ok or _sha256(native_bytes) != str(native_member_ref.artifact_id):
             raise ValueError("native epoch member failed CAS verification")
         scope_key = _key(

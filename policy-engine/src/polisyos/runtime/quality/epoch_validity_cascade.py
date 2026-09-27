@@ -153,9 +153,9 @@ def _persist_model(
         raw,
         options,
     )
-    observed = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    observed = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     if (
         not report.ok
         or observed != raw
@@ -212,9 +212,9 @@ def _read_model(
         expected_canon = None
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("chronology_artifact_profile_mismatch")
-    report = store.verify(ref.artifact_id)
-    raw = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    report = store.verify(ref)
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
     if (
         not report.ok
         or _raw_hash(raw) != str(ref.artifact_id)
@@ -425,9 +425,8 @@ def persist_advisory_perturbation_event(
                 version=_ADVISORY_EVENT_SCHEMA_VERSION,
             ),
             inputs=[
-                artifacts.InputRef(
-                    artifact_id=advisory.event_ref.artifact_id,
-                    role="governance_monitor_event",
+                artifacts.input_ref_from_artifact_ref(
+                    advisory.event_ref, role="governance_monitor_event"
                 )
             ],
         ),
@@ -445,9 +444,9 @@ def resolve_advisory_perturbation_event(
 ) -> AdvisoryPerturbationEvent:
     """Resolve exact advisory bytes and reject profile or canonical drift."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     expected_schema = artifacts.SchemaInfo(
         name=_ADVISORY_EVENT_SCHEMA_NAME,
         version=_ADVISORY_EVENT_SCHEMA_VERSION,
@@ -918,7 +917,16 @@ class FileSemanticEpochTransitionHistoryAdapter:
     def _sorted_inputs(
         values: Sequence[artifacts.InputRef],
     ) -> tuple[artifacts.InputRef, ...]:
-        return tuple(sorted(values, key=lambda item: (item.role, str(item.artifact_id))))
+        return tuple(
+            sorted(
+                values,
+                key=lambda item: (
+                    item.role,
+                    str(item.artifact_id),
+                    item.manifest_profile_sha256 or "",
+                ),
+            )
+        )
 
     def _read_production_receipt(
         self,
@@ -931,9 +939,9 @@ class FileSemanticEpochTransitionHistoryAdapter:
         ):
             raise ValueError("epoch transition receipt artifact profile mismatch")
         try:
-            report = self._artifacts.verify(receipt_ref.artifact_id)
-            raw = self._artifacts.get_bytes(receipt_ref.artifact_id)
-            manifest = self._artifacts.get_manifest(receipt_ref.artifact_id)
+            report = self._artifacts.verify(receipt_ref)
+            raw = self._artifacts.get_bytes(receipt_ref)
+            manifest = self._artifacts.get_manifest(receipt_ref)
             records = core_contracts.chronology._split_framed_records(raw)
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition receipt CAS readback failed") from exc
@@ -957,9 +965,8 @@ class FileSemanticEpochTransitionHistoryAdapter:
         )
         expected_inputs = self._sorted_inputs(
             tuple(
-                artifacts.InputRef(
-                    artifact_id=ref.artifact_id,
-                    role="epoch_production_input",
+                artifacts.input_ref_from_artifact_ref(
+                    ref, role="epoch_production_input"
                 )
                 for ref in (
                     receipt.prepared_epoch_ref,
@@ -987,9 +994,9 @@ class FileSemanticEpochTransitionHistoryAdapter:
         ):
             raise ValueError("epoch transition semantic manifest artifact profile mismatch")
         try:
-            report = self._artifacts.verify(manifest_ref.artifact_id)
-            raw = self._artifacts.get_bytes(manifest_ref.artifact_id)
-            manifest_record = self._artifacts.get_manifest(manifest_ref.artifact_id)
+            report = self._artifacts.verify(manifest_ref)
+            raw = self._artifacts.get_bytes(manifest_ref)
+            manifest_record = self._artifacts.get_manifest(manifest_ref)
             records = core_contracts.chronology._split_framed_records(raw)
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
@@ -1036,9 +1043,9 @@ class FileSemanticEpochTransitionHistoryAdapter:
             core_contracts.epoch.canonical_epoch_bytes(statement)
         )
         try:
-            report = self._artifacts.verify(history.history_snapshot_ref.artifact_id)
-            raw = self._artifacts.get_bytes(history.history_snapshot_ref.artifact_id)
-            manifest = self._artifacts.get_manifest(history.history_snapshot_ref.artifact_id)
+            report = self._artifacts.verify(history.history_snapshot_ref)
+            raw = self._artifacts.get_bytes(history.history_snapshot_ref)
+            manifest = self._artifacts.get_manifest(history.history_snapshot_ref)
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition scope history CAS readback failed") from exc
         if (

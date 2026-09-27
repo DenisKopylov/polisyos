@@ -214,11 +214,11 @@ class FileEpochTransitionOriginOwner:
         kind: str,
         media_type: str,
     ) -> Model:
-        raw = self._artifacts.get_bytes(ref.artifact_id)
-        manifest = self._artifacts.get_manifest(ref.artifact_id)
+        raw = self._artifacts.get_bytes(ref)
+        manifest = self._artifacts.get_manifest(ref)
         frames = contracts.chronology._split_framed_records(raw)
         if (
-            not self._artifacts.verify(ref.artifact_id).ok
+            not self._artifacts.verify(ref).ok
             or str(ref.artifact_id) != security.raw_content_hash(raw)
             or ref.kind != kind
             or manifest.kind != kind
@@ -242,7 +242,9 @@ class FileEpochTransitionOriginOwner:
             raise ValueError("epoch_origin_retained_source_noncanonical")
         if isinstance(value, SemanticEpochProductionReceipt):
             expected_inputs = tuple(
-                artifacts.InputRef(artifact_id=source.artifact_id, role="epoch_production_input")
+                artifacts.input_ref_from_artifact_ref(
+                    source, role="epoch_production_input"
+                )
                 for source in (
                     value.prepared_epoch_ref,
                     value.admitted_boundary_evidence_ref,

@@ -35,8 +35,9 @@ from polisyos.scientist.evidence.claims.models import ClaimRecord, MethodNeedPre
 from polisyos.scientist.governance.continuous.governed_public_record_contracts import (
     MANDATE_PURPOSE,
     PUBLICATION_PROFILE,
+    PUBLICATION_PROFILE_V1,
+    PUBLICATION_PROFILE_V2,
     PUBLICATION_PURPOSE,
-    PUBLICATION_RULE,
     GovernedPublicCustodyBinding,
     GovernedPublicRecord,
     GovernedPublicRecordBoundaryRead,
@@ -110,7 +111,12 @@ _REFERENCE_FIELDS: dict[type[BaseModel], frozenset[str]] = {
     ),
 }
 _MATERIAL_FIELDS: dict[type[BaseModel], frozenset[str]] = {
-    artifacts.ArtifactRef: frozenset({"kind", "media_type"}),
+    # The v1 projection predates selected-manifest identity. Keep the newly
+    # present field in the v1 schema inventory, but refuse non-null selectors
+    # before serialization so the historical projection cannot erase one.
+    artifacts.ArtifactRef: frozenset(
+        {"kind", "media_type", "manifest_profile_sha256"}
+    ),
     AppendOnlyClaimLedger: frozenset(
         {
             "schema_version",
@@ -150,6 +156,14 @@ _MATERIAL_FIELDS: dict[type[BaseModel], frozenset[str]] = {
     ClaimLifecycleEvent: frozenset(
         {"schema_version", "action", "occurred_at", "reason", "metadata"}
     ),
+}
+_REFERENCE_FIELDS_V2 = {
+    **_REFERENCE_FIELDS,
+    artifacts.ArtifactRef: frozenset({"artifact_id", "manifest_profile_sha256"}),
+}
+_MATERIAL_FIELDS_V2 = {
+    **_MATERIAL_FIELDS,
+    artifacts.ArtifactRef: frozenset({"kind", "media_type"}),
 }
 
 
@@ -222,6 +236,38 @@ class _IssuanceIndex(_StrictModel):
     admission: _ExactSignature
 
 
+def _document_version(document: dict[str, JsonValue]) -> Literal["v1", "v2"]:
+    schema_version = document.get("schema_version")
+    profile = document.get("profile")
+    if type(schema_version) is not str or type(profile) is not str:
+        raise GovernedPublicRecordError("public_document_schema_unsupported")
+    identity = (schema_version, profile)
+    versions = {
+        ("polisyos.governed_public_document.v1", PUBLICATION_PROFILE_V1): "v1",
+        ("polisyos.governed_public_document.v2", PUBLICATION_PROFILE_V2): "v2",
+    }
+    version = versions.get(identity)
+    if version is None:
+        raise GovernedPublicRecordError("public_document_schema_unsupported")
+    return version
+
+
+def _stored_schema_version(value: BaseModel | dict[str, object], name: str) -> str:
+    """Select the CAS schema version from the artifact's typed projection version."""
+    if isinstance(value, GovernedPublicRecord):
+        return value.schema_version.rsplit(".", maxsplit=1)[1].removeprefix("v")
+    if isinstance(value, PublicationMandateStatement):
+        return value.schema_version.rsplit(".", maxsplit=1)[1].removeprefix("v")
+    if isinstance(value, _PrivateDraft):
+        return _document_version(value.public_document).removeprefix("v")
+    if isinstance(value, dict) and name == "scientist.publication.private_draft":
+        document = value.get("public_document")
+        if not isinstance(document, dict):
+            raise GovernedPublicRecordError("public_document_schema_unsupported")
+        return _document_version(document).removeprefix("v")
+    return "1"
+
+
 def _metadata(value: BaseModel) -> None:
     metadata = getattr(value, "metadata", {})
     if isinstance(value, AppendOnlyClaimLedger):
@@ -252,8 +298,12 @@ def _metadata(value: BaseModel) -> None:
 
 def _source_leaves(
     value: BaseModel,
+    *,
+    version: Literal["v1", "v2"],
 ) -> tuple[dict[tuple[str | int, ...], str], dict[str, JsonValue]]:
     leaves: dict[tuple[str | int, ...], str] = {}
+    reference_fields = _REFERENCE_FIELDS if version == "v1" else _REFERENCE_FIELDS_V2
+    material_fields = _MATERIAL_FIELDS if version == "v1" else _MATERIAL_FIELDS_V2
 
     def walk(node: object, path: tuple[str | int, ...], reference: bool = False) -> None:
         if isinstance(node, artifacts.ArtifactID):
@@ -262,13 +312,19 @@ def _source_leaves(
             leaves[path] = str(node)
         elif isinstance(node, BaseModel):
             cls = type(node)
-            if cls not in _REFERENCE_FIELDS or set(cls.model_fields) != (
-                _REFERENCE_FIELDS[cls] | _MATERIAL_FIELDS[cls]
+            if cls not in reference_fields or set(cls.model_fields) != (
+                reference_fields[cls] | material_fields[cls]
+            ):
+                raise GovernedPublicRecordError("source_schema_profile_unsupported")
+            if (
+                version == "v1"
+                and isinstance(node, artifacts.ArtifactRef)
+                and node.manifest_profile_sha256 is not None
             ):
                 raise GovernedPublicRecordError("source_schema_profile_unsupported")
             _metadata(node)
             for field in cls.model_fields:
-                walk(getattr(node, field), (*path, field), field in _REFERENCE_FIELDS[cls])
+                walk(getattr(node, field), (*path, field), field in reference_fields[cls])
         elif isinstance(node, list):
             for index, child in enumerate(node):
                 walk(child, (*path, index), reference)
@@ -290,8 +346,9 @@ def _project(
     ledger: AppendOnlyClaimLedger,
     *,
     mapping: dict[str, str] | None = None,
+    version: Literal["v1", "v2"] = "v2",
 ) -> tuple[dict[str, JsonValue], dict[str, str]]:
-    leaves, raw = _source_leaves(ledger)
+    leaves, raw = _source_leaves(ledger, version=version)
     originals = set(leaves.values())
     if mapping is None:
         mapping = {value: "gph_" + secrets.token_urlsafe(24) for value in sorted(originals)}
@@ -317,9 +374,14 @@ def _project(
     # The source model validates private references. The public encoding uses
     # handles, not pretend content hashes; the injective total transform retains
     # all field identities, membership, JSON types, relations and ordering.
+    schema_version, profile = (
+        ("polisyos.governed_public_document.v1", PUBLICATION_PROFILE_V1)
+        if version == "v1"
+        else ("polisyos.governed_public_document.v2", PUBLICATION_PROFILE_V2)
+    )
     document: dict[str, JsonValue] = {
-        "schema_version": "polisyos.governed_public_document.v1",
-        "profile": PUBLICATION_PROFILE,
+        "schema_version": schema_version,
+        "profile": profile,
         "ledger": relocated,
         "permitted_uses": list(_USES),
         "denied_uses": list(_DENIED),
@@ -366,22 +428,25 @@ class GovernedPublicRecordOwner:
             artifacts.ArtifactWriteOptions(
                 kind=name,
                 media_type="application/json",
-                schema=artifacts.SchemaInfo(name=name, version="1"),
+                schema=artifacts.SchemaInfo(
+                    name=name, version=_stored_schema_version(value, name)
+                ),
             ),
         )
 
     def _read(self, ref: artifacts.ArtifactRef, cls: type[_T], name: str) -> _T:
         self._raw(ref)
         manifest = self.store.get_manifest(ref.artifact_id)
+        raw = self.store.get_bytes(ref.artifact_id)
+        result = cls.model_validate_json(raw)
         if (
             manifest.kind != name
             or ref.kind != name
             or ref.media_type != "application/json"
-            or manifest.artifact_schema != artifacts.SchemaInfo(name=name, version="1")
+            or manifest.artifact_schema
+            != artifacts.SchemaInfo(name=name, version=_stored_schema_version(result, name))
         ):
             raise GovernedPublicRecordError("record_schema_invalid")
-        raw = self.store.get_bytes(ref.artifact_id)
-        result = cls.model_validate_json(raw)
         if _bytes(result) != raw:
             raise GovernedPublicRecordError("record_canonical_bytes_invalid")
         return result
@@ -647,7 +712,10 @@ class GovernedPublicRecordOwner:
         )
         if ledger != snapshot.ledger or stored_ledger != ledger:
             raise GovernedPublicRecordError("source_ledger_binding_invalid")
-        public_document, _ = _project(ledger, mapping=draft.relocation)
+        version = _document_version(draft.public_document)
+        public_document, _ = _project(
+            ledger, mapping=draft.relocation, version=version
+        )
         if (
             public_document != draft.public_document
             or _digest(_bytes(public_document)) != draft.public_document_digest
@@ -661,8 +729,14 @@ class GovernedPublicRecordOwner:
         record: GovernedPublicRecord,
     ) -> None:
         snapshot = draft.snapshot
+        version = _document_version(draft.public_document)
         if (
             mandate.public_document_digest != draft.public_document_digest
+            or mandate.schema_version != f"polisyos.publication_mandate.{version}"
+            or mandate.profile != draft.public_document["profile"]
+            or mandate.rule_version != f"governed-public-record.{version}"
+            or record.schema_version != f"polisyos.governed_public_record.{version}"
+            or record.rule_version != mandate.rule_version
             or mandate.decision_packet_ref != snapshot.decision_packet_ref
             or mandate.ledger_artifact_ref != snapshot.head.statement.ledger_artifact_ref
             or mandate.owner_scope_ref != snapshot.head.statement.owner_key.scope_ref

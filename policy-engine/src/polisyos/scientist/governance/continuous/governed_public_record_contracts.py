@@ -24,8 +24,12 @@ from polisyos.core import artifacts
 
 PUBLICATION_PURPOSE = "governed_public_record"
 MANDATE_PURPOSE = "governed_public_record_mandate"
-PUBLICATION_RULE = "governed-public-record.v1"
-PUBLICATION_PROFILE = "exact_owner_ledger_v1"
+PUBLICATION_RULE_V1 = "governed-public-record.v1"
+PUBLICATION_PROFILE_V1 = "exact_owner_ledger_v1"
+PUBLICATION_RULE_V2 = "governed-public-record.v2"
+PUBLICATION_PROFILE_V2 = "exact_owner_ledger_v2"
+PUBLICATION_RULE = PUBLICATION_RULE_V2
+PUBLICATION_PROFILE = PUBLICATION_PROFILE_V2
 
 _JSON_VALUE = TypeAdapter(JsonValue)
 
@@ -139,7 +143,9 @@ class PublicationSigningSlot:
 class PublicationMandateStatement(_StrictModel):
     """Institution-signed appointment for one exact source and public document."""
 
-    schema_version: Literal["polisyos.publication_mandate.v1"] = "polisyos.publication_mandate.v1"
+    schema_version: Literal[
+        "polisyos.publication_mandate.v1", "polisyos.publication_mandate.v2"
+    ] = "polisyos.publication_mandate.v2"
     purpose: Literal["governed_public_record_mandate"] = MANDATE_PURPOSE
     authority_issuer_id: str = Field(min_length=1)
     authority_key_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -151,8 +157,10 @@ class PublicationMandateStatement(_StrictModel):
     ledger_artifact_ref: artifacts.ArtifactRef
     authority_basis: str = Field(min_length=1)
     permitted_uses: tuple[Literal["bounded_public_custody"], ...] = ("bounded_public_custody",)
-    profile: Literal["exact_owner_ledger_v1"] = PUBLICATION_PROFILE
-    rule_version: Literal["governed-public-record.v1"] = PUBLICATION_RULE
+    profile: Literal["exact_owner_ledger_v1", "exact_owner_ledger_v2"] = PUBLICATION_PROFILE
+    rule_version: Literal["governed-public-record.v1", "governed-public-record.v2"] = (
+        PUBLICATION_RULE
+    )
     issued_at: AwareDatetime
     valid_from: AwareDatetime
     valid_until: AwareDatetime
@@ -161,10 +169,15 @@ class PublicationMandateStatement(_StrictModel):
 
     @model_validator(mode="after")
     def _ordered_interval(self) -> Self:
+        version = self.schema_version.rsplit(".", maxsplit=1)[1]
         if self.valid_until <= self.valid_from or self.issued_at > self.valid_until:
             raise ValueError("publication_mandate_interval_invalid")
         if self.permitted_uses != ("bounded_public_custody",):
             raise ValueError("publication_mandate_uses_invalid")
+        if self.profile != f"exact_owner_ledger_{version}" or self.rule_version != (
+            f"governed-public-record.{version}"
+        ):
+            raise ValueError("publication_mandate_projection_version_mismatch")
         return self
 
 
@@ -179,18 +192,27 @@ class GovernedPublicRecordDraft(_StrictModel):
 class GovernedPublicRecord(_StrictModel):
     """Public signed subject, containing no private source or authorization refs."""
 
-    schema_version: Literal["polisyos.governed_public_record.v1"] = (
-        "polisyos.governed_public_record.v1"
-    )
+    schema_version: Literal[
+        "polisyos.governed_public_record.v1", "polisyos.governed_public_record.v2"
+    ] = "polisyos.governed_public_record.v2"
     record_id: str = Field(pattern=r"^gpr_[A-Za-z0-9_-]{32}$")
     decision_id: str = Field(min_length=1)
     issuer_id: str = Field(min_length=1)
     signing_key_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     purpose: Literal["governed_public_record"] = PUBLICATION_PURPOSE
-    rule_version: Literal["governed-public-record.v1"] = PUBLICATION_RULE
+    rule_version: Literal["governed-public-record.v1", "governed-public-record.v2"] = (
+        PUBLICATION_RULE
+    )
     issued_at: AwareDatetime
     public_document_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     publication_class: Literal["governed_public_record"] = PUBLICATION_PURPOSE
+
+    @model_validator(mode="after")
+    def _rule_matches_schema_version(self) -> Self:
+        version = self.schema_version.rsplit(".", maxsplit=1)[1]
+        if self.rule_version != f"governed-public-record.{version}":
+            raise ValueError("governed_public_record_projection_version_mismatch")
+        return self
 
 
 class GovernedPublicRecordDimensions(_StrictModel):

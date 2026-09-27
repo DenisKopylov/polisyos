@@ -7476,7 +7476,7 @@ export interface components {
             schema_version: string;
             /** Stakeholders */
             stakeholders?: components["schemas"]["DesignStakeholder"][];
-        };
+        } & unknown;
         /**
          * DesignRecordV0
          * @description Minimal narrow-waist design record carried from S2 onward.
@@ -9321,16 +9321,16 @@ export interface components {
             record_id: string;
             /**
              * Rule Version
-             * @default governed-public-record.v1
-             * @constant
+             * @default governed-public-record.v2
+             * @enum {string}
              */
-            rule_version: "governed-public-record.v1";
+            rule_version: "governed-public-record.v1" | "governed-public-record.v2";
             /**
              * Schema Version
-             * @default polisyos.governed_public_record.v1
-             * @constant
+             * @default polisyos.governed_public_record.v2
+             * @enum {string}
              */
-            schema_version: "polisyos.governed_public_record.v1";
+            schema_version: "polisyos.governed_public_record.v1" | "polisyos.governed_public_record.v2";
             /** Signing Key Id */
             signing_key_id: string;
         };

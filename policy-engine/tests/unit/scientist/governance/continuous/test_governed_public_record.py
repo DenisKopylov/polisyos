@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.governance.continuous.governed_public_record import (
@@ -51,6 +52,7 @@ def build_governed_owner_case(
     index_root: Path,
     completed_batches: DecisionValidityService,
     claim_metadata: dict[str, object] | None = None,
+    evidence_refs: tuple[ArtifactRef, ...] | None = None,
 ) -> tuple[GovernedPublicRecordOwner, object, object, Ed25519Signer, PublicationSigningSlot]:
     """Share real source ownership with API tests; institutions are synthetic."""
     claim_owner, prepared, packet_ref, _ = _build_packet_bound_owner_case(
@@ -58,6 +60,7 @@ def build_governed_owner_case(
         head_index_root=index_root / "claim-heads",
         completed_batches=completed_batches,
         claim_metadata=claim_metadata,
+        evidence_refs=evidence_refs,
     )
     publisher, publisher_key = synthetic_signer("synthetic-publisher", "governed_public_record")
     institution, institution_key = synthetic_signer(
@@ -78,13 +81,20 @@ def build_governed_owner_case(
     return owner, prepared, packet_ref, institution, slot
 
 
-def appoint_synthetic_publication(owner, packet_ref, institution, slot, *, digest=None):
-    """Approve only the independently prepared exact content and owner scope."""
+def appoint_synthetic_publication(
+    owner, packet_ref, institution, slot, *, digest=None, mandate_version: str | None = None
+):
+    """Approve the independently prepared content under its selected schema version."""
     draft = owner.prepare(
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
     )
     snapshot = owner.claim_owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    document_version = draft.public_document["schema_version"].rsplit(".", maxsplit=1)[1]
+    version = mandate_version or document_version
     mandate = PublicationMandateStatement(
+        schema_version=f"polisyos.publication_mandate.{version}",
+        profile=f"exact_owner_ledger_{version}",
+        rule_version=f"governed-public-record.{version}",
         authority_issuer_id="synthetic-institution",
         authority_key_id=institution.key_id,
         issuer_id=slot.issuer_id,
@@ -171,6 +181,82 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
     assert restarted.resolve_custody_binding(record_id) == binding
 
 
+def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
+    """The served owner publishes selected view identity without exposing selectors."""
+    store = FileSystemCAS(tmp_path / "cas")
+    raw = b"Explicitly synthetic evidence with two honest manifest profiles."
+    def options(version: str) -> ArtifactWriteOptions:
+        return ArtifactWriteOptions(
+            kind="fixture.claim_evidence",
+            media_type="text/plain",
+            schema=SchemaInfo(name="fixture.claim_evidence", version=version),
+        )
+    default_ref = store.put_bytes(raw, options("1"))
+    selected_refs = (store.put_bytes(raw, options("2")), store.put_bytes(raw, options("3")))
+    assert all(ref.artifact_id == default_ref.artifact_id for ref in selected_refs)
+    assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
+    assert selected_refs[0].manifest_profile_sha256 != selected_refs[1].manifest_profile_sha256
+
+    owner, _, packet_ref, institution, slot = build_governed_owner_case(
+        store=store,
+        index_root=tmp_path,
+        completed_batches=DecisionValidityService(store),
+        evidence_refs=selected_refs,
+    )
+    configured, draft = appoint_synthetic_publication(
+        owner, packet_ref, institution, slot
+    )
+    private = configured._read(
+        draft.candidate_ref, _PrivateDraft, "scientist.publication.private_draft"
+    )
+    assert draft.public_document["schema_version"] == "polisyos.governed_public_document.v2"
+    evidence = draft.public_document["ledger"]["current_claims"][0]["evidence_refs"]
+    assert len(evidence) == 2
+    assert evidence[0]["artifact_id"] == evidence[1]["artifact_id"]
+    assert evidence[0]["manifest_profile_sha256"] != evidence[1]["manifest_profile_sha256"]
+    assert all(
+        ref.manifest_profile_sha256 not in json.dumps(draft.public_document)
+        for ref in selected_refs
+    )
+    for index, source_ref in enumerate(selected_refs):
+        assert evidence[index]["artifact_id"] == private.relocation[str(source_ref.artifact_id)]
+        assert evidence[index]["manifest_profile_sha256"] == private.relocation[
+            source_ref.manifest_profile_sha256
+        ]
+
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    response = configured.verify(record_id)
+    assert response.report_authentication == "verified"
+    assert response.public_document == draft.public_document
+    assert all(
+        ref.manifest_profile_sha256 not in response.model_dump_json()
+        for ref in selected_refs
+    )
+
+
+def test_selector_free_v1_projection_preserves_current_legacy_wire_shape(case):
+    """Exercise v1 dispatch and omission without claiming historic receipt replay."""
+    from polisyos.scientist.governance.continuous.governed_public_record import _project
+    from polisyos.scientist.governance.continuous.governed_public_record_contracts import (
+        PUBLICATION_PROFILE_V1,
+    )
+
+    owner, _, packet_ref, _, _ = case
+    source = owner.claim_owner.resolve_current_for_packet(
+        decision_packet_ref=packet_ref
+    ).ledger
+    document, _ = _project(source, version="v1")
+
+    assert document["schema_version"] == "polisyos.governed_public_document.v1"
+    assert document["profile"] == PUBLICATION_PROFILE_V1
+    source_ref = source.current_claims[0].evidence_refs[0]
+    assert source_ref.manifest_profile_sha256 is None
+    assert "manifest_profile_sha256" not in document["ledger"]["current_claims"][0][
+        "evidence_refs"
+    ][0]
+
 def test_whole_raw_tree_is_preserved_modulo_injective_reference_relocation(case):
     owner, _, packet_ref, _, _ = case
     draft = owner.prepare(
@@ -237,6 +323,19 @@ def test_wrong_exact_content_mandate_cannot_issue(case):
     configured, _ = appoint_synthetic_publication(
         owner, packet_ref, institution, slot, digest="sha256:" + "a" * 64
     )
+    with pytest.raises(GovernedPublicRecordError, match="publication_mandate_binding_invalid"):
+        configured.issue(
+            decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+        )
+    assert configured.issued_record_ids() == ()
+
+
+def test_version_mismatched_mandate_cannot_issue(case):
+    owner, _, packet_ref, institution, slot = case
+    configured, draft = appoint_synthetic_publication(
+        owner, packet_ref, institution, slot, mandate_version="v1"
+    )
+    assert draft.public_document["schema_version"].endswith(".v2")
     with pytest.raises(GovernedPublicRecordError, match="publication_mandate_binding_invalid"):
         configured.issue(
             decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW

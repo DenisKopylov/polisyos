@@ -2073,6 +2073,7 @@ def _build_packet_bound_owner_case(
     head_index_root: Path,
     completed_batches: head_index_module.EpochValidityCompletedBatchEvidenceDenominator,
     claim_metadata: dict[str, object] | None = None,
+    evidence_refs: tuple[ArtifactRef, ...] | None = None,
 ) -> tuple[
     _RepositoryClaimLedgerOwner,
     PreparedClaimLedgerInitialization,
@@ -2097,10 +2098,13 @@ def _build_packet_bound_owner_case(
         ),
         completed_batches=completed_batches,
     )
-    evidence_ref = store.put_bytes(
-        b"Explicitly synthetic evidence for the owner snapshot witness.",
-        ArtifactWriteOptions(kind="fixture.claim_evidence", media_type="text/plain"),
-    )
+    if evidence_refs is None:
+        evidence_refs = (
+            store.put_bytes(
+                b"Explicitly synthetic evidence for the owner snapshot witness.",
+                ArtifactWriteOptions(kind="fixture.claim_evidence", media_type="text/plain"),
+            ),
+        )
     ledger = ClaimLedger(
         run_id="packet-snapshot",
         claims=[
@@ -2112,7 +2116,7 @@ def _build_packet_bound_owner_case(
                 support_status=ClaimSupportStatus.SUPPORTED,
                 publishability=ClaimPublishability.PUBLISHABLE,
                 readiness_level=DecisionReadiness.RESEARCH_ARTIFACT,
-                evidence_refs=[evidence_ref],
+                evidence_refs=list(evidence_refs),
                 source_attribution=["explicitly synthetic source"],
                 metadata=claim_metadata or {},
             )

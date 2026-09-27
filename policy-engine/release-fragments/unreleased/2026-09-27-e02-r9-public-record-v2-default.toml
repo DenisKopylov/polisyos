@@ -1,0 +1,48 @@
+id = "2026-09-27-e02-r9-public-record-v2-default"
+title = "Version governed public-record responses with selected-view provenance"
+type = "changed"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "Governed public-record responses now default to a versioned v2 projection that retains selected CAS manifest-profile identity in public evidence references."
+evidence = [
+  "tests/unit/scientist/governance/continuous/test_governed_public_record.py",
+  "tests/unit/runtime/http/test_public_export.py",
+  "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.governed.test.tsx",
+  "docs/how-to/governed-public-record-v2-consumer-migration.md",
+]
+compatibility = "Governed publication now emits a v2 document/profile and signed-record schema/rule pair by default. V2 public evidence references retain an opaque selected-view handle alongside the existing blob identifier. Strict response consumers must discriminate paired document and record versions. The v1 owner projection emits selector-free references; the dashboard retains a v1 parsing arm. Historical v1 signed-byte replay remains not_established. Artifact ID strings and route paths do not change."
+change_class = "schema-openapi-abi; js-package-api"
+surface_classification = "public_stable: Runtime API governed-public-record response; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard response validator"
+migration = "Before consuming the changed default, regenerate the runtime API client and dashboard API types. Validate document schema_version with its profile and promoted-record schema_version with its rule_version, then require the two versions to agree. Preserve every selected evidence reference, including manifest_profile_sha256; do not collapse references by artifact_id. This migration declaration does not claim historical v1 signed-byte replay."
+api = "The existing governed publication and verification routes remain unchanged. The default public document/profile and signed-record schema/rule move to v2. The v2 public evidence references retain selected manifest-profile identity; public_document remains recursively typed JSON in OpenAPI."
+limitations = "This change does not establish historical v1 signed-byte replay, evidence-byte public obtainability, institutional authority, or the truth of claims. The public selected-view handle is opaque; it is not a CAS address, a recomputable digest, or an evidence retrieval URL."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]
+runbook_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]
+
+[[compatibility_change]]
+id = "governed-public-record-v2-openapi-default"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: Runtime API governed-public-record candidate and verification response"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "The default changes to v2 immediately; v1 remains a distinct schema arm where present, without a claim of historical signed-byte replay."
+release_note = "Governed public-record responses use the v2 document/profile and signed-record schema/rule pair by default; strict consumers must handle the paired version change."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]
+runbook_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]
+
+[[compatibility_change]]
+id = "governed-public-record-v2-generated-consumers"
+change_class = "js-package-api"
+impact = "breaking"
+surface = "public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types and strict response parser"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "Regenerate consumers before receiving the v2 default; do not treat the added version union as proof of historical v1 replay."
+release_note = "Generated Runtime API and dashboard types expose the v2 governed-record version arm, and the dashboard validates matching document/profile and record/rule pairs."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]
+runbook_docs = ["docs/how-to/governed-public-record-v2-consumer-migration.md"]

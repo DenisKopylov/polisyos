@@ -13,11 +13,36 @@ const notEstablished = {
   public_evidence_obtainability: "not_established",
 };
 
-function governedRecord() {
+function governedRecord(version: "v1" | "v2" = "v1") {
+  const documentSchemaVersion =
+    version === "v1"
+      ? "polisyos.governed_public_document.v1"
+      : "polisyos.governed_public_document.v2";
+  const publicationProfile =
+    version === "v1" ? "exact_owner_ledger_v1" : "exact_owner_ledger_v2";
+  const publicRecordSchemaVersion =
+    version === "v1"
+      ? "polisyos.governed_public_record.v1"
+      : "polisyos.governed_public_record.v2";
+  const publicationRuleVersion =
+    version === "v1"
+      ? "governed-public-record.v1"
+      : "governed-public-record.v2";
   const publicDocumentDigest = `sha256:${"a".repeat(64)}`;
   const decisionId = `gph_${"d".repeat(32)}`;
   const runId = `gph_${"r".repeat(32)}`;
   const claimId = `gph_${"c".repeat(32)}`;
+  const selectedBlobHandle = `gph_${"b".repeat(32)}`;
+  const selectedViews = [
+    {
+      artifact_id: selectedBlobHandle,
+      manifest_profile_sha256: `gph_${"p".repeat(32)}`,
+    },
+    {
+      artifact_id: selectedBlobHandle,
+      manifest_profile_sha256: `gph_${"q".repeat(32)}`,
+    },
+  ];
   return {
     record_id: recordId,
     publication_class: "governed_public_record",
@@ -30,8 +55,8 @@ function governedRecord() {
     issued_at: "2026-09-12T12:00:00Z",
     public_document_digest: publicDocumentDigest,
     public_document: {
-      schema_version: "polisyos.governed_public_document.v1",
-      profile: "exact_owner_ledger_v1",
+      schema_version: documentSchemaVersion,
+      profile: publicationProfile,
       ledger: {
         schema_version: "2.0",
         run_id: runId,
@@ -58,7 +83,7 @@ function governedRecord() {
             comparison_refs: [],
             method_need_preconditions: [],
             decomposition_source_class: null,
-            evidence_refs: [],
+            evidence_refs: version === "v2" ? selectedViews : [],
             counterevidence_refs: [],
             uncertainty_profile_ref: null,
             provenance_ref: null,
@@ -111,13 +136,13 @@ function governedRecord() {
       ],
     },
     promoted_record: {
-      schema_version: "polisyos.governed_public_record.v1",
+      schema_version: publicRecordSchemaVersion,
       record_id: recordId,
       decision_id: decisionId,
       issuer_id: "appointed-publication-issuer",
       signing_key_id: `sha256:${"b".repeat(64)}`,
       purpose: "governed_public_record",
-      rule_version: "governed-public-record.v1",
+      rule_version: publicationRuleVersion,
       issued_at: "2026-09-12T12:00:00Z",
       public_document_digest: publicDocumentDigest,
       publication_class: "governed_public_record",
@@ -180,10 +205,10 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("governed public record viewer", () => {
   it.each(["trusted", "revoked"])(
-    "retains the entire document and independent dimensions with a %s signing key",
+    "preserves the v1 document and independent dimensions with a %s signing key",
     async (reportKeyStatus) => {
       const record = {
-        ...governedRecord(),
+        ...governedRecord("v1"),
         report_key_status: reportKeyStatus,
       };
       fetchVerification.mockResolvedValue(jsonResponse(record));
@@ -239,6 +264,47 @@ describe("governed public record viewer", () => {
       );
     },
   );
+
+  it("renders the v2 governed record and preserves its complete public document", async () => {
+    const record = governedRecord("v2");
+    fetchVerification.mockResolvedValue(jsonResponse(record));
+    renderPublicRoute();
+
+    expect(
+      await screen.findByRole("heading", { name: "Governed public record" }),
+    ).toBeInTheDocument();
+    const renderedDocument = JSON.parse(
+      screen.getByTestId("governed-public-document").textContent ?? "",
+    );
+    expect(renderedDocument).toEqual(record.public_document);
+    const evidenceRefs =
+      renderedDocument.ledger.current_claims[0].evidence_refs;
+    expect(evidenceRefs).toHaveLength(2);
+    expect(evidenceRefs[0].artifact_id).toBe(evidenceRefs[1].artifact_id);
+    expect(evidenceRefs[0].manifest_profile_sha256).not.toBe(
+      evidenceRefs[1].manifest_profile_sha256,
+    );
+    expect(evidenceRefs).toEqual([
+      {
+        artifact_id: `gph_${"b".repeat(32)}`,
+        manifest_profile_sha256: `gph_${"p".repeat(32)}`,
+      },
+      {
+        artifact_id: `gph_${"b".repeat(32)}`,
+        manifest_profile_sha256: `gph_${"q".repeat(32)}`,
+      },
+    ]);
+    expect(record.public_document.schema_version).toBe(
+      "polisyos.governed_public_document.v2",
+    );
+    expect(record.public_document.profile).toBe("exact_owner_ledger_v2");
+    expect(record.promoted_record.schema_version).toBe(
+      "polisyos.governed_public_record.v2",
+    );
+    expect(record.promoted_record.rule_version).toBe(
+      "governed-public-record.v2",
+    );
+  });
 
   it("renders every current claim's exact text and independent source states", async () => {
     const record = governedRecord();
@@ -342,6 +408,37 @@ describe("governed public record viewer", () => {
       (r) => ({
         ...r,
         public_document: { ...r.public_document, schema_version: "1.0" },
+      }),
+    ],
+    [
+      "mismatched document schema and profile",
+      (r) => ({
+        ...r,
+        public_document: {
+          ...r.public_document,
+          schema_version: "polisyos.governed_public_document.v2",
+        },
+      }),
+    ],
+    [
+      "mismatched record schema and rule",
+      (r) => ({
+        ...r,
+        promoted_record: {
+          ...r.promoted_record,
+          schema_version: "polisyos.governed_public_record.v2",
+        },
+      }),
+    ],
+    [
+      "cross-version document and record",
+      (r) => ({
+        ...r,
+        public_document: {
+          ...r.public_document,
+          schema_version: "polisyos.governed_public_document.v2",
+          profile: "exact_owner_ledger_v2",
+        },
       }),
     ],
     [

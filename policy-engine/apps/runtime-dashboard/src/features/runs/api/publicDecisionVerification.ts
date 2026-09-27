@@ -92,9 +92,7 @@ const publicClaim = z.strictObject({
 
 // The owner admits claims and relocates private references. Preserve its entire
 // JSON tree here; decoding is not a second source-policy or evidence verifier.
-const governedPublicDocument = z.strictObject({
-  schema_version: z.literal("polisyos.governed_public_document.v1"),
-  profile: z.literal("exact_owner_ledger_v1"),
+const governedPublicDocumentFields = {
   ledger: z.strictObject({
     schema_version: z.literal("2.0"),
     run_id: z.string().min(1),
@@ -112,19 +110,45 @@ const governedPublicDocument = z.strictObject({
     z.literal("first_publication"),
   ]),
   limitations: z.array(z.string()),
-});
-const governedPublicRecord = z.strictObject({
-  schema_version: z.literal("polisyos.governed_public_record.v1"),
+};
+const governedPublicDocument = z.discriminatedUnion("schema_version", [
+  z.strictObject({
+    schema_version: z.literal("polisyos.governed_public_document.v1"),
+    profile: z.literal("exact_owner_ledger_v1"),
+    ...governedPublicDocumentFields,
+  }),
+  z.strictObject({
+    schema_version: z.literal("polisyos.governed_public_document.v2"),
+    profile: z.literal("exact_owner_ledger_v2"),
+    ...governedPublicDocumentFields,
+  }),
+]);
+const governedPublicRecordFields = {
   record_id: publicRecordId,
   decision_id: z.string().min(1),
   issuer_id: z.string().min(1),
   signing_key_id: publicDigest,
   purpose: z.literal("governed_public_record"),
-  rule_version: z.literal("governed-public-record.v1"),
   issued_at: z.iso.datetime({ offset: true }),
   public_document_digest: publicDigest,
   publication_class: z.literal("governed_public_record"),
-});
+};
+const governedPublicRecord = z.discriminatedUnion("schema_version", [
+  z.strictObject({
+    schema_version: z.literal("polisyos.governed_public_record.v1"),
+    rule_version: z.literal("governed-public-record.v1"),
+    ...governedPublicRecordFields,
+  }),
+  z.strictObject({
+    schema_version: z.literal("polisyos.governed_public_record.v2"),
+    rule_version: z.literal("governed-public-record.v2"),
+    ...governedPublicRecordFields,
+  }),
+]);
+const publicRecordSchemaByDocument = {
+  "polisyos.governed_public_document.v1": "polisyos.governed_public_record.v1",
+  "polisyos.governed_public_document.v2": "polisyos.governed_public_record.v2",
+} as const;
 const governedVerificationResponse = z
   .discriminatedUnion("report_authentication", [
     z.strictObject({
@@ -169,6 +193,16 @@ const governedVerificationResponse = z
   ])
   .superRefine((response, context) => {
     if (response.report_authentication !== "verified") return;
+    if (
+      response.promoted_record.schema_version !==
+      publicRecordSchemaByDocument[response.public_document.schema_version]
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["promoted_record", "schema_version"],
+        message: "governed_public_record_projection_version_mismatch",
+      });
+    }
     for (const field of [
       "record_id",
       "decision_id",

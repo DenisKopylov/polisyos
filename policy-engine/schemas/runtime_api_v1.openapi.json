@@ -5554,7 +5554,7 @@
             "type": "string"
           },
           "target_slot": {
-            "pattern": "^[a-z][a-z0-9_]*$",
+            "pattern": "^[a-z][a-z0-9_.]*$",
             "title": "Target Slot",
             "type": "string"
           }
@@ -14237,6 +14237,39 @@
       },
       "DesignProblem": {
         "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "not": {
+                "properties": {
+                  "schema_version": {
+                    "const": "policyos.runtime.design_problem.v2"
+                  }
+                },
+                "required": [
+                  "schema_version"
+                ]
+              }
+            },
+            "then": {
+              "properties": {
+                "candidate_lever_space": {
+                  "properties": {
+                    "candidate_levers": {
+                      "items": {
+                        "properties": {
+                          "target_slot": {
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
         "description": "Bridge one policy-design problem across existing PolicyOS owners.\n\n``DesignProblem`` is the canonical request/problem bridge for the generation\ncycle. It reuses ``PolicyIntentEnvelope`` request semantics, projects to the\nScientist agent ``ProblemFrame``, projects to IR governance ``ProblemFrame``,\nkeeps the verified ``PolicyRequestFrame`` as a legal sub-projection, and\ncarries ``ModelSpec`` time semantics by reference instead of creating a\nparallel ontology.\n\nAttributes:\n    design_problem_id: Stable problem id used by projections.\n    nl_provenance: Raw NL request and capture context.\n    authority_profile: Requester authority and mandate boundaries.\n    jurisdiction_time: Jurisdiction and valid/as-of/policy/data time roles.\n    objectives: Formal objective candidates for generator and IR projection.\n    constraints: Constraints admitted only with request, authority, or\n        producer-evidence support.\n    stakeholders: Affected actor set.\n    outcome_of_interest: Target variable and estimand for value gating.\n    candidate_lever_space: Operator/instrument space for atom binding.\n    evidence_acquisition_needs: Grounding and acquisition demands.\n    model_spec_ref: Optional persisted ModelSpec reference.\n    ir_problem_frame_ref: Optional persisted IR ProblemFrame reference.\n    policy_request_frame_ref: Optional verified-policy sub-projection ref.\n    runtime_hints: Runtime-only projection hints for current cycle adapters.",
         "properties": {
           "authority_profile": {
@@ -18572,14 +18605,20 @@
             "type": "string"
           },
           "rule_version": {
-            "const": "governed-public-record.v1",
-            "default": "governed-public-record.v1",
+            "default": "governed-public-record.v2",
+            "enum": [
+              "governed-public-record.v1",
+              "governed-public-record.v2"
+            ],
             "title": "Rule Version",
             "type": "string"
           },
           "schema_version": {
-            "const": "polisyos.governed_public_record.v1",
-            "default": "polisyos.governed_public_record.v1",
+            "default": "polisyos.governed_public_record.v2",
+            "enum": [
+              "polisyos.governed_public_record.v1",
+              "polisyos.governed_public_record.v2"
+            ],
             "title": "Schema Version",
             "type": "string"
           },
@@ -57992,18 +58031,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab",
+                      "projection_hash": "sha256:c763b430798586921be10c0afb912638e96e732dbc901bb5507c4694451cb928",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ac763b430798586921be10c0afb912638e96e732dbc901bb5507c4694451cb928&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Aa158e280e62c396f96eb91ec33665840fe66fae86537d7e10847a897f507800c",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:9e31492bcbd4d8f8fdce2dba0f99277e6056f34b8b448aad0d28139c662354ab",
+                        "projection_hash": "sha256:c763b430798586921be10c0afb912638e96e732dbc901bb5507c4694451cb928",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117"
+                        "source_dependency_hash": "sha256:a158e280e62c396f96eb91ec33665840fe66fae86537d7e10847a897f507800c"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -58012,8 +58051,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
-                          "bound_dependency_count": 6623,
+                          "bound_dependency_aggregate_identity": "sha256:a158e280e62c396f96eb91ec33665840fe66fae86537d7e10847a897f507800c",
+                          "bound_dependency_count": 6627,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -58028,16 +58067,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6"
+                          "worker_validation_receipt_hash": "sha256:08bc9691524820ffb1e4c99158b0c0b725255c7313713f4e049506ae74191031"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:7239a8d396d62c81e3b92e322817755ec25eabdd0c6cde7323b2ec96e8f93117",
+                      "source_dependency_hash": "sha256:a158e280e62c396f96eb91ec33665840fe66fae86537d7e10847a897f507800c",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:fb0e0ac5c35d351ebfbd423eb247670d31664cb24031d4e4826ddd9677edaff6"
+                      "worker_validation_receipt_hash": "sha256:08bc9691524820ffb1e4c99158b0c0b725255c7313713f4e049506ae74191031",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:08bc9691524820ffb1e4c99158b0c0b725255c7313713f4e049506ae74191031"
                     }
                   }
                 },

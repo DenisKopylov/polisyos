@@ -136,8 +136,12 @@ class _PublicationCase:
         )
 
 
-@pytest.fixture
-def publication_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> _PublicationCase:
+def _build_publication_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    selected_profile_evidence: bool = False,
+) -> _PublicationCase:
     """Install real owners and independently signed synthetic test prerequisites."""
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     monkeypatch.delenv("POLISYOS_PUBLIC_VERIFICATION_CONFIG", raising=False)
@@ -145,10 +149,27 @@ def publication_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> _Public
         cas_root=tmp_path / "cas", core_runs_root=tmp_path / "cas" / "runs"
     )
     validity = ControlPlaneService.build_decision_validity_owner(context.store)
+    evidence_refs = None
+    if selected_profile_evidence:
+        data = b"Synthetic evidence with two selected manifest profiles."
+
+        def options(version: str) -> ArtifactWriteOptions:
+            return ArtifactWriteOptions(
+                kind="fixture.claim_evidence",
+                media_type="text/plain",
+                schema=SchemaInfo(name="fixture.claim_evidence", version=version),
+            )
+
+        context.store.put_bytes(data, options("1"))
+        evidence_refs = (
+            context.store.put_bytes(data, options("2")),
+            context.store.put_bytes(data, options("3")),
+        )
     owner, _, packet_ref, _ = _build_packet_bound_owner_case(
         store=context.store,
         head_index_root=tmp_path / "heads",
         completed_batches=validity,
+        evidence_refs=evidence_refs,
     )
     registry = CellRegistry()
     cell = CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
@@ -241,6 +262,11 @@ def publication_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> _Public
     return case
 
 
+@pytest.fixture
+def publication_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> _PublicationCase:
+    return _build_publication_case(tmp_path, monkeypatch)
+
+
 def _prepare_and_authorize(case: _PublicationCase) -> dict[str, object]:
     """Review the real HTTP draft, then sign it outside the publication owner."""
     with case.client() as client:
@@ -260,7 +286,13 @@ def _prepare_and_authorize(case: _PublicationCase) -> dict[str, object]:
     snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
     assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
     now = datetime.now(UTC)
+    public_document = draft["public_document"]
+    assert isinstance(public_document, dict)
+    version = public_document["schema_version"].rsplit(".", maxsplit=1)[1]
     mandate = PublicationMandateStatement(
+        schema_version=f"polisyos.publication_mandate.{version}",
+        profile=public_document["profile"],
+        rule_version=f"governed-public-record.{version}",
         authority_issuer_id="synthetic-appointing-institution",
         authority_key_id=case.institution.key_id,
         issuer_id="synthetic-publication-issuer",
@@ -288,7 +320,10 @@ def _prepare_and_authorize(case: _PublicationCase) -> dict[str, object]:
         ArtifactWriteOptions(
             kind="polisyos.publication_mandate",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.publication_mandate", version="1"),
+            schema=SchemaInfo(
+                name="polisyos.publication_mandate",
+                version=mandate.schema_version.rsplit(".", maxsplit=1)[1].removeprefix("v"),
+            ),
         ),
     )
     case.context.store.sign_artifact(
@@ -368,6 +403,41 @@ def test_public_decision_projection_is_custody_bound(publication_case: _Publicat
         assert population.snapshot.members[0].signature_ref == binding.signature_ref
         assert population.snapshot.members[0].decision_packet_ref == case.packet_ref
         assert population.snapshot.members[0].affected_claim_ids == ("snapshot-claim",)
+
+
+def test_http_publication_relocates_selected_manifest_profiles(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The served route preserves distinct selected views without publishing digests."""
+    case = _build_publication_case(
+        tmp_path, monkeypatch, selected_profile_evidence=True
+    )
+    draft = _prepare_and_authorize(case)
+    snapshot = case.claim_owner.resolve_current_for_packet(
+        decision_packet_ref=case.packet_ref
+    )
+    assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
+    source_refs = snapshot.ledger.current_claims[0].evidence_refs
+    assert len(source_refs) == 2
+    assert source_refs[0].artifact_id == source_refs[1].artifact_id
+    assert all(ref.manifest_profile_sha256 is not None for ref in source_refs)
+    assert source_refs[0].manifest_profile_sha256 != source_refs[1].manifest_profile_sha256
+
+    public_refs = draft["public_document"]["ledger"]["current_claims"][0]["evidence_refs"]
+    assert len(public_refs) == 2
+    assert public_refs[0]["artifact_id"] == public_refs[1]["artifact_id"]
+    assert public_refs[0]["manifest_profile_sha256"].startswith("gph_")
+    assert public_refs[1]["manifest_profile_sha256"].startswith("gph_")
+    assert public_refs[0]["manifest_profile_sha256"] != public_refs[1]["manifest_profile_sha256"]
+
+    with case.client() as client:
+        record_id, result = _issue_and_read(case, client)
+    assert result["public_document"] == draft["public_document"]
+    serialized = json.dumps(result)
+    for ref in source_refs:
+        assert str(ref.artifact_id) not in serialized
+        assert ref.manifest_profile_sha256 not in serialized
+    assert record_id.startswith("gpr_")
 
 
 def test_first_governed_public_signature_is_custody_bound(

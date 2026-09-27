@@ -1,14 +1,18 @@
 # E02-R2 decision record drafts
 
-**Status:** Denis's R1 option-A and R11 universal v3 blocked-run/N9-exclusion
-rulings are recorded below (2026-09-26). Their implementation, falsifiers, and
-finding-level closure remain outstanding. Principal choices still pending are R2,
-R5, R9, R13, and R14. A ruling records direction; it does not claim a test result,
-register closure, or authorization to reissue a governed artifact.
+**Status:** Denis's R1 option-A, R11 universal v3 blocked-run/N9-exclusion, and
+R5 protected-mode EvalSafety fail-closed direction are recorded in dated sections.
+R5 implementation is integrated at `f7d66883fbcb352eb923c23e3e104608490e8061`;
+that does not close the finding. Its positive DataTrust bridge and complete
+four-base whole-file P41 replay remain open, and the separate R1/R5 per-active-basis
+proposal remains pending. Principal choices still pending are R2, R9, R13, and R14.
+A ruling records direction; it does not by itself claim closure or authorize
+reissue or restamp of a governed artifact.
 
-**Prepared:** 2026-09-24. **Code inspected:** candidate base
-`73c656744f051d9f40667da7f8bc91c61d8b4ebf`. These records describe the proposed
-disposition and its evidence. They do not assert that a repair or probe has run.
+**Prepared:** 2026-09-24. **Original code inspected:** candidate base
+`73c656744f051d9f40667da7f8bc91c61d8b4ebf`. The sections below preserve their
+original proposal snapshots. Later dated addenda supersede only the status and
+evidence they explicitly update; no record authorizes a governed reissue or restamp.
 
 Each draft follows the visibility fields in
 `docs/system-design-decisions/policyos-identity-and-custody-boundary.md` §9.7:
@@ -1655,6 +1659,10 @@ until witnessed.
 
 ## R5 — mode-owned evidence gates and EvalSafety context denominator
 
+**Historical proposal snapshot.** The proposal and `UNRUN` labels in this section
+record the pre-implementation design. The dated R5 implementation addendum below
+supersedes its pending status and evidence claims; retain this text as design history.
+
 **Question.** Which admitted N6 run bands require their mode-owned evidence gate (DataTrust or EvalSafety), and how does ordinary candidate work remain available without deriving authority from missing or mismatched evidence?
 
 **Options and costs.**
@@ -1718,6 +1726,140 @@ This proposal does not decide that any S8-positive fixture lacks owner context. 
 **Where it binds.** Server intent resolution before dispatch in `runtime/http/routes/control.py` and `runtime/http/services/control/run_lifecycle.py::ControlPlaneService.launch_nl_run`; the proposed typed intent in the existing persisted job payload and its binding in the existing `job_created` event/outbox; transaction or fail-closed recovery and readback in `ControlPlaneStore.create_job`; worker replay in `_process_control_job`; band propagation through `runtime/http/services/control/generation_cycle.py`; graph-leaf equality before controller-factory dispatch in `runtime/quality/recursive_generation_cycle.py`; canonical mode resolution in `runtime/quality/evaluation_modes.py`; the existing DataTrust refusal in `runtime/quality/generation_cycle.py` (`data_trust_gate_missing`, lines 2974–2978); and current EvalSafety evidence verification in `runtime/quality/evaluation_safety.py`. R1 owns the compiled-wrapper v2 limitation and historical serializer. Promotion, publication, and S8 consumers continue to enforce their own authority boundary.
 
 **Pattern pass.** P04/P05/P07/P12/P29/P31/P32/P37/P38/P41. Existing failure: optional worker attempt plus conditional denominator, no durable run-intent bridge, and a non-atomic job/event/outbox sequence; the generic non-simulation label also conflates the DataTrust and EvalSafety owners. Target: one server-selected typed intent in the existing persisted payload, bound by the `job_created` event/outbox and reconciled before replay; atomic persistence or explicit idempotent recovery; exact mode-specific owner gate (`data_trust_required` or `eval_safety_required`) and graph-derived EvalSafety denominator on all supported factory paths; and a separately named pure `simulate_only_attempt`. Missing capability labels: `bridge_missing`, `verification_missing`, and `semantic_test_missing` until payload/event readback, served mode-owner consumers, and removal probes pass.
+
+### R5 implementation addendum — five-band served intent (2026-09-27)
+
+**Status and question.** This addendum supersedes the preceding R5 draft's
+pending/UNRUN status claims. Denis ruled that non-simulation authority modes
+`sandbox_pilot`, `field_pilot`, and `deployment` require current
+EvalSafety evidence for the exact leaf context; any relaxation is limited to pure
+computation. This records that direction's implementation, not an additional
+principal ruling. It does not decide the separate R1/R5 per-active-basis question
+or DataTrust-positive admission. How does every served NL launch preserve
+server-selected intent through durable admission and replay while keeping
+candidate computation available without protected authority?
+
+**Options and costs.**
+
+1. **Reuse the served authorization and ControlPlane owners with one five-band
+   intent contract. Implemented.** Require the sealed route/action proof for every
+   NL launch, including candidate requests; persist and reconcile typed intent across
+   the existing payload, creation event/outbox, and worker replay. Use the canonical
+   resolver and existing storage/permission owners. Cost: route, store, worker,
+   recursive-owner, and served-test changes.
+2. **Use EvalSafety for every non-simulation token or launch. Rejected.** Lower local
+   complexity, but assigns `retrospective` and
+   `measurement_audit` to the wrong owner and refuses candidate computation
+   under an explicit unknown.
+3. **Keep the optional context-presence guard or let missing intent fall through to
+   candidate; retain a test-only no-proof launcher. Rejected.** Cheapest initially,
+   but permits protected work to escape its owner gate and leaves the test path
+   outside production custody.
+
+**Premises.** S0-K06 fails closed in the authority band while allowing candidate
+work with a typed unknown. GY assigns `sandbox_pilot`, `field_pilot`, and
+`deployment` to EvalSafety; `retrospective` and
+`measurement_audit` to DataTrust; and `simulate_only` to pure
+computation. Reuse the existing served proof and job/event/outbox owners. Sources:
+`docs/system-design-decisions/policy-design-causal-operating-system-north-star.md@46f6502a1a29c160d99a258ea3a6209e08ae55dfcb95836790403ec26c8998e2`,
+`docs/system-design-decisions/stage0-custody-kernel-ratification.md@a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7`,
+`docs/plans/active/layer3-slices/GY-engine-subordination.md@5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5`,
+`docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725`, and
+`docs/reference/policy-design-case-failure-patterns.md@64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a`.
+
+**Implementation and decision status.** `f7d66883fbcb352eb923c23e3e104608490e8061`
+integrates the five bands: `candidate_only`, `simulate_only_attempt`,
+`data_trust_required`, `eval_safety_required`, and
+`not_established`. Every NL launch requires the sealed served proof; direct
+service calls without it refuse. The test-only
+`launch_internal_candidate_nl_run` was retired after a direct call-node census
+parsed 2,696 Python files and found zero production calls (census:
+`/Users/deniskopylov/.codex/scratch/e02-r5-owner-candidate-20260926/R5_internal_candidate_source_census.json@a3793962a433156e7405a04358a62d2c944a04a540262ecab7a4c065227c2d75`; blind spots are reflective dispatch, string loading, and aliases that erase the method name).
+
+The ordinary served route preserves candidate computation with typed unknown scope.
+`simulate_only_attempt` remains pure compute and cannot promote, publish, or
+emit S8 authority. The three protected modes require current EvalSafety evidence and
+the exact leaf denominator; missing, malformed, stale, or mismatched evidence
+refuses before protected work and never selects candidate. DataTrust modes retain
+their typed band: N4 candidate materialization can carry
+`data_trust_owner_not_established`, while the DataTrust-dependent recursive
+path refuses rather than substituting EvalSafety. Malformed intent is terminal and
+unleaseable as `not_established`.
+
+The admitted job supplies tenant, cell, run, and job identity for N4 writing and
+readback; a missing cell remains unknown, and nested caller
+`runtime_identity` cannot supply it. Finite request numbers use the existing
+resource-binding digest profile; raw body/query authorization remains intact and
+non-finite numbers refuse before enqueue.
+
+**Evidence.** The integrated focused JUnit passed 28/28 (0 failures, errors, or
+skips; 47.656 seconds):
+`/Users/deniskopylov/.codex/scratch/e02-r5-integration-20260927/integrated-r5-v11.junit.xml@sha256:9ba0dd805eef65e6c6cf9a928120a485c59290462330cba79554074099c97843`.
+It covers the protected denominator, candidate/simulation controls, five-band
+binding, proof-required launch, finite/non-finite inputs, served N4 persistence and
+readback, schema and cycle-occurrence controls, and four B88 replay controls.
+
+With markers retained, removing shared N4 owner-scope checks produced three
+expected reds and one green ordinary served-candidate control: foreign inner scope
+at write, self-hashed foreign inner scope at current readback (historical v1 replay
+still exact), and foreign nested identity with a missing owner cell. JUnit:
+`/Users/deniskopylov/.codex/scratch/e02-r5-owner-candidate-20260926/r5-scope/v11-owner-scope-removal.junit.xml@sha256:745c3d89e395467fafa268449fe43fe5847fbe2f28834c28110713c7d1ff3776`.
+Both changed sources were restored byte-exactly
+(`/Users/deniskopylov/.codex/scratch/e02-r5-owner-candidate-20260926/r5-scope/v11-owner-scope-removal.source-hashes.txt@ceb3800c3171d9b915c6ea08ebfff576043c402c2683ecf0da2236328a2dc899`).
+A supplemental synthetic field-pilot EvalSafety property-removal probe also turns
+its discriminator red:
+`/Users/deniskopylov/.codex/scratch/e02-r5-owner-candidate-20260926/R5_v6_core_guard_removal_probe_RECEIPT.md@c88301871e402cce0bca137f7962a4f6573235998199ad4adbf6f946d82755dc`.
+It is not a complete protected-mode matrix.
+
+Implementation owners include
+`runtime/http/routes/control.py@0018f247b22b9479be1e37e3827c0381740d8b42649bd08490fe8823494e238c`,
+`runtime/http/services/control/run_lifecycle.py@db84338772e43cb55a57c1bb91e78e85468b5c7788ccf8d709aec2e8194526a3`,
+`runtime/http/services/control_plane_store.py@0901dbd098485f1c37f033bf6832584106c5de1768d9179e2dfaed9980a6107c`,
+`runtime/quality/evaluation_modes.py@ad6d4522d057f8301c4b1fedd85991e176f1c621ef88a6f31abd84c5498a7422`, and
+`runtime/quality/recursive_generation_cycle.py@2a26ac897d37587e8ab0b5ae38f7790b438c2479044e0f60cbd1e2a27cf5935f`.
+Behavioral tests include
+`tests/unit/runtime/http/test_control_job_execution_intent.py@77862b95680f6c01619dc320eaec6d0fb90dd0eca040f423643447a262913e58`,
+`tests/unit/runtime/http/test_workspace_loop_transition.py@3760a94148dd65344504cd743c9cecf9d3b62d57a4224896c3523e1d028ed7b7`,
+and `tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@dcbcfdfbd14183812f9674cfa88d008838ee124c9bb8ec511789ebbca34c65f3`.
+
+**P37 / P38 and pattern pass.** Mode resolution and graph-leaf enumeration are
+`recomputed`; the sealed route/action/job binding is
+`independently_reconciled`; the positive DataTrust result remains
+`not_established`. The property is an owner-bound intent reaching its matching
+evidence gate. The prior proxy was optional attempt presence and a truthy EvalSafety
+map guarded only on one factory path; divergent cases were an empty map for a
+nonempty graph, missing attempt binding, and a custom factory that could not consume
+context. P04/P05/P07/P12/P31/P32/P37/P38/P40/P41 apply; owner-scope reconciliation
+is same-class depth, not a new ladder.
+
+**Remainder.** DataTrust-positive recursion is `bridge_missing`: there is no
+served producer/readback binding for a current candidate/WMR/scope/epoch result.
+The simulation fixture reaches a typed N5 block
+`joint_simulation_ncm_spec_missing`; it is not successful numeric N5 evidence.
+Complete four-base whole-file P41 replay for every touched test remains
+`UNRUN`. The 28 focused cases are not that denominator; R5 is not finding-
+level closed, and the separate R1/R5 per-active-basis decision remains pending.
+
+**Revisit trigger / falsifier.** Reopen if a marker-preserving removal or mutation of
+served proof/intent/event binding still reaches the worker/compiler; if protected
+work runs without its exact current EvalSafety head; if a candidate request is
+refused solely for absent EvalSafety; if simulation gains promotion, publication,
+or S8 authority; if DataTrust is admitted through EvalSafety; or if whole-file P41
+changes regression attribution. A future DataTrust-positive result needs an
+owner-produced persisted binding to candidate/WMR/scope/epoch plus served positive,
+foreign, and missing-evidence controls.
+
+**Where it binds.** Served authorization binds at
+`runtime/http/routes/control.py` and `ControlPlaneService.launch_nl_run`;
+persisted intent and event/outbox reconciliation bind in `ControlPlaneStore`
+and `_process_control_job`; band resolution binds at
+`runtime/quality/evaluation_modes.py`; current EvalSafety leaf admission and
+pure-computation boundaries bind in
+`runtime/quality/recursive_generation_cycle.py`; N4 owner identity binds in
+`runtime/http/services/control/nl_pipeline.py` and
+`runtime/quality/generation_source.py`. Surfaces project this typed truth and
+do not invent authority. This addendum changes no register or plan and authorizes no
+governed reissue.
 
 ### R1/R5 addendum — refresh evidence for each active basis (2026-09-25)
 
@@ -3717,11 +3859,15 @@ from the current-path test alone.
 ## Closeout note
 
 R1 option A and R11's universal v3 blocked-run/N9-exclusion rule have principal
-rulings recorded in their dated addenda. Neither is implemented to its ruled scope,
-its falsifiers have not all run, and neither finding is closed. The remaining
-principal proposals in this document are R2, R5, R9, R13, and R14. Earlier proposal
-text is retained as the pre-ruling record; the dated addenda supersede its pending
-status wording. No governed reissue or restamp is authorized by these records.
+rulings recorded in their dated addenda. Their finding-level status and outstanding
+falsifiers remain governed by those addenda. Denis's R5 protected-mode fail-closed
+direction is recorded and its five-band served-intent implementation is integrated
+at f7d66883f; R5 remains open on its DataTrust-positive bridge and complete
+four-base whole-file P41 replay. The separate R1/R5 per-active-basis decision remains
+pending. The remaining principal proposals in this document are R2, R9, R13, and
+R14. Earlier proposal text is retained as history; dated addenda supersede status
+claims only where they explicitly say so. No governed reissue or restamp is
+authorized by these records.
 
 
 ## DS16 / IR — versioned public uncertainty representation (B31, B201, B202)

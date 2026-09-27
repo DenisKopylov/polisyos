@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -23,6 +23,7 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
@@ -641,6 +642,59 @@ class _StopAfterTierCheckpoint(CASCheckpointHook):
         raise _SimulatedWorkerStopError("worker stopped after checkpoint publication")
 
 
+class _NodeOnlyCASCheckpointHook:
+    """Expose only the single-node callback of the real CAS checkpoint owner."""
+
+    def __init__(self, delegate: CASCheckpointHook) -> None:
+        self._delegate = delegate
+        self.calls = 0
+
+    async def on_node_complete_async(self, **kwargs: Any) -> Any:
+        self.calls += 1
+        return await self._delegate.on_node_complete_async(**kwargs)
+
+
+@pytest.mark.asyncio
+async def test_parallel_tier_rejects_node_only_hook_before_any_side_effect(
+    tmp_path: Path,
+) -> None:
+    ParallelLeftNode.calls = 0
+    ParallelRightNode.calls = 0
+    FlakyAfterParallelNode.calls = 0
+
+    store = FileSystemCAS(tmp_path)
+    workflow = _parallel_workflow()
+    run_id = "R_async_parallel_node_only_hook_refused"
+    ctx, bundle_ref = _context(store, run_id)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={"registry_bundle_ref": bundle_ref},
+        params={"seed": 31},
+    )
+    hook = _NodeOnlyCASCheckpointHook(
+        CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+    )
+
+    with pytest.raises(CheckpointError, match="parallel_tier_requires_atomic_checkpoint_hook"):
+        await LocalWorkflowRunner(max_parallelism=2).execute_workflow(
+            workflow,
+            state,
+            ctx,
+            _parallel_registry(),
+            checkpoint_hook=hook,  # type: ignore[arg-type]
+        )
+
+    assert ParallelLeftNode.calls == 0
+    assert ParallelRightNode.calls == 0
+    assert FlakyAfterParallelNode.calls == 0
+    assert hook.calls == 0
+    assert resolve_latest_checkpoint(store, run_id) is None
+
+
 @pytest.mark.asyncio
 async def test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer(
     tmp_path: Path,
@@ -667,12 +721,13 @@ async def test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_pee
     )
 
     with pytest.raises(_SimulatedWorkerStopError):
-        await AsyncWorkflowExecutor(
+        await LocalWorkflowRunner(max_parallelism=2).execute_workflow(
+            workflow,
+            state,
             ctx,
             _parallel_registry(),
             checkpoint_hook=hook,
-            max_parallelism=2,
-        ).execute(workflow, state)
+        )
 
     resolved = resolve_latest_checkpoint(store, run_id)
     assert resolved is not None

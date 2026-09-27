@@ -7,10 +7,15 @@ import hashlib
 from typing import Any
 from unittest.mock import MagicMock
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import ComponentId
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
-from polisyos.scientist.orchestration.engine.checkpoint import CheckpointWriteResult
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CheckpointError,
+    CheckpointWriteResult,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
@@ -314,10 +319,40 @@ def test_continue_checkpoints_successes_and_preserves_their_outputs() -> None:
     assert result.report.nodes[0].artifacts == [output]
 
 
-def test_parallel_tier_supports_async_only_legacy_checkpoint_hook() -> None:
+def test_serial_tier_supports_async_only_node_checkpoint_hook() -> None:
     state = ExperimentState(run_id="res-02-async-only-legacy")
     hook = _AsyncOnlyLegacyCheckpointHook()
     audit = _RecordingAudit()
+    workflow = _workflow("solo")
+    executor = _executor(
+        workflow,
+        {
+            "solo": NodeOutcome(
+                status="ok",
+                state=state.model_copy(update={"params": {"solo": 1}}),
+            ),
+        },
+        {"solo": _ref("7")},
+        hook,
+        audit=audit,
+    )
+
+    result = asyncio.run(executor.execute(workflow, state))
+
+    assert result.report.status == "ok"
+    assert result.state.params == {"solo": 1}
+    assert [call["alias"] for call in hook.node_calls] == ["solo"]
+    assert [call["completed_nodes"] for call in hook.node_calls] == [["solo"]]
+    assert [call["cache_entry_ref"] for call in hook.node_calls] == [_ref("7")]
+    checkpoint_entries = [
+        entry for entry in audit.entries if entry["action"] == "CHECKPOINT_CREATED"
+    ]
+    assert checkpoint_entries
+    assert all("tier_atomic" not in entry["metadata"] for entry in checkpoint_entries)
+
+
+def test_parallel_tier_without_checkpoint_hook_still_executes() -> None:
+    state = ExperimentState(run_id="res-02-no-hook")
     workflow = _workflow("left", "right")
     executor = _executor(
         workflow,
@@ -332,18 +367,45 @@ def test_parallel_tier_supports_async_only_legacy_checkpoint_hook() -> None:
             ),
         },
         {"left": _ref("7"), "right": _ref("8")},
-        hook,
-        audit=audit,
+        None,
     )
 
     result = asyncio.run(executor.execute(workflow, state))
 
     assert result.report.status == "ok"
-    assert [call["alias"] for call in hook.node_calls] == ["left", "right"]
-    assert [call["completed_nodes"] for call in hook.node_calls] == [["left"], ["left", "right"]]
-    assert [call["cache_entry_ref"] for call in hook.node_calls] == [_ref("7"), _ref("8")]
-    checkpoint_entries = [
-        entry for entry in audit.entries if entry["action"] == "CHECKPOINT_CREATED"
-    ]
-    assert checkpoint_entries
-    assert all("tier_atomic" not in entry["metadata"] for entry in checkpoint_entries)
+    assert result.state.params == {"left": 1, "right": 2}
+
+
+def test_multi_node_tier_rejects_node_only_hook_before_node_execution() -> None:
+    state = ExperimentState(run_id="res-02-node-only-hook-refused")
+    hook = _AsyncOnlyLegacyCheckpointHook()
+    workflow = _workflow("left", "right")
+    executor = _executor(
+        workflow,
+        {
+            "left": NodeOutcome(
+                status="ok",
+                state=state.model_copy(update={"params": {"left": 1}}),
+            ),
+            "right": NodeOutcome(
+                status="ok",
+                state=state.model_copy(update={"params": {"right": 2}}),
+            ),
+        },
+        {"left": _ref("9"), "right": _ref("10")},
+        hook,
+    )
+    executed: list[str] = []
+    execute_node = executor._execute_node
+
+    async def _record_execution(alias: str, *args: Any, **kwargs: Any) -> Any:
+        executed.append(alias)
+        return await execute_node(alias, *args, **kwargs)
+
+    executor._execute_node = _record_execution  # type: ignore[method-assign]
+
+    with pytest.raises(CheckpointError, match="parallel_tier_requires_atomic_checkpoint_hook"):
+        asyncio.run(executor.execute(workflow, state))
+
+    assert executed == []
+    assert hook.node_calls == []

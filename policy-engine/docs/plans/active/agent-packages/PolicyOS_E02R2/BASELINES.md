@@ -507,7 +507,7 @@ Each cell lists the suite result, JUnit case counts (`p` passed, `f` failed, `e`
 
 The tracked harness embeds 74 exact required identities (37 A, 37 B). The earlier identity-source receipt is optional provenance only (status: `verified`); it is never used for outcomes. A required case is `UNRUN` if its exact JUnit key is missing or either relevant suite cell is missing, incomplete, or `UNRUN`.
 
-In-scope identity outcomes: 74/74; `PASS_TO_FAIL`=26, `SAME`=1, `UNRUN`=47.
+Historical initial-receipt outcomes: 74/74; `PASS_TO_FAIL`=26, `SAME`=1, `UNRUN`=47. The rows below preserve that initial snapshot and are not the latest per-case classification. Later paired receipts resolve 27 of the 47 initial `UNRUN` identities: 16 become `PASS_TO_FAIL` and 11 become `SAME`; the v10 closeout for the same 74 identities is 42 / 12 / 20. The remaining 20 stay `UNRUN` because SIGINT cancelled the E02-head whole-file run before terminal JUnit, so no result is inferred from partial observations. The separate strict whole-file denominator remains 21 paths × 4 bases = 84 cells (62 completed, 20 missing-tree, 2 present `UNRUN`); this does not complete that matrix or claim `BASELINES_DONE`. Reconciliation: /Users/deniskopylov/.codex/scratch/p41-case-map-reconcile-20260927-v1/P41_RECONCILIATION.md@sha256:3355d71f0852bddcb3698d4b926bdd78a93f5be0def2d5f810065b037307d4fc; /Users/deniskopylov/.codex/scratch/p41-case-map-reconcile-20260927-v1/appendix_74_identity_reconciliation.json@sha256:33632526898c1285802a6333abaefb7e86bbc290bb6d396accd3149d6240b8a6.
 
 | Appendix | Required comparison | Test path | Exact JUnit case key | Before | After | Status | Reason |
 |---|---|---|---|---|---|---|---|

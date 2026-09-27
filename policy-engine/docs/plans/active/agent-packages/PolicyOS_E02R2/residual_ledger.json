@@ -926,7 +926,17 @@
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:691be13b7875f96ad4c0fad252b03f6765f1f0e4dae546e28de9ae7ab8396085"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B09",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "At the 95f082b snapshot, five listed selectors passed and the promotion selector failed before the owner callback with KeyError summaries. This does not show a changed Data Forge basis reaching a second N5 cycle. An active overlay re-entry route exists, so the N audit's provisional open classification is not supported. Keep partial. Current post-R5 replay and four-base P41 are UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B10",
@@ -1589,7 +1599,17 @@
             "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B19",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "14/14 SIM-03 tests passed, including the three selectors. This proves local comparator/baseline arithmetic only; comparator_refs are not established as bound to the same model, horizon and scope as independent factual evidence in the served horizon caller. Keep partial; served binding and four-base P41 remain UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B20",
@@ -1757,7 +1777,17 @@
             "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B21",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "14/14 SIM-03 tests passed, including requested replication count, distinct-seed refusal and the one-draw unestimated-standard-error case. N5 returns count/seeds but does not persist per-outcome/per-step sampling error. Keep partial; served request-to-method execution and separate world-model uncertainty remain UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B22",
@@ -1924,7 +1954,17 @@
             "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B23",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "14/14 SIM-03 tests passed, including same physical-spec reuse across roles and binding the run reference to effective evidence/source mode. Changed-seed and meaningful-plan-parameter false-hit negatives have not been run through the same cache lifetime and both real role consumers. Keep partial; cross-invocation cache behavior is not claimed.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B24",
@@ -2097,7 +2137,17 @@
             "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B25",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "14/14 SIM-03 tests passed, including required-moment non-improvement and explicit all-incomparable blocking. Optional moments can still be averaged only over runs where present; moment_counts covers required names. Persisted metric-set identity and production producer/selection binding are not established. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B26",
@@ -2211,7 +2261,17 @@
             "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B26",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "14/14 SIM-03 tests passed, including the triple-only non-additive residual and checked interaction order. No independent additive zero-residual control or production consumer/surface consuming interaction order and residual is established. Keep partial; do not infer global additivity.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B27",
@@ -2337,7 +2397,17 @@
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:691be13b7875f96ad4c0fad252b03f6765f1f0e4dae546e28de9ae7ab8396085"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B27",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "At 95f082b, the two direct in-memory history/front and population/model rebinding selectors passed; the promotion selector failed before its owner callback. No actual recursive N5 re-entry with a newly owner-issued revised context is established. R5 changes the recursive context gates, so current replay after source freeze and four-base P41 remain UNRUN. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B28",
@@ -2463,7 +2533,17 @@
             "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:691be13b7875f96ad4c0fad252b03f6765f1f0e4dae546e28de9ae7ab8396085"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B28",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "At 95f082b, same-candidate occurrence/history and current-front checks passed, including distinct occurrence references; the downstream promotion callback selector failed before N9 preparation. No successful N9/OWR/epoch consumer binding to the second occurrence is shown. Keep partial; current post-R5 replay and four-base P41 remain UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B29",
@@ -2734,7 +2814,20 @@
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b",
-      "blocker_path_scope": "ValueOuterSet public representation and N8 value projection; retain identification-only semantics until DS16/IR owner admits a versioned statistical uncertainty channel."
+      "blocker_path_scope": "ValueOuterSet public representation and N8 value projection; retain identification-only semantics until DS16/IR owner admits a versioned statistical uncertainty channel.",
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B31",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "DS16/IR owner — versioned separation of identification bounds and statistical/model uncertainty",
+          "source_audit_blocker": "owner_decision: Public uncertainty/IR owner decision for a versioned separation of identification bounds and statistical/model uncertainty; retain ValueOuterSet as identification-only until ruled."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+      }
     },
     {
       "id": "B32",
@@ -4207,7 +4300,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B57",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The recorded 88-case wave passes the synchronous executor cache-hit witness preserving an independently changed field and the state-merge witness preserving explicit same-value write intent. No cache-hit witness combines same-value intent with deletion/non-resurrection and a broad cached result. Async positive replay and production-node history remain unestablished; four-base P41 is UNRUN. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B58",
@@ -4314,7 +4417,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B58",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The merge helper distinguishes tombstone, None and no write, and refuses deletion of protected artifacts_index. These are helper-level tests only: allowed deletion through parallel execution and warm-cache serialize/rehydrate paths, absent-field behavior and delete conflicts are unestablished. Keep partial; current whole-file four-base replay is UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B59",
@@ -4423,7 +4536,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B59",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "Bounded helpers establish deep isolation for a declared leaf, nested path and Pydantic overlay while a shared unrelated object is controlled. A census of 2,696 src/polisyos Python files found 78 literal branch_state( call lines, but does not prove alias/import completeness. No sibling-reader plus failed/cancelled canonical executor witness is recorded. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B60",
@@ -4573,6 +4696,19 @@
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. Across the complete 2,696-source / 2,732-test tracked Python denominators, ResolveParametersNode is served and registered, but consumes a live SKG query before recording version/ref; a separate SourceSnapshot path does not wrap it. No mutation/removal/control behavior or P41 ran in this audit."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B61",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "data_record",
+          "owner": "SKG source owner and ResolveParametersNode run-scope binding",
+          "source_audit_blocker": "data_record: SKG source owner must issue one immutable snapshot/read-handle record binding selected bytes, the live query, and ResolveParametersNode idempotency identity."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -5266,7 +5402,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B72"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B72",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The bounded distributed status repair now transports native ok/skip/fail outcomes through the worker and tier merge, admits only typed ok as successful cache/frontier evidence, and rejects out-of-tier aliases before merge/checkpoint. Ray plus the non-Temporal changed-file focus is green, and the marker-retaining removal probe turns red for both status admission and alias admission. The six-file current-head before/after comparison has 67 common outcomes with zero pass→fail, one fail→pass, and 13 new postpatch outcomes; all 79 runnable postpatch outcomes pass. Temporal is the same skipped collection as prepatch because temporalio is absent. Keep partial: no Temporal event-history execution, and no complete persisted width-one/width-two skip plus independent-success close/reopen/resume witness was run. B73 checkpoint interruption/atomicity remains separate and open; finding-specific four-base replay remains UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B73",
@@ -5385,7 +5531,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B73"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B73",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "Local tier checkpointing writes one merged checkpoint with the full successful set; fail-fast drops the state checkpoint and continue preserves successful output. The legacy async per-node callback and distributed route may publish merged state while growing completed_nodes by alias prefix. No crash/reopen/resume witness proves state plus the full completion set at that publication point. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B74",
@@ -6280,7 +6436,17 @@
             "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/INDEPENDENT_REVIEW_V2.md@sha256:7a165c1c2a7717c1a255c89ce200a246667752105eff4812bfde531eb5e2bdcf"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B88",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The integrated served route dispatches every explicit replay_ref, including an empty ref which must fail replay validation before ordinary batch_full ingress. Success/failure report replay mode. Real ReplayStore/CAS fixtures cover missing, corrupt and valid replay through APISimulator with zero ordinary-delegate calls or native aiohttp requests; the marker-retaining fallback-removal probe is red. The route tests still stub run_replay_mode, output evidence is not reopened to bind source session/replay ref/request hash/exact bytes, and egress instrumentation covers aiohttp only. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B89",
@@ -7478,7 +7644,17 @@
             "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B108",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "All ten objective cases pass, including budget_deficit alias normalization, genuine zero, unusable absent/null values, conflicting aliases and non-finite inputs. The objective has no typed units input and a served search caller consuming BudgetDeficitObjective is not demonstrated. Keep partial; whole-file four-base replay remains UNRUN.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B109",
@@ -7697,7 +7873,17 @@
             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:2b5caa7718acc0d6efcfaf13ada0a2fa92a578f0613c1e8118efc4ecaf3978a1"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B109",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The strict-dominance comparator has bounded prior evidence for the original discriminator: under maximization (2,1) dominates (1,1), while identical vectors remain separate ties; the recorded 88-case selector wave is historical, and the exact 2D/3D selectors were NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1. That local comparator evidence does not establish the served hierarchy result. At the source snapshot measured in the blocker memo (768ef3ca; cited source files remain byte-identical at ledger base edb001e), the registered RunHierarchicalPolicySearchNode adapter constructs HierarchicalSearchCoordinator without the existing ParetoRegistry owner; the report builder labels every feasible evaluation global_feasible. The coordinator can accept an injected registry, but ExecutionContext and build_execution_context/workflow composition provide no registry owner/provider. A complete 2,696-file AST census of policy-engine/src/polisyos found 0 production ParetoRegistry constructors, 0 writes to pareto_registry_snapshot, and 2 reads (output-bundle and translation consumers). The existing registry is path-backed and its transfer context does not bind unknown tenant/cell scope; a node-local default or guessed root would not be a custody-safe bridge. Keep partial and finding_test_status UNRUN: no served candidate→registry snapshot→frontier consumer witness, marker-retaining owner-removal probe, or current six-file four-base replay was run. The smallest missing capability is a runtime-issued Pareto owner/provider bound to run, tenant, cell and the runtime artifact store, bridged through ExecutionContext/workflow construction to the served hierarchical coordinator and output consumers. Preserve ordinary candidate evaluation under unknown scope with a typed limitation; do not invent scope or a parallel registry owner.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B110",
@@ -7935,7 +8121,17 @@
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/B111",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The scratch candidate d924383 adds typed metric_missing/metric_non_finite omissions and partial/unavailable coverage in the in-memory promoter and optional registry-to-VOI projection; its focused 3/3 JUnit and registry-propagation removal probe are candidate-only. The current branch has not integrated it. A static follow-up identifies a second same-class escape: duplicate invalid evaluations with the same candidate ref/coordinate may duplicate omission identity and make ParetoFront construction fail; this has not been executed. Per P40, stop instance patching and widen to one typed invariant across admission, existing registry, and output consumers. Native canonical CAS independently rejects NaN/+Inf/-Inf before ref issuance with a finite promotion control. Still open: not_applicable distinction; permutation, missing, infinity, mixed-direction, tie and duplicate-input controls; declared ObjectiveStack/OptimizerObjectiveSpec basis; served registry wiring; coverage propagation through legacy frontier projections and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; and complete historical 1.0 snapshot replay. The sibling projections currently discard coverage and can present omitted candidates as dominated; the default RunHierarchicalPolicySearchNode is an independent frontier producer. Raw/legacy CAS bypass remains not_established. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "B112",
@@ -12688,6 +12884,19 @@
           "/Users/deniskopylov/.codex/scratch/e02-r2-h-uncertainty-calibration-20260926/b194-current-caller-census.out@sha256:1f54b4f3a72419386e2467bc757c5c142bbd8f7595dff9d59d1497bf3ffbb526"
         ],
         "scope": "The report's 12c1c8dba4716e206d72f332caab78d40e2a7f6 probe is historical pre-repair; the b347c3326765f4d5be8e9e0daaaac59386d92ed0 snapshot scopes the bounded owner-repair probes only. This is not a fresh later-head four-base P41 or production reader/history replay. The served source/deployment-bound evaluator-to-authority-intake capability remains unestablished; status stays held."
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B194",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "smallest_missing_capability",
+          "owner": "Served simulation evaluator → source/deployment-bound per-draw support → shared verified authority intake for ConfidencePass, normative arbitration, and decision-packet enrichment",
+          "source_audit_blocker": "smallest_missing_capability: Served simulation evaluator → source/deployment-bound per-draw support → persisted report/envelope → shared verified authority intake used by ConfidencePass, normative arbitration, and decision-packet enrichment."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -12898,6 +13107,19 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B197",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "smallest_missing_capability",
+          "owner": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
+          "source_audit_blocker": "smallest_missing_capability: Persisted typed tie-group-to-field projection carried from calibration owner through report/CAS and uncertainty adapter to a served welfare consumer."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -13176,6 +13398,19 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B201",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "Public IR owner — versioned point-functional and interval-functional semantics",
+          "source_audit_blocker": "owner_decision: Public IR owner must choose and version the point functional separately from equal-tail interval semantics, including historical v1.1 replay."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -13289,6 +13524,19 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B202",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "Public IR owner — versioned source-law carrier/reference and content-bound joint-draw identity",
+          "source_audit_blocker": "owner_decision: Public IR owner must choose a versioned inline posterior carrier or content-bound persisted reference and define ordered joint-draw identity, axes, and weights."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -14919,6 +15167,19 @@
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The exact FQN is absent from the stable Foundry entrypoint list; the legacy module docstring and importability test conflict with that boundary."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-005",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "PolicyOS public-surface owner and Foundry schema owner",
+          "source_audit_blocker": "owner_decision: Public-surface owner and Foundry schema owner: affirm internal-by-default retirement under the explicit entrypoint contract, or declare the exact FQN supported and name its release/consumer contract."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -15248,6 +15509,15 @@
           ],
           "remaining_out_of_scope": "Full historical/external compatibility matrix; no such caller is appointed or required by the principal clarification."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-010",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "closed_bounded",
+        "typed_blocker": null,
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -15995,7 +16265,17 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-la021-20260926/RESULT.md@sha256:9daadda093a51264d299f8c7b560892c6dbb9e7941b1c7c217cc7ab09cdd2060"
           ]
         }
-      ]
+      ],
+      "n18_behavioral_audit_20260927": {
+        "source_map_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-check-map-20260927/N18_BEHAVIORAL_CHECK_MAP.json@sha256:fb593dd6cfb70877d810d681795062edea077ce8f3e71bbe503c9f7e9e9bad18#rows/LA-021",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "status_at_capture": "partial",
+        "whole_file_four_base_status_at_capture": "UNRUN",
+        "exact_missing_witness_at_capture": "The 12c typed projection and 59c9 whole-tree outcome replay each report zero differences across their stated 7,761-record Main/current JSON+JSONL profiles; they are separate bounded receipts, not one combined input set. The 43d4 residual_ledger.json blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both measured inventories, so latest-input parity is UNRUN. The exact 418-input selector, 140 shared caller-file four-base replay, broad typed-tag/error/depth/import acceptance, persisted/runtime/production-data inputs and alternate formats/environments remain unresolved. Keep partial.",
+        "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
+        "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
+        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      }
     },
     {
       "id": "LA-022",
@@ -16293,6 +16573,19 @@
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The source contains a three-field placeholder and the current tracked loader/import census finds no production consumer; that does not prove external ABI absence."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-026",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "Data Forge schema owner",
+          "source_audit_blocker": "owner_decision: Data Forge schema owner: confirm retirement of the empty descriptor or name an actual retained producer/consumer/schema contract."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -16372,6 +16665,19 @@
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The tracked implementation routes registry/evolution/migration through kernel/schemas while the active consolidation plan names kernel/pipeline/schemas; the latter currently re-exports the former."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-027",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "owner_decision",
+          "owner": "Data Forge schema owner and architecture-plan owner",
+          "source_audit_blocker": "owner_decision: Data Forge schema owner plus architecture-plan owner: select kernel/schemas or pipeline/schemas as canonical and set alias migration/sunset under the public-surface contract."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -16636,6 +16942,19 @@
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. The complete Ukraine builders package has 11 tracked Python files and five direct .common importers. The earlier 17/17 UDF suite is bounded helper/I/O evidence; registry-selected caller/output parity and four-base P41 remain UNRUN. No D5 regression is asserted."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-031",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "data_record",
+          "owner": "Ukraine builder migration owner — five importer registry/caller/output parity record",
+          "source_audit_blocker": "data_record: One registry-to-output parity record across the five direct common importers and registered stages, including bytes/content, diagnostics, warnings and writes."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -16749,6 +17068,19 @@
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. The complete 2,696-source census finds no production caller of the four demographic readers beyond definitions/re-exports; reusable inventory/digest primitives are not wired to them. The prior public-facade mixed-layout counterexample is retained; this audit ran no tests. Shared reader inventory, served readback/history and P41 remain UNRUN."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-032",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "held",
+        "typed_blocker": {
+          "kind": "smallest_missing_capability",
+          "owner": "Ukraine demography read owner — shared source-inventory/replay bridge across composite and sibling readers",
+          "source_audit_blocker": "smallest_missing_capability: Shared demographic source inventory/read-replay bridge across composite and sibling readers, connected to an actual public read_api consumer."
+        },
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -17761,6 +18093,15 @@
           ],
           "remaining_out_of_scope": "Broad historical/external compatibility is not an appointed or required blanket; retained helper cleanup is optional."
         }
+      },
+      "h13_remaining_audit_20260927": {
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#LA-049",
+        "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
+        "appendix_c_status": "held",
+        "audit_disposition": "closed_bounded",
+        "typed_blocker": null,
+        "behavioral_test_status": "UNRUN in this read-only audit",
+        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
       }
     },
     {
@@ -17935,19 +18276,19 @@
       "bundle_ids": [
         "PCL-01"
       ],
-      "closure_owner": "PCL-01",
+      "closure_owner": "polisyos.calibration owner and Scientist backtesting alias migration/test owner",
       "mapping_ref": "legacy_to_bundles",
       "appendix_c_status": "partial",
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "Residual transcribed; current behavior not independently measured."
+        "detail": "Source-card/package-label discrepancy corrected: PCL-01 is retained only as E02 package provenance; LA-053 source card is a Scientist backtesting calibration_curve alias migration to polisyos.calibration. Behavior and four-base replay remain UNRUN."
       },
-      "residual": "LA-053 is the separate alias migration: preserve import/class/function/exception and distribution parity through the old address until caller retirement. Test alias identity, public import and package inclusion; do not reuse LA-052's interval semantics as this residual.",
+      "residual": "The LA-053 source card concerns migration from the Scientist backtesting calibration_curve re-export to polisyos.calibration. Move the existing import/test consumer to the canonical owner, retain the three exported calibration objects and their calculation semantics in that consumer, and establish the complete FQN/import/config/notebook caller inventory before retiring the alias. The card does not require a blanket long-term compatibility guarantee for the old address. LA-052 interval validity is a separate residual.",
       "residual_owner": {
-        "kind": "principal_decision",
-        "name": "Principal (Denis)",
-        "appointment_status": "decision draft only; principal ruling pending"
+        "kind": "implementation_owner",
+        "name": "polisyos.calibration owner and Scientist backtesting migration/test owner",
+        "appointment_status": "Owner roles identified by the canonical implementation and existing import/test paths; no individual appointment is claimed."
       },
       "r_class": null,
       "p_triage": {
@@ -17974,10 +18315,42 @@
         "card_discriminator_review": {
           "identity": "LA-053 source-card discriminator and P38 seam; candidate identity is proposed unless explicitly named as a prior receipt",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3793",
-          "candidate_test_identity": "proposed:LA053_alias_public_identity_and_distribution_parity",
+          "candidate_test_identity": "proposed:LA053_backtesting_import_migrates_to_canonical_calibration_owner_with_numerical_control",
           "behavioral_verdict": "UNRUN",
-          "scope": "Card property and distinguishing seam recorded from the source card and supplied read-only audit. The candidate identity is not a test receipt unless explicitly labeled as an accepted prior receipt; current four-base replay remains UNRUN."
+          "scope": "Source-card property is import/re-export migration and preservation of the three existing objects/result semantics. Candidate identity is not a test receipt; latest four-base behavior remains UNRUN."
         }
+      },
+      "semantic_finding_class": "Scientist backtesting calibration_curve import/re-export migration to the canonical polisyos.calibration owner",
+      "p_triage_proposal_20260927": {
+        "current_accepted_bucket": "b",
+        "proposed_bucket": "a",
+        "status": "pending independent review; proposal only",
+        "basis": "The exact source card is a function re-export/import migration to polisyos.calibration; its test/import consumers can be migrated without deciding PCL-01 skipped-level identity or LA-052 interval semantics.",
+        "next_step": "Migrate the ordinary backtesting test/import to polisyos.calibration, preserve the three public objects and numerical behavior in that consumer, census remaining old-FQN inputs, then retire the alias if no supported consumer remains.",
+        "source_ref": "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.md@sha256:31afc11ef17a4de1631439469966dca2cd6ca5d2d15c885b173892b233fc4667#LA-053"
+      },
+      "semantic_owner_review_20260927": {
+        "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3793-L3813",
+        "canonical_owner": "polisyos.calibration",
+        "legacy_address_role": "Scientist backtesting compatibility re-export; no long-term compatibility requirement inferred",
+        "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.md@sha256:31afc11ef17a4de1631439469966dca2cd6ca5d2d15c885b173892b233fc4667#LA-053",
+        "four_base_behavioral_status": "UNRUN",
+        "no_current_test_result_claimed": true
+      },
+      "la053_semantic_owner_note_20260927": {
+        "semantic_finding_class": "Scientist backtesting calibration_curve import/re-export migration to the canonical polisyos.calibration owner",
+        "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3793-L3813",
+        "canonical_owner": "polisyos.calibration",
+        "bundle_ids_preserved_as_package_provenance": [
+          "PCL-01"
+        ],
+        "semantic_pcl01_relation": "not admitted; the historic bundle label is not finding-to-register/task relation evidence",
+        "current_status": "partial",
+        "finding_test_status": "UNRUN",
+        "accepted_p_triage_unchanged": "b",
+        "proposed_triage_change": "b to a, pending independent review; proposal only",
+        "proposal_source_ref": "/Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.md@sha256:31afc11ef17a4de1631439469966dca2cd6ca5d2d15c885b173892b233fc4667#LA-053",
+        "la052_separate": true
       }
     },
     {

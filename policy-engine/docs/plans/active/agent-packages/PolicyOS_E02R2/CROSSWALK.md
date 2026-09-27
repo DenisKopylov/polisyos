@@ -332,7 +332,7 @@ Supported relation rows: 19 grouped owner scopes representing 35 distinct findin
 | LA-050 | MIG-04 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | LA-051 | FRC-01, FRC-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | LA-052 | PCL-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
-| LA-053 | PCL-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
+| LA-053 | PCL-01 (historical E02 package provenance) | — | The LA-053 card is a Scientist `calibration_curve` alias migration to `polisyos.calibration`; PCL-01 is not an admitted semantic plan/register relation. No relation is inferred from package membership. /Users/deniskopylov/.codex/scratch/e02-p118-current-624-nonfrontier-20260927T1625Z/P118_TRIAGE_CURRENT_624.md@sha256:31afc11ef17a4de1631439469966dca2cd6ca5d2d15c885b173892b233fc4667#LA-053 |
 | LA-054 | DDM-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | LA-055 | DDM-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | LA-056 | DDM-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |

@@ -635,6 +635,161 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     assert replayed_epoch.qualification_failure_codes == ("policy_admission_missing",)
 
 
+@pytest.mark.asyncio
+async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n6(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The served projection gates receipts on owner N6 status before parsing them."""
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        PendingN8ValuePort,
+    )
+    from polisyos.runtime.quality.public_export import PublicExportRedactionError
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveGenerationCycleRun,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _CurrentValidGrounding,
+        _problem,
+    )
+
+    problem = _problem(f"served_r11_n9_projection_{uuid4().hex}")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+    verifier = _NeverCalledEvalSafetyVerifier()
+    grafted_payload = {"receipt": "adversarially-grafted"}
+    parsed_payloads: list[object] = []
+    projection_inputs: list[dict[str, object]] = []
+    parsed_receipt = object()
+
+    def parse_receipt(payload: object) -> object:
+        parsed_payloads.append(payload)
+        return parsed_receipt
+
+    def project_receipt(**kwargs: object) -> None:
+        projection_inputs.append(kwargs)
+        return None
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "CanonicalPromotionReceipt",
+        SimpleNamespace(model_validate=parse_receipt),
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "project_pre_n9_open_world_limitations",
+        lambda **_kwargs: (),
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "project_promotion_open_world_limitation",
+        project_receipt,
+    )
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+
+    async def compile_served_projection(action: str):
+        reason = "explicit_voi_block" if action == "blocked" else "ordinary_scheduler_stop"
+        recursive = build_default_recursive_generation_cycle_controller(
+            promotion_runtime=runtime,
+            eval_safety_verifier=verifier,
+            repo_root=REPO_ROOT,
+            model_id="fixture-model",
+        )
+
+        class _ActionController(GenerationCycleController):
+            def decide_next_action(self, **kwargs):
+                decision = super().decide_next_action(**kwargs)
+                return decision.model_copy(
+                    update={"next_action": action, "reason": reason}
+                )
+
+        recursive._cycle_controller_factory = lambda _node_ref, _problem: _ActionController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=_CurrentValidGrounding(),
+            value_port=PendingN8ValuePort(),
+            repo_root=REPO_ROOT,
+        )
+        owner_run = recursive.run
+
+        async def run_with_grafted_receipt(*args, **kwargs):
+            produced = await owner_run(*args, **kwargs)
+            leaf = produced.leaf_nodes[0]
+            assert leaf.cycle_run is not None
+            expected_terminal_status = "blocked" if action == "blocked" else "completed"
+            assert leaf.cycle_run.terminal_status == expected_terminal_status
+            assert leaf.cycle_run.promotion_port.receipts == ()
+
+            # Treat the served projection input as a re-hashed persisted artifact:
+            # its real owner N6 run is preserved while an N9 receipt is grafted.
+            payload = produced.model_dump(mode="json")
+            payload.pop("content_hash")
+            graft_count = 0
+            for node in payload["nodes"]:
+                cycle_run = node.get("cycle_run")
+                if cycle_run is None:
+                    continue
+                cycle_run["promotion_port"]["receipts"] = [grafted_payload]
+                graft_count += 1
+            assert graft_count == 1
+            payload["content_hash"] = gy_content_hash(payload)
+            return RecursiveGenerationCycleRun.model_validate(payload)
+
+        monkeypatch.setattr(recursive, "run", run_with_grafted_receipt)
+        return await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            execution_intent="simulate_only",
+            promotion_runtime=runtime,
+            eval_safety_verifier=verifier,
+            root_evaluation_context=None,
+            controller=recursive,
+            repo_root=REPO_ROOT,
+        )
+
+    with pytest.raises(PublicExportRedactionError) as blocked_error:
+        await compile_served_projection("blocked")
+    assert blocked_error.value.code == (
+        "generation_cycle_blocked_before_n9_cannot_supply_receipt"
+    )
+    assert parsed_payloads == []
+    assert projection_inputs == []
+
+    compiled = await compile_served_projection("stop")
+    assert isinstance(compiled, generation_cycle_service.CompiledRecursiveGenerationCycleRun)
+    stop_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
+    assert stop_cycle is not None
+    assert stop_cycle.terminal_status == "completed"
+    assert stop_cycle.cycles[-1].voi_decision.next_action == "stop"
+    assert parsed_payloads == [grafted_payload]
+    assert len(projection_inputs) == 1
+    assert projection_inputs[0]["receipt"] is parsed_receipt
+    n9_source = projection_inputs[0]["n9_source"]
+    assert n9_source.run.run_id == stop_cycle.run_id
+
+
 def test_control_service_exposes_one_narrow_human_decision_sink(tmp_path) -> None:
     service = _build_control_service(tmp_path)
     try:

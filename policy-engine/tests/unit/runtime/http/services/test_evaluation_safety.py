@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -623,6 +624,518 @@ def _passing_fixture(
     )
 
 
+def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An owner-blocked persisted N6 run cannot supply a current N9 source."""
+
+    import asyncio
+    from uuid import uuid4
+
+    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.canon import CanonSpec
+    from polisyos.pdc import (
+        WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        WORLD_MODEL_RECORD_SCHEMA_NAME,
+        WORLD_MODEL_RECORD_SCHEMA_VERSION,
+        WorldModelRecord,
+        gy_artifact_self_identity_projection,
+        gy_content_hash,
+        world_model_record_content_hash,
+    )
+    from polisyos.runtime.http.services.adapters import core_run as core_run_adapter
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality import promotion_sequence as n9
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleRun,
+        PendingN8ValuePort,
+        ValueGateReceipt,
+        eligible_n9_source_for_run,
+        generation_cycle_terminal_state,
+    )
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        RecursiveGenerationCycleController,
+        RecursiveGenerationCycleRun,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _canonical_loaded_deployment_identity,
+        _CounterexampleAwareGenerator,
+        _CurrentValidGrounding,
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import _receipt, _world_record
+
+    persistence, store = _service(tmp_path / "eval-safety")
+    fixture = _passing_fixture(tmp_path / "intake")
+    problem = _problem(f"r11_eval_safety_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+
+    class _StopController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+    class _BlockedController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "blocked", "reason": "explicit_voi_block"}
+            )
+
+    def _run_recursive(
+        controller_type: type[GenerationCycleController],
+    ) -> RecursiveGenerationCycleRun:
+        recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+            repo_root=REPO_ROOT,
+            cycle_controller_factory=lambda _node_ref, _problem: controller_type(
+                generation_port=_CounterexampleAwareGenerator(),
+                grounding_port=_CurrentValidGrounding(),
+                value_port=PendingN8ValuePort(),
+                repo_root=REPO_ROOT,
+            ),
+        )
+        return asyncio.run(recursive_controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            execution_intents_by_node={root_ref: "candidate_only"},
+        ))
+
+    stopped_recursive = _run_recursive(_StopController)
+    blocked_recursive = _run_recursive(_BlockedController)
+    stopped_n6 = stopped_recursive.leaf_nodes[0].cycle_run
+    blocked_n6 = blocked_recursive.leaf_nodes[0].cycle_run
+    assert stopped_n6 is not None
+    assert blocked_n6 is not None
+    assert stopped_n6.terminal_status == "completed"
+    assert stopped_n6.cycles[-1].voi_decision.next_action == "stop"
+    assert blocked_n6.terminal_status == "blocked"
+    assert blocked_n6.blocked_reason == "explicit_voi_block"
+    assert blocked_n6.cycles[-1].voi_decision.next_action == "blocked"
+    assert blocked_n6.cycles[-1].voi_decision.reason == "explicit_voi_block"
+    assert blocked_n6.cycles[-1].refinement_decision.decision == "block_candidate"
+    assert blocked_n6.cycles[-1].search_iteration.status == "blocked_no_retry"
+    assert blocked_n6.promotion_port.status == "not_promoted"
+    assert blocked_n6.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:explicit_voi_block"
+    )
+    assert blocked_n6.promotion_port.receipts == ()
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+    completed_with_blocked_voi = blocked_n6.model_copy(
+        update={
+            "terminal_status": "completed",
+            "blocked_reason": None,
+        }
+    )
+    with pytest.raises(
+        GenerationCycleError,
+        match=(
+            "generation_cycle_run_invalid_before_n9: "
+            "voi_blocked_action_run_terminal_mismatch"
+        ),
+    ):
+        eligible_n9_source_for_run(completed_with_blocked_voi)
+    missing_terminal_status_payload = stopped_n6.model_dump(mode="json")
+    missing_terminal_status_payload.pop("terminal_status")
+    missing_terminal_status_run = GenerationCycleRun.model_validate(
+        missing_terminal_status_payload
+    )
+    with pytest.raises(
+        GenerationCycleError,
+        match="generation_cycle_terminal_status_not_supplied",
+    ):
+        eligible_n9_source_for_run(missing_terminal_status_run)
+    stop_candidate = stopped_n6.candidate_summaries[0]
+    candidate = blocked_n6.candidate_summaries[0]
+    assert (stop_candidate.candidate_id, stop_candidate.content_hash) == (
+        candidate.candidate_id, candidate.content_hash
+    )
+
+    def _compiled_base(
+        recursive_run: RecursiveGenerationCycleRun,
+    ) -> CompiledRecursiveGenerationCycleRun:
+        compiled_payload = {
+            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            "design_problem_ref": problem_ref,
+            "design_problem": problem.model_dump(mode="json"),
+            "cycle_substrate_context_ref": None,
+            "recursive_run": recursive_run.model_dump(
+                mode="json", exclude={"leaf_nodes"}
+            ),
+        }
+        return CompiledRecursiveGenerationCycleRun.model_validate({
+            **compiled_payload,
+            "content_hash": gy_content_hash(compiled_payload),
+        })
+
+    stopped_base_compiled = _compiled_base(stopped_recursive)
+    blocked_base_compiled = _compiled_base(blocked_recursive)
+    assert stopped_base_compiled.recursive_run.root_node_ref == (
+        blocked_base_compiled.recursive_run.root_node_ref
+    )
+
+    world_record = _world_record()
+    world_hash = world_record.content_hash
+    world_artifact = store.put_json(
+        world_record.model_dump(mode="json"),
+        opts=ArtifactWriteOptions(
+            kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=WORLD_MODEL_RECORD_SCHEMA_NAME,
+                version=WORLD_MODEL_RECORD_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    reopened_world = WorldModelRecord.model_validate(
+        from_canonical_bytes(store.get_bytes(world_artifact.artifact_id))
+    )
+    assert reopened_world == world_record
+    assert world_model_record_content_hash(reopened_world) == world_hash
+    world_ref = ArtifactRef(
+        artifact_id=str(world_artifact.artifact_id),
+        artifact_type=WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        content_hash=world_hash,
+        schema_ref=WORLD_MODEL_RECORD_SCHEMA_VERSION,
+        uri=(
+            "cas://sha256/"
+            f"{str(world_artifact.artifact_id).removeprefix('sha256:')}"
+        ),
+        version="1.0",
+    )
+    assert world_ref.artifact_id == str(world_artifact.artifact_id)
+    assert world_ref.content_hash == reopened_world.content_hash == world_hash
+    assert WorldModelRecord.model_validate(
+        from_canonical_bytes(store.get_bytes(world_ref.artifact_id))
+    ) == reopened_world
+    promotion_runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "n9-cas"))
+    value_fixture = _receipt(world_record)
+    value = ValueGateReceipt(
+        schema_version=value_fixture.schema_version,
+        candidate_id=candidate.candidate_id,
+        evaluation_mode=fixture.intake.mode_resolution.canonical_mode,
+        selected_method_fqn=value_fixture.selected_method_fqn,
+        method_selection_trace=value_fixture.method_selection_trace,
+        identification_status=value_fixture.identification_status,
+        value_outer_set=value_fixture.value_outer_set,
+        transport_receipt=value_fixture.transport_receipt,
+        calibration_receipt=value_fixture.calibration_receipt,
+        world_model_record_id=value_fixture.world_model_record_id,
+        world_model_record_content_hash=value_fixture.world_model_record_content_hash,
+        value_ref=value_fixture.value_ref,
+        wall_time_ms=value_fixture.wall_time_ms,
+        wmr_cache_status=value_fixture.wmr_cache_status,
+        k_world_ref_before=value_fixture.k_world_ref_before,
+        k_world_ref_after=value_fixture.k_world_ref_after,
+    )
+    assert all(predicate.satisfied for predicate in value.decisive_consistency_predicates())
+    admitted = _positive_epoch_admitted_batch(
+        runtime=promotion_runtime,
+        problem=problem,
+        summaries=(candidate,),
+    )
+    monkeypatch.setattr(n9, "_legacy_policy_promotion_callers", lambda _root: ())
+    n9_port = n9.CanonicalN9PromotionPort(
+        promotion_runtime=promotion_runtime,
+        repo_root=REPO_ROOT,
+        context_provider=lambda _summary, _problem: {"value_receipt": value},
+    )
+    n9_observation = n9_port(
+        admitted_batch=admitted,
+        problem=problem,
+        deployment_identity=_canonical_loaded_deployment_identity(),
+    )
+    assert n9_observation.receipts
+    genuine_receipt = n9.CanonicalPromotionReceipt.model_validate(
+        n9_observation.receipts[0]
+    )
+    assert genuine_receipt.owner_projection.candidate_summary == candidate
+    assert genuine_receipt.owner_projection.value_receipt == value
+    assert n9.validate_canonical_promotion_receipt(
+        genuine_receipt,
+        candidate_summary=candidate,
+        design_problem=problem,
+        value_receipt=value,
+        open_world_resolver=n9_port.open_world_resolver,
+        epoch_validity_resolver=n9_port.epoch_validity_resolver,
+        promotion_evidence_resolver=n9_port.promotion_evidence_resolver,
+        repo_root=REPO_ROOT,
+    ) == ()
+
+    source_node = stopped_base_compiled.recursive_run.leaf_nodes[0]
+    blocked_source_node = blocked_base_compiled.recursive_run.leaf_nodes[0]
+    assert source_node.node_ref == stopped_base_compiled.recursive_run.root_node_ref
+    assert blocked_source_node.node_ref == blocked_base_compiled.recursive_run.root_node_ref
+    assert source_node.node_ref == blocked_source_node.node_ref
+    assert len(stopped_base_compiled.recursive_run.nodes) == 1
+    assert len(blocked_base_compiled.recursive_run.nodes) == 1
+
+    def compiled_wire(
+        base_compiled: CompiledRecursiveGenerationCycleRun,
+        n6_source: GenerationCycleRun,
+    ) -> CompiledRecursiveGenerationCycleRun:
+        n6_payload = n6_source.model_dump(mode="json")
+        n6_with_adversarial_receipt = {
+            **n6_payload,
+            "promotion_port": n9_observation.model_dump(mode="json"),
+        }
+        assert {
+            key
+            for key, value in n6_with_adversarial_receipt.items()
+            if n6_payload.get(key) != value
+        } == {"promotion_port"}
+        n6_run = GenerationCycleRun.model_validate(n6_with_adversarial_receipt)
+        nodes = tuple(
+            row.model_copy(update={
+                "cycle_run": n6_run,
+                "terminal": generation_cycle_terminal_state(n6_run),
+            })
+            if row.node_ref == base_compiled.recursive_run.root_node_ref
+            else row
+            for row in base_compiled.recursive_run.nodes
+        )
+        root_node = next(
+            row for row in nodes
+            if row.node_ref == base_compiled.recursive_run.root_node_ref
+        )
+        recursive = base_compiled.recursive_run.model_copy(
+            update={"nodes": nodes, "terminal": root_node.terminal}
+        )
+        recursive_projection = gy_artifact_self_identity_projection(recursive)
+        recursive_projection.pop("leaf_nodes", None)
+        recursive = RecursiveGenerationCycleRun.model_validate({
+            **recursive.model_dump(mode="json"),
+            "content_hash": gy_content_hash(recursive_projection),
+        })
+        draft = base_compiled.model_copy(update={"recursive_run": recursive})
+        compiled_projection = gy_artifact_self_identity_projection(draft)
+        compiled_projection["recursive_run"].pop("leaf_nodes", None)
+        return type(base_compiled).model_validate({
+            **draft.model_dump(mode="json"),
+            "recursive_run": recursive,
+            "content_hash": gy_content_hash(compiled_projection),
+        })
+
+    payload = {
+        "tenant_id": "tenant-1",
+        "cell_id": "cell-a",
+        "run_id": "persisted-source-run",
+    }
+    payload_ref = store.put_json(
+        payload,
+        opts=ArtifactWriteOptions(
+            kind="runtime.control_job_payload.natural_language_run",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.ControlJobPayload",
+                version="1.0",
+            ),
+        ),
+    )
+    manifest_ref = "sha256:" + "f" * 64
+    parsed_receipts: list[object] = []
+    original_model_validate = n9.CanonicalPromotionReceipt.model_validate.__func__
+
+    def record_receipt_parse(cls, receipt_payload):
+        parsed_receipts.append(receipt_payload)
+        return original_model_validate(cls, receipt_payload)
+
+    monkeypatch.setattr(
+        n9.CanonicalPromotionReceipt,
+        "model_validate",
+        classmethod(record_receipt_parse),
+    )
+
+    class _SelectedControlStore:
+        def get_unique_completed_job_by_run_and_kind(self, *, run_id: str, kind: str):
+            assert (run_id, kind) == ("persisted-source-run", "natural_language_run")
+            return SimpleNamespace(
+                payload_ref=str(payload_ref.artifact_id),
+                progress={
+                    "manifest_ref": manifest_ref,
+                    "compiled_recursive_generation_cycle_ref": self.compiled_ref,
+                },
+            )
+
+    control_store = _SelectedControlStore()
+
+    def load_terminal(*, store, core_runs_root, run_id):
+        del store
+        assert run_id == "persisted-source-run"
+        return SimpleNamespace(
+            manifest=SimpleNamespace(
+                status="ok",
+                outputs=(SimpleNamespace(
+                    kind="runtime.compiled_recursive_generation_cycle",
+                    artifact_id=control_store.compiled_ref,
+                ),),
+            ),
+            tenant_id=payload["tenant_id"],
+            cell_id=payload["cell_id"],
+            manifest_ref=SimpleNamespace(artifact_id=manifest_ref),
+            trace_path=str(core_runs_root / run_id / "trace.jsonl"),
+        )
+
+    monkeypatch.setattr(core_run_adapter, "load_terminal_core_run_source", load_terminal)
+
+    selected_sources = c02.EvaluationSafetyPromotionSourceContext(
+        slot=c02.EvaluationSafetyPromotionSourceSlot(
+            source_run_ids=("persisted-source-run",)
+        ),
+        control_store=control_store,
+        core_runs_root=tmp_path / "core-runs",
+        promotion_runtime=promotion_runtime,
+        promotion_evidence_resolver=n9.N9PromotionEvidenceBridgeRepository(
+            store=promotion_runtime.store
+        ),
+    )
+
+    def resolve(base_compiled, n6_source, *, omit_terminal_status: bool = False):
+        compiled = compiled_wire(base_compiled, n6_source)
+        compiled_payload = compiled.model_dump(mode="json")
+        if omit_terminal_status:
+            persisted_root = next(
+                row for row in compiled_payload["recursive_run"]["nodes"]
+                if row["node_ref"] == compiled_payload["recursive_run"]["root_node_ref"]
+            )
+            persisted_cycle = persisted_root["cycle_run"]
+            assert persisted_cycle is not None
+            persisted_cycle.pop("terminal_status")
+            reopened = CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
+            reopened_cycle = reopened.recursive_run.leaf_nodes[0].cycle_run
+            assert reopened_cycle is not None
+            assert "terminal_status" not in reopened_cycle.model_fields_set
+        emitted = store.put_json(
+            compiled_payload,
+            opts=ArtifactWriteOptions(
+                kind="runtime.compiled_recursive_generation_cycle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    version="1.0",
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        control_store.compiled_ref = str(emitted.artifact_id)
+        intake = fixture.intake.model_copy(update={
+            "design_problem_ref": problem_ref,
+            "candidate_ref": fixture.intake.candidate_ref.model_copy(update={
+                "artifact_id": candidate.candidate_id,
+                "content_hash": candidate.content_hash,
+            }),
+            "world_model_record_ref": world_ref,
+        })
+        return persistence._resolve_promotion_source(
+            sources=selected_sources,
+            intake=intake,
+            context=_context(str(payload_ref.artifact_id)),
+        )
+
+    # Preserve the candidate-band control first: this exact owner-produced receipt
+    # must be admitted for an ordinary completed scheduler stop.
+    stop_source, _stop_inputs, _stop_attempts, stop_reasons = resolve(
+        stopped_base_compiled, stopped_n6
+    )
+    assert stop_reasons == []
+    assert stop_source is not None, "a nonblocked scheduler stop was over-refused"
+    assert len(parsed_receipts) == 1
+
+    parsed_receipts.clear()
+    blocked_source, blocked_inputs, _blocked_attempts, blocked_reasons = resolve(
+        blocked_base_compiled, blocked_n6
+    )
+    blocked_compiled_ref = control_store.compiled_ref
+    persisted_blocked_compiled = from_canonical_bytes(
+        store.get_bytes(blocked_compiled_ref)
+    )
+    persisted_blocked_leaf = next(
+        row for row in persisted_blocked_compiled["recursive_run"]["nodes"]
+        if row["node_ref"] == source_node.node_ref
+    )
+    persisted_blocked_cycle = persisted_blocked_leaf["cycle_run"]
+    expected_blocked_cycle = {
+        **blocked_n6.model_dump(mode="json"),
+        "promotion_port": n9_observation.model_dump(mode="json"),
+    }
+    assert persisted_blocked_cycle == expected_blocked_cycle
+    assert persisted_blocked_cycle["terminal_status"] == "blocked"
+    assert persisted_blocked_cycle["blocked_reason"] == "explicit_voi_block"
+    assert persisted_blocked_cycle["promotion_port"]["receipts"] == [
+        genuine_receipt.model_dump(mode="json")
+    ]
+    assert parsed_receipts == [], "blocked N6 reached the persisted N9 receipt parser"
+    assert blocked_source is None
+    assert "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt" in (
+        blocked_reasons
+    )
+    assert f"cas_bytes:{blocked_compiled_ref}" in blocked_inputs
+
+    parsed_receipts.clear()
+    completed_blocked_source, _completed_blocked_inputs, _completed_blocked_attempts, (
+        completed_blocked_reasons
+    ) = resolve(blocked_base_compiled, completed_with_blocked_voi)
+    assert completed_blocked_source is None
+    assert parsed_receipts == [], "semantically blocked N6 reached the persisted N9 receipt parser"
+    assert any(
+        "voi_blocked_action_run_terminal_mismatch" in reason
+        for reason in completed_blocked_reasons
+    )
+
+    # A legacy-shaped persisted run defaults its absent terminal field to
+    # "completed" during parsing. The N6 owner must not turn that default into
+    # an admitted N9 source or let its receipt reach the parser.
+    parsed_receipts.clear()
+    absent_status_source, _absent_status_inputs, _absent_status_attempts, absent_status_reasons = (
+        resolve(stopped_base_compiled, stopped_n6, omit_terminal_status=True)
+    )
+    absent_status_compiled_ref = control_store.compiled_ref
+    absent_status_artifact = from_canonical_bytes(
+        store.get_bytes(absent_status_compiled_ref)
+    )
+    absent_status_leaf = next(
+        row for row in absent_status_artifact["recursive_run"]["nodes"]
+        if row["node_ref"] == source_node.node_ref
+    )
+    assert "terminal_status" not in absent_status_leaf["cycle_run"]
+    assert absent_status_source is None
+    assert parsed_receipts == [], "status-defaulted N6 reached the persisted N9 receipt parser"
+    assert any(
+        "generation_cycle_terminal_status_not_supplied" in reason
+        for reason in absent_status_reasons
+    )
+
+
 def _verified_classification(
     core: es.EvaluationSafetyDecisionCore,
     monkeypatch: pytest.MonkeyPatch,
@@ -634,6 +1147,17 @@ def _verified_classification(
     es.VerifiedNearMissClassification,
 ]:
     from polisyos.runtime.quality import promotion_sequence
+    from polisyos.runtime.quality.generation_cycle import (
+        eligible_n9_source_for_run,
+    )
+    from tests.unit.runtime.quality.test_evaluation_safety import (
+        _ordinary_completed_n6_for_near_miss,
+    )
+
+    n6_run = _ordinary_completed_n6_for_near_miss()
+    candidate_summary = n6_run.candidate_summaries[0]
+    candidate_id = candidate_summary.candidate_id
+    candidate_hash = candidate_summary.content_hash
 
     def named_ref(value: str, kind: str, semantic_hash: str) -> ArtifactRef:
         return ArtifactRef(
@@ -646,7 +1170,6 @@ def _verified_classification(
         )
 
     projection_hash = "sha256:" + "1" * 64
-    candidate_hash = "sha256:" + "2" * 64
     value_hash = "sha256:" + "3" * 64
     world_hash = "sha256:" + "4" * 64
     from polisyos.core import artifacts as core_artifacts
@@ -675,7 +1198,7 @@ def _verified_classification(
         projection_hash=projection_hash,
     )
     receipt = SimpleNamespace(
-        candidate_id="candidate-classified",
+        candidate_id=candidate_id,
         owner_projection=owner_projection,
         schema_version="polisyos.promotion.canonical.v1",
         model_dump=lambda **_values: {"receipt": "canonical"},
@@ -709,9 +1232,7 @@ def _verified_classification(
         gy_content_hash(design_binding.model_dump()),
     )
     value_ref = named_ref("sha256:" + "a" * 64, "test.value", value_hash)
-    candidate_ref = named_ref(
-        "candidate-classified", "test.candidate", candidate_hash
-    )
+    candidate_ref = named_ref(candidate_id, "test.candidate", candidate_hash)
     world_ref = named_ref("wmr-classified", "test.wmr", world_hash)
     validation_ref = named_ref(
         "sha256:" + "b" * 64, "test.validation", projection_hash
@@ -745,6 +1266,15 @@ def _verified_classification(
         uri=f"cas://sha256/{offer_artifact_id.removeprefix('sha256:')}",
         version="1.0",
     )
+    n6_run_with_n9_receipt = n6_run.model_copy(
+        update={
+            "promotion_port": n6_run.promotion_port.model_copy(
+                update={"receipts": ({"receipt": "canonical"},)}
+            )
+        }
+    )
+    n9_source = eligible_n9_source_for_run(n6_run_with_n9_receipt)
+    assert n9_source is not None
     classification = es.verify_near_miss_classification(
         offer=offer,
         offer_ref=offer_ref,
@@ -757,10 +1287,8 @@ def _verified_classification(
         promotion_rule_version=receipt.schema_version,
         current_open_world_resolver_basis_ref=open_ref,
         current_epoch_resolver_basis_ref=epoch_ref,
-        promotion=SimpleNamespace(receipts=({"receipt": "canonical"},)),
-        candidate_summary=SimpleNamespace(
-            candidate_id="candidate-classified", content_hash=candidate_hash
-        ),
+        n9_source=n9_source,
+        candidate_summary=candidate_summary,
         design_problem=SimpleNamespace(),
         value_receipt=SimpleNamespace(
             value_ref=value_hash,

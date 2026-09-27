@@ -116,6 +116,115 @@ def _open_world_problem() -> DesignProblem:
     )
 
 
+@pytest.mark.asyncio
+async def test_terminal_blocked_n6_refuses_public_n9_projection_before_receipt_parse(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _CgfGenerationPort,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _open_world_problem()
+    blocked_run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    ).run(
+        problem,
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    assert blocked_run.terminal_status == "blocked"
+    assert blocked_run.promotion_port.receipts == ()
+    assert blocked_run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
+    )
+
+    def receipt_parser_must_not_run(cls, payload):
+        del cls, payload
+        raise AssertionError("blocked N6 reached the public N9 receipt parser")
+
+    monkeypatch.setattr(
+        public_export_module.CanonicalPromotionReceipt,
+        "model_validate",
+        classmethod(receipt_parser_must_not_run),
+    )
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="generation_cycle_blocked_before_n9_cannot_supply_receipt",
+    ):
+        public_export_module.project_promotion_open_world_limitation(
+            run=blocked_run,
+            design_problem=problem,
+            receipt={"candidate_id": "grafted"},
+            resolver=runtime.resolver,
+            repo_root=REPO_ROOT,
+        )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        pytest.param("policyos.runtime.generation_cycle_controller.v1"),
+        pytest.param("policyos.runtime.generation_cycle_controller.v2"),
+    ],
+)
+def test_persisted_historical_n6_cannot_supply_current_n9_receipt(
+    schema_version: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Historical bytes replay, but cannot be promoted into current N9 input."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleRun,
+        validate_generation_cycle_run_history,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle_history import (
+        _tracked_n6_runs,
+    )
+
+    _tracked_json_file_count, occurrences = _tracked_n6_runs()
+    matching_runs = tuple(
+        row
+        for row in occurrences
+        if row[2].get("schema_version") == schema_version
+    )
+    assert matching_runs, f"no persisted N6 run for historical schema {schema_version}"
+    path, pointer, payload = matching_runs[0]
+    assert validate_generation_cycle_run_history(payload) == (), f"{path}{pointer}"
+    run = GenerationCycleRun.model_validate(payload)
+    assert run.schema_version == schema_version
+
+    parsed_receipts: list[object] = []
+
+    def receipt_parser_must_not_run(cls, receipt_payload):
+        del cls
+        parsed_receipts.append(receipt_payload)
+        raise AssertionError("historical N6 reached the current N9 receipt parser")
+
+    monkeypatch.setattr(
+        public_export_module.CanonicalPromotionReceipt,
+        "model_validate",
+        classmethod(receipt_parser_must_not_run),
+    )
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="generation_cycle_historical_run_not_current_n9_source",
+    ) as error_info:
+        public_export_module.project_promotion_open_world_limitation(
+            run=run,
+            design_problem=_open_world_problem(),
+            receipt={"candidate_id": "must-not-be-parsed"},
+            resolver=object(),  # type: ignore[arg-type]
+        )
+    assert error_info.value.code == "generation_cycle_historical_run_not_current_n9_source"
+    assert parsed_receipts == []
+
+
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "faithfulness_id": "layer2.s9.faithfulness.public",
@@ -566,21 +675,29 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
 @pytest.mark.asyncio
 async def test_public_export_carries_scope_limitation_without_numeric_risk(
     tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    """Blocked runs refuse projection; positive OWR remains verification_missing.
+
+    Positive projection needs issuer-backed N6 currentness and a valid, naturally
+    reached stop terminal; the former test fixture forced a stop and was rejected.
+    """
+    from polisyos.runtime.quality.generation_cycle import (
+        currentness_for_generation_cycle_run,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         _budget,
         _CgfGenerationPort,
     )
 
-    monkeypatch.setattr(
-        promotion_sequence_module,
-        "_legacy_policy_promotion_callers",
-        lambda repo_root: (),
-    )
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem = _open_world_problem()
+    projector = getattr(
+        public_export_module,
+        "project_pre_n9_open_world_limitations",
+        None,
+    )
+    assert callable(projector)
+
     run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(),
         promotion_runtime=runtime,
@@ -590,63 +707,28 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         budget_state=_budget(),
         max_cycles=1,
     )
+    assert run.terminal_status == "blocked"
+    assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.receipts == ()
-    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
-    projector = getattr(public_export_module, "project_pre_n9_open_world_limitations", None)
-    assert callable(projector)
-    limitations = projector(
-        run=run,
-        design_problem=problem,
-        resolver=runtime.resolver,
-        repo_root=REPO_ROOT,
+    assert run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
     )
-    assert len(limitations) == 1
-    limitation = limitations[0]
-    payload = limitation.model_dump(mode="json")
-    assert set(payload) == {"status", "code", "vector_artifact_ref"}
-    assert payload["status"] == "not_established"
-    assert payload["code"] == "deployment_scope_not_established"
-    assert (
-        payload["vector_artifact_ref"]
-        == (run.promotion_port.pre_n9_open_world_gates[0].gate_payload["vector_artifact_ref"])
-    )
-    rendered = json.dumps(payload, sort_keys=True)
-    for forbidden in (
-        "components",
-        "denominator",
-        "evidence",
-        "provenance",
-        "raw_cas_hash",
-        "semantic_hash",
-        "risk_score",
-        "severity",
-        "delta",
-    ):
-        assert forbidden not in rendered
 
-    foreign_problem = problem.model_copy(
-        update={"design_problem_id": "public_open_world_problem_foreign"}
-    )
-    foreign_run = await GenerationCycleController(
-        generation_port=_CgfGenerationPort(),
-        promotion_runtime=runtime,
-        repo_root=REPO_ROOT,
-    ).run(
-        foreign_problem,
-        budget_state=_budget(),
-        max_cycles=1,
-    )
-    transplanted = foreign_run.model_copy(update={"promotion_port": run.promotion_port})
-    with pytest.raises(
-        PublicExportRedactionError,
-        match="open_world_vector_query_mismatch",
-    ):
+    currentness = currentness_for_generation_cycle_run(run)
+    expected_refusal = {
+        "current": "open_world_projection_not_established",
+        "stale": "strangle_receipt_stale",
+        "not_established": "strangle_receipt_currentness_not_established",
+    }[currentness.status]
+    with pytest.raises(PublicExportRedactionError) as error_info:
         projector(
-            run=transplanted,
-            design_problem=foreign_problem,
+            run=run,
+            design_problem=problem,
             resolver=runtime.resolver,
             repo_root=REPO_ROOT,
         )
+    assert error_info.value.code == expected_refusal
 
 
 def test_public_export_uses_canonical_secret_pii_scan_for_email_redaction() -> None:

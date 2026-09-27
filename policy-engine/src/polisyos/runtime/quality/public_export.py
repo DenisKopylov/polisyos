@@ -30,7 +30,10 @@ from polisyos.runtime.quality.contestability import (
     verified_recourse_pointer_for_publication,
 )
 from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleError,
     GenerationCycleRun,
+    N9EligibleRunSource,
+    eligible_n9_source_for_run,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.open_world_risk import (
@@ -151,9 +154,25 @@ def project_promotion_open_world_limitation(
     receipt: CanonicalPromotionReceipt | Mapping[str, object],
     resolver: OpenWorldRiskArtifactResolver,
     repo_root: Path | None = None,
+    n9_source: N9EligibleRunSource | None = None,
 ) -> OpenWorldRiskPublicLimitation | None:
     """Project OWR only from one current receipt bound to its exact N6 run."""
 
+    try:
+        source = eligible_n9_source_for_run(run)
+    except GenerationCycleError as exc:
+        raise PublicExportRedactionError(
+            exc.code,
+            str(exc),
+        ) from exc
+    if source is None:
+        raise PublicExportRedactionError(
+            "generation_cycle_blocked_before_n9_cannot_supply_receipt"
+        )
+    if n9_source is not None and (
+        type(n9_source) is not N9EligibleRunSource or n9_source.run is not run
+    ):
+        raise PublicExportRedactionError("promotion_receipt_run_binding_mismatch")
     run_issues = validate_generation_cycle_run(run, repo_root=repo_root)
     if run_issues:
         raise PublicExportRedactionError(
@@ -172,7 +191,7 @@ def project_promotion_open_world_limitation(
     if type(parsed) is not CanonicalPromotionReceipt:
         raise PublicExportRedactionError("legacy_open_world_gate_authority_not_admitted")
     payload = parsed.model_dump(mode="json")
-    if sum(item == payload for item in run.promotion_port.receipts) != 1:
+    if sum(item == payload for item in source.promotion_port.receipts) != 1:
         raise PublicExportRedactionError("promotion_receipt_run_binding_mismatch")
     summaries = tuple(
         summary

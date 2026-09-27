@@ -1020,6 +1020,7 @@ class _ChronologyPersistenceRegistry:
         self,
         *,
         store_factory: Callable[[], ArtifactStore],
+        policy_store_factory: Callable[[], ArtifactStore] | None = None,
         verifier_factory: Callable[[], FullPrefixVerifier],
         admission_index_factory: Callable[[], contract.PredicatePolicyAdmissionIndex],
         owner_provenance_verifier_factory: Callable[
@@ -1034,7 +1035,9 @@ class _ChronologyPersistenceRegistry:
             self._owners = weakref.WeakSet()
             self._generation = self._new_generation()
             self._store_factory = store_factory
-            self._policy_store_factory = store_factory
+            self._policy_store_factory = (
+                store_factory if policy_store_factory is None else policy_store_factory
+            )
             self._verifier_factory = verifier_factory
             self._admission_index_factory = admission_index_factory
             self._owner_provenance_verifier_factory = owner_provenance_verifier_factory

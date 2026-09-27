@@ -28,7 +28,8 @@ from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts import chronology as contract
 from polisyos.core.security.full_prefix import FullPrefixVerifier, build_full_prefix_bundle
-from polisyos.runtime.quality import chronology_proof
+from polisyos.runtime.quality import chronology_proof, chronology_qualification
+from tests._helpers.chronology_qualification import make_qualification_case
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactManifest
@@ -341,14 +342,16 @@ def _appointed_owner(
 
 
 def test_owner_resolution_binds_exact_policy_dependencies(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path / "cas")
+    runtime_store = FileSystemCAS(tmp_path / "runtime-cas")
+    policy_store = FileSystemCAS(tmp_path / "policy-cas")
     verifier = FullPrefixVerifier()
     admission_index = _AdmissionIndexDouble()
     owner_verifier = _OwnerProvenanceVerifierDouble()
     calls: list[str] = []
     registry = _private("_PERSISTENCE_REGISTRY")
     registry._appoint_for_test(
-        store_factory=lambda: calls.append("store") or store,
+        store_factory=lambda: calls.append("runtime_store") or runtime_store,
+        policy_store_factory=lambda: calls.append("policy_store") or policy_store,
         verifier_factory=lambda: calls.append("verifier") or verifier,
         admission_index_factory=(lambda: calls.append("admission_index") or admission_index),
         owner_provenance_verifier_factory=(
@@ -359,11 +362,84 @@ def test_owner_resolution_binds_exact_policy_dependencies(tmp_path: Path) -> Non
     owner = registry._resolve_current_owner()
 
     assert owner is not None
-    assert owner._store is store
+    assert owner._store is runtime_store
+    assert owner._policy_store is policy_store
     assert owner._verifier is verifier
     assert owner._admission_index is admission_index
     assert owner._owner_provenance_verifier is owner_verifier
-    assert calls == ["store", "verifier", "admission_index", "owner_verifier"]
+    assert calls == [
+        "runtime_store",
+        "policy_store",
+        "verifier",
+        "admission_index",
+        "owner_verifier",
+    ]
+
+
+def test_served_qualification_reads_policy_store_and_writes_runtime_store(
+    tmp_path: Path,
+) -> None:
+    case = make_qualification_case(
+        tmp_path / "policy-cas",
+        shape="inventory",
+        member_count=1,
+    )
+    runtime_cas = FileSystemCAS(tmp_path / "runtime-cas")
+    source_refs = (
+        case.owner_verifier.owner_receipt_ref,
+        case.candidate.native_denominator_artifact_ref,
+        case.candidate.query_context_artifact_ref,
+        *(member.native_artifact_ref for member in case.candidate.ordered_members),
+    )
+    for ref in source_refs:
+        runtime_cas.put_bytes(
+            case.store.get_bytes(ref),
+            ArtifactWriteOptions(kind=ref.kind, media_type=ref.media_type),
+        )
+    policy_store = _CountingStore(case.store)
+    runtime_store = _CountingStore(runtime_cas)
+    registry = _private("_PERSISTENCE_REGISTRY")
+    registry._appoint_for_test(
+        store_factory=lambda: runtime_store,
+        policy_store_factory=lambda: policy_store,
+        verifier_factory=FullPrefixVerifier,
+        admission_index_factory=lambda: case.admission_index,
+        owner_provenance_verifier_factory=lambda: case.owner_verifier,
+    )
+    consumer = chronology_qualification.QualificationConsumer.from_current_owner_container()
+
+    assert consumer._owner is not None
+    assert consumer._owner._store is runtime_store
+
+    result = consumer.qualify(adapter=case.adapter, request=case.query)
+
+    assert isinstance(result, contract.NativeChronologyQualified)
+    assert str(case.admission_ref.artifact_id) in policy_store.read_refs
+    assert str(case.policy.policy_ref.artifact_id) in policy_store.read_refs
+    assert policy_store.write_refs == []
+    runtime_refs = (
+        result.reconciliation.applicable_predicate_denominator.artifact_ref,
+        result.persisted_proof.artifact_ref,
+        result.projection_receipt.artifact_ref,
+    )
+    assert all(ref in runtime_store.write_refs for ref in runtime_refs)
+    assert all(runtime_store.delegate.has(ref.artifact_id) for ref in runtime_refs)
+
+
+def test_shared_policy_and_runtime_store_remains_a_qualified_control(tmp_path: Path) -> None:
+    case = make_qualification_case(
+        tmp_path,
+        shape="inventory",
+        member_count=1,
+    )
+    consumer = case.appoint_consumer()
+    assert consumer._owner is not None
+    assert consumer._owner._store is case.store
+    assert consumer._owner._policy_store is case.store
+
+    result = consumer.qualify(adapter=case.adapter, request=case.query)
+
+    assert isinstance(result, contract.NativeChronologyQualified)
 
 
 def test_clear_process_appointment_discards_all_dependency_factories(
@@ -375,6 +451,7 @@ def test_clear_process_appointment_discards_all_dependency_factories(
     registry._clear_for_test()
 
     assert registry._store_factory is None
+    assert registry._policy_store_factory is None
     assert registry._verifier_factory is None
     assert registry._admission_index_factory is None
     assert registry._owner_provenance_verifier_factory is None
@@ -467,6 +544,8 @@ class _CountingStore:
     def __init__(self, delegate: FileSystemCAS) -> None:
         self.delegate = delegate
         self.calls: list[str] = []
+        self.read_refs: list[str] = []
+        self.write_refs: list[ArtifactRef] = []
         self.live_lock = threading.Lock()
 
     def _call(self, name: str) -> None:
@@ -478,6 +557,7 @@ class _CountingStore:
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:
         self._call("get_bytes")
+        self.read_refs.append(str(getattr(artifact_id, "artifact_id", artifact_id)))
         return self.delegate.get_bytes(artifact_id)
 
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
@@ -486,7 +566,9 @@ class _CountingStore:
 
     def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
         self._call("put_bytes")
-        return self.delegate.put_bytes(data, opts)
+        ref = self.delegate.put_bytes(data, opts)
+        self.write_refs.append(ref)
+        return ref
 
     def put_json(
         self,

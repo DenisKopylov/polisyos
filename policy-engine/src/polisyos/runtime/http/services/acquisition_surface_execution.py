@@ -286,7 +286,7 @@ def _require_live_variable_route(closure: VerifiedAcquisitionRouteClosure) -> st
 def _constraints_from_live_variable_route(
     closure: VerifiedAcquisitionRouteClosure,
 ) -> LiveCatalogExecutionConstraints:
-    semantics = closure.design_problem.jurisdiction_time
+    semantics = closure.design_problem_basis.jurisdiction_time
     country_code = semantics.region
     data_time = semantics.data_time
     if not re.fullmatch(r"[A-Z]{3}", country_code):

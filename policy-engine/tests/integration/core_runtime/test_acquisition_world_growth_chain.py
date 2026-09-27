@@ -1,14 +1,20 @@
 """Actual WDI/default executor and native owner chain through same-case re-entry."""
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from polisyos.core import artifacts, canon
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.http.services import (
+    acquisition_surface_execution as acquisition_surface_execution_module,
+)
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
 )
+from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
@@ -20,6 +26,98 @@ from tests._helpers.acquisition_production import (
     persist_wdi_route,
 )
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
+from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
+
+
+def _closure_with_synthetic_revised_basis(closure):
+    """Give the real binding seam a typed S/B divergence without forging route closure."""
+
+    basis = closure.design_problem_basis
+    revised_basis = basis.model_copy(
+        update={
+            "jurisdiction_time": basis.jurisdiction_time.model_copy(
+                update={"region": "USA", "data_time": "2025"}
+            )
+        }
+    )
+    return SimpleNamespace(
+        **{
+            **closure.__dict__,
+            "design_problem_basis": revised_basis,
+            "design_problem_basis_ref": gy_content_hash(revised_basis.model_dump(mode="json")),
+        }
+    )
+
+
+def _executor_probe_port(case):
+    """Stop at the executor boundary and record any attempted authorized fetch."""
+
+    attempted_constraints = []
+
+    def stop_at_executor(**kwargs):
+        attempted_constraints.append(kwargs["constraints"])
+        raise AssertionError("live acquisition executor boundary was reached")
+
+    port = acquisition_surface_execution_module.WorldBankWDIAcquisitionExecutionPort(
+        authority=case.port._authority,
+        registry=case.port._registry,
+        provision=case.port._provision,
+        provision_content_sha256=case.port._provision_content_sha256,
+        runtime_state_root=case.port._runtime_state_root,
+        artifact_store=case.port._artifact_store,
+        executor=stop_at_executor,
+    )
+    return port, attempted_constraints
+
+
+def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
+    """The WDI binding owner selects B's year while preserving the S=B control."""
+
+    subject = cycle_fixtures._problem("r13_wdi_basis_year_selector")
+    subject = subject.model_copy(
+        update={
+            "jurisdiction_time": subject.jurisdiction_time.model_copy(
+                update={"region": "UKR", "data_time": "2024"}
+            )
+        }
+    )
+    revised_basis = subject.model_copy(
+        update={
+            "jurisdiction_time": subject.jurisdiction_time.model_copy(
+                update={"region": "UKR", "data_time": "2023"}
+            )
+        }
+    )
+    same_basis_view = SimpleNamespace(
+        design_problem=subject,
+        design_problem_basis=subject,
+    )
+    revised_basis_view = SimpleNamespace(
+        design_problem=subject,
+        design_problem_basis=revised_basis,
+    )
+
+    same_constraints = (
+        acquisition_surface_execution_module._constraints_from_live_variable_route(
+            same_basis_view
+        )
+    )
+    revised_constraints = (
+        acquisition_surface_execution_module._constraints_from_live_variable_route(
+            revised_basis_view
+        )
+    )
+
+    assert (same_constraints.country_code, same_constraints.start_year, same_constraints.end_year) == (
+        "UKR",
+        2024,
+        2024,
+    )
+    assert (
+        revised_constraints.country_code,
+        revised_constraints.start_year,
+        revised_constraints.end_year,
+    ) == ("UKR", 2023, 2023)
 
 
 @pytest.mark.asyncio
@@ -143,6 +241,72 @@ async def test_revised_cycle_basis_survives_served_native_admission_and_reentry(
     assert changed_closure.source_cycle.design_problem_basis_ref == basis
     with pytest.raises(AcquisitionRouteClosureError, match="source_cycle_basis_chain_invalid"):
         case.bridge._validate_reentry(changed_closure, growth, reentry)
+
+
+@pytest.mark.asyncio
+async def test_revised_basis_scope_refuses_before_egress_and_selector_removal_is_red(
+    tmp_path, monkeypatch
+):
+    """B=USA/2025 cannot inherit S=UKR/2024's otherwise-valid WDI authority."""
+
+    install_fixture_wdi_cost_basis(monkeypatch)
+    control = _build_control_service(tmp_path / "control")
+    source_root = Path(__file__).resolve().parents[3]
+    served_closure, _ = await persist_wdi_route(
+        control,
+        generation_cycle_repo_root=source_root,
+    )
+    assert served_closure.source_cycle.cycle_index == 0
+    assert served_closure.design_problem_basis_ref == served_closure.design_problem_ref
+    # A revised-source route does not currently resolve to one costed route. Isolate
+    # the live binding owner with a typed S/B view; this is not a served N6 producer.
+    closure = _closure_with_synthetic_revised_basis(served_closure)
+    subject = closure.design_problem_ref
+    basis = closure.design_problem_basis_ref
+    assert closure.design_problem.jurisdiction_time.region == "UKR"
+    assert closure.design_problem.jurisdiction_time.data_time == "2024"
+    assert closure.design_problem_basis.jurisdiction_time.region == "USA"
+    assert closure.design_problem_basis.jurisdiction_time.data_time == "2025"
+    assert served_closure.source_cycle.design_problem_ref == subject
+    assert served_closure.design_problem_basis_ref != basis
+    assert subject == closure.generation_run.design_problem_ref
+    assert subject != basis
+
+    case = make_wdi_port_case(
+        tmp_path / "wdi", monkeypatch, control=control, closure=served_closure
+    )
+    probe_port, attempted_constraints = _executor_probe_port(case)
+    with pytest.raises(LiveAcquisitionExecutionError) as refused:
+        probe_port.execute(closure)
+    assert refused.value.code == "live_request_outside_authority_countries"
+    assert attempted_constraints == [], "out-of-authority basis reached the executor boundary"
+    assert case.transport_calls == [], "out-of-authority revised basis reached WDI egress"
+
+    # Marker-retaining removal probe: restore the old subject selector while the
+    # stable subject, revised-basis ref, and route identity remain unchanged.
+    subject_only = SimpleNamespace(
+        design_problem=closure.design_problem,
+        design_problem_basis=closure.design_problem,
+    )
+    old_subject_constraints = (
+        acquisition_surface_execution_module._constraints_from_live_variable_route(subject_only)
+    )
+    with monkeypatch.context() as removal:
+        removal.setattr(
+            acquisition_surface_execution_module,
+            "_constraints_from_live_variable_route",
+            lambda _closure: old_subject_constraints,
+        )
+        assert closure.design_problem_ref == subject
+        assert closure.design_problem_basis_ref == basis
+        with pytest.raises(AssertionError, match="executor boundary was reached"):
+            probe_port.execute(closure)
+    assert closure.route_id == served_closure.route_id
+    assert len(attempted_constraints) == 1
+    assert attempted_constraints[0].country_code == "UKR"
+    assert attempted_constraints[0].start_year == 2024
+    assert attempted_constraints[0].end_year == 2024
+    assert case.transport_calls == []  # the injected boundary records but never sends requests
 
 
 @pytest.mark.asyncio

@@ -44,6 +44,31 @@ def _ref(label: str) -> ArtifactRef:
     )
 
 
+@pytest.mark.parametrize("profile", [None, "sha256:" + "a" * 64])
+def test_signature_lineage_uses_manifest_input_ref_and_preserves_view(
+    profile: str | None,
+) -> None:
+    """Signature lineage belongs to the manifest owner and retains selected views."""
+    from polisyos.core.artifacts import InputRef
+    from polisyos.core.artifacts.signed_evidence import _signature_options
+
+    base = _ref("signature-lineage")
+    artifact_ref = ArtifactRef(
+        artifact_id=base.artifact_id,
+        kind=base.kind,
+        media_type=base.media_type,
+        manifest_profile_sha256=profile,
+    )
+
+    options = _signature_options(artifact_ref=artifact_ref)
+    assert len(options.inputs) == 1
+    edge = options.inputs[0]
+    assert type(edge) is InputRef
+    assert edge.artifact_id == artifact_ref.artifact_id
+    assert edge.role == "signed_artifact"
+    assert edge.manifest_profile_sha256 == profile
+
+
 def test_filesystem_repository_round_trips_actual_signed_bytes(tmp_path: Path) -> None:
     """The exact persisted sidecar, not a reconstructed parsed twin, is returned."""
     from polisyos.core.artifacts.signed_evidence import (
@@ -133,8 +158,29 @@ def test_signed_evidence_keeps_the_exact_selected_manifest_view(tmp_path: Path) 
     framed_length = int.from_bytes(persisted.record_bytes[:8], "big")
     record_payload = json.loads(persisted.record_bytes[8 : 8 + framed_length])
     record = SignedArtifactEvidenceRecord.model_validate(record_payload)
+    from polisyos.core.artifacts import InputRef
 
-    assert record.artifact_ref.manifest_profile_sha256 is not None
+    selected_profile = record.artifact_ref.manifest_profile_sha256
+    assert selected_profile is not None
+    assert store.get_manifest(record.signature_artifact_ref).inputs == [
+        InputRef(
+            artifact_id=record.artifact_ref.artifact_id,
+            role="signed_artifact",
+            manifest_profile_sha256=selected_profile,
+        )
+    ]
+    assert store.get_manifest(persisted.evidence_record_ref).inputs == [
+        InputRef(
+            artifact_id=record.artifact_ref.artifact_id,
+            role="signed_artifact",
+            manifest_profile_sha256=selected_profile,
+        ),
+        InputRef(
+            artifact_id=record.signature_artifact_ref.artifact_id,
+            role="exact_signature_bytes",
+            manifest_profile_sha256=record.signature_artifact_ref.manifest_profile_sha256,
+        ),
+    ]
     assert evidence.exact_manifest_bytes == store.get_manifest_bytes(record.artifact_ref)
     verifier = Ed25519Verifier()
     verifier.add_trusted_key(key.public_key())

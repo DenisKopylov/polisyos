@@ -13,8 +13,14 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from polisyos.core import canon as core_canon
+from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    CanonInfo,
+    InputRef,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts import chronology as contract
 
@@ -84,7 +90,7 @@ def _record_content_hash(payload: bytes) -> contract.Digest:
     return contract._sha256_digest(_RECORD_DOMAIN, payload)
 
 
-def _record_options(*, inputs: list[contract.InputRef]) -> ArtifactWriteOptions:
+def _record_options(*, inputs: list[InputRef]) -> ArtifactWriteOptions:
     return ArtifactWriteOptions(
         kind=_RECORD_KIND,
         media_type=_MEDIA_TYPE,
@@ -102,13 +108,7 @@ def _signature_options(*, artifact_ref: ArtifactRef) -> ArtifactWriteOptions:
         kind=_SIGNATURE_KIND,
         media_type="application/json",
         schema=SchemaInfo(name="polisyos.cas.DetachedSignature", version="1"),
-        inputs=[
-            contract.InputRef(
-                artifact_id=artifact_ref.artifact_id,
-                role="signed_artifact",
-                manifest_profile_sha256=artifact_ref.manifest_profile_sha256,
-            )
-        ],
+        inputs=[input_ref_from_artifact_ref(artifact_ref, role="signed_artifact")],
     )
 
 
@@ -176,15 +176,9 @@ class FileSystemSignedArtifactEvidenceRepository:
             payload,
             _record_options(
                 inputs=[
-                    contract.InputRef(
-                        artifact_id=artifact_ref.artifact_id,
-                        role="signed_artifact",
-                        manifest_profile_sha256=artifact_ref.manifest_profile_sha256,
-                    ),
-                    contract.InputRef(
-                        artifact_id=signature_ref.artifact_id,
-                        role="exact_signature_bytes",
-                        manifest_profile_sha256=signature_ref.manifest_profile_sha256,
+                    input_ref_from_artifact_ref(artifact_ref, role="signed_artifact"),
+                    input_ref_from_artifact_ref(
+                        signature_ref, role="exact_signature_bytes"
                     ),
                 ]
             ),

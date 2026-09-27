@@ -4703,7 +4703,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The recorded 88-case wave passes the synchronous executor cache-hit witness preserving an independently changed field and the state-merge witness preserving explicit same-value write intent. No cache-hit witness combines same-value intent with deletion/non-resurrection and a broad cached result. Async positive replay and production-node history remain unestablished; four-base P41 is UNRUN. Keep partial.",
+      "residual": "The historical 88-case wave established synchronous cache-hit preservation and same-value write intent. At integrated commit 3cc111aa, the five-file executor/checkpoint/distributed importer suite passed 72/72, including asynchronous cache-boundary/replay cases. No case combines a broad cached result with same-value intent and deletion/non-resurrection or binds it to production-node history. Four-base P41 remains UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -4777,6 +4777,20 @@
           "residual": "The recorded 88-case wave passes the synchronous executor cache-hit witness preserving an independently changed field and the state-merge witness preserving explicit same-value write intent. No cache-hit witness combines same-value intent with deletion/non-resurrection and a broad cached result. Async positive replay and production-node history remain unestablished; four-base P41 is UNRUN. Keep partial.",
           "residual_owner": "NodeResultCache/executor cache-replay producer; EXE-01 async consumer boundary",
           "next_step": "Add a canonical cache-hit executor witness combining same-value intent, deletion/non-resurrection and broad cached output; establish async positive replay and production-node history, then run four-base P41."
+        },
+        "sta01_integrated_replay_2026_09_28": {
+          "identity": "STA-01 bounded integrated importer replay:B57",
+          "kind": "bounded_current_head_regression_context",
+          "integrated_commit": "3cc111aa95bf4f0a67995b9947987a3f0ec0e767",
+          "repair_note_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/STA_01_REPAIR.md@git-blob:ac74ee963740c8eceeeeb9e09ca4627a9733a38c",
+          "importer_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-sta-integrated-bac6996-20260928/importers/test.junit.xml@sha256:c418604ab5bbb888920e03b64684b20d469730c5b70104c2a6625819b2a00e2c",
+          "importer_suite_cases": 72,
+          "importer_suite_passed": 72,
+          "importer_suite_failed": 0,
+          "importer_suite_errors": 0,
+          "scope": "Complete 72/72 importer replay at 3cc111aa; includes async cache boundary/replay tests. It does not exercise the combined broad-cache + same-value + deletion/non-resurrection finding discriminator. Finding status remains partial; four-base P41 is UNRUN.",
+          "status_retained": "partial",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -4828,7 +4842,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The merge helper distinguishes tombstone, None and no write, and refuses deletion of protected artifacts_index. These are helper-level tests only: allowed deletion through parallel execution and warm-cache serialize/rehydrate paths, absent-field behavior and delete conflicts are unestablished. Keep partial; current whole-file four-base replay is UNRUN.",
+      "residual": "The helper-level tombstone/null/no-write distinction and protected-index refusal remain bounded. The integrated 3cc111aa five-file importer suite passed 72/72, including distributed-tier merge/checkpoint cases, but does not establish allowed deletion through parallel execution and warm-cache serialize/rehydrate, absent-field behavior, or delete-conflict semantics. Four-base P41 remains UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -4902,6 +4916,20 @@
           "residual": "The merge helper distinguishes tombstone, None and no write, and refuses deletion of protected artifacts_index. These are helper-level tests only: allowed deletion through parallel execution and warm-cache serialize/rehydrate paths, absent-field behavior and delete conflicts are unestablished. Keep partial; current whole-file four-base replay is UNRUN.",
           "residual_owner": "StateMerge plus executor/cache deletion-routing owner",
           "next_step": "Exercise actual parallel and warm-cache serialize/rehydrate callers for allowed deletion, protected-index refusal, absent field and conflict behavior; run the complete four-base test file."
+        },
+        "sta01_integrated_replay_2026_09_28": {
+          "identity": "STA-01 bounded integrated importer replay:B58",
+          "kind": "bounded_current_head_regression_context",
+          "integrated_commit": "3cc111aa95bf4f0a67995b9947987a3f0ec0e767",
+          "repair_note_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/STA_01_REPAIR.md@git-blob:ac74ee963740c8eceeeeb9e09ca4627a9733a38c",
+          "importer_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-sta-integrated-bac6996-20260928/importers/test.junit.xml@sha256:c418604ab5bbb888920e03b64684b20d469730c5b70104c2a6625819b2a00e2c",
+          "importer_suite_cases": 72,
+          "importer_suite_passed": 72,
+          "importer_suite_failed": 0,
+          "importer_suite_errors": 0,
+          "scope": "Complete 72/72 importer replay at 3cc111aa; includes distributed-tier merge/checkpoint cases. It does not exercise allowed deletion through parallel execution and warm-cache serialization/rehydration. Finding status remains partial; four-base P41 is UNRUN.",
+          "status_retained": "partial",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -4953,7 +4981,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "Bounded helpers establish deep isolation for a declared leaf, nested path and Pydantic overlay while a shared unrelated object is controlled. A census of 2,696 src/polisyos Python files found 78 literal branch_state( call lines, but does not prove alias/import completeness. No sibling-reader plus failed/cancelled canonical executor witness is recorded. Keep partial.",
+      "residual": "Bounded helper tests establish deep isolation for a declared leaf, nested path and Pydantic overlay. At integrated commit 3cc111aa, `test_engine_executor_v0::test_executor_branch_state_isolates_declared_nested_writes` passed within the 72/72 importer wave: the returned nested write changed while the base remained unchanged. This is a successful-path witness only; failed/cancelled sibling isolation and alias/import completeness remain unestablished. The earlier census found 78 literal branch_state( call lines across 2,696 source files, not complete alias coverage. Four-base P41 remains UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5029,6 +5057,20 @@
           "residual": "Bounded helpers establish deep isolation for a declared leaf, nested path and Pydantic overlay while a shared unrelated object is controlled. A census of 2,696 src/polisyos Python files found 78 literal branch_state( call lines, but does not prove alias/import completeness. No sibling-reader plus failed/cancelled canonical executor witness is recorded. Keep partial.",
           "residual_owner": "state_branching and canonical branch-execution callers",
           "next_step": "Add a canonical sibling-reader and failed/cancelled execution witness, complete the branch_state intake/caller census and run four-base P41."
+        },
+        "sta01_integrated_replay_2026_09_28": {
+          "identity": "STA-01 bounded integrated importer replay:B59",
+          "kind": "bounded_current_head_regression_context",
+          "integrated_commit": "3cc111aa95bf4f0a67995b9947987a3f0ec0e767",
+          "repair_note_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/STA_01_REPAIR.md@git-blob:ac74ee963740c8eceeeeb9e09ca4627a9733a38c",
+          "importer_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-sta-integrated-bac6996-20260928/importers/test.junit.xml@sha256:c418604ab5bbb888920e03b64684b20d469730c5b70104c2a6625819b2a00e2c",
+          "importer_suite_cases": 72,
+          "importer_suite_passed": 72,
+          "importer_suite_failed": 0,
+          "importer_suite_errors": 0,
+          "scope": "Complete 72/72 importer replay at 3cc111aa includes tests.unit.scientist.orchestration.engine.test_engine_executor_v0::test_executor_branch_state_isolates_declared_nested_writes. This is a bounded successful nested-write control, not failed/cancelled sibling isolation or complete alias census. Finding status remains partial; four-base P41 is UNRUN.",
+          "status_retained": "partial",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",

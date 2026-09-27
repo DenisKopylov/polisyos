@@ -2801,9 +2801,6 @@ def _rederive_grounding_for_affected_region(
 ) -> tuple[AcquisitionGroundingRederivation, ...]:
     if not affected_region.design_ids:
         return ()
-    from polisyos.runtime.quality.generation_cycle import PolicyGroundingPort
-
-    port = PolicyGroundingPort()
     bindings = _candidate_bindings_by_design(owner_artifacts)
     rows: list[AcquisitionGroundingRederivation] = []
     for design_id in affected_region.design_ids:
@@ -2819,7 +2816,6 @@ def _rederive_grounding_for_affected_region(
                 )
             )
             continue
-        target_slots = _text_tuple(binding.get("target_world_slots"))
         dependency_slots = tuple(
             source_slot
             for source_slot in affected_region.source_slots
@@ -2847,52 +2843,17 @@ def _rederive_grounding_for_affected_region(
                 )
             )
             continue
-        candidate_hash = str(binding.get("candidate_content_hash") or "")
-        if not candidate_hash.startswith("sha256:"):
-            candidate_hash = _stable_content_hash({"candidate_id": design_id})
-        candidate = {
-            "candidate_id": design_id,
-            "atom": {
-                "content_hash": candidate_hash,
-                "target_world_slots": target_slots,
-                "world_model_record_ref": world_after_ref,
-            },
-        }
-        disposition = {
-            "candidate_id": design_id,
-            "shadow_atom_content_hash": candidate_hash,
-            "disposition": "shadow_bound",
-            "selected_relation": "exact",
-            "certificate_chain": {
-                "cg1_certificate_id": f"n7-cg1-{_slug(design_id)}",
-                "cg1_content_hash": _stable_content_hash(
-                    {"design_id": design_id, "world_after_ref": world_after_ref}
-                ),
-                "cg2_certificate_id": f"n7-cg2-{_slug(design_id)}",
-                "cg2_content_hash": _stable_content_hash(
-                    {"design_id": design_id, "source": "n7_world_write"}
-                ),
-                "cg3_certificate_id": f"n7-cg3-{_slug(design_id)}",
-                "cg3_content_hash": _stable_content_hash(
-                    {"world_ref": world_after_ref, "target_slots": target_slots}
-                ),
-            },
-        }
-        observation = port(
-            candidate=candidate,
-            problem=design_problem,
-            cycle_index=0,
-            generation_result={"grounding_dispositions": (disposition,)},
-        )
+        # The acquired owner artifact establishes a world write, not a
+        # source-bound N4 result or CGF disposition for this problem basis.
+        # Re-entry can run N4 against the grown world; this local projection
+        # must not fabricate grounding from the write itself.
         rows.append(
             AcquisitionGroundingRederivation(
                 design_id=design_id,
                 source_slots=affected_region.source_slots,
-                status=observation.status,
-                grounding_score=observation.grounding_score,
-                report_ref=observation.report_ref,
-                evidence_refs=observation.evidence_refs,
-                issue_codes=observation.issue_codes,
+                status="grounding_unavailable",
+                grounding_score=0.0,
+                issue_codes=("generation_result_problem_scope_unestablished",),
             )
         )
     return tuple(rows)

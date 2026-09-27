@@ -2036,6 +2036,38 @@ class PolicyGroundingPort:
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("cgf_disposition_missing",),
+            )
+        result_problem_ref = _object_get(generation_result, "design_problem_ref")
+        if result_problem_ref is None:
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=("generation_result_problem_scope_unestablished",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
+            )
+        if result_problem_ref != design_problem_ref:
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=("generation_result_problem_scope_mismatch",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
+            )
+        candidate_atom = _object_get(candidate, "atom")
+        candidate_problem_ref = _object_get(candidate_atom, "problem_frame_ref")
+        if candidate_atom is not None and candidate_problem_ref is None:
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=("candidate_problem_scope_unestablished",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
+            )
+        if candidate_atom is not None and candidate_problem_ref != design_problem_ref:
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=("candidate_problem_scope_mismatch",),
                 candidate_content_hash=candidate_content_hash,
                 design_problem_ref=design_problem_ref,
                 authority_level=authority_level,

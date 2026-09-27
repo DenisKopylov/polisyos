@@ -286,6 +286,7 @@ class _Atom:
     status: str = "candidate_unverified"
     world_model_record_ref: str | None = "world_model_record_test"
     target_world_slots: tuple[str, ...] = ("firm_survival",)
+    problem_frame_ref: str | None = None
 
 
 @dataclass(frozen=True)
@@ -311,6 +312,7 @@ class _GenerationResult:
     candidates: tuple[_Candidate, ...]
     surrogate_rankings: tuple[_Ranking, ...]
     grounding_dispositions: tuple[Any, ...] = ()
+    design_problem_ref: str | None = None
 
 
 @dataclass(frozen=True)
@@ -766,13 +768,15 @@ class _CgfGenerationPort:
         *,
         cycle_index: int,
     ) -> _GenerationResult:
-        del problem, cycle_index
+        del cycle_index
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         candidate = _Candidate(
             candidate_id="candidate_cgf_shadow",
             atom=_Atom(
                 "candidate_cgf_shadow",
                 "sha256:" + "4" * 64,
                 target_world_slots=() if self._missing_owner_target else self._target_world_slots,
+                problem_frame_ref=problem_ref,
             ),
             diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
         )
@@ -811,6 +815,7 @@ class _CgfGenerationPort:
                 _Ranking(candidate_id=candidate.candidate_id, score=0.91, voi_estimate=0.6),
             ),
             grounding_dispositions=(disposition,),
+            design_problem_ref=problem_ref,
         )
 
 
@@ -823,7 +828,7 @@ class _DispositionOnlyGenerationPort:
         *,
         cycle_index: int,
     ) -> _GenerationResult:
-        del problem, cycle_index
+        del cycle_index
         return _GenerationResult(
             status="generated",
             candidates=(),
@@ -842,6 +847,7 @@ class _DispositionOnlyGenerationPort:
                     cg3_reason="cg3_candidate_unbound",
                 ),
             ),
+            design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
         )
 
 
@@ -920,12 +926,14 @@ class _MixedBindingAndDispositionPort:
         *,
         cycle_index: int,
     ) -> _GenerationResult:
-        del problem, cycle_index
+        del cycle_index
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         candidate = _Candidate(
             candidate_id="candidate_mixed_bound",
             atom=_Atom(
                 "candidate_mixed_bound",
                 "sha256:" + "8" * 64,
+                problem_frame_ref=problem_ref,
             ),
             diversity_key=("grant", "firms", "mixed", "bound"),
         )
@@ -961,6 +969,7 @@ class _MixedBindingAndDispositionPort:
                     cg3_reason="cg3_candidate_unbound",
                 ),
             ),
+            design_problem_ref=problem_ref,
         )
 
 
@@ -3415,6 +3424,26 @@ def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[st
     raise AssertionError("missing content-matched real N4 candidate")
 
 
+def _recorded_problem_for_candidate(candidate: dict[str, Any]) -> DesignProblem:
+    """Resolve the exact historical basis named by a recorded N4 candidate."""
+
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    expected_ref = str(candidate["atom"]["problem_frame_ref"])
+    matches = tuple(
+        n4_contract._design_problem(recording)
+        for recording in n4_contract._load_recordings(REPO_ROOT)
+        if gy_content_hash(
+            n4_contract._design_problem(recording).model_dump(mode="json")
+        )
+        == expected_ref
+    )
+    assert len(matches) == 1
+    return matches[0]
+
+
 def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
     cg4_payload = json.loads(
         (
@@ -3444,6 +3473,7 @@ def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
     }
     return {
         "status": "generated",
+        "design_problem_ref": result["design_problem_ref"],
         "candidates": [candidate],
         "grounding_dispositions": [disposition],
     }, candidate
@@ -4616,16 +4646,21 @@ async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposit
 
 def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
     result, candidate = _real_n4_generation_result_with_candidate()
+    problem = _recorded_problem_for_candidate(candidate)
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    assert result["design_problem_ref"] == problem_ref
+    assert candidate["atom"]["problem_frame_ref"] == problem_ref
 
     grounding = PolicyGroundingPort()(
         candidate=candidate,
-        problem=_problem(),
+        problem=problem,
         cycle_index=0,
         generation_result=result,
     )
 
     assert grounding.candidate_id == candidate["candidate_id"]
-    assert grounding.status != "grounding_unavailable"
+    assert grounding.status == "grounded_shadow"
+    assert grounding.current_valid is False
     assert "cgf_disposition_missing" not in grounding.issue_codes
     assert grounding.grounding_source == "cgf_firewall"
     assert grounding.grounding_disposition in {
@@ -4635,6 +4670,102 @@ def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
         "veto_false_analog",
         "unknown_blocked",
     }
+
+
+def test_grounding_port_rejects_foreign_basis_with_candidate_only_control() -> None:
+    """Grounding binds N4 to active B, while run subject S remains a separate identity."""
+
+    subject = _problem("stable_subject_s")
+    active_basis = subject.model_copy(update={"runtime_hints": {"revision": "B1"}})
+    foreign_basis = subject.model_copy(update={"runtime_hints": {"revision": "B2"}})
+    subject_ref = gy_content_hash(subject.model_dump(mode="json"))
+    active_basis_ref = gy_content_hash(active_basis.model_dump(mode="json"))
+    foreign_basis_ref = gy_content_hash(foreign_basis.model_dump(mode="json"))
+    assert subject_ref != active_basis_ref
+    assert active_basis_ref != foreign_basis_ref
+
+    content_hash = "sha256:" + "4" * 64
+    candidate = {
+        "candidate_id": "candidate_active_basis",
+        "atom": {
+            "content_hash": content_hash,
+            "problem_frame_ref": active_basis_ref,
+            "target_world_slots": ("firm_survival",),
+            "world_model_record_ref": "world_model_record_active_basis",
+        },
+    }
+    disposition = {
+        "proposal_id": "proposal_active_basis",
+        "candidate_id": candidate["candidate_id"],
+        "raw_candidate_hash": content_hash,
+        "disposition": "shadow_bound",
+        "selected_relation": "exact",
+        "identified_atom_id": "atom_active_basis",
+        "shadow_atom_content_hash": content_hash,
+        "certificate_chain": {},
+    }
+    result = {
+        "design_problem_ref": active_basis_ref,
+        "grounding_dispositions": (disposition,),
+    }
+
+    control = PolicyGroundingPort()(
+        candidate=candidate,
+        problem=active_basis,
+        cycle_index=1,
+        generation_result=result,
+    )
+    assert control.status == "grounded_shadow"
+    assert control.current_valid is False  # candidate work only, never current authority
+
+    foreign_result = {**result, "design_problem_ref": foreign_basis_ref}
+    candidate_markers = (
+        candidate["candidate_id"],
+        candidate["atom"]["content_hash"],
+        candidate["atom"]["problem_frame_ref"],
+        candidate["atom"]["target_world_slots"],
+    )
+    assert candidate_markers == (
+        "candidate_active_basis",
+        content_hash,
+        active_basis_ref,
+        ("firm_survival",),
+    )
+    assert result["design_problem_ref"] == active_basis_ref
+    assert foreign_result["design_problem_ref"] == foreign_basis_ref
+    assert foreign_result["grounding_dispositions"] is result["grounding_dispositions"]
+    refused = PolicyGroundingPort()(
+        candidate=candidate,
+        problem=active_basis,
+        cycle_index=1,
+        generation_result=foreign_result,
+    )
+    assert refused.status == "grounding_unavailable"
+    assert "generation_result_problem_scope_mismatch" in refused.issue_codes
+    assert refused.acquisition_requirement is not None
+    assert candidate_markers == (
+        candidate["candidate_id"],
+        candidate["atom"]["content_hash"],
+        candidate["atom"]["problem_frame_ref"],
+        candidate["atom"]["target_world_slots"],
+    )
+
+    foreign_candidate = {
+        **candidate,
+        "atom": {**candidate["atom"], "problem_frame_ref": foreign_basis_ref},
+    }
+    assert foreign_candidate["candidate_id"] == candidate["candidate_id"]
+    assert foreign_candidate["atom"]["content_hash"] == content_hash
+    assert foreign_candidate["atom"]["target_world_slots"] == ("firm_survival",)
+    assert result["grounding_dispositions"] is foreign_result["grounding_dispositions"]
+    foreign_atom = PolicyGroundingPort()(
+        candidate=foreign_candidate,
+        problem=active_basis,
+        cycle_index=1,
+        generation_result=result,
+    )
+    assert foreign_atom.status == "grounding_unavailable"
+    assert "candidate_problem_scope_mismatch" in foreign_atom.issue_codes
 
 
 @pytest.mark.asyncio
@@ -4674,10 +4805,11 @@ async def test_proxy_gap_candidate_stays_quarantined_before_any_promotion() -> N
 
 def test_real_cg4_proxy_gap_shape_routes_to_quarantine() -> None:
     result, candidate = _real_cg4_proxy_gap_result()
+    problem = _recorded_problem_for_candidate(candidate)
 
     grounding = PolicyGroundingPort()(
         candidate=candidate,
-        problem=_problem(),
+        problem=problem,
         cycle_index=0,
         generation_result=result,
     )

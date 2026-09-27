@@ -1094,8 +1094,17 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     assert receipt.grown_world_after_ref != receipt.grown_world_before_ref
     assert set(receipt.grown_world_added_slots) == {"production_msme_panel"}
     assert {outcome.status for outcome in receipt.world_write_outcomes} == {"written", "rejected"}
-    assert receipt.real_grounding_result_count == 1
-    assert receipt.useful_design_rate_after > 0.0
+    assert receipt.real_grounding_result_count == 0
+    assert receipt.status == "completed_no_results"
+    assert receipt.useful_design_rate_after == receipt.useful_design_rate_before
+    rederivations = {row.design_id: row for row in receipt.grounding_rederivations}
+    assert rederivations["design:credit"].status == "grounding_unavailable"
+    assert rederivations["design:credit"].issue_codes == (
+        "generation_result_problem_scope_unestablished",
+    )
+    assert rederivations["design:portfolio"].issue_codes == (
+        "candidate_binding_missing_after_world_write",
+    )
     assert set(receipt.affected_region.design_ids) == {
         "design:credit",
         "design:portfolio",

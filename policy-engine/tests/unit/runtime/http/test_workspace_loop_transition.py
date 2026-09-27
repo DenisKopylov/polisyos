@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.contracts import ControlFailureEnvelope
-from polisyos.core.contracts.control import NaturalLanguageRunRequest, WorkflowRunRequest
+from polisyos.core.contracts.control import WorkflowRunRequest
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 from polisyos.pdc import OperationClass
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
@@ -749,30 +749,232 @@ def test_failed_legacy_workflow_does_not_complete_clean_as_authority(runtime_api
 
 
 @pytest.mark.asyncio
-async def test_nl_runs_path_is_legacy_shadow_until_loop_proposer_exists(
+async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publication(
     runtime_api_env,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    service: ControlPlaneService = runtime_api_env["app"].state._control_service
-
-    def _execute_nl_pipeline(**_kwargs):
-        raise AssertionError("/runs/nl legacy-shadow path must not execute NL pipeline")
-
-    monkeypatch.setattr(service, "_execute_nl_pipeline", _execute_nl_pipeline)
-
-    launch = await service.launch_nl_run(
-        NaturalLanguageRunRequest(
-            request="Estimate whether UA MSME credit access can be measured.",
-            llm_model="simulated-qwen",
-            max_iterations=1,
-        )
+    """The authorized public route persists N4 while authority stages remain unrun."""
+    import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+    from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.scientist.orchestration.llm import factory as llm_factory
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _design_problem_tool_args,
+        _DeterministicSpanSupportClient,
+        _FakeDesignProblemGateway,
+        _intent_context,
     )
-    assert service._worker is not None
-    service._worker.dispatch_once()
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+    from tests.unit.runtime.quality.test_design_generation import (
+        RecordedClientWithCatalog,
+        _recording_with_successful_first_response,
+    )
 
-    response = _await_terminal_job(service, launch.job_id)
-    assert response.state == "completed"
-    assert response.progress["authority_path"] == "legacy_shadow"
-    assert response.progress["authority_result"] == "candidate_only"
-    assert response.quality_status == "fail"
-    assert any(gap.code == "legacy_shadow_candidate_only" for gap in response.unresolved_authority_gaps)
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
+    )
+    compiler_arguments = _design_problem_tool_args()
+    compiler_arguments["nl_provenance"]["source_context"] = {
+        "tenant_id": "tenant-llm-foreign",
+        "cell_id": "cell-llm-foreign",
+        "job_id": "job-llm-foreign",
+        "run_id": "run-llm-foreign",
+        "runtime_identity": {
+            "tenant_id": "tenant-llm-runtime-foreign",
+            "cell_id": "cell-llm-runtime-foreign",
+            "job_id": "job-llm-runtime-foreign",
+            "run_id": "run-llm-runtime-foreign",
+        },
+    }
+    compiler_gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=compiler_arguments,
+    )
+    generation_gateway = RecordedClientWithCatalog(recording, model_ids=[model_id])
+    original_compiler = nl_pipeline.build_design_problem_from_nl_request
+
+    async def compile_with_deterministic_gateway(**kwargs):
+        kwargs["gateway_client"] = compiler_gateway
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_with_deterministic_gateway,
+    )
+    monkeypatch.setattr(
+        llm_factory,
+        "create_traced_gateway_client",
+        lambda **_kwargs: generation_gateway,
+    )
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    bearer = _fixture_bearer("control-r5-n4-positive-candidate")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=service,
+            decision_validity_service=service._decision_validity_service,
+            claim_ledger_owner=service._epoch_claim_lifecycle_bridge.claim_owner,
+            epoch_claim_lifecycle_bridge=service._epoch_claim_lifecycle_bridge,
+        ),
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-control-r5-n4-positive-candidate",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    cell_id = cell.cell_id
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    request_body = {
+        "request": raw_request,
+        "llm_model": model_id,
+        "max_iterations": 1,
+        "context": _intent_context(
+            as_of="2026-05-12",
+            tenant_id="tenant-request-foreign",
+            cell_id="cell-request-foreign",
+            job_id="job-request-foreign",
+            run_id="run-request-foreign",
+            runtime_identity={
+                "tenant_id": "tenant-request-runtime-foreign",
+                "cell_id": "cell-request-runtime-foreign",
+                "job_id": "job-request-runtime-foreign",
+                "run_id": "run-request-runtime-foreign",
+            },
+        ),
+    }
+    try:
+        launch_response = client.post(
+            "/api/v1/control/runs/nl",
+            json=request_body,
+            headers=headers,
+        )
+        assert launch_response.status_code == 200, launch_response.text
+        launch = launch_response.json()
+        assert launch["status"] == "accepted"
+        job_id = str(launch["job_id"])
+        job = service._control_store.get_job(job_id)
+        assert job is not None
+
+        def reject_downstream(*_args, **_kwargs):
+            pytest.fail("candidate-only N4 entered a downstream authority stage")
+
+        monkeypatch.setattr(service, "resolve_generation_value_choices", reject_downstream)
+        monkeypatch.setattr(service, "_publish_generation_run", reject_downstream)
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            reject_downstream,
+        )
+        assert service._worker is not None
+        service._worker.dispatch_once()
+
+        completed = _await_terminal_job(service, job_id)
+        assert completed.state == "completed"
+        assert compiler_gateway.generate_calls
+        assert generation_gateway._cursor > 0
+        assert completed.progress["execution_intent_band"] == "candidate_only"
+        assert completed.progress["execution_band"] == "candidate"
+        assert completed.progress["status"] == "candidate_limited"
+        assert completed.progress["candidate_computation_status"] == "completed"
+        assert completed.progress["n5_status"] == "not_run"
+        assert completed.progress["n8_status"] == "not_run"
+        assert completed.progress["n9_status"] == "not_run"
+        assert completed.progress["s8_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in completed.progress
+        assert completed.progress.get("normative_disposition_ref") is None
+        assert completed.progress.get("manifest_ref") is None
+
+        payload = service._load_payload_ref(str(job.payload_ref))
+        assert payload["tenant_id"] == runtime_api_env["tenant_a"]
+        assert payload["cell_id"] == cell_id
+        intent_binding = service._require_nl_job_execution_intent_binding(
+            job=job,
+            payload=payload,
+        )
+        assert intent_binding["admission_surface"] == "served_route"
+        assert intent_binding["intent_band"] == "candidate_only"
+        authorization_receipt = intent_binding["authorization_receipt"]
+        assert authorization_receipt["route_id"] == "POST /api/v1/control/runs/nl"
+        permission_snapshot = authorization_receipt["permission_snapshot"]
+        assert permission_snapshot["required_permission"] == RuntimePermission.RUNS_LAUNCH.value
+        assert permission_snapshot["subject"] == "user-1"
+        assert permission_snapshot["jwt_id"] == "jwt-control-r5-n4-positive-candidate"
+        assert permission_snapshot["tenant_id"] == runtime_api_env["tenant_a"]
+        assert permission_snapshot["roles"] == [PolicyOSRole.ANALYST.value]
+        assert authorization_receipt["resource"]["tenant_id"] == runtime_api_env["tenant_a"]
+        proposal_locator = completed.progress["candidate_proposal_ref"]
+        assert proposal_locator["schema_version"] == (
+            "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
+        )
+        assert proposal_locator["artifact_ref"]["kind"] == (
+            "runtime.quality.n4_candidate_proposal"
+        )
+        proposal = GenerationSourceRepository(
+            service._artifact_store
+        ).load_candidate_proposal_for_served_job(
+            proposal_locator,
+            job_id=job_id,
+            run_id=str(job.run_id),
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell_id,
+            raw_request=raw_request,
+        )
+        assert proposal.problem.nl_provenance.raw_request == raw_request
+        assert proposal.problem.nl_provenance.source_context["tenant_id"] == (
+            runtime_api_env["tenant_a"]
+        )
+        assert proposal.problem.nl_provenance.source_context["cell_id"] == cell_id
+        assert proposal.problem.nl_provenance.source_context["job_id"] == job.job_id
+        assert proposal.problem.nl_provenance.source_context["run_id"] == str(job.run_id)
+        assert "runtime_identity" not in proposal.problem.nl_provenance.source_context
+        intent_envelope = proposal.problem.to_policy_intent_envelope()
+        assert intent_envelope["tenant_id"] == runtime_api_env["tenant_a"]
+        assert intent_envelope["job_id"] == job.job_id
+        assert intent_envelope["run_id"] == str(job.run_id)
+        assert (
+            intent_envelope["authoring_provenance"]["source_context"]["cell_id"]
+            == cell_id
+        )
+        compiler_context = json.loads(compiler_gateway.generate_calls[0]["user"])["context"]
+        assert "runtime_identity" not in compiler_context
+        assert not set(compiler_context["candidate_context"]).intersection(
+            {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
+        )
+        assert compiler_context["tenant_id"] == runtime_api_env["tenant_a"]
+        assert compiler_context["cell_id"] == cell_id
+        assert compiler_context["job_id"] == job.job_id
+        assert compiler_context["run_id"] == str(job.run_id)
+        persisted_request = service._load_payload_ref(str(job.payload_ref))
+        assert persisted_request["context"]["tenant_id"] == "tenant-request-foreign"
+        assert (
+            persisted_request["context"]["runtime_identity"]["cell_id"]
+            == "cell-request-runtime-foreign"
+        )
+        assert proposal.proposal.trinity_bundle.policy_spec.interventions
+        assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
+    finally:
+        client.close()

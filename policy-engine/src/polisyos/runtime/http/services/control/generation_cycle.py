@@ -511,6 +511,7 @@ async def compile_and_run_recursive_generation_cycle(
     raw_request: str,
     context: Mapping[str, object],
     model_name: str,
+    trusted_source_context: Mapping[str, object | None] | None = None,
     execution_intent: ExecutionIntent | None = None,
     compiler_gateway: _DesignProblemGatewayClient | None,
     controller: RecursiveGenerationCycleController | None = None,
@@ -528,7 +529,12 @@ async def compile_and_run_recursive_generation_cycle(
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
 ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
-    """Compile natural language and run the appropriate candidate or authority path."""
+    """Compile natural language and run the appropriate candidate or authority path.
+
+    ``trusted_source_context`` carries scope identities replayed by the served
+    job owner. Caller and model context remain candidate input and cannot replace
+    those identities in persisted DesignProblem provenance.
+    """
 
     if promotion_runtime is None:
         raise DesignProblemAuthorityError(
@@ -560,7 +566,10 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_budget_resolution_mismatch",
                 "The visible HTTP budget resolution must match the recursive budget used.",
             )
-    from polisyos.runtime.quality.evaluation_modes import EVAL_SAFETY_REQUIRED_MODES
+    from polisyos.runtime.quality.evaluation_modes import (
+        ExecutionIntentBand,
+        execution_intent_band_for_mode,
+    )
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
 
@@ -579,15 +588,7 @@ async def compile_and_run_recursive_generation_cycle(
             if root_evaluation_context is not None
             else "candidate_only"
         )
-    elif execution_intent not in {
-        "candidate_only",
-        "simulate_only",
-        "retrospective",
-        "measurement_audit",
-        "sandbox_pilot",
-        "field_pilot",
-        "deployment",
-    }:
+    elif execution_intent_band_for_mode(execution_intent) is ExecutionIntentBand.NOT_ESTABLISHED:
         raise DesignProblemAuthorityError(
             "execution_intent_not_canonical",
             "Execution intent must be selected from the server-owned mode vocabulary.",
@@ -597,7 +598,13 @@ async def compile_and_run_recursive_generation_cycle(
             "candidate_execution_intent_context_mismatch",
             "Candidate-only execution cannot carry an attempted EvalSafety context.",
         )
-    if execution_intent in EVAL_SAFETY_REQUIRED_MODES:
+    intent_band = execution_intent_band_for_mode(execution_intent)
+    if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED:
+        raise DesignProblemAuthorityError(
+            "data_trust_owner_not_established",
+            "DataTrust mode cannot reuse EvalSafety context; its owner bridge is not wired here.",
+        )
+    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
         if root_evaluation_context is None:
             raise DesignProblemAuthorityError(
                 "eval_safety_execution_context_not_established",
@@ -610,7 +617,11 @@ async def compile_and_run_recursive_generation_cycle(
             )
     if (
         root_evaluation_context is not None
-        and execution_intent != "candidate_only"
+        and intent_band
+        not in {
+            ExecutionIntentBand.CANDIDATE_ONLY,
+            ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
+        }
         and root_evaluation_context.evaluation_mode != execution_intent
     ):
         raise DesignProblemAuthorityError(
@@ -628,6 +639,7 @@ async def compile_and_run_recursive_generation_cycle(
     problem = await build_design_problem_from_nl_request(
         nl_request=raw_request,
         context=context,
+        trusted_source_context=trusted_source_context,
         model_name=model_name,
         gateway_client=compiler_gateway,
         span_support_client=span_support_client,

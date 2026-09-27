@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 import uuid
 from collections.abc import Mapping
@@ -9,9 +11,10 @@ from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from opentelemetry.context import attach, detach
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, registry, run
@@ -160,6 +163,12 @@ from polisyos.runtime.quality.diagnostic_events import (
 from polisyos.runtime.quality.epoch_validity_cascade import (
     persist_advisory_perturbation_event,
 )
+from polisyos.runtime.quality.evaluation_modes import (
+    EvaluationMode,
+    ExecutionIntentBand,
+    resolve_evaluation_mode,
+    resolve_execution_intent_band,
+)
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyAppointmentResolution,
     EvalSafetyAuthorityResolution,
@@ -217,6 +226,52 @@ logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _EVALUATION_SAFETY_ATTEMPT_KEY = "evaluation_safety_attempt"
 _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY = "_polisyos_eval_safety_execution_context"
+_EXECUTION_INTENT_BINDING_KEY = "execution_intent_binding"
+# These request keys can assert owner scope; the worker supplies them from its
+# replay-validated actor/job binding or omits them when that binding is unknown.
+_NL_JOB_OWNER_CONTEXT_KEYS = frozenset(
+    {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
+)
+_EXECUTION_INTENT_BINDING_SCHEMA = "polisyos.runtime.control_execution_intent.v2"
+_NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
+_NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
+_NL_REQUEST_SNAPSHOT_SCHEMA = "polisyos.runtime.control_nl_request_snapshot.v1"
+_NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
+    "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
+)
+_NL_ROUTE_ID = "POST /api/v1/control/runs/nl"
+_NL_ROUTE_ACTION = "control.launch_nl_run"
+
+
+def _nl_request_body_bytes(request: NaturalLanguageRunRequest) -> bytes:
+    """Serialize a typed request deterministically for non-HTTP owner tests."""
+    return json.dumps(
+        request.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+
+def _validate_nl_request_json_values(request: NaturalLanguageRunRequest) -> None:
+    """Reject values the runtime's canonical JSON owner cannot represent."""
+    from polisyos.runtime.http.resource_binding import _digest_payload
+
+    _digest_payload(request.model_dump(mode="python"))
+
+
+def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:
+    """Hash the pinned JSON request snapshot profile, including finite numbers."""
+    if (
+        snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA
+        or snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE
+    ):
+        raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
+    from polisyos.runtime.http.resource_binding import _digest_payload
+
+    return _digest_payload(dict(snapshot))
+
+
 _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
     {
         "verifier_not_configured",
@@ -249,6 +304,500 @@ _MONITOR_TRIGGER_BY_SOURCE_CLASS: dict[str, DecisionTriggerType] = {
     "legal_change": DecisionTriggerType.LAW_CHANGE,
     "discovered_bias": DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
 }
+
+
+class _ControlExecutionIntentBinding(BaseModel):
+    """Strict durable binding between an NL request, its route, and its owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["polisyos.runtime.control_execution_intent.v2"]
+    intent_band: Literal[
+        "candidate_only",
+        "simulate_only_attempt",
+        "data_trust_required",
+        "eval_safety_required",
+        "not_established",
+    ]
+    admission_status: Literal["established", "not_established"]
+    canonical_mode: EvaluationMode | None
+    mode_token_hash: str | None
+    attempt_id: str | None
+    attempt_content_hash: str | None
+    route_id: Literal["POST /api/v1/control/runs/nl"]
+    route_action: Literal["control.launch_nl_run"]
+    actor_subject: str = Field(min_length=1)
+    actor_authenticated: bool
+    actor_roles: tuple[str, ...]
+    authorization_receipt: dict[str, Any] | None
+    admission_surface: Literal["served_route"]
+    tenant_id: str | None
+    cell_id: str | None
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    intent_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+def _build_nl_authorization_receipt(
+    bound_permission: object,
+    *,
+    request_id: str | None,
+    request: NaturalLanguageRunRequest,
+    request_body_bytes: bytes,
+    request_query_bytes: bytes,
+    normalized_llm_models: list[str],
+) -> dict[str, Any]:
+    """Project the sealed route proof into a replayable owner-derived receipt."""
+    from polisyos.runtime.http.authorization import (
+        ActionPermissionVerification,
+        BoundActionPermissionVerification,
+        ResourceBindingSource,
+    )
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.resource_binding import (
+        BindingAuthority,
+        BoundAuthorizationResource,
+        _canonical_json,
+        _digest_payload,
+        _parse_json_object,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionPermissionSnapshot,
+        agent_action_content_hash,
+        agent_action_permission_hash,
+    )
+
+    if type(bound_permission) is not BoundActionPermissionVerification:
+        raise ValueError("nl_route_authorization_proof_not_established")
+    verification = bound_permission.verification
+    resource = bound_permission.bound_resource
+    requirement = verification.requirement
+    spec = requirement.resource_binding
+    if (
+        type(verification) is not ActionPermissionVerification
+        or type(resource) is not BoundAuthorizationResource
+        or resource.requirement is not requirement
+        or requirement.permission is not RuntimePermission.RUNS_LAUNCH
+        or spec.source is not ResourceBindingSource.TENANT_COLLECTION
+        or spec.resource_kind != "runtime.run_collection.nl"
+        or any(
+            getattr(spec, field_name) not in (None, (), False)
+            for field_name in (
+                "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
+                "body_field",
+                "parent_field",
+                "selector_fields",
+                "required_selector_fields",
+                "required_selector_alternatives",
+                "parent_required",
+                "allow_empty_body",
+            )
+        )
+        or resource.authority is not BindingAuthority.TENANT_COLLECTION
+        or resource.tenant_id != verification.tenant_id
+        or not verification.tenant_id.strip()
+        or requirement.permission not in verification.granted_permissions
+        or resource.resolved_context is not None
+        or resource.canonical_selectors
+        != (("tenant_id", _canonical_json(verification.tenant_id)),)
+    ):
+        raise ValueError("nl_route_authorization_proof_binding_mismatch")
+
+    expected_resource_digest = _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": requirement.permission.value,
+            "resource_kind": spec.resource_kind,
+            "authority": resource.authority.value,
+            "tenant_id": resource.tenant_id,
+            "body_sha256": resource.body_sha256,
+            "query_sha256": resource.query_sha256,
+            "selectors": resource.canonical_selectors,
+            "resolved_context_sha256": None,
+        }
+    )
+    if (
+        resource.resource_digest != expected_resource_digest
+        or resource.body_sha256
+        != "sha256:" + hashlib.sha256(request_body_bytes).hexdigest()
+        or resource.query_sha256
+        != "sha256:" + hashlib.sha256(request_query_bytes).hexdigest()
+    ):
+        raise ValueError("nl_route_authorization_resource_digest_mismatch")
+    _parse_json_object(request_body_bytes)
+    try:
+        parsed_request = NaturalLanguageRunRequest.model_validate_json(request_body_bytes)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("nl_route_authorization_request_body_invalid") from exc
+    if parsed_request.model_dump(mode="json") != request.model_dump(mode="json"):
+        raise ValueError("nl_route_authorization_request_body_mismatch")
+    request_snapshot = {
+        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+        "request": request.model_dump(mode="json"),
+        "normalized_llm_models": list(normalized_llm_models),
+    }
+    snapshot = AgentActionPermissionSnapshot(
+        subject=verification.subject,
+        tenant_id=verification.tenant_id,
+        jwt_id=verification.jwt_id,
+        roles=tuple(sorted(role.value for role in verification.roles)),
+        authorization_source=verification.authorization_source,
+        required_permission=requirement.permission.value,
+        granted_permissions=tuple(
+            sorted(permission.value for permission in verification.granted_permissions)
+        ),
+        resource_digest=resource.resource_digest,
+        resource_kind=resource.resource_kind,
+        resource_authority=resource.authority.value,
+        body_sha256=resource.body_sha256,
+        query_sha256=resource.query_sha256,
+    )
+    permission_hash = agent_action_permission_hash(bound_permission)
+    if agent_action_content_hash(snapshot) != permission_hash:
+        raise ValueError("nl_route_authorization_snapshot_mismatch")
+    receipt_payload: dict[str, Any] = {
+        "schema_version": "polisyos.runtime.nl_route_authorization_receipt.v1",
+        "route_id": _NL_ROUTE_ID,
+        "request_id": request_id,
+        "permission_snapshot": snapshot.model_dump(mode="json"),
+        "permission_proof_hash": permission_hash,
+        "request_content_hash": _nl_request_snapshot_content_hash(request_snapshot),
+        "resource": {
+            "resource_id": resource.resource_id,
+            "resource_digest": resource.resource_digest,
+            "resource_kind": resource.resource_kind,
+            "authority": resource.authority.value,
+            "tenant_id": resource.tenant_id,
+            "body_sha256": resource.body_sha256,
+            "query_sha256": resource.query_sha256,
+            "selectors": [list(pair) for pair in resource.canonical_selectors],
+        },
+    }
+    receipt_payload["receipt_digest"] = canonical_content_hash(
+        to_canonical_bytes(receipt_payload),
+        prefix=True,
+    )
+    return receipt_payload
+
+
+def _build_control_execution_intent_binding(
+    payload: Mapping[str, Any],
+    *,
+    job_id: str,
+    run_id: str,
+    actor: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build a replayable, typed binding for the served NL launch intent."""
+    raw_context = payload.get("context")
+    context_is_valid = raw_context is None or isinstance(raw_context, Mapping)
+    context = raw_context if isinstance(raw_context, Mapping) else {}
+    has_attempt = not context_is_valid or _EVALUATION_SAFETY_ATTEMPT_KEY in context
+    raw_attempt = (
+        context.get(_EVALUATION_SAFETY_ATTEMPT_KEY) if context_is_valid else raw_context
+    )
+    raw_mode = (
+        raw_attempt.get("requested_mode_token")
+        if isinstance(raw_attempt, Mapping)
+        and isinstance(raw_attempt.get("requested_mode_token"), str)
+        else None
+    )
+    mode_resolution = resolve_evaluation_mode(raw_mode)
+    canonical_mode = mode_resolution.canonical_mode
+    intent_band = resolve_execution_intent_band(
+        attempt_present=has_attempt,
+        mode_resolution=mode_resolution,
+    ).value
+    raw_authorization_receipt = payload.get(_NL_AUTHORIZATION_RECEIPT_KEY)
+    authorization_receipt = (
+        _validate_nl_authorization_receipt(raw_authorization_receipt)
+        if raw_authorization_receipt is not None
+        else None
+    )
+    _validate_nl_request_snapshot(
+        payload,
+        authorization_receipt if isinstance(authorization_receipt, Mapping) else None,
+    )
+    admission_status = (
+        "established"
+        if isinstance(authorization_receipt, Mapping)
+        else "not_established"
+    )
+
+    attempt_content_hash = (
+        canonical_content_hash(to_canonical_bytes(raw_attempt), prefix=True)
+        if has_attempt
+        else None
+    )
+    attempt_id = (
+        raw_attempt.get("attempt_id")
+        if isinstance(raw_attempt, Mapping)
+        and isinstance(raw_attempt.get("attempt_id"), str)
+        else None
+    )
+    if has_attempt:
+        # The caller's derived resolution is not an authority source. Recompute it
+        # from the exact requested token, then require the full typed intake shape.
+        if not isinstance(raw_attempt, Mapping) or mode_resolution.status != "accepted":
+            admission_status = "not_established"
+        else:
+            intake_payload = dict(raw_attempt)
+            intake_payload["mode_resolution"] = mode_resolution.model_dump(mode="json")
+            try:
+                parsed_attempt = EvaluationAttemptIntake.model_validate(intake_payload)
+            except Exception:
+                admission_status = "not_established"
+            else:
+                attempt_id = parsed_attempt.attempt_id
+                if (
+                    not bool(actor.get("authenticated"))
+                    or not isinstance(actor.get("subject"), str)
+                    or not str(actor.get("subject")).strip()
+                    or not isinstance(actor.get("tenant_id"), str)
+                    or not str(actor.get("tenant_id")).strip()
+                    or not isinstance(actor.get("cell_id"), str)
+                    or not str(actor.get("cell_id")).strip()
+                ):
+                    admission_status = "not_established"
+                if not isinstance(authorization_receipt, Mapping):
+                    admission_status = "not_established"
+
+    actor_roles = actor.get("roles")
+    normalized_roles = tuple(
+        sorted(role for role in actor_roles if isinstance(role, str))
+        if isinstance(actor_roles, (list, tuple, set, frozenset))
+        else ()
+    )
+    digest_payload: dict[str, Any] = {
+        "schema_version": _EXECUTION_INTENT_BINDING_SCHEMA,
+        "intent_band": intent_band,
+        "admission_status": admission_status,
+        "canonical_mode": canonical_mode,
+        "mode_token_hash": mode_resolution.source_token_hash if has_attempt else None,
+        "attempt_id": attempt_id,
+        "attempt_content_hash": attempt_content_hash,
+        "route_id": _NL_ROUTE_ID,
+        "route_action": _NL_ROUTE_ACTION,
+        "actor_subject": str(actor.get("subject") or "anonymous"),
+        "actor_authenticated": bool(actor.get("authenticated")),
+        "actor_roles": normalized_roles,
+        "tenant_id": (
+            actor.get("tenant_id")
+            if isinstance(actor.get("tenant_id"), str)
+            and actor["tenant_id"].strip()
+            and actor["tenant_id"].casefold() != "tenant-unknown"
+            else None
+        ),
+        "cell_id": (
+            actor.get("cell_id")
+            if isinstance(actor.get("cell_id"), str)
+            and actor["cell_id"].strip()
+            and actor["cell_id"].casefold() != "cell-unknown"
+            else None
+        ),
+        "job_id": job_id,
+        "run_id": run_id,
+        "authorization_receipt": (
+            dict(authorization_receipt)
+            if isinstance(authorization_receipt, Mapping)
+            else None
+        ),
+        "admission_surface": "served_route",
+    }
+    digest = canonical_content_hash(to_canonical_bytes(digest_payload), prefix=True)
+    return _ControlExecutionIntentBinding(
+        **digest_payload,
+        intent_digest=digest,
+    ).model_dump(mode="json")
+
+
+def _validate_nl_authorization_receipt(receipt: object) -> dict[str, Any]:
+    """Recompute the NL route's permission snapshot and tenant binding receipt."""
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.resource_binding import _canonical_json, _digest_payload
+    from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionPermissionSnapshot,
+        agent_action_content_hash,
+    )
+
+    if not isinstance(receipt, Mapping):
+        raise ValueError("nl_route_authorization_receipt_missing")
+    try:
+        receipt_data = dict(receipt)
+        if (
+            set(receipt_data)
+            != {
+                "schema_version",
+                "route_id",
+                "request_id",
+                "permission_snapshot",
+                "permission_proof_hash",
+                "request_content_hash",
+                "resource",
+                "receipt_digest",
+            }
+            or receipt_data.get("schema_version")
+            != "polisyos.runtime.nl_route_authorization_receipt.v1"
+            or receipt_data.get("route_id") != _NL_ROUTE_ID
+            or not isinstance(receipt_data.get("request_id"), str)
+            or not str(receipt_data["request_id"]).strip()
+        ):
+            raise ValueError("nl_route_authorization_receipt_identity_mismatch")
+        snapshot = AgentActionPermissionSnapshot.model_validate(
+            receipt_data.get("permission_snapshot")
+        )
+        request_content_hash = receipt_data.get("request_content_hash")
+        if (
+            not isinstance(request_content_hash, str)
+            or len(request_content_hash) != 71
+            or not request_content_hash.startswith("sha256:")
+            or any(char not in "0123456789abcdef" for char in request_content_hash[7:])
+        ):
+            raise ValueError("nl_route_authorization_request_hash_invalid")
+        resource = receipt_data.get("resource")
+        if not isinstance(resource, Mapping):
+            raise ValueError("nl_route_authorization_resource_missing")
+        if set(resource) != {
+            "resource_id",
+            "resource_digest",
+            "resource_kind",
+            "authority",
+            "tenant_id",
+            "body_sha256",
+            "query_sha256",
+            "selectors",
+        }:
+            raise ValueError("nl_route_authorization_resource_shape_invalid")
+        selector_rows = resource.get("selectors")
+        expected_selectors = [["tenant_id", _canonical_json(snapshot.tenant_id)]]
+        if (
+            snapshot.required_permission != RuntimePermission.RUNS_LAUNCH.value
+            or RuntimePermission.RUNS_LAUNCH.value not in snapshot.granted_permissions
+            or snapshot.resource_kind != "runtime.run_collection.nl.tenant_collection"
+            or snapshot.resource_authority != "tenant_collection"
+            or resource.get("resource_kind") != snapshot.resource_kind
+            or resource.get("authority") != snapshot.resource_authority
+            or resource.get("tenant_id") != snapshot.tenant_id
+            or resource.get("body_sha256") != snapshot.body_sha256
+            or resource.get("query_sha256") != snapshot.query_sha256
+            or selector_rows != expected_selectors
+            or not isinstance(resource.get("resource_id"), str)
+            or not str(resource["resource_id"]).startswith(
+                "urn:polisyos:runtime-authorization-resource:v1:"
+            )
+        ):
+            raise ValueError("nl_route_authorization_resource_binding_mismatch")
+        resource_digest = _digest_payload(
+            {
+                "binding_version": "runtime.authorization.resource.v1",
+                "permission": RuntimePermission.RUNS_LAUNCH.value,
+                "resource_kind": "runtime.run_collection.nl",
+                "authority": "tenant_collection",
+                "tenant_id": snapshot.tenant_id,
+                "body_sha256": snapshot.body_sha256,
+                "query_sha256": snapshot.query_sha256,
+                "selectors": (tuple(expected_selectors[0]),),
+                "resolved_context_sha256": None,
+            }
+        )
+        if (
+            resource.get("resource_digest") != resource_digest
+            or not str(resource["resource_id"]).endswith(resource_digest)
+            or snapshot.resource_digest != resource_digest
+        ):
+            raise ValueError("nl_route_authorization_resource_digest_mismatch")
+        permission_hash = agent_action_content_hash(snapshot)
+        if receipt_data.get("permission_proof_hash") != permission_hash:
+            raise ValueError("nl_route_authorization_permission_hash_mismatch")
+        digest_payload = {
+            key: value for key, value in receipt_data.items() if key != "receipt_digest"
+        }
+        expected_receipt_digest = canonical_content_hash(
+            to_canonical_bytes(digest_payload),
+            prefix=True,
+        )
+        if receipt_data.get("receipt_digest") != expected_receipt_digest:
+            raise ValueError("nl_route_authorization_receipt_digest_mismatch")
+        return receipt_data
+    except (TypeError, ValueError, KeyError) as exc:
+        if isinstance(exc, ValueError) and str(exc).startswith("nl_route_authorization_"):
+            raise
+        raise ValueError("nl_route_authorization_receipt_invalid") from exc
+
+
+def _validate_nl_request_snapshot(
+    payload: Mapping[str, Any],
+    authorization_receipt: Mapping[str, Any] | None,
+) -> None:
+    """Reconcile the authorized typed request snapshot with the executable payload."""
+    raw_snapshot = payload.get(_NL_REQUEST_SNAPSHOT_KEY)
+    if not isinstance(raw_snapshot, Mapping) or set(raw_snapshot) != {
+        "schema_version",
+        "digest_profile",
+        "request",
+        "normalized_llm_models",
+    }:
+        raise ValueError("nl_authorized_request_snapshot_missing")
+    if raw_snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA:
+        raise ValueError("nl_authorized_request_snapshot_schema_invalid")
+    if raw_snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE:
+        raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
+    raw_request = raw_snapshot.get("request")
+    normalized_models = raw_snapshot.get("normalized_llm_models")
+    if (
+        not isinstance(raw_request, Mapping)
+        or not isinstance(normalized_models, list)
+        or not normalized_models
+        or any(not isinstance(model, str) or not model.strip() for model in normalized_models)
+    ):
+        raise ValueError("nl_authorized_request_snapshot_shape_invalid")
+    try:
+        request = NaturalLanguageRunRequest.model_validate(dict(raw_request))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("nl_authorized_request_snapshot_invalid") from exc
+    request_values = request.model_dump(mode="json")
+    snapshot = {
+        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+        "request": request_values,
+        "normalized_llm_models": list(normalized_models),
+    }
+    if request_values != dict(raw_request):
+        raise ValueError("nl_authorized_request_snapshot_not_canonical")
+    if authorization_receipt is not None and authorization_receipt.get(
+        "request_content_hash"
+    ) != _nl_request_snapshot_content_hash(snapshot):
+        raise ValueError("nl_authorized_request_snapshot_receipt_mismatch")
+    expected_payload = {
+        "request": request.request,
+        "context": dict(request.context),
+        "domain_hint": request.domain_hint,
+        "data_source": (
+            request.data_source.model_dump(mode="json")
+            if request.data_source is not None
+            else None
+        ),
+        "target_world_scope_profile_id": request.target_world_scope_profile_id,
+        "max_iterations": request.max_iterations,
+        "llm_models": list(normalized_models),
+        "max_parallel_models": request.max_parallel_models,
+        "run_budget_usd": request.run_budget_usd,
+        "per_model_budget_usd": request.per_model_budget_usd,
+        "checkpoint_policy": request.checkpoint_policy,
+        "execution_plan_ref": request.execution_plan_ref,
+        "execution_plan": request.execution_plan,
+        "stop_criteria": request.stop_criteria,
+        "governance_constraints": request.governance_constraints,
+        "expected_outputs": request.expected_outputs,
+    }
+    for field_name, expected_value in expected_payload.items():
+        observed_value = payload.get(field_name)
+        if field_name == "checkpoint_policy" and isinstance(observed_value, Mapping):
+            observed_value = dict(observed_value)
+        if observed_value != expected_value:
+            raise ValueError("nl_authorized_request_payload_mismatch")
 
 
 def _default_runtime_metrics() -> MetricsRegistry:
@@ -1626,6 +2175,7 @@ class ControlPlaneService(
         raw_request: str,
         context: Mapping[str, object],
         model_name: str,
+        trusted_source_context: Mapping[str, object | None] | None = None,
         execution_intent: ExecutionIntent | None = None,
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
@@ -1643,6 +2193,7 @@ class ControlPlaneService(
         return await compile_and_run_recursive_generation_cycle(
             raw_request=raw_request,
             context=context,
+            trusted_source_context=trusted_source_context,
             model_name=model_name,
             execution_intent=execution_intent,
             compiler_gateway=compiler_gateway,
@@ -2321,6 +2872,20 @@ class ControlPlaneService(
         started = time.perf_counter()
         payload = self._attach_job_actor_scope(payload, policy=policy)
         payload = self._enrich_job_payload(payload, request_id=request_id)
+        initially_refused = False
+        if job_kind == "natural_language_run":
+            payload[_EXECUTION_INTENT_BINDING_KEY] = (
+                _build_control_execution_intent_binding(
+                    payload,
+                    job_id=job_id,
+                    run_id=str(run_id or ""),
+                    actor=policy.actor,
+                )
+            )
+            initially_refused = (
+                payload[_EXECUTION_INTENT_BINDING_KEY]["admission_status"]
+                != "established"
+            )
         try:
             payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
             capability_manifest_ref = self._persist_capability_manifest(
@@ -2341,6 +2906,40 @@ class ControlPlaneService(
                 capability_manifest_ref=capability_manifest_ref,
                 payload_ref=payload_ref,
                 submitted_by=str(policy.actor.get("subject") or "anonymous"),
+                creation_event_payload=(
+                    {
+                        "job_id": job_id,
+                        "run_id": run_id,
+                        "job_kind": job_kind,
+                        "payload_ref": payload_ref,
+                        "capability_manifest_ref": capability_manifest_ref,
+                        _EXECUTION_INTENT_BINDING_KEY: payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ],
+                        "intent_digest": payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ]["intent_digest"],
+                    }
+                    if job_kind == "natural_language_run"
+                    else None
+                ),
+                initial_state="failed" if initially_refused else "pending",
+                initial_error_message=(
+                    "nl_job_execution_intent_not_established" if initially_refused else None
+                ),
+                initial_progress=(
+                    {
+                        "state": "failed",
+                        "phase": "job_admission",
+                        "status": "not_established",
+                        "failure_code": "nl_job_execution_intent_not_established",
+                        "execution_intent_binding": payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ],
+                    }
+                    if initially_refused
+                    else None
+                ),
             )
             diagnostic_event_ids = [
                 event_id
@@ -2388,11 +2987,16 @@ class ControlPlaneService(
                         execution_profile=policy.effective_profile,
                         phase="job_admission",
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
-                        state_after="pending",
+                        state_after="failed" if initially_refused else "pending",
                         payload=payload,
                         event_payload={
                             "job_kind": job_kind,
                             "pipeline_id": pipeline_id,
+                            "failure_code": (
+                                "nl_job_execution_intent_not_established"
+                                if initially_refused
+                                else None
+                            ),
                             "projection_authority": "progress_reference_only",
                         },
                     ),
@@ -2400,15 +3004,29 @@ class ControlPlaneService(
                 if event_id is not None
             ]
             if diagnostic_event_ids:
-                self._control_store.update_progress_state(
-                    job_id=job_id,
-                    state="pending",
-                    progress={
+                progress_state = "failed" if initially_refused else "pending"
+                progress = (
+                    {
+                        **record.progress,
+                        "state": "failed",
+                        "diagnostic_event_ids": diagnostic_event_ids,
+                        "diagnostic_event_authority": "progress_reference_only",
+                    }
+                    if initially_refused
+                    else {
                         "state": "pending",
                         "phase": "job_admission",
                         "diagnostic_event_ids": diagnostic_event_ids,
                         "diagnostic_event_authority": "progress_reference_only",
-                    },
+                    }
+                )
+                self._control_store.update_progress_state(
+                    job_id=job_id,
+                    state=progress_state,
+                    progress=progress,
+                    error_message=(
+                        "nl_job_execution_intent_not_established" if initially_refused else None
+                    ),
                 )
             if self._worker is not None:
                 self._worker.wake()
@@ -3227,12 +3845,132 @@ class ControlPlaneService(
             raise ValueError("normative_generation_terminal_readback_failed")
         return str(manifest.artifact_id)
 
+    def _require_nl_job_execution_intent_binding(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Reconcile intent, actor, row, event, capability manifest, and outbox."""
+        failure_code = "nl_job_execution_intent_not_established"
+        try:
+            if not job.capability_manifest_ref or not job.payload_ref or not job.run_id:
+                raise ValueError(failure_code)
+            event = self._control_store.get_job_created_event_payload(job.job_id)
+            outbox = self._control_store.get_job_created_outbox_event(job.job_id)
+            payload_binding = payload.get(_EXECUTION_INTENT_BINDING_KEY)
+            event_binding = event.get(_EXECUTION_INTENT_BINDING_KEY)
+            capability_manifest = self._load_payload_ref(job.capability_manifest_ref)
+            actor = capability_manifest.get("actor")
+            if not isinstance(actor, Mapping):
+                raise ValueError(failure_code)
+            expected_binding = _build_control_execution_intent_binding(
+                payload,
+                job_id=job.job_id,
+                run_id=job.run_id,
+                actor=actor,
+            )
+            if not isinstance(payload_binding, Mapping):
+                raise ValueError(failure_code)
+            binding = _ControlExecutionIntentBinding.model_validate_json(
+                json.dumps(payload_binding, sort_keys=True)
+            )
+            binding_payload = binding.model_dump(mode="json", exclude={"intent_digest"})
+            recomputed_digest = canonical_content_hash(
+                to_canonical_bytes(binding_payload),
+                prefix=True,
+            )
+            payload_tenant_id, payload_cell_id = _job_scope_identity(payload)
+            expected_outbox_payload = {
+                "job_id": job.job_id,
+                "job_kind": job.kind,
+                "run_id": job.run_id,
+                "pipeline_id": job.pipeline_id,
+                "effective_execution_profile": job.effective_execution_profile,
+                **event,
+            }
+            manifest_actor_roles = actor.get("roles")
+            normalized_manifest_roles = tuple(
+                sorted(role for role in manifest_actor_roles if isinstance(role, str))
+                if isinstance(manifest_actor_roles, (list, tuple, set, frozenset))
+                else ()
+            )
+            authorization_receipt = binding.authorization_receipt
+            authorization_snapshot = (
+                authorization_receipt.get("permission_snapshot")
+                if isinstance(authorization_receipt, Mapping)
+                else None
+            )
+            if (
+                outbox is None
+                or outbox.topic != "control.job.created"
+                or outbox.event_key != f"{job.job_id}:job_created"
+                or outbox.job_id != job.job_id
+                or outbox.run_id != job.run_id
+                or outbox.state not in {"pending", "published"}
+                or outbox.payload != expected_outbox_payload
+                or not isinstance(event_binding, Mapping)
+                or event.get("job_id") != job.job_id
+                or event.get("run_id") != job.run_id
+                or event.get("job_kind") != "natural_language_run"
+                or event.get("payload_ref") != job.payload_ref
+                or event.get("capability_manifest_ref") != job.capability_manifest_ref
+                or event.get("intent_digest") != binding.intent_digest
+                or payload.get("run_id") != job.run_id
+                or event_binding != dict(payload_binding)
+                or dict(payload_binding) != expected_binding
+                or binding.intent_digest != recomputed_digest
+                or capability_manifest.get("job_id") != job.job_id
+                or capability_manifest.get("run_id") != job.run_id
+                or capability_manifest.get("pipeline_id") != job.pipeline_id
+                or capability_manifest.get("payload_ref") != job.payload_ref
+                or binding.actor_subject != job.submitted_by
+                or binding.actor_subject != actor.get("subject")
+                or binding.actor_authenticated is not actor.get("authenticated")
+                or binding.actor_roles != normalized_manifest_roles
+                or binding.tenant_id != actor.get("tenant_id")
+                or binding.cell_id != actor.get("cell_id")
+                or payload_tenant_id != binding.tenant_id
+                or payload_cell_id != binding.cell_id
+                or binding.route_id != _NL_ROUTE_ID
+                or binding.route_action != _NL_ROUTE_ACTION
+                or binding.admission_surface != "served_route"
+                or (
+                    isinstance(authorization_receipt, Mapping)
+                    and (
+                        not isinstance(authorization_snapshot, Mapping)
+                        or authorization_snapshot.get("subject") != binding.actor_subject
+                        or authorization_snapshot.get("tenant_id") != binding.tenant_id
+                        or tuple(authorization_snapshot.get("roles", ()))
+                        != binding.actor_roles
+                    )
+                )
+                or not isinstance(authorization_receipt, Mapping)
+            ):
+                raise ValueError(failure_code)
+            return binding.model_dump(mode="json")
+        except Exception as exc:
+            if isinstance(exc, RuntimeError) and str(exc) == failure_code:
+                raise
+            raise RuntimeError(failure_code) from exc
+
     def _process_control_job(self, job: ControlJobRecord) -> None:
         payload: dict[str, Any] = {}
+        execution_intent_binding: dict[str, Any] | None = None
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
             payload = self._load_payload_ref(job.payload_ref)
+            if job.kind == "natural_language_run":
+                execution_intent_binding = self._require_nl_job_execution_intent_binding(
+                    job=job,
+                    payload=payload,
+                )
+                if (
+                    execution_intent_binding["admission_status"] != "established"
+                    or execution_intent_binding["intent_band"] == "not_established"
+                ):
+                    raise RuntimeError("nl_job_execution_intent_not_established")
             with self._control_job_span(job=job, payload=payload), self._job_tenant_scope(payload):
                 self._emit_runtime_diagnostic_event(
                     job_id=job.job_id,
@@ -3247,6 +3985,21 @@ class ControlPlaneService(
                         "job_kind": job.kind,
                         "attempt": job.attempt,
                         "projection_authority": "runtime_event_only",
+                        **(
+                            {
+                                "execution_intent_band": execution_intent_binding[
+                                    "intent_band"
+                                ],
+                                "execution_intent_limitation_code": (
+                                    "data_trust_owner_not_established"
+                                    if execution_intent_binding["intent_band"]
+                                    == ExecutionIntentBand.DATA_TRUST_REQUIRED.value
+                                    else None
+                                ),
+                            }
+                            if execution_intent_binding is not None
+                            else {}
+                        ),
                     },
                 )
                 if job.kind == "workflow_run":
@@ -3330,33 +4083,102 @@ class ControlPlaneService(
                     capability_manifest_ref = (
                         job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
                     )
-                    evaluation_safety = self._admit_evaluation_safety_attempt(
-                        extension_payload=cast("Mapping[str, Any]", payload.get("context") or {}),
-                        job=job,
-                        payload=payload,
+                    intent_band = ExecutionIntentBand(
+                        str(execution_intent_binding["intent_band"])
                     )
-                    if evaluation_safety is not None and evaluation_safety.blocked:
-                        self._finish_blocked_evaluation_safety_attempt(
-                            result=evaluation_safety,
+                    evaluation_safety = None
+                    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        evaluation_safety = self._admit_evaluation_safety_attempt(
+                            extension_payload=cast(
+                                "Mapping[str, Any]", payload.get("context") or {}
+                            ),
                             job=job,
                             payload=payload,
-                            capability_manifest_ref=capability_manifest_ref,
                         )
-                        return
-                    if evaluation_safety is not None:
+                        if evaluation_safety is not None and evaluation_safety.blocked:
+                            self._finish_blocked_evaluation_safety_attempt(
+                                result=evaluation_safety,
+                                job=job,
+                                payload=payload,
+                                capability_manifest_ref=capability_manifest_ref,
+                            )
+                            return
+                    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        if evaluation_safety is None:
+                            raise RuntimeError(
+                                "nl_job_execution_intent_not_established"
+                            )
                         if evaluation_safety.execution_context is None:
                             raise RuntimeError(
                                 "eval_safety_execution_context_not_established"
                             )
                         execution_intent = evaluation_safety.execution_context.evaluation_mode
-                    else:
+                        if (
+                            execution_intent_binding.get("canonical_mode") != execution_intent
+                        ):
+                            raise RuntimeError(
+                                "nl_job_execution_intent_not_established"
+                            )
+                    elif intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
+                        if execution_intent_binding.get("canonical_mode") != "simulate_only":
+                            raise RuntimeError("nl_job_execution_intent_not_established")
+                        execution_intent = "simulate_only"
+                    elif intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        if intent_band is ExecutionIntentBand.CANDIDATE_ONLY and (
+                            execution_intent_binding.get("canonical_mode") is not None
+                        ):
+                            raise RuntimeError("nl_job_execution_intent_not_established")
+                        if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED and (
+                            execution_intent_binding.get("canonical_mode")
+                            not in {"retrospective", "measurement_audit"}
+                        ):
+                            raise RuntimeError("nl_job_execution_intent_not_established")
                         execution_intent = "candidate_only"
+                    else:
+                        raise RuntimeError("nl_job_execution_intent_not_established")
+                    execution_intent_limitation = (
+                        "data_trust_owner_not_established"
+                        if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED
+                        else None
+                    )
                     model_rows = payload.get("llm_models")
                     model_name = (
                         str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""
                     )
                     if not model_name:
                         raise RuntimeError("llm_model_unconfigured")
+                    raw_candidate_context = payload.get("context")
+                    candidate_context = (
+                        dict(raw_candidate_context)
+                        if isinstance(raw_candidate_context, Mapping)
+                        else {}
+                    )
+                    candidate_context = {
+                        key: value
+                        for key, value in candidate_context.items()
+                        if key not in _NL_JOB_OWNER_CONTEXT_KEYS
+                    }
+                    trusted_source_context: dict[str, object | None] = {
+                        "tenant_id": execution_intent_binding.get("tenant_id"),
+                        "cell_id": execution_intent_binding.get("cell_id"),
+                        "job_id": str(job.job_id),
+                        "run_id": str(job.run_id),
+                    }
+                    compiler_context: dict[str, object] = dict(candidate_context)
+                    # Persisted request context retains the submitted values. The
+                    # compiler sees only non-identity candidate inputs; scope IDs
+                    # enter through the replay-validated job/actor binding below.
+                    compiler_context["candidate_context"] = dict(candidate_context)
+                    compiler_context.update(
+                        {
+                            key: value
+                            for key, value in trusted_source_context.items()
+                            if value is not None
+                        }
+                    )
                     from polisyos.runtime.http.services.control.generation_cycle import (
                         _resolve_http_recursive_budget,
                     )
@@ -3368,7 +4190,7 @@ class ControlPlaneService(
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
                             raw_request=str(payload.get("request") or ""),
-                            context=cast("Mapping[str, object]", payload.get("context") or {}),
+                            context=compiler_context,
                             model_name=model_name,
                             execution_intent=execution_intent,
                             compiler_gateway=None,
@@ -3396,6 +4218,7 @@ class ControlPlaneService(
                                 if evaluation_safety is not None
                                 else None
                             ),
+                            trusted_source_context=trusted_source_context,
                         ),
                         timeout_seconds=max(120.0, 120.0 * max_cycles),
                     )
@@ -3459,6 +4282,10 @@ class ControlPlaneService(
                                     "candidate_computation_status": (
                                         "not_established"
                                     ),
+                                    "execution_intent_band": intent_band.value,
+                                    "execution_intent_limitation_code": (
+                                        execution_intent_limitation
+                                    ),
                                     "limitation_code": limitation_code,
                                     "n4_status": generation_status,
                                     "downstream_stages": {
@@ -3476,6 +4303,8 @@ class ControlPlaneService(
                                 "status": "not_established",
                                 "execution_band": "candidate",
                                 "candidate_computation_status": "not_established",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
                                 "proposal_persistence_status": "not_run",
                                 "limitation_code": limitation_code,
                                 "stage": "n4_proposal_only",
@@ -3527,6 +4356,8 @@ class ControlPlaneService(
                                 "runtime_diagnostic_event_limitation_code": (
                                     "diagnostic_event_owner_scope_not_established"
                                 ),
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
                                 "run_id": run_id,
                                 "candidate_proposal_ref": None,
                                 "n5_status": "not_run",
@@ -3555,7 +4386,7 @@ class ControlPlaneService(
                         proposal_locator = N4CandidateProposalLocator(
                             artifact_ref=proposal_ref
                         )
-                        proposal_record = repository.load_candidate_proposal(
+                        proposal_record = repository.load_candidate_proposal_for_served_job(
                             proposal_locator,
                             job_id=job.job_id,
                             run_id=run_id,
@@ -3566,12 +4397,22 @@ class ControlPlaneService(
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
-                            "status": proposal_record.status,
+                            "status": (
+                                "not_established"
+                                if execution_intent_limitation is not None
+                                else proposal_record.status
+                            ),
                             "execution_band": proposal_record.execution_band,
-                            "limitation_code": proposal_record.limitation_code,
+                            "limitation_code": (
+                                execution_intent_limitation or proposal_record.limitation_code
+                            ),
+                            "candidate_proposal_limitation_code": proposal_record.limitation_code,
+                            "candidate_computation_status": "completed",
                             "stage": proposal_record.stage,
                             "run_id": run_id,
                             "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": execution_intent_limitation,
                             "n5_status": proposal_record.n5_status,
                             "n8_status": proposal_record.n8_status,
                             "n9_status": proposal_record.n9_status,
@@ -3598,6 +4439,8 @@ class ControlPlaneService(
                                 "capability_manifest_ref": str(capability_manifest_ref),
                                 "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
                                 "execution_band": proposal_record.execution_band,
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
                                 "limitation_code": proposal_record.limitation_code,
                                 "downstream_stages": {
                                     "n5": proposal_record.n5_status,
@@ -3609,6 +4452,62 @@ class ControlPlaneService(
                             artifact_refs=[
                                 str(capability_manifest_ref),
                                 str(proposal_ref.artifact_id),
+                            ],
+                        )
+                        return
+                    if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
+                        compiled_ref = self._put_json_artifact(
+                            compiled.model_dump(mode="json"),
+                            kind="runtime.compiled_recursive_generation_cycle",
+                            schema_name=(
+                                "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+                            ),
+                        )
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "simulation_only",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "completed",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": None,
+                            "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "normative_disposition_status": "not_run",
+                            "s8_status": "not_run",
+                            "publication_status": "not_run",
+                            "run_id": run_id,
+                        }
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type=(
+                                "polisyos.runtime.diagnostic.phase_transition.v1"
+                            ),
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "execution_band": "candidate",
+                                "execution_intent_band": intent_band.value,
+                                "candidate_computation_status": "completed",
+                                "normative_disposition_status": "not_run",
+                                "s8_status": "not_run",
+                                "publication_status": "not_run",
+                                "projection_authority": "runtime_event_only",
+                            },
+                            artifact_refs=[
+                                str(capability_manifest_ref),
+                                compiled_ref,
                             ],
                         )
                         return
@@ -4298,12 +5197,19 @@ class ControlPlaneService(
         *,
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
+        authorization_proof: object | None = None,
+        authorization_request_body: bytes | None = None,
+        authorization_query_bytes: bytes = b"",
     ) -> RunLaunchResponse:
         """Queue a natural-language agent run and apply execution-policy fallback constraints."""
         from polisyos.core.run.context import new_run_id
 
+        if authorization_proof is None:
+            raise ValueError("nl_route_authorization_proof_not_established")
+        _validate_nl_request_json_values(request)
         run_id = new_run_id()
         job_id = uuid.uuid4().hex
+        request_id = request_id or f"control-job:{job_id}"
         policy = self._resolve_execution_policy(
             requested_profile=request.execution_profile,
             policy_flags=request.policy_flags,
@@ -4319,6 +5225,38 @@ class ControlPlaneService(
                 "Natural-language production runs require a configured LLM model.",
                 code="llm_model_unconfigured",
             )
+        request_snapshot = {
+            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+            "request": request.model_dump(mode="json"),
+            "normalized_llm_models": list(requested_models),
+        }
+        request_body_bytes = (
+            authorization_request_body
+            if authorization_request_body is not None
+            else _nl_request_body_bytes(request)
+        )
+        authorization_receipt = (
+            _build_nl_authorization_receipt(
+                authorization_proof,
+                request_id=request_id,
+                request=request,
+                request_body_bytes=request_body_bytes,
+                request_query_bytes=authorization_query_bytes,
+                normalized_llm_models=requested_models,
+            )
+            if authorization_proof is not None
+            else None
+        )
+        if authorization_receipt is not None:
+            permission_snapshot = authorization_receipt.get("permission_snapshot")
+            if not isinstance(permission_snapshot, Mapping) or (
+                permission_snapshot.get("subject") != policy.actor.get("subject")
+                or permission_snapshot.get("tenant_id") != policy.actor.get("tenant_id")
+                or tuple(permission_snapshot.get("roles", ()))
+                != tuple(sorted(policy.actor.get("roles", ())))
+            ):
+                raise ValueError("nl_route_authorization_actor_binding_mismatch")
         provider_preflight_payload: dict[str, Any] | None = None
         if requested_models and policy.effective_profile in {"research", "governed", "production"}:
             preflight_report = await run_provider_preflight(models=requested_models)
@@ -4385,40 +5323,56 @@ class ControlPlaneService(
                         "preflight. Inspect the control job failure envelope."
                     ),
                 )
-        self._enqueue_job(
+        nl_payload = {
+            "run_id": run_id,
+            "request": request.request,
+            "context": dict(request.context),
+            "domain_hint": request.domain_hint,
+            "data_source": request.data_source.model_dump(mode="json")
+            if request.data_source
+            else None,
+            **(
+                {"target_world_scope_profile_id": request.target_world_scope_profile_id}
+                if request.target_world_scope_profile_id is not None
+                else {}
+            ),
+            "max_iterations": request.max_iterations,
+            "llm_models": requested_models,
+            "max_parallel_models": request.max_parallel_models,
+            "run_budget_usd": request.run_budget_usd,
+            "per_model_budget_usd": request.per_model_budget_usd,
+            "checkpoint_policy": request.checkpoint_policy,
+            "execution_plan_ref": request.execution_plan_ref,
+            "execution_plan": request.execution_plan,
+            "stop_criteria": request.stop_criteria,
+            "governance_constraints": request.governance_constraints,
+            "expected_outputs": request.expected_outputs,
+            "provider_preflight": provider_preflight_payload,
+        }
+        nl_payload[_NL_REQUEST_SNAPSHOT_KEY] = request_snapshot
+        if authorization_receipt is not None:
+            nl_payload[_NL_AUTHORIZATION_RECEIPT_KEY] = authorization_receipt
+        queued_job = self._enqueue_job(
             job_id=job_id,
             job_kind="natural_language_run",
             run_id=run_id,
             pipeline_id=None,
-            payload={
-                "run_id": run_id,
-                "request": request.request,
-                "context": dict(request.context),
-                "domain_hint": request.domain_hint,
-                "data_source": request.data_source.model_dump(mode="json")
-                if request.data_source
-                else None,
-                **(
-                    {"target_world_scope_profile_id": request.target_world_scope_profile_id}
-                    if request.target_world_scope_profile_id is not None
-                    else {}
-                ),
-                "max_iterations": request.max_iterations,
-                "llm_models": requested_models,
-                "max_parallel_models": request.max_parallel_models,
-                "run_budget_usd": request.run_budget_usd,
-                "per_model_budget_usd": request.per_model_budget_usd,
-                "checkpoint_policy": request.checkpoint_policy,
-                "execution_plan_ref": request.execution_plan_ref,
-                "execution_plan": request.execution_plan,
-                "stop_criteria": request.stop_criteria,
-                "governance_constraints": request.governance_constraints,
-                "expected_outputs": request.expected_outputs,
-                "provider_preflight": provider_preflight_payload,
-            },
+            payload=nl_payload,
             policy=policy,
             request_id=request_id,
         )
+        if queued_job.state == "failed":
+            return RunLaunchResponse(
+                meta=_build_api_meta(request_id),
+                status="rejected",
+                run_id=run_id,
+                job_id=job_id,
+                effective_execution_profile=policy.effective_profile,
+                message=(
+                    "Natural-language run was refused because its execution intent "
+                    "or route authorization could not be established."
+                ),
+            )
 
         models_label = ", ".join(requested_models)
         if len(requested_models) > 1:

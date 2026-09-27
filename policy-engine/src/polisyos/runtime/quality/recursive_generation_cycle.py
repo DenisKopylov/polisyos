@@ -23,7 +23,6 @@ from polisyos.core.artifacts import ArtifactRef as CASArtifactRef  # noqa: TC001
 from polisyos.pdc import (
     CompositionCertificate,
     EvalSafetyAdmissionChallenge,
-    EvaluationMode,
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
@@ -37,8 +36,8 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_modes import (
-    DATA_TRUST_REQUIRED_MODES,
-    EVAL_SAFETY_REQUIRED_MODES,
+    ExecutionIntentBand,
+    execution_intent_band_for_mode,
 )
 from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
@@ -83,7 +82,6 @@ ExecutionIntent = Literal[
     "field_pilot",
     "deployment",
 ]
-_PROTECTED_EVALUATION_MODES: frozenset[EvaluationMode] = EVAL_SAFETY_REQUIRED_MODES
 RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController"
 )
@@ -854,19 +852,19 @@ class RecursiveGenerationCycleController:
                     "recursive_execution_intent_denominator_mismatch"
                 )
             if any(
-                intent
-                not in {
-                    "candidate_only",
-                    "simulate_only",
-                    "retrospective",
-                    "measurement_audit",
-                    "sandbox_pilot",
-                    "field_pilot",
-                    "deployment",
-                }
+                execution_intent_band_for_mode(intent)
+                is ExecutionIntentBand.NOT_ESTABLISHED
                 for intent in execution_intents_by_node.values()
             ):
                 raise RecursiveGenerationCycleError("recursive_execution_intent_not_canonical")
+            if self._cycle_controller_factory is not None and any(
+                execution_intent_band_for_mode(intent)
+                is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
+                for intent in execution_intents_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_custom_factory_context_not_consumed"
+                )
         if evaluation_contexts_by_node is not None:
             supplied_context_refs = set(evaluation_contexts_by_node)
             required_eval_safety_refs = (
@@ -875,7 +873,8 @@ class RecursiveGenerationCycleController:
                 else {
                     node_ref
                     for node_ref, intent in execution_intents_by_node.items()
-                    if intent in EVAL_SAFETY_REQUIRED_MODES
+                    if execution_intent_band_for_mode(intent)
+                    is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
                 }
             )
             if (
@@ -886,9 +885,22 @@ class RecursiveGenerationCycleController:
                 raise RecursiveGenerationCycleError(
                     "recursive_eval_safety_context_denominator_mismatch"
                 )
+            if self._cycle_controller_factory is not None and any(
+                isinstance(context, EvaluationExecutionContext)
+                and execution_intent_band_for_mode(context.evaluation_mode)
+                is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
+                for context in evaluation_contexts_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_custom_factory_context_not_consumed"
+                )
         if self._cycle_controller_factory is None:
             candidate_band_only = bool(execution_intents_by_node) and all(
-                intent in {"candidate_only", "simulate_only"}
+                execution_intent_band_for_mode(intent)
+                in {
+                    ExecutionIntentBand.CANDIDATE_ONLY,
+                    ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
+                }
                 for intent in execution_intents_by_node.values()
             )
             if (
@@ -897,14 +909,16 @@ class RecursiveGenerationCycleController:
                 and not candidate_band_only
             ):
                 missing_owner_code = (
-                    "recursive_data_trust_context_not_established"
+                    "recursive_data_trust_owner_not_established"
                     if execution_intents_by_node is not None
                     and not any(
-                        intent in EVAL_SAFETY_REQUIRED_MODES
+                        execution_intent_band_for_mode(intent)
+                        is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
                         for intent in execution_intents_by_node.values()
                     )
                     and any(
-                        intent in DATA_TRUST_REQUIRED_MODES
+                        execution_intent_band_for_mode(intent)
+                        is ExecutionIntentBand.DATA_TRUST_REQUIRED
                         for intent in execution_intents_by_node.values()
                     )
                     else "recursive_eval_safety_context_not_established"
@@ -919,17 +933,24 @@ class RecursiveGenerationCycleController:
                 )
             for node_ref, intent in (execution_intents_by_node or {}).items():
                 context = (evaluation_contexts_by_node or {}).get(node_ref)
-                if intent in {"candidate_only", "simulate_only"}:
-                    if intent == "candidate_only" and context is not None:
+                intent_band = execution_intent_band_for_mode(intent)
+                if intent_band in {
+                    ExecutionIntentBand.CANDIDATE_ONLY,
+                    ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
+                }:
+                    if (
+                        intent_band is ExecutionIntentBand.CANDIDATE_ONLY
+                        and context is not None
+                    ):
                         raise RecursiveGenerationCycleError(
                             "recursive_candidate_intent_has_eval_safety_context"
                         )
                     if context is None:
                         continue
                 if context is None:
-                    if intent in DATA_TRUST_REQUIRED_MODES:
+                    if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED:
                         raise RecursiveGenerationCycleError(
-                            "recursive_data_trust_context_not_established"
+                            "recursive_data_trust_owner_not_established"
                         )
                     raise RecursiveGenerationCycleError(
                         "recursive_eval_safety_context_denominator_mismatch"
@@ -937,7 +958,7 @@ class RecursiveGenerationCycleController:
                 if context.evaluation_mode != intent:
                     code = (
                         "recursive_eval_safety_execution_mode_mismatch"
-                        if intent in EVAL_SAFETY_REQUIRED_MODES
+                        if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
                         else "recursive_execution_intent_context_mode_mismatch"
                     )
                     raise RecursiveGenerationCycleError(code)
@@ -945,13 +966,15 @@ class RecursiveGenerationCycleController:
                 {
                     node_ref
                     for node_ref, intent in execution_intents_by_node.items()
-                    if intent in _PROTECTED_EVALUATION_MODES
+                    if execution_intent_band_for_mode(intent)
+                    is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
                 }
                 if execution_intents_by_node is not None
                 else {
                     node_ref
                     for node_ref, context in (evaluation_contexts_by_node or {}).items()
-                    if context.evaluation_mode in _PROTECTED_EVALUATION_MODES
+                    if execution_intent_band_for_mode(context.evaluation_mode)
+                    is ExecutionIntentBand.EVAL_SAFETY_REQUIRED
                 }
             )
             for node_ref in protected_node_refs:

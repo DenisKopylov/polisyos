@@ -281,6 +281,7 @@ async def build_design_problem_from_nl_request(
     nl_request: str,
     context: Mapping[str, Any],
     model_name: str,
+    trusted_source_context: Mapping[str, Any | None] | None = None,
     gateway_client: _DesignProblemGatewayClient | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
 ) -> DesignProblem:
@@ -295,6 +296,9 @@ async def build_design_problem_from_nl_request(
         span_support_client: Optional GY-K span-support verifier client for
             deterministic tests. Production leaves this unset so the
             citation-faithfulness owner constructs the live bounded-agent judge.
+        trusted_source_context: Optional owner-replayed scope identity for the
+            persisted DesignProblem provenance; untrusted model values cannot
+            replace it.
 
     Returns:
         A strict, semantically validated ``DesignProblem``.
@@ -389,6 +393,7 @@ async def build_design_problem_from_nl_request(
             dict(arguments),
             nl_request=nl_request,
             context=context,
+            trusted_source_context=trusted_source_context,
         )
         try:
             problem = DesignProblem.model_validate(payload)
@@ -635,13 +640,11 @@ def _merge_design_problem_runtime_context(
     *,
     nl_request: str,
     context: Mapping[str, Any],
+    trusted_source_context: Mapping[str, Any | None] | None = None,
 ) -> dict[str, Any]:
     merged = dict(payload)
     supplied_schema_version = merged.get("schema_version")
-    if (
-        supplied_schema_version is not None
-        and supplied_schema_version != DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
-    ):
+    if supplied_schema_version != DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION:
         raise DesignProblemAuthorityError(
             "design_problem_compiler_schema_version_mismatch",
             "New NL compiler outputs must use the current DesignProblem schema.",
@@ -651,10 +654,27 @@ def _merge_design_problem_runtime_context(
     provenance["raw_request"] = nl_request
     provenance.setdefault("source_surface", "runtime.control.nl_request")
     source_context = dict(provenance.get("source_context") or {})
-    for key in ("run_id", "job_id", "tenant_id", "cell_id", "as_of"):
+    for key in ("as_of",):
         value = context.get(key)
         if value is not None:
             source_context.setdefault(key, value)
+    owner_scope_keys = ("run_id", "job_id", "tenant_id", "cell_id")
+    if trusted_source_context is None:
+        for key in owner_scope_keys:
+            value = context.get(key)
+            if value is not None:
+                source_context.setdefault(key, value)
+    else:
+        # Model-emitted scope aliases are not a second identity channel. The
+        # current served owner context is the sole source of these bindings.
+        source_context.pop("runtime_identity", None)
+        source_context.pop("candidate_context", None)
+        for key in owner_scope_keys:
+            value = trusted_source_context.get(key)
+            if value is None:
+                source_context.pop(key, None)
+            else:
+                source_context[key] = value
     provenance["source_context"] = source_context
     merged["nl_provenance"] = provenance
 

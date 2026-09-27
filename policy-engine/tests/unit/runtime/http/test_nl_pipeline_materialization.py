@@ -396,6 +396,7 @@ class _NeverCalledSimulationEvalSafetyVerifier:
 
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
     return {
+        "schema_version": "policyos.runtime.design_problem.v2",
         "design_problem_id": "design_problem_ua_msme_credit",
         "problem_statement": "Design a wartime MSME credit guarantee for Ukraine.",
         "domain": "social",
@@ -539,7 +540,36 @@ async def test_design_problem_front_door_rejects_explicit_legacy_schema_version(
 
     with pytest.raises(DesignProblemAuthorityError) as exc_info:
         await build_design_problem_from_nl_request(
-            nl_request="Design a credit guarantee for wartime MSMEs.",
+            nl_request=(
+                "Design a wartime MSME credit guarantee for Ukraine within the stated "
+                "UAH 10b budget cap."
+            ),
+            context=_intent_context(),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_compiler_schema_version_mismatch"
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_missing_current_schema_version() -> None:
+    """A fresh compiler cannot infer the current schema from a missing field."""
+
+    arguments = _design_problem_tool_args()
+    arguments.pop("schema_version")
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=arguments,
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request=(
+                "Design a wartime MSME credit guarantee for Ukraine within the stated "
+                "UAH 10b budget cap."
+            ),
             context=_intent_context(),
             model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
             gateway_client=gateway,

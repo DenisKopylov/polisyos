@@ -116,9 +116,13 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         }
         if profile_id is not None:
             request_fields["target_world_scope_profile_id"] = profile_id
+        request = NaturalLanguageRunRequest.model_validate(request_fields)
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest.model_validate(request_fields),
+            request,
             principal=RuntimePrincipal.from_user_claims(fixtures._fixture_claims()),
+            authorization_proof=fixtures.bound_nl_authorization_proof(
+                fixtures._fixture_claims(), request
+            ),
         )
         job = service._control_store.get_job(launch.job_id)
         assert job is not None and job.payload_ref is not None
@@ -158,7 +162,7 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         assert completed.progress["candidate_proposal_ref"]
         proposal = generation_source.GenerationSourceRepository(
             service._artifact_store
-        ).load_candidate_proposal(
+        ).load_candidate_proposal_for_served_job(
             completed.progress["candidate_proposal_ref"],
             job_id=launch.job_id,
             run_id=str(job.run_id),

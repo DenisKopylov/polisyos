@@ -1472,6 +1472,12 @@ class TestLaunchNlRun:
         monkeypatch: pytest.MonkeyPatch,
         tmp_path,
     ):
+        from polisyos.runtime.http.execution_policy import RuntimePrincipal
+        from tests.unit.runtime.http.control_service_test_support import (
+            bound_nl_authorization_proof,
+        )
+        from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
         monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
         execute_called = False
 
@@ -1533,14 +1539,19 @@ class TestLaunchNlRun:
             ),
         )
         try:
+            request = NaturalLanguageRunRequest(
+                request="Evaluate Ukraine MSME support.",
+                execution_profile="research",
+                llm_models=["missing-model"],
+                policy_flags={"allow_mock_fallback": False},
+            )
             response = await service.launch_nl_run(
-                NaturalLanguageRunRequest(
-                    request="Evaluate Ukraine MSME support.",
-                    execution_profile="research",
-                    llm_models=["missing-model"],
-                    policy_flags={"allow_mock_fallback": False},
-                ),
+                request,
                 request_id="req-red-preflight",
+                principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+                authorization_proof=bound_nl_authorization_proof(
+                    _fixture_claims(), request
+                ),
             )
             record = service._control_store.get_job(response.job_id)
         finally:

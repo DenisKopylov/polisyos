@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import subprocess
 from collections.abc import Mapping, Sequence
 from functools import cache
@@ -638,14 +639,11 @@ def test_all_method_selection_receipts_in_n6_history_replay() -> None:
         )
 
 
-@pytest.mark.parametrize(
-    "schema_suffix",
-    [(".v1",), (".v2",)],
-)
+@pytest.mark.parametrize("schema_suffix", [".v1", ".v2"])
 def test_source_comment_preserves_actual_v1_v2_history(
     tmp_path: Path, schema_suffix: str
 ) -> None:
-    """A real source-byte edit changes current census, never persisted history."""
+    """Comment edits alter neither census semantics nor source-free history."""
 
     _tracked_file_count, occurrences = _tracked_n6_runs()
     _path, _pointer, original = next(
@@ -659,28 +657,225 @@ def test_source_comment_preserves_actual_v1_v2_history(
     before = canon.to_canonical_bytes(
         original, canon.CanonSpec(forbid_floats=False)
     )
-    census_before = StrangleReceipt.recompute(tmp_path)
-    assert census_before.status == "strangled"
+    census_before = generation.inspect_n6_source_census(tmp_path)
+    assert census_before.source_verdict == "pass"
     assert validate_generation_cycle_run_history(original) == ()
-    current_before = {
-        str(issue.get("code"))
-        for issue in validate_generation_cycle_run(original, repo_root=tmp_path)
-    }
-    assert "strangle_receipt_stale" in current_before
+    current_before = generation.currentness_for_generation_cycle_run(original)
+    assert current_before.status == "not_established"
+    assert current_before.reason_code == "historical_deployment_identity_not_recorded"
 
     source.write_bytes(
         b"def unrelated_report():\n    return 'unchanged'\n# unrelated source comment\n"
     )
-    census_after = StrangleReceipt.recompute(tmp_path)
-    assert census_after.status == "strangled"
-    assert census_after.source_content_hash != census_before.source_content_hash
-    current_after = {
-        str(issue.get("code"))
-        for issue in validate_generation_cycle_run(original, repo_root=tmp_path)
-    }
-    assert "strangle_receipt_stale" in current_after
+    census_after = generation.inspect_n6_source_census(tmp_path)
+    assert census_after.source_verdict == "pass"
+    assert census_after.semantic_census_sha256 == census_before.semantic_census_sha256
+    assert census_after.denominator_path_sha256 == census_before.denominator_path_sha256
+    current_after = generation.currentness_for_generation_cycle_run(original)
+    assert current_after.status == "not_established"
+    assert current_after.reason_code == "historical_deployment_identity_not_recorded"
     assert validate_generation_cycle_run_history(original) == ()
     after = canon.to_canonical_bytes(
         original, canon.CanonSpec(forbid_floats=False)
     )
     assert after == before
+
+
+def test_currentness_uses_ledger_observation_without_source_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Currentness is a typed owner question; the historical bytes stay replayable."""
+
+    fixtures = dict(_v3_history_fixtures())
+    payload = fixtures["generation_cycle_controller_v3_identity.json.fixture"]
+    run = GenerationCycleRun.model_validate(payload)
+    from polisyos.runtime.quality.confidence_ledger import (
+        capture_loaded_deployment_identity,
+    )
+
+    loaded_identity = capture_loaded_deployment_identity()
+    assert loaded_identity.status == "established"
+    run = run.model_copy(
+        update={
+            "deployment_identity_status": "established",
+            "deployment_identity": loaded_identity.deployment_identity,
+            "deployment_identity_reason": None,
+        }
+    )
+
+    def source_scan_must_not_run(*_args: Any, **_kwargs: Any) -> None:
+        pytest.fail("runtime_currentness_rehashed_source_tree")
+
+    monkeypatch.setattr(StrangleReceipt, "recompute", source_scan_must_not_run)
+    monkeypatch.setattr(StrangleReceipt, "verify_current", source_scan_must_not_run)
+
+    currentness = generation.currentness_for_generation_cycle_run(run)
+    assert currentness.status == "not_established"
+    assert currentness.census_verdict == "UNRUN"
+    assert currentness.reason_code == "n6_census_issuer_not_appointed"
+    assert validate_generation_cycle_run_history(payload) == ()
+    assert "strangle_receipt_currentness_not_established" in {
+        str(issue.get("code"))
+        for issue in validate_generation_cycle_run(run)
+    }
+
+    stale = run.model_copy(
+        update={"deployment_identity": "policy-engine-deployment:sha256:" + "0" * 64}
+    )
+    stale_observation = generation.currentness_for_generation_cycle_run(stale)
+    assert stale_observation.status == "stale"
+    assert stale_observation.reason_code == "generation_cycle_deployment_identity_mismatch"
+
+
+def test_source_census_gate_is_behavioral_and_denominator_complete(tmp_path: Path) -> None:
+    """The source gate inspects all paths and distinguishes aliases from unknown dispatch."""
+
+    source = tmp_path / "src/polisyos/runtime/quality/cycle.py"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "def cycle():\n    return None\n# direct_ast_symbol_census_v1\n",
+        encoding="utf-8",
+    )
+    clean = generation.inspect_n6_source_census(tmp_path)
+    assert clean.source_verdict == "pass"
+    assert clean.denominator_file_count == 1
+    assert clean.denominator_complete is True
+    assert clean.denominator_pattern == "src/polisyos/**/*.py"
+    assert clean.unresolved_by_construction == ()
+    assert clean.authority_currentness == "UNRUN"
+    assert clean.canonical_identity_binding == "not_established"
+
+    fixture_owner = tmp_path / "src/polisyos/runtime/quality/workspace/loop.py"
+    fixture_owner.parent.mkdir(parents=True)
+    fixture_owner.write_text(
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self):\n        return None\n"
+        "    def decompose_fixture(self):\n"
+        "        return self.run_fixture()\n"
+        "    def run_control_plane_fixture(self):\n"
+        "        return self.run_fixture()\n",
+        encoding="utf-8",
+    )
+    owner_control = generation.inspect_n6_source_census(tmp_path)
+    assert owner_control.source_verdict == "UNRUN"
+    assert owner_control.denominator_file_count == 2
+    assert "allowed_fixture_reachability_not_established" in (
+        owner_control.unresolved_by_construction
+    )
+    assert "dynamic_attribute_dispatch" not in owner_control.unresolved_by_construction
+
+    fixture_owner.write_text(
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self):\n        return None\n"
+        "    def unclassified_fixture_dispatch(self):\n"
+        "        return self.run_fixture()\n",
+        encoding="utf-8",
+    )
+    unclassified_owner_call = generation.inspect_n6_source_census(tmp_path)
+    assert unclassified_owner_call.source_verdict == "UNRUN"
+    assert "dynamic_attribute_dispatch" in (
+        unclassified_owner_call.unresolved_by_construction
+    )
+
+    source.write_text(
+        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
+        "def cycle():\n"
+        "    runner = CycleOwner.run_fixture\n"
+        "    return runner(None)\n",
+        encoding="utf-8",
+    )
+    aliased_method = generation.inspect_n6_source_census(tmp_path)
+    assert aliased_method.source_verdict == "UNRUN"
+    assert "non_call_fixture_reference" in aliased_method.unresolved_by_construction
+
+    source.write_text(
+        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
+        "def cycle(owner):\n    return CycleOwner.run_fixture(owner)\n"
+        "# direct_ast_symbol_census_v1\n",
+        encoding="utf-8",
+    )
+    alias = generation.inspect_n6_source_census(tmp_path)
+    assert alias.source_verdict == "fail"
+    assert alias.production_callers == ("src/polisyos/runtime/quality/cycle.py:3",)
+
+    source.write_text(
+        "class Unrelated:\n    def run_fixture(self):\n        return None\n"
+        "def cycle(obj, name):\n    return getattr(obj, name)()\n",
+        encoding="utf-8",
+    )
+    unresolved = generation.inspect_n6_source_census(tmp_path)
+    assert unresolved.source_verdict == "UNRUN"
+    assert "dynamic_attribute_dispatch" in unresolved.unresolved_by_construction
+    assert unresolved.production_callers == ()
+
+    source.write_text("def malformed(:\n    pass\n", encoding="utf-8")
+    parse_error = generation.inspect_n6_source_census(tmp_path)
+    assert parse_error.source_verdict == "UNRUN"
+    assert parse_error.denominator_file_count == 2
+    assert parse_error.denominator_complete is True
+    assert parse_error.unresolved_by_construction
+
+
+def test_source_census_scan_time_directory_error_marks_denominator_incomplete(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A suppressed directory enumeration error cannot leave a partial green set."""
+
+    source_root = tmp_path / "src/polisyos"
+    blocked = source_root / "nested"
+    blocked.mkdir(parents=True)
+    (blocked / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
+    complete = generation.inspect_n6_source_census(tmp_path)
+    assert complete.denominator_complete is True
+    assert complete.denominator_file_count == 1
+
+    real_scandir = os.scandir
+
+    def fail_nested_listing(path):
+        if Path(path) == blocked:
+            raise PermissionError("synthetic scan-time denial")
+        return real_scandir(path)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(generation.os, "scandir", fail_nested_listing)
+        incomplete = generation.inspect_n6_source_census(tmp_path)
+    assert incomplete.source_verdict == "UNRUN"
+    assert incomplete.denominator_complete is False
+    assert incomplete.denominator_file_count == 0
+    assert "source_denominator_enumeration_failed" in (
+        incomplete.unresolved_by_construction
+    )
+
+
+def test_candidate_census_removal_red_and_unrelated_dispatch_control(tmp_path: Path) -> None:
+    """Removing the real call while keeping markers changes the census verdict."""
+
+    source = tmp_path / "src/polisyos/runtime/quality/cycle.py"
+    source.parent.mkdir(parents=True)
+    markers = "# direct_ast_symbol_census_v1\n# generation_cycle_strangle_gate\n"
+    source.write_text(
+        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
+        "def cycle(owner):\n    CycleOwner.run_fixture(owner)\n" + markers,
+        encoding="utf-8",
+    )
+    with_call = generation.inspect_n6_source_census(tmp_path)
+    assert with_call.source_verdict == "fail"
+
+    source.write_text(
+        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
+        "def cycle(owner):\n    return None\n" + markers,
+        encoding="utf-8",
+    )
+    without_call = generation.inspect_n6_source_census(tmp_path)
+    assert without_call.source_verdict == "pass"
+    assert without_call.denominator_complete is True
+    assert without_call.authority_currentness == "UNRUN"
+
+    source.write_text(
+        "class Unrelated:\n    def run_fixture(self):\n        return None\n"
+        "def cycle():\n    return Unrelated().run_fixture()\n" + markers,
+        encoding="utf-8",
+    )
+    unrelated = generation.inspect_n6_source_census(tmp_path)
+    assert unrelated.source_verdict == "UNRUN"
+    assert unrelated.authority_currentness == "UNRUN"

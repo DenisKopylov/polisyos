@@ -49,6 +49,7 @@ from polisyos.runtime.quality.generation_cycle import (
     N4GenerationPort,
     generation_cycle_terminal_state,
     persist_joint_simulation_result,
+    validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -1093,7 +1094,21 @@ class RecursiveGenerationCycleController:
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
-                issues = validate_generation_cycle_run(cycle_run, repo_root=self._repo_root)
+                execution_intent = (execution_intents_by_node or {}).get(node_ref)
+                intent_band = (
+                    execution_intent_band_for_mode(execution_intent)
+                    if execution_intent is not None
+                    else ExecutionIntentBand.NOT_ESTABLISHED
+                )
+                if intent_band in {
+                    ExecutionIntentBand.CANDIDATE_ONLY,
+                    ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
+                }:
+                    issues = validate_generation_cycle_candidate_run(cycle_run)
+                else:
+                    issues = validate_generation_cycle_run(
+                        cycle_run, repo_root=self._repo_root
+                    )
                 if issues:
                     raise RecursiveGenerationCycleError(
                         "recursive_leaf_generation_cycle_invalid",

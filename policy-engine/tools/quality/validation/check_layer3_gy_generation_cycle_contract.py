@@ -52,7 +52,6 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerError,
     ConfidenceLedgerSession,
     ConfidenceRiskBudgetScope,
-    capture_loaded_deployment_identity,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -76,11 +75,14 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
+    N6SourceCensusGateResult,
     PendingN8ValuePort,
     PolicyGroundingPort,
     StrangleReceipt,
     _validate_generation_cycle_run_with_current_source_receipt,
+    currentness_for_generation_cycle_run,
     enforce_no_retry_without_new_grammar,
+    inspect_n6_source_census,
     validate_generation_cycle_run,
     validate_generation_cycle_run_history,
 )
@@ -1140,7 +1142,7 @@ def _validate_payload_core(
 
 
 def _persisted_run_currentness_observation(run_payload: dict[str, Any]) -> dict[str, Any]:
-    """Separate historical replay validity from current N6 deployment identity."""
+    """Separate byte-exact history replay from typed owner currentness."""
 
     try:
         run = GenerationCycleRun.model_validate(run_payload)
@@ -1163,50 +1165,35 @@ def _persisted_run_currentness_observation(run_payload: dict[str, Any]) -> dict[
             "required_schema_version": GENERATION_CYCLE_SCHEMA_VERSION,
             "historical_replay": historical_replay,
         }
-    try:
-        owner_identity = capture_loaded_deployment_identity()
-    except Exception:
+    currentness = currentness_for_generation_cycle_run(run)
+    if currentness.status == "stale":
         return {
-            "status": "UNRUN",
-            "reason_code": "generation_cycle_currentness_owner_unavailable",
+            "status": "fail",
+            "reason_code": currentness.reason_code,
             "persisted_schema_version": run.schema_version,
-            "owner_identity_status": "not_established",
+            "persisted_identity_status": currentness.recorded_identity_status,
+            "owner_identity_status": currentness.loaded_identity_status,
             "historical_replay": historical_replay,
+            "currentness_observation": currentness.model_dump(mode="json"),
         }
-    if owner_identity.status != "established":
+    if currentness.status != "current":
         return {
             "status": "UNRUN",
-            "reason_code": "generation_cycle_currentness_owner_unavailable",
+            "reason_code": currentness.reason_code,
             "persisted_schema_version": run.schema_version,
-            "owner_identity_status": owner_identity.status,
-            "owner_identity_reason": owner_identity.reason_code,
+            "persisted_identity_status": currentness.recorded_identity_status,
+            "owner_identity_status": currentness.loaded_identity_status,
             "historical_replay": historical_replay,
-        }
-    if run.deployment_identity_status != "established":
-        return {
-            "status": "UNRUN",
-            "reason_code": "generation_cycle_currentness_reissue_required",
-            "persisted_schema_version": run.schema_version,
-            "persisted_identity_status": run.deployment_identity_status,
-            "owner_identity_status": owner_identity.status,
-            "historical_replay": historical_replay,
-        }
-    if run.deployment_identity != owner_identity.deployment_identity:
-        return {
-            "status": "UNRUN",
-            "reason_code": "generation_cycle_currentness_deployment_identity_mismatch",
-            "persisted_schema_version": run.schema_version,
-            "persisted_identity_status": run.deployment_identity_status,
-            "owner_identity_status": owner_identity.status,
-            "historical_replay": historical_replay,
+            "currentness_observation": currentness.model_dump(mode="json"),
         }
     return {
         "status": "pass",
         "persisted_schema_version": run.schema_version,
-        "persisted_identity_status": run.deployment_identity_status,
-        "owner_identity_status": owner_identity.status,
-        "identity_equality": "recomputed",
+        "persisted_identity_status": currentness.recorded_identity_status,
+        "owner_identity_status": currentness.loaded_identity_status,
+        "identity_equality": "independently_reconciled",
         "historical_replay": historical_replay,
+        "currentness_observation": currentness.model_dump(mode="json"),
     }
 
 
@@ -1215,6 +1202,14 @@ def validate(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     path = repo_root / OUTPUT_PATH
+    n6_source_census: N6SourceCensusGateResult | None
+    try:
+        n6_source_census = inspect_n6_source_census(repo_root)
+    except Exception as exc:
+        n6_source_census = None
+        census_error = f"{type(exc).__name__}:{exc}"
+    else:
+        census_error = None
     with measure_file_reads(repo_root) as file_reads:
         try:
             is_file = _inspect_input(
@@ -1294,8 +1289,51 @@ def validate(repo_root: Path) -> dict[str, Any]:
         except Exception as exc:
             report = _replay_exception_report(exc, stage="validator_boundary")
         file_receipt = file_reads.snapshot(
-            complete_verdict=report.get("status") != "UNRUN"
+            complete_verdict=(
+                report.get("status") != "UNRUN"
+                and n6_source_census is not None
+                and n6_source_census.source_verdict != "UNRUN"
+            )
         )
+    if n6_source_census is None:
+        census_measurement: dict[str, Any] = {
+            "source_verdict": "UNRUN",
+            "reason_code": "n6_source_census_inspection_failed",
+            "error": census_error,
+            "inputs": {
+                "source_scope": "src/polisyos",
+                "denominator_pattern": "src/polisyos/**/*.py",
+            },
+            "unresolved_by_construction": ["source_census_inspection_failed"],
+        }
+    else:
+        census_measurement = n6_source_census.model_dump(mode="json")
+        if n6_source_census.source_verdict == "fail" and report.get("status") != "fail":
+            report = {
+                **report,
+                "status": "fail",
+                "issues": [
+                    *report.get("issues", []),
+                    {"code": "n6_source_census_production_caller"},
+                ],
+                "predicate_stage": "n6_source_census",
+                "predicate_result": "fail",
+            }
+        elif (
+            n6_source_census.source_verdict == "UNRUN"
+            and report.get("status") != "fail"
+        ):
+            report = {
+                **report,
+                "status": "UNRUN",
+                "issues": [
+                    *report.get("issues", []),
+                    {"code": "n6_source_census_not_established"},
+                ],
+                "predicate_stage": "n6_source_census",
+                "predicate_result": "not_run",
+            }
+    report = {**report, "n6_source_census": census_measurement}
     n9_measurement = report.pop("n9_replay_measurement", None)
     predicate_status = report.get("status", "fail")
     report["measurement"] = {
@@ -1311,6 +1349,7 @@ def validate(repo_root: Path) -> dict[str, Any]:
             },
             "n6_n9_replay": n9_measurement
             or {"status": "not_reached", "callback_attempt_count": 0},
+            "n6_source_census": census_measurement,
         },
         "predicate": {
             "stage": report.get("predicate_stage", "validator_boundary"),
@@ -1326,8 +1365,8 @@ def validate(repo_root: Path) -> dict[str, Any]:
                 "explicit file-read receipt."
             ),
             (
-                "The selected production N6/N9 route is exercised, but imports, dynamic dispatch, "
-                "and uninvoked sibling runtime paths are outside this validator's predicate."
+                "The N6 census is source/deploy-time evidence only; it does not issue installed "
+                "package identity, deployment authority, or currentness for persisted runs."
             ),
         ],
     }

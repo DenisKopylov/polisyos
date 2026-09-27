@@ -18,7 +18,11 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     derive_recursive_design_graph,
 )
-from polisyos.runtime.quality.generation_cycle import GenerationCycleController, N4GenerationPort
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleController,
+    N4GenerationPort,
+    StrangleReceipt,
+)
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
@@ -1363,6 +1367,11 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
         compile_problem,
     )
 
+    def source_scan_must_not_run(*_args, **_kwargs):
+        pytest.fail("served_candidate_reentry_scanned_source_tree")
+
+    monkeypatch.setattr(StrangleReceipt, "recompute", source_scan_must_not_run)
+
     class _ContextFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
@@ -1395,6 +1404,7 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
         raw_request=problem.nl_provenance.raw_request,
         context={},
         model_name="fixture-model",
+        execution_intent="simulate_only",
         compiler_gateway=object(),  # type: ignore[arg-type]
         budget_state=_budget(),
         recursive_budget=recursive_budget,
@@ -1410,6 +1420,11 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     leaf_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
     assert leaf_cycle.cycles
     simulation = leaf_cycle.cycles[0].simulation
+    assert leaf_cycle.strangle_receipt.status == "not_established"
+    assert leaf_cycle.promotion_port.status == "not_promoted"
+    assert leaf_cycle.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
     assert simulation.status == "simulation_blocked"
     assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
     assert simulation.world_model_record is substrate_context.world_model_record

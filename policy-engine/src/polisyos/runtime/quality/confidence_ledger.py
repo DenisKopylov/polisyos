@@ -787,6 +787,66 @@ class LoadedDeploymentIdentityObservation(_StrictModel):
         return self
 
 
+class N6DeploymentCurrentnessObservation(_StrictModel):
+    """Identity-bound N6 currentness observation owned by the confidence ledger.
+
+    This observation compares a persisted run's canonical deployment identity
+    with the identity captured when the current process loaded. It deliberately
+    does not turn source presence, a matching identity, or a source census into
+    authority: that requires the separately appointed N6 census and deployment
+    identity issuers.
+    """
+
+    schema_version: Literal[
+        "policyos.runtime.confidence_ledger.n6_currentness_observation.v1"
+    ] = "policyos.runtime.confidence_ledger.n6_currentness_observation.v1"
+    status: Literal["current", "stale", "not_established"]
+    census_verdict: Literal["PASS", "FAIL", "UNRUN"]
+    recorded_identity_status: Literal["established", "not_established"] | None = None
+    recorded_deployment_identity: str | None = Field(
+        default=None,
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
+    )
+    loaded_identity_status: Literal["established", "not_established"]
+    loaded_deployment_identity: str | None = Field(
+        default=None,
+        pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
+    )
+    reason_code: Literal[
+        "historical_deployment_identity_not_recorded",
+        "loaded_deployment_identity_not_established",
+        "generation_cycle_deployment_identity_mismatch",
+        "n6_census_issuer_not_appointed",
+        "n6_census_not_established",
+        "n6_currentness_established",
+    ]
+    unresolved_by_construction: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _bind_observation(self) -> Self:
+        if self.loaded_identity_status == "established":
+            if self.loaded_deployment_identity is None:
+                raise ValueError("n6_currentness_loaded_identity_missing")
+        elif self.loaded_deployment_identity is not None:
+            raise ValueError("n6_currentness_loaded_identity_unexpected")
+        if self.status == "current" and (
+            self.census_verdict != "PASS"
+            or self.loaded_identity_status != "established"
+            or self.recorded_identity_status != "established"
+            or self.recorded_deployment_identity != self.loaded_deployment_identity
+        ):
+            raise ValueError("n6_currentness_current_not_reconciled")
+        if self.status == "stale" and (
+            self.recorded_identity_status != "established"
+            or self.loaded_identity_status != "established"
+            or self.recorded_deployment_identity == self.loaded_deployment_identity
+        ):
+            raise ValueError("n6_currentness_stale_not_reconciled")
+        if self.status == "not_established" and self.census_verdict != "UNRUN":
+            raise ValueError("n6_currentness_unestablished_requires_unrun_census")
+        return self
+
+
 class PackagedDeploymentIdentityReadiness(_StrictModel):
     """Three-valued installed-package identity readiness from the ledger owner.
 
@@ -4507,6 +4567,78 @@ def inspect_packaged_deployment_identity() -> PackagedDeploymentIdentityReadines
     )
 
 
+def observe_n6_deployment_currentness(
+    *,
+    recorded_identity_status: Literal["established", "not_established"] | None,
+    recorded_deployment_identity: str | None,
+) -> N6DeploymentCurrentnessObservation:
+    """Compare a run with canonical loaded identity without reading source files.
+
+    A recorded identity mismatch is typed stale. Historical runs without an
+    identity remain replayable but cannot be called current. Matching identity
+    remains UNRUN while the package-owned N6 census issuer is not appointed.
+    """
+
+    loaded = capture_loaded_deployment_identity()
+    readiness = inspect_packaged_deployment_identity()
+    unresolved = tuple(readiness.unresolved_by_construction)
+    common = {
+        "census_verdict": readiness.verdict,
+        "recorded_identity_status": recorded_identity_status,
+        "recorded_deployment_identity": recorded_deployment_identity,
+        "loaded_identity_status": loaded.status,
+        "loaded_deployment_identity": loaded.deployment_identity,
+        "unresolved_by_construction": unresolved,
+    }
+    if recorded_identity_status is None:
+        return N6DeploymentCurrentnessObservation(
+            status="not_established",
+            reason_code=(
+                "n6_census_issuer_not_appointed"
+                if loaded.status == "established"
+                else "loaded_deployment_identity_not_established"
+            ),
+            **common,
+        )
+    if recorded_identity_status != "established" or recorded_deployment_identity is None:
+        return N6DeploymentCurrentnessObservation(
+            status="not_established",
+            reason_code="historical_deployment_identity_not_recorded",
+            **common,
+        )
+    if loaded.status != "established" or loaded.deployment_identity is None:
+        return N6DeploymentCurrentnessObservation(
+            status="not_established",
+            reason_code="loaded_deployment_identity_not_established",
+            **common,
+        )
+    if recorded_deployment_identity != loaded.deployment_identity:
+        return N6DeploymentCurrentnessObservation(
+            status="stale",
+            reason_code="generation_cycle_deployment_identity_mismatch",
+            **common,
+        )
+    if readiness.verdict != "PASS" or unresolved:
+        reason_code = (
+            "n6_census_issuer_not_appointed"
+            if "n6_strangle_census_not_established" in unresolved
+            else "n6_census_not_established"
+        )
+        return N6DeploymentCurrentnessObservation(
+            status="not_established",
+            reason_code=reason_code,
+            **common,
+        )
+    return N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status=recorded_identity_status,
+        recorded_deployment_identity=recorded_deployment_identity,
+        loaded_identity_status=loaded.status,
+        loaded_deployment_identity=loaded.deployment_identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
 def _policy_engine_deployment_identity(repo_root: Path) -> str:
     """Bind authority to disk bytes, runtime ABI, and actually loaded code."""
 
@@ -5891,6 +6023,7 @@ __all__ = [
     "ConfidenceLedgerSession",
     "ConfidenceRiskBudgetScope",
     "LoadedDeploymentIdentityObservation",
+    "N6DeploymentCurrentnessObservation",
     "N9PromotionCertificateProjection",
     "N9PromotionLedgerRow",
     "N9PromotionSemanticLedgerProjection",
@@ -5905,6 +6038,7 @@ __all__ = [
     "capture_loaded_deployment_identity",
     "inspect_packaged_deployment_identity",
     "load_confidence_ledger_registry",
+    "observe_n6_deployment_currentness",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
     "project_n9_promotion_semantic_ledger",

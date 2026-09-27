@@ -20,7 +20,9 @@ import hashlib
 import inspect
 import json
 import math
+import os
 import re
+import stat
 import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass, replace
@@ -96,6 +98,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     produce_acquisition_cost_basis_record,
     run_acquisition_closed_loop,
     value_input_world_knowledge_requirement_gap,
+)
+from polisyos.runtime.quality.confidence_ledger import (
+    N6DeploymentCurrentnessObservation,
+    observe_n6_deployment_currentness,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_modes import (
@@ -1753,6 +1759,52 @@ class StrangleReceipt(_StrictModel):
             )
 
 
+class N6SourceCensusGateResult(_StrictModel):
+    """Three-valued source census result for the standalone N6 tooling gate.
+
+    This result describes only the declared checkout source slice. It is not a
+    deployment identity, a persisted N6 receipt, or current authority evidence.
+    """
+
+    schema_version: Literal["policyos.runtime.generation_cycle.n6_source_census.v2"] = (
+        "policyos.runtime.generation_cycle.n6_source_census.v2"
+    )
+    source_verdict: Literal["pass", "fail", "UNRUN"]
+    source_scope: Literal["src/polisyos"] = "src/polisyos"
+    denominator_pattern: Literal["src/polisyos/**/*.py"] = "src/polisyos/**/*.py"
+    denominator_file_count: int = Field(ge=0)
+    denominator_complete: bool
+    denominator_path_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    census_rule: Literal["n6_direct_and_alias_census_v2"] = (
+        "n6_direct_and_alias_census_v2"
+    )
+    semantic_census_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    production_callers: tuple[str, ...] = ()
+    unresolved_by_construction: tuple[str, ...] = ()
+    authority_currentness: Literal["UNRUN"] = "UNRUN"
+    canonical_identity_binding: Literal["not_established"] = "not_established"
+    identity_binding_reason: Literal["n6_census_issuer_not_appointed"] = (
+        "n6_census_issuer_not_appointed"
+    )
+    inputs: dict[str, str | int | bool]
+
+
+def _n6_not_established_strangle_receipt(reason_code: str) -> StrangleReceipt:
+    """Represent missing N6 census issuance without inventing a receipt."""
+
+    return StrangleReceipt(
+        status="not_established",
+        default_cycle_controller=GENERATION_CYCLE_CONTROLLER_REF,
+        source_state="not_established",
+        limitation_refs=(
+            reason_code,
+            "n6_census_issuer_not_appointed",
+            "deployment_authority_issuer_not_appointed",
+            "source_census_is_tooling_evidence_only",
+        ),
+    )
+
+
 class GenerationCycleRun(_StrictModel):
     """N6 run artifact containing cycles, fronts, ports, and strangle evidence."""
 
@@ -1832,9 +1884,24 @@ class GenerationCycleRun(_StrictModel):
         return self
 
     def verify_strangle_receipt(self, repo_root: Path | None = None) -> None:
-        """Verify the run's source-bound strangle receipt at its consumer."""
+        """Require the owner-issued currentness observation at its consumer.
 
-        self.strangle_receipt.verify_current(repo_root)
+        ``repo_root`` is retained for call compatibility; persisted consumers do
+        not reopen or rescan a source checkout.
+        """
+
+        del repo_root
+        observation = currentness_for_generation_cycle_run(self)
+        if observation.status == "stale":
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_stale",
+                observation.reason_code,
+            )
+        if observation.status != "current":
+            raise GenerationCycleError(
+                "generation_cycle_strangle_receipt_currentness_not_established",
+                observation.reason_code,
+            )
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
@@ -4207,20 +4274,24 @@ class GenerationCycleController:
             raise GenerationCycleError("generation_cycle_subject_binding_mismatch")
         run_id = f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}"
         try:
-            from polisyos.runtime.quality.confidence_ledger import (
-                capture_loaded_deployment_identity,
+            n6_currentness = observe_n6_deployment_currentness(
+                recorded_identity_status=None,
+                recorded_deployment_identity=None,
             )
-
-            identity_capture = capture_loaded_deployment_identity()
         except Exception:
+            n6_currentness = None
             # Identity is required for N9 authority, never for ordinary N6 work.
             identity_status = "not_established"
             deployment_identity = None
             identity_reason = "loaded_deployment_identity_owner_unavailable"
         else:
-            identity_status = identity_capture.status
-            deployment_identity = identity_capture.deployment_identity
-            identity_reason = identity_capture.reason_code
+            identity_status = n6_currentness.loaded_identity_status
+            deployment_identity = n6_currentness.loaded_deployment_identity
+            identity_reason = (
+                None
+                if identity_status == "established"
+                else n6_currentness.reason_code
+            )
         self._begin_source_run(run_id)
         current_problem = problem
         last_cycle_problem = problem
@@ -4324,6 +4395,20 @@ class GenerationCycleController:
                     f"{blocked_reason or 'generation_cycle_blocked'}"
                 ),
             )
+        elif (
+            n6_currentness is None
+            or n6_currentness.status != "current"
+            or n6_currentness.census_verdict != "PASS"
+        ):
+            reason = (
+                n6_currentness.reason_code
+                if n6_currentness is not None
+                else "loaded_deployment_identity_owner_unavailable"
+            )
+            promotion = PromotionPortObservation(
+                status="not_promoted",
+                reason=f"generation_cycle_n6_census_not_established:{reason}",
+            )
         else:
             promotion = self._promote_completed_generation(
                 summaries=promotion_summaries,
@@ -4353,7 +4438,11 @@ class GenerationCycleController:
             candidate_summaries=tuple(summaries),
             value_port=cycles[-1].value_port if cycles else ValuePortObservation(),
             promotion_port=promotion,
-            strangle_receipt=StrangleReceipt.recompute(self._repo_root),
+            strangle_receipt=_n6_not_established_strangle_receipt(
+                n6_currentness.reason_code
+                if n6_currentness is not None
+                else "n6_census_issuer_not_appointed"
+            ),
             terminal_status=terminal_status,
             blocked_reason=blocked_reason,
             synthetic=(
@@ -6500,10 +6589,48 @@ def validate_generation_cycle_run(
     *,
     repo_root: Path | None = None,
 ) -> tuple[dict[str, Any], ...]:
-    """Validate N6 semantics and require current source evidence for live use."""
+    """Validate N6 semantics and require owner-issued currentness for authority."""
 
     return _validate_generation_cycle_run(
-        run, repo_root=repo_root, require_currentness=True
+        run, require_currentness=True
+    )
+
+
+def validate_generation_cycle_candidate_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Validate candidate computation while carrying unissued currentness.
+
+    A known deployment mismatch remains a refusal. An unappointed census issuer
+    is a typed limitation and does not prevent ordinary candidate computation.
+    """
+
+    return _validate_generation_cycle_run(run, require_currentness=False)
+
+
+def currentness_for_generation_cycle_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+) -> N6DeploymentCurrentnessObservation:
+    """Ask the confidence-ledger owner whether this run is current.
+
+    This lookup compares identity only. It never reads a repository checkout or
+    replays a persisted source-byte denominator.
+    """
+
+    try:
+        parsed = (
+            run
+            if isinstance(run, GenerationCycleRun)
+            else GenerationCycleRun.model_validate(run)
+        )
+    except ValueError:
+        return observe_n6_deployment_currentness(
+            recorded_identity_status="not_established",
+            recorded_deployment_identity=None,
+        )
+    return observe_n6_deployment_currentness(
+        recorded_identity_status=parsed.deployment_identity_status,
+        recorded_deployment_identity=parsed.deployment_identity,
     )
 
 
@@ -6563,7 +6690,7 @@ def _validate_generation_cycle_run(
     current_strangle_receipt: StrangleReceipt | None = None,
     require_currentness: bool = True,
 ) -> tuple[dict[str, Any], ...]:
-    """Run intrinsic cycle checks and, when requested, the live source check."""
+    """Run intrinsic checks and, when requested, the typed identity question."""
 
     if not isinstance(run, GenerationCycleRun):
         try:
@@ -6572,31 +6699,33 @@ def _validate_generation_cycle_run(
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
     if require_currentness:
-        try:
-            if current_strangle_receipt is not None:
+        if current_strangle_receipt is not None:
+            try:
                 run.strangle_receipt._verify_against_current_receipt(
                     current_strangle_receipt
                 )
-            elif repo_root is None:
+            except GenerationCycleError as exc:
+                issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
+        else:
+            observation = currentness_for_generation_cycle_run(run)
+            if observation.status == "stale":
+                issues.append(
+                    {
+                        "code": "strangle_receipt_stale",
+                        "reason": observation.reason_code,
+                    }
+                )
+            elif observation.status != "current":
                 issues.append(
                     {
                         "code": "strangle_receipt_currentness_not_established",
-                        "reason": "live repo_root is required to replay the source denominator",
+                        "reason": observation.reason_code,
+                        "census_verdict": observation.census_verdict,
+                        "unresolved_by_construction": (
+                            observation.unresolved_by_construction
+                        ),
                     }
                 )
-            else:
-                run.verify_strangle_receipt(repo_root)
-        except GenerationCycleError as exc:
-            issue_code = {
-                "generation_cycle_strangle_receipt_stale": "strangle_receipt_stale",
-                "generation_cycle_strangle_receipt_not_strangled": (
-                    "strangle_receipt_currentness_not_established"
-                ),
-                "generation_cycle_strangle_receipt_currentness_not_established": (
-                    "strangle_receipt_currentness_not_established"
-                ),
-            }.get(exc.code, exc.code)
-            issues.append({"code": issue_code, "error": str(exc)})
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()
@@ -6818,7 +6947,7 @@ def _validate_generation_cycle_run(
                     "candidate_id": summary.candidate_id,
                 }
             )
-    if run.strangle_receipt.status != "strangled":
+    if require_currentness and run.strangle_receipt.status != "strangled":
         issues.append({"code": "single_pass_fixture_survives_as_production_cycle"})
     if run.value_port.status == "value_ready" and not run.value_port.value_ref:
         issues.append({"code": "fabricated_value_without_n8"})
@@ -10214,6 +10343,216 @@ def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:
     return _collect_strangle_source_census(repo_root).callers
 
 
+def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
+    """Run the standalone source/deploy-time N6 census gate.
+
+    Inputs are every discovered ``src/polisyos/**/*.py`` path, its relative-path
+    denominator, and direct/aliased ``run_fixture`` references. Read or parse
+    failures and dynamic attribute dispatch yield UNRUN. This source-only gate
+    never establishes a packaged identity or current authority.
+    """
+
+    root = repo_root.resolve()
+    source_root = root / "src" / "polisyos"
+    unresolved: set[str] = set()
+    callers: set[str] = set()
+    source_root_present = False
+    try:
+        source_root_stat = source_root.stat()
+    except FileNotFoundError:
+        unresolved.add("source_denominator_missing")
+        paths: tuple[Path, ...] = ()
+    except OSError:
+        paths = ()
+        unresolved.add("source_denominator_root_inspection_failed")
+    else:
+        if not stat.S_ISDIR(source_root_stat.st_mode):
+            paths = ()
+            unresolved.add("source_denominator_missing")
+        else:
+            source_root_present = True
+            paths = _enumerate_n6_source_paths(source_root, unresolved)
+    relative_paths = tuple(path.relative_to(root).as_posix() for path in paths)
+    denominator_digest = hashlib.sha256(
+        "\n".join(relative_paths).encode("utf-8")
+    ).hexdigest()
+    if not relative_paths:
+        unresolved.add("source_denominator_empty")
+    denominator_complete = not any(
+        item.startswith("source_denominator_") for item in unresolved
+    )
+
+    for path in paths:
+        relative = path.relative_to(root).as_posix()
+        try:
+            tree = ast.parse(path.read_bytes().decode("utf-8"), filename=relative)
+        except (OSError, SyntaxError, UnicodeDecodeError):
+            unresolved.add("source_read_or_parse_incomplete")
+            continue
+        parent_by_node = {
+            child: parent
+            for parent in ast.walk(tree)
+            for child in ast.iter_child_nodes(parent)
+        }
+        imported_owner_aliases: set[str] = set()
+        unresolved_import_aliases: set[str] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    bound_name = alias.asname or alias.name
+                    if (
+                        node.module == "polisyos.runtime.quality.workspace.loop"
+                        and alias.name == "WorkspaceLoop"
+                    ):
+                        imported_owner_aliases.add(bound_name)
+                    elif alias.name == "run_fixture":
+                        unresolved_import_aliases.add(bound_name)
+        if unresolved_import_aliases:
+            unresolved.add("same_named_import_owner_not_resolved")
+        shadowed_owner_aliases: set[str] = set()
+        if imported_owner_aliases:
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Name) and node.id in imported_owner_aliases:
+                    if isinstance(node.ctx, ast.Store):
+                        shadowed_owner_aliases.add(node.id)
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
+                    argument.arg in imported_owner_aliases
+                    for argument in node.args.args
+                ):
+                    shadowed_owner_aliases.update(
+                        argument.arg
+                        for argument in node.args.args
+                        if argument.arg in imported_owner_aliases
+                    )
+        if shadowed_owner_aliases:
+            unresolved.add("lexical_alias_shadowing_not_reconciled")
+        called_function_nodes = {
+            id(node.func)
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+        }
+        for node in ast.walk(tree):
+            if (
+                (isinstance(node, ast.Attribute) and node.attr == "run_fixture")
+                or (isinstance(node, ast.Name) and node.id == "run_fixture")
+            ) and id(node) not in called_function_nodes:
+                unresolved.add("non_call_fixture_reference")
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if (
+                isinstance(node.func, ast.Attribute)
+                and node.func.attr == "run_fixture"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id in imported_owner_aliases
+            ):
+                if node.func.value.id in shadowed_owner_aliases:
+                    unresolved.add("lexical_alias_shadowing_not_reconciled")
+                else:
+                    callers.add(f"{relative}:{node.lineno}")
+            elif isinstance(node.func, ast.Attribute) and node.func.attr == "run_fixture":
+                if _is_allowed_n6_fixture_owner_dispatch(relative, node, parent_by_node):
+                    unresolved.add("allowed_fixture_reachability_not_established")
+                else:
+                    unresolved.add("dynamic_attribute_dispatch")
+            elif isinstance(node.func, ast.Name) and node.func.id == "getattr":
+                if len(node.args) < 2:
+                    unresolved.add("dynamic_attribute_dispatch")
+                    continue
+                try:
+                    attribute = ast.literal_eval(node.args[1])
+                except (ValueError, TypeError, SyntaxError):
+                    unresolved.add("dynamic_attribute_dispatch")
+                else:
+                    if attribute == "run_fixture":
+                        unresolved.add("dynamic_attribute_dispatch")
+            elif isinstance(node.func, ast.Name) and node.func.id in unresolved_import_aliases:
+                unresolved.add("same_named_import_owner_not_resolved")
+            elif isinstance(node.func, ast.Name) and node.func.id == "run_fixture":
+                unresolved.add("unbound_run_fixture_name")
+
+    ordered_callers = tuple(sorted(callers))
+    ordered_unresolved = tuple(sorted(unresolved))
+    if ordered_callers:
+        source_verdict: Literal["pass", "fail", "UNRUN"] = "fail"
+    elif ordered_unresolved:
+        source_verdict = "UNRUN"
+    else:
+        source_verdict = "pass"
+    semantic_payload = {
+        "rule": "n6_direct_and_alias_census_v2",
+        "denominator_path_sha256": denominator_digest,
+        "source_file_count": len(paths),
+        "denominator_complete": denominator_complete,
+        "production_callers": ordered_callers,
+        "unresolved_by_construction": ordered_unresolved,
+    }
+    semantic_digest = hashlib.sha256(
+        json.dumps(
+            semantic_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return N6SourceCensusGateResult(
+        source_verdict=source_verdict,
+        denominator_file_count=len(paths),
+        denominator_complete=denominator_complete,
+        denominator_path_sha256=denominator_digest,
+        semantic_census_sha256=semantic_digest,
+        production_callers=ordered_callers,
+        unresolved_by_construction=ordered_unresolved,
+        inputs={
+            "source_scope": "src/polisyos",
+            "denominator_pattern": "src/polisyos/**/*.py",
+            "repository_source_root_present": source_root_present,
+            "denominator_file_count": len(paths),
+            "denominator_complete": denominator_complete,
+            "canonical_identity_binding": "not_established",
+            "identity_binding_reason": "n6_census_issuer_not_appointed",
+        },
+    )
+
+
+def _enumerate_n6_source_paths(
+    source_root: Path,
+    unresolved: set[str],
+) -> tuple[Path, ...]:
+    """Enumerate Python paths explicitly and retain scan-time failures."""
+
+    pending = [source_root]
+    paths: list[Path] = []
+    while pending:
+        directory = pending.pop()
+        try:
+            with os.scandir(directory) as entries:
+                ordered_entries = sorted(entries, key=lambda entry: entry.name)
+        except OSError:
+            unresolved.add("source_denominator_enumeration_failed")
+            continue
+        for entry in ordered_entries:
+            entry_path = Path(entry.path)
+            try:
+                if entry.is_symlink():
+                    if entry.is_dir(follow_symlinks=True):
+                        unresolved.add(
+                            "source_denominator_symlink_directory_not_followed"
+                        )
+                    elif entry.name.endswith(".py") and entry.is_file(
+                        follow_symlinks=True
+                    ):
+                        paths.append(entry_path)
+                elif entry.is_dir(follow_symlinks=False):
+                    pending.append(entry_path)
+                elif entry.name.endswith(".py") and entry.is_file(
+                    follow_symlinks=False
+                ):
+                    paths.append(entry_path)
+            except OSError:
+                unresolved.add("source_denominator_entry_inspection_failed")
+    return tuple(sorted(paths))
+
+
 def _call_name(node: ast.AST) -> str:
     if isinstance(node, ast.Attribute):
         return node.attr
@@ -10224,6 +10563,39 @@ def _call_name(node: ast.AST) -> str:
 
 def _is_allowed_fixture_caller(caller: str) -> bool:
     return caller.startswith("src/polisyos/runtime/quality/workspace/loop.py:")
+
+
+def _is_allowed_n6_fixture_owner_dispatch(
+    relative: str,
+    call: ast.Call,
+    parents: Mapping[ast.AST, ast.AST],
+) -> bool:
+    """Allow only the two existing internal WorkspaceLoop fixture delegations."""
+
+    if (
+        relative != "src/polisyos/runtime/quality/workspace/loop.py"
+        or not isinstance(call.func, ast.Attribute)
+        or call.func.attr != "run_fixture"
+        or not isinstance(call.func.value, ast.Name)
+        or call.func.value.id != "self"
+    ):
+        return False
+    function_name: str | None = None
+    class_name: str | None = None
+    current = parents.get(call)
+    while current is not None:
+        if function_name is None and isinstance(
+            current, (ast.FunctionDef, ast.AsyncFunctionDef)
+        ):
+            function_name = current.name
+        if isinstance(current, ast.ClassDef):
+            class_name = current.name
+            break
+        current = parents.get(current)
+    return class_name == "WorkspaceLoop" and function_name in {
+        "decompose_fixture",
+        "run_control_plane_fixture",
+    }
 
 
 def _cycle_driver_ref(
@@ -10318,6 +10690,7 @@ __all__ = [
     "JointSimulationPort",
     "LoopVOIDecision",
     "N4GenerationPort",
+    "N6SourceCensusGateResult",
     "PendingN8ValuePort",
     "PendingN9PromotionPort",
     "PolicyGroundingPort",
@@ -10330,13 +10703,16 @@ __all__ = [
     "ValueGateReceipt",
     "ValuePortObservation",
     "ValueTransportReceipt",
+    "currentness_for_generation_cycle_run",
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
+    "inspect_n6_source_census",
     "is_value_panel_shape",
     "load_joint_simulation_result",
     "persist_joint_simulation_result",
     "simulation_evaluation_input_ref",
     "simulation_value_execution_context",
+    "validate_generation_cycle_candidate_run",
     "validate_generation_cycle_run",
     "validate_generation_cycle_run_history",
 ]

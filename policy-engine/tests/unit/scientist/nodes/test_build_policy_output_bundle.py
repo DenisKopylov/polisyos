@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 from unittest.mock import patch
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -57,6 +58,7 @@ from polisyos.scientist.methods.search.readiness import DecisionReadiness, Decis
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     BuildPolicyOutputBundleNode,
+    _dedupe_artifact_refs,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
@@ -93,6 +95,27 @@ from polisyos.scientist.policy_design.output import (
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
+
+
+def test_policy_output_ref_deduplication_keeps_distinct_selected_views() -> None:
+    artifact_id = ArtifactID.model_validate("sha256:" + "a" * 64)
+    default_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind="scientist.side_information",
+        media_type="application/json",
+    )
+    selected_a = default_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    )
+    selected_b = default_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "c" * 64}
+    )
+
+    assert _dedupe_artifact_refs([default_ref, selected_a, selected_b, selected_a]) == [
+        default_ref,
+        selected_a,
+        selected_b,
+    ]
 
 
 def _claim_capable_context(ctx: ExecutionContext) -> ClaimCapableExecutionContext:

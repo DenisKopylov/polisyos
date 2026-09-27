@@ -9,7 +9,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.evidence.claims.export import (
@@ -42,7 +48,7 @@ COMPILER_BACKED_DECISION_CARD_FLAG = (
 )
 DECISION_GRADE_EXPORT_KIND = "scientist.decision_grade_export"
 DECISION_GRADE_EXPORT_SCHEMA_NAME = "polisyos.scientist.DecisionGradeExport"
-DECISION_GRADE_EXPORT_SCHEMA_VERSION = "1.0"
+DECISION_GRADE_EXPORT_SCHEMA_VERSION = "1.1"
 
 FORBIDDEN_PUBLIC_EXPORT_TOKENS: tuple[str, ...] = (
     "hidden_benchmark",
@@ -89,7 +95,7 @@ class DecisionGradeExport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     run_id: str = Field(min_length=1)
     audience: OutputAudience
     claims_ref: ArtifactRef
@@ -99,18 +105,29 @@ class DecisionGradeExport(BaseModel):
 
     @model_validator(mode="after")
     def _validate_export_contract(self) -> DecisionGradeExport:
+        if self.payload.get("schema_version") != self.schema_version:
+            raise ValueError("decision_grade_export_payload_schema_version_mismatch")
         trust = self.payload.get("trust_provenance")
         if not isinstance(trust, Mapping):
             raise ValueError("decision-grade exports require trust_provenance")
+        if trust.get("schema_version") != self.schema_version:
+            raise ValueError("decision_grade_export_trust_schema_version_mismatch")
         _validate_trust_refs(
-            trust, claims_ref=self.claims_ref, research_dag_ref=self.research_dag_ref
+            trust,
+            claims_ref=self.claims_ref,
+            research_dag_ref=self.research_dag_ref,
+            schema_version=self.schema_version,
         )
         current_head = ClaimLedgerCurrentHeadProjection.model_validate(
             self.payload.get("claim_current_head")
         )
         if current_head.ledger_artifact_ref != self.claims_ref:
             raise ValueError("decision-grade claim current-head trust mismatch")
-        _validate_current_head_trust(trust, current_head=current_head)
+        _validate_current_head_trust(
+            trust,
+            current_head=current_head,
+            schema_version=self.schema_version,
+        )
 
         blocked_count = _blocked_count(self.payload)
         visible_blocked = _has_visible_blocked_claims(self.payload)
@@ -213,7 +230,7 @@ def compile_decision_grade_export(
 
     omissions = _omissions_for_claim_export(claim_export, audience=resolved_audience)
     common = {
-        "schema_version": "1.0",
+        "schema_version": DECISION_GRADE_EXPORT_SCHEMA_VERSION,
         "run_id": run_id,
         "audience": resolved_audience.value,
         "claim_ledger_summary": ledger_summary,
@@ -346,7 +363,10 @@ def assert_decision_grade_exports_consistent(
         raise ValueError("decision-grade exports must share claims_ref and research_dag_ref")
     owner_views = {
         (
-            _artifact_ref_mapping_key(item.payload["trust_provenance"].get("claim_head_ref")),
+            _artifact_ref_mapping_key(
+                item.payload["trust_provenance"].get("claim_head_ref"),
+                schema_version=item.schema_version,
+            ),
             item.payload["trust_provenance"].get("claim_head_content_hash"),
             item.payload["trust_provenance"].get("claim_head_generation"),
             item.payload["trust_provenance"].get("claim_currentness"),
@@ -365,8 +385,8 @@ def decision_grade_export_inputs(export: DecisionGradeExport) -> list[InputRef]:
     """Return manifest lineage inputs for a persisted decision-grade export."""
 
     return [
-        InputRef(artifact_id=export.claims_ref.artifact_id, role="claims"),
-        InputRef(artifact_id=export.research_dag_ref.artifact_id, role="research_dag"),
+        input_ref_from_artifact_ref(export.claims_ref, role="claims"),
+        input_ref_from_artifact_ref(export.research_dag_ref, role="research_dag"),
     ]
 
 
@@ -379,6 +399,13 @@ def persist_decision_grade_export(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist only after re-resolving its exact owner-held Claim projection."""
+
+    export = DecisionGradeExport.model_validate(export.model_dump(mode="python"))
+    if export.schema_version != DECISION_GRADE_EXPORT_SCHEMA_VERSION:
+        raise ValueError("legacy_decision_grade_export_not_current_admission")
+    required_inputs = decision_grade_export_inputs(export)
+    if inputs is not None and any(item not in inputs for item in required_inputs):
+        raise ValueError("decision_grade_export_lineage_inputs_missing_or_unbound")
 
     claim_audience = _claim_export_audience(export.audience)
     before = claim_owner.resolve_current(owner_key=claim_owner_key)
@@ -439,7 +466,7 @@ def persist_decision_grade_export(
                 name=DECISION_GRADE_EXPORT_SCHEMA_NAME,
                 version=DECISION_GRADE_EXPORT_SCHEMA_VERSION,
             ),
-            inputs=list(inputs) if inputs is not None else decision_grade_export_inputs(export),
+            inputs=list(inputs) if inputs is not None else required_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -448,7 +475,7 @@ def persist_decision_grade_export(
 def load_decision_grade_export(store: Any, ref: ArtifactRef) -> DecisionGradeExport:
     """Load a persisted decision-grade export from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return DecisionGradeExport.model_validate(payload)
 
 
@@ -578,7 +605,7 @@ def _trust_provenance(
     withdrawal_record_ref: ArtifactRef | None,
 ) -> dict[str, Any]:
     return {
-        "schema_version": "1.0",
+        "schema_version": DECISION_GRADE_EXPORT_SCHEMA_VERSION,
         "claims_ref": _artifact_ref_payload(claims_ref),
         "claim_head_ref": _artifact_ref_payload(claim_current_head.head_ref),
         "claim_head_content_hash": claim_current_head.head_content_hash,
@@ -616,11 +643,15 @@ def _validate_current_head_trust(
     trust: Mapping[str, Any],
     *,
     current_head: ClaimLedgerCurrentHeadProjection,
+    schema_version: str,
 ) -> None:
     """Reject any serialized trust view that diverges from its typed owner read."""
 
     expected = {
-        "claim_head_ref": _artifact_ref_payload(current_head.head_ref),
+        "claim_head_ref": _artifact_ref_payload_for_schema(
+            current_head.head_ref,
+            schema_version=schema_version,
+        ),
         "claim_head_content_hash": current_head.head_content_hash,
         "claim_head_generation": current_head.head_generation,
         "claim_currentness": current_head.claim_currentness,
@@ -883,6 +914,11 @@ def _dict_section(payload: Mapping[str, Any], key: str) -> dict[str, Any]:
 
 
 def _artifact_ref_payload(ref: ArtifactRef) -> dict[str, str]:
+    return ref.model_dump(mode="json")
+
+
+def _legacy_artifact_ref_payload(ref: ArtifactRef) -> dict[str, str]:
+    """Render the exact v1.0 reference projection used by historical exports."""
     return {
         "artifact_id": str(ref.artifact_id),
         "kind": ref.kind,
@@ -890,15 +926,45 @@ def _artifact_ref_payload(ref: ArtifactRef) -> dict[str, str]:
     }
 
 
-def _artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str]:
+def _artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    return artifact_ref_identity_key(ref)
+
+
+def _legacy_artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str]:
+    """Return the historical v1.0 projection key, which did not bind views."""
     return (str(ref.artifact_id), ref.kind, ref.media_type)
 
 
-def _artifact_ref_mapping_key(value: object) -> tuple[str, str, str]:
+def _artifact_ref_key_for_schema(
+    ref: ArtifactRef,
+    *,
+    schema_version: str,
+) -> tuple[str, str, str] | tuple[str, str, str, str | None]:
+    if schema_version == "1.0":
+        return _legacy_artifact_ref_key(ref)
+    return _artifact_ref_key(ref)
+
+
+def _artifact_ref_payload_for_schema(
+    ref: ArtifactRef,
+    *,
+    schema_version: str,
+) -> dict[str, str]:
+    if schema_version == "1.0":
+        return _legacy_artifact_ref_payload(ref)
+    return _artifact_ref_payload(ref)
+
+
+def _artifact_ref_mapping_key(
+    value: object,
+    *,
+    schema_version: str = DECISION_GRADE_EXPORT_SCHEMA_VERSION,
+) -> tuple[str, str, str] | tuple[str, str, str, str | None]:
     if not isinstance(value, Mapping):
         raise ValueError("trust_provenance artifact ref is not a mapping")
     try:
-        return _artifact_ref_key(ArtifactRef.model_validate(value))
+        ref = ArtifactRef.model_validate(value)
+        return _artifact_ref_key_for_schema(ref, schema_version=schema_version)
     except (TypeError, ValueError) as exc:
         raise ValueError("trust_provenance artifact ref is invalid") from exc
 
@@ -912,14 +978,19 @@ def _validate_trust_refs(
     *,
     claims_ref: ArtifactRef,
     research_dag_ref: ArtifactRef,
+    schema_version: str,
 ) -> None:
     claims = trust.get("claims_ref")
     dag = trust.get("research_dag_ref")
     if not isinstance(claims, Mapping) or not isinstance(dag, Mapping):
         raise ValueError("trust_provenance requires claims_ref and research_dag_ref")
-    if _artifact_ref_mapping_key(claims) != _artifact_ref_key(claims_ref):
+    if _artifact_ref_mapping_key(claims, schema_version=schema_version) != (
+        _artifact_ref_key_for_schema(claims_ref, schema_version=schema_version)
+    ):
         raise ValueError("trust_provenance claims_ref does not match export claims_ref")
-    if _artifact_ref_mapping_key(dag) != _artifact_ref_key(research_dag_ref):
+    if _artifact_ref_mapping_key(dag, schema_version=schema_version) != (
+        _artifact_ref_key_for_schema(research_dag_ref, schema_version=schema_version)
+    ):
         raise ValueError("trust_provenance research_dag_ref does not match export research_dag_ref")
 
 

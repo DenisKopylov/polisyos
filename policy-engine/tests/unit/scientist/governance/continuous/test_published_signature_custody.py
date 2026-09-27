@@ -36,6 +36,108 @@ def _population(store: core_artifacts.FileSystemCAS):
     )
 
 
+def _selected_view(
+    store: core_artifacts.FileSystemCAS,
+    *,
+    kind: str,
+    payload: dict[str, object],
+) -> core_artifacts.ArtifactRef:
+    store.put_json(
+        payload,
+        core_artifacts.PutOptions(
+            kind=f"{kind}.default", media_type="application/json"
+        ),
+    )
+    return store.put_json(
+        payload,
+        core_artifacts.PutOptions(kind=kind, media_type="application/json"),
+    )
+
+
+def test_selected_views_survive_population_and_scan_lineage(tmp_path: Path) -> None:
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    now = datetime(2026, 9, 27, tzinfo=UTC)
+    signature_ref = _selected_view(
+        store, kind="synthetic.signature.selected", payload={"signature": "same-bytes"}
+    )
+    packet_ref = _selected_view(
+        store,
+        kind="synthetic.decision_packet.selected",
+        payload={"packet": "same-bytes"},
+    )
+    population = custody.persist_public_signature_population(
+        store,
+        population_id="selected-view-population",
+        population_provenance="synthetic_test",
+        members=(
+            custody.PublicSignaturePopulationMember(
+                signature_ref=signature_ref,
+                decision_packet_ref=packet_ref,
+                affected_claim_ids=("selected-claim",),
+                published_at=now,
+                staleness_after_seconds=60,
+            ),
+        ),
+        captured_at=now,
+    )
+    population_manifest = store.get_manifest(population.population_ref)
+    assert population_manifest.inputs == [
+        core_artifacts.InputRef(
+            artifact_id=signature_ref.artifact_id,
+            role="signature[0]",
+            manifest_profile_sha256=signature_ref.manifest_profile_sha256,
+        ),
+        core_artifacts.InputRef(
+            artifact_id=packet_ref.artifact_id,
+            role="decision_packet[0]",
+            manifest_profile_sha256=packet_ref.manifest_profile_sha256,
+        ),
+    ]
+
+    monitor_ref = _selected_view(
+        store, kind="synthetic.monitor_event.selected", payload={"event": "same-bytes"}
+    )
+    lifecycle_ref = _selected_view(
+        store,
+        kind="synthetic.lifecycle_result.selected",
+        payload={"result": "same-bytes"},
+    )
+    scan = custody.PublishedSignatureCustodyScan(
+        schema_version="1.0",
+        status="watched",
+        scanned_at=now,
+        predicate_provenance="synthetic_test",
+        population_ref=population.population_ref,
+        population_content_hash=population.population_content_hash,
+        population_provenance="synthetic_test",
+        member_count=1,
+        monitor_event_refs=(monitor_ref,),
+        lifecycle_bridge_result_refs=(lifecycle_ref,),
+        reason="selected-view-test",
+    )
+
+    persisted = custody.persist_published_signature_custody_scan(store, scan)
+
+    scan_manifest = store.get_manifest(persisted.scan_receipt_ref)
+    assert scan_manifest.inputs == [
+        core_artifacts.InputRef(
+            artifact_id=population.population_ref.artifact_id,
+            role="public_signature_population",
+            manifest_profile_sha256=population.population_ref.manifest_profile_sha256,
+        ),
+        core_artifacts.InputRef(
+            artifact_id=monitor_ref.artifact_id,
+            role="monitor_event[0]",
+            manifest_profile_sha256=monitor_ref.manifest_profile_sha256,
+        ),
+        core_artifacts.InputRef(
+            artifact_id=lifecycle_ref.artifact_id,
+            role="lifecycle_bridge_result[0]",
+            manifest_profile_sha256=lifecycle_ref.manifest_profile_sha256,
+        ),
+    ]
+
+
 def _no_lifecycle(ref):
     raise AssertionError(f"A population negative cannot emit lifecycle authority: {ref}")
 

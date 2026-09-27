@@ -472,12 +472,12 @@ def _population_inputs(
     for index, member in enumerate(snapshot.members):
         inputs.extend(
             (
-                core_artifacts.InputRef(
-                    artifact_id=member.signature_ref.artifact_id,
+                core_artifacts.input_ref_from_artifact_ref(
+                    member.signature_ref,
                     role=f"signature[{index}]",
                 ),
-                core_artifacts.InputRef(
-                    artifact_id=member.decision_packet_ref.artifact_id,
+                core_artifacts.input_ref_from_artifact_ref(
+                    member.decision_packet_ref,
                     role=f"decision_packet[{index}]",
                 ),
             )
@@ -491,8 +491,8 @@ def _assert_exact_artifact(
 ) -> None:
     """Verify a referenced artifact exists, verifies, and agrees with its manifest identity."""
 
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     if (
         not report.ok
         or manifest.artifact_id != ref.artifact_id
@@ -543,9 +543,9 @@ def resolve_public_signature_population(
 ) -> PersistedPublicSignaturePopulation:
     """Resolve a snapshot and reject manifest, input, or canonical-byte drift."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     snapshot = PublicSignaturePopulationSnapshot.model_validate(
         core_canon.from_canonical_bytes(raw)
     )
@@ -583,18 +583,21 @@ def _scan_inputs(scan: PublishedSignatureCustodyScan) -> list[core_artifacts.Inp
     inputs: list[core_artifacts.InputRef] = []
     if scan.population_ref is not None:
         inputs.append(
-            core_artifacts.InputRef(
-                artifact_id=scan.population_ref.artifact_id,
+            core_artifacts.input_ref_from_artifact_ref(
+                scan.population_ref,
                 role="public_signature_population",
             )
         )
     inputs.extend(
-        core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"monitor_event[{index}]")
+        core_artifacts.input_ref_from_artifact_ref(
+            ref,
+            role=f"monitor_event[{index}]",
+        )
         for index, ref in enumerate(scan.monitor_event_refs)
     )
     inputs.extend(
-        core_artifacts.InputRef(
-            artifact_id=ref.artifact_id,
+        core_artifacts.input_ref_from_artifact_ref(
+            ref,
             role=f"lifecycle_bridge_result[{index}]",
         )
         for index, ref in enumerate(scan.lifecycle_bridge_result_refs)
@@ -621,9 +624,9 @@ def persist_published_signature_custody_scan(
         ),
         canon_spec=_CANON,
     )
-    raw = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     persisted = PublishedSignatureCustodyScan.model_validate(core_canon.from_canonical_bytes(raw))
     if (
         not report.ok

@@ -9,8 +9,9 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.c4_persisted_profiles import c4_semantic_digest
 from polisyos.scientist.evidence.claims.export import (
     ClaimExportAudience,
@@ -340,6 +341,168 @@ def test_decision_grade_export_persists_with_claim_and_dag_lineage(tmp_path) -> 
         persist_decision_grade_export(
             store,
             substituted,
+            claim_owner=claim_owner,
+            claim_owner_key=owner_key,
+        )
+
+
+def test_decision_grade_export_binds_selected_view_in_lineage_and_trust(tmp_path) -> None:
+    claims_profile = "sha256:" + "a" * 64
+    dag_profile = "sha256:" + "b" * 64
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2").model_copy(
+        update={"manifest_profile_sha256": claims_profile}
+    )
+    dag_ref = _ref("dag", kind="scientist.research_dag").model_copy(
+        update={"manifest_profile_sha256": dag_profile}
+    )
+    claim_owner, owner_key = _stable_owner(_ledger(), claims_ref)
+    dag = _dag().model_copy(update={"claim_ledger_ref": claims_ref})
+
+    export = compile_decision_grade_export(
+        run_id="run_compiler",
+        audience=OutputAudience.MACHINE,
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=dag,
+    )
+
+    assert decision_grade_export_inputs(export) == [
+        InputRef(
+            artifact_id=claims_ref.artifact_id,
+            role="claims",
+            manifest_profile_sha256=claims_profile,
+        ),
+        InputRef(
+            artifact_id=dag_ref.artifact_id,
+            role="research_dag",
+            manifest_profile_sha256=dag_profile,
+        ),
+    ]
+    trust = export.payload["trust_provenance"]
+    assert trust["claims_ref"]["manifest_profile_sha256"] == claims_profile
+    assert trust["research_dag_ref"]["manifest_profile_sha256"] == dag_profile
+    assert export.schema_version == "1.1"
+    assert export.payload["schema_version"] == "1.1"
+    assert export.payload["trust_provenance"]["schema_version"] == "1.1"
+
+    for nested_schema in ("payload", "trust_provenance"):
+        forged = export.model_dump(mode="json")
+        nested = forged["payload"]
+        if nested_schema == "trust_provenance":
+            nested = nested["trust_provenance"]
+        nested["schema_version"] = "1.0"
+        with pytest.raises(ValidationError, match="schema_version_mismatch"):
+            DecisionGradeExport.model_validate(forged)
+
+    for replacement_profile in (None, "sha256:" + "c" * 64):
+        forged = export.model_dump(mode="json")
+        claims_payload = forged["payload"]["trust_provenance"]["claims_ref"]
+        if replacement_profile is None:
+            claims_payload.pop("manifest_profile_sha256")
+        else:
+            claims_payload["manifest_profile_sha256"] = replacement_profile
+        with pytest.raises(ValidationError, match="claims_ref does not match"):
+            DecisionGradeExport.model_validate(forged)
+
+    store = FileSystemCAS(tmp_path / "cas")
+    forged_export = export.model_copy(
+        update={
+            "payload": {
+                **export.payload,
+                "trust_provenance": {
+                    **export.payload["trust_provenance"],
+                    "claims_ref": {
+                        "artifact_id": str(claims_ref.artifact_id),
+                        "kind": claims_ref.kind,
+                        "media_type": claims_ref.media_type,
+                    },
+                },
+            }
+        }
+    )
+    with pytest.raises(ValidationError, match="claims_ref does not match"):
+        persist_decision_grade_export(
+            store,
+            forged_export,
+            claim_owner=claim_owner,
+            claim_owner_key=owner_key,
+        )
+    with pytest.raises(ValueError, match="lineage_inputs_missing_or_unbound"):
+        persist_decision_grade_export(
+            store,
+            export,
+            claim_owner=claim_owner,
+            claim_owner_key=owner_key,
+            inputs=[
+                InputRef(artifact_id=claims_ref.artifact_id, role="claims"),
+                InputRef(artifact_id=dag_ref.artifact_id, role="research_dag"),
+            ],
+        )
+
+    export_ref = persist_decision_grade_export(
+        store,
+        export,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+    )
+    assert store.get_manifest(export_ref).inputs == decision_grade_export_inputs(export)
+    assert load_decision_grade_export(store, export_ref) == export
+
+
+def test_decision_grade_export_v1_projection_replays_but_cannot_be_re_admitted(
+    tmp_path,
+) -> None:
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2").model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "a" * 64}
+    )
+    dag_ref = _ref("dag", kind="scientist.research_dag").model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    )
+    claim_owner, owner_key = _stable_owner(_ledger(), claims_ref)
+    export = compile_decision_grade_export(
+        run_id="run_compiler",
+        audience=OutputAudience.MACHINE,
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=_dag().model_copy(update={"claim_ledger_ref": claims_ref}),
+    )
+    legacy_projection = export.model_dump(mode="json")
+    legacy_projection["schema_version"] = "1.0"
+    legacy_projection["payload"]["schema_version"] = "1.0"
+
+    def strip_selector(value):
+        if isinstance(value, dict):
+            result = {key: strip_selector(item) for key, item in value.items()}
+            if {"artifact_id", "kind", "media_type"}.issubset(result):
+                result.pop("manifest_profile_sha256", None)
+            return result
+        if isinstance(value, list):
+            return [strip_selector(item) for item in value]
+        return value
+
+    legacy_projection["payload"]["trust_provenance"] = strip_selector(
+        legacy_projection["payload"]["trust_provenance"]
+    )
+    legacy_projection["payload"]["trust_provenance"]["schema_version"] = "1.0"
+    legacy_projection["payload"]["refs"] = strip_selector(legacy_projection["payload"]["refs"])
+    legacy_projection["payload"]["frontend_trust_view"] = strip_selector(
+        legacy_projection["payload"]["frontend_trust_view"]
+    )
+
+    replayed = DecisionGradeExport.model_validate(legacy_projection)
+
+    assert replayed.schema_version == "1.0"
+    assert replayed.model_dump(mode="json") == legacy_projection
+    canon_spec = CanonSpec(forbid_floats=False)
+    assert to_canonical_bytes(replayed, canon_spec) == to_canonical_bytes(
+        legacy_projection, canon_spec
+    )
+    with pytest.raises(ValueError, match="legacy.*not_current_admission"):
+        persist_decision_grade_export(
+            FileSystemCAS(tmp_path / "cas"),
+            replayed,
             claim_owner=claim_owner,
             claim_owner_key=owner_key,
         )

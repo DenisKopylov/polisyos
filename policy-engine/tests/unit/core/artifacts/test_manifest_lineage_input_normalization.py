@@ -6,10 +6,13 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core.artifacts import manifest as artifact_manifest
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
+    ArtifactRef,
     InputRef,
     IntegrityInfo,
     _coerce_input_ref,
@@ -17,6 +20,72 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.artifacts.contracts import StorePutOptions
+
+
+def test_artifact_ref_conversion_preserves_selected_manifest_view() -> None:
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    selected_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind="test.parent.selected",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+
+    input_ref_factory = getattr(core_artifacts, "input_ref_from_artifact_ref", None)
+    identity_key = getattr(artifact_manifest, "artifact_ref_identity_key", None)
+    assert callable(input_ref_factory)
+    assert callable(identity_key)
+    lineage = input_ref_factory(selected_ref, role="selected_parent")
+
+    assert lineage == InputRef(
+        artifact_id=artifact_id,
+        role="selected_parent",
+        manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+    )
+    default_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    assert input_ref_factory(default_ref, role="selected_parent") == InputRef(
+        artifact_id=artifact_id,
+        role="selected_parent",
+    )
+    assert identity_key(default_ref) != identity_key(selected_ref)
+
+
+def test_store_boundary_revalidates_unchecked_artifact_ref_copy() -> None:
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    selected_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind="test.parent.selected",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    unchecked = selected_ref.model_copy(update={"artifact_id": str(artifact_id)})
+
+    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(
+        unchecked
+    )
+    assert normalized_id == artifact_id
+    assert isinstance(normalized_id, ArtifactID)
+    assert profile == selected_ref.manifest_profile_sha256
+    assert normalized_ref == selected_ref
+    assert isinstance(normalized_ref.artifact_id, ArtifactID)
+
+    malformed = selected_ref.model_copy(update={"artifact_id": "not-an-artifact-id"})
+    with pytest.raises(ValidationError):
+        artifact_manifest.artifact_reference_parts(malformed)
+
+    class ScopedRef(ArtifactRef):
+        scope: str
+
+    scoped = ScopedRef(
+        artifact_id=artifact_id,
+        kind="test.parent.selected",
+        media_type="application/json",
+        scope="owner-a",
+    ).model_copy(update={"artifact_id": str(artifact_id)})
+    _, _, normalized_scoped = artifact_manifest.artifact_reference_parts(scoped)
+    assert isinstance(normalized_scoped, ScopedRef)
+    assert normalized_scoped.scope == "owner-a"
+    assert isinstance(normalized_scoped.artifact_id, ArtifactID)
 
 
 def test_dict_lineage_preserves_selected_manifest_view_across_idempotent_puts(

@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
@@ -266,7 +266,7 @@ class BuildPolicyOutputBundleNode:
             artifact_key=ARTIFACT_STRESS_TEST_REPORT_REF,
             reason="stress_test_report_load_failed",
             loader=lambda ref: StressTestReport.model_validate(
-                from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+                from_canonical_bytes(ctx.store.get_bytes(ref))
             ),
         )
         calibration_validation_bundle = _load_optional_artifact(
@@ -529,7 +529,7 @@ def _resolve_candidate(
     if trinity_ref is None:
         return None, None
     bundle = TrinityBundle.model_validate(
-        from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+        from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
     )
     return (
         PolicyCandidateSchema.from_trinity_bundle(
@@ -613,12 +613,12 @@ def _coerce_artifact_ref_list(value: Any) -> list[ArtifactRef]:
 
 def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
     output: list[ArtifactRef] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str, str, str | None]] = set()
     for item in items:
-        artifact_id = str(item.artifact_id)
-        if artifact_id in seen:
+        identity = artifact_ref_identity_key(item)
+        if identity in seen:
             continue
-        seen.add(artifact_id)
+        seen.add(identity)
         output.append(item)
     return output
 

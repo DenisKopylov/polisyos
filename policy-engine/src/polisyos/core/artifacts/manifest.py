@@ -270,6 +270,40 @@ class ArtifactRef(BaseModel):
         return value
 
 
+def input_ref_from_artifact_ref(ref: ArtifactRef, *, role: str) -> InputRef:
+    """Build one lineage edge while preserving the exact selected manifest view.
+
+    Args:
+        ref: Artifact reference whose selected manifest profile must remain bound.
+        role: Lineage role assigned to this upstream artifact.
+
+    Returns:
+        InputRef: The artifact identity, role, and selected profile as one edge.
+    """
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+def artifact_ref_identity_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    """Return the complete identity used to distinguish artifact views.
+
+    Args:
+        ref: Typed artifact reference to compare with another view.
+
+    Returns:
+        tuple[str, str, str, str | None]: Artifact ID, kind, media type, profile.
+    """
+    return (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+    )
+
+
 class ArtifactManifest(BaseModel):
     """Describe one CAS object, its ABI hints, and its direct lineage inputs.
 
@@ -334,7 +368,11 @@ def artifact_reference_parts(
 ) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
     """Normalize a CAS identity while retaining any exact manifest selector."""
     if isinstance(value, ArtifactRef):
-        return value.artifact_id, value.manifest_profile_sha256, value
+        # Pydantic model_copy(update=...) does not validate its replacement
+        # values. Revalidate at the store boundary before the ID reaches the
+        # path layout, and preserve the selected manifest view.
+        ref = type(value).model_validate(value.model_dump(mode="python"))
+        return ref.artifact_id, ref.manifest_profile_sha256, ref
     if isinstance(value, str):
         return ArtifactID.model_validate(value), None, None
     return value, None, None

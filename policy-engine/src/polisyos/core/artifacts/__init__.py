@@ -34,6 +34,8 @@ from .manifest import (
     ProducerInfo,
     SchemaInfo,
     WarningRecord,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
 )
 from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from .protocol import ArtifactStore, AsyncArtifactStore
@@ -103,9 +105,11 @@ __all__ = [
     "SigningConfig",
     "VerificationReport",
     "WarningRecord",
+    "artifact_ref_identity_key",
     "build_cas_integrity_report",
     "compute_key_id",
     "ensure_async_artifact_store",
     "ensure_private_key_permissions",
+    "input_ref_from_artifact_ref",
     "resolve_dependency_graph",
 ]

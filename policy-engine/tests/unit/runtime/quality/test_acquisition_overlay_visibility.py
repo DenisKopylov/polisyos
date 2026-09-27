@@ -9,7 +9,7 @@ import pytest
 
 from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
 from polisyos.data_forge.read_api import catalog as catalog_read_api
-from polisyos.fabric.data_plane import QuarantineRecord, persist_quarantine_record
+from polisyos.fabric.data_plane import QuarantineRecord, content_sha256, persist_quarantine_record
 from polisyos.runtime.quality import data_state_substrate, substrate_registry
 from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
 from polisyos.runtime.quality.generation_cycle import (
@@ -228,3 +228,108 @@ def test_two_active_epochs_reusing_registration_emit_each_row_once(tmp_path: Pat
     for table in overlay_module._BASELINE_UNION_TABLES:
         if table != "ds_observations":
             assert after[table] - before[table] == 1
+
+
+def test_active_observation_projection_is_exact_and_epoch_scoped(tmp_path: Path) -> None:
+    first = _real_epoch_scenario(tmp_path)
+    _, first_receipt = _activate_real_epoch_scenario(first)
+    overlay_hash_before_projection = _sha256(first.overlay.overlay_path)
+    before = first.overlay.project_active_observations(
+        receipt=first_receipt,
+        artifact_store=first.store,
+    )
+    assert _sha256(first.overlay.overlay_path) == overlay_hash_before_projection
+
+    second = _second_real_epoch_scenario(first)
+    _activate_real_epoch_scenario(second)
+    after = first.overlay.project_active_observations(
+        receipt=first_receipt,
+        artifact_store=first.store,
+    )
+
+    assert isinstance(after, catalog_read_api.CatalogActiveObservationProjection)
+    assert after == before
+    assert after.activation_receipt_ref == str(first_receipt.receipt_ref.artifact_id)
+    assert after.activation_receipt_content_hash == first_receipt.receipt_content_hash
+    assert after.epoch_id == first_receipt.epoch_id
+    assert after.passport_id == first_receipt.passport_id
+    assert after.admitted_observation_count == first_receipt.admitted_observation_count
+    assert after.content_hash == content_sha256(
+        after.model_dump(mode="json", exclude={"content_hash"})
+    )
+    with duckdb.connect(str(first.overlay.overlay_path), read_only=True) as con:
+        expected_member_count = con.execute(
+            "SELECT count(*) FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ?",
+            [first_receipt.epoch_id, first_receipt.passport_id],
+        ).fetchone()[0]
+    assert after.native_member_count == expected_member_count
+    assert len(after.observations) == after.admitted_observation_count
+    assert all(
+        row.provenance.epoch_id == first_receipt.epoch_id
+        and row.provenance.passport_id == first_receipt.passport_id
+        and row.provenance.raw_artifact_id == str(first.passport.raw_artifact_id)
+        and row.provenance.raw_evidence_event_sha256 == first.passport.raw_evidence_ref.event_sha256
+        for row in after.observations
+    )
+
+
+@pytest.mark.parametrize("mutation", ["missing", "changed_value", "foreign_passport"])
+def test_active_observation_projection_rejects_changed_member_with_receipt_markers(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    first = _real_epoch_scenario(tmp_path)
+    _, receipt = _activate_real_epoch_scenario(first)
+    foreign_passport_id = None
+    if mutation == "foreign_passport":
+        second = _second_real_epoch_scenario(first)
+        _activate_real_epoch_scenario(second)
+        foreign_passport_id = second.passport.passport_id
+
+    with duckdb.connect(str(first.overlay.overlay_path)) as con:
+        observation_id = str(
+            con.execute(
+                "SELECT o.observation_id FROM ds_observations AS o "
+                "JOIN acquisition_observation_provenance AS p USING (observation_id) "
+                "WHERE p.epoch_id = ? AND p.passport_id = ? "
+                "ORDER BY o.observation_id LIMIT 1",
+                [receipt.epoch_id, receipt.passport_id],
+            ).fetchone()[0]
+        )
+        if mutation == "missing":
+            con.execute("DELETE FROM ds_observations WHERE observation_id = ?", [observation_id])
+        elif mutation == "changed_value":
+            con.execute(
+                "UPDATE ds_observations SET value = value + 1 WHERE observation_id = ?",
+                [observation_id],
+            )
+        else:
+            con.execute(
+                "UPDATE acquisition_epoch_members SET passport_id = ? "
+                "WHERE epoch_id = ? AND passport_id = ? AND table_name = 'ds_observations' "
+                "AND canonical_primary_key_hash IN (SELECT canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "AND table_name = 'ds_observations' ORDER BY canonical_primary_key_hash LIMIT 1)",
+                [
+                    foreign_passport_id,
+                    receipt.epoch_id,
+                    receipt.passport_id,
+                    receipt.epoch_id,
+                    receipt.passport_id,
+                ],
+            )
+        active = con.execute(
+            "SELECT epoch_activation_state, admission_content_sha256 FROM acquisition_epochs "
+            "WHERE epoch_id = ? AND passport_id = ?",
+            [receipt.epoch_id, receipt.passport_id],
+        ).fetchone()
+        receipt_marker = con.execute(
+            "SELECT count(*) FROM acquisition_semantic_receipts WHERE receipt_ref = ?",
+            [str(receipt.receipt_ref.artifact_id)],
+        ).fetchone()[0]
+
+    assert active is not None and active[0] == "active"
+    assert active[1] == receipt.admission_content_sha256
+    assert receipt_marker == 1
+    with pytest.raises(overlay_module.OverlayAdmissionError):
+        first.overlay.project_active_observations(receipt=receipt, artifact_store=first.store)

@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping, Sequence
+from contextlib import suppress
 from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
@@ -414,6 +415,84 @@ class CanonicalAcquisitionObservation(_StrictModel):
         if not isinstance(parsed, Mapping):
             raise ValueError("condition_json must encode a mapping")
         return self
+
+
+class CatalogAdmittedObservationProvenance(_StrictModel):
+    """Owner-persisted acquisition provenance for one projected observation."""
+
+    epoch_id: int = Field(gt=0)
+    passport_id: str = Field(pattern=r"^passport:sha256:[0-9a-f]{64}$")
+    observation_class: ObservationProvenanceClass
+    raw_evidence_event_sha256: str = Field(pattern=_SHA256_PATTERN)
+    raw_artifact_id: str = Field(pattern=_SHA256_PATTERN)
+    l5_trust_tier: str = Field(min_length=1)
+    effective_authority_score: float = Field(ge=0.0, le=1.0)
+
+
+class CatalogAdmittedObservationProjection(_StrictModel):
+    """One canonical physical observation and its persisted owner provenance."""
+
+    observation: CanonicalAcquisitionObservation
+    provenance: CatalogAdmittedObservationProvenance
+
+
+class CatalogActiveObservationProjection(_StrictModel):
+    """Exact read-only projection of one active, content-bound acquisition epoch."""
+
+    schema_version: Literal["polisyos.data_forge.active_observation_projection.v1"] = (
+        "polisyos.data_forge.active_observation_projection.v1"
+    )
+    epoch_id: int = Field(gt=0)
+    passport_id: str = Field(pattern=r"^passport:sha256:[0-9a-f]{64}$")
+    activation_receipt_ref: str = Field(pattern=_SHA256_PATTERN)
+    activation_receipt_content_hash: str = Field(pattern=_SHA256_PATTERN)
+    admission_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    passport_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    semantic_epoch_ref: str = Field(min_length=1)
+    semantic_epoch_stamp_sha256: str = Field(pattern=_SHA256_PATTERN)
+    prepared_semantic_epoch_ref: str = Field(pattern=_SHA256_PATTERN)
+    boundary_candidate_ref: str = Field(pattern=_SHA256_PATTERN)
+    native_member_count: int = Field(gt=0)
+    native_member_denominator_hash: str = Field(pattern=_SHA256_PATTERN)
+    admitted_observation_count: int = Field(gt=0)
+    observations: tuple[CatalogAdmittedObservationProjection, ...]
+    content_hash: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _projection_is_exact_and_recomputed(self) -> Self:
+        if len(self.observations) != self.admitted_observation_count:
+            raise ValueError("active observation projection count differs")
+        keys = tuple(_canonical_observation_sort_key(row.observation) for row in self.observations)
+        if keys != tuple(sorted(keys)) or len(set(keys)) != len(keys):
+            raise ValueError("active observation projection order or uniqueness differs")
+        if any(
+            row.provenance.epoch_id != self.epoch_id
+            or row.provenance.passport_id != self.passport_id
+            for row in self.observations
+        ):
+            raise ValueError("active observation projection provenance is foreign")
+        expected = content_sha256(self.model_dump(mode="json", exclude={"content_hash"}))
+        if self.content_hash != expected:
+            raise ValueError("active observation projection hash is not recomputed")
+        return self
+
+
+def _canonical_observation_sort_key(
+    observation: CanonicalAcquisitionObservation,
+) -> tuple[str, ...]:
+    """Return the same complete grouping order used by admission derivation."""
+
+    return tuple(
+        str(part)
+        for part in (
+            observation.country_code,
+            observation.year,
+            observation.survey_year,
+            observation.wave,
+            observation.condition_json,
+        )
+    )
 
 
 class OverlayAdmissionReceipt(epoch_contract.ActivatedOverlayAdmissionStatement):
@@ -1643,6 +1722,387 @@ class CatalogAcquisitionOverlay:
             receipt_content_hash=_overlay_statement_content_hash(statement),
             replayed=True,
         )
+
+    def project_active_observations(
+        self,
+        *,
+        receipt: OverlayAdmissionReceipt,
+        artifact_store: _ArtifactStore,
+    ) -> CatalogActiveObservationProjection:
+        """Read one active epoch's exact persisted observations and provenance.
+
+        The projection is scoped by the active receipt's epoch/passport pair,
+        reconciles every native member, and replays the admission content hash
+        from physical rows. It never writes to the overlay, baseline, or CAS.
+        """
+
+        verified = self.read_activated_semantic_epoch_admission(
+            receipt_ref=receipt.receipt_ref,
+            artifact_store=artifact_store,
+        )
+        statement_fields = {"receipt_ref", "receipt_content_hash", "replayed"}
+        if verified.model_dump(mode="json", exclude=statement_fields) != receipt.model_dump(
+            mode="json", exclude=statement_fields
+        ):
+            raise OverlayAdmissionError("active_observation_receipt_input_drift")
+        baseline = self._require_baseline_unchanged()
+        if baseline.content_sha256 != receipt.baseline_after_sha256:
+            raise OverlayAdmissionError("active_observation_baseline_binding_mismatch")
+
+        pending_mapping = _load_external_statement(
+            artifact_store=artifact_store,
+            ref=receipt.pending_overlay_receipt_ref,
+            expected_kind="epoch.pending_overlay_admission_receipt",
+        )
+        pending = epoch_contract.PendingOverlayAdmissionStatement.model_validate(pending_mapping)
+        if (
+            pending.epoch_id != receipt.epoch_id
+            or pending.passport_id != receipt.passport_id
+            or pending.admission_content_sha256 != receipt.admission_content_sha256
+            or pending.admitted_observation_count != receipt.admitted_observation_count
+            or pending.observation_class != receipt.observation_class
+            or pending.semantic_epoch_stamp != receipt.semantic_epoch_stamp
+            or pending.prepared_semantic_epoch_ref != receipt.prepared_semantic_epoch_ref
+            or pending.boundary_candidate_ref is None
+        ):
+            raise OverlayAdmissionError("active_observation_pending_binding_mismatch")
+
+        native = duckdb.connect(str(self.overlay_path), read_only=True)
+        try:
+            _attach_read_only(native, self.baseline_path, alias="baseline")
+            native.execute("BEGIN TRANSACTION")
+            active_copy, active_copy_hash = _load_external_statement_record(
+                native,
+                ref=receipt.receipt_ref,
+                expected_kind="epoch.activated_overlay_admission_receipt",
+            )
+            pending_copy, pending_copy_hash = _load_external_statement_record(
+                native,
+                ref=receipt.pending_overlay_receipt_ref,
+                expected_kind="epoch.pending_overlay_admission_receipt",
+            )
+            if (
+                active_copy != receipt.model_dump(mode="json", exclude=statement_fields)
+                or active_copy_hash != receipt.receipt_content_hash
+                or pending_copy != pending_mapping
+                or pending_copy_hash != _overlay_statement_content_hash(pending_mapping)
+            ):
+                raise OverlayAdmissionError("active_observation_owner_receipt_drift")
+
+            epoch_rows = native.execute(
+                "SELECT admission_content_sha256, baseline_content_sha256, "
+                "admitted_observation_count, observation_class, semantic_epoch_ref, "
+                "semantic_epoch_stamp_sha256, semantic_epoch_stamp_json, "
+                "prepared_semantic_epoch_ref, pending_overlay_receipt_ref, "
+                "admitted_boundary_evidence_ref, semantic_epoch_production_receipt_ref, "
+                "activated_overlay_receipt_ref, epoch_activation_state "
+                "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+                [receipt.epoch_id, receipt.passport_id],
+            ).fetchall()
+            expected_epoch_values = (
+                receipt.admission_content_sha256,
+                receipt.baseline_after_sha256,
+                receipt.admitted_observation_count,
+                receipt.observation_class,
+                receipt.semantic_epoch_stamp.epoch_ref,
+                epoch_contract.semantic_epoch_stamp_content_hash(receipt.semantic_epoch_stamp),
+                json.dumps(receipt.semantic_epoch_stamp.model_dump(mode="json")),
+                json.dumps(receipt.prepared_semantic_epoch_ref.model_dump(mode="json")),
+                json.dumps(receipt.pending_overlay_receipt_ref.model_dump(mode="json")),
+                json.dumps(receipt.admitted_boundary_evidence_ref.model_dump(mode="json")),
+                json.dumps(receipt.semantic_epoch_production_receipt_ref.model_dump(mode="json")),
+                json.dumps(receipt.receipt_ref.model_dump(mode="json")),
+                "active",
+            )
+            if len(epoch_rows) != 1:
+                raise OverlayAdmissionError("active_observation_epoch_not_unique")
+            observed_epoch_values = tuple(
+                json.dumps(json.loads(str(value)), sort_keys=True, separators=(",", ":"))
+                if index in {6, 7, 8, 9, 10, 11}
+                else value
+                for index, value in enumerate(epoch_rows[0])
+            )
+            normalized_expected = tuple(
+                json.dumps(json.loads(str(value)), sort_keys=True, separators=(",", ":"))
+                if index in {6, 7, 8, 9, 10, 11}
+                else value
+                for index, value in enumerate(expected_epoch_values)
+            )
+            if observed_epoch_values != normalized_expected:
+                raise OverlayAdmissionError("active_observation_epoch_binding_drift")
+
+            passport_rows = native.execute(
+                "SELECT passport_content_sha256, passport_json FROM acquisition_passports "
+                "WHERE epoch_id = ? AND passport_id = ?",
+                [receipt.epoch_id, receipt.passport_id],
+            ).fetchall()
+            if len(passport_rows) != 1:
+                raise OverlayAdmissionError("active_observation_passport_not_unique")
+            passport_content_hash = str(passport_rows[0][0])
+            passport_mapping = json.loads(str(passport_rows[0][1]))
+            if (
+                not isinstance(passport_mapping, dict)
+                or content_sha256(passport_mapping) != passport_content_hash
+                or str(passport_mapping.get("passport_id")) != receipt.passport_id
+                or int(passport_mapping.get("epoch_id", -1)) != receipt.epoch_id
+                or passport_mapping.get("status") not in {"admitted", "admitted_degraded"}
+            ):
+                raise OverlayAdmissionError("active_observation_passport_content_drift")
+            try:
+                registration = AcquisitionDatasetRegistration.model_validate(
+                    passport_mapping["registration"]
+                )
+            except (KeyError, TypeError, ValueError) as exc:
+                raise OverlayAdmissionError("active_observation_registration_invalid") from exc
+            registration_rows = native.execute(
+                "SELECT registration_content_sha256, registration_json "
+                "FROM acquisition_registrations WHERE catalog_dataset_id = ?",
+                [registration.catalog_dataset_id],
+            ).fetchall()
+            if len(registration_rows) != 1:
+                raise OverlayAdmissionError("active_observation_registration_not_unique")
+            registration_mapping = json.loads(str(registration_rows[0][1]))
+            if (
+                not isinstance(registration_mapping, dict)
+                or registration_mapping != registration.model_dump(mode="json")
+                or content_sha256(registration_mapping) != str(registration_rows[0][0])
+            ):
+                raise OverlayAdmissionError("active_observation_registration_content_drift")
+
+            member_rows = native.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [receipt.epoch_id, receipt.passport_id],
+            ).fetchall()
+            key_spec = _derive_baseline_primary_key_spec(native)
+            _reconcile_physical_epoch_members(
+                native,
+                member_rows=member_rows,
+                key_spec=key_spec,
+            )
+            member_keys = tuple(
+                epoch_contract.OverlayNativeMemberKey(
+                    table_name=str(row[0]),
+                    canonical_primary_key_hash=str(row[2]),
+                )
+                for row in member_rows
+            )
+            denominator_bytes = epoch_contract.canonical_epoch_bytes(
+                {
+                    "epoch_id": receipt.epoch_id,
+                    "passport_id": receipt.passport_id,
+                    "members": [
+                        (member.table_name, member.canonical_primary_key_hash)
+                        for member in member_keys
+                    ],
+                }
+            )
+            denominator_hash = f"sha256:{hashlib.sha256(denominator_bytes).hexdigest()}"
+            if (
+                member_keys != pending.native_member_keys
+                or len(member_keys) != pending.native_member_count
+                or denominator_hash != pending.native_member_denominator_hash
+                or sum(str(row[0]) == "ds_observations" for row in member_rows)
+                != receipt.admitted_observation_count
+            ):
+                raise OverlayAdmissionError("active_observation_member_denominator_drift")
+
+            available_columns = {
+                str(row[1])
+                for row in native.execute("PRAGMA table_info('ds_observations')").fetchall()
+            }
+            observation_columns = (
+                "observation_id",
+                "dataset_id",
+                "raw_variable",
+                "canonical_var",
+                "country_code",
+                "year",
+                "survey_year",
+                "wave",
+                "value",
+                "condition_json",
+                "acquisition_method",
+                "source_watermark",
+                "dataset_version",
+            )
+            required_columns = {
+                "observation_id",
+                "dataset_id",
+                "raw_variable",
+                "canonical_var",
+                "country_code",
+                "value",
+                "condition_json",
+            }
+            missing = sorted(required_columns - available_columns)
+            if missing or not {"year", "survey_year", "wave"} & available_columns:
+                raise OverlayAdmissionError(
+                    "active_observation_physical_schema_incomplete",
+                    ",".join(missing or ["time_coordinate"]),
+                )
+            selected_columns = tuple(
+                column for column in observation_columns if column in available_columns
+            )
+            selected_sql = ", ".join(f"o.{column}" for column in selected_columns)
+            observed_rows = native.execute(
+                f"SELECT {selected_sql}, p.observation_class, "  # noqa: S608
+                "p.raw_evidence_event_sha256, p.raw_artifact_id, p.l5_trust_tier, "
+                "p.effective_authority_score "
+                "FROM ds_observations AS o "
+                "JOIN acquisition_observation_provenance AS p USING (observation_id) "
+                "WHERE p.epoch_id = ? AND p.passport_id = ?",
+                [receipt.epoch_id, receipt.passport_id],
+            ).fetchall()
+            expected_observation_hashes = {
+                str(row[2]) for row in member_rows if str(row[0]) == "ds_observations"
+            }
+            row_maps: list[
+                tuple[CanonicalAcquisitionObservation, CatalogAdmittedObservationProvenance]
+            ] = []
+            observed_observation_hashes: set[str] = set()
+            l5_mapping = passport_mapping.get("l5_trust")
+            raw_ref_mapping = passport_mapping.get("raw_evidence_ref")
+            if not isinstance(l5_mapping, dict) or not isinstance(raw_ref_mapping, dict):
+                raise OverlayAdmissionError("active_observation_passport_provenance_missing")
+            expected_l5_tier = str(l5_mapping.get("tier", ""))
+            expected_event_sha = str(raw_ref_mapping.get("event_sha256", ""))
+            binding = registration.field_binding
+            expected_acquisition_method = (
+                f"registered_{binding.unit_transform}_{binding.aggregation_method}_lift"
+            )
+            expected_source_watermark = str(passport_mapping.get("source_watermark", ""))
+            expected_dataset_version = str(passport_mapping.get("dataset_version", ""))
+            if not expected_source_watermark or not expected_dataset_version:
+                raise OverlayAdmissionError("active_observation_passport_source_identity_missing")
+            try:
+                effective_score = round(
+                    min(
+                        float(l5_mapping["trust_cap"]),
+                        float(binding.calibrated_alignment_confidence)
+                        * (1.0 - float(binding.proxy_penalty) if binding.is_proxy else 1.0)
+                        * float(l5_mapping["trust_multiplier"]),
+                    ),
+                    6,
+                )
+            except (KeyError, TypeError, ValueError) as exc:
+                raise OverlayAdmissionError("active_observation_authority_score_invalid") from exc
+            expected_class = ObservationProvenanceClass(receipt.observation_class)
+            for raw_row in observed_rows:
+                row_map = dict(zip(selected_columns, raw_row[: len(selected_columns)], strict=True))
+                row_map.setdefault("acquisition_method", expected_acquisition_method)
+                row_map.setdefault("source_watermark", expected_source_watermark)
+                row_map.setdefault("dataset_version", expected_dataset_version)
+                observation_id = str(row_map["observation_id"])
+                key_bytes = _canonical_primary_key_bytes(
+                    table="ds_observations",
+                    columns=key_spec["ds_observations"],
+                    values={"observation_id": observation_id},
+                )
+                key_hash = f"sha256:{hashlib.sha256(key_bytes).hexdigest()}"
+                if (
+                    key_hash not in expected_observation_hashes
+                    or key_hash in observed_observation_hashes
+                ):
+                    raise OverlayAdmissionError("active_observation_member_identity_drift")
+                observed_observation_hashes.add(key_hash)
+                provenance_values = raw_row[len(selected_columns) :]
+                try:
+                    row_class = ObservationProvenanceClass(str(provenance_values[0]))
+                    observation = CanonicalAcquisitionObservation(
+                        **{
+                            **row_map,
+                            "condition_json": str(row_map["condition_json"]),
+                            "observation_class": row_class,
+                        }
+                    )
+                    provenance = CatalogAdmittedObservationProvenance(
+                        epoch_id=receipt.epoch_id,
+                        passport_id=receipt.passport_id,
+                        observation_class=row_class,
+                        raw_evidence_event_sha256=str(provenance_values[1]),
+                        raw_artifact_id=str(provenance_values[2]),
+                        l5_trust_tier=str(provenance_values[3]),
+                        effective_authority_score=float(provenance_values[4]),
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise OverlayAdmissionError(
+                        "active_observation_physical_projection_invalid", observation_id
+                    ) from exc
+                if (
+                    row_class is not expected_class
+                    or provenance.raw_evidence_event_sha256 != expected_event_sha
+                    or provenance.raw_artifact_id != str(passport_mapping.get("raw_artifact_id"))
+                    or provenance.l5_trust_tier != expected_l5_tier
+                    or provenance.effective_authority_score != effective_score
+                    or observation.acquisition_method != expected_acquisition_method
+                    or observation.source_watermark != expected_source_watermark
+                    or observation.dataset_version != expected_dataset_version
+                ):
+                    raise OverlayAdmissionError(
+                        "active_observation_provenance_drift", observation_id
+                    )
+                row_maps.append((observation, provenance))
+            if (
+                observed_observation_hashes != expected_observation_hashes
+                or len(row_maps) != receipt.admitted_observation_count
+            ):
+                raise OverlayAdmissionError("active_observation_physical_denominator_drift")
+            row_maps.sort(key=lambda item: _canonical_observation_sort_key(item[0]))
+            projected_rows = tuple(
+                CatalogAdmittedObservationProjection(
+                    observation=observation,
+                    provenance=provenance,
+                )
+                for observation, provenance in row_maps
+            )
+            admission_projection = {
+                "schema_version": OVERLAY_SCHEMA_VERSION,
+                "epoch_id": receipt.epoch_id,
+                "passport": passport_mapping,
+                "registration": registration.model_dump(mode="json"),
+                "observations": [row.observation.model_dump(mode="json") for row in projected_rows],
+                "semantic_boundary_candidate_ref": pending.boundary_candidate_ref.model_dump(
+                    mode="json"
+                ),
+                "semantic_epoch_stamp": receipt.semantic_epoch_stamp.model_dump(mode="json"),
+                "prepared_semantic_epoch_ref": receipt.prepared_semantic_epoch_ref.model_dump(
+                    mode="json"
+                ),
+            }
+            if content_sha256(admission_projection) != receipt.admission_content_sha256:
+                raise OverlayAdmissionError("active_observation_admission_content_drift")
+            if self._require_baseline_unchanged().content_sha256 != baseline.content_sha256:
+                raise OverlayAdmissionError("active_observation_baseline_changed_during_read")
+            projection = {
+                "schema_version": "polisyos.data_forge.active_observation_projection.v1",
+                "epoch_id": receipt.epoch_id,
+                "passport_id": receipt.passport_id,
+                "activation_receipt_ref": str(receipt.receipt_ref.artifact_id),
+                "activation_receipt_content_hash": receipt.receipt_content_hash,
+                "admission_content_sha256": receipt.admission_content_sha256,
+                "passport_content_sha256": passport_content_hash,
+                "baseline_content_sha256": receipt.baseline_after_sha256,
+                "semantic_epoch_ref": str(receipt.semantic_epoch_stamp.epoch_ref),
+                "semantic_epoch_stamp_sha256": epoch_contract.semantic_epoch_stamp_content_hash(
+                    receipt.semantic_epoch_stamp
+                ),
+                "prepared_semantic_epoch_ref": str(receipt.prepared_semantic_epoch_ref.artifact_id),
+                "boundary_candidate_ref": str(pending.boundary_candidate_ref.artifact_id),
+                "native_member_count": pending.native_member_count,
+                "native_member_denominator_hash": pending.native_member_denominator_hash,
+                "admitted_observation_count": receipt.admitted_observation_count,
+                "observations": [row.model_dump(mode="json") for row in projected_rows],
+            }
+            return CatalogActiveObservationProjection(
+                **projection,
+                content_hash=content_sha256(projection),
+            )
+        finally:
+            with suppress(duckdb.Error):
+                native.execute("ROLLBACK")
+            native.close()
 
     def resolve_native_membership(
         self,
@@ -4452,6 +4912,9 @@ __all__ = [
     "CatalogAcquisitionOverlay",
     "CatalogAcquisitionPassportProjection",
     "CatalogAcquisitionStateProjection",
+    "CatalogActiveObservationProjection",
+    "CatalogAdmittedObservationProjection",
+    "CatalogAdmittedObservationProvenance",
     "MetricFieldBinding",
     "ObservationProvenanceClass",
     "OverlayAdmissionError",

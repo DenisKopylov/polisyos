@@ -1311,6 +1311,7 @@ def test_control_service_uses_injected_registry_providers(
             datasets_fetched=1,
             warnings=[],
             cursor_ref=None,
+            mode_effective=None,
         )
 
     monkeypatch.setattr(
@@ -1338,6 +1339,7 @@ def test_control_service_uses_injected_registry_providers(
 
     assert response.status == "completed"
     assert response.datasets_fetched == 1
+    assert response.mode_effective == "batch_full"
     service.close()
 
 
@@ -1389,8 +1391,12 @@ def test_control_service_builds_retrieval_with_injected_provider_bundle(
     seen: dict[str, object] = {}
 
     class _FakeRetrievalService:
-        def __init__(self, *, curated_dir, cas_root, providers=None, **kwargs) -> None:
-            del curated_dir, cas_root, kwargs
+        def __init__(
+            self, *, curated_dir, artifact_store, dataset_catalog, providers=None, **kwargs
+        ) -> None:
+            del curated_dir, kwargs
+            seen["artifact_store"] = artifact_store
+            seen["dataset_catalog"] = dataset_catalog
             seen["providers"] = providers
 
         def list_promotion_candidates(self):
@@ -1409,6 +1415,8 @@ def test_control_service_builds_retrieval_with_injected_provider_bundle(
         registry_providers=providers,
     )
 
+    assert seen["artifact_store"] is store
+    assert seen["dataset_catalog"] is service._retrieval_catalog
     retrieval_providers = seen["providers"]
     assert retrieval_providers.registry is providers.connectors
     assert retrieval_providers.profiles is providers.source_profiles
@@ -1815,8 +1823,12 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         arguments=_design_problem_tool_args(),
     )
     original_compiler = nl_pipeline.build_design_problem_from_nl_request
+    owner_source_contexts: list[object] = []
+    compiler_contexts: list[object] = []
 
     async def run_real_compiler(**kwargs):
+        owner_source_contexts.append(kwargs.get("trusted_source_context"))
+        compiler_contexts.append(kwargs.get("context"))
         kwargs["gateway_client"] = compiler_gateway
         kwargs["span_support_client"] = _DeterministicSpanSupportClient()
         return await original_compiler(**kwargs)
@@ -1831,11 +1843,6 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         generation_cycle_service,
         "build_design_problem_from_nl_request",
         run_real_compiler,
-    )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
     )
     monkeypatch.setattr(
         llm_factory,
@@ -1899,6 +1906,22 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         assert progress["runtime_diagnostic_event_status"] == "persisted"
         assert generation_factory_calls == [model_id]
         assert compiler_gateway.generate_calls
+        assert owner_source_contexts == [
+            {
+                "tenant_id": "tenant-fixture",
+                "cell_id": "cell-fixture",
+                "job_id": launch.job_id,
+                "run_id": launch.run_id,
+            }
+        ]
+        compiled_context = compiler_contexts[0]
+        assert isinstance(compiled_context, dict)
+        assert compiled_context["tenant_id"] == "tenant-fixture"
+        assert compiled_context["cell_id"] == "cell-fixture"
+        candidate_context = compiled_context["candidate_context"]
+        assert isinstance(candidate_context, dict)
+        assert "tenant_id" not in candidate_context
+        assert "cell_id" not in candidate_context
 
         manifest_text = "\n".join(
             manifest.read_text(encoding="utf-8")

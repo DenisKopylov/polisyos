@@ -1,6 +1,35 @@
 # E02-R2 write leases
 
-## Coordination and evidence snapshot (2026-09-27)
+## Active coordination (2026-09-27, after `d966d007c`)
+
+- The root integrator is the sole writer to `codex/e02-r2`. The branch was read
+  back clean at `d966d007c2d07150ab1fe849294a993f69d2c018`. Candidate
+  authors and independent reviewers write only in separate scratch locations;
+  they do not edit or run tests against a shared tree while that tree changes.
+- The current write-set lease order is: R2 owns
+  `runtime/quality/generation_cycle.py`, `recursive_generation_cycle.py`, the
+  N6 contract checker and their tests; the frozen R11 blocked→N9 candidate
+  follows R2 in `generation_cycle.py`. R13 DataState store work owns
+  `data_state_substrate.py` and `intervention_substrate.py` in scratch; R1
+  candidate/S8 work follows it on the runtime store and HTTP lifecycle seam.
+  The rejected R1 generic data-time guard is under independent review and has
+  no integration lease. B219's graph-export patch is reviewed in scratch but
+  has no shared write lease while its pinned NetworkX runtime witness is UNRUN.
+- The R13 live-route fixture correction is committed at `d966d007c` and its
+  49-case file is green. R7/R8 marker-retaining mutants and restored controls
+  are complete at that source state; the temporary mutations were reversed
+  and the tree read back clean. Receipt:
+  `/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R7_R8_CURRENT_MUTANT_RECEIPT.md@sha256:e38d626dd42c780d37d84607ce0cb51b7f2ddbb3e25387571fbd42f17c80ff84`.
+  Source and tests remain frozen during every subsequent run.
+- Current free disk was about 8.7 GiB. Denis set the floor at **8 GiB** on
+  2026-09-27; recheck before every resource-bearing job and retain 20–30%
+  free RAM. Run four or five light process groups only when measured headroom
+  permits, and serialize native/heavy jobs, generated artifacts, governed
+  epochs, fixed ports and the integration branch. Reuse the local venv and
+  read-only production-data symlink. Verified disposable test directories may
+  move to macOS Trash; only Denis empties it.
+
+## Historical coordination and evidence snapshot (2026-09-27)
 
 - Root integration is the sole writer of `codex/e02-r2`. The last observed branch pointer during this revision is `768ef3ca1400663f3667baa0069481019ad14878`; that pointer is context only, not the source of every status below. The report/lease patch base is the unchanged pair of document blobs at `5b215d430` (`FINAL_REPORT.md@sha256:73151733f621981234eb4f8fe5d5be081d2cf5b2fefa1143bb5c8f7a138a6728`, `WRITE_LEASES.md@sha256:9d470ae44c3589aa9668baddb4d68cfe46a9d70a5d9fdfaa91f7edc7744d0e71`).
 - Evidence pins are intentionally independent: code through `6c7168566d51b22a4de8c0895c18291b3c697ca4`; `BASELINES.md` at `cfcf5ff1caff41c91efdc10f50c59eddaf7f424b` (`sha256:47faae4a26c59d111d9d5fa921c9cc627a0e82ae206b76c4cdd94d80a881a9c2`); ledger and triage at `da3b395f356b4581f1920fb520973ab5117a974d`; `CROSSWALK.md` at `5b215d4302525d927e42d2d289fafc7d72c46d52`; R5 decision addendum at `0fcc58c3c0ceb92723a8b33650b55e19d3b22ed6`. The `6f5b6f613` baseline addendum and any later changes are outside the pinned baseline/report snapshot; `9c989fbe8` is likewise beyond the report code cutoff. Do not describe this document as latest branch status.

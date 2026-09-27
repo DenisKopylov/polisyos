@@ -7458,26 +7458,26 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C marks B109 as lacking a finding-level record. Existing comparator selectors are bounded historical evidence only. The current source census refines the residual to a served-owner/provider gap; it is static evidence, not a runtime pass. Current status remains partial and served finding_test_status remains UNRUN."
       },
-      "residual": "Both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control pass in the recorded current 88-case wave. They are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass at E02 00d946c2b and Phase 0 73c656744. This exact selector lineage does not prove a complete permutation × direction × tie matrix or a removal probe. The served RunHierarchicalPolicySearchNode reconstructs its global frontier from every feasible candidate; no evidence shows it consumes the ParetoRegistry snapshot that the output builder can project. Keep partial; whole-file four-base counts are not exact-selector evidence.",
+      "residual": "The strict-dominance comparator has bounded prior evidence for the original discriminator: under maximization (2,1) dominates (1,1), while identical vectors remain separate ties; the recorded 88-case selector wave is historical, and the exact 2D/3D selectors were NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1. That local comparator evidence does not establish the served hierarchy result. At the source snapshot measured in the blocker memo (768ef3ca; cited source files remain byte-identical at ledger base edb001e), the registered RunHierarchicalPolicySearchNode adapter constructs HierarchicalSearchCoordinator without the existing ParetoRegistry owner; the report builder labels every feasible evaluation global_feasible. The coordinator can accept an injected registry, but ExecutionContext and build_execution_context/workflow composition provide no registry owner/provider. A complete 2,696-file AST census of policy-engine/src/polisyos found 0 production ParetoRegistry constructors, 0 writes to pareto_registry_snapshot, and 2 reads (output-bundle and translation consumers). The existing registry is path-backed and its transfer context does not bind unknown tenant/cell scope; a node-local default or guessed root would not be a custody-safe bridge. Keep partial and finding_test_status UNRUN: no served candidate→registry snapshot→frontier consumer witness, marker-retaining owner-removal probe, or current six-file four-base replay was run. The smallest missing capability is a runtime-issued Pareto owner/provider bound to run, tenant, cell and the runtime artifact store, bridged through ExecutionContext/workflow construction to the served hierarchical coordinator and output consumers. Preserve ordinary candidate evaluation under unknown scope with a typed limitation; do not invent scope or a parallel registry owner.",
       "residual_owner": {
-        "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
-        "kind": "implementation_owner",
-        "name": "ParetoFront exact comparator; RunHierarchicalPolicySearchNode/global-frontier producer; ParetoRegistry snapshot/output consumer"
+        "appointment_status": "No runtime-scoped Pareto owner/provider appointment is recorded in the repository or blocker memo; no individual appointment is claimed.",
+        "kind": "smallest_missing_capability",
+        "name": "Run/tenant/cell-bound Pareto owner/provider and ExecutionContext/workflow-builder to served hierarchical-search bridge, using the runtime ArtifactStore"
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "behavioral_verdict": "PASS_BOUNDED",
+          "behavioral_verdict": "PASS_BOUNDED_LOCAL_COMPARATOR",
           "candidate_test_paths_at_sha": [
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
           ],
           "identity": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties",
           "kind": "bounded_behavioral_test_receipt_or_source_audit",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B109",
-          "scope": "The 88/88 current-head Pareto/Objective suite contains both exact selectors and the duplicate-tie control. Exact selector identity was absent at execution base 78187878e and main 5fd3ebcc1, and present/pass at E02 head 00d946c2b and Phase 0 73c656744; whole-file 8/25/8/25 counts do not substitute for those exact cases.",
+          "scope": "The cited earlier 88-case snapshot contains the strict-dominance 2D/3D exact selectors and duplicate-tie control; the selectors are NOT_PRESENT at execution base and main, and present/pass at E02 head and Phase 0. This is bounded comparator evidence only; the served hierarchy node/provider/consumer chain is not exercised, and current finding-level status is UNRUN.",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B109",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B109",
@@ -7598,9 +7598,55 @@
           "residual": "Both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control pass in the recorded current 88-case wave. They are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass at E02 00d946c2b and Phase 0 73c656744. This exact selector lineage does not prove a complete permutation × direction × tie matrix or a removal probe. The served RunHierarchicalPolicySearchNode reconstructs its global frontier from every feasible candidate; no evidence shows it consumes the ParetoRegistry snapshot that the output builder can project. Keep partial; whole-file four-base counts are not exact-selector evidence.",
           "residual_owner": "ParetoFront exact comparator; RunHierarchicalPolicySearchNode/global-frontier producer; ParetoRegistry snapshot/output consumer",
           "next_step": "Add the full bounded direction/permutation/tie matrix and marker-retaining removal probe, then trace served candidate selection through one global-frontier owner and its output consumer. Preserve NOT_PRESENT at the two earlier bases in P41 reporting."
+        },
+        "b109_p27_source_owner_blocker": {
+          "identity": "B109 served hierarchy owner/provider source census measured at 768ef3ca",
+          "kind": "read_only_complete_source_census_and_owner_trace",
+          "behavioral_verdict": "UNRUN",
+          "scope": "The existing Pareto comparator is distinct from served frontier production. The default registered hierarchy adapter omits the existing ParetoRegistry owner; the current output builder projects every feasible evaluation to global_feasible. ExecutionContext/workflow composition has no scoped provider. The source census is static and is not a runtime test.",
+          "census": {
+            "root": "policy-engine/src/polisyos",
+            "file_type": "*.py",
+            "denominator": 2696,
+            "ast_parse_failures": 0,
+            "production_pareto_registry_constructors": 0,
+            "writes_to_exact_state_key_pareto_registry_snapshot": 0,
+            "reads_from_exact_state_key_pareto_registry_snapshot": 2,
+            "identified_readers": [
+              "RunPolicyOutputBundleNode",
+              "RunPolicyTranslationNode"
+            ],
+            "measurement_source": "/Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-blocker-20260927.md@sha256:2677fb66cd8c4c5f1ddd9663fb4ade678b5e6dfa447485f2c44835ec937c5c3f",
+            "measured_snapshot": "768ef3ca1400663f3667baa0069481019ad14878"
+          },
+          "required_capability": "Runtime-issued Pareto owner/provider bound to run, tenant/cell and runtime ArtifactStore, injected through ExecutionContext/workflow composition and consumed by the served hierarchy node/output path.",
+          "next_step": "Appoint or define the scoped runtime owner/provider contract; then add the served positive dominated-pair witness, identical-vector preserving control, marker-retaining provider-removal red, persisted snapshot readback, and exact touched-file four-base replay.",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-blocker-20260927.md@sha256:2677fb66cd8c4c5f1ddd9663fb4ade678b5e6dfa447485f2c44835ec937c5c3f#B109",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py@sha256:8ad7a0739e7276fe371f803b16c0aa993b5ecca22c6dcd70f802f30efa1b7fe0",
+            "policy-engine/src/polisyos/scientist/policy_design/search.py@sha256:15ba52ce78a7426bd697f1577916d7f04f9fa389f4e758df82e11de70b701a30",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/context.py@sha256:32a3090fee6a5284a78bbdb68d19b478bce41286062ee57351b64530d9925030",
+            "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py@sha256:b118f19aa85f15fbf813ee118f6a944f7a0eb648579a37b30fea660336d30024",
+            "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py@sha256:4aeda275dfb97772db07786f9f56231e3c8c5eba2fb582c8bd73d673919b9256",
+            "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py@sha256:4d0ad179f98ba5f4d7b8dba624b1bd2c3f1bb592662c6717dc6d5ff397d74f11",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py@sha256:fdb667406b950c5b571ad0ed39cb750a05897a6019ae7ec66d47c8b0762d1259",
+            "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py@sha256:c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f",
+            "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py@sha256:64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:ca3ca07cfa7bdf6d1dc9ff2b39c12a14b6f67c2deb950e1a4f8810badfebe51e",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md@sha256:a755d4c8ee3ef3ce026e86649bc04f76baaabd314bdd1cc77754cabb24052e04",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+            "policy-engine/docs/reference/policy-design-case-failure-patterns.md@sha256:64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+          ],
+          "no_tests_run": true
+        },
+        "b109_current_source_owner_trace": {
+          "identity": "B109/P27 source-only closure boundary",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-blocker-20260927.md@sha256:2677fb66cd8c4c5f1ddd9663fb4ade678b5e6dfa447485f2c44835ec937c5c3f",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Source inspection and complete AST census only; no test process was launched. The local comparator evidence remains bounded; the run/tenant/cell-scoped served owner/provider and its consumer witness remain missing."
         }
       },
-      "finding_test_status": "PASS_BOUNDED",
+      "finding_test_status": "UNRUN",
       "r2_ledger_reconciliation_additions": [
         {
           "behavioral_verdict": "PASS_BOUNDED",

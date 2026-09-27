@@ -38,6 +38,8 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.evaluation_modes import (
     ExecutionIntentBand,
     execution_intent_band_for_mode,
+    resolve_evaluation_mode,
+    resolve_execution_intent_band,
 )
 from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
@@ -1017,6 +1019,37 @@ class RecursiveGenerationCycleController:
                     raise RecursiveGenerationCycleError(
                         "recursive_eval_safety_context_not_current"
                     )
+
+        def effective_intent_band(node_ref: str) -> ExecutionIntentBand:
+            explicit_intent = (execution_intents_by_node or {}).get(node_ref)
+            if explicit_intent is not None:
+                return execution_intent_band_for_mode(explicit_intent)
+            evaluation_context = (evaluation_contexts_by_node or {}).get(node_ref)
+            if isinstance(evaluation_context, EvaluationExecutionContext):
+                return execution_intent_band_for_mode(
+                    evaluation_context.evaluation_mode
+                )
+            if (
+                self._authority_scope == "contract_testing"
+                and type(self) is RecursiveGenerationCycleController
+            ):
+                return resolve_execution_intent_band(
+                    attempt_present=False,
+                    mode_resolution=resolve_evaluation_mode(None),
+                )
+            return ExecutionIntentBand.NOT_ESTABLISHED
+
+        intent_bands_by_leaf = {
+            node_ref: effective_intent_band(node_ref) for node_ref in leaf_refs
+        }
+        if self._authority_scope == "production" and any(
+            band is ExecutionIntentBand.NOT_ESTABLISHED
+            for band in intent_bands_by_leaf.values()
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_execution_intent_not_established"
+            )
+
         if n4_generation_ports_by_node is not None:
             if self._cycle_controller_factory is not None:
                 raise RecursiveGenerationCycleError(
@@ -1081,6 +1114,28 @@ class RecursiveGenerationCycleController:
                     controller = self._cycle_controller_factory(node_ref, problem)
                 if not isinstance(controller, GenerationCycleController):
                     raise RecursiveGenerationCycleError("recursive_leaf_controller_not_canonical")
+                if (
+                    self._authority_scope == "contract_testing"
+                    and execution_intents_by_node is None
+                    and (evaluation_contexts_by_node or {}).get(node_ref) is None
+                ):
+                    from polisyos.runtime.quality.promotion_sequence import (
+                        CanonicalN9PromotionPort,
+                    )
+
+                    if (
+                        type(self) is not RecursiveGenerationCycleController
+                        or type(controller) is not GenerationCycleController
+                        or controller._authority_scope != "production"
+                        or controller._promotion_runtime is not None
+                        or type(controller._promotion_port) is not CanonicalN9PromotionPort
+                        or "run" in vars(controller)
+                        or "_promote_completed_generation" in vars(controller)
+                        or "deployment_identity_refusal" in vars(controller._promotion_port)
+                    ):
+                        raise RecursiveGenerationCycleError(
+                            "recursive_contract_testing_candidate_n9_owner_not_established"
+                        )
                 if context is not None and controller._cycle_substrate_context is not context:
                     raise RecursiveGenerationCycleError(
                         "recursive_contract_testing_context_not_consumed"
@@ -1094,12 +1149,7 @@ class RecursiveGenerationCycleController:
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
-                execution_intent = (execution_intents_by_node or {}).get(node_ref)
-                intent_band = (
-                    execution_intent_band_for_mode(execution_intent)
-                    if execution_intent is not None
-                    else ExecutionIntentBand.NOT_ESTABLISHED
-                )
+                intent_band = intent_bands_by_leaf[node_ref]
                 if intent_band in {
                     ExecutionIntentBand.CANDIDATE_ONLY,
                     ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,

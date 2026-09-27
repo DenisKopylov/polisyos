@@ -101,6 +101,113 @@ async def test_empty_eval_safety_map_is_rejected_before_n4_dispatch(
 
 
 @pytest.mark.asyncio
+async def test_production_recursive_owner_rejects_substrate_without_execution_intent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, substrate_context, _candidate = _cyc01_owner_bound_n5_case()
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "cas")),
+    )
+
+    async def n6_must_not_run(self, *args, **kwargs):
+        del self, args, kwargs
+        raise AssertionError("N6 ran without a declared production execution intent")
+
+    monkeypatch.setattr(GenerationCycleController, "run", n6_must_not_run)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_execution_intent_not_established",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            cycle_substrate_contexts_by_node={root_ref: substrate_context},
+        )
+
+
+@pytest.mark.asyncio
+async def test_non_simulation_context_without_admission_is_not_candidate_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _candidate,
+        _non_simulation_execution_context,
+        _world_record,
+    )
+
+    problem = _problem(f"recursive_protected_no_downgrade_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    context = _non_simulation_execution_context(
+        mode="field_pilot",
+        candidate=_candidate(),
+        world=_world_record(),
+        problem=problem,
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        repo_root=REPO_ROOT,
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "cas")),
+    )
+
+    async def n6_must_not_run(self, *args, **kwargs):
+        del self, args, kwargs
+        raise AssertionError("field_pilot without current EvalSafety reached N6")
+
+    monkeypatch.setattr(GenerationCycleController, "run", n6_must_not_run)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_context_not_current",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            evaluation_contexts_by_node={root_ref: context},
+        )
+
+
+@pytest.mark.asyncio
 async def test_protected_intent_cannot_route_through_context_free_custom_factory(
     tmp_path: Path,
 ) -> None:
@@ -144,6 +251,80 @@ async def test_protected_intent_cannot_route_through_context_free_custom_factory
             execution_intents_by_node={root_ref: "field_pilot"},
         )
     assert factory_calls == []
+
+
+@pytest.mark.parametrize("override_target", ["controller", "promotion_port"])
+@pytest.mark.asyncio
+async def test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    override_target: str,
+) -> None:
+    """Subclass markers cannot stand in for an owner-side no-N9 boundary."""
+
+    from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+    from tests.unit.runtime.quality.test_generation_cycle import _budget, _problem
+
+    problem = _problem(f"contract_candidate_subclass_{override_target}_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    side_effects = {"run": 0, "deployment_identity_refusal": 0}
+
+    class SideEffectPromotionPort(CanonicalN9PromotionPort):
+        def deployment_identity_refusal(self, deployment_identity: str | None) -> str | None:
+            del deployment_identity
+            side_effects["deployment_identity_refusal"] += 1
+            return None
+
+    if override_target == "controller":
+        class SideEffectController(GenerationCycleController):
+            async def run(self, *args, **kwargs):
+                del args, kwargs
+                side_effects["run"] += 1
+                self._promotion_port.deployment_identity_refusal(None)
+                raise AssertionError("subclassed N6/N9 dispatch was reached")
+
+        child = SideEffectController()
+    else:
+        child = GenerationCycleController()
+        child._promotion_port = SideEffectPromotionPort()
+
+        async def run_through_virtual_port(self, *args, **kwargs):
+            del args, kwargs
+            side_effects["run"] += 1
+            self._promotion_port.deployment_identity_refusal(None)
+            raise AssertionError("subclassed N9 port dispatch was reached")
+
+        monkeypatch.setattr(GenerationCycleController, "run", run_through_virtual_port)
+
+    assert isinstance(child, GenerationCycleController)
+    assert isinstance(child._promotion_port, CanonicalN9PromotionPort)
+    outer = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=lambda _node_ref, _problem: child,
+        repo_root=Path(__file__).resolve().parents[4],
+    )
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_contract_testing_candidate_n9_owner_not_established",
+    ):
+        await outer.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+        )
+    assert side_effects == {"run": 0, "deployment_identity_refusal": 0}
 
 
 @pytest.mark.parametrize("intent", ["candidate_only", "simulate_only"])
@@ -1212,6 +1393,7 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
     from polisyos.runtime.quality import evaluation_safety as es
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
     from polisyos.runtime.quality.generation_cycle import (
+        currentness_for_generation_cycle_run,
         simulation_value_execution_context,
     )
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -1256,6 +1438,11 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
         ) -> es.EvalSafetyConsumerAdmissionReceipt:
             del context, challenge
             raise AssertionError("simulation-only recursive fixture called verifier")
+
+    def source_census_must_not_run(*_args, **_kwargs):
+        pytest.fail("candidate recursive replay consulted a live source checkout")
+
+    monkeypatch.setattr(StrangleReceipt, "recompute", source_census_must_not_run)
 
     verifier = _SimulationOnlyVerifier()
     simulation_candidate = _candidate()
@@ -1319,6 +1506,16 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
 
     direct_leaf = direct.leaf_nodes[0]
     http_leaf = compiled.recursive_run.leaf_nodes[0]
+    assert direct_leaf.cycle_run is not None
+    assert direct_leaf.cycle_run.strangle_receipt.status == "not_established"
+    assert "n6_census_issuer_not_appointed" in (
+        direct_leaf.cycle_run.strangle_receipt.limitation_refs
+    )
+    direct_currentness = currentness_for_generation_cycle_run(
+        direct_leaf.cycle_run
+    )
+    assert direct_currentness.status == "not_established"
+    assert direct_currentness.census_verdict == "UNRUN"
     for leaf in (direct_leaf, http_leaf):
         assert leaf.cycle_run is not None
         assert leaf.cycle_run.promotion_port.receipts == ()
@@ -2090,3 +2287,134 @@ def test_task_44_public_export_denominator_is_exact() -> None:
 
     assert set(control_epoch_names).issubset(core_contracts.__all__)
     assert set(epoch_decision_names).issubset(core_contracts.__all__)
+
+
+@pytest.mark.parametrize(
+    "shadow_target",
+    ["run", "_promote_completed_generation", "deployment_identity_refusal"],
+)
+@pytest.mark.asyncio
+async def test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    shadow_target: str,
+) -> None:
+    """Canonical instances with shadowed dispatch methods cannot enter implicit N6."""
+
+    from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+    from tests.unit.runtime.quality.test_generation_cycle import _budget, _problem
+
+    problem = _problem(f"contract_candidate_instance_shadow_{shadow_target}_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    side_effects = {"shadowed_dispatch": 0}
+    child = GenerationCycleController(repo_root=tmp_path)
+
+    def forbidden_shadow(*args, **kwargs):
+        del args, kwargs
+        side_effects["shadowed_dispatch"] += 1
+        raise AssertionError(f"instance-shadowed {shadow_target} was invoked")
+
+    if shadow_target == "run":
+        child.run = forbidden_shadow
+    elif shadow_target == "_promote_completed_generation":
+        child._promote_completed_generation = forbidden_shadow
+
+        async def route_to_shadowed_promotion(self, problem, **kwargs):
+            del kwargs
+            self._promote_completed_generation(summaries=(), problem=problem)
+            raise AssertionError("shadowed promotion returned unexpectedly")
+
+        monkeypatch.setattr(GenerationCycleController, "run", route_to_shadowed_promotion)
+    else:
+        child._promotion_port.deployment_identity_refusal = forbidden_shadow
+
+        async def route_to_shadowed_port(self, problem, **kwargs):
+            del problem, kwargs
+            self._promotion_port.deployment_identity_refusal(None)
+            raise AssertionError("shadowed port method returned unexpectedly")
+
+        monkeypatch.setattr(GenerationCycleController, "run", route_to_shadowed_port)
+
+    assert type(child) is GenerationCycleController
+    assert type(child._promotion_port) is CanonicalN9PromotionPort
+    outer = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=lambda _node_ref, _problem: child,
+        repo_root=tmp_path,
+    )
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_contract_testing_candidate_n9_owner_not_established",
+    ):
+        await outer.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+        )
+    assert side_effects == {"shadowed_dispatch": 0}
+
+
+@pytest.mark.asyncio
+async def test_implicit_contract_testing_candidate_completes_without_n9_authority(
+    tmp_path: Path,
+) -> None:
+    """The canonical candidate route completes while carrying unissued authority."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        PendingN8ValuePort,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _CurrentValidGrounding,
+        _problem,
+    )
+
+    problem = _problem(f"contract_candidate_positive_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    child = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+    )
+    outer = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=lambda _node_ref, _problem: child,
+        repo_root=tmp_path,
+    )
+
+    routed = await outer.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    leaf = routed.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    assert leaf.cycle_run.terminal_status == "completed"
+    assert leaf.cycle_run.promotion_port.status == "not_promoted"
+    assert leaf.cycle_run.promotion_port.receipts == ()
+    assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()

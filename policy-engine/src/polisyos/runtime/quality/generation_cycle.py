@@ -2763,21 +2763,39 @@ class JointSimulationPort:
         """Resolve an owner-provided NCM, refusing an absent model."""
 
         from polisyos.ir.analytics.ncm import load_ncm_spec
+        from polisyos.ir.registry.refs import NCMSpecRef
 
         refs = tuple(world_record.simulation_model_ref.ncm_refs)
         if len(refs) != 1 or not refs[0].startswith("sha256:"):
             raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
-        from polisyos.core.artifacts import FileSystemCAS
-        from polisyos.ir.registry.refs import NCMSpecRef
-
         try:
-            root = (self._repo_root or Path.cwd()).resolve()
             ref = NCMSpecRef(
                 artifact_id=refs[0],
                 kind="ir.ncm_spec",
                 media_type="application/json",
             )
-            return load_ncm_spec(FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas"), ref)
+            if str(ref.artifact_id) != refs[0]:
+                raise ValueError("joint_simulation_ncm_selected_ref_not_canonical")
+        except (TypeError, ValueError) as exc:
+            raise WorldModelRecordError("joint_simulation_ncm_spec_unresolved", str(exc)) from exc
+
+        store = self._artifact_store
+        if store is None:
+            raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
+        try:
+            manifest = store.get_manifest(ref.artifact_id)
+            manifest_schema = getattr(manifest, "artifact_schema", None)
+            if (
+                str(getattr(manifest, "artifact_id", "")) != str(ref.artifact_id)
+                or getattr(manifest, "kind", None) != ref.kind
+                or getattr(manifest, "media_type", None) != ref.media_type
+                or getattr(manifest_schema, "name", None) != ref.kind
+                or getattr(manifest_schema, "version", None) != "1.0"
+            ):
+                raise ValueError("joint_simulation_ncm_selected_manifest_mismatch")
+            return load_ncm_spec(store, ref)
+        except RuntimeDependencyError as exc:
+            raise WorldModelRecordError("joint_simulation_ncm_store_unavailable", str(exc)) from exc
         except (OSError, TypeError, ValueError) as exc:
             raise WorldModelRecordError("joint_simulation_ncm_spec_unresolved", str(exc)) from exc
 

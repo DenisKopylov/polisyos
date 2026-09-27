@@ -2518,6 +2518,304 @@ def test_joint_port_owner_missing_ncm_blocks_with_bound_wmr_provenance() -> None
     assert controller_calls == []
 
 
+
+def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
+    """Rebind a fixture WMR to one selected NCM artifact without changing other fields."""
+
+    from polisyos.runtime.quality.world_model_record import world_model_record_content_hash
+
+    simulation_model_ref = record.simulation_model_ref.model_copy(
+        update={"ncm_refs": (ncm_ref,)}
+    )
+    draft = record.model_copy(update={"simulation_model_ref": simulation_model_ref})
+    content_hash = world_model_record_content_hash(draft)
+    payload = draft.model_dump(mode="python")
+    payload["content_hash"] = content_hash
+    payload["world_model_record_id"] = (
+        f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+    )
+    return type(record).model_validate(payload)
+
+
+def _owner_n5_case_with_selected_ncm_ref(ncm_ref: str) -> tuple[Any, Any, Any]:
+    """Build a content-valid owner context and candidate naming one selected NCM."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    world_record = _record_with_selected_ncm_ref(context.world_model_record, ncm_ref)
+    context = build_cycle_substrate_context(
+        design_problem_ref=context.design_problem_ref,
+        domain=context.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=world_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    atoms = []
+    for atom in candidate.intervention_atoms:
+        rebound = atom.model_copy(
+            update={"world_model_record_ref": world_record.world_model_record_id}
+        )
+        rebound = rebound.model_copy(
+            update={"content_hash": intervention_atom_content_hash(rebound)}
+        )
+        atoms.append(type(atom).model_validate(rebound.model_dump(mode="python")))
+    candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=atoms[0],
+        intervention_atoms=tuple(atoms),
+    )
+    return problem, context, candidate
+
+
+def _runtime_ncm_fixture_store(
+    tmp_path: Path, *, schema_version: str = "1.0"
+) -> tuple[Any, Any, str]:
+    """Persist one typed NCM through the same guarded tenant store used by N5."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _ncm_with_cross_term
+
+    store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "runtime-cas").with_ambient_ownership_enforcement()
+    )
+    expected = _ncm_with_cross_term()
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            ref = persist_ncm_spec(
+                store, expected, schema_version=schema_version
+            )
+        return store, expected, str(ref.artifact_id)
+    except Exception:
+        store.close()
+        raise
+
+
+def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control(
+    tmp_path: Path,
+) -> None:
+    """N5 loads the exact selected model from its tenant store, with or without a context."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+
+    store, expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    repo_root = tmp_path / "empty-repo"
+    request_seen: list[JointSimulationRequest] = []
+
+    class _ReachedN5Error(RuntimeError):
+        pass
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request: JointSimulationRequest) -> object:
+            request_seen.append(concrete_request)
+            raise _ReachedN5Error("request reached the canonical N5 controller")
+
+    try:
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            # The resolver is independent of an optional CycleSubstrateContext.
+            no_context_port = JointSimulationPort(
+                repo_root=repo_root,
+                artifact_store=store,
+            )
+            resolved_without_context = no_context_port._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=context.world_model_record,
+            )
+
+            # The served N5 composition keeps the direct owner context and sends
+            # its exact WMR-selected NCM to the canonical controller.
+            served_port = JointSimulationPort(
+                controller=_RecordingN5Controller(),
+                repo_root=repo_root,
+                cycle_substrate_context=context,
+                artifact_store=store,
+            )
+            with pytest.raises(_ReachedN5Error):
+                served_port(candidate=candidate, problem=problem, cycle_index=0)
+
+        assert resolved_without_context.model_dump(mode="json") == expected.model_dump(
+            mode="json"
+        )
+        assert len(request_seen) == 1
+        assert request_seen[0].world_model_record.content_hash == (
+            context.world_model_record.content_hash
+        )
+        assert request_seen[0].engine_plan[0].ncm_spec.model_dump(mode="json") == (
+            expected.model_dump(mode="json")
+        )
+        assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+    finally:
+        store.close()
+
+
+def test_joint_port_blocks_context_selected_ncm_owned_by_another_tenant(tmp_path: Path) -> None:
+    """The served N5 path cannot read a selected NCM outside the active tenant scope."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    store, _expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    try:
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        port = JointSimulationPort(
+            repo_root=tmp_path / "empty-repo",
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+
+        with tenant_scope(None, tenant_id="tenant-n5-foreign", cell_id="cell-n5-owner"):
+            observation = port(candidate=candidate, problem=problem, cycle_index=0)
+
+        assert observation.status == "simulation_blocked"
+        assert observation.authority_blockers == ("joint_simulation_ncm_spec_unresolved",)
+        diagnostic = observation.diagnostics["request_builder_error"]
+        assert "read_manifest" in diagnostic
+        assert "tenant-n5-foreign/cell-n5-owner" in diagnostic
+        assert "tenant-n5-owner/cell-n5-owner" in diagnostic
+        assert observation.world_model_record is context.world_model_record
+    finally:
+        store.close()
+
+
+def test_joint_port_blocks_context_selected_ncm_absent_from_runtime_store(tmp_path: Path) -> None:
+    """A well-shaped selected digest cannot resolve from a different or empty CAS root."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    store, _expected, _stored_ref = _runtime_ncm_fixture_store(tmp_path)
+    missing_ref = "sha256:" + "f" * 64
+    repo_root = tmp_path / "empty-repo"
+    try:
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(missing_ref)
+        port = JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            observation = port(candidate=candidate, problem=problem, cycle_index=0)
+
+        assert observation.status == "simulation_blocked"
+        assert observation.authority_blockers == ("joint_simulation_ncm_spec_unresolved",)
+        assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+    finally:
+        store.close()
+
+
+
+
+def test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema(
+    tmp_path: Path,
+) -> None:
+    """Matching bytes with an unsupported NCM manifest schema cannot enter N5."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    store, _expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path, schema_version="2.0")
+    try:
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        port = JointSimulationPort(
+            repo_root=tmp_path / "empty-repo",
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            observation = port(candidate=candidate, problem=problem, cycle_index=0)
+
+        assert observation.status == "simulation_blocked"
+        assert observation.authority_blockers == ("joint_simulation_ncm_spec_unresolved",)
+        assert "selected_manifest_mismatch" in observation.diagnostics["request_builder_error"]
+    finally:
+        store.close()
+
+
+
+def test_joint_port_refuses_selected_ncm_without_runtime_store(tmp_path: Path) -> None:
+    """A selected digest cannot trigger N5's old repository-root CAS reconstruction."""
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    world_record = _record_with_selected_ncm_ref(
+        context.world_model_record,
+        "sha256:" + "0" * 64,
+    )
+    repo_root = tmp_path / "empty-repo"
+    port = JointSimulationPort(repo_root=repo_root)
+
+    with pytest.raises(WorldModelRecordError) as raised:
+        port._resolve_joint_simulation_ncm(
+            problem=problem,
+            world_record=world_record,
+        )
+
+    assert raised.value.code == "joint_simulation_ncm_store_not_established"
+    assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+
+
+
+
+def test_joint_port_reports_runtime_ncm_store_unavailability_as_typed_block(
+    tmp_path: Path,
+) -> None:
+    """A guarded-store outage is an N5 limitation, not an exception escape."""
+
+    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    world_record = _record_with_selected_ncm_ref(
+        context.world_model_record,
+        "sha256:" + "1" * 64,
+    )
+
+    class _UnavailableNcmStore:
+        def get_manifest(self, _artifact_id: object) -> object:
+            raise RuntimeDependencyUnavailableError(
+                "content_addressed_storage",
+                detail="fixture store unavailable",
+            )
+
+    port = JointSimulationPort(
+        repo_root=tmp_path / "empty-repo",
+        artifact_store=_UnavailableNcmStore(),
+    )
+    with pytest.raises(WorldModelRecordError) as raised:
+        port._resolve_joint_simulation_ncm(
+            problem=problem,
+            world_record=world_record,
+        )
+
+    assert raised.value.code == "joint_simulation_ncm_store_unavailable"
+
+
+
+def test_joint_port_preserves_typed_missing_ncm_ref_without_context(tmp_path: Path) -> None:
+    """No context and no selected NCM keep the existing typed N5 limitation."""
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    repo_root = tmp_path / "empty-repo"
+    port = JointSimulationPort(repo_root=repo_root)
+
+    with pytest.raises(WorldModelRecordError) as raised:
+        port._resolve_joint_simulation_ncm(
+            problem=problem,
+            world_record=context.world_model_record,
+        )
+
+    assert raised.value.code == "joint_simulation_ncm_spec_missing"
+    assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+
+
 @pytest.mark.parametrize("hostile_location", ("runtime_hint", "engine_plan"))
 def test_joint_port_rejects_unverified_ncm_authority_sources(hostile_location: str) -> None:
     """Neither caller hints nor nested plans can replace the owner NCM resolver."""

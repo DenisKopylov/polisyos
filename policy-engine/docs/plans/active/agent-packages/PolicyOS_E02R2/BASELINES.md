@@ -1,5 +1,27 @@
 # Four-base P41 test baselines
 
+## P41 R9/R14 exact-selector result: main to cfcf prepatch (2026-09-27)
+
+The same one-case selector, under the paired command/environment reported for the
+runs, passed on clean main `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` and errored on integration
+prepatch `cfcf5ff1caff41c91efdc10f50c59eddaf7f424b` with `claim_root_denominator_mismatch`.
+The selector is
+`tests.unit.scientist.governance.continuous.test_governed_public_record::test_real_owner_signed_mandate_issuance_readback_and_custody`. Main JUnit
+`main-base/one-selector.junit.xml@sha256:cf6bdb21e1c5ed7ea573317a09f22e49712892fd4b225f161d0db33334f681b0` reports 1 pass; cfcf
+JUnit `prepatch/one-selector-current.junit.xml@sha256:2e53f210caa9ebfdddc89f24205f479adb64f27d153245bfb934e74367122a8f`
+reports 1 error.
+
+The cfcf whole-three JUnit
+`prepatch/whole-three.junit.xml@sha256:d70006f138ef29514c797d2a76d62223c16652b0c437ae74bb5ac5d8c6d929f7`
+contains 33 identities: 10 pass, 1 fail, and 22 setup errors, all with the same
+`claim_root_denominator_mismatch` setup message. The test module
+`policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py` is absent at the E02 execution base and E02 head; it is present at
+main and cfcf with the same test blob `5873631ca3f71596b72ab567a5591e4be3969167`. The branch has since
+advanced to `5b215d4302525d927e42d2d289fafc7d72c46d52`; this receipt includes no result for that later head.
+The one-case pair is not a four-base comparison or touched-file closure. Full
+JUnit identities, status counts, and exact path/blob presence are recorded in
+`/Users/deniskopylov/.codex/scratch/e02-r9-public-record-integration-20260927/p41-receipt/R9_R14_SELECTOR_P41_RECEIPT.json@sha256:0cff3d7b1f57e64eeb3b10c14cb8b1cd1242a6c2fc3911fde85fec64a9ca874f`.
+
 ## B72 six-file current-head comparison (2026-09-27)
 
 The whole-file JUnit cells compare prepatch `42060f584a4edbc4370aa5df93175869acaed5a2` to committed postpatch

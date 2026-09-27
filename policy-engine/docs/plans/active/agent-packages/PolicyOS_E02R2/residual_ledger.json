@@ -5969,7 +5969,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The integrated add75 RES-02 files passed 6/6 unit and 8/8 checkpoint-resume tests. The clean-782 current wave passed 15/15 across test_res_02.py (6), test_distributed_tier.py (8), and one CAS stop/reopen selector (1). Separately, the expected-red legacy async per-node callback probe reproduced a split boundary: checkpoint metadata completed_nodes=[\"left\"] while persisted merged state already included right=2. This confirms a callback-path defect; no repair, preserving control, crash/reopen consistency witness, or complete four-base replay is established. Keep partial.",
+      "residual": "At clean 782 the expected-red real-CAS legacy callback probe showed `completed_nodes=[\"left\"]` while persisted merged state already included `right=2`. Integrated commit `bac6996dfaf3a6fedce16c8afb1009b5114b84de` removes the unsafe per-node fallback when an explicit checkpoint hook is supplied for a multi-node tier, requiring the existing sync/async tier-completion contract before node execution. The frozen candidate focused group passed 11/11 (8 complete RES-02 unit cases plus 3 real-checkpoint integration selectors), and the complete `test_checkpoint_resume.py` passed 9/9. The focused JUnit was generated before a mechanical Ruff import-order-only correction; the integration receipt records unchanged behavior/assertions and subsequent Ruff/diff-check success. The integrated commit source/test file hashes match the frozen candidate memo. Keep partial: four-base replay, fail-fast/continue durable-head behavior, and arbitrary custom-hook persistence semantics remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -6001,7 +6001,7 @@
           "mechanism_path_at_sha": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py@c12f3bd3ec67ff61e9707d615729d82003b0a767",
           "candidate_test_identity": "test_checkpoint_resume.py::test_b73_legacy_node_callback_persists_only_completed_frontier (copied expected-red probe at clean 782)",
           "candidate_test_path_at_sha": "policy-engine/tests/unit/remediation/test_res_02.py@bbdd69d3fcbdd072c366291ffac704bbde084128",
-          "candidate_test_scope": "The copied selector directly reproduces merged persisted state containing right=2 while completed_nodes=[\"left\"]. The probe is expected red; fix and preserving control remain UNRUN.",
+          "candidate_test_scope": "Historical clean-782 expected-red probe: merged persisted state contained right=2 while completed_nodes=[\"left\"]. The unsafe node-only fallback was later fenced at bac6996; current bounded receipts are recorded in b73_integrated_repair_2026_09_28. Four-base replay and wider fail-fast/continue durable-head behavior remain UNRUN.",
           "behavioral_verdict": "COUNTEREXAMPLE_REPRODUCED"
         },
         "source_review": {
@@ -6018,8 +6018,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "Local tier checkpointing writes one merged checkpoint with the full successful set; fail-fast drops the state checkpoint and continue preserves successful output. The legacy async per-node callback and distributed route may publish merged state while growing completed_nodes by alias prefix. No crash/reopen/resume witness proves state plus the full completion set at that publication point. Keep partial.",
-          "next_step": "Inject stop after possible A/B publication, reopen and resume while checking state and full occurrence set, no double application, and separate fail-fast/continue semantics on legacy and distributed paths."
+          "summary": "At the 7e06e967 review snapshot, the legacy async per-node callback could publish merged state with a prefix completion list. Commit bac6996 fences the canonical node-only fallback for explicit multi-node checkpoint hooks. Keep partial pending four-base replay and wider fail-fast/continue durable-head behavior.",
+          "next_step": "Run the required four-base comparison and a wider fail-fast/continue durable-head matrix; separately establish arbitrary custom-hook persistence behavior before extending the property beyond the canonical CAS owner."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -6053,7 +6053,7 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B73"
           ],
-          "residual": "Local tier checkpointing writes one merged checkpoint with the full successful set; fail-fast drops the state checkpoint and continue preserves successful output. The legacy async per-node callback and distributed route may publish merged state while growing completed_nodes by alias prefix. No crash/reopen/resume witness proves state plus the full completion set at that publication point. Keep partial.",
+          "residual": "The 7e06e967 review snapshot identified legacy async per-node publication with a prefix completion list; the expected-red clean-782 probe later demonstrated that split. Commit bac6996 fences the canonical node-only fallback for explicit multi-node checkpoint hooks. Keep partial pending four-base replay, wider fail-fast/continue durable-head behavior, and arbitrary custom-hook persistence semantics.",
           "residual_owner": "RES-02 local checkpoint owner plus Temporal/Ray/activity distributed checkpoint route",
           "next_step": "Inject stop after possible A/B publication, reopen and resume while checking state and full occurrence set, no double application, and separate fail-fast/continue semantics on legacy and distributed paths."
         },
@@ -6081,7 +6081,41 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.junit.xml@sha256:41aa778b3f607a7e214145e487b3fdd489c80a6cb876d5b83260a68367ce0606",
           "log_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.log@sha256:6e934261db30afaac38a22d67082a2c35a4d17fcf339d3924125dff19f4ea8cd",
           "observed": "completed_nodes=[\"left\"] while the persisted merged state contains right=2",
-          "scope": "The scratch probe copied the named tracked selector. It demonstrates state/completion-set divergence on the legacy callback boundary, not a repair. B73 remains partial pending a fix, preserving control and complete class replay."
+          "scope": "This is the expected-red clean-782 counterexample, captured before the bac6996 repair. It establishes the historical state/completion-set divergence; the later bounded repair evidence is in b73_integrated_repair_2026_09_28. B73 remains partial pending four-base and wider class replay."
+        },
+        "b73_integrated_repair_2026_09_28": {
+          "identity": "B73 canonical parallel-tier checkpoint-hook fence at integrated commit bac6996dfaf3a6fedce16c8afb1009b5114b84de",
+          "kind": "integrated_bounded_test_receipt",
+          "integrated_commit": "bac6996dfaf3a6fedce16c8afb1009b5114b84de",
+          "status_retained": "partial",
+          "focused_group": {
+            "cases": 11,
+            "passed": 11,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "scope": "complete test_res_02.py (8 cases) plus three real-checkpoint integration selectors"
+          },
+          "checkpoint_resume_whole_file": {
+            "cases": 9,
+            "passed": 9,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "scope": "complete tests/integration/scientist/test_checkpoint_resume.py"
+          },
+          "integration_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/B73_INTEGRATION_RECEIPT.md@sha256:8814f23d24f9a2d6fd39c4d86822f35cae909467ecad07c619f329581b028901",
+          "focused_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/test.junit.xml@sha256:ba9613a920812054c99bd9b3044ba3d025188b96737c49eee860c9d22b89a3ca",
+          "whole_file_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/full/test.junit.xml@sha256:ee2d8a5e7ed309571e880c80aae62773188405d3c668777ab39e43b2125ade85",
+          "review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-review-verdict-20260928.md@sha256:ee545a12874edb37cbd908d5b5b110e460cc053fdac76ac3938fa3e20d52ce44",
+          "candidate_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-candidate-20260928/B73_CANDIDATE_MEMO.md@sha256:2d6e361e3bf80610cf4f42840e83cb3635d143c969d7c5f9361113c9870d8b6d",
+          "exact_source_file_sha256_match": {
+            "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": "a0f4fbc21ec00202e68386511c9e41a17e994f0a731f1dc12815983df72eb2fe",
+            "policy-engine/tests/unit/remediation/test_res_02.py": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa",
+            "policy-engine/tests/integration/scientist/test_checkpoint_resume.py": "b9eb871084c4bb62143db152a45b5637d787485841ad3464a9d15c77abedc692"
+          },
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The receipt ran against the frozen candidate applied to clean base 4ef6dbc0c; all final integrated source/test file hashes match the frozen memo. The focused JUnit preceded a Ruff-only import-order correction, with no behavior/assertion change; the receipt records Ruff and git diff --check success. B73 remains partial: four-base replay and wider fail-fast/continue durable-head behavior remain UNRUN, and arbitrary hook persistence internals are not established."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",

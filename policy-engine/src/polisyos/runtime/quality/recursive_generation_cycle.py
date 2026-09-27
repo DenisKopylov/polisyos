@@ -52,7 +52,6 @@ from polisyos.runtime.quality.generation_cycle import (
     generation_cycle_terminal_state,
     persist_joint_simulation_result,
     validate_generation_cycle_candidate_run,
-    validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
@@ -1149,16 +1148,10 @@ class RecursiveGenerationCycleController:
                 )
                 if cycle_run.design_problem_ref != problem_ref:
                     raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
-                intent_band = intent_bands_by_leaf[node_ref]
-                if intent_band in {
-                    ExecutionIntentBand.CANDIDATE_ONLY,
-                    ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT,
-                }:
-                    issues = validate_generation_cycle_candidate_run(cycle_run)
-                else:
-                    issues = validate_generation_cycle_run(
-                        cycle_run, repo_root=self._repo_root
-                    )
+                # N6 currentness governs authority, not whether a computed leaf
+                # can continue as candidate input to recursion. Protected
+                # authority consumers keep the strict validator at their owner.
+                issues = validate_generation_cycle_candidate_run(cycle_run)
                 if issues:
                     raise RecursiveGenerationCycleError(
                         "recursive_leaf_generation_cycle_invalid",

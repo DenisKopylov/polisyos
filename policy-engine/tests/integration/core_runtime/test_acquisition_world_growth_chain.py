@@ -18,6 +18,8 @@ from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecuti
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
+    currentness_for_generation_cycle_run,
+    validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
 )
 from tests._helpers.acquisition_chain import make_wdi_port_case
@@ -314,6 +316,9 @@ async def test_revised_basis_scope_refuses_before_egress_and_selector_removal_is
 async def test_actual_wdi_admits_delta_and_reenters_same_case(
     tmp_path, monkeypatch, request, guarded_cas
 ):
+    # This is a downstream owner-chain witness: persist_wdi_route seeds its
+    # run through for_contract_testing. The protected-intent production
+    # recursive-leaf boundary is exercised by the paired unit test.
     if guarded_cas:
         from polisyos.runtime.http.resilience import guard_runtime_cas
         from tests.unit.runtime.http import test_control_service_di as control_fixture
@@ -327,6 +332,17 @@ async def test_actual_wdi_admits_delta_and_reenters_same_case(
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(tmp_path / "control")
     closure, _ = await persist_wdi_route(control)
+    run = closure.generation_run
+    currentness = currentness_for_generation_cycle_run(run)
+    assert currentness.status == "not_established"
+    assert currentness.census_verdict == "UNRUN"
+    assert run.strangle_receipt.status == "not_established"
+    assert "n6_census_issuer_not_appointed" in run.strangle_receipt.limitation_refs
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issue_codes = {issue["code"] for issue in validate_generation_cycle_run(run)}
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.receipts == ()
     case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
     quarantined = case.port.execute(closure)
     assert quarantined.disposition == "quarantined_no_growth"

@@ -1123,10 +1123,14 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
     from polisyos.runtime.http.services.control import evaluation_safety as c02
     from polisyos.runtime.quality import evaluation_safety as es
     from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+    from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
     from polisyos.runtime.quality.generation_cycle import (
         JointSimulationPort,
         RealValueOwnerGateway,
         ValueOwnerAccessError,
+        currentness_for_generation_cycle_run,
+        validate_generation_cycle_candidate_run,
+        validate_generation_cycle_run,
     )
     from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -1303,6 +1307,36 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         context=fixture.execution_context,
         verifier=replaying_verifier,
     )
+    current_leaf = current.leaf_nodes[0]
+    assert current_leaf.cycle_run is not None
+    current_run = current_leaf.cycle_run
+    currentness = currentness_for_generation_cycle_run(current_run)
+    assert currentness.status == "not_established"
+    assert currentness.census_verdict == "UNRUN"
+    assert current_run.strangle_receipt.status == "not_established"
+    assert "n6_census_issuer_not_appointed" in current_run.strangle_receipt.limitation_refs
+    assert validate_generation_cycle_candidate_run(current_run) == ()
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(current_run)
+    }
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" in strict_issue_codes
+    assert current_run.promotion_port.status == "not_promoted"
+    assert current_run.promotion_port.receipts == ()
+    assert current_run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "voi_safety_cap_reached_without_scheduler_stop"
+    )
+    assert current_run.deployment_identity_status == "established"
+    assert current_run.deployment_identity is not None
+    foreign_identity = current_run.deployment_identity[:-1] + (
+        "0" if current_run.deployment_identity[-1] != "0" else "1"
+    )
+    stale_run = current_run.model_copy(update={"deployment_identity": foreign_identity})
+    assert currentness_for_generation_cycle_run(stale_run).status == "stale"
+    assert "strangle_receipt_stale" in {
+        issue["code"] for issue in validate_generation_cycle_candidate_run(stale_run)
+    }
     stale_context = fixture.execution_context.model_copy(
         update={
             "eval_safety_revision_head_ref": c02_test._ref(  # noqa: SLF001
@@ -1383,6 +1417,23 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
                 verifier=concrete_verifier,
                 context_bindings=invalid_bindings,
             )
+
+    # Removal probe: keep the same typed run markers but remove candidate-band
+    # treatment at the recursive owner boundary. The strict currentness gate
+    # must make this otherwise valid owner leaf unavailable to the caller.
+    monkeypatch.setattr(
+        recursive_cycle_owner,
+        "validate_generation_cycle_candidate_run",
+        generation_cycle_owner.validate_generation_cycle_run,
+    )
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_leaf_generation_cycle_invalid",
+    ):
+        await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
 
 
 @pytest.mark.asyncio

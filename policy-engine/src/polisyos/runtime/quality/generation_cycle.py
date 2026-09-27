@@ -6692,7 +6692,16 @@ def validate_generation_cycle_candidate_run(
     is a typed limitation and does not prevent ordinary candidate computation.
     """
 
-    return _validate_generation_cycle_run(run, require_currentness=False)
+    issues = _validate_generation_cycle_run(run, require_currentness=False)
+    if any(issue["code"] == "generation_cycle_run_invalid" for issue in issues):
+        return issues
+    observation = currentness_for_generation_cycle_run(run)
+    if observation.status == "stale":
+        return (
+            *issues,
+            {"code": "strangle_receipt_stale", "reason": observation.reason_code},
+        )
+    return issues
 
 
 def currentness_for_generation_cycle_run(

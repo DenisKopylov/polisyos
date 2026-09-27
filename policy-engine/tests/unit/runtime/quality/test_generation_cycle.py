@@ -93,6 +93,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _summary_with_value_observation,
     enforce_no_retry_without_new_grammar,
     generation_cycle_terminal_state,
+    validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import (
@@ -3962,7 +3963,12 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
         for candidate_id in candidate_ids
     )
     assert front_ids == ("candidate_same_subject",)
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+    }
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
 
 
 
@@ -4108,9 +4114,12 @@ async def test_missing_deployment_identity_does_not_refuse_candidate_computation
     assert run.deployment_identity_status == "not_established"
     assert run.deployment_identity is None
     assert run.deployment_identity_reason == "canonical_loaded_runtime_mismatch"
+    currentness = generation_cycle_module.currentness_for_generation_cycle_run(run)
+    assert currentness.reason_code == "historical_deployment_identity_not_recorded"
+    assert currentness.loaded_identity_reason_code == "canonical_loaded_runtime_mismatch"
     assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.reason == (
-        "confidence_ledger_refused:deployment_identity_not_established"
+        "generation_cycle_n6_census_not_established:loaded_deployment_identity_not_established"
     )
     assert n9_preparation == []
 
@@ -6052,7 +6061,12 @@ async def test_honest_single_cycle_acquisition_terminal_validates() -> None:
 
     assert len(run.cycles) == 1
     assert run.cycles[0].terminal_kind == "acquisition_required"
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+    }
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
 
 
 @pytest.mark.asyncio
@@ -6287,7 +6301,11 @@ async def test_generation_run_carries_epoch_owner_into_decision_front_replay(
     )
     assert replayed.fronts.decision.candidate_ids == ()
     assert replayed.promotion_port.status == "not_promoted"
-    assert replayed.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    assert replayed.cycles
+    assert replayed.candidate_summaries
+    assert replayed.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
 
 
 @pytest.mark.parametrize("epoch_evidence", ["valid", "missing_resolver", "corrupted_artifact"])
@@ -6918,6 +6936,76 @@ def test_generation_cycle_strangle_receipt_counts_new_production_caller(tmp_path
     )
 
 
+@pytest.mark.asyncio
+async def test_n6_strangle_drift_is_distinguished_from_unknown_and_candidate_remains_available(
+    tmp_path: Path,
+) -> None:
+    """Known source drift blocks authority; absent census evidence stays UNRUN."""
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=tmp_path,
+    ).run(_problem(), budget_state=_budget(), max_cycles=1)
+    assert run.cycles
+    assert run.candidate_summaries
+
+    unknown_receipt = StrangleReceipt.recompute(tmp_path)
+    assert unknown_receipt.status == "not_established"
+    unknown_run = run.model_copy(update={"strangle_receipt": unknown_receipt})
+    unknown_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+        unknown_run,
+        current_strangle_receipt=unknown_receipt,
+    )
+    unknown_codes = {issue["code"] for issue in unknown_issues}
+    assert "strangle_receipt_not_established" in unknown_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in unknown_codes
+    assert "strangle_receipt_currentness_not_established" in unknown_codes
+    assert validate_generation_cycle_candidate_run(unknown_run) == ()
+
+    source = tmp_path / "src" / "polisyos" / "runtime" / "single_pass_probe.py"
+    source.parent.mkdir(parents=True)
+    marker_source = (
+        "def execute(loop):\n"
+        "    # run_fixture marker remains after removing the call\n"
+        "    marker = 'run_fixture'\n"
+        "    return loop.run_fixture('fixture_name')\n"
+    )
+    source.write_text(marker_source, encoding="utf-8")
+    drift_receipt = StrangleReceipt.recompute(tmp_path)
+    assert drift_receipt.status == "drift"
+    drift_run = run.model_copy(update={"strangle_receipt": drift_receipt})
+    drift_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+        drift_run,
+        current_strangle_receipt=drift_receipt,
+    )
+    drift_codes = {issue["code"] for issue in drift_issues}
+    assert "single_pass_fixture_survives_as_production_cycle" in drift_codes
+    assert "strangle_receipt_not_established" not in drift_codes
+    # Candidate computation remains available; only strict authority is held.
+    assert validate_generation_cycle_candidate_run(drift_run) == ()
+
+    source.write_text(
+        marker_source.replace("return loop.run_fixture('fixture_name')", "return None"),
+        encoding="utf-8",
+    )
+    removed_property_receipt = StrangleReceipt.recompute(tmp_path)
+    assert removed_property_receipt.status == "strangled"
+    assert "run_fixture" in source.read_text(encoding="utf-8")
+    removed_property_run = run.model_copy(
+        update={"strangle_receipt": removed_property_receipt}
+    )
+    removed_property_issues = (
+        generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+            removed_property_run,
+            current_strangle_receipt=removed_property_receipt,
+        )
+    )
+    removed_property_codes = {issue["code"] for issue in removed_property_issues}
+    assert "single_pass_fixture_survives_as_production_cycle" not in removed_property_codes
+    assert "strangle_receipt_currentness_not_established" in removed_property_codes
+
+
 def test_generation_cycle_strangle_receipt_rechecks_comment_edit_on_later_invocation(
     tmp_path: Path,
 ) -> None:
@@ -7419,4 +7507,10 @@ async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) 
     assert run.terminal_status == "completed"
     assert run.cycles[0].grounding.current_valid is True
     assert run.promotion_port.status == "not_promoted"
-    assert controller.promotion_calls == 1
+    assert controller.promotion_calls == 0
+    assert run.cycles
+    assert run.candidate_summaries
+    assert run.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
+    assert validate_generation_cycle_candidate_run(run) == ()

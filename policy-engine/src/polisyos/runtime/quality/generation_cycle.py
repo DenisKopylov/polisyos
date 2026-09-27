@@ -4388,7 +4388,7 @@ class GenerationCycleController:
             identity_reason = (
                 None
                 if identity_status == "established"
-                else n6_currentness.reason_code
+                else n6_currentness.loaded_identity_reason_code
             )
         self._begin_source_run(run_id)
         current_problem = problem
@@ -6825,27 +6825,40 @@ def _validate_generation_cycle_run(
                     current_strangle_receipt
                 )
             except GenerationCycleError as exc:
-                issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
-        else:
-            observation = currentness_for_generation_cycle_run(run)
-            if observation.status == "stale":
-                issues.append(
-                    {
-                        "code": "strangle_receipt_stale",
-                        "reason": observation.reason_code,
-                    }
-                )
-            elif observation.status != "current":
-                issues.append(
-                    {
-                        "code": "strangle_receipt_currentness_not_established",
-                        "reason": observation.reason_code,
-                        "census_verdict": observation.census_verdict,
-                        "unresolved_by_construction": (
-                            observation.unresolved_by_construction
-                        ),
-                    }
-                )
+                if exc.code == "generation_cycle_strangle_receipt_not_strangled":
+                    if current_strangle_receipt.status == "drift":
+                        issues.append(
+                            {"code": "single_pass_fixture_survives_as_production_cycle"}
+                        )
+                    else:
+                        issues.append(
+                            {
+                                "code": "strangle_receipt_not_established",
+                                "source_state": current_strangle_receipt.source_state,
+                                "parse_errors": current_strangle_receipt.parse_errors,
+                            }
+                        )
+                else:
+                    issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
+        observation = currentness_for_generation_cycle_run(run)
+        if observation.status == "stale":
+            issues.append(
+                {
+                    "code": "strangle_receipt_stale",
+                    "reason": observation.reason_code,
+                }
+            )
+        elif observation.status != "current":
+            issues.append(
+                {
+                    "code": "strangle_receipt_currentness_not_established",
+                    "reason": observation.reason_code,
+                    "census_verdict": observation.census_verdict,
+                    "unresolved_by_construction": (
+                        observation.unresolved_by_construction
+                    ),
+                }
+            )
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()
@@ -7072,8 +7085,6 @@ def _validate_generation_cycle_run(
                     "candidate_id": summary.candidate_id,
                 }
             )
-    if require_currentness and run.strangle_receipt.status != "strangled":
-        issues.append({"code": "single_pass_fixture_survives_as_production_cycle"})
     if run.value_port.status == "value_ready" and not run.value_port.value_ref:
         issues.append({"code": "fabricated_value_without_n8"})
     if (

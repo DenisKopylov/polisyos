@@ -1320,7 +1320,7 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         issue["code"] for issue in validate_generation_cycle_run(current_run)
     }
     assert "strangle_receipt_currentness_not_established" in strict_issue_codes
-    assert "single_pass_fixture_survives_as_production_cycle" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
     assert current_run.promotion_port.status == "not_promoted"
     assert current_run.promotion_port.receipts == ()
     assert current_run.promotion_port.reason == (

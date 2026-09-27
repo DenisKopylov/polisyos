@@ -798,8 +798,8 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
     """
 
     schema_version: Literal[
-        "policyos.runtime.confidence_ledger.n6_currentness_observation.v1"
-    ] = "policyos.runtime.confidence_ledger.n6_currentness_observation.v1"
+        "policyos.runtime.confidence_ledger.n6_currentness_observation.v2"
+    ] = "policyos.runtime.confidence_ledger.n6_currentness_observation.v2"
     status: Literal["current", "stale", "not_established"]
     census_verdict: Literal["PASS", "FAIL", "UNRUN"]
     recorded_identity_status: Literal["established", "not_established"] | None = None
@@ -812,6 +812,11 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
         default=None,
         pattern=r"^policy-engine-deployment:sha256:[0-9a-f]{64}$",
     )
+    loaded_identity_reason_code: Literal[
+        "canonical_loaded_runtime_mismatch",
+        "canonical_deployment_identity_invalid",
+        "packaged_deployment_identity_issuer_unavailable",
+    ] | None = None
     reason_code: Literal[
         "historical_deployment_identity_not_recorded",
         "loaded_deployment_identity_not_established",
@@ -825,9 +830,15 @@ class N6DeploymentCurrentnessObservation(_StrictModel):
     @model_validator(mode="after")
     def _bind_observation(self) -> Self:
         if self.loaded_identity_status == "established":
-            if self.loaded_deployment_identity is None:
+            if (
+                self.loaded_deployment_identity is None
+                or self.loaded_identity_reason_code is not None
+            ):
                 raise ValueError("n6_currentness_loaded_identity_missing")
-        elif self.loaded_deployment_identity is not None:
+        elif (
+            self.loaded_deployment_identity is not None
+            or self.loaded_identity_reason_code is None
+        ):
             raise ValueError("n6_currentness_loaded_identity_unexpected")
         if self.status == "current" and (
             self.census_verdict != "PASS"
@@ -4588,6 +4599,7 @@ def observe_n6_deployment_currentness(
         "recorded_deployment_identity": recorded_deployment_identity,
         "loaded_identity_status": loaded.status,
         "loaded_deployment_identity": loaded.deployment_identity,
+        "loaded_identity_reason_code": loaded.reason_code,
         "unresolved_by_construction": unresolved,
     }
     if recorded_identity_status is None:
@@ -4636,6 +4648,7 @@ def observe_n6_deployment_currentness(
         recorded_deployment_identity=recorded_deployment_identity,
         loaded_identity_status=loaded.status,
         loaded_deployment_identity=loaded.deployment_identity,
+        loaded_identity_reason_code=loaded.reason_code,
         reason_code="n6_currentness_established",
         unresolved_by_construction=(),
     )

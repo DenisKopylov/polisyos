@@ -17,10 +17,6 @@ from weakref import WeakKeyDictionary
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts, contracts, security
-from polisyos.core.artifacts.backends.config import (
-    ArtifactStoreConfig,
-    build_artifact_store,
-)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -243,11 +239,16 @@ class EpochDeployment:
         scoped = self._scoped_runtime_artifact_store()
         return scoped if scoped is not None else self._state().store
 
-    def _runtime_repository(self) -> FileSystemSignedArtifactEvidenceRepository:
+    def _required_runtime_artifact_store(self) -> artifacts.ArtifactStore:
         store = self._runtime_artifact_store()
         if store is None:
             raise ValueError("epoch runtime evidence repository is not configured")
-        return FileSystemSignedArtifactEvidenceRepository(store)
+        return store
+
+    def _runtime_repository(self) -> FileSystemSignedArtifactEvidenceRepository:
+        return FileSystemSignedArtifactEvidenceRepository(
+            self._required_runtime_artifact_store()
+        )
 
     def _repository(self) -> FileSystemSignedArtifactEvidenceRepository:
         return self._runtime_repository()
@@ -491,8 +492,8 @@ def build_epoch_deployment(
     state = _EpochDeploymentState(
         config=config,
         keys=keys,
-        store=build_artifact_store(
-            ArtifactStoreConfig(
+        store=artifacts.build_artifact_store(
+            artifacts.ArtifactStoreConfig(
                 backend="filesystem",
                 root=str(config.evidence_cas_root),
             )

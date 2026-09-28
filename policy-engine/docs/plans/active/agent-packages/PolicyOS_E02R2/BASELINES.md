@@ -1,5 +1,63 @@
 # Four-base P41 test baselines
 
+## Exact `44a7441eb` integration-head supplement (2026-09-28)
+
+These are whole-file or exact-selector observations on committed source/test
+bytes at `44a7441eba7ad92eb6b95a767e14f0dbe61f27b3`, with the shared venv,
+read-only `production_data` symlink, `PYTHONPATH=src:.` and `JAX_PLATFORMS=cpu`.
+They do not complete the Appendix-A/B four-base or all-touched-file matrix.
+The source/test tree in each worktree was frozen throughout its run. The B88
+pair ran in the canonical worktree while documentation files were dirty; its
+source/test inputs were committed and unchanged.
+
+| Complete file or exact selector | Current result | Deciding output |
+|---|---:|---|
+| `tests/unit/runtime/quality/test_generation_cycle.py` | 153/153 pass | `/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/generation-cycle-44a.junit.xml@sha256:5f3f3a245602361986ccb6d58e3ced6e3bd9f8846e517ce73d09d8d9cc1ffe83` |
+| `test_acquisition_tenant_custody.py` and `test_acquisition_world_growth_chain.py` | 12/12 pass | `/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/tenant-wdi-44a.junit.xml@sha256:23544251f1a80d57f642227d184226281bd97e0b0fc607cecc4b1e0c95d32813` |
+| `test_b88_served_replay.py` and `test_modes.py` | 19/19 pass | `/Users/deniskopylov/.codex/scratch/e02-b88-current-44a-20260928/b88-modes.junit.xml@sha256:8556d62e7443c01c1cf6a0d3d2d53c5227c169d039f5c03fa8ef16dc9d78953c` |
+| `tests/unit/runtime/quality/test_live_acquisition_executor.py` | 49/49 pass | `/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/live-executor-44a.junit.xml@sha256:8c155a0d9ebfbcbf2734ea7042ad24fe1f5182bcf69ca1d7ed207ebd1cad02ff` |
+| `test_generation_cycle.py::test_post_n9_packet_binds_exact_subject_and_gate_receipt` with newly empty ignored ledger state | 1/1 pass | `/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/n9-isolated-44a.junit.xml@sha256:9224a1081fd7822824a40787a081aa7d481c9b7f556f28be62ec3ef696b018e6` |
+
+The complete generation-cycle comparison enumerates **153/153 common test
+identities** against `10315b7b2`: 150 pass/3 fail became 153 pass, with zero
+pass→nonpass. The two N7 re-entry cases changed fail→pass. The third N9 case
+also changed, but ignored confidence-ledger state differs, so this pair does not
+attribute it to R12. The exact comparison, Git blobs and command provenance
+are `/Users/deniskopylov/.codex/scratch/e02-44a-cycle-p41-20260928/GENERATION_CYCLE_44A_P41_RECEIPT.md@sha256:597827a3203bc6e52855aa83f4a50dd64ba1f607bf85b8423b402ea186c2fb40`.
+The pre-change four-base result for the N9 case remains `UNRUN`.
+
+The standalone GY-N6 checker returned a typed **UNRUN / exit 2** at
+`n6_source_census`, with `generation_cycle_currentness_reissue_required` and
+`n6_source_census_not_established`; it did not crash or reach N9. Its complete
+output is `/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/r4-check-44a.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`.
+The architecture guardrails ran as the sole command in their invocation and
+exited **1**. Their 1,446-line output is byte-identical to the earlier
+`7683ebdb9` log (same SHA-256
+`8bc0b6d1743e773b8cbae6dcb2920d46c17eb1ec57232a8045b6b94f168e6b16`):
+`/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/architecture-guardrails-44a.log@sha256:8bc0b6d1743e773b8cbae6dcb2920d46c17eb1ec57232a8045b6b94f168e6b16`.
+Every reported family is classified in
+`/Users/deniskopylov/.codex/scratch/e02-r2-guardrail-triage-20260928/ARCHITECTURE_GUARDRAILS_7683_TRIAGE.md@sha256:e2f8f5b5759ae0327489b2e8fbda814b4728e1ff870fe6d502d2a6117abd24b7`;
+no generated family or governed epoch was synced or reissued.
+
+R7/R8 exact-source, marker-retaining removals are recorded in
+`/Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-head-20260928/REMOVAL_PROBES_RECEIPT.md@sha256:68bab7d34e8eabcfb61d1d4d29ab3dfea8019f7cbebbd81f767b1e122097c09d`:
+both out-of-authority egress mechanisms and the guarded-store stale-worker
+fence turn red when removed, with their preserving controls green. R9's
+selected top-level loader removal turns its exact selected-view test red and
+the restored test green, while the ordinary selector-free read succeeds under
+the mutant. Receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r9-loader-removal-20260928/results/REMOVAL_PROBE_RECEIPT.md@sha256:e42578fe3d7feb478abc132f69337d2287792bd43b63962f39b1a5be25c705ad`.
+
+The R2 marker-retaining history mutant is only a **partial removal probe**:
+its forbidden `verify_current` call turns the historical read-only sentinel
+red, while the independent source-census control passes and the restored
+four-selector run passes. Its comment-perturbation test fails before the edit
+under the mutant, so it cannot prove comment-byte sensitivity. The mutant's
+loaded-code closure also omits `generation_cycle` even though its deployment
+identity matches; binding that module to deployment identity remains
+`not_established`. Receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-head-20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:99c72d9fe759bd1f17b331d8c94ec5a53eea51866a8d652ee4d519503a863206`.
+
 ## Pinned integration-lane snapshots through `6d0b910cf` (2026-09-28)
 
 These are complete-file observations at the individually named source/test

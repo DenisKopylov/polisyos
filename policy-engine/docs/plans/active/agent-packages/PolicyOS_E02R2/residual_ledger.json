@@ -1446,7 +1446,7 @@
         "relation": "aligned_refined",
         "detail": "Appendix C keeps B12 partial. The served revised-basis/native-admission/re-entry selector now passes at the d966 source state, while its whole 9-case file is 4/9 because five cases hit R2 currentness. The separate 49/49 live-executor fixture file is a bounded control. Neither establishes the source-card discriminator that admitted new data changes the dependent same-case calculation; keep partial and retain the production ACQ-01 producer/journal handshake residual."
       },
-      "residual": "At integration HEAD 84ac676f, the complete served WDI file passes 9/9 with a sentinel proving the native overlay/passport/semantic-epoch/same-case re-entry route does not call the local FileTabular helper. The helper-entry negative and contract-testing-only positive pass 1/1; removing the entry guard while retaining markers turns the negative red. The complete ACQ-01 remediation file is 11/23 versus 10/22 at a514 across 22 common selectors, with 0 pass\u2192fail, 0 fail\u2192pass and the same 12 reds; because generation_cycle.py is an input to the checker, this is not the strict zero-input-intersection proof for inherited attribution. N6 currentness remains typed UNRUN. This proves a bounded route/helper boundary only: no admitted ACQ-01 delta is shown to change the dependent same-case calculation, and production owner/journal admission, the B12 card discriminator and full four-base replay remain UNRUN. Keep partial. R12 current-head supplement: at 1544073dd, the planner bootstrap-strangle selector passes and the whole test_acquisition_planner.py file is 71 passed / 1 intentional cloud skip (72 collected, exit 0). This resolves the selected planner check only. The R12 diagnosis says two N7 synthetic-receipt expectations do not establish grounding; actual grounding needs owner-produced N4 on an admitted world through AcquisitionWorldGrowthBridge, so fold this residual into R13, not R2. No test expectation or status changed; B12 remains partial and four-base replay remains UNRUN. Receipts: /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/planner-strangle.junit.xml@sha256:5d1a8ec940406eca40ad68a52363f96d43ede20041c146c627759a61152f161c; /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/full/planner.junit.xml@sha256:51d18ce704c60a784aea8c2033511b9ea966f0b11ddd5c1a4925e599174668fb; diagnosis /Users/deniskopylov/.codex/scratch/e02-r12-diagnosis-20260927/R12_DIAGNOSIS.md@sha256:77b55664b7b5ee1800e422f7fd6911035b6481ab63e8dcd00f3908479439e328. R13 Fabric V5 now adds a bounded served tenant-store/re-entry witness: tenant A reopens its owner session and tenant B is refused before another simulator call; cache sidecars remain tenant-local. This is infrastructure custody evidence only; the B12 admitted-delta/dependent same-case discriminator, producer/journal admission and four-base replay remain UNRUN. Receipt / review / exact tests are in evidence_refs.r13_fabric_served_tenant_custody_2026_09_28.",
+      "residual": "At integration HEAD 84ac676f, the complete served WDI file passes 9/9 with a sentinel proving the native overlay/passport/semantic-epoch/same-case re-entry route does not call the local FileTabular helper. The helper-entry negative and contract-testing-only positive pass 1/1; removing the entry guard while retaining markers turns the negative red. The complete ACQ-01 remediation file is 11/23 versus 10/22 at a514 across 22 common selectors, with 0 pass\u2192fail, 0 fail\u2192pass and the same 12 reds; because generation_cycle.py is an input to the checker, this is not the strict zero-input-intersection proof for inherited attribution. N6 currentness remains typed UNRUN. This proves a bounded route/helper boundary only: no admitted ACQ-01 delta is shown to change the dependent same-case calculation, and production owner/journal admission, the B12 card discriminator and full four-base replay remain UNRUN. Keep partial. R12 current-head supplement: at 1544073dd, the planner bootstrap-strangle selector passes and the whole test_acquisition_planner.py file is 71 passed / 1 intentional cloud skip (72 collected, exit 0). This resolves the selected planner check only. The R12 diagnosis says two N7 synthetic-receipt expectations do not establish grounding; actual grounding needs owner-produced N4 on an admitted world through AcquisitionWorldGrowthBridge, so fold this residual into R13, not R2. No test expectation or status changed; B12 remains partial and four-base replay remains UNRUN. Receipts: /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/planner-strangle.junit.xml@sha256:5d1a8ec940406eca40ad68a52363f96d43ede20041c146c627759a61152f161c; /Users/deniskopylov/.codex/scratch/e02-r12-current-154407-20260928/full/planner.junit.xml@sha256:51d18ce704c60a784aea8c2033511b9ea966f0b11ddd5c1a4925e599174668fb; diagnosis /Users/deniskopylov/.codex/scratch/e02-r12-diagnosis-20260927/R12_DIAGNOSIS.md@sha256:77b55664b7b5ee1800e422f7fd6911035b6481ab63e8dcd00f3908479439e328. R13 Fabric V5 now adds a bounded served tenant-store/re-entry witness: tenant A reopens its owner session and tenant B is refused before another simulator call; cache sidecars remain tenant-local. This is infrastructure custody evidence only; the B12 admitted-delta/dependent same-case discriminator, producer/journal admission and four-base replay remain UNRUN. Receipt / review / exact tests are in evidence_refs.r13_fabric_served_tenant_custody_2026_09_28. Latest exact-head evidence: the complete tenant/WDI two-file replay passes 12/12 at clean integrated HEAD 44a7441eb; the earlier staged 8a09 run is historical. The live-acquisition-executor whole file passes 49/49 at the same head as a bounded executor/connector control. The generation-cycle whole-file comparison is 153/153 at 44a versus 150/153 at 10315, with three failed-to-passed transitions and no new red; its receipt limits this to a two-snapshot comparison, not four-base P41. The R12 N7 candidate is contract-testing only: focused 3/3, marker-retaining callback-removal red, restored 3/3, with no CGF/N4 grounding or authority. R13-G found no served production caller for the root-CAS composed-WMR helper; N5 already reads through PromotionRuntime.store, while served problem-bound WMR/context production and an owner-issued production NCM reference remain missing. No admitted ACQ-01 delta is shown to change the dependent same-case calculation. B12 remains partial; finding-specific four-base P41 remains UNRUN.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
@@ -1653,6 +1653,104 @@
         "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-stub-integrated-a877-20260928/test.junit.xml@sha256:3b00943c720a0218765f5fea2ebf8f318e5854923aa73e8001a2da09a86c8aa6",
         "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-stub-integrated-a877-20260928/R13_STUB_INTEGRATION_RECEIPT.md@sha256:02931471171fef0f75f0a97605541c983af1618e1f06f7be4d1d535394ffbe3d",
         "scope": "The fixture uses a stable subject and a test callback for _run_cycle. It does not establish served post-growth N4/CGF, a production overlay-to-WMR producer, or admitted-data impact on the dependent calculation. B12 stays partial; complete four-base replay remains UNRUN."
+      },
+      "r13_r14_current_evidence_2026_09_28": {
+        "r14_route_binding_file": {
+          "code_test_commit": "a1875e4c9",
+          "test_file": "policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py",
+          "collected": 17,
+          "passed": 17,
+          "failed": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-route-basis-20260928/integration-whole.junit.xml@sha256:e8ea625e6572d98b4a72aa0a5a209850a141da41ffb3fab68e0f720adfe7c1c6",
+          "scope": "Whole route-binding file: four earlier reds became green and there were zero common pass-to-nonpass outcomes versus the 13/17 parent. This repairs the selected route fixture and is not the B12 admitted-data/dependent-calculation discriminator."
+        },
+        "r13_tenant_fixture_pair": {
+          "source_head": "8a09e7f5f",
+          "test_state": "pre-10315 staged test patch over 8a09 source",
+          "collected": 12,
+          "passed": 12,
+          "failed": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-tenant-positive-fixture-20260928/canonical-8a09-whole.junit.xml@sha256:d03cf82505395e75c2a29ccacde78c4de8936e3555e8114bd26eb22387729c4",
+          "exact_committed_head_replay": "UNRUN",
+          "scope": "The staged test bytes later committed in 10315b7b2; the witnessed forwarding-removal mutant turns red. Do not represent this as a postcommit exact-head replay or as B12 closure."
+        },
+        "current_exact_head_tenant_wdi_44a7441eb": {
+          "source_commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
+          "collected": 12,
+          "passed": 12,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/tenant-wdi-44a.junit.xml@sha256:23544251f1a80d57f642227d184226281bd97e0b0fc607cecc4b1e0c95d32813",
+          "scope": "Clean whole two-file replay at the exact integrated head; the prior 8a09 staged-patch run is historical."
+        },
+        "current_exact_head_live_executor_44a7441eb": {
+          "source_commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
+          "collected": 49,
+          "passed": 49,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/live-executor-44a.junit.xml@sha256:8c155a0d9ebfbcbf2734ea7042ad24fe1f5182bcf69ca1d7ed207ebd1cad02ff",
+          "scope": "Complete live-acquisition-executor file at exact integrated head; bounded executor/connector control, not the admitted-delta discriminator."
+        },
+        "pre_r12_generation_cycle_snapshot_at_10315": {
+          "source_head": "10315b7b2",
+          "collected": 153,
+          "passed": 150,
+          "failed": 3,
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-final-cycle-20260928/current-10315-whole.junit.xml@sha256:f155e98c25434b460ed9b96f801e96ce8b22e572418859744a5d76eb600dbc6f",
+          "scope": "Pre-R12 snapshot only. The focused R12 candidate later makes its two N7 expected-grounding selectors pass. This result is not the exact 44a full-file replay and does not attribute the remaining reds to a historical base."
+        },
+        "r12_n7_candidate_44a7441eb": {
+          "integrated_code_test_commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
+          "candidate_execution_base": "10315b7b2b85504d3c3b93fb6d7bfab020137a13",
+          "source_sha256_at_integrated_head": "8d04115b51849e2da0815f1468135c797b792b2fead533cdb903e3a785dd3273",
+          "test_sha256_at_integrated_head": "4a17212ea3eb97a92509c68e200bc60b91fc4c7aad968e85c7c68d2f4c8ec5cf",
+          "focused_suite": {
+            "identity": "two N7 re-entry cases plus R6 foreign-context refusal",
+            "collected": 3,
+            "passed": 3,
+            "failed": 0,
+            "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-candidate-20260928/review/focused/focused-final.junit.xml@sha256:3bafe8a9570c46bcb3cea5c41c700860ddc6f4374edc9642074e25ab5f9fa77d",
+            "execution_note": "Candidate run; source and test bytes match commit 44a7441eb, but the run is not a full integration-head P41 replay."
+          },
+          "marker_retaining_callback_removal": {
+            "identity": "test_acquisition_required_invokes_n7_and_records_same_cycle_reentry",
+            "collected": 1,
+            "expected_red": true,
+            "observed_failed": 1,
+            "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-candidate-20260928/review/removal/removal.junit.xml@sha256:b630c2f57ff0e701bd7a7e7201f27d0a7b2e91ce91817403b91d1c08deb4c00a",
+            "scope": "Receipt and equal source/re-entry cycle-index markers remain while the dependent N5 callback is removed; the assertion turns red."
+          },
+          "restored_control": {
+            "identity": "two N7 re-entry cases plus R6 foreign-context refusal",
+            "collected": 3,
+            "passed": 3,
+            "failed": 0,
+            "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-candidate-20260928/review/restored/restored.junit.xml@sha256:33635de4e548b15051734ef29eaeee5af5c49474746202eafa129034c6b71ae9"
+          },
+          "scope": "Contract-testing local N7 owner-write lane only. It exercises actual same-cycle N5/N8 candidate callbacks with typed grounding_unavailable and pending test ports; it does not produce CGF/N4 grounding, perform a real value/simulation evaluation, admit the production world-growth chain, or establish N9/S8 authority.",
+          "principal_decision": "Option A remains a draft: candidate-band N5/N8 may re-enter under grounding_unavailable; no authority is implied.",
+          "whole_file_replay_at_44a7441eb": "153/153 pass, zero failures/errors/skips; all 153 identities match 10315, with three failed-to-passed transitions. Pairwise snapshot comparison only; four-base P41 remains UNRUN.",
+          "whole_file_replay_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-44a-cycle-p41-20260928/GENERATION_CYCLE_44A_P41_RECEIPT.md@sha256:597827a3203bc6e52855aa83f4a50dd64ba1f607bf85b8423b402ea186c2fb40",
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-candidate-20260928/review/delivery/CANDIDATE_RECEIPT.md@sha256:324e86da7ae9b3b30be77eeca4bc73b5e2738199d57a345959000ecd377618ac"
+        },
+        "r13_g_served_wmr_and_ncm_blocker": {
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-composed-wmr-design-20260928/R13_G_IMPLEMENTATION_BLOCKER_20260928.md@sha256:819401acd0c57f8bace1f37a38b00f6338e04ba3bdeeaf27a0e64613b7db4681",
+          "tracked_python_ast_census": {
+            "files_parsed": 2696,
+            "parse_errors": 0
+          },
+          "finding": "No served production caller reaches the root-CAS composed-WMR helper. N5 resolves selected NCM through the existing PromotionRuntime.store; the missing pieces are a served problem-bound WMR/context bridge using the exact runtime store and an owner-issued production NCM producer/reference.",
+          "capability_labels": [
+            "bridge_missing: served WMR/context production",
+            "producer_missing: production NCM"
+          ],
+          "behavioral_verdict": "UNRUN",
+          "scope": "Corrects the earlier residual assertion that the N5 reader rebuilds the local CAS. It does not provide a served positive N4→N5/S8 chain or an admitted dependent-calculation witness."
+        },
+        "finding_status_and_four_base_p41": "B12 remains partial; admitted ACQ-01 overlay/passport/native-epoch change to the dependent same-case calculation is UNRUN; full four-base P41 is UNRUN."
       }
     },
     {
@@ -7549,7 +7647,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "B88 remains partial. At code/test commit dfaa31c7a78d9e1f1afcc849d03f3e294981ea27, the bounded served replay witness traverses the served fixture path through the real ReplayStore/CAS/APISimulator owner and binds the tested output evidence. Two complete test files pass 19/19; Ruff was reported clean (exit 0) by the integrator. This covers the selected fixture path only. Production runtime-supplied tenant-store custody and exact persisted replay lineage remain R13 residuals; broader transport/caller coverage and finding-specific four-base P41 remain UNRUN. Keep partial. R13 Fabric V5 now bounds the served fixture-identity custody route through the runtime-supplied store: A can reopen its owner session and B is denied before another simulator call. Production identity issuance and exact persisted replay lineage remain unresolved; broader callers and finding-specific four-base P41 remain UNRUN. This narrows the tenant-store residual without closing B88.",
+      "residual": "B88 remains partial. Its earlier B88-specific served replay witness at dfaa31c7a78d9e1f1afcc849d03f3e294981ea27 passes 4/4, with the accompanying complete test_modes.py at 15/15 (19/19 total). At current integrated HEAD 44a7441eb, the same whole two-file set passes 19/19; the exact-head JUnit is recorded in current_exact_head_44a7441eb. R13 93affc59b adds bounded runtime-store tenant custody for fixture-issued identity: A can reopen its session, B is denied before another simulator call, and cache sidecars stay tenant-local. Production identity issuance and exact persisted replay lineage remain open, as do broader callers and finding-specific four-base P41. Commit 6a508368 is the separate WDI 9/9 plus tenant 3/3 result, not the B88 4/4 receipt.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -7742,7 +7840,17 @@
           "scope": "Integrator-reported clean; a separate raw Ruff log/hash was not supplied."
         },
         "scope": "Bounded served fixture path through ReplayStore/CAS/APISimulator with tested output evidence binding. Does not establish runtime-supplied tenant custody or exact persisted replay lineage across R13.",
-        "four_base_p41": "UNRUN"
+        "four_base_p41": "UNRUN",
+        "current_exact_head_44a7441eb": {
+          "code_test_commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
+          "whole_file_results": [
+            {"path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py", "collected": 4, "passed": 4, "failed": 0, "errors": 0, "skipped": 0},
+            {"path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py", "collected": 15, "passed": 15, "failed": 0, "errors": 0, "skipped": 0}
+          ],
+          "total": {"collected": 19, "passed": 19, "failed": 0, "errors": 0, "skipped": 0},
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-current-44a-20260928/b88-modes.junit.xml@sha256:8556d62e7443c01c1cf6a0d3d2d53c5227c169d039f5c03fa8ef16dc9d78953c",
+          "scope": "Current exact integrated-head replay of the same two whole files; production identity issuance and persisted replay lineage remain open; four-base P41 is UNRUN."
+        }
       }
     },
     {

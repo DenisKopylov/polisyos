@@ -1,10 +1,68 @@
 # E02-R2 final report draft
 
-Current documentation cutoff: integration branch `6d0b910cf` (code/test content from `10315b7b2`; later commits update coordination only). Behavior receipts below retain their actual execution snapshots. The 282-row ledger remains 5 closed / 264 partial / 12 held / 1 open; Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; prior sections below are historical snapshots, not refreshed executions.
+Current documentation cutoff: integration branch `44a7441eb`. Behavior receipts below retain their actual execution snapshots. The 282-row ledger remains 5 closed / 264 partial / 12 held / 1 open; Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; dated sections below the current addendum are historical snapshots, not refreshed executions.
 
 ## Discrepancies first
 
-### Current R13/R14 and gate reconciliation through `6d0b910cf` (2026-09-28)
+### Exact integration-head reconciliation at `44a7441eb` (2026-09-28)
+
+**R12/R13 versus the earlier red file.** The complete generation-cycle file now
+passes 153/153. Its 153 test identities match the `10315b7b2` whole-file run:
+two N7 same-cycle re-entry cases and one N9 confidence-ledger case changed
+fail→pass; no case changed pass→nonpass. The N7 cases now call N5/N8 again after
+a verified local N7 owner write while carrying `grounding_unavailable` without
+inventing CGF evidence or N9/S8 authority. Their marker-retaining N5-callback
+removal probe is red; the distinct source/target-slot control passes. The N9
+transition is **not attributed to this patch**: ignored confidence-ledger state
+differs. An isolated N9 selector in a clean exact-`44a7441eb` worktree passed
+1/1; its pre-change four-base attribution is `UNRUN`. Whole-file comparison:
+`/Users/deniskopylov/.codex/scratch/e02-44a-cycle-p41-20260928/GENERATION_CYCLE_44A_P41_RECEIPT.md@sha256:597827a3203bc6e52855aa83f4a50dd64ba1f607bf85b8423b402ea186c2fb40`;
+isolated N9 JUnit:
+`/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/n9-isolated-44a.junit.xml@sha256:9224a1081fd7822824a40787a081aa7d481c9b7f556f28be62ec3ef696b018e6`.
+The changed Appendix-A expectation has a pending principal draft in
+`DECISION_RECORDS.md`; the local `contract_testing` route does not prove a
+served admitted-data change to the dependent calculation.
+
+**Adjacent exact-head consumers.** The complete tenant/WDI pair passes 12/12,
+the live acquisition executor passes 49/49, and the two B88 served-replay/modes
+files pass 19/19 at committed source/test HEAD `44a7441eb`. These are bounded
+custody and no-extra-egress witnesses, not B12/B88 finding closure or the
+four-base replay. JUnit hashes and test denominators are in the first section
+of `BASELINES.md`. R7's two exact-source egress-removal probes and R8's guarded
+stale-worker removal probe turn red while their controls pass. R9's selected
+top-level bundle-loader removal is also red with the selector-free control
+green. R9's suspected parent bundle member-profile loss was already repaired
+by commit `8034cfc76` across all ten member edges; a current-head Git-blob and
+caller trace is
+`/Users/deniskopylov/.codex/scratch/e02-r9-bundle-selected-view-44a/R9_BUNDLE_SELECTED_VIEW_44A_MEMO.md@sha256:58cf1931a8ccd9fb03088ee1a03a97b0c0874cb8122e1166a240eb947c61f3bb`.
+R9 remains partial at the WMR/hashed-history and other declared class
+boundaries; no redundant builder patch was added.
+
+**R2 removal-probe limit.** At exact `44a7441eb`, a marker-retaining mutant
+that reintroduces `StrangleReceipt.verify_current` turns the historical
+read-only sentinel red. It fails the comment control *before* the unrelated
+comment is added, so this attempt does not prove sensitivity to comment bytes.
+The restored four-selector run passes. The mutant's loaded-code closure does
+not include `generation_cycle`; its binding to canonical deployment identity
+is still `not_established`. This remains an R2 class residual, not a passing
+§8 removal probe. Full result:
+`/Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-head-20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:99c72d9fe759bd1f17b331d8c94ec5a53eea51866a8d652ee4d519503a863206`.
+
+**Gates and unmeasured authority.** The governed GY-N6 checker returned typed
+`UNRUN` / exit 2 at `n6_source_census` because currentness reissue and its
+canonical issuer remain absent; it did not crash or reach N9. The standalone
+architecture guardrails exited 1 at exact `44a7441eb`. Their complete
+1,446-line log is byte-identical to the earlier `7683ebdb9` log and inherits
+the complete triage cited in `BASELINES.md`: 107 new deep-import edges, 28
+removed baseline edges, one E02-inherited DDM mismatch, two stale generated
+families, two clean families, and an Atlas subgate `UNRUN`. No baseline was
+synced and no trust, loaded-runtime manifest, or promotion-contract epoch was
+restamped. R1's selected positive owner-bound N4→N5→S8 path remains blocked
+on the served WMR/context bridge and owner-issued NCM; candidate computation
+continues with a typed unknown. The complete 21-file × four-base Appendix-A/B
+matrix and all touched-file replay remain unfinished, so §8 is **not done**.
+
+### Historical R13/R14 and gate reconciliation through `6d0b910cf` (2026-09-28)
 
 **Open regressions and attribution.** The complete generation-cycle file at
 `10315b7b2` collected 153 cases: 150 passed and three failed. All three failed

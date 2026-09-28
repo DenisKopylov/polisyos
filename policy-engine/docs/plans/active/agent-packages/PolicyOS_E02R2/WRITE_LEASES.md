@@ -1,5 +1,13 @@
 # E02-R2 write leases
 
+## R9 exact-view tenant-custody sublease (2026-09-29; canonical code head `68caebd84a5102a92eb93453c5a1bf0ca9ea2455`)
+
+The second R9 finding is the same cache-admission class one level deeper (P40): an exact `ArtifactRef` can return tenant A's cached bytes to tenant B even when the durable owner rejects B. The read-only production-caller and scratch-probe receipt is `/Users/deniskopylov/.codex/scratch/e02-r9-cache-code-20260929/R9_TENANT_EXACT_CACHE_AUDIT.md@sha256:b1775551a0c74443bffcf37a0f9b3fcf4beb8490509c454a92497cb8fbc4cd64`. This widens the property to durable-owner admission before every write-through cache hit. A local exact-profile marker is not authorization.
+
+The single R9 candidate writer reuses clean, branch-attached `codex/e02-r9-cache` at `ad8462d62eb720baa4e449e470a22df7761a656f`. The **exact write set** is `policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py` for the initial red and `policy-engine/src/polisyos/core/artifacts/backends/caching_store.py` for the class-wide fix. No other source, test, generated family, governed receipt, plan, register, or canonical file is leased. Root remains the only writer of `codex/e02-r2`; an independent reviewer reads the frozen candidate commit before integration. The test uses the actual `guard_runtime_cas` proxy with an ambient-enforced durable FileSystemCAS, an unscoped local cache, tenant-B denial, and an authorized tenant-A exact-view hit without a remote blob fetch. The marker-retaining removal probe deletes only the pre-local owner admission and must turn the tenant-B test red. Cloud S3/GCS tenant and signed-evidence authority remain typed residuals under OP-R9-CACHE-CUSTODY.
+
+Resource admission remains at most four light test groups with at least 20–30% available RAM and 8 GiB free disk; no worktree under test is edited during a run. Reuse the existing candidate environment; no data copy or Trash emptying.
+
 ## Current-state addendum (2026-09-29; pinned integration HEAD `5f433df89f45f3bf29dd2a5d715985790e421db6`)
 
 This snapshot supersedes only the older active-lease snapshot below; all prior sections remain dated history. Root is the sole canonical writer of `codex/e02-r2`, including package documents, `WRITE_LEASES.md`, ledger, baselines and reports. Root's OP-R13 blocker/falsifier addendum is integrated at `359756edc`. R1 owner-bound context code is integrated at `77bfcdb36` and `eb1733750`, but R1 remains partial. Real DataState source-time qualification, trust/profile admission, and an S8 authority producer remain unestablished. No fixture, test lease or candidate authorizes S8.

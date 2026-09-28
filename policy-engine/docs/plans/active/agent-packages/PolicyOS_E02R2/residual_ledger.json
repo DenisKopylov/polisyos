@@ -3664,13 +3664,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. The current two-case B31 diagnostic reproduces loss and alteration of the source statistical interval at the value projection. Refine the one blocker to the DS16/IR owner decision on a versioned public representation separating identification and statistical/model uncertainty; no served positive consumer or closure is established."
+        "detail": "Appendix C held status retained. The retained two-case diagnostic remains a bounded value-projection counterexample, not a served consumer or closure. The residual is an unappointed public-IR semantic-owner decision for a versioned representation separating identification and statistical/model uncertainty. Crosswalk names Atlas DS16 only as a downstream consumer/code touch; it does not appoint the decision owner."
       },
-      "residual": "One owner decision: DS16/IR must admit a versioned public representation that keeps ValueOuterSet identification-only and carries statistical/model uncertainty on a separate typed channel bound to the estimand and unit. The B31 two-case diagnostic shows that point identification loses the source interval and the proxy projection changes its endpoints. Production adapter callsites, served consumer, public schema/history, and P41 remain unestablished; do not fabricate a statistical interval or add a parallel uncertainty owner.",
+      "residual": "One owner decision remains: appoint/adopt the public-IR semantic owner for a versioned public representation that keeps ValueOuterSet identification-only and carries statistical/model uncertainty on a separate typed channel bound to the estimand and unit. Atlas DS16 is a downstream consumer/code touch, not the decision owner. The prior two-case diagnostic shows point identification loses the source interval and proxy projection changes endpoints. Current census finds no production callsite for the projection helper; served consumer, public schema/history, and P41 remain unestablished. Do not fabricate a statistical interval or add a parallel uncertainty owner.",
       "residual_owner": {
         "kind": "owner_decision",
-        "name": "DS16/IR owner — versioned separation of identification bounds and statistical/model uncertainty",
-        "appointment_status": "Owner decision pending; no schema semantics are adopted by this ledger update."
+        "name": "Public-IR semantic owner (appointment not established) — versioned separation of identification bounds and statistical/model uncertainty",
+        "appointment_status": "The public-IR semantic-owner appointment and decision are pending; current crosswalk identifies Atlas DS16 only as a downstream consumer/code touch."
       },
       "r_class": null,
       "p_triage": null,
@@ -3718,7 +3718,7 @@
         },
         "h_n_review_disposition": [
           "owner_decision",
-          "DS16/IR owner must admit the versioned public representation separating identification-set bounds from statistical/model uncertainty; keep ValueOuterSet identification-only and do not synthesize statistical evidence."
+          "Public-IR semantic owner appointment/adoption remains pending for a versioned separation of identification bounds from statistical/model uncertainty; Atlas DS16 is a downstream consumer/code touch only. Keep ValueOuterSet identification-only and do not synthesize statistical evidence."
         ],
         "r2_ledger_reconciliation_additions": [
           {
@@ -3767,11 +3767,21 @@
         ],
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
-          "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
+          "identity": "Public-IR semantic-owner decision — versioned public uncertainty representation: B31/B201/B202",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
-        "latest_h14_source_review": {
+        "current_frontier_recheck": {
+              "identity": "2026-09-28 H frontier recheck:B31",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/H_FRONTIER_RECHECK.md@sha256:995e99c672fa2c581c2a3ff014b9fb0417e6d55f63230bf264cffc4965c828bd#B31",
+              "source_census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/repo_source_census.json@sha256:57849155f5286663f1bfcf741919d269efbb8cd40239f5c605af0c9e3d13cbba",
+              "reviewed_head": "codex/e02-r2 2a6501ecd0c6c27d3a865bc13ca46054799a8d25",
+              "behavioral_verdict": "UNRUN",
+              "appendix_c_status": "held",
+              "appendix_c_relation": "agreement_held_blocker_refined; no status disagreement",
+              "scope": "P37 predicate: separate statistical/model support bound to estimand and units is not_established. P38 divergence: implementation derives an identification set/proxy interval from point/CI inputs; for point 4 with source interval [1,10], the projection becomes [4,4]. Current source census finds no production helper callsite. Public-IR semantic-owner appointment is pending; Atlas DS16 is a downstream consumer/code touch only. No behavior or four-base run was performed."
+      },
+      "latest_h14_source_review": {
           "identity": "2026-09-27 H-class current-source closeout review:B31",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B31",
           "behavioral_verdict": "UNRUN",
@@ -3780,7 +3790,7 @@
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b",
-      "blocker_path_scope": "ValueOuterSet public representation and N8 value projection; retain identification-only semantics until DS16/IR owner admits a versioned statistical uncertainty channel.",
+      "blocker_path_scope": "ValueOuterSet public representation and N8 value projection; retain identification-only semantics pending appointment/adoption by the public-IR semantic owner. Atlas DS16 is downstream consumer/code touch only.",
       "h13_remaining_audit_20260927": {
         "source_audit_ref": "/Users/deniskopylov/.codex/scratch/e02-r2-held13-audit-20260927/H14_REMAINING_13_AUDIT.md@sha256:acf5cdfad756f3e30453769863e4892862f475bf36ea4d7beadc86e2353a86a0#B31",
         "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
@@ -14576,13 +14586,13 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C status held retained. The latest per-finding H-card review refines the single residual to one smallest_missing_capability blocker. No finding-level behavior, removal/control probe, or P41 closure is claimed."
+        "detail": "Appendix C held status retained. The residual is refined to the persisted tie-group-to-field projection and the unestablished served Calibrator-to-report-persistence route. A registered PropagateWelfareNode consumer exists and reads report envelope refs or inline envelopes; no production Calibrator construction or put_calibration_report call establishes the served route. No new behavioral or P41 closure is claimed."
       },
-      "residual": "Actionable owner-path capability gap: a persisted tie-group-to-field projection must survive CalibrationReport and reach the uncertainty adapter with covariance/Hessian axes aligned to named fields. The optimizer retains group handles, but the current report/adapter path does not preserve that mapping through the welfare consumer. The two-case owner probe includes the untied preserving control; marker-retaining property-removal probe, persisted report CAS round-trip, served Calibrator-to-welfare path, and P41 remain UNRUN.",
+      "residual": "The persisted tie-group-to-field projection is absent: CalibrationReport must preserve the mapping from optimizer group coordinates to named fields, and the existing uncertainty adapter must project covariance/Hessian axes before the registered welfare consumer uses the report. PropagateWelfareNode is a real registered consumer of report envelope refs/inline envelopes. However, the complete current production-source census finds no Calibrator(...) invocation or put_calibration_report call, so the served Calibrator → persisted CalibrationReport → welfare route is not established. The existing tied/untied probe is bounded; marker-retaining removal, persisted report CAS round-trip, served route, and P41 remain UNRUN.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
         "name": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
-        "appointment_status": "The required persisted group-to-field projection is absent on the current report-to-adapter path; behavioral proof remains UNRUN."
+        "appointment_status": "The group-to-field projection is absent. A registered welfare consumer exists, but the production Calibrator-to-persisted-report writer route is not established; behavioral proof remains UNRUN."
       },
       "r_class": null,
       "p_triage": null,
@@ -14592,7 +14602,7 @@
           "identity": "B197 tied-coordinate projection and untied-field preserving control (two cases)",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Read-only call to CalibrationReport and envelopes_from_calibration: tied A.rate/B.rate group produced zero field envelopes; untied control produced both fields. No full Calibrator optimization, CAS reopen or served welfare call ran. Complete AST census finds no served Calibrator/report-persistence/welfare composition. P38 divergence: report group covariance and field values exist separately but the adapter requires exact field/group-name membership and does not project the tied basis.",
+          "scope": "Read-only two-case call to CalibrationReport and envelopes_from_calibration: tied A.rate/B.rate group produced zero field envelopes; untied control produced both fields. No full Calibrator optimization, CAS reopen, or served welfare call ran. The fresh census finds a registered welfare consumer but no production Calibrator(...) invocation or put_calibration_report call. P38 divergence: the adapter uses exact field/group-name equality as a proxy for an explicit mapping, so tied coordinates yield no field envelopes despite group covariance and named fields. Census is source-only; dynamic/external callers and behavior remain UNRUN.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
@@ -14607,7 +14617,7 @@
         "reported_test_catalog": null,
         "finding_test_status": "PARTIAL",
         "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:d547b27f4f64091ea399c7bf7d8c6f557504c774",
-        "blocker_path_scope": "Current calibration report-to-uncertainty adapter path; B198 tests are not evidence for this tied-group property.",
+        "blocker_path_scope": "Persisted tie-group-to-field mapping through CalibrationReport and uncertainty adapter. The registered PropagateWelfareNode consumer exists; current production-source census finds no Calibrator(...) invocation or put_calibration_report call establishing its served writer/report route. B198 is not evidence for this property.",
         "held_audit_receipt_status": "read_only_h_card_audit_complete; held status retained; one smallest_missing_capability; tied-group failure and untied control reproduced; served persisted welfare bridge and P41 remain UNRUN",
         "held_review": {
           "identity": "B197 current tied/untied behavioral probe, source census and owner-first path review",
@@ -14635,7 +14645,7 @@
         },
         "h_n_review_disposition": [
           "smallest_missing_capability",
-          "Build persisted optimizer tied-group coordinate→field/covariance projection through CalibrationReport, adapter, and existing welfare covariance owner."
+          "Establish the production Calibrator/report-persistence caller, then persist optimizer tied-group coordinate→field/covariance projection through CalibrationReport and the existing uncertainty adapter to the registered welfare consumer."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B197",
@@ -14653,7 +14663,17 @@
           ],
           "scope": "The complete source census covers 2,696 product Python files and 2,732 test Python files. Only Calibrator.run calls envelopes_from_calibration in production; no served Calibrator construction/report persistence/welfare composition exists in the source census. Tied group gives []; untied control gives both fields. Missing projection is one capability; external/dynamic caller remains not_established."
         },
-        "latest_h14_source_review": {
+        "current_frontier_recheck": {
+              "identity": "2026-09-28 H frontier recheck:B197",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/H_FRONTIER_RECHECK.md@sha256:995e99c672fa2c581c2a3ff014b9fb0417e6d55f63230bf264cffc4965c828bd#B197",
+              "source_census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/repo_source_census.json@sha256:57849155f5286663f1bfcf741919d269efbb8cd40239f5c605af0c9e3d13cbba",
+              "reviewed_head": "codex/e02-r2 2a6501ecd0c6c27d3a865bc13ca46054799a8d25",
+              "behavioral_verdict": "UNRUN",
+              "appendix_c_status": "held",
+              "appendix_c_relation": "agreement_held_blocker_refined; no status disagreement",
+              "scope": "The complete tracked production-source census covers 4,370 first-party source files (3,151 Python/stub; 1,219 other code; 0 Python parse errors). It finds a registered PropagateWelfareNode consumer but no production Calibrator(...) invocation or put_calibration_report call. Existing two-case tied/untied probe is historical bounded evidence. P37 persisted projection-to-consumer predicate is not_established; P38 exact field/group-name equality rejects tied A.rate/B.rate backed by shared_rate covariance. No behavioral or four-base run was performed."
+      },
+      "latest_h14_source_review": {
           "identity": "2026-09-27 H-class current-source closeout review:B197",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:1476d58fa542a3430643b51b7272aefad283fd813d3511ce798e7c3feb5a12a5#B197",
           "behavioral_verdict": "UNRUN",

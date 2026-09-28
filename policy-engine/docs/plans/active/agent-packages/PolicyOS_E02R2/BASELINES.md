@@ -1,5 +1,50 @@
 # Four-base P41 test baselines
 
+## Pinned integration-lane snapshots through `6d0b910cf` (2026-09-28)
+
+These are complete-file observations at the individually named source/test
+snapshots, not one exact-head wave and not the required 21-file × four-base
+Appendix-A/B matrix or full touched-file replay. Source was frozen during each
+run; the same shared venv, real Git worktree, `production_data` symlink,
+`PYTHONPATH=src:.`, and `JAX_PLATFORMS=cpu` were used. Subsequent commits
+`49babfa22` and `6d0b910cf` changed only this package's coordination document.
+
+| Complete file / group | Result at recorded snapshot | Comparison and receipt |
+|---|---:|---|
+| `tests/integration/core_runtime/test_acquisition_route_execution_binding.py` | `a1875e4c9`: 17/17 pass | Four earlier current-lane failures became pass; zero common pass→nonpass versus its 13/17 parent. `/Users/deniskopylov/.codex/scratch/e02-r14-route-basis-20260928/integration-whole.junit.xml@sha256:e8ea625e6572d98b4a72aa0a5a209850a141da41ffb3fab68e0f720adfe7c1c6` |
+| `test_acquisition_tenant_custody.py` + `test_acquisition_world_growth_chain.py` | `8a09e7f5f` source plus pre-`10315b7b2` staged test patch: 12/12 pass | Both original WDI parametrizations and foreign tenant/cell refusal remain; marker-preserving forwarding removal turns red. The committed test blobs match the staged bytes, but an exact committed-HEAD rerun remains `UNRUN`. `/Users/deniskopylov/.codex/scratch/e02-r13-tenant-positive-fixture-20260928/canonical-8a09-whole.junit.xml@sha256:d03cf82505395e75c2ca29ccacde78c4de8936e3555e8114bd26eb22387729c4` |
+| `tests/unit/runtime/quality/test_live_acquisition_executor.py` | `10315b7b2`: 49/49 pass | Governed transport remained green after R13 store/route integration. `/Users/deniskopylov/.codex/scratch/e02-r7-final-live-20260928/current-10315-whole.junit.xml@sha256:380745e7a13afb748624bb19c76332363fd098b6e917960935ca15cf10ceef44` |
+| `tests/unit/runtime/quality/test_generation_cycle.py` | `10315b7b2`: 153 collected, 150 pass / 3 fail | Against the earlier 149-case current-lane parent JUnit: 149 common identities, four new pass, zero pass→nonpass and zero nonpass→pass. The continuing reds are `test_post_n9_packet_binds_exact_subject_and_gate_receipt` and both N7 `real_grounding_result_count` expectations. `/Users/deniskopylov/.codex/scratch/e02-r13-final-cycle-20260928/current-10315-whole.junit.xml@sha256:f155e98c25434b460ed9b96f801e96ce8b22e572418859744a5d76eb600dbc6f` |
+
+The three generation-cycle reds are **not** classified as inherited from E02's
+execution base by this same-lane comparison. The two N7 cases include an
+Appendix-A base-passing identity; their honest owner-write versus source-bound
+grounding predicate is under R12/R13 review. The N9 red requires a separate
+current/base attribution. Whole-file four-base replay remains `UNRUN` for this
+group. The prior 149-case comparison JUnit is
+`/Users/deniskopylov/.codex/scratch/e02-r1-current-bac-prepatch-20260928/generation_cycle/test.junit.xml`;
+its hash and exact source pin must be reconciled before a P41 inherited claim.
+
+The standalone architecture-guardrails command ran at `7683ebdb9` as the only
+command in its invocation and exited **1**. Its 1,446-line log is
+`/Users/deniskopylov/.codex/scratch/e02-r13-bridge-store-boundary-20260928/architecture-guardrails-7683.log@sha256:8bc0b6d1743e773b8cbae6dcb2920d46c17eb1ec57232a8045b6b94f168e6b16`.
+The complete triage is
+`/Users/deniskopylov/.codex/scratch/e02-r2-guardrail-triage-20260928/ARCHITECTURE_GUARDRAILS_7683_TRIAGE.md@sha256:e2f8f5b5759ae0327489b2e8fbda814b4728e1ff870fe6d502d2a6117abd24b7`:
+107 added deep-import edges (82 already at E02, 24 R2-only, one present at
+both main and E02), 28 removed baseline edges (23 already absent at E02,
+five removed by R2), one E02-inherited DDM facade mismatch, two stale
+generated families, two clean generated families, and an Atlas subgate
+explicitly `UNRUN`. No baseline was synced and no governed family was reissued.
+
+At source-equivalent coordination HEAD `6d0b910cf`, the complete guarded-worker
+file passed **7/7**
+(`/Users/deniskopylov/.codex/scratch/e02-r2-r7-r8-final-20260928/r8-current-worker.junit.xml@sha256:f590879db50153c0c7c10654d02432a2914e809b6dda65b7fd0d68dc03850bfc`),
+and the two selected historical-replay controls collected **3/3** pass
+(`/Users/deniskopylov/.codex/scratch/e02-r2-r7-r8-final-20260928/r2-current-history.junit.xml@sha256:03a6a1c7e801df1723463da100e4bd41f24d250901befe151664843a9161ab0c`).
+The older R2/R8 marker-retaining mutants were run against different source
+blobs; their exact-head removal proofs are `UNRUN`, as classified in
+`/Users/deniskopylov/.codex/scratch/e02-r2-r7-r8-closeout-audit-20260928/CLOSEOUT_AUDIT.md@sha256:3ff86697c4f7e2c6c95b1974e39ee2bb41b4c50bf7d5668419cbdc51e79ec4bc`.
+
 
 ## P118 reviewed classification update at e126e590 (2026-09-27; no behavior run)
 

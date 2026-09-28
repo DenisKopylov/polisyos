@@ -1,8 +1,69 @@
 # E02-R2 final report draft
 
-Current documentation cutoff: integration code/test HEAD `4060a4cc7a2cb455348b162471f848cb02758eda`. The behavior receipts in this ledger retain their actual execution snapshots: R1 and the N/STA records are pinned to 031e or earlier; LA-021 owner tests were run at 031e and the 12 relevant owner-source plus five test-source blobs are unchanged through this HEAD. Current ledger: 282 unique rows (5 closed / 264 partial / 12 held / 1 open); Appendix-C historical partition 132/118/14/18; reviewed P118 triage 87/13/18. The complete Appendix-A/B and touched-file four-base matrix remains incomplete. Exact LA-021 architect 418-input selector and 140 caller-file four-base replay remain UNRUN. Prior report sections below are historical snapshots, not refreshed executions.
+Current documentation cutoff: integration branch `6d0b910cf` (code/test content from `10315b7b2`; later commits update coordination only). Behavior receipts below retain their actual execution snapshots. The 282-row ledger remains 5 closed / 264 partial / 12 held / 1 open; Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; prior sections below are historical snapshots, not refreshed executions.
 
 ## Discrepancies first
+
+### Current R13/R14 and gate reconciliation through `6d0b910cf` (2026-09-28)
+
+**Open regressions and attribution.** The complete generation-cycle file at
+`10315b7b2` collected 153 cases: 150 passed and three failed. All three failed
+in an earlier 149-case current-lane parent run; among 149 common identities
+there are zero pass→nonpass outcomes and four new passing cases. This does not
+establish that the reds are inherited from E02's execution base. One N9
+confidence-ledger-scope refusal remains under R14/R4 attribution. Both N7
+same-cycle cases still expect a real grounding result from an owner write that
+does not issue source-bound N4/CGF evidence. R12/R13 now has a leased candidate
+repair to repeat candidate computation with a typed grounding unknown, without
+creating CGF authority; the expected-red change requires a principal decision
+draft. JUnit:
+`/Users/deniskopylov/.codex/scratch/e02-r13-final-cycle-20260928/current-10315-whole.junit.xml@sha256:f155e98c25434b460ed9b96f801e96ce8b22e572418859744a5d76eb600dbc6f`.
+
+**Bounded fixes.** R13 tenant-custody fixture commit `10315b7b2` binds valid
+tenant/cell identities through the served WDI route and preserves foreign
+tenant/cell refusal; the pre-commit staged-byte two-file run passed 12/12 and
+the forwarding-removal probe turned red. The exact committed-HEAD rerun is
+`UNRUN`. R14 route-basis fixture commit `a1875e4c9` made four prior route-file
+reds green; that whole file passed 17/17 at its own snapshot, with zero common
+pass→nonpass versus its 13/17 parent. R3 historical v6 test-contract commit
+`17ba0b7eb` made one prior red green in its 25-case file; one failure and 11
+errors remain there and four-base attribution is `UNRUN`. R7 live executor at
+`10315b7b2` passed its complete 49/49 file; R8 guarded-worker at source-equivalent
+`6d0b910cf` passed 7/7; selected R2 historical-replay controls passed 3/3.
+The exact-head R2/R8 marker-retaining removal probes remain `UNRUN` because the
+older mutants targeted different source blobs. Full commands, JUnit hashes and
+denominators are in `BASELINES.md`'s pinned integration-lane supplement; none
+of these selected results fills the four-base matrix.
+
+**R13-G served owner gap.** A complete 2,696/2,696 tracked-Python AST census
+found no served caller that builds a composed WMR from the runtime store. The
+served no-context N4 path carries a typed limitation; with a context it uses
+that bound WMR. N5 already reads NCM through `PromotionRuntime.store`, correcting
+the earlier R13-G assertion that it reconstructs a local CAS. The root-CAS
+fallback remains in a direct helper, but adding a store parameter there alone
+would not deliver a served capability. The smallest missing pieces are a
+problem-bound owner-context bridge and an owner-issued NCM producer. R1's
+selected positive N4→N5→S8 path and post-growth dependent calculation remain
+unproved; R13/B12 remains partial. Source/caller receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r13-composed-wmr-design-20260928/R13_G_IMPLEMENTATION_BLOCKER_20260928.md@sha256:819401acd0c57f8bace1f37a38b00f6338e04ba3bdeeaf27a0e64613b7db4681`.
+
+**Architecture gate.** The standalone architecture guardrails command at
+`7683ebdb9` exited 1. Its 1,446-line log was triaged in full: 107 new
+deep-import edges relative to its baseline (82 E02-inherited, 24 R2-only, one
+present on both main and E02), 28 removed baseline edges, one E02-inherited
+DDM facade mismatch, two stale generated families, two clean generated
+families, and one Atlas subgate explicitly `UNRUN`. No baseline was synced,
+OpenAPI output regenerated, or trust posture reissued. The 24 R2-only edges
+and generated-family freshness require owner disposition; the current gate is
+not green. Triage:
+`/Users/deniskopylov/.codex/scratch/e02-r2-guardrail-triage-20260928/ARCHITECTURE_GUARDRAILS_7683_TRIAGE.md@sha256:e2f8f5b5759ae0327489b2e8fbda814b4728e1ff870fe6d502d2a6117abd24b7`.
+
+**Current conclusion.** This branch does not meet §8's definition of done.
+The ledger still covers 282/282 findings with the statuses above. R1's positive
+authority path, the two N7 re-entry reds, N9 scope red, complete four-base and
+touched-file replay, final source-bound R2/R7/R8 removal proofs, authorized
+trust/epoch reissues, and current-head generated-family dispositions remain
+open or unmeasured. No code has been merged into main or pushed.
 
 ### Integrated bounded R13 storage-custody slices and R2 pre-N9 recheck at `4060a4cc7` (2026-09-28)
 

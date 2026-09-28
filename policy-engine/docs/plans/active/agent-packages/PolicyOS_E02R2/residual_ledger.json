@@ -5216,7 +5216,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. Current-head importer tests and source tracing add a bounded finding-level record, while the distributed journal/replay discriminator remains open; status remains partial."
       },
-      "residual": "The exact-head 36/36 run includes a real synchronous WorkflowExecutor/FileSystemCAS cache hit preserving an independently changed unrelated value and a separate merge witness for same-value write intent. The async 1/1 selector proves incompatible cached replay is discarded, not the B57 same-value/unrelated-value case. Distributed/Temporal NodeOutcome serialization omits the StateMutationJournal and falls back to outcome-vs-base diffs, so unrelated state can still be mistaken for a write. Keep partial; combined actual cache-hit + same-value write + deletion/non-resurrection, async variant and distributed wire replay are UNRUN.",
+      "residual": "At exact test commit 031e2133, retained 36/36 includes a real synchronous WorkflowExecutor/FileSystemCAS cache hit preserving an independently changed value and separate same-value write replay. The separate async 1/1 only proves incompatible cached replay is discarded. Current tracked source/test blobs are identical at 3ec377af. Distributed/Temporal NodeOutcome serialization omits StateMutationJournal and uses outcome-vs-base diffs, so unrelated state may be mistaken for a write. Combined cache-hit + same-value + deletion/non-resurrection, positive async equivalent, distributed journal replay and four-base P41 are UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5339,6 +5339,43 @@
           ],
           "evidence_summary": "PASS_BOUNDED_PARTIAL: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
           "p41_four_base": "UNRUN"
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B57",
+          "classification": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B57",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B57",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "three-file state merge/branching/synchronous executor group including test_executor_cache_hit_preserves_unrelated_current_state and explicit same-value replay",
+              "result": "36/36 PASS",
+              "commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "limit": "Real sync WorkflowExecutor/FileSystemCAS hit and separate same-value replay; not combined with delete/non-resurrection."
+            },
+            {
+              "identity": "TestAsyncCacheBoundaries::test_incompatible_cached_replay_is_discarded_and_recomputed",
+              "result": "1/1 PASS",
+              "commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-async-replay.junit.xml@sha256:310742e72b65e40f568bc11773d5bdbb007463b6b2e9c40fd9386b0f8e91d08c",
+              "limit": "Adjacent invalidation control only; not positive async B57 replay."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py@git-blob:604ac837cd4eecf3c51296bc4fb24533db732535",
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py@git-blob:645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py@git-blob:638cfce7e4c0e35bac651975c8839f31b8cc574f",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py@git-blob:eb0b092e12d26aa36cca40eeb9b9cc0d260dba38",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py@git-blob:20c8d8ccd7a5c3681005e088ac42c4ff0d6a539c"
+          ],
+          "scope_and_unrun": "At exact test commit 031e2133, retained 36/36 includes a real synchronous WorkflowExecutor/FileSystemCAS cache hit preserving an independently changed value and separate same-value write replay. The separate async 1/1 only proves incompatible cached replay is discarded. Current tracked source/test blobs are identical at 3ec377af. Distributed/Temporal NodeOutcome serialization omits StateMutationJournal and uses outcome-vs-base diffs, so unrelated state may be mistaken for a write. Combined cache-hit + same-value + deletion/non-resurrection, positive async equivalent, distributed journal replay and four-base P41 are UNRUN. Keep partial.",
+          "residual_owner": "NodeResultCache/executor cache-replay producer; async and distributed outcome-serialization consumers",
+          "next_signal": "Add one canonical cache-hit witness combining same-value write intent, independent update and stale-key deletion/non-resurrection, then exercise via async and serialized distributed/Temporal replay; run four-base P41.",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -5390,7 +5427,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. Current-head importer tests and source tracing add a bounded finding-level record, while the distributed journal/replay discriminator remains open; status remains partial."
       },
-      "residual": "The exact-head 36/36 run includes merge-helper controls that distinguish delete, null and no-write, reject protected artifacts_index deletion, and exercise parent/child operation order. This does not show allowed deletion through parallel execution or warm-cache serialization/readback. Distributed/Temporal serialization carries no delete journal; an absent outcome key reaches the journal-less fallback and produces no delete. Keep partial; cached allowed-delete replay, absent/repeated deletion and distributed removal remain UNRUN.",
+      "residual": "At exact test commit 031e2133, retained 36/36 includes helper-level delete/null/no-write distinction, protected artifacts_index deletion refusal and parent/child ordering. Current tracked helper/test blobs are identical at 3ec377af. Allowed deletion through parallel execution and warm-cache serialization/readback is not established; distributed/Temporal serialization omits delete journal and an absent outcome key loses an allowed delete. Absent/repeated deletion, conflicts, distributed removal and four-base P41 remain UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5505,6 +5542,35 @@
           ],
           "evidence_summary": "PASS_BOUNDED_PARTIAL: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
           "p41_four_base": "UNRUN"
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B58",
+          "classification": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B58",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B58",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "three-file state merge/branching/sync executor; delete-null-no-write and protected-index selectors",
+              "result": "36/36 PASS",
+              "commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "limit": "Helper-level controls; not allowed deletion via parallel/cache serialization or distributed/Temporal wire."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py@git-blob:645e30fa190a9f66b77b468adb6ceb5826213ce7",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py@git-blob:638cfce7e4c0e35bac651975c8839f31b8cc574f",
+            "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py@git-blob:eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/runner/state_merge.py@git-blob:22a92312458c4ee391b0cb2e116923907b4e3a3c"
+          ],
+          "scope_and_unrun": "At exact test commit 031e2133, retained 36/36 includes helper-level delete/null/no-write distinction, protected artifacts_index deletion refusal and parent/child ordering. Current tracked helper/test blobs are identical at 3ec377af. Allowed deletion through parallel execution and warm-cache serialization/readback is not established; distributed/Temporal serialization omits delete journal and an absent outcome key loses an allowed delete. Absent/repeated deletion, conflicts, distributed removal and four-base P41 remain UNRUN. Keep partial.",
+          "residual_owner": "StateMerge plus executor/cache deletion-routing and distributed outcome-serialization consumers",
+          "next_signal": "Exercise allowed delete/null/no-write through a real parallel node and warm-cache serialize/rehydrate path, then distributed/Temporal wire with absent/repeated delete and conflict controls; run four-base P41.",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -5554,9 +5620,9 @@
       "status": "closed",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02’s absence of a finding-level record. The exact-head behavioral evidence closes only the declared-leaf isolation property; it does not claim full workflow abort/sibling or universal object-graph coverage."
+        "detail": "Appendix C records no finding-level record. Current card audit plus retained exact-031e behavioral receipt support bounded closure of the declared-leaf deep-isolation discriminator; sibling lifecycle, alias/cycle/custom-mutable cases and four-base P41 remain unestablished outside this bounded closure."
       },
-      "residual": "The exact-head 36/36 run includes the deep nested-list-of-dicts mutation witness: changing an element inside the declared leaf changes the returned branch while the base remains unchanged; a neighboring control keeps unrelated state shared. Production sync and async executors call this branch-state owner. Close bounded to declared-leaf isolation for supported dict/list/Pydantic values. Full-workflow failed/cancelled sibling behavior, alias/cycle/custom-mutable coverage and four-base P41 remain UNRUN; the source census is not complete alias proof.",
+      "residual": "Bounded closure: exact-031e 36/36 includes nested dict mutation within the declared list leaf; returned branch changes while base remains unchanged, with unrelated-shared-state control. Current test/source blobs are identical at 3ec377af, and sync/async production executors call this owner. Status remains closed, bounded to declared-leaf isolation for supported dict/list/Pydantic structures. Failed/cancelled sibling workflow visibility, complete alias/cycle/custom-mutable coverage and four-base P41 remain UNRUN; broader properties are not claimed.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5588,9 +5654,9 @@
           "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
         },
         "h_n_review_disposition": {
-          "kind": "implementation_owner",
-          "summary": "Bounded helpers establish deep isolation for a declared leaf, nested path and Pydantic overlay while a shared unrelated object is controlled. A census of 2,696 src/polisyos Python files found 78 literal branch_state( call lines, but does not prove alias/import completeness. No sibling-reader plus failed/cancelled canonical executor witness is recorded. Keep partial.",
-          "next_step": "Add a canonical sibling-reader and failed/cancelled execution witness, complete the branch_state intake/caller census and run four-base P41."
+          "kind": "bounded_finding_closure",
+          "summary": "Closed bounded to declared-leaf deep isolation for supported dict/list/Pydantic values: nested leaf mutation changes returned branch, leaves base intact, and retains unrelated-shared-state control. Exact-031e JUnit is 36/36; source/test blobs match 3ec. Wider lifecycle/alias/cycle coverage and four-base P41 remain UNRUN.",
+          "next_step": "No further action is needed for bounded declared-leaf closure. Broader sibling lifecycle, alias/cycle or custom-mutable claims need separate witnesses; four-base P41 remains UNRUN."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -5615,10 +5681,10 @@
         "n18_reconciliation": {
           "identity": "N18 no-record row reconciliation:B59",
           "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B59",
-          "status_retained": "partial",
+          "status_retained": "closed",
           "evidence_verdict": "PASS_BOUNDED",
-          "reviewed_snapshot": "679f096e3",
-          "scope": "Recorded current 88/88 STA/OPT wave and read-only census of all 2,696 tracked src/polisyos Python files. No test was started by the audit; the literal call-site census does not prove alias/import completeness or four-base behavior.",
+          "reviewed_snapshot": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "scope": "Read-only audit at 3ec; retained 031e 36/36 receipt and current source/test blob identity; no tests started by 3ec audit. Closure is bounded to declared-leaf discriminator.",
           "selectors_or_probes": [
             "test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
             "nested-path isolation",
@@ -5629,9 +5695,9 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B59",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ],
-          "residual": "Bounded helpers establish deep isolation for a declared leaf, nested path and Pydantic overlay while a shared unrelated object is controlled. A census of 2,696 src/polisyos Python files found 78 literal branch_state( call lines, but does not prove alias/import completeness. No sibling-reader plus failed/cancelled canonical executor witness is recorded. Keep partial.",
+          "residual": "Bounded declared-leaf isolation is closed for supported dict/list/Pydantic values. Sibling lifecycle, alias/cycle/custom-mutable and four-base P41 are outside this closure.",
           "residual_owner": "state_branching and canonical branch-execution callers",
-          "next_step": "Add a canonical sibling-reader and failed/cancelled execution witness, complete the branch_state intake/caller census and run four-base P41."
+          "next_step": "No further action is needed for bounded declared-leaf closure. Broader sibling lifecycle, alias/cycle or custom-mutable claims need separate witnesses; four-base P41 remains UNRUN."
         },
         "sta01_integrated_replay_2026_09_28": {
           "identity": "STA-01 bounded integrated importer replay:B59",
@@ -5672,6 +5738,33 @@
           ],
           "evidence_summary": "PASS_BOUNDED_CLOSED: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
           "p41_four_base": "UNRUN"
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B59",
+          "classification": "closed",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B59",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B59",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "three-file state merge/branching/sync executor; test_branch_state_deeply_isolates_nested_elements_of_declared_leaf",
+              "result": "36/36 PASS",
+              "commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "limit": "Bounded declared-leaf deep isolation for supported dict/list/Pydantic values; not sibling failure/cancel or alias/cycle/custom mutable."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py@git-blob:22d3c75e16d39c7eb1bbf7d8f7d845980341b094",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py@git-blob:957047c7085d1cdb615bd11995e03476fa64b779"
+          ],
+          "scope_and_unrun": "Bounded closure: exact-031e 36/36 includes nested dict mutation within the declared list leaf; returned branch changes while base remains unchanged, with unrelated-shared-state control. Current test/source blobs are identical at 3ec377af, and sync/async production executors call this owner. Status remains closed, bounded to declared-leaf isolation for supported dict/list/Pydantic structures. Failed/cancelled sibling workflow visibility, complete alias/cycle/custom-mutable coverage and four-base P41 remain UNRUN; broader properties are not claimed.",
+          "residual_owner": "state_branching and canonical branch-execution callers; bounded declared-leaf property",
+          "next_signal": "No further action is needed for bounded declared-leaf closure. Broader sibling lifecycle, alias/cycle or custom-mutable claims need separate witnesses; four-base P41 remains UNRUN.",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -6446,7 +6539,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. The later distributed status repair and its bounded receipts supply a finding-level record, but not the complete persisted resume, Temporal, or output-sufficiency witnesses; status remains partial."
       },
-      "residual": "Source audit at 031e confirms typed ok/skip/fail transport and ok-only admission for the Ray/non-Temporal route; the retained six-file comparison records 67 common identities, zero pass-to-fail, one fail-to-pass and 13 new cases, with one unchanged Temporal skip. A marker-retaining status-removal probe made semantic tests red. This does not establish persisted width-one/width-two skip plus independent-success close/reopen/resume. Temporal history, exact 031e behavioral replay and four-base P41 are UNRUN; the card’s dependent-output sufficiency check is also not established.",
+      "residual": "At 3ec377af, read-only source audit confirms typed ok/skip/fail worker transport and ok-only completion admission on the Ray/non-Temporal route. Retained six-file pre/post receipts report 67 common identities, zero pass-to-fail, one fail-to-pass, 13 new cases, 79 runnable postpatch passes and one unchanged Temporal skip; marker-retaining removal probe has two semantic failures. Add75 whole-file receipts cover test_res_02.py 6/6 and test_checkpoint_resume.py 8/8. Historical named-snapshot results, not a fresh 3ec run. Persisted width-one/width-two skip plus successful-peer resume, Temporal history, output-specific dependent-use, exact 3ec replay and four-base P41 remain UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by the changed runtime paths and independent bounded review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -6611,6 +6704,57 @@
           ],
           "evidence_summary": "Status remains partial. JUnits establish a bounded status-admission repair at the historical integrated source, while current 031e source trace and all unrun dimensions are stated separately.",
           "p41_four_base": "UNRUN"
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B72",
+          "classification": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B72",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B72",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "six-file prepatch baseline",
+              "result": "paired baseline; 67 common identities",
+              "commit": "6c7168566d51b22a4de8c0895c18291b3c697ca4",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/prepatch/whole-six.junit.xml@sha256:4bb58a920f11f796c12db6e4f303b33d5f06553c0a193b9e9b6f2802e996fc5b",
+              "limit": "Postpatch had zero pass-to-fail, one fail-to-pass, thirteen new."
+            },
+            {
+              "identity": "six-file postpatch comparison",
+              "result": "79 runnable PASS, one unchanged Temporal skip; 67 common, zero pass-to-fail, one fail-to-pass, 13 new",
+              "commit": "6c7168566d51b22a4de8c0895c18291b3c697ca4",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/postpatch/whole-six.junit.xml@sha256:40657aa78583fa8613372495c959eaefd354b121d431aaec5720e7b133bb35c4",
+              "limit": "Does not establish Temporal event-history execution."
+            },
+            {
+              "identity": "B72 marker-retaining status removal probe",
+              "result": "2 semantic failures; exact-tier positive control passes",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b72-distributed-status-20260927/B72-removal-probe.xml@sha256:ade1e8b8fc3040e477f6ca9706c1fd28c1f4c9c2405dfbef3f4124ccf83e9df6",
+              "limit": "Probe receipt, not four-base P41."
+            },
+            {
+              "identity": "test_res_02.py and test_checkpoint_resume.py add75 whole files",
+              "result": "6/6 and 8/8 PASS",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-n-res02-integrated-84ac-20260927/unit/full.junit.xml@sha256:a06f17de34ac5ae08fc86c01d0014df7bea1ec96911764ef95dd6058cb2e3974; /Users/deniskopylov/.codex/scratch/e02-n-res02-integrated-84ac-20260927/integration/postlint.junit.xml@sha256:c464306970d3d32bbb0dd3ed369d234267b52ddb530c42d3844927fb85935684",
+              "limit": "Historical named-snapshot runs; no fresh 3ec execution."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/remediation/test_res_02.py@git-blob:3ebec124bf38ea64bf20465cff44501795281fe2",
+            "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py@git-blob:a30316d8dd6ccd1221207ab6ff1e188ce0dba7c6",
+            "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py@git-blob:180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py@git-blob:8756fd0a66cdf91c18e8b7c3bb60872926af05be",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/runner/distributed_tier.py@git-blob:287035cb935b873f5fd66e6c40f44bff09436aaf",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py@git-blob:61b5a0ba0f141f8cd40a6c69b5e60786c3965ed2",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/runner/state_merge.py@git-blob:22a92312458c4ee391b0cb2e116923907b4e3a3c"
+          ],
+          "scope_and_unrun": "At 3ec377af, read-only source audit confirms typed ok/skip/fail worker transport and ok-only completion admission on the Ray/non-Temporal route. Retained six-file pre/post receipts report 67 common identities, zero pass-to-fail, one fail-to-pass, 13 new cases, 79 runnable postpatch passes and one unchanged Temporal skip; marker-retaining removal probe has two semantic failures. Add75 whole-file receipts cover test_res_02.py 6/6 and test_checkpoint_resume.py 8/8. Historical named-snapshot results, not a fresh 3ec run. Persisted width-one/width-two skip plus successful-peer resume, Temporal history, output-specific dependent-use, exact 3ec replay and four-base P41 remain UNRUN. Keep partial.",
+          "residual_owner": "distributed worker-result/status admission owner; Temporal history verifier unavailable/unappointed",
+          "next_signal": "Record persisted width-one/width-two skip plus independent success through close/reopen/resume and an output-specific dependent consumer; run Temporal event history when available, then four-base P41.",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED_TEMPORAL_UNRUN",
@@ -6667,7 +6811,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. The bounded expected-red probe and integrated CAS reopen/resume evidence add a finding-level record; the wider durable-head matrix remains open, so status is partial."
       },
-      "residual": "Current source audit confirms the built-in CAS tier boundary requires an atomic tier-completion hook before a multi-node tier can run and publishes state plus its full completion set together. Historical integrated witnesses include the clean-782 expected-red legacy split (state right=2 with completed_nodes=[left]), 11/11 focused checkpoint cases and 9/9 checkpoint-resume whole file at the integrated candidate. Exact 031e replay, four-base P41, wider fail-fast/continue durable-head behavior, and arbitrary custom-hook atomic persistence remain UNRUN.",
+      "residual": "At 3ec377af, source review confirms the built-in CAS tier path requires an atomic tier-completion hook and publishes merged state with full successful completion set. Historical receipts: clean-782 real-CAS expected-red reproduced state right=2 with completed_nodes=[left]; integrated candidate passed 11/11 focused and full checkpoint-resume 9/9. No 3ec test execution is claimed. Exact 3ec replay, four-base P41, broader fail-fast/continue durable-head behavior and arbitrary custom-hook atomicity remain UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -6857,6 +7001,49 @@
           ],
           "evidence_summary": "The expected-red probe and integrated CAS receipt establish bounded behavior on their named snapshots. Current 031e behavior is source-reviewed only.",
           "p41_four_base": "UNRUN"
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B73",
+          "classification": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B73",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B73",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "clean-782 real-CAS legacy callback expected-red probe",
+              "result": "RED: persisted state right=2, completed_nodes=[left]",
+              "commit": "782652222cece9899adea0a171c08166544901b9",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.junit.xml@sha256:41aa778b3f607a7e214145e487b3fdd489c80a6cb876d5b83260a68367ce0606",
+              "limit": "Pre-repair expected-red probe."
+            },
+            {
+              "identity": "B73 focused integrated checkpoint cases",
+              "result": "11/11 PASS",
+              "commit": "4ef6dbc0cc2761307c34ff4f09e22257a14e6c72",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/test.junit.xml@sha256:ba9613a920812054c99bd9b3044ba3d025188b96737c49eee860c9d22b89a3ca",
+              "limit": "Historical candidate; not fresh 3ec replay."
+            },
+            {
+              "identity": "complete test_checkpoint_resume.py",
+              "result": "9/9 PASS",
+              "commit": "4ef6dbc0cc2761307c34ff4f09e22257a14e6c72",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/full/test.junit.xml@sha256:ee2d8a5e7ed309571e880c80aae62773188405d3c668777ab39e43b2125ade85",
+              "limit": "Historical candidate; not fresh 3ec replay."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/remediation/test_res_02.py@git-blob:3ebec124bf38ea64bf20465cff44501795281fe2",
+            "policy-engine/tests/integration/scientist/test_checkpoint_resume.py@git-blob:527f168b4547ce5292f9623da2261442c920d316",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py@git-blob:8756fd0a66cdf91c18e8b7c3bb60872926af05be",
+            "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py@git-blob:d00feba0e10023fbbc7c3c55b5ce18c6701e4931"
+          ],
+          "scope_and_unrun": "At 3ec377af, source review confirms the built-in CAS tier path requires an atomic tier-completion hook and publishes merged state with full successful completion set. Historical receipts: clean-782 real-CAS expected-red reproduced state right=2 with completed_nodes=[left]; integrated candidate passed 11/11 focused and full checkpoint-resume 9/9. No 3ec test execution is claimed. Exact 3ec replay, four-base P41, broader fail-fast/continue durable-head behavior and arbitrary custom-hook atomicity remain UNRUN. Keep partial.",
+          "residual_owner": "RES-02 local checkpoint owner plus Temporal/Ray/activity distributed checkpoint route",
+          "next_signal": "Run fail-fast/continue durable-head matrix across stop/reopen/resume and prove custom-hook persistence semantics; then exact current four-base P41.",
+          "four_base_p41": "UNRUN"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -7698,7 +7885,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "B88 remains partial. Its earlier B88-specific served replay witness at dfaa31c7a78d9e1f1afcc849d03f3e294981ea27 passes 4/4, with the accompanying complete test_modes.py at 15/15 (19/19 total). At current integrated HEAD 44a7441eb, the same whole two-file set passes 19/19; the exact-head JUnit is recorded in current_exact_head_44a7441eb. R13 93affc59b adds bounded runtime-store tenant custody for fixture-issued identity: A can reopen its session, B is denied before another simulator call, and cache sidecars stay tenant-local. Production identity issuance and exact persisted replay lineage remain open, as do broader callers and finding-specific four-base P41. Commit 6a508368 is the separate WDI 9/9 plus tenant 3/3 result, not the B88 4/4 receipt.",
+      "residual": "B88 remains partial. Exact integrated test commit 44a7441eb: complete test_b88_served_replay.py 4/4 plus test_modes.py 15/15 passed 19/19; direct source/test blobs are unchanged at 3ec377af. Current served tests traverse the real replay route and ReplayStore/CAS/APISimulator; success checks request hash and exact fixture response bytes, while missing/corrupt fixtures stay failed in replay with zero ordinary delegate calls and zero native aiohttp requests. R13 separately proves runtime-store tenant custody for fixture-issued identity, but is not a B88 replacement receipt. Production run_record_mode issuance provenance, complete connector-transport egress instrumentation and finding-specific four-base P41 remain UNRUN. Old 8ed1/624a5f1 “route tests stub run_replay_mode” statement is historical and superseded by the 44a witness.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -7732,8 +7919,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "At dfaa31c7, the bounded served replay witness now joins the served fixture request, real ReplayStore/CAS/APISimulator path, and response evidence for the selected cases. The two complete files pass 19/19, with an ordinary-ingestion control and replay-fixture failure coverage. This does not establish production tenant-store custody or exact persisted replay lineage across R13. Keep partial.",
-          "next_step": "Complete R13 runtime-supplied tenant custody and bind exact persisted source/session/replay/request/response lineage through served execution; then run finding-specific four-base P41 and enumerate remaining transports."
+          "summary": "At exact test commit 44a7441eb, complete B88 served route and mode files pass 19/19. Tests traverse the real route, ReplayStore/CAS/APISimulator and response evidence for selected fixtures, superseding the old captured statement that served-route tests stubbed run_replay_mode. Normal record-mode issuance provenance, all-connector coverage and four-base P41 remain open. Keep partial.",
+          "next_step": "Exercise normal run_record_mode issuance followed by runtime-store served replay with missing/corrupt no-fallback controls, census connector transports, and run finding-specific four-base P41."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -7761,21 +7948,23 @@
           "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B88",
           "status_retained": "partial",
           "evidence_verdict": "PASS_BOUNDED",
-          "reviewed_snapshot": "8ed1",
-          "scope": "Recorded seven-case owner-boundary route wave and independent bounded review. Reviewer notes archived evidence lacks the exact command line and observed process exit code. The read-only audit started no tests; no complete four-base replay.",
+          "reviewed_snapshot": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "scope": "The seven-case 8ed1/624a5f1 record is historical and lacks exact command/exit receipt. Later 44a7441eb whole-file 19/19 JUnit is the current retained served witness; no fresh 3ec execution or four-base P41 is claimed.",
           "selectors_or_probes": [
-            "seven-case route/owner wave: empty replay-ref refusal, replay success/failure mode, batch-full control, valid/missing/corrupt ReplayStore fixtures"
+            "whole test_b88_served_replay.py (4/4)",
+            "whole test_modes.py (15/15)",
+            "ordinary-ingestion positive control",
+            "missing/corrupt replay fixture no-fallback controls"
           ],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B88",
-            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/integrated-8ed1.junit.xml@sha256:03859aaac9b6d178d24bd3c7ca9eb90aa9520f0ffca311d4390b6f0bdd39f759",
-            "/Users/deniskopylov/.codex/scratch/e02r2-b88-served-replay-20260926/INDEPENDENT_REVIEW_V2.md@sha256:7a165c1c2a7717c1a255c89ce200a246667752105eff4812bfde531eb5e2bdcf"
+            "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B88",
+            "/Users/deniskopylov/.codex/scratch/e02-b88-current-44a-20260928/b88-modes.junit.xml@sha256:8556d62e7443c01c1cf6a0d3d2d53c5227c169d039f5c03fa8ef16dc9d78953c",
+            "/Users/deniskopylov/.codex/scratch/e02-r13-v5-canonical-20260928/served-final.junit.xml@sha256:25a8cfc44e60a6fb173e6f171cc4577b416c60228cf08d756cb20ebc3dad3754"
           ],
-          "residual": "The integrated served route dispatches every explicit replay_ref, including an empty ref which must fail replay validation before ordinary batch_full ingress. Success/failure report replay mode. Real ReplayStore/CAS fixtures cover missing, corrupt and valid replay through APISimulator with zero ordinary-delegate calls or native aiohttp requests; the marker-retaining fallback-removal probe is red. The route tests still stub run_replay_mode, output evidence is not reopened to bind source session/replay ref/request hash/exact bytes, and egress instrumentation covers aiohttp only. Keep partial.",
+          "residual": "B88 remains partial. Exact integrated test commit 44a7441eb: complete test_b88_served_replay.py 4/4 plus test_modes.py 15/15 passed 19/19; direct source/test blobs are unchanged at 3ec377af. Current served tests traverse the real replay route and ReplayStore/CAS/APISimulator; success checks request hash and exact fixture response bytes, while missing/corrupt fixtures stay failed in replay with zero ordinary delegate calls and zero native aiohttp requests. R13 separately proves runtime-store tenant custody for fixture-issued identity, but is not a B88 replacement receipt. Production run_record_mode issuance provenance, complete connector-transport egress instrumentation and finding-specific four-base P41 remain UNRUN. Old 8ed1/624a5f1 “route tests stub run_replay_mode” statement is historical and superseded by the 44a witness.",
           "residual_owner": "ControlPlaneService replay dispatch/response owner plus replay evidence and connector transport owners",
-          "next_step": "Join served API→CAS→ReplayStore→APISimulator→response in one witness, reopen and bind exact source/session/request/body bytes, and enumerate all egress transports before four-base P41."
-        }
-      ,
+          "next_step": "Exercise normal run_record_mode issuance followed by runtime-store served replay with missing/corrupt no-fallback controls, census connector transports, and run finding-specific four-base P41."
+        },
         "r13_fabric_served_tenant_custody_2026_09_28": {
           "code_commit": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e",
           "identity": "tests.unit.runtime.http.test_r13_ingestion_tenant_custody::test_served_replay_reads_owner_session_and_denies_foreign_tenant; tests.unit.runtime.http.test_r13_ingestion_tenant_custody::test_served_replay_keeps_connector_cache_sidecars_tenant_local; tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",
@@ -7789,7 +7978,45 @@
             "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py@sha256:c4a53992164180e62aab7dbae9b149bb3b9347fef99fa0e28c116373ac6587ed"
           ],
           "scope": "R13 bounded served custody overlap only: this proves tenant-store dispatch/readback for fixture-issued identity, not the B12 source-card discriminator that an admitted world-growth delta changes the dependent same-case calculation; retain partial and four-base UNRUN."
-        }},
+        },
+        "n_finding_audit_3ec_2026_09_28": {
+          "identity": "N finding-level card/source/caller reconciliation:B88",
+          "classification": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "audited_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "audit_kind": "read-only original-card and current-source/caller audit",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-six-current-3ec377af-20260928/N_FINDING_AUDIT.md@sha256:7e0a742e9e31d6fee589ee1ee4de5f47a29959fbd98ab5c9d5ea8514576fa129#B88",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B88",
+          "audit_started_tests": false,
+          "test_receipts": [
+            {
+              "identity": "whole test_b88_served_replay.py plus whole test_modes.py",
+              "result": "19/19 PASS (4/4 and 15/15)",
+              "commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-b88-current-44a-20260928/b88-modes.junit.xml@sha256:8556d62e7443c01c1cf6a0d3d2d53c5227c169d039f5c03fa8ef16dc9d78953c",
+              "limit": "Real served route plus ReplayStore/CAS/APISimulator; response checks request hash and fixture bytes. No normal record-mode issuance lineage, all-connector census or fresh 3ec execution."
+            },
+            {
+              "identity": "R13 related runtime-store tenant-custody witness; not B88 replacement",
+              "result": "tenant-A session reopen, foreign-tenant denial, tenant-local sidecars",
+              "junit": "/Users/deniskopylov/.codex/scratch/e02-r13-v5-canonical-20260928/served-final.junit.xml@sha256:25a8cfc44e60a6fb173e6f171cc4577b416c60228cf08d756cb20ebc3dad3754",
+              "limit": "Fixture-issued identity; related custody receipt only."
+            }
+          ],
+          "source_test_blob_refs_at_3ec": [
+            "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py@git-blob:469f8492c990243a6345dac1f20e19bd5d3884f0",
+            "policy-engine/tests/unit/fabric/data_plane/test_modes.py@git-blob:7e8b937c2d08ec4baf435462aa78513c8446cffe",
+            "policy-engine/src/polisyos/fabric/data_plane/modes.py@git-blob:cb60edcdc238951980aae054744946ea919d84b5",
+            "policy-engine/src/polisyos/fabric/data_plane/replay_store.py@git-blob:f0d3bf71b37fc8aeb3cbadf30304b37e5150ad62",
+            "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@git-blob:06117342604d4e316687fa452851062393eaeca8",
+            "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py@git-blob:0e4350fa76f1cec9622b559a6263f69e9363e0e7"
+          ],
+          "scope_and_unrun": "B88 remains partial. Exact integrated test commit 44a7441eb: complete test_b88_served_replay.py 4/4 plus test_modes.py 15/15 passed 19/19; direct source/test blobs are unchanged at 3ec377af. Current served tests traverse the real replay route and ReplayStore/CAS/APISimulator; success checks request hash and exact fixture response bytes, while missing/corrupt fixtures stay failed in replay with zero ordinary delegate calls and zero native aiohttp requests. R13 separately proves runtime-store tenant custody for fixture-issued identity, but is not a B88 replacement receipt. Production run_record_mode issuance provenance, complete connector-transport egress instrumentation and finding-specific four-base P41 remain UNRUN. Old 8ed1/624a5f1 “route tests stub run_replay_mode” statement is historical and superseded by the 44a witness.",
+          "residual_owner": "ControlPlaneService replay dispatch and record/replay provenance owners; connector transport owners",
+          "next_signal": "Exercise normal run_record_mode issuance followed by runtime-store served replay with missing/corrupt no-fallback controls, census connector transports, and run finding-specific four-base P41.",
+          "four_base_p41": "UNRUN"
+        }
+      },
       "finding_test_status": "PASS_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {
@@ -7809,10 +8036,10 @@
         "captured_head": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4",
         "status_at_capture": "partial",
         "whole_file_four_base_status_at_capture": "UNRUN",
-        "exact_missing_witness_at_capture": "The integrated served route dispatches every explicit replay_ref, including an empty ref which must fail replay validation before ordinary batch_full ingress. Success/failure report replay mode. Real ReplayStore/CAS fixtures cover missing, corrupt and valid replay through APISimulator with zero ordinary-delegate calls or native aiohttp requests; the marker-retaining fallback-removal probe is red. The route tests still stub run_replay_mode, output evidence is not reopened to bind source session/replay ref/request hash/exact bytes, and egress instrumentation covers aiohttp only. Keep partial.",
+        "exact_missing_witness_at_capture": "At the 624a5f1 map capture (served route wave at 8ed1), served-route tests still stubbed run_replay_mode and output/session binding plus egress limits were recorded. This is historical and is superseded for the real served route by the later 44a7441eb whole-file 19/19 receipt: test_b88_served_replay.py now traverses the actual route and replay owner. Remaining gaps are normal run_record_mode issuance provenance, all-connector transport coverage and four-base P41.",
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
-        "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+        "scope": "Preserves 624a5f1/8ed1 snapshot limitations as history; route-stub claim is superseded by the 44a7441eb exact whole-file witness cited in the current 3ec audit. Four-base P41 remains UNRUN."
       },
       "current_a514_census_and_84ac_owner_suite_20260927": {
         "identity": "B88 complete source/caller census and current-head owner-suite evidence",
@@ -7845,12 +8072,12 @@
           "run_lifecycle.py": "6c6bcc357edb77a1fe1b7d95a912a94b04021e41",
           "test_control_api.py": "a50870137eca765bbfc5b32d6ae91db7f5b28cdc"
         },
-        "behavioral_verdict": "PASS_BOUNDED for owner-only suite; served-to-real-owner chain UNRUN",
+        "behavioral_verdict": "PASS_BOUNDED for 84ac owner-only suite; later 44a7441eb whole served-route plus owner suite is PASS_BOUNDED at 19/19.",
         "limits": [
-          "Served-route tests mock run_replay_mode for success/failure; no request traverses real served API → CAS/ReplayStore → connector → response.",
-          "Output evidence is not rebound to exact source session, replay ref, request and response bytes.",
-          "Egress instrumentation observes aiohttp, not every possible transport.",
-          "Full finding-specific four-base replay and a current-head served-composition removal probe remain UNRUN."
+          "At census snapshot a514, served-route tests mocked run_replay_mode; historical limitation superseded by the 44a7441eb whole-file served-route witness.",
+          "The 44a success witness binds request hash and exact fixture response bytes, but does not prove normal run_record_mode issuance created the persisted session replayed through the served route.",
+          "Egress instrumentation observes selected connector and native aiohttp for these cases, not every possible connector transport.",
+          "Finding-specific four-base replay remains UNRUN; the 3ec audit started no tests."
         ]
       },
       "b88_current_served_witness_20260928": {
@@ -7895,10 +8122,30 @@
         "current_exact_head_44a7441eb": {
           "code_test_commit": "44a7441eba7ad92eb6b95a767e14f0dbe61f27b3",
           "whole_file_results": [
-            {"path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py", "collected": 4, "passed": 4, "failed": 0, "errors": 0, "skipped": 0},
-            {"path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py", "collected": 15, "passed": 15, "failed": 0, "errors": 0, "skipped": 0}
+            {
+              "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+              "collected": 4,
+              "passed": 4,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            {
+              "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+              "collected": 15,
+              "passed": 15,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
           ],
-          "total": {"collected": 19, "passed": 19, "failed": 0, "errors": 0, "skipped": 0},
+          "total": {
+            "collected": 19,
+            "passed": 19,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
           "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-current-44a-20260928/b88-modes.junit.xml@sha256:8556d62e7443c01c1cf6a0d3d2d53c5227c169d039f5c03fa8ef16dc9d78953c",
           "scope": "Current exact integrated-head replay of the same two whole files; production identity issuance and persisted replay lineage remain open; four-base P41 is UNRUN."
         }

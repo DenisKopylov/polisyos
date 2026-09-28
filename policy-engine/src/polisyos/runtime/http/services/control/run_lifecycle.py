@@ -3982,7 +3982,62 @@ class ControlPlaneService(
                 or not isinstance(authorization_receipt, Mapping)
             ):
                 raise ValueError(failure_code)
-            return binding.model_dump(mode="json")
+            replayed_binding = binding.model_dump(mode="json")
+            profile_id = payload.get("target_world_scope_profile_id")
+            if (
+                binding.admission_status == "established"
+                and binding.intent_band == "simulate_only_attempt"
+                and binding.canonical_mode == "simulate_only"
+                and binding.actor_authenticated is True
+                and isinstance(profile_id, str)
+                and profile_id.strip()
+                and isinstance(binding.tenant_id, str)
+                and binding.tenant_id.strip()
+                and isinstance(binding.cell_id, str)
+                and binding.cell_id.strip()
+            ):
+                from polisyos.runtime.quality.cycle_substrate import (
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                    VerifiedNLJobScope,
+                )
+
+                current_job = self._control_store.current_execution_job_record()
+                if (
+                    current_job.job_id != job.job_id
+                    or current_job.run_id != job.run_id
+                    or current_job.state != "running"
+                    or not isinstance(current_job.lease_owner, str)
+                    or not current_job.lease_owner.strip()
+                    or current_job.lease_owner != job.lease_owner
+                    or current_job.attempt != job.attempt
+                ):
+                    raise ValueError(failure_code)
+                verified_scope = VerifiedNLJobScope.model_validate(
+                    {
+                        "job_id": current_job.job_id,
+                        "run_id": str(current_job.run_id),
+                        "tenant_id": binding.tenant_id,
+                        "cell_id": binding.cell_id,
+                        "worker_id": current_job.lease_owner,
+                        "attempt": current_job.attempt,
+                        "admission_status": binding.admission_status,
+                        "intent_band": binding.intent_band,
+                        "canonical_mode": binding.canonical_mode,
+                        "route_id": binding.route_id,
+                        "route_action": binding.route_action,
+                        "admission_surface": binding.admission_surface,
+                        "actor_subject": binding.actor_subject,
+                        "actor_authenticated": True,
+                        "intent_digest": binding.intent_digest,
+                    }
+                )
+                object.__setattr__(
+                    verified_scope,
+                    "_issuer",
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                )
+                replayed_binding["_verified_nl_job_scope"] = verified_scope
+            return replayed_binding
         except Exception as exc:
             if isinstance(exc, RuntimeError) and str(exc) == failure_code:
                 raise
@@ -4233,7 +4288,19 @@ class ControlPlaneService(
                         from polisyos.runtime.quality.cycle_substrate import (
                             CycleSubstrateContext,
                             CycleSubstrateContextArtifactOwner,
+                            VerifiedNLJobScope,
                         )
+
+                        verified_nl_job_scope = execution_intent_binding.get(
+                            "_verified_nl_job_scope"
+                        )
+                        if (
+                            type(verified_nl_job_scope) is not VerifiedNLJobScope
+                            or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+                        ):
+                            raise RuntimeError(
+                                "cycle_substrate_context_verified_worker_scope_not_established"
+                            )
 
                         def resolve_cycle_substrate_context(
                             problem: DesignProblem,
@@ -4260,10 +4327,12 @@ class ControlPlaneService(
                             context_ref = context_owner.persist_for_current_job(
                                 admitted_context,
                                 problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
                             )
                             replayed = context_owner.resolve_for_current_job(
                                 context_ref,
                                 problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
                             )
                             if replayed.context.content_hash != admitted_context.content_hash:
                                 raise RuntimeError(
@@ -4315,9 +4384,7 @@ class ControlPlaneService(
                                 if isinstance(profile_id, str)
                                 else None
                             ),
-                            cycle_substrate_context_resolver=(
-                                cycle_substrate_context_resolver
-                            ),
+                            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None

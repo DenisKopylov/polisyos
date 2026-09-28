@@ -10,9 +10,14 @@ from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.resilience import guard_runtime_cas
 from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
-    test_actual_wdi_admits_delta_and_reenters_same_case as run_actual_chain,
+    _run_actual_wdi_admits_delta_and_reenters_same_case as run_actual_chain,
 )
 from tests.unit.runtime.http import test_control_service_di as control_fixture
+
+_TENANT_A = "00000000-0000-4000-8000-000000000001"
+_TENANT_B = "00000000-0000-4000-8000-000000000002"
+_CELL_A = "018f0000-0000-7000-8000-000000000001"
+_CELL_B = "018f0000-0000-7000-8000-000000000002"
 
 
 @pytest.mark.asyncio
@@ -31,8 +36,15 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
         return store
 
     monkeypatch.setattr(control_fixture, "FileSystemCAS", build_owned_store)
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        await run_actual_chain(tmp_path, monkeypatch, request, guarded_cas=False)
+    with tenant_scope(None, tenant_id=_TENANT_A, cell_id=_CELL_A):
+        await run_actual_chain(
+            tmp_path,
+            monkeypatch,
+            request,
+            guarded_cas=False,
+            tenant_id=_TENANT_A,
+            cell_id=_CELL_A,
+        )
         assert len(stores) == 1
         store = stores[0]
         snapshots = [
@@ -44,13 +56,13 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
         original = {str(ref): store.get_bytes(ref) for ref in snapshots}
         assert all(store.verify(ref).ok for ref in snapshots)
 
-    for tenant_id, cell_id in (("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
+    for tenant_id, cell_id in ((_TENANT_B, _CELL_A), (_TENANT_A, _CELL_B)):
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             for ref in snapshots:
                 with pytest.raises(ArtifactOwnershipError):
                     store.get_bytes(ref)
 
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+    with tenant_scope(None, tenant_id=_TENANT_A, cell_id=_CELL_A):
         assert {str(ref): store.get_bytes(ref) for ref in snapshots} == original
 
 

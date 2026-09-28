@@ -1662,6 +1662,30 @@ requiring their selected issuer to bind this exact N6 subject. No trust-posture 
 promotion epochs, or other governed artifacts are reissued by this draft.
 
 
+## R3 — N9 promotion-comparison epoch (OP-R3-REISSUE; principal draft)
+
+**Status.** Draft for Denis/principal; no ruling or governed-artifact reissue is authorized. The existing selected blocker catalog remains 56/282; this is a crosscutting premise, not a new finding row.
+
+**Question.** Should the promotion-comparison owner transition the frozen contract from receipt v6 / comparison rule v5 to receipt v8 / rule v7, retain both epochs for a demonstrated live custody consumer, or keep comparison refused?
+
+**Premises and evidence.** The current owner source emits v8/rule-v7; the frozen contract carries v6/rule-v5. The exact-head checker receipt at df5188a7435cbd0394da33979eab7482c754c249 is source-equivalent to 2cd for this narrow check, not an exact 2cd invocation. It returns FAIL/exit 1, complete_verdict=true, selection_status=partial, with proof_input_strangle_drift and promotion_comparison_admission_manifest_drift at unauthorized_manifest_epoch_transition; the measured input is the frozen contract, and full source/import/data-input closure is not established. Receipt: /Users/deniskopylov/.codex/scratch/e02-r3-current-census-20260928/promotion-check-df5188.json@sha256:8ec943ab67d90c3f5050ab787e5608870db242b0a309490e44c1e6a10dd8ae92. The corrected historical audit is /Users/deniskopylov/.codex/scratch/e02-r3-current-census-20260928/R3-historical-audit-2cd.md@sha256:8b8e562428a44484ac3466a92dcd066da30ab87d779dc3b5b6c46ef7fa9b45bb. Historical receipts remain bound to their original serializers and cannot regain current authority. Silent restamping is prohibited.
+
+**Options and costs.**
+
+1. **A — authorize owner transition (preferred if current comparison authority is needed).** Denis authorizes the existing owner to regenerate the current contract as v8/rule-v7, recording the premise and exact old/new hashes. Cost: governed artifact delta, owner review, dependent-consumer replay, and release verification. This does not rewrite or promote historical v6 receipts.
+2. **B — retain the artifact and support two explicit epochs.** Consider only if the owner identifies a live policy/custody consumer that must compare both frozen v6/rule-v5 and current v8/rule-v7. Broad old compatibility is not a sufficient premise. Cost: durable dual-epoch owner logic, separate projections/hashes/admission paths, and a real consumer witness; no artifact reissue occurs.
+3. **C — keep the typed refusal.** Defer comparison authority until the premise is supplied. Cost: current promotion comparison remains unavailable; candidate work and historical reads continue within their existing scope.
+
+**Decision authority and execution.** Denis/principal selects A, B, or C. The registered promotion-contract owner executes an authorized A or a substantiated B. The architect records any register change. This draft itself authorizes no artifact mutation, reissue, restamp, or ledger-status change.
+
+**Remainder and closure signals by option.** Under A, leave the frozen artifact untouched until authorization; close only after owner-generated transition, exact hash readback, current consumer replay, preserved historical non-admission, and checker PASS/exit 0 with adequate selector scope and both the epoch-transition and proof_input_strangle predicates satisfied. Under B, retain the frozen artifact; close only after a named live consumer exercises both explicit epoch paths, each projection/hash/admission is separately recomputed and bound, mixed/unauthorized epochs fail, the independent proof_input_strangle issue is resolved with adequate scope, and historical non-admission remains green. Under C, keep the measured typed FAIL/exit 1 and a named revisit path; this is a bounded refusal, not R3 closure. For any option, incomplete inspection is UNRUN/exit 2. Do not interpret the separate four-base P41 replay as authorization: the whole-file runs of test_promotion_sequence.py and test_generation_source.py are independent of the decision and may run while it is pending.
+
+**Falsifier and revisit trigger.** Reopen A versus C if the owner demonstrates identical comparison projection, hash, and admission outcomes for frozen v6/rule-v5 and live v8/rule-v7 without a transition. Consider B only if a named live policy/custody consumer needs both epochs; lack of that consumer falsifies B. A marker-only green or an unresolved proof-input strangle cannot support PASS.
+
+**Where it binds; P37/P38.** This draft binds only the N9 promotion-comparison artifact, its owner generator/checker, and current comparison consumers. It does not change the historical serializer, grant current authority to old receipts, or authorize trust-pin or generation-cycle reissue. The checker measured the frozen artifact and owner replay but selected only a partial input scope; the two issues must remain distinct. PASS is about recomputed epoch-specific projections, hashes, and admission over the declared complete input scope, not schema-marker presence or exit code alone.
+
+**Pattern pass.** P07/P32/P35/P37/P38: preserve historical serializer replay, reject trust-by-form, enumerate the receipt set, disclose the checker predicate's partial denominator, and keep implementation/property scope explicit. Historical projection belongs to the promotion-sequence serializer; governed output remains with its registered contract owner. No plan or debt-register edit is proposed.
+
 ## R4 — GY-N6 contract validator must return a verdict
 
 **Question.** How should the validator construct its isolated N9 verification state

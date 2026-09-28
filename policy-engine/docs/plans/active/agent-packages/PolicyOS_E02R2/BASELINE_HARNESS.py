@@ -44,6 +44,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Callable
 
 PRODUCT_ROOT = Path("/Users/deniskopylov/polisyos")
@@ -64,7 +65,21 @@ ADAPTIVE_MIN_MEMORY_FREE_PERCENT = 35
 ADAPTIVE_MAX_GROUP_CPU_PERCENT = 100.0
 ADAPTIVE_MAX_BATCH_RSS_KIB = 8 * 1024**2
 ADAPTIVE_MAX_BATCH_CPU_PERCENT = 500.0
-MAX_RUNNING_BATCH_CPU_PERCENT = 600.0
+MAX_RUNNING_BATCH_CPU_PERCENT = 500.0
+NUMERIC_THREAD_ENV = MappingProxyType({
+    "BLIS_NUM_THREADS": "1",
+    "DUCKDB_THREADS": "1",
+    "JAX_PLATFORM_NAME": "cpu",
+    "JAX_PLATFORMS": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+})
 ADAPTIVE_RSS_PROJECTION_MULTIPLIER = 1.25
 PROCESS_GROUP_LAUNCH_STAGGER_SECONDS = 0.5
 PROCESS_GROUP_STARTUP_SECONDS = 60.0
@@ -1122,9 +1137,38 @@ def _safe_environment(
         "PYTHON_DOTENV_DISABLED": "1",
         "PYTHONPATH": os.pathsep.join((str(checkout / "policy-engine/src"), str(checkout / "policy-engine"))),
     }
+    env.update(NUMERIC_THREAD_ENV)
     if "LC_ALL" in os.environ:
         env["LC_ALL"] = os.environ["LC_ALL"]
     return env
+
+
+def _numeric_thread_controls_status(process: Any | None) -> str:
+    """Report whether a child process received the declared numeric controls."""
+    return (
+        "applied_to_child_environment"
+        if process is not None
+        else "not_established"
+    )
+
+
+def _numeric_thread_controls_match(
+    environment_policy: Any,
+    row: Any | None = None,
+) -> bool:
+    """Require exact numeric controls in the invocation and completed cell."""
+    expected = dict(NUMERIC_THREAD_ENV)
+    if not isinstance(environment_policy, dict):
+        return False
+    if environment_policy.get("numeric_thread_controls") != expected:
+        return False
+    if row is None:
+        return True
+    return (
+        isinstance(row, dict)
+        and row.get("numeric_thread_controls") == expected
+        and row.get("numeric_thread_controls_status") == "applied_to_child_environment"
+    )
 
 
 def _verify_import_origins(checkout: Path, base_env: dict[str, str]) -> dict[str, str]:
@@ -1483,6 +1527,8 @@ def _safety_skip_row(revision: dict[str, Any], test_path: str) -> dict[str, Any]
         "exclusive_native": bool(source.get("exclusive_native")),
         "command": [],
         "environment_keys": [],
+        "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+        "numeric_thread_controls_status": "not_executed",
         "cwd": str(Path(revision["checkout"]) / "policy-engine"),
         "returncode": None,
         "timed_out": False,
@@ -1626,6 +1672,8 @@ def _unrun_before_process_admission(
         "resource_group_live_after_exit": False,
         "command": [],
         "environment_keys": [],
+        "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+        "numeric_thread_controls_status": "not_executed",
         "pythonpath_roots": [],
         "cwd": str(Path(revision["checkout"]) / "policy-engine"),
         "returncode": None,
@@ -1664,6 +1712,8 @@ def _unrun_after_worker_exception(
         "command": [],
         "command_status": "planned command was not recovered from the failed worker",
         "environment_keys": [],
+        "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+        "numeric_thread_controls_status": "not_established",
         "pythonpath_roots": [],
         "cwd": str(Path(revision["checkout"]) / "policy-engine"),
         "returncode": None,
@@ -1910,6 +1960,8 @@ def _run_job(
         "exclusive_native": job.exclusive_native,
         "command": command,
         "environment_keys": sorted(env),
+        "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+        "numeric_thread_controls_status": _numeric_thread_controls_status(process),
         "pythonpath_roots": [str(checkout / "policy-engine/src"), str(checkout / "policy-engine")],
         "cwd": str(project_root),
         "returncode": returncode,
@@ -2513,6 +2565,7 @@ def _write_checkpoint_manifest(
             "secret_values_logged": False,
             "dotenv_disabled": True,
             "jax_platforms": "cpu",
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
         },
         "revisions": revision_records,
     }
@@ -2628,8 +2681,14 @@ def _verified_reuse_rows(
         _require(prior.get("runtime") == runtime, f"reuse runtime differs: {result_path}")
         _require(prior.get("data_manifest_sha256") == EXPECTED_DATA_MANIFEST_SHA256, f"reuse data manifest differs: {result_path}")
         environment_policy = prior.get("environment_policy", {})
+        if not isinstance(environment_policy, dict):
+            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "environment policy is malformed")
+            continue
         if environment_policy.get("allowlisted_keys") != env_keys:
             _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "allowlisted environment keys differ")
+            continue
+        if not _numeric_thread_controls_match(environment_policy):
+            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "numeric thread control values differ")
             continue
         legacy_policy_candidate = (
             result_path.is_dir()
@@ -2744,6 +2803,9 @@ def _verified_reuse_rows(
                 continue
             if row.get("environment_keys") != env_keys:
                 _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell environment keys differ for {key}")
+                continue
+            if not _numeric_thread_controls_match(environment_policy, row):
+                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell numeric thread control values differ for {key}")
                 continue
             if not row.get("command") or not row.get("resource_metrics"):
                 _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell command or resource measurements are absent for {key}")
@@ -3364,7 +3426,7 @@ def _write_report(
         f"{HARD_MEMORY_RESERVE_PERCENT}% hard reserve. "
         f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
         f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
-        "remaining below seven CPU cores. Profiles are scoped to the pinned runtime revision and "
+        "the five-second sampler can miss shorter bursts above five CPU cores. Profiles are scoped to the pinned runtime revision and "
         "test blob. Each revision/path cell in this matrix is unique; completed exact cells "
         "are reused rather than dispatched again. This pre-repair scope has no safe profiled "
         "overlap. Unprofiled, native, measured-heavy and resource-exclusive groups run alone "
@@ -3591,6 +3653,8 @@ def _publish_typed_unrun_receipt(
             "test_blob_oid": None,
             "suite_status": "UNRUN",
             "inspection_error": reason,
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+            "numeric_thread_controls_status": "not_executed",
             "returncode": None,
             "cases": [],
             "artifacts": {},
@@ -3657,6 +3721,7 @@ def _publish_typed_unrun_receipt(
             "secret_values_logged": False,
             "dotenv_disabled": True,
             "jax_platforms": "cpu",
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
             "source_import_policy": "checkout-local-PYTHONPATH-required",
         },
         "data_root_expected": str(DATA_ROOT),
@@ -4078,6 +4143,8 @@ def run_matrix(args: argparse.Namespace) -> int:
                 "exclusive_native": False,
                 "command": [],
                 "environment_keys": [],
+                "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+                "numeric_thread_controls_status": "not_executed",
                 "cwd": str(Path(revision["checkout"]) / "policy-engine"),
                 "returncode": None,
                 "timed_out": False,
@@ -4171,7 +4238,8 @@ def run_matrix(args: argparse.Namespace) -> int:
             ),
             "reuse_rule": (
                 "reuse only shared revision keys with exact commit, checkout, pytest.ini, "
-                "import-origin, test-blob, command, environment, and JUnit identity; "
+                "import-origin, test-blob, command, environment keys and numeric control values, "
+                "and JUnit identity; "
                 "unmatched integration_head cells run fresh"
             ),
             "inputs": _reuse_input_disclosures(reuse_paths),
@@ -4204,6 +4272,7 @@ def run_matrix(args: argparse.Namespace) -> int:
             "secret_values_logged": False,
             "dotenv_disabled": True,
             "jax_platforms": "cpu",
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
             "source_import_policy": "checkout-local-PYTHONPATH",
             "module_import_origins_by_revision": {
                 row["key"]: row["module_import_origins"] for row in revision_records
@@ -4307,6 +4376,26 @@ def run_matrix(args: argparse.Namespace) -> int:
     return 2 if unrun_count or output_checkout_postflight_verdict["verdict"] != "PASS" else 0
 
 
+def _timeout_rerun_preflight_environment_policy() -> dict[str, Any]:
+    """Describe controls for timeout cells rejected before child admission."""
+    probe_env = _safe_environment(Path("/tmp"), Path("/tmp"), INTEGRATION_CHECKOUT)
+    return {
+        "allowlisted_keys": sorted(probe_env),
+        "secret_values_logged": False,
+        "dotenv_disabled": True,
+        "jax_platforms": NUMERIC_THREAD_ENV["JAX_PLATFORMS"],
+        "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+        "numeric_thread_controls_status": "not_executed",
+        "source_import_policy": "checkout-local-PYTHONPATH-required",
+        "max_process_groups": MAX_PROCESS_GROUPS,
+        "resource_guard": {
+            "max_running_batch_cpu_percent": MAX_RUNNING_BATCH_CPU_PERCENT,
+            "sample_interval_seconds": RESOURCE_SAMPLE_SECONDS,
+            "hard_memory_reserve_percent": HARD_MEMORY_RESERVE_PERCENT,
+        },
+    }
+
+
 def _publish_timeout_rerun_unrun_receipt(
     *,
     package_dir: Path,
@@ -4334,6 +4423,9 @@ def _publish_timeout_rerun_unrun_receipt(
             "suite_status": "UNRUN",
             "timed_out": False,
             "command": [],
+            "environment_keys": [],
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+            "numeric_thread_controls_status": "not_executed",
             "returncode": None,
             "cases": [],
             "artifacts": {},
@@ -4358,6 +4450,7 @@ def _publish_timeout_rerun_unrun_receipt(
             for revision_key, test_path in selected_targets
         ],
         "unrun_cell_count": len(runs),
+        "environment_policy": _timeout_rerun_preflight_environment_policy(),
         "runs": runs,
     }
     (external_run_dir / "results.json").write_text(
@@ -4653,6 +4746,7 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
             "secret_values_logged": False,
             "dotenv_disabled": True,
             "jax_platforms": "cpu",
+            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
             "source_import_policy": "checkout-local-PYTHONPATH",
             "module_import_origins_by_revision": {
                 row["key"]: row["module_import_origins"] for row in revision_records

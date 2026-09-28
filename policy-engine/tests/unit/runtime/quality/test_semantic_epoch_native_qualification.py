@@ -196,11 +196,15 @@ def test_native_qualification_fails_when_scoped_policy_admission_read_is_denied(
         root = case.store.root
 
         def __init__(self):
+            self.deny_policy_admission_reads = False
             self.denied_reads: list[str] = []
 
         def get_bytes(self, artifact_id):
             observed_ref = getattr(artifact_id, "artifact_id", artifact_id)
-            if str(observed_ref) == str(policy_admission_ref.artifact_id):
+            if (
+                self.deny_policy_admission_reads
+                and str(observed_ref) == str(policy_admission_ref.artifact_id)
+            ):
                 self.denied_reads.append(str(observed_ref))
                 raise PermissionError("runtime-bound policy admission read denied")
             return case.store.get_bytes(artifact_id)
@@ -214,6 +218,26 @@ def test_native_qualification_fails_when_scoped_policy_admission_read_is_denied(
 
     denied_store = DenyingRuntimeStore()
     runtime_store = guard_runtime_cas(denied_store)
+    original_verified_bytes = contract.ChronologyPredicatePolicyArtifacts._verified_bytes
+
+    def deny_only_policy_loader_read(owner, *, context, artifact_ref, role):
+        if role == "admission" and artifact_ref == policy_admission_ref:
+            denied_store.deny_policy_admission_reads = True
+            try:
+                return original_verified_bytes(
+                    owner, context=context, artifact_ref=artifact_ref, role=role
+                )
+            finally:
+                denied_store.deny_policy_admission_reads = False
+        return original_verified_bytes(
+            owner, context=context, artifact_ref=artifact_ref, role=role
+        )
+
+    monkeypatch.setattr(
+        contract.ChronologyPredicatePolicyArtifacts,
+        "_verified_bytes",
+        deny_only_policy_loader_read,
+    )
     consumer = QualificationConsumer.from_deployment(
         deployment, runtime_artifact_store=runtime_store
     )

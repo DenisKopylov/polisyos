@@ -115,6 +115,12 @@ _AUTHORITY_REGISTRY_PATH = _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency
 _DIGEST_REGISTRY_PATH = (
     _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency_digest_domains.toml"
 )
+_PACKAGED_DIGEST_REGISTRY_PATH = (
+    Path(__file__).with_name("_resources")
+    / "method_catalog_dependency_digest_domains.toml"
+)
+if _PACKAGED_DIGEST_REGISTRY_PATH.is_file():
+    _DIGEST_REGISTRY_PATH = _PACKAGED_DIGEST_REGISTRY_PATH
 _AUTHORITY_SOURCE_PATHS = (
     "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml",
     "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
@@ -7161,7 +7167,7 @@ validate_authority_scalar_role_coverage()
 validate_decisive_domain_coverage()
 validate_authority_predicate_coverage()
 validate_runtime_cutoff_constructor_bijection()
-validate_production_owner_composition_bijection()
+# Repository-wide source census remains an explicit repository validation.
 install_owner_entrypoint_guards(_OWNER_ENTRYPOINT_SPECS)
 
 

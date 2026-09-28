@@ -6,7 +6,12 @@ import copy
 import hashlib
 import json
 import os
+import shutil
 import subprocess
+import sys
+import sysconfig
+import time
+import zipfile
 from collections.abc import Mapping, Sequence
 from functools import cache
 from pathlib import Path
@@ -56,6 +61,271 @@ def _n6_runs(
         for index, child in enumerate(value):
             rows.extend(_n6_runs(child, path=path, pointer=f"{pointer}/{index}"))
     return rows
+
+
+def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
+    tmp_path: Path,
+    record_property: Any,
+) -> None:
+    """Replay pinned histories from an actual wheel without checkout imports."""
+
+    v1 = historical_generation_cycle_v1()["generation_cycle_run"]
+    v2_path = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+    )
+    v2_document = json.loads(v2_path.read_text(encoding="utf-8"))
+    v2 = v2_document["generation_cycle_run"]
+    v3 = [payload for _name, payload in _v3_history_fixtures()]
+    fixtures = {"v1": [v1], "v2": [v2], "v3": v3}
+
+    uv_executable = shutil.which("uv")
+    assert uv_executable is not None, "uv is required to build the local wheel offline"
+    wheelhouse = tmp_path / "wheelhouse"
+    wheelhouse.mkdir()
+    build_environment = os.environ.copy()
+    build_environment["UV_OFFLINE"] = "1"
+    build_environment["UV_PYTHON_DOWNLOADS"] = "never"
+    started = time.monotonic()
+    build_result = subprocess.run(
+        [
+            uv_executable,
+            "--offline",
+            "build",
+            "--wheel",
+            "--out-dir",
+            str(wheelhouse),
+        ],
+        cwd=REPO_ROOT,
+        env=build_environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=600,
+    )
+    record_property("wheel_build_wall_seconds", round(time.monotonic() - started, 3))
+    record_property(
+        "wheel_build_command",
+        "uv --offline build --wheel --out-dir <pytest-tmp>/wheelhouse",
+    )
+    assert build_result.returncode == 0, (
+        build_result.stdout + "\n" + build_result.stderr
+    )
+    wheels = tuple(sorted(wheelhouse.glob("*.whl")))
+    assert len(wheels) == 1, f"expected one wheel, found {len(wheels)}"
+    wheel_path = wheels[0]
+    registry_member = (
+        "polisyos/foundry/methods/catalog/_resources/"
+        "method_catalog_dependency_digest_domains.toml"
+    )
+    snapshot_member = "polisyos/foundry/methods/catalog/snapshot.py"
+    canonical_registry = (
+        REPO_ROOT
+        / "architecture/production_quality"
+        / "method_catalog_dependency_digest_domains.toml"
+    ).read_bytes()
+    site_packages = tmp_path / "site-packages"
+    site_packages.mkdir()
+    with zipfile.ZipFile(wheel_path) as archive:
+        members = tuple(archive.namelist())
+        assert members.count(registry_member) == 1
+        assert not any("layer3_gx_pinned_request.json" in member for member in members)
+        assert snapshot_member in members
+        wheel_registry = archive.read(registry_member)
+        assert wheel_registry == canonical_registry
+        python_module_count = sum(
+            member.startswith("polisyos/") and member.endswith(".py")
+            for member in members
+        )
+        assert python_module_count >= 1
+        archive.extractall(site_packages)
+    with wheel_path.open("rb") as wheel_file:
+        wheel_sha256 = hashlib.file_digest(wheel_file, "sha256").hexdigest()
+    record_property("built_wheel_sha256", wheel_sha256)
+    record_property("wheel_python_module_count", python_module_count)
+    record_property(
+        "wheel_registry_sha256", hashlib.sha256(wheel_registry).hexdigest()
+    )
+
+    unrelated_source = site_packages / "polisyos/lex/simulator/report.py"
+    assert unrelated_source.is_file()
+    unrelated_source.write_bytes(
+        unrelated_source.read_bytes()
+        + b"\n# unrelated edit must not stale old history\n"
+    )
+    decoy_registry = (
+        tmp_path
+        / "architecture/production_quality"
+        / "method_catalog_dependency_digest_domains.toml"
+    )
+    decoy_registry.parent.mkdir(parents=True, exist_ok=True)
+    decoy_registry.write_text("not the packaged runtime registry\n", encoding="utf-8")
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    fixture_path = outside / "n6-history.json"
+    fixture_path.write_text(json.dumps(fixtures), encoding="utf-8")
+    configured_paths = sysconfig.get_paths()
+    dependency_paths = tuple(
+        dict.fromkeys(
+            configured_paths[key]
+            for key in ("purelib", "platlib")
+            if Path(configured_paths[key]).is_dir()
+        )
+    )
+    environment = {
+        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+        "PYTHONPATH": os.pathsep.join((str(site_packages), *dependency_paths)),
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "R2_PRODUCT_ROOT": str(REPO_ROOT.resolve()),
+        "R2_SITE_PACKAGES": str(site_packages.resolve()),
+        "R2_HISTORY_FIXTURES": str(fixture_path),
+        "JAX_PLATFORMS": "cpu",
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-S",
+            "-c",
+            """
+import copy
+import json
+import os
+import sys
+from pathlib import Path
+
+import polisyos
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.foundry.methods.catalog import dependency_authority
+from polisyos.runtime.quality import generation_cycle
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleRun,
+    validate_generation_cycle_run_history,
+)
+
+product_root = Path(os.environ["R2_PRODUCT_ROOT"]).resolve()
+site_packages = Path(os.environ["R2_SITE_PACKAGES"]).resolve()
+package_root = (site_packages / "polisyos").resolve()
+assert Path(polisyos.__file__).resolve().parent == package_root
+assert GenerationCycleRun.__module__ == "polisyos.runtime.quality.generation_cycle"
+registry_path = Path(dependency_authority._DIGEST_REGISTRY_PATH).resolve()
+expected_registry_path = (
+    package_root
+    / "foundry/methods/catalog/_resources"
+    / "method_catalog_dependency_digest_domains.toml"
+)
+assert registry_path == expected_registry_path
+assert registry_path.is_file()
+for module_name, module in tuple(sys.modules.items()):
+    if module_name == "polisyos" or module_name.startswith("polisyos."):
+        origin = getattr(getattr(module, "__spec__", None), "origin", None)
+        if origin and origin.endswith(".py"):
+            assert Path(origin).resolve().is_relative_to(package_root), (
+                module_name,
+                origin,
+            )
+for entry in sys.path:
+    if not entry:
+        continue
+    resolved = Path(entry).resolve()
+    assert not resolved.is_relative_to(product_root / "src"), entry
+    assert not resolved.is_relative_to(product_root / "tests"), entry
+    assert not resolved.is_relative_to(product_root / "architecture"), entry
+
+fixture_path = Path(os.environ["R2_HISTORY_FIXTURES"])
+fixtures = json.loads(fixture_path.read_text(encoding="utf-8"))
+expected = {"v1": ".v1", "v2": ".v2", "v3": ".v3"}
+spec = CanonSpec(forbid_floats=False)
+replayed_count = 0
+for label, records in fixtures.items():
+    assert records and label in expected
+    for payload in records:
+        assert payload["schema_version"].endswith(expected[label])
+        run = GenerationCycleRun.model_validate(payload)
+        projection = generation_cycle._historical_generation_cycle_run_projection(run)
+        assert (
+            to_canonical_bytes(projection, spec)
+            == to_canonical_bytes(payload, spec)
+        ), label
+        assert validate_generation_cycle_run_history(payload) == (), label
+        replayed_count += 1
+
+original = fixtures["v3"][0]
+mutated = copy.deepcopy(original)
+retained_run_id = mutated["run_id"]
+retained_receipt = copy.deepcopy(mutated["strangle_receipt"])
+mutated["cycles"][-1]["refinement_decision"]["decision"] = "stop"
+assert mutated["run_id"] == retained_run_id
+assert mutated["strangle_receipt"] == retained_receipt
+issues = validate_generation_cycle_run_history(mutated)
+assert "generation_cycle_blocked_terminal_projection_mismatch" in {
+    issue.get("code") for issue in issues
+}
+print(f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} mutation=red")
+""",
+        ],
+        cwd=outside,
+        env=environment,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == (
+        "source_free_n6_history=v1,v2,v3 replayed=4 mutation=red"
+    )
+
+    # Remove the import-boundary property while retaining every exported symbol.
+    # Both former module-scope GX reads must make an otherwise valid wheel import
+    # fail when the repository's pinned-case fixture is absent.
+    eager_reads = (
+        (
+            "runtime/quality/construct_registry.py",
+            "REPO_ROOT = Path(__file__).resolve().parents[4]\n",
+            "PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)\n",
+        ),
+        (
+            "runtime/quality/design_axes/substrate_acquisition.py",
+            "REPO_ROOT = Path(__file__).resolve().parents[5]\n",
+            "S3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)\n",
+        ),
+    )
+    for relative_path, anchor, eager_read in eager_reads:
+        module_path = site_packages / "polisyos" / relative_path
+        original = module_path.read_text(encoding="utf-8")
+        assert original.count(anchor) == 1
+        assert eager_read not in original
+        try:
+            module_path.write_text(
+                original.replace(anchor, anchor + eager_read, 1),
+                encoding="utf-8",
+            )
+            negative = subprocess.run(
+                [
+                    sys.executable,
+                    "-S",
+                    "-c",
+                    "from polisyos.runtime.quality import generation_cycle",
+                ],
+                cwd=outside,
+                env=environment,
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=120,
+            )
+            assert negative.returncode != 0, relative_path
+            expected_request = (
+                tmp_path
+                / "architecture/policy_design_case/layer3_gx_pinned_request.json"
+            )
+            assert "FileNotFoundError" in negative.stderr
+            assert str(expected_request) in negative.stderr
+            assert module_path.name in negative.stderr
+        finally:
+            module_path.write_text(original, encoding="utf-8")
 
 
 def _v3_history_fixtures() -> tuple[tuple[str, dict[str, Any]], ...]:

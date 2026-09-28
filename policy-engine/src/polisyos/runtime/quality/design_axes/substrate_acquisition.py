@@ -49,7 +49,6 @@ LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION = (
 )
 _SEED = "architecture/policy_design_case/layer2_minimal_seed_manifest.json"
 REPO_ROOT = Path(__file__).resolve().parents[5]
-S3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 
 S3AuthorityPosture = Literal["research", "governed", "production"]
 
@@ -296,6 +295,7 @@ class SubstrateAcquisitionLoop:
             )
         )
         self._voi_ref: str | None = None
+        self._pinned_case_id: str | None = None
 
     @classmethod
     def from_fixture(
@@ -441,10 +441,12 @@ class SubstrateAcquisitionLoop:
         self._state = state
 
     def _data_requirement_specs(self) -> tuple[dict[str, Any], ...]:
+        if self._pinned_case_id is None:
+            self._pinned_case_id = read_layer3_gx_pinned_case_id(REPO_ROOT)
         return (
             {
                 "requirement_id": f"s3:{self._expression.construct}",
-                "claim_id": f"s3:{S3_PINNED_CASE_ID}:{self._expression.construct}",
+                "claim_id": f"s3:{self._pinned_case_id}:{self._expression.construct}",
                 "required_data_families": (self._expression.construct,),
                 "mandatory_facets": tuple(self._expression.facets),
                 "authority_level": self._expression.authority_posture,

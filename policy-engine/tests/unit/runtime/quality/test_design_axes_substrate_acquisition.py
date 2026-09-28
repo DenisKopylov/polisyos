@@ -18,6 +18,9 @@ from polisyos.runtime.quality.design_axes.substrate_acquisition import (
     max_admissible_posture,
     resolve_expression,
 )
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    read_layer3_gx_pinned_case_id,
+)
 
 PINNED = "credit_program_enrollment"
 SEED_FACETS = [
@@ -128,6 +131,9 @@ def test_acquisition_loop_full_state_machine_closes_as_binding() -> None:
         expression=_expression(),
         source_fixture="tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json",
     )
+    assert loop._data_requirement_specs()[0]["claim_id"] == (
+        f"s3:{read_layer3_gx_pinned_case_id(REPO_ROOT)}:{PINNED}"
+    )
 
     receipt = loop.run_to_closure()
 
@@ -145,6 +151,30 @@ def test_acquisition_loop_full_state_machine_closes_as_binding() -> None:
     ]
     assert receipt.terminal == AcquisitionState.CLOSED_AS_BINDING
     assert receipt.voi_ref is not None
+
+
+def test_acquisition_loop_keeps_its_pinned_case_across_repeat_calls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_fixture = "tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json"
+    loop = SubstrateAcquisitionLoop.from_fixture(
+        expression=_expression(), source_fixture=source_fixture
+    )
+    first_claim_id = loop._data_requirement_specs()[0]["claim_id"]
+    module = import_module("polisyos.runtime.quality.design_axes.substrate_acquisition")
+    monkeypatch.setattr(
+        module,
+        "read_layer3_gx_pinned_case_id",
+        lambda _repo_root: "other-case-after-first-call",
+    )
+
+    assert loop._data_requirement_specs()[0]["claim_id"] == first_claim_id
+    next_loop = SubstrateAcquisitionLoop.from_fixture(
+        expression=_expression(), source_fixture=source_fixture
+    )
+    assert next_loop._data_requirement_specs()[0]["claim_id"] == (
+        f"s3:other-case-after-first-call:{PINNED}"
+    )
 
 
 def test_task_done_without_rerun_is_not_closure() -> None:

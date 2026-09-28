@@ -6999,7 +6999,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "The complete a514 source census finds one production run_replay_mode caller in the served control lifecycle and a real ReplayStore/CAS/APISimulator replay owner with no ordinary-ingress fallback. The complete owner-only test_modes.py file passes 15/15 at 84ac, with the same source and test blobs at a514; this is a bounded lower-layer witness. The current served-route test file still mocks the replay owner, so one served request does not traverse the real CAS/ReplayStore/connector chain. Exact output evidence is not rebound to source session, replay ref, request and response bytes, and egress instrumentation observes aiohttp only (P38 boundary). A current-head served-composition removal probe and full four-base replay remain UNRUN. Keep partial.",
+      "residual": "B88 remains partial. At code/test commit dfaa31c7a78d9e1f1afcc849d03f3e294981ea27, the bounded served replay witness traverses the served fixture path through the real ReplayStore/CAS/APISimulator owner and binds the tested output evidence. Two complete test files pass 19/19; Ruff was reported clean (exit 0) by the integrator. This covers the selected fixture path only. Production runtime-supplied tenant-store custody and exact persisted replay lineage remain R13 residuals; broader transport/caller coverage and finding-specific four-base P41 remain UNRUN. Keep partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -7033,8 +7033,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "The integrated served route dispatches every explicit replay_ref, including an empty ref which must fail replay validation before ordinary batch_full ingress. Success/failure report replay mode. Real ReplayStore/CAS fixtures cover missing, corrupt and valid replay through APISimulator with zero ordinary-delegate calls or native aiohttp requests; the marker-retaining fallback-removal probe is red. The route tests still stub run_replay_mode, output evidence is not reopened to bind source session/replay ref/request hash/exact bytes, and egress instrumentation covers aiohttp only. Keep partial.",
-          "next_step": "Join served API→CAS→ReplayStore→APISimulator→response in one witness, reopen and bind exact source/session/request/body bytes, and enumerate all egress transports before four-base P41."
+          "summary": "At dfaa31c7, the bounded served replay witness now joins the served fixture request, real ReplayStore/CAS/APISimulator path, and response evidence for the selected cases. The two complete files pass 19/19, with an ordinary-ingestion control and replay-fixture failure coverage. This does not establish production tenant-store custody or exact persisted replay lineage across R13. Keep partial.",
+          "next_step": "Complete R13 runtime-supplied tenant custody and bind exact persisted source/session/replay/request/response lineage through served execution; then run finding-specific four-base P41 and enumerate remaining transports."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -7139,6 +7139,46 @@
           "Egress instrumentation observes aiohttp, not every possible transport.",
           "Full finding-specific four-base replay and a current-head served-composition removal probe remain UNRUN."
         ]
+      },
+      "b88_current_served_witness_20260928": {
+        "identity": "B88 current-head served replay witness",
+        "reviewed_head": "dfaa31c7a78d9e1f1afcc849d03f3e294981ea27",
+        "code_test_commit": "dfaa31c7a78d9e1f1afcc849d03f3e294981ea27",
+        "status_retained": "partial",
+        "behavioral_verdict": "PASS_BOUNDED",
+        "whole_file_results": [
+          {
+            "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+            "collected": 4,
+            "passed": 4,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+            "collected": 15,
+            "passed": 15,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        ],
+        "total": {
+          "collected": 19,
+          "passed": 19,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-integrated-6ca-20260928/b88.junit.xml@sha256:1b927d2dd8f977dcdd905bdb0f858ce283b52a8dd0a7f977e415c240dd0c76ac",
+        "ruff": {
+          "verdict": "PASS",
+          "exit_code": 0,
+          "scope": "Integrator-reported clean; a separate raw Ruff log/hash was not supplied."
+        },
+        "scope": "Bounded served fixture path through ReplayStore/CAS/APISimulator with tested output evidence binding. Does not establish runtime-supplied tenant custody or exact persisted replay lineage across R13.",
+        "four_base_p41": "UNRUN"
       }
     },
     {

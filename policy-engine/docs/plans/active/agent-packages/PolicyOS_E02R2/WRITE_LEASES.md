@@ -1,5 +1,9 @@
 # E02-R2 write leases
 
+## Current snapshot addendum (2026-09-28; code/test HEAD dfaa31c7a)
+
+- B88 is integrated at dfaa31c7a with a bounded 19/19 two-file served replay witness; it remains partial. R13 source changes remain in scratch/review. The 8 GiB free-disk floor remains active; recheck available space with df -k before resource-bearing work.
+
 ## Active source leases (2026-09-28; branch HEAD `15c5c40a1`)
 
 - Root alone writes `codex/e02-r2`; the branch was clean at this snapshot. Scratch candidate authors must not edit the integration tree. The 8 GiB free-disk floor supersedes the historical 10 GiB thresholds below. At this snapshot only 8,443,340 KiB were free, so resource-bearing tests and wheel builds wait for measured margin; source stays frozen during every run. The user may clear Trash after checking it; agents may only move verified disposable items there via terminal `mv`.

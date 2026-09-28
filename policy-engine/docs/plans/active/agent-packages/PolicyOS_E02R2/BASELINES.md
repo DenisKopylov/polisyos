@@ -1345,3 +1345,15 @@ This supplement records the three complete files used to validate the bounded Re
 | **Total** | **66: 62 pass / 4 fail** | **76: 72 pass / 4 fail** |
 
 Exact identity denominator: 66 common, 10 new, 0 removed. Transitions: 62 pass→pass, 4 fail→fail, 0 pass→fail; all 10 new cases pass. The four continuing failures include three `canonical_n9_promotion_sequence_required` cases and one stale-module-reload `objective_stack_returned_untyped_result`; this comparison does not establish their ownership or inheritance. Exact prepatch JUnit `/Users/deniskopylov/.codex/scratch/e02-b111-current-db426-prepatch-20260928/prepatch.junit.xml@sha256:63c67e0d5fcf425a713f893c083a1245a98bb711e0b095740f462078f4f75bb9`; integrated JUnit `/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/postpatch.junit.xml@sha256:f53953b9cd22ecc085360970ffe43945e7f34f99bf824f5f5ab39ffddd0cad01`; full integration receipt `/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c`; independent review `/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_INDEPENDENT_REVIEW.md@sha256:63230a0a52bab435f753d45dc006464dfe1a31e414e5fce7fea187c77c2171d9`. The other three bases, authentic historical-byte replay, the full touched-file matrix, and four-base P41 remain `UNRUN`; `BASELINES_DONE` remains unclaimed.
+
+## B88 served replay bounded current-head result at dfaa31c7 (2026-09-28; not four-base P41)
+
+This is a one-base whole-file witness for the bounded served replay fixture path, not a replacement for the four-base Appendix A/B matrix or a finding closure.
+
+| Test file | Collected | Passed | Failed / error / skipped |
+|---|---:|---:|---:|
+| tests/unit/runtime/http/test_b88_served_replay.py | 4 | 4 | 0 |
+| tests/unit/fabric/data_plane/test_modes.py | 15 | 15 | 0 |
+| **Total** | **19** | **19** | **0** |
+
+JUnit: /Users/deniskopylov/.codex/scratch/e02-b88-integrated-6ca-20260928/b88.junit.xml@sha256:1b927d2dd8f977dcdd905bdb0f858ce283b52a8dd0a7f977e415c240dd0c76ac. Ruff was reported clean (exit 0) by the integrator; no standalone raw Ruff log/hash was supplied. B88 remains partial: this witness binds output evidence for selected served replay fixtures, while production runtime-supplied tenant custody and exact persisted replay lineage remain R13 residuals. Finding-specific four-base P41 is UNRUN; BASELINES_DONE remains unclaimed.

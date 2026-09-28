@@ -96,6 +96,7 @@ def _projection_closure(
         run_id=route.run_id,
         route_id=route.route_id,
         design_problem=route.design_problem,
+        design_problem_basis=route.design_problem_basis,
         planner_report={"run_id": "planner-run"},
         planner_record=SimpleNamespace(
             **{

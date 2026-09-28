@@ -19870,7 +19870,7 @@
         "relation": "disagrees",
         "detail": "Appendix C held LA-049 on the same-version self-edge/compatibility concern. The principal-selected same-version Trinity contract is implemented, the dead self-edge is removed, and the current census finds no production caller of the retained helper. Close bounded to the in-repository owner/caller contract; broad historical/external compatibility is not a blanket requirement. This disagreement does not claim untested external compatibility."
       },
-      "residual": "No residual within the bounded in-repository owner/caller contract: the public same-version policy_ir boundary validates Trinity input, the unreachable self-edge registration is removed, and a complete current-worktree census of 5,876 Python files (2,696 src, 445 tools, 2,735 tests) finds no production caller of the retained legacy helper. The 38-case current-head base/candidate comparison and marker-retaining removal probe are recorded. Broad historical/external compatibility is not a required blanket and is outside this bounded closure under the principal clarification.",
+      "residual": "No residual within the bounded in-repository owner/caller contract: the public same-version policy_ir boundary validates Trinity input, the unreachable self-edge registration is removed, and the complete current tracked source/tool census of 3,141 Python files (2,696 src plus 445 tools; 2,743 tracked tests are separate, and 6,407 is the product-wide tracked Python total) finds no production caller of the retained legacy helper. The 38-case current-head base/candidate comparison and marker-retaining removal probe are recorded. Broad historical/external compatibility is not a required blanket and is outside this bounded closure under the principal clarification.",
       "residual_owner": null,
       "r_class": null,
       "p_triage": null,
@@ -19975,7 +19975,9 @@
             "/Users/deniskopylov/.codex/scratch/e02-la049-self-edge-20260926/current-head-registry-probe.txt@sha256:ca94708db44afb9d63020326b5b14e0f4bdd286b52da6611f4851a5f31b3d38d",
             "policy-engine/src/polisyos/ir/migrations/policy_ir.py@sha256:5e17bc0159bdd23bf305e052b551339314c5bebe676b302fb1ec4aee0466c99b",
             "policy-engine/tests/unit/remediation/test_mig_01.py@sha256:0d1d3b929edf38704b0a4518799b60d3a5a00150a3454ff010eb7f12dcc7597f",
-            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3358"
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3358",
+            "/Users/deniskopylov/.codex/scratch/e02-h-la010-la049-la031-la032-recheck-20260928/current_owner_census.py@sha256:633fb25c1e70219f374cd31826898ad0387c1186628e95ca211f48629658b23d",
+            "/Users/deniskopylov/.codex/scratch/e02-h-la010-la049-la031-la032-recheck-20260928/current_owner_census.json@sha256:3ade80425ee1d7c6f522c56e4fe7b2ed5a3574d8d30cf8e3e5e89e1b32f8e162"
           ],
           "remaining_out_of_scope": "Broad historical/external compatibility is not an appointed or required blanket; retained helper cleanup is optional."
         }

@@ -10,6 +10,18 @@ from polisyos.core.artifacts.store import FileSystemCAS
 
 
 class TestArtifactStoreProtocol:
+    def test_core_artifacts_facade_exports_backend_factory(self):
+        """The facade re-exports the canonical backend owner, not a duplicate."""
+        from polisyos.core import artifacts
+        from polisyos.core.artifacts.backends.config import (
+            ArtifactStoreConfig,
+            build_artifact_store,
+        )
+
+        assert artifacts.ArtifactStoreConfig is ArtifactStoreConfig
+        assert artifacts.build_artifact_store is build_artifact_store
+        assert {"ArtifactStoreConfig", "build_artifact_store"} <= set(artifacts.__all__)
+
     def test_filesystem_cas_satisfies_protocol(self, tmp_path: Path):
         """FileSystemCAS must be a structural match for ArtifactStore."""
         store = FileSystemCAS(tmp_path / "cas")

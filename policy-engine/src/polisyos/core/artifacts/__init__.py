@@ -13,6 +13,7 @@ from .async_store import (
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,
 )
+from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .cas_integrity_report import CASIntegrityReport, build_cas_integrity_report
 from .graph import (
     DependencyEdge,
@@ -71,6 +72,7 @@ __all__ = [
     "ArtifactSigner",
     "ArtifactSigningResult",
     "ArtifactStore",
+    "ArtifactStoreConfig",
     "ArtifactVerifier",
     "ArtifactWriteOptions",
     "AsyncArtifactStore",
@@ -106,6 +108,7 @@ __all__ = [
     "VerificationReport",
     "WarningRecord",
     "artifact_ref_identity_key",
+    "build_artifact_store",
     "build_cas_integrity_report",
     "compute_key_id",
     "ensure_async_artifact_store",

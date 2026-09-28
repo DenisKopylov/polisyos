@@ -1056,8 +1056,9 @@ class _ChronologyPersistenceRegistry:
         with self._lock:
             if self._owners or self._entries or self._store_factory is not None:
                 raise RuntimeError("chronology deployment registry is already bound")
-            self._store_factory = deployment._runtime_artifact_store
-            self._policy_store_factory = lambda: state.store
+            runtime_store_factory = deployment._required_runtime_artifact_store
+            self._store_factory = runtime_store_factory
+            self._policy_store_factory = runtime_store_factory
             self._verifier_factory = FullPrefixVerifier
             self._admission_index_factory = lambda: exchange
             self._owner_provenance_verifier_factory = lambda: exchange

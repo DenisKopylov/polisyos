@@ -9552,9 +9552,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C marks B109 as lacking a finding-level record. Existing comparator selectors are bounded historical evidence only. The current source census refines the residual to a served-owner/provider gap; it is static evidence, not a runtime pass. Current status remains partial and served finding_test_status remains UNRUN."
+        "detail": "Appendix C still records no original finding-level record. The focused current-head JUnit at 9adc5d09 now supplies bounded local evidence for three selectors (2D equal-secondary, the existing 3D cross-first-group case, and duplicate-vector preservation), 3/3 PASS. This does not cover the card-exact same-first-group 3D pair or establish the served hierarchy. The served owner/provider and consumer witness remain UNRUN; overall finding status remains partial."
       },
-      "residual": "The strict-dominance comparator has bounded prior evidence for the original discriminator: under maximization (2,1) dominates (1,1), while identical vectors remain separate ties; the recorded 88-case selector wave is historical, and the exact 2D/3D selectors were NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1. That local comparator evidence does not establish the served hierarchy result. At the source snapshot measured in the blocker memo (768ef3ca; cited source files remain byte-identical at ledger base edb001e), the registered RunHierarchicalPolicySearchNode adapter constructs HierarchicalSearchCoordinator without the existing ParetoRegistry owner; the report builder labels every feasible evaluation global_feasible. The coordinator can accept an injected registry, but ExecutionContext and build_execution_context/workflow composition provide no registry owner/provider. A complete 2,696-file AST census of policy-engine/src/polisyos found 0 production ParetoRegistry constructors, 0 writes to pareto_registry_snapshot, and 2 reads (output-bundle and translation consumers). The existing registry is path-backed and its transfer context does not bind unknown tenant/cell scope; a node-local default or guessed root would not be a custody-safe bridge. Keep partial and finding_test_status UNRUN: no served candidate→registry snapshot→frontier consumer witness, marker-retaining owner-removal probe, or current six-file four-base replay was run. The smallest missing capability is a runtime-issued Pareto owner/provider bound to run, tenant, cell and the runtime artifact store, bridged through ExecutionContext/workflow construction to the served hierarchical coordinator and output consumers. Preserve ordinary candidate evaluation under unknown scope with a typed limitation; do not invent scope or a parallel registry owner.",
+      "residual": "Focused current-head JUnit at 9adc5d09 ran the exact existing 2D equal-secondary selector, the existing 3D cross-first-group selector, and the duplicate-vector control: 3/3 PASS (current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437). This is bounded local comparator evidence only. The 2D test checks (2,1) dominates (1,1); the existing 3D test uses (2,1,1)/(1,1,1), which cross first-coordinate groups and is not the card's same-group (1,2,1)/(1,1,1) discriminator. P37: for these three selectors only, the unit assertions recompute the returned candidate-reference set against the expected set at this head; this does not cover the complete card matrix or other bases. P38: the served property is that a persisted hierarchical PolicyFrontierReport reflects the same run-bound ParetoRegistry snapshot read by downstream consumers. These tests exercise ParetoPromoter.compute_front directly. A concrete divergence is a feasible but dominated candidate being emitted as global_feasible because the served report builder keys membership to evaluation.feasible and does not consume the registry snapshot. The card-exact same-group 3D selector, local marker-retaining <= to < removal probe, served positive/reload witness, served removal probe, served duplicate-tie control, and current six-file four-base P41 replay remain UNRUN. The prior baseline recorded the exact test selectors as NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1; this one-head run is not base-equivalent evidence. The last static owner/provider census is pinned to 768ef3ca and is not a runtime witness. Keep the overall finding partial. The unresolved served capability remains a runtime-issued Pareto owner/provider bound to run, tenant, cell and the runtime artifact store, bridged through ExecutionContext/workflow construction to the served hierarchical coordinator and output consumers. Preserve ordinary candidate evaluation under unknown scope; do not invent scope or a parallel registry owner.",
       "residual_owner": {
         "appointment_status": "No runtime-scoped Pareto owner/provider appointment is recorded in the repository or blocker memo; no individual appointment is claimed.",
         "kind": "smallest_missing_capability",
@@ -9565,15 +9565,17 @@
       "evidence_refs": {
         "finding_test_or_probe": {
           "behavioral_verdict": "PASS_BOUNDED_LOCAL_COMPARATOR",
+          "source_head": "9adc5d09e949297d90cd7e681d9fc3e5a615b2e3",
           "candidate_test_paths_at_sha": [
-            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
+            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:18fb2bf06882b0a01cc398698f366d0b02418049"
           ],
           "identity": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties",
           "kind": "bounded_behavioral_test_receipt_or_source_audit",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B109",
-          "scope": "The cited earlier 88-case snapshot contains the strict-dominance 2D/3D exact selectors and duplicate-tie control; the selectors are NOT_PRESENT at execution base and main, and present/pass at E02 head and Phase 0. This is bounded comparator evidence only; the served hierarchy node/provider/consumer chain is not exercised, and current finding-level status is UNRUN.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-b109-focused-20260929/current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437",
+          "scope": "Current head 9adc5d09e949297d90cd7e681d9fc3e5a615b2e3: 3/3 PASS, 0 failures/errors/skips for exactly the 2D equal-secondary selector, existing 3D cross-first-group selector, and duplicate-vector control. P37 predicate is recomputed only for the actual front-member references on these three direct inputs. The card-exact same-first-group 3D pair, marker-retaining removal probe, complete selector matrix, served hierarchy owner/provider/consumer path, served removal/control, and full four-base replay are UNRUN; this bounded helper receipt does not close B109.",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B109",
           "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-n-b109-focused-20260929/current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B109",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a",
@@ -9740,7 +9742,28 @@
           "scope": "Source inspection and complete AST census only; no test process was launched. The local comparator evidence remains bounded; the run/tenant/cell-scoped served owner/provider and its consumer witness remain missing."
         }
       },
-      "finding_test_status": "UNRUN",
+      "p37_p38_measurement_scope": {
+        "P37": {
+          "predicate": "The focused test asserts the actual ParetoFront member-reference set against the expected set for each of the three executed input cases.",
+          "label": "recomputed",
+          "scope": "Only the 2D equal-secondary case, existing 3D cross-first-group case, and duplicate-vector control at source head 9adc5d09e949297d90cd7e681d9fc3e5a615b2e3.",
+          "unresolved_by_construction": ["card-exact same-first-group 3D case", "full directions/permutations/tie matrix", "other three P41 bases", "served hierarchy path"]
+        },
+        "P38": {
+          "property": "The served persisted hierarchical global_frontier reflects the run-bound ParetoRegistry snapshot consumed downstream.",
+          "implementation_tested": "Direct ParetoPromoter.compute_front results for three in-memory input cases.",
+          "divergent_case": "A feasible dominated candidate is marked global_feasible and included in the served report although the registry snapshot is not consumed.",
+          "behavioral_verdict": "UNRUN"
+        },
+        "remaining_unrun": {
+          "card_exact_same_first_group_3d": "UNRUN",
+          "marker_retaining_local_removal_probe": "UNRUN",
+          "served_owner_registry_bridge_and_output_consumer": "UNRUN",
+          "served_marker_retaining_owner_removal_and_preserving_control": "UNRUN",
+          "six_file_four_base_P41": "UNRUN"
+        }
+      },
+      "finding_test_status": "PASS_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {
           "behavioral_verdict": "PASS_BOUNDED",

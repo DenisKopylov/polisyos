@@ -383,7 +383,17 @@ async def build_design_problem_from_nl_request(
                 "design_problem_tool_call_missing",
                 "Gateway response must contain exactly one emit_design_problem tool call.",
             )
-        arguments = getattr(matching_calls[0], "arguments", None)
+        tool_call = matching_calls[0]
+        error_envelope = getattr(tool_call, "error_envelope", None)
+        if (
+            isinstance(error_envelope, Mapping)
+            and error_envelope.get("reason") == "tool_call_arguments_parse_error"
+        ):
+            raise DesignProblemAuthorityError(
+                "design_problem_validation_failed",
+                "Gateway could not parse DesignProblem tool call arguments.",
+            )
+        arguments = getattr(tool_call, "arguments", None)
         if not isinstance(arguments, Mapping):
             raise DesignProblemAuthorityError(
                 "design_problem_tool_arguments_invalid",

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -19,6 +22,7 @@ OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signatur
 _OWNERSHIP_INDEX_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index.v1"
 _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index_signature.v1"
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
+_FileIdentity = tuple[int, ...] | None
 
 
 class ArtifactOwnershipError(PermissionError):
@@ -93,7 +97,10 @@ class ArtifactOwnershipIndex:
         self.directory = self.root / "artifacts" / "ownership"
         self.path = self.directory / "index.json"
         self.signature_path = self.directory / "index.signature.json"
+        self._lock_path = self.directory / "index.lock"
         self._lock = threading.Lock()
+        self._claim_file_identities: tuple[_FileIdentity, _FileIdentity] | None = None
+        self._claim_ids_cache: frozenset[str] | None = None
 
     def record_owner(
         self,
@@ -107,7 +114,7 @@ class ArtifactOwnershipIndex:
         aid = _coerce_artifact_id(artifact_id)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
-        with self._lock:
+        with self._lock, self._cross_instance_write_lock():
             payload = self._load_payload()
             artifacts = _artifacts_mapping(payload)
             records = list(artifacts.get(str(aid), []))
@@ -154,7 +161,7 @@ class ArtifactOwnershipIndex:
         aid = _coerce_artifact_id(artifact_id)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
-        with self._lock:
+        with self._lock, self._cross_instance_write_lock():
             payload = self._load_payload()
             blob_readers = _blob_readers_mapping(payload)
             records = list(blob_readers.get(str(aid), []))
@@ -243,7 +250,7 @@ class ArtifactOwnershipIndex:
         _validate_profile_sha256(manifest_profile_sha256)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
-        with self._lock:
+        with self._lock, self._cross_instance_write_lock():
             payload = self._load_payload()
             artifacts = _artifacts_mapping(payload)
             records = list(artifacts.get(str(aid), []))
@@ -344,14 +351,72 @@ class ArtifactOwnershipIndex:
         bytes are never rewritten by this query.
         """
         aid = _coerce_artifact_id(artifact_id)
-        return str(aid) in self.claimed_artifact_ids()
+        return str(aid) in self._validated_claimed_artifact_ids()
 
     def claimed_artifact_ids(self) -> set[str]:
         """Return every artifact ID covered by any validated tenant claim."""
-        payload = self._load_payload()
-        artifacts = _artifacts_mapping(payload)
-        blob_readers = _blob_readers_mapping(payload)
-        return set(artifacts).union(blob_readers)
+        return set(self._validated_claimed_artifact_ids())
+
+    def _validated_claimed_artifact_ids(self) -> frozenset[str]:
+        """Cache validated claim IDs until either signed file identity changes."""
+        with self._lock:
+            for _attempt in range(3):
+                before = self._current_file_identities()
+                if (
+                    self._claim_ids_cache is not None
+                    and before == self._claim_file_identities
+                ):
+                    return self._claim_ids_cache
+
+                payload = self._load_payload()
+                artifacts = _artifacts_mapping(payload)
+                blob_readers = _blob_readers_mapping(payload)
+                claimed_ids = frozenset(artifacts).union(blob_readers)
+                after = self._current_file_identities()
+                if before == after:
+                    self._claim_file_identities = after
+                    self._claim_ids_cache = claimed_ids
+                    return claimed_ids
+
+            self._invalidate_claim_cache()
+            raise ValueError("ownership_index_changed_during_validation")
+
+    def _current_file_identities(
+        self,
+    ) -> tuple[_FileIdentity, _FileIdentity]:
+        return (
+            self._file_identity(self.path),
+            self._file_identity(self.signature_path),
+        )
+
+    @staticmethod
+    def _file_identity(path: Path) -> _FileIdentity:
+        try:
+            stat_result = path.stat()
+        except FileNotFoundError:
+            return None
+        return (
+            stat_result.st_dev,
+            stat_result.st_ino,
+            stat_result.st_size,
+            stat_result.st_mtime_ns,
+            stat_result.st_ctime_ns,
+        )
+
+    def _invalidate_claim_cache(self) -> None:
+        self._claim_file_identities = None
+        self._claim_ids_cache = None
+
+    @contextmanager
+    def _cross_instance_write_lock(self) -> Iterator[None]:
+        """Serialize ownership-index read/modify/write across instances and processes."""
+        self.directory.mkdir(parents=True, exist_ok=True)
+        with self._lock_path.open("a+b") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     def is_owned_by(
         self,
@@ -404,7 +469,7 @@ class ArtifactOwnershipIndex:
         cell_id: str | None = None,
     ) -> dict[str, Any]:
         """Return evidence metadata suitable for canary/debug bundles."""
-        with self._lock:
+        with self._lock, self._cross_instance_write_lock():
             payload = self._load_payload()
             if not self.path.exists():
                 self._write_payload(payload)
@@ -461,20 +526,30 @@ class ArtifactOwnershipIndex:
         raw = _load_json_file(self.path)
         if not isinstance(raw, dict):
             raise ValueError("ownership_index_signature_invalid")
-        # The v1 owner signed a canonical projection that supplied these defaults.
-        # Preserve that historical projection in memory without writing it back.
-        raw.setdefault("schema_version", _OWNERSHIP_INDEX_SCHEMA_VERSION_V1)
-        raw.setdefault("mode", OWNERSHIP_MODE_SHARED_CAS)
-        raw.setdefault("artifacts", {})
         schema_version = raw.get("schema_version")
+        if "schema_version" not in raw:
+            # Historical v1 signatures cover a canonical projection with defaults.
+            raw["schema_version"] = _OWNERSHIP_INDEX_SCHEMA_VERSION_V1
+            schema_version = _OWNERSHIP_INDEX_SCHEMA_VERSION_V1
         if schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
+            # Preserve the v1 projection in memory without writing it back.
+            raw.setdefault("mode", OWNERSHIP_MODE_SHARED_CAS)
+            raw.setdefault("artifacts", {})
             if "blob_readers" in raw or not set(raw).issubset(
                 {"schema_version", "mode", "artifacts"}
             ):
                 raise ValueError("ownership_index_signature_invalid")
         elif schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+            required_v2_fields = {
+                "schema_version",
+                "mode",
+                "artifacts",
+                "blob_readers",
+            }
+            if not required_v2_fields.issubset(raw):
+                raise ValueError("ownership_index_signature_invalid")
             if not isinstance(raw.get("blob_readers"), dict) or not set(raw).issubset(
-                {"schema_version", "mode", "artifacts", "blob_readers"}
+                required_v2_fields
             ):
                 raise ValueError("ownership_index_signature_invalid")
         else:
@@ -494,6 +569,7 @@ class ArtifactOwnershipIndex:
         return raw
 
     def _write_payload(self, payload: dict[str, Any]) -> None:
+        self._invalidate_claim_cache()
         payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
         payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
         payload.setdefault("artifacts", {})

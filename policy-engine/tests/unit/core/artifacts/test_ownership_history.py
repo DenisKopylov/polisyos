@@ -121,6 +121,86 @@ def _write_signed_v2_index(
     return index, index_bytes, signature_bytes
 
 
+def _write_signed_index_documents(
+    root: Path,
+    raw_payload: dict[str, Any],
+    signed_projection: dict[str, Any],
+) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
+    index = ArtifactOwnershipIndex(root)
+    index.path.parent.mkdir(parents=True)
+    index_bytes = (json.dumps(raw_payload, indent=2, sort_keys=True) + "\n").encode()
+    index.path.write_bytes(index_bytes)
+    schema_version = str(signed_projection["schema_version"])
+    signature_schema = (
+        _V1_SIGNATURE_SCHEMA if schema_version == _V1_INDEX_SCHEMA else _V2_SIGNATURE_SCHEMA
+    )
+    statement: dict[str, Any] = {
+        "schema_version": signature_schema,
+        "mode": _MODE,
+        "index_sha256": _canonical_sha256(signed_projection),
+        "index_schema_version": schema_version,
+        "algorithm": "sha256-local-integrity",
+        "key_id": "local-cas-ownership-index",
+    }
+    signature_payload = {**statement, "signature": _canonical_sha256(statement)}
+    signature_bytes = (
+        json.dumps(signature_payload, indent=2, sort_keys=True) + "\n"
+    ).encode()
+    index.signature_path.write_bytes(signature_bytes)
+    return index, index_bytes, signature_bytes
+
+
+@pytest.mark.parametrize("missing_field", ["artifacts", "mode"])
+def test_v2_missing_raw_required_fields_are_rejected_even_when_defaults_are_signed(
+    tmp_path: Path,
+    missing_field: str,
+) -> None:
+    raw_payload: dict[str, Any] = {
+        "schema_version": _V2_INDEX_SCHEMA,
+        "mode": _MODE,
+        "artifacts": {},
+        "blob_readers": {},
+    }
+    raw_payload.pop(missing_field)
+    signed_projection = {
+        "schema_version": _V2_INDEX_SCHEMA,
+        "mode": _MODE,
+        "artifacts": {},
+        "blob_readers": {},
+    }
+    index, index_bytes, signature_bytes = _write_signed_index_documents(
+        tmp_path,
+        raw_payload,
+        signed_projection,
+    )
+
+    with pytest.raises(ValueError, match="ownership_index_signature_invalid"):
+        index.has_any_tenant_claim(ArtifactID.from_sha256_hex("a" * 64))
+
+    assert index.path.read_bytes() == index_bytes
+    assert index.signature_path.read_bytes() == signature_bytes
+
+
+def test_v1_historical_raw_defaults_remain_accepted_without_rewriting(
+    tmp_path: Path,
+) -> None:
+    raw_payload: dict[str, Any] = {}
+    historical_projection = {
+        "schema_version": _V1_INDEX_SCHEMA,
+        "mode": _MODE,
+        "artifacts": {},
+    }
+    index, index_bytes, signature_bytes = _write_signed_index_documents(
+        tmp_path,
+        raw_payload,
+        historical_projection,
+    )
+
+    assert not index.has_any_tenant_claim(ArtifactID.from_sha256_hex("b" * 64))
+    assert index.path.read_bytes() == index_bytes
+    assert index.signature_path.read_bytes() == signature_bytes
+
+
 def test_any_claim_query_preserves_signed_v1_index_bytes(tmp_path: Path) -> None:
     claimed_id = ArtifactID.from_sha256_hex("5" * 64)
     unclaimed_id = ArtifactID.from_sha256_hex("6" * 64)

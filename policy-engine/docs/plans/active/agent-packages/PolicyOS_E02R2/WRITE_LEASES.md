@@ -1,5 +1,13 @@
 # E02-R2 write leases
 
+## Current snapshot (2026-09-28; code/test HEAD `6a31548ea`)
+
+- Root is the sole writer of `codex/e02-r2`. R13 N6 source-store custody landed at `065929f51`; the world-growth bridge store-identity fence landed at `6a31548ea`. Those source leases are released. R13 remains open on the served tenant-custody positive path, composed WMR/NCM owner, and full P41 replay.
+- The isolated R3 test-contract writer owns only `policy-engine/tests/unit/runtime/quality/test_generation_source.py` in the existing R13 bridge scratch checkout. Its patch is frozen for independent review; no other candidate writes that file. Root may integrate it only after review and a same-head selector/full-file replay.
+- The next isolated R13 served-tenant fixture writer owns only `policy-engine/tests/integration/core_runtime/test_acquisition_tenant_custody.py` and `policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py` in the existing clean-probe checkout. The writer must bind the same valid UUID tenant to the scope and WDI route, retain foreign-tenant refusal, and hand off a test-only patch and red/green receipt. No product UUID guard is leased for change.
+- R14 route-basis and R1/R13 NCM owner investigations are read-only. The R13 ledger/report agent writes scratch notes only. The branch's generated families, plans and debt register have no writer.
+- Compute admission is at most four to five light test groups, with 20–30% RAM free and 8 GiB disk free. Reuse existing `.venv` and worktrees; `production_data` is read-only and is never copied. Move only verified disposable files to Trash, and do not empty it. No checkout is edited while tests run there.
+
 ## Current snapshot addendum (2026-09-28; code/test HEAD `4060a4cc7a2cb455348b162471f848cb02758eda`)
 
 - R13 Fabric storage-custody slice committed at `93affc59bcbeb3c21e015596b05ae6b8787d8e8e`; independent review is bounded GO. Served tenant/session/cache custody and streaming snapshot witnesses are recorded in the Fabric receipt and the B12/B88 ledger additions. B12 remains partial on admitted world-growth effect, producer/journal admission, and four-base P41; B88 remains partial on production identity issuance, exact persisted replay lineage, broader callers, and four-base P41.

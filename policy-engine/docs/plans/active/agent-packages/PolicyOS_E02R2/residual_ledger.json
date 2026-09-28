@@ -8,8 +8,8 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 5,
-    "partial": 264,
+    "closed": 6,
+    "partial": 263,
     "held": 12,
     "open": 1
   },
@@ -14691,7 +14691,7 @@
         "crosswalk_scope": "No exact GY/Atlas/live-register edge admitted for this finding in this audit."
       }
     },
-    {
+        {
       "id": "B198",
       "source_kind": "B",
       "source_title": "Эвристическая полоса Hessian меняет STD при следующем чтении",
@@ -14703,39 +14703,50 @@
       "closure_owner": "CAL-06",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "closed_bounded",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
-        "relation": "disagrees",
-        "detail": "Appendix C marks B198 closed_bounded. The cited E02 CAL-06 receipt (CAL-06 J0806 (20/20) and merged J0807 (5/5)) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Эвристическая полоса Hessian меняет STD при следующем чтении' (source card line 4936: 'Один и тот же report с STD=1 дал извлечённое STD=1,131585734 при отображаемом уровне 0,95 и STD=0,739904141 при 0,8.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure."
+        "relation": "aligned_refined",
+        "detail": "Appendix C's closed_bounded status is now supported for the exact source-card discriminator. The saved five-file candidate JUnit reports 30/30; the persisted node-to-Phase3 typed-Normal witness is positive, both marker-retaining property-removal probes are red, and restored source passes. The complete current integration welfare file passes 7/7 execution base, 7/7 E02 head, 7/7 Main, and 8/8 integration. Its new B198 identity is absent from the three historical files and recorded CASE_SET_CHANGED, not as a historical pass; common identities have no pass-to-fail. The former disagreement was an evidence-link gap and is superseded by this direct evidence. This bounded closure excludes the distinct GE-entry-only reference/replay, GE matrix admission, and CREDIBLE source-law semantics."
       },
-      "residual": "The source-card discriminator is 'Эвристическая полоса Hessian меняет STD при следующем чтении' (criterion: 'Один и тот же report с STD=1 дал извлечённое STD=1,131585734 при отображаемом уровне 0,95 и STD=0,739904141 при 0,8.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L4936). The E02 receipt identifies the finding in the CAL-06 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "Closed bounded to a persisted ParametricFitCarrier Normal std=1.0: fixed-seed welfare draws are unchanged when display confidence changes between 0.8 and 0.95, and persisted scalar-envelope eligibility reaches Phase3. The saved five-file candidate JUnit reports 30/30; removing typed-scale extraction with markers retained turns the B198 test red, removing used-envelope eligibility composition with markers retained turns its status/Phase3 assertions red, and restored source passes. Whole-file P41 at integration 8b7b532dd passes execution 7/7, E02 7/7, Main 7/7, integration 8/8, with no common pass-to-fail; the added B198 identity is CASE_SET_CHANGED against historical bases. Adjacent residuals outside this finding's bounded claim: ge_entry_map-only scalar UncertaintyEnvelope values are covered by the shared used_input_envelopes eligibility code census but lack a GE-entry-only behavioral witness and complete persisted GE-only reference/replay (Foundry welfare reference projection/GE-entry consumer); GEUncertaintyBundle matrix intervals have no typed gate_eligible/admission status (GE uncertainty DTO and Phase3 admission owner); no CREDIBLE source-law/provenance or eligibility follows from its label (Calibration/CREDIBLE producer and uncertainty semantics). Individual appointments for these adjacent residuals are not established.",
       "residual_owner": {
-        "kind": "verification_owner",
-        "name": "CAL-06 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "kind": "implementation_owner",
+        "name": "Adjacent scope: Foundry welfare reference projection/GE-entry consumer; GE uncertainty DTO and Phase3 typed admission consumer; Calibration CREDIBLE producer and uncertainty semantics",
+        "appointment_status": "Owner roles identified by code census; individual appointments are not established."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "record_inspection_probe",
-          "identity": "source_record_inspection:B198",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B198",
-          "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Эвристическая полоса Hessian меняет STD при следующем чтении' (criterion excerpt: 'Один и тот же report с STD=1 дал извлечённое STD=1,131585734 при отображаемом уровне 0,95 и STD=0,739904141 при 0,8.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
-          "package_test_selector_groups": []
+          "kind": "bounded_behavioral_test_receipt",
+          "identity": "B198 typed-Normal std display-level invariance through persisted welfare sampling and Phase3 eligibility consumer",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/b198-staged-30.junit.xml@sha256:84ab0cdc45a0d0034394661e131d7fe7168d418fa7db5642853c2932d63100e6",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The saved five-file candidate JUnit reports 30/30. The suite includes the persisted node-to-Phase3 typed-Normal source-card test, Phase3 consumers, shared std extraction and calibration adapter tests. It is separate from whole-file four-base P41. Scope is scalar typed Normal envelopes; it does not prove GE-entry-only reference persistence, GE matrix interval admission, or CREDIBLE source-law authority.",
+          "candidate_test_paths_at_sha": [],
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L4936",
+          "package_test_selector_groups": [],
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/b198-staged-30.junit.xml@sha256:84ab0cdc45a0d0034394661e131d7fe7168d418fa7db5642853c2932d63100e6",
+            "/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/B198_MARKER_RETAINING_PROBES.md@sha256:1f37c4372c1fc3e59fa2030bd2fa5845375221dd31877a49d252677863bfe45b",
+            "/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/typed-extractor-removed.junit.xml@sha256:f2367dad94e8009d58bad0463b28e58303e4aadf7dd208f09f328e03ddd2c474",
+            "/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/eligibility-guard-removed.junit.xml@sha256:02c8534314fa4ebc75100f56829bcc3d490d1e7168290a97e0274ea55ced1b65",
+            "/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/restored-control.junit.xml@sha256:83f1d5aad6d67ef6a7a8ffb5066696a9a344f698a9841676b275582b44ac33bb",
+            "/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/public-surface-owner-sync.log@sha256:3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+          ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN",
+        "finding_test_status": "PASS_BOUNDED",
         "source_bundle_evidence": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md@git-blob:20103522e2b512847eee272a8354633a2b94d650",
           "scope": "CAL-06 declares B198 and its distinguishing behavior/scope."
         },
         "current_r2_replay": {
-          "identity": "four-base full-file P41 replay",
-          "behavioral_verdict": "UNRUN",
-          "scope": "not a negative result; broker receipt not yet complete"
+          "identity": "four-base whole-file P41 for tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T153723Z-58057/results.json@sha256:b9cf91ec5fe04714faeea84146d4c807d7ba9fc6e995836e1c9fddea8a97b5b7",
+          "scope": "All four cells pass: execution 7/7, E02 head 7/7, Main 7/7, integration at 8b7b532dd 8/8. The added B198 identity is absent from historical files and marked CASE_SET_CHANGED; common identities have no pass-to-fail. Zero of 74 Appendix-A/B identities were selected. This closes one whole-file current replay, not the 84-cell strict Appendix A/B matrix (21 files × 4) or the separate wider touched-file replay."
         },
         "package_level_receipt": {
           "kind": "package_level_receipt",

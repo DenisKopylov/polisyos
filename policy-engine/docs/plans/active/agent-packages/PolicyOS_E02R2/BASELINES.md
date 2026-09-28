@@ -1,5 +1,19 @@
 # Four-base P41 test baselines
 
+## B198 welfare whole-file P41 at `8b7b532dd` (2026-09-28)
+
+**Discrepancy first.** The B198 test identity did not exist in the three historical files; the manifest records `CASE_SET_CHANGED`, not a historical pass. No common identity turns pass→fail. This custom replay selects zero of the 74 Appendix-A/B identities and does not complete the 84-cell strict Appendix A/B matrix (21 files × 4 pinned bases); the wider touched-file replay is a separate, still-incomplete scope.
+
+| Complete test file | E02 execution base | E02 head | Main | Integration | P41 interpretation |
+|---|---:|---:|---:|---:|---|
+| `test_propagate_welfare.py` | 7/7 pass | 7/7 pass | 7/7 pass | 8/8 pass | 4/4 present cells pass; zero common pass→fail; the new B198 identity is `CASE_SET_CHANGED` against older files. |
+
+Raw manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T153723Z-58057/results.json@sha256:b9cf91ec5fe04714faeea84146d4c807d7ba9fc6e995836e1c9fddea8a97b5b7`. Cell JUnit SHA-256 values: execution `9fe3142576e646fde009cdb413b532e85b8890a459def4e6ad5aeac774f941cf`; E02 head `3d587db13fe70e34f9c9ab473e174eb1e03ecc32a206fada70d1dcb297f803fe`; Main `4ca19511245a9fecf62ec822a331860e124803b1cacad7a5acd3c5360c0f3d69`; integration `66e253a936132f7b79a5086c2b45b953e4a8868477ac778a3c8b6b272fc622cd`. The one-process run peaked at 554,624 KiB RSS, zero swap growth, minimum free-memory 73%, and minimum scratch free space 16,711,831,552 bytes.
+
+Separate finding-specific candidate evidence: the five-file candidate JUnit reports 30/30 (`/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/b198-staged-30.junit.xml@sha256:84ab0cdc45a0d0034394661e131d7fe7168d418fa7db5642853c2932d63100e6`). Typed-scale removal and eligibility-removal each turn red with markers retained; restored source passes 1/1. Probe receipt: `/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/B198_MARKER_RETAINING_PROBES.md@sha256:1f37c4372c1fc3e59fa2030bd2fa5845375221dd31877a49d252677863bfe45b`. B198 closes bounded to the scalar typed-Normal source-card property; GE-entry-only reference/replay, GE matrix admission and CREDIBLE source-law semantics remain outside scope.
+
+The current row ledger moves B198 from partial to closed: 6 closed / 263 partial / 12 held / 1 open (282 total). Prior P41 addenda below retain their original snapshots.
+
 ## Post-118d P41 and R2 evidence addendum (2026-09-28)
 
 The integration branch is `118d064d4758c6dd9547f84ebde2f35800ec50a4`. These selected waves add evidence but do not complete the required Appendix-A/B and touched-file four-base matrix. The ledger remains 282 rows with 5 closed, 264 partial, 12 held, and 1 open.

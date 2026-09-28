@@ -1,5 +1,52 @@
 # E02-R2 write leases
 
+## Current-state addendum (2026-09-29; pinned integration HEAD `5f433df89f45f3bf29dd2a5d715985790e421db6`)
+
+This snapshot supersedes only the older active-lease snapshot below; all prior sections remain dated history. Root is the sole canonical writer of `codex/e02-r2`, including package documents, `WRITE_LEASES.md`, ledger, baselines and reports. Root's OP-R13 blocker/falsifier addendum is integrated at `359756edc`. R1 owner-bound context code is integrated at `77bfcdb36` and `eb1733750`, but R1 remains partial. Real DataState source-time qualification, trust/profile admission, and an S8 authority producer remain unestablished. No fixture, test lease or candidate authorizes S8.
+
+### R1 helper/importer migration and P41 state
+
+The complete recursive test-source census is `/Users/deniskopylov/.codex/scratch/e02-r1-normative-helper-write-set-20260929.md@sha256:4710f6edf00b7fc62c45c4affb47cde3935e5e072c1dad2fe028ed66431beedf`; the exact four-file migration set is:
+
+- `policy-engine/tests/unit/runtime/http/test_control_service_di.py`
+- `policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py`
+- `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+- `policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py`
+
+The broker's 16-cell P41 receipt is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/results.json@sha256:da21734cb758da1dc5d97be2431b3e3411277d899733251efa59c2510511a2b9`. It is incomplete: 16 total cells comprise 5 recorded PASS, 8 scheduler-paused `UNRUN`, one E02-head worker `PermissionError` `UNRUN`, and 2 Git-verified `MISSING`. The exact per-file statuses in that receipt are:
+
+| Whole test file | Execution `78187878e` | E02 `00d946c2b` | Main `5fd3ebcc1` | Integration recorded at `bed508646` |
+|---|---|---|---|---|
+| `test_control_service_di.py` | `UNRUN` (paused) | `UNRUN` (paused) | PASS | `UNRUN` (paused) |
+| `test_normative_evidence_intake.py` | PASS | `UNRUN` (`PermissionError` in broker worker; no test verdict) | PASS | `UNRUN` (paused) |
+| `test_normative_generation_bridge.py` | `UNRUN` (paused) | `UNRUN` (paused) | PASS | `UNRUN` (paused) |
+| `test_evaluation_safety_promotion_bridge.py` | `MISSING` in Git | `MISSING` in Git | PASS | `UNRUN` (paused) |
+
+The four integration cells are recorded at `bed508646`, not at current HEAD `5f433df89`; the latter adds the builder-facade source change. Do not relabel or claim the old cells as a four-base replay at current HEAD. The broker released its frozen canonical tree after the incomplete wave. Root admits the single R1 migration writer to proceed under Denis's later direction to continue code work with informative resource-bounded tests. Denis's explicit two-cell `UNRUN` ruling concerned R2; this R1 admission is the orchestrator's narrow decision. It assigns no red/green ownership to an `UNRUN`, does not turn it into `PASS`, and does not waive post-repair whole-file four-base verification.
+
+R11's supplemental served-path test is integrated at `be857b3c9ceb048b9a0fb491ad3ef475620557f3`. Preserve its `promotion_runtime=runtime` fixture input and `source_custody_limitation is None` assertion in `test_control_service_di.py`; its focused 1/1 witness does not replace that file's incomplete P41 cells. The earlier R11 lease also named `test_evaluation_safety_promotion_bridge.py`. No concurrent R11 writer remains: one R1 writer owns the four-file migration sequentially and must preserve the landed R11 control. R11 review: `/Users/deniskopylov/.codex/scratch/e02-r13-r11-stop-control-test-patch-20260929/INDEPENDENT_REVIEW.md@sha256:7e6a89ca1ecdd57581130dcc637b593aa50500552bafce2e7c10162c73d201e8`.
+
+After R1 hands off all four files, the R13 source-store graft witness remains a separate later sublease: `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py::test_compiled_owner_rejects_leaf_graft_even_when_s8_leaf_is_valid`. It shares a file with the R1 importer migration, so R1 completes first; then R13 runs under a sequential lease. The graft witness does not establish S8 authority.
+
+### Integrated and candidate statuses
+
+- **R14:** integrated at `ec604e9a9b4d7731304bcacd792585a423cc2b55`. Bounded independent review authorized integration and the commit records 30 focused checks; full touched-file P41 remains pending. Review: `/Users/deniskopylov/.codex/scratch/e02-r14-trust-check-patch-20260928/R14_INDEPENDENT_REVIEW_EB.md@sha256:756706c78398a4eb875d12946c5224aca2d47a12e4383fcd09e18907f14685fb`.
+- **R13 builder facade:** integrated at `5f433df89f45f3bf29dd2a5d715985790e421db6` after independent GO for the bounded correction. The Core-root import has the structural removal probe and 23/23 preserving test; see `/Users/deniskopylov/.codex/scratch/e02-r13-builder-facade-20260929/INDEPENDENT_REVIEW_05ecd78f.md@sha256:9cf1eab971b62edc29d82c3e4cdcb44c2802248e8a76703cbc3dccccefa02d9f` and `REVISION_RECEIPT.md@sha256:e09118cab8753feef6bba546f073c75378b32be08a0ab74edda1d33260e0b77d`. This bounds the newly introduced direct Core import edge only; pre-existing builder import edges, full architecture guardrails, broader storage custody and R13/P31 remain open.
+- **P41:** the cited four-file broker wave is released but incomplete as tabulated above. Any later test run must freeze its exact inputs for the run; no source edit may touch a tree under test.
+
+### Serialized overlap map and resource cap
+
+| Lane | Exact write set / state | Sequencing |
+|---|---|---|
+| Root integration/docs | Canonical `codex/e02-r2`, including all package documents and ledger | Root only. Candidates/reviewers do not edit canonical files. |
+| R1 migration | The four importer test files listed above | One writer sequentially across the four paths; preserve R11 control assertions; keep every unresolved P41 cell `UNRUN`. |
+| R13 graft witness | `test_normative_generation_bridge.py`, exact selector above | Starts only after R1's four-file handoff; never concurrent with R1 on the shared file. |
+| R14 | Six source/test files integrated at `ec604e9a9` | No new write lease; its full P41 replay is still pending. |
+| R13 builder facade | `builder.py` integrated at `5f433df89` | No separate candidate writer remains; broader pre-existing import edges and custody remain outside this bounded change. |
+| P41 broker | Prior 16-cell run released; future receipts in broker scratch | Re-freeze exact source/test inputs for each new run and preserve tree immutability while it runs. |
+
+Resource admission: cap at five light resource-bearing process groups, default four; use a fifth only while at least 20% RAM remains free, targeting 30%. Keep at least 8 GiB free disk. Heavy native suites, full architecture guardrails, wheel builds, and exclusive DuckDB/port/store jobs run alone. Reuse existing environments and the read-only `production_data` link. This is a ceiling, not a claim about current utilization. Only Denis empties Trash.
+
 ## Active conditional bridges (2026-09-28; lease updated at `9bd9e8556`)
 
 - At clean canonical `be4713328`, the five queued R1/R13 test files have a bounded pre-edit P41 admission record: 5 files × 4 bases = 20 cells, 9 absent in the corresponding Git trees and 11 present but `UNRUN`. Five older JUnits are historical evidence but 0/11 present cells meet the current reuse verifier. No red is assigned to a candidate from this admission. The exact table, environment key, and disk reason are `/Users/deniskopylov/.codex/scratch/e02-p41-r1-r13-unrun-20260928/ADMISSION.md@sha256:a1981fe4e90849bc1035754dcfe851497039163e6ef7032a928f7549cc3f0701`. The isolated source leases below may proceed under Denis's recorded `UNRUN` contingency; no test is in flight in the canonical tree.

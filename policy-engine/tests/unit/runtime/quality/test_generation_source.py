@@ -862,15 +862,22 @@ def test_tracked_owner_epochs_remain_exactly_readable():
     import json
     from pathlib import Path
 
+    from pydantic import ValidationError
+
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRun
-    from polisyos.runtime.quality.promotion_sequence import CanonicalPromotionReceipt
+    from polisyos.runtime.quality.promotion_sequence import (
+        CanonicalPromotionReceipt,
+        parse_canonical_promotion_history_receipt,
+        validate_canonical_promotion_receipt,
+    )
     from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
 
     root = Path(__file__).resolve().parents[4]
     models = {
         "policyos.runtime.generation_cycle_controller.v1": GenerationCycleRun,
-        "policyos.policy_design_case.layer3_gy.n9_promotion.v6": CanonicalPromotionReceipt,
     }
+    historical_schemas = {"policyos.policy_design_case.layer3_gy.n9_promotion.v6"}
+    tracked_schemas = models.keys() | historical_schemas
     documents = {
         "historical_layer3_gy_generation_cycle_contract.v1": historical_generation_cycle_v1(),
         "layer3_gy_promotion_contract.json": json.loads(
@@ -881,7 +888,7 @@ def test_tracked_owner_epochs_remain_exactly_readable():
 
     def walk(value, path):
         if isinstance(value, dict):
-            if value.get("schema_version") in models:
+            if value.get("schema_version") in tracked_schemas:
                 recursive[path] = value
             for key, item in value.items():
                 walk(item, (*path, key))
@@ -896,14 +903,14 @@ def test_tracked_owner_epochs_remain_exactly_readable():
     while pending:
         path, value = pending.pop()
         if isinstance(value, dict):
-            if value.get("schema_version") in models:
+            if value.get("schema_version") in tracked_schemas:
                 iterative[path] = value
             pending.extend(((*path, key), item) for key, item in value.items())
         elif isinstance(value, list):
             pending.extend(((*path, str(index)), item) for index, item in enumerate(value))
     assert recursive.keys() == iterative.keys()
     assert recursive
-    assert {payload["schema_version"] for payload in recursive.values()} == models.keys()
+    assert {payload["schema_version"] for payload in recursive.values()} == tracked_schemas
 
     def leaves(value, prefix=()):
         found = {}
@@ -919,7 +926,18 @@ def test_tracked_owner_epochs_remain_exactly_readable():
 
     differences = []
     for path, payload in recursive.items():
-        observed = models[payload["schema_version"]].model_validate(payload).model_dump(mode="json")
+        schema_version = payload["schema_version"]
+        if schema_version in historical_schemas:
+            historical = parse_canonical_promotion_history_receipt(payload)
+            observed = historical.model_dump(mode="json")
+            assert observed == payload
+            with pytest.raises(ValidationError):
+                CanonicalPromotionReceipt.model_validate(payload)
+            assert validate_canonical_promotion_receipt(payload) == (
+                {"code": "legacy_obligation_scope_v3_authority_not_admitted"},
+            )
+        else:
+            observed = models[schema_version].model_validate(payload).model_dump(mode="json")
         old, new = leaves(payload), leaves(observed)
         for identity in sorted(old.keys() | new.keys()):
             if identity not in old or identity not in new or old[identity] != new[identity]:

@@ -402,7 +402,7 @@ async def test_data_trust_modes_report_their_missing_owner_separately_from_eval_
 
     with pytest.raises(
         RecursiveGenerationCycleError,
-        match="recursive_data_trust_context_not_established",
+        match="recursive_data_trust_owner_not_established",
     ):
         await controller.run(
             graph,
@@ -1437,100 +1437,32 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
 
 @pytest.mark.asyncio
-async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle(
+async def test_http_contextless_explicit_n4_refuses_before_n4(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.quality import evaluation_safety as es
-    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
-    from polisyos.runtime.quality.generation_cycle import (
-        currentness_for_generation_cycle_run,
-        simulation_value_execution_context,
-    )
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _budget,
-        _CgfGenerationPort,
-        _problem,
-    )
-    from tests.unit.runtime.quality.test_value_gate import (
-        _candidate,
-        _simulation,
-        _world_record,
-    )
+    """Retired Appendix-A selector:
+    ``test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle``.
 
-    monkeypatch.setattr(
-        promotion_sequence_module,
-        "_legacy_policy_promotion_callers",
-        lambda repo_root: (),
-    )
+    This HTTP-only fixture tests refusal before N4; it cannot establish HTTP/direct
+    parity or owner-bound N4→N5→S8. A caller-supplied ``simulate_only`` string does not
+    substitute for the missing served context. The direct-controller candidate path
+    remains a separate residual and is not covered by this test.
+    """
+
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem = _problem(f"recursive_owner_strangle_{uuid4().hex}")
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
-    graph = derive_recursive_design_graph(
-        design_ref=root_ref,
-        module_refs=(),
-        parent_child_edges=(),
-        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
-    )
-    recursive_budget = RecursiveCycleBudget(
-        max_depth=0,
-        max_nodes=1,
-        min_cycles_per_leaf=1,
-        max_cycles_per_leaf=1,
-    )
-
-    class _SimulationOnlyVerifier:
-        def require_admission(
-            self,
-            context: es.EvaluationExecutionContext,
-            challenge: es.EvalSafetyAdmissionChallenge,
-        ) -> es.EvalSafetyConsumerAdmissionReceipt:
-            del context, challenge
-            raise AssertionError("simulation-only recursive fixture called verifier")
-
-    def source_census_must_not_run(*_args, **_kwargs):
-        pytest.fail("candidate recursive replay consulted a live source checkout")
-
-    monkeypatch.setattr(StrangleReceipt, "recompute", source_census_must_not_run)
-
-    verifier = _SimulationOnlyVerifier()
-    simulation_candidate = _candidate()
-    evaluation_context = simulation_value_execution_context(
-        candidate=simulation_candidate,
-        simulation=_simulation(_world_record()),
-        problem=problem,
-    )
-
-    class _CanonicalFixtureN4Port(N4GenerationPort):
+    class _NeverCalledN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
-            self._delegate = _CgfGenerationPort()
+            self.calls = 0
 
-        async def __call__(self, problem, *, cycle_index):
-            return await self._delegate(problem, cycle_index=cycle_index)
-
-    direct_controller = build_default_recursive_generation_cycle_controller(
-        repo_root=REPO_ROOT,
-        promotion_runtime=runtime,
-        eval_safety_verifier=verifier,
-    )
-    direct = await direct_controller.run(
-        graph,
-        problems_by_node={root_ref: problem},
-        budget_state=_budget(),
-        recursive_budget=recursive_budget,
-        n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
-        evaluation_contexts_by_node={root_ref: evaluation_context},
-    )
-
-    subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
-    direct_subject_ids = tuple(
-        artifact_id
-        for artifact_id in runtime.store.iter_artifact_ids()
-        if runtime.store.get_manifest(artifact_id).kind == subject_kind
-    )
+        async def __call__(self, *_args, **_kwargs):
+            self.calls += 1
+            raise AssertionError("contextless explicit N4 was invoked")
 
     async def compile_problem(**kwargs):
         del kwargs
@@ -1541,45 +1473,36 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
-        raw_request=problem.nl_provenance.raw_request,
-        context={},
-        model_name="fixture-model",
-        compiler_gateway=object(),  # type: ignore[arg-type]
-        budget_state=_budget(),
-        recursive_budget=recursive_budget,
-        root_n4_generation_port=_CanonicalFixtureN4Port(),
-        promotion_runtime=runtime,
-        root_evaluation_context=evaluation_context,
-        eval_safety_verifier=verifier,
-        repo_root=REPO_ROOT,
-    )
-
-    direct_leaf = direct.leaf_nodes[0]
-    http_leaf = compiled.recursive_run.leaf_nodes[0]
-    assert direct_leaf.cycle_run is not None
-    assert direct_leaf.cycle_run.strangle_receipt.status == "not_established"
-    assert "n6_census_issuer_not_appointed" in (
-        direct_leaf.cycle_run.strangle_receipt.limitation_refs
-    )
-    direct_currentness = currentness_for_generation_cycle_run(
-        direct_leaf.cycle_run
-    )
-    assert direct_currentness.status == "not_established"
-    assert direct_currentness.census_verdict == "UNRUN"
-    for leaf in (direct_leaf, http_leaf):
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.promotion_port.receipts == ()
-        assert leaf.cycle_run.promotion_port.reason == (
-            "epoch_validity_refused:policy_admission_missing"
+    n4_port = _NeverCalledN4Port()
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="simulate_only",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=object(),  # type: ignore[arg-type]
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
         )
-    http_subject_ids = tuple(
+
+    assert exc_info.value.code == "cycle_substrate_context_not_established"
+    assert n4_port.calls == 0
+    assert not tuple(
         artifact_id
         for artifact_id in runtime.store.iter_artifact_ids()
-        if runtime.store.get_manifest(artifact_id).kind == subject_kind
+        if runtime.store.get_manifest(artifact_id).kind
+        == "runtime.promotion.pre_n9_epoch_validity_subject"
     )
-    assert len(direct_subject_ids) == 1
-    assert http_subject_ids == direct_subject_ids
 
 
 @pytest.mark.asyncio
@@ -1903,11 +1826,6 @@ async def test_http_recursive_route_without_owner_context_fails_closed_before_bo
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
     n4_port = _BoundN4Port()
 
     with pytest.raises(DesignProblemAuthorityError) as exc_info:
@@ -1982,12 +1900,6 @@ async def test_http_protected_explicit_n4_without_owner_context_fails_closed_bef
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
-
     def reject_candidate_proposal(**_kwargs):
         pytest.fail("protected explicit N4 route entered candidate-only proposal path")
 

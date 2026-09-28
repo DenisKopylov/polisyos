@@ -18,8 +18,11 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     ProducerInfo,
 )
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.runtime.http.resilience import guard_runtime_cas
 
 _FAKE_ID = "sha256:" + "aa" * 32
 
@@ -181,9 +184,11 @@ class TestCachingArtifactStore:
         store = CachingArtifactStore(remote=remote, local=local)
 
         assert store.has(local_ref.artifact_id) is False
-        assert store.has(selected_local_view) is True
-        assert store.get_manifest(selected_local_view).producer.version == "cache-only"
-        assert store.verify(selected_local_view).ok is True
+        assert store.has(selected_local_view) is False
+        with pytest.raises(FileNotFoundError):
+            store.get_manifest(selected_local_view)
+        with pytest.raises(FileNotFoundError):
+            store.verify(selected_local_view)
 
     def test_write_through_inventory_omits_cache_only_default_orphans(
         self,
@@ -237,24 +242,40 @@ class TestCachingArtifactStore:
         remote.verify.assert_called_once_with(_FAKE_ID)
         local.verify.assert_not_called()
 
-    def test_verify_selected_view_uses_local_when_cached(self):
-        local = MagicMock()
-        remote = MagicMock()
-        local.has.return_value = True
-        expected = MagicMock(ok=True)
-        local.verify.return_value = expected
-        selected_ref = ArtifactRef(
-            artifact_id=_FAKE_ID,
-            kind="test",
-            media_type="text/plain",
-            manifest_profile_sha256="sha256:" + "bb" * 32,
+    def test_verify_selected_view_uses_local_when_cached(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        remote = FileSystemCAS(tmp_path / "remote")
+        local = FileSystemCAS(tmp_path / "local")
+        payload = b"selected view for cached verification"
+        remote_ref = remote.put_bytes(
+            payload,
+            PutOptions(kind="test", media_type="text/plain"),
         )
+        remote_manifest = remote.get_manifest(remote_ref)
+        selected_ref = ArtifactRef(
+            artifact_id=remote_ref.artifact_id,
+            kind=remote_manifest.kind,
+            media_type=remote_manifest.media_type,
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(remote_manifest),
+        )
+        local.import_exact_view(
+            payload,
+            remote.get_manifest_bytes(selected_ref),
+            artifact_id=selected_ref,
+        )
+        local_verify = MagicMock(wraps=local.verify)
+        remote_verify = MagicMock(wraps=remote.verify)
+        monkeypatch.setattr(local, "verify", local_verify)
+        monkeypatch.setattr(remote, "verify", remote_verify)
 
         report = CachingArtifactStore(remote=remote, local=local).verify(selected_ref)
 
-        assert report is expected
+        assert report.ok is True
         local.verify.assert_called_once_with(selected_ref)
-        remote.verify.assert_not_called()
+        remote_verify.assert_not_called()
 
     def test_remote_population_preserves_the_complete_selected_manifest_profile(
         self,
@@ -472,6 +493,90 @@ class TestCachingArtifactStore:
         with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
             store.get_bytes(remote_ref)
         remote_get_bytes.assert_not_called()
+
+    def test_exact_cached_view_requires_durable_tenant_admission(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A local exact-view hit cannot bypass its durable owner's tenant boundary."""
+        payload = b"tenant-a exact-view cache entry"
+        remote = FileSystemCAS(tmp_path / "tenant-owner").with_ambient_ownership_enforcement()
+        local = FileSystemCAS(tmp_path / "shared-local-cache")
+        store = guard_runtime_cas(CachingArtifactStore(remote=remote, local=local))
+        try:
+            with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+                owner_ref = remote.put_bytes(
+                    payload,
+                    PutOptions(kind="cache.tenant-bound", media_type="application/octet-stream"),
+                )
+                owner_manifest = remote.get_manifest(owner_ref)
+                exact_ref = ArtifactRef(
+                    artifact_id=owner_ref.artifact_id,
+                    kind=owner_manifest.kind,
+                    media_type=owner_manifest.media_type,
+                    manifest_profile_sha256=ManifestLifecycle.profile_sha256(owner_manifest),
+                )
+                # First guarded read populates the same unscoped local cache used
+                # by cached S3/GCS configurations.
+                assert store.get_bytes(exact_ref) == payload
+                assert local.has_manifest_view(
+                    exact_ref.artifact_id,
+                    exact_ref.manifest_profile_sha256,
+                )
+
+            remote_get_manifest = MagicMock(wraps=remote.get_manifest)
+            remote_get_bytes = MagicMock(wraps=remote.get_bytes)
+            local_has_manifest_view = MagicMock(wraps=local.has_manifest_view)
+            local_has = MagicMock(wraps=local.has)
+            local_get_bytes = MagicMock(wraps=local.get_bytes)
+            local_get_manifest = MagicMock(wraps=local.get_manifest)
+            local_verify = MagicMock(wraps=local.verify)
+            monkeypatch.setattr(remote, "get_manifest", remote_get_manifest)
+            monkeypatch.setattr(remote, "get_bytes", remote_get_bytes)
+            monkeypatch.setattr(local, "has_manifest_view", local_has_manifest_view)
+            monkeypatch.setattr(local, "has", local_has)
+            monkeypatch.setattr(local, "get_bytes", local_get_bytes)
+            monkeypatch.setattr(local, "get_manifest", local_get_manifest)
+            monkeypatch.setattr(local, "verify", local_verify)
+
+            with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+                assert store.get_bytes(exact_ref) == payload
+                assert store.has(exact_ref)
+                assert store.get_manifest(exact_ref).kind == exact_ref.kind
+                assert store.verify(exact_ref).ok
+            remote_get_bytes.assert_not_called()
+            local_get_bytes.assert_called_once_with(exact_ref)
+            local_has_manifest_view.assert_called()
+            local_has.assert_called_with(exact_ref)
+            local_get_manifest.assert_called()
+            local_verify.assert_called_once_with(exact_ref)
+
+            remote_get_manifest.reset_mock()
+            local_has_manifest_view.reset_mock()
+            local_has.reset_mock()
+            local_get_bytes.reset_mock()
+            local_get_manifest.reset_mock()
+            local_verify.reset_mock()
+            with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
+                with pytest.raises(ArtifactOwnershipError):
+                    store.get_bytes(exact_ref)
+                with pytest.raises(ArtifactOwnershipError):
+                    store.has(exact_ref)
+                with pytest.raises(ArtifactOwnershipError):
+                    store.get_manifest(exact_ref)
+                with pytest.raises(ArtifactOwnershipError):
+                    store.verify(exact_ref)
+
+            assert remote_get_manifest.call_count == 4
+            remote_get_bytes.assert_not_called()
+            local_has_manifest_view.assert_not_called()
+            local_has.assert_not_called()
+            local_get_bytes.assert_not_called()
+            local_get_manifest.assert_not_called()
+            local_verify.assert_not_called()
+        finally:
+            store.close()
 
     def test_selectorless_verification_uses_remote_default_when_cache_defaults_diverge(
         self,

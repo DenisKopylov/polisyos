@@ -239,7 +239,7 @@ def _request_hash(method: str, url: str, body_kind: str, body: bytes) -> str:
 # ---------------------------------------------------------------------------
 
 
-class MissingFixtureError(Exception):
+class MissingFixtureError(LookupError):
     """
     Raised in REPLAY mode when no fixture file exists for a request.
 

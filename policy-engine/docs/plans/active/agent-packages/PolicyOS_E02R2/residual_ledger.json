@@ -1160,11 +1160,11 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records that E02 had no finding-level record. The current row now has a discriminator-level source audit and retained negative-control tests. The audit recommends open because the card’s required newly admitted-evidence positive is absent; the passing retry controls do not establish it. Appendix C remains a historical package/finding-record classification, not a contradictory behavior verdict."
       },
-      "residual": "The source audit identifies a P38 mismatch: the repeat gate measures grammar growth rather than newly admitted and consumed evidence. The retained 9e0 test record passes `test_controller_refuses_live_retry_without_new_grammar` and `test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress`; these are negative controls only. No owner-admitted Data Forge evidence for the same candidate with unchanged grammar has been shown to trigger a second N4/N5 evaluation. The separate active-overlay N7 re-entry route is not generalized by this finding. Current exact-head served behavior and four-base P41 are UNRUN.",
+      "residual": "The generic repeat gate still measures grammar/content progress rather than whether newly owner-admitted evidence was consumed by N5 (P37/P38). The 153/153 unit receipt proves only contract-testing/local-WMR callback re-entry; the 12/12 served integration receipt proves overlay/passport/epoch admission and a next-cycle re-entry. Neither establishes same-candidate, unchanged-grammar N5 consumption. Keep open; exact-head and four-base P41 remain UNRUN.",
       "residual_owner": {
-        "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
+        "appointment_status": "Owner roles identified; no individual appointment is claimed.",
         "kind": "implementation_owner",
-        "name": "GenerationCycleController plus Data Forge overlay/passport/native-epoch admission owners"
+        "name": "AcquisitionWorldGrowthBridge and GenerationCycleController, with the existing N3 WMR / CycleSubstrateContext owner at handoff"
       },
       "r_class": null,
       "p_triage": null,
@@ -1257,29 +1257,44 @@
           "next_step": "After R5 source freeze, run a genuinely changed Data Forge-admitted overlay/passport/native epoch through a second N5 cycle with grammar and stable subject fixed. Preserve immutable old history and the next validator; pair with UUID/time-only and unchanged-overlay no-progress controls, then record the whole-file four-base replay."
         },
         "n_finding_audit_2026_09_28": {
-          "identity": "CYC-03 finding audit:B09",
+          "identity": "CYC-03 current-head evidence reconciliation:B09",
           "classification": "open",
-          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
-          "source_audit_kind": "read_only_source_and_card_audit",
-          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
-          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "target_committed_head": "4370c89f742c242ce75b945ed565a9d00fe48a88",
+          "source_audit_kind": "read_only_source_and_retained_junit_reconciliation",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-ledger-refresh-4370-20260928/CURRENT_HEAD_AUDIT.md@sha256:498e7aef3cfef1ec3337ced3d579d3df2252567f8060f13eb419adc7ee6f7f2f#B09",
+          "source_inference_limit": "Tracked product/test source bytes were re-read at 4370c89f7, but retained JUnits ran at the cited older snapshots; this is not an exact-head or four-base P41 replay. See the cited audit for snapshot comparison, denominators, and branch caveats.",
+          "property": "Same candidate can proceed after newly owner-admitted evidence changes the consumed N5 basis even when grammar is unchanged; unchanged evidence/UUID/time-only changes must not loop.",
+          "p37_gate_predicate": "Grammar difference/content identity is recomputed; N5 consumption of the newly admitted evidence is not established by the gate or the retained served receipt.",
+          "p38_divergence": "The gate admits grammar growth without changed data basis and can block changed owner evidence with unchanged grammar; the served re-entry receipt does not demonstrate N5 consumption.",
+          "tracked_source_paths_at_sha": [
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8d04115b51849e2da0815f1468135c797b792b2fead533cdb903e3a785dd3273",
+            "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:56f65b47de26636cc47b0d202cc7c2ea183d737bba5ea91983e58894e612eb20",
+            "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:4a17212ea3eb97a92509c68e200bc60b91fc4c7aad968e85c7c68d2f4c8ec5cf",
+            "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@sha256:d1b74b9ef80479527fb30019cfc9f8fd2a6ed52dd00a90a173f0bdc4ae0a2f99",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+          ],
           "behavioral_records": [
             {
-              "kind": "retained_test_record",
-              "identity": "test_controller_refuses_live_retry_without_new_grammar; test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress",
-              "result": "PASS; negative/control only",
-              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
-              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "scope": "The four-case current-head JUnit includes both controls. It does not exercise newly admitted evidence causing a second N4/N5 evaluation."
+              "kind": "retained_whole_file_unit_junit",
+              "identity": "test_acquisition_required_invokes_n7_and_records_same_cycle_reentry; test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters",
+              "result": "PASS; whole test file 153/153",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/generation-cycle-44a.junit.xml@sha256:5f3f3a245602361986ccb6d58e3ced6e3bd9f8846e517ce73d09d8d9cc1ffe83",
+              "scope": "Contract-testing/local RecordedAcquisitionOwnerGateway path; shows repeated callback with changed local WMR and simulation_pending_n5. It does not establish a real N5 result or consumption of canonical Data Forge/passport/native-epoch evidence."
+            },
+            {
+              "kind": "retained_staged_served_integration_junit",
+              "identity": "test_bridge_resume_reenters_after_current_source_passport_and_epoch",
+              "result": "PASS; whole staged integration wave 12/12",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-tenant-positive-fixture-20260928/canonical-8a09-whole.junit.xml@sha256:d03cf82505395e75c2ca29ccacde78c4de8936e3555e8114bd26eb22387729c4",
+              "scope": "Shows admitted overlay/passport/epoch and persisted next-cycle re-entry. Does not assert same candidate with unchanged grammar or N5 consumption of a new WMR/context."
             }
           ],
           "unrun": [
-            "positive same-subject/new-admitted-evidence/unchanged-grammar second N4/N5 cycle",
-            "exact 031e served-caller replay",
+            "same-candidate / unchanged-grammar Data Forge evidence consumed by a second N4/N5 cycle",
+            "exact-head replay",
             "four-base P41"
           ],
-          "evidence_summary": "The status is open on the source-level discriminator gap, not because a negative control failed.",
+          "evidence_summary": "Overlay/passport/epoch admission and re-entry are evidenced, but the B09 distinguishing N5-consumed-evidence positive is absent. Keep open.",
           "p41_four_base": "UNRUN"
         }
       },
@@ -3167,11 +3182,11 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s original absence of finding-level records. The present source/test audit adds bounded evidence but retains partial because the stated current-head positive remains unestablished."
       },
-      "residual": "Stable subject and revised basis are separately recorded, and exact context/problem hash validation correctly rejects stale reuse. The retained 9e0 run passes the history-binding selector, but that test uses a contract-testing leaf without CycleSubstrateContext; the changed-population/model check is an N9 negative control, not a second served N4/N5 cycle. No owner-qualified context reissue for a permitted revised basis is established. Current exact-head served replay and four-base P41 are UNRUN.",
+      "residual": "R1 adds a one-shot served context replay path. The retained integrated JUnit passes a fixture-controlled simulate_only root run where exact job-bound context and WMR reach the actual N5 engine and produce joint_simulated; this corrects the earlier statement that no served N5 context positive existed. The admission owner, NL compiler result and N4 generator are fixtures, and the default ControlPlaneContainer injects no admission owner. The resolver is called once for the compiled root, not after a revised basis; no fresh context is shown consumed by a second N5 cycle. Keep partial; four-base P41 remains UNRUN.",
       "residual_owner": {
-        "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
+        "appointment_status": "No concrete production provider/caller or individual owner appointment is established.",
         "kind": "implementation_owner",
-        "name": "GenerationCycleController plus owner-issued revised-context producer"
+        "name": "Default ControlPlaneContainer owner injection plus CycleSubstrateContextAdmissionOwner provider and revised-basis handoff"
       },
       "r_class": null,
       "p_triage": null,
@@ -3261,38 +3276,49 @@
           "next_step": "After R5 source freeze, exercise two actual recursive iterations with a changed owner-issued revised context; reject a stale-context graft and prove both bases remain in replayable history. Run four-base file replay."
         },
         "n_finding_audit_2026_09_28": {
-          "identity": "CYC-03 finding audit:B27",
+          "identity": "CYC-03 current R1 evidence reconciliation:B27",
           "classification": "partial",
-          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
-          "source_audit_kind": "read_only_source_and_card_audit",
-          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
-          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "target_committed_head": "eb17337503d99a09964f8e15cf2beb12a28d6a77",
+          "source_audit_kind": "read_only_exact_delta_and_retained_junit_review",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-ledger-refresh-4370-20260928/B27_R1_REVIEW.md@sha256:9d4d59f1070c264f711b6c6d94862f4ced9ec848ea1f90b2c51da87344fc2b1f#B27",
+          "source_inference_limit": "Retained JUnit is the saved integrated-eb three-file run (69 tests; 63 pass, 6 fail, 0 skipped). The target selector passes, but JUnit itself does not encode a commit id; current source and test files are independently pinned at eb173. This is not four-base P41 and is not a fully production-owned N4 witness.",
+          "property": "A stable research subject may receive a revised execution basis only with a fresh owner-bound CycleSubstrateContext for that exact basis; the revised context must reach N5 while prior history stays replayable.",
+          "p37_gate_predicate": "For the fixture-controlled served root run, verified job lease/scope, exact compiled problem reference, persisted context replay, and N5 WMR equality are recomputed. Default production owner supply and revised-basis reissuance are not_established.",
+          "p38_divergence": "The exact problem/context equality guard is property-shaped and refuses stale reuse. The orchestration resolver runs once for the compiled root, is not invoked after a later basis change, and the default container supplies no admission owner; a revised basis therefore has no demonstrated reissue path.",
+          "tracked_source_paths_at_sha": [
+            "policy-engine/src/polisyos/runtime/http/container.py@sha256:3b07a2bc91646abf1aafcd93b418fc4ae49e7f8fbfdd65f8437a91588330ce06",
+            "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:c8fa0405c6027cea8110b4075b7d026e6099d2794f396bff9e1a970ddba8e135",
+            "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:88b23060691595184b9733202ebce7cd718585a96de3a40d5497e1047550ae93",
+            "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py@sha256:539a7167af080d4b95a83ab346ecc1b1717bd138677eb90cf8f610678c52ae7c",
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8d04115b51849e2da0815f1468135c797b792b2fead533cdb903e3a785dd3273",
+            "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py@sha256:feb1fbae341ad55f2395eb02c80a0f0d1bb98d6b5a87c7e5d1cd710faa9fc99e",
+            "policy-engine/tests/unit/runtime/http/test_control_service_di.py@sha256:88f8fc714c77ba448eac8b467799cf7c70db3c5472ce578ade1615ed1b744f43",
+            "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py@sha256:36b43c58810b9c4eb915b53d767bbf5fffcb2482a0b56b44f98070df8434a366",
+            "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py@sha256:879454f03171982909ba61d387eff7c4f77e4a2f4d76c05cce5061d00374701e"
+          ],
           "behavioral_records": [
             {
-              "kind": "retained_test_record",
-              "identity": "test_recursive_leaf_preserves_history_and_current_problem_binding",
-              "result": "PASS; contract-testing leaf without CycleSubstrateContext",
-              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head-recursive.junit.xml@sha256:7076bc9a86d9aed3fe7d39eba788129326d043a4bd3f5f54830485abb8837966",
-              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "scope": "Proves stable subject/history binding only; no owner-bound context is consumed."
+              "kind": "retained_integrated_whole_file_junit",
+              "identity": "test_served_simulate_only_replays_admitted_fixture_context_into_n5",
+              "result": "PASS; enclosing three-file JUnit 63 passed / 6 failed / 0 skipped of 69",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-integrated-eb-20260928/three-whole-files.junit.xml@sha256:1a8da2ac30fdbf7093806df090346e337919c43123f15fbd8176f3e2ac66b95c",
+              "scope": "The test launches and leases a real NL job, persists and resolves a typed context under verified worker scope, and observes the actual N5 horizon controller consume matching context/WMR hashes and return joint_simulated. The profile/context owner, NL compiler result, and N4 generation port are fixture-controlled; the artifact intentionally remains profile_admission_status=not_established and S8 blocked. No revised-basis second cycle or production profile owner is exercised."
             },
             {
-              "kind": "retained_test_record",
-              "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
-              "result": "PASS; in-memory history/front only",
-              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
-              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "scope": "Does not create an owner-qualified second-cycle context."
+              "kind": "retained_integrated_whole_file_junit_control",
+              "identity": "test_cycle_substrate_context_owner_uses_guarded_current_job_execution; test_cycle_substrate_context_owner_rejects_matching_marker_scope_without_issuance; test_cycle_substrate_context_owner_refuses_wrong_problem_or_job",
+              "result": "PASS; none is listed among the six failures in the same 69-case JUnit",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-integrated-eb-20260928/three-whole-files.junit.xml@sha256:1a8da2ac30fdbf7093806df090346e337919c43123f15fbd8176f3e2ac66b95c",
+              "scope": "Supports active-lease scope binding and stale/forged problem/context rejection; does not establish positive revised-basis reissuance."
             }
           ],
+          "production_wiring": "ControlPlaneService accepts an optional CycleSubstrateContextAdmissionOwner, but ControlPlaneContainer.startup constructs the default service without it. The only explicit injection found is the test helper with _FixtureControlledProfileOwner; no concrete production provider/caller is established.",
           "unrun": [
-            "served owner-bound context reissue for the revised basis",
-            "second N4/N5 cycle against qualified context",
-            "exact 031e replay",
-            "four-base P41"
+            "default production container wired to a concrete admitted profile/context owner",
+            "two-cycle served case with stable subject, changed execution basis, a newly persisted/reopened context for that exact basis, and N5 consuming its new WMR",
+            "four-base P41 replay"
           ],
-          "evidence_summary": "Partial: the equality gate is recomputed and appropriate; the missing capability is owner-mediated requalification/reissue on the served second-cycle path.",
+          "evidence_summary": "R1 closes the prior evidence gap that no served fixture-controlled N5 context positive existed. It does not close B27: there is one root-basis pass under a test owner, while production provider wiring and revised-basis context reissuance remain unestablished.",
           "p41_four_base": "UNRUN"
         }
       },
@@ -3346,7 +3372,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s original absence of finding-level records. The present source/test audit adds bounded evidence but retains partial because the stated current-head positive remains unestablished."
       },
-      "residual": "The retained 9e0 run passes same-subject history/front and the conditional latest-occurrence selector. The latter can pass through its UNRUN-currentness branch, which asserts no positive N9 observation; therefore it does not prove the current N9 owner received exactly the latest occurrence and revised basis. Historical E02 promotion receipts are not a current 031e witness. Current positive N9 binding and four-base P41 are UNRUN.",
+      "residual": "Occurrence history and latest-per-subject projection are present. The retained conditional latest-occurrence test can pass through its currentness=UNRUN branch, so the JUnit PASS does not establish positive N9 preparation. No signed accepted N9 receipt or OWR/epoch readback is shown binding the later occurrence while preserving the earlier one. Keep partial; exact-head and four-base P41 remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -3440,38 +3466,42 @@
           "next_step": "Add persisted/reopened non-blocked two-occurrence history and prove N9 plus downstream consumers bind the second occurrence while the first remains unchanged; preserve the principal rule that every blocked N6 is terminal for N9."
         },
         "n_finding_audit_2026_09_28": {
-          "identity": "CYC-03 finding audit:B28",
+          "identity": "CYC-03 current-head evidence reconciliation:B28",
           "classification": "partial",
-          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
-          "source_audit_kind": "read_only_source_and_card_audit",
-          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
-          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "target_committed_head": "4370c89f742c242ce75b945ed565a9d00fe48a88",
+          "source_audit_kind": "read_only_source_and_retained_junit_reconciliation",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-ledger-refresh-4370-20260928/CURRENT_HEAD_AUDIT.md@sha256:498e7aef3cfef1ec3337ced3d579d3df2252567f8060f13eb419adc7ee6f7f2f#B28",
+          "source_inference_limit": "Tracked product/test source bytes were re-read at 4370c89f7, but retained JUnits ran at the cited older snapshots; this is not an exact-head or four-base P41 replay. See the cited audit for snapshot comparison, denominators, and branch caveats.",
+          "property": "Append-only history preserves repeated candidate occurrences, while each current N9 consumer binds the exact latest occurrence and revised basis.",
+          "p37_gate_predicate": "Occurrence ordering/latest projection is recomputed; positive currentness and canonical N9 binding of the exact later occurrence are not established by the conditional test receipt.",
+          "p38_divergence": "No wrong selection at canonical N9 intake is demonstrated. The front exposes subject-level identity; downstream exact occurrence binding remains unproven, not a confirmed production escape.",
+          "tracked_source_paths_at_sha": [
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8d04115b51849e2da0815f1468135c797b792b2fead533cdb903e3a785dd3273",
+            "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@sha256:4a17212ea3eb97a92509c68e200bc60b91fc4c7aad968e85c7c68d2f4c8ec5cf",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+          ],
           "behavioral_records": [
             {
-              "kind": "retained_test_record",
+              "kind": "retained_whole_file_unit_junit",
               "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
-              "result": "PASS; history retained and one current-front subject",
-              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
-              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "scope": "Does not assert which exact occurrence reaches N9."
+              "result": "PASS; whole test file 153/153",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/generation-cycle-44a.junit.xml@sha256:5f3f3a245602361986ccb6d58e3ced6e3bd9f8846e517ce73d09d8d9cc1ffe83",
+              "scope": "Shows two history occurrences and a one-subject current front in memory."
             },
             {
-              "kind": "retained_test_record",
+              "kind": "retained_whole_file_unit_junit_conditional",
               "identity": "test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness_unrun",
-              "result": "PASS; branch may be currentness=UNRUN",
-              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
-              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "scope": "JUnit pass alone does not establish the guarded positive N9 assertions."
+              "result": "PASS; whole test file 153/153; branch is not identified in JUnit",
+              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r12-n7-integration-20260928/full-clean/generation-cycle-44a.junit.xml@sha256:5f3f3a245602361986ccb6d58e3ced6e3bd9f8846e517ce73d09d8d9cc1ffe83",
+              "scope": "Can pass through currentness=UNRUN with no N9 preparation; does not establish positive N9 admission or downstream receipt/readback binding."
             }
           ],
           "unrun": [
-            "non-UNRUN currentness fixture with two same-subject occurrences and exact latest-summary N9 assertion",
-            "stale earlier occurrence presented as current must be rejected",
-            "exact 031e replay",
+            "non-UNRUN currentness fixture with two persisted occurrences and exact latest-summary N9 assertion",
+            "signed accepted N9 receipt and downstream OWR/epoch readback",
             "four-base P41"
           ],
-          "evidence_summary": "Partial: latest-summary projection is present in source, but the current test’s positive currentness branch is not established and the front exposes subject IDs rather than occurrence refs.",
+          "evidence_summary": "History/front behavior is boundedly evidenced; positive N9 authority and downstream occurrence binding are not. Keep partial.",
           "p41_four_base": "UNRUN"
         }
       },

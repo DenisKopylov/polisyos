@@ -151,6 +151,8 @@ def test_runtime_store_scope_retains_native_writer_after_consumer_construction(
             for affiliate in deployment._state().runtime_store_affiliates:
                 assert affiliate._runtime_artifact_store() is first
             consumer = QualificationConsumer.from_deployment(deployment)
+            assert consumer._owner._store is first
+            assert consumer._owner._policy_store is first
             with deployment.composition_scope(runtime_artifact_store=second):
                 assert deployment._runtime_artifact_store() is second
             assert deployment._runtime_artifact_store() is first

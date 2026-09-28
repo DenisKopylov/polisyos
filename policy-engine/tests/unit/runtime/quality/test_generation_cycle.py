@@ -4080,6 +4080,90 @@ async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("loaded_identities", "expected_reason"),
+    [
+        (
+            ("a" * 64, "b" * 64),
+            "generation_cycle_n6_deployment_identity_stale:"
+            "generation_cycle_deployment_identity_mismatch",
+        ),
+        (
+            ("a" * 64, "a" * 64),
+            "generation_cycle_n6_census_not_established:"
+            "n6_census_issuer_not_appointed",
+        ),
+    ],
+    ids=("identity-changes-before-n9", "same-identity-census-remains-unrun"),
+)
+async def test_pre_n9_rechecks_canonical_identity_without_refusing_candidates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    loaded_identities: tuple[str, str],
+    expected_reason: str,
+) -> None:
+    """The pre-N9 owner recheck blocks authority while retaining N6 candidates."""
+
+    observations = iter(
+        LoadedDeploymentIdentityObservation(
+            status="established",
+            deployment_identity=f"policy-engine-deployment:sha256:{identity}",
+        )
+        for identity in loaded_identities
+    )
+    capture_count = 0
+
+    def capture_loaded_identity() -> LoadedDeploymentIdentityObservation:
+        nonlocal capture_count
+        capture_count += 1
+        return next(observations)
+
+    monkeypatch.setattr(
+        confidence_ledger_module,
+        "capture_loaded_deployment_identity",
+        capture_loaded_identity,
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    n9_preparation: list[bool] = []
+    monkeypatch.setattr(
+        runtime,
+        "_prepare_completed_generation",
+        lambda **_kwargs: n9_preparation.append(True),
+    )
+
+    class _SchedulerStopController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+    run = await _SchedulerStopController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+    ).run(
+        _problem("pre_n9_identity_recheck"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+
+    assert capture_count == 2
+    assert run.terminal_status == "completed"
+    assert run.candidate_summaries
+    assert run.deployment_identity_status == "established"
+    assert run.deployment_identity == (
+        f"policy-engine-deployment:sha256:{loaded_identities[0]}"
+    )
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == expected_reason
+    assert n9_preparation == []
+
+
+@pytest.mark.asyncio
 async def test_missing_deployment_identity_does_not_refuse_candidate_computation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

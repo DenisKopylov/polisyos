@@ -4500,27 +4500,50 @@ class GenerationCycleController:
                     f"{blocked_reason or 'generation_cycle_blocked'}"
                 ),
             )
-        elif (
-            n6_currentness is None
-            or n6_currentness.status != "current"
-            or n6_currentness.census_verdict != "PASS"
-        ):
-            reason = (
-                n6_currentness.reason_code
-                if n6_currentness is not None
-                else "loaded_deployment_identity_owner_unavailable"
-            )
-            promotion = PromotionPortObservation(
-                status="not_promoted",
-                reason=f"generation_cycle_n6_census_not_established:{reason}",
-            )
         else:
-            promotion = self._promote_completed_generation(
-                summaries=promotion_summaries,
-                problem=last_cycle_problem,
-                design_problem_basis_ref=promotion_basis_ref,
-                deployment_identity=deployment_identity,
-            )
+            try:
+                pre_n9_currentness = observe_n6_deployment_currentness(
+                    recorded_identity_status=identity_status,
+                    recorded_deployment_identity=deployment_identity,
+                )
+            except Exception:
+                pre_n9_currentness = None
+            if pre_n9_currentness is None:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=(
+                        "generation_cycle_n6_currentness_not_established:"
+                        "loaded_deployment_identity_owner_unavailable"
+                    ),
+                )
+            elif pre_n9_currentness.status == "stale":
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=(
+                        "generation_cycle_n6_deployment_identity_stale:"
+                        f"{pre_n9_currentness.reason_code}"
+                    ),
+                )
+            elif (
+                pre_n9_currentness.status != "current"
+                or pre_n9_currentness.census_verdict != "PASS"
+            ):
+                reason = (
+                    n6_currentness.reason_code
+                    if identity_status != "established" and n6_currentness is not None
+                    else pre_n9_currentness.reason_code
+                )
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"generation_cycle_n6_census_not_established:{reason}",
+                )
+            else:
+                promotion = self._promote_completed_generation(
+                    summaries=promotion_summaries,
+                    problem=last_cycle_problem,
+                    design_problem_basis_ref=promotion_basis_ref,
+                    deployment_identity=deployment_identity,
+                )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
             promotion,

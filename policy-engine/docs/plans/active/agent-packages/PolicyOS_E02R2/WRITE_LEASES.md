@@ -1,6 +1,12 @@
 # E02-R2 write leases
 
-## Current snapshot (2026-09-28; code/test HEAD `8b7b532dd`; docs HEAD `90eb7e4f8`)
+## Current snapshot (2026-09-28; canonical HEAD `764e122e2`)
+
+- Root remains the only writer of `codex/e02-r2`. The isolated R13/P31 default-workflow-store writer may reuse clean `codex/e02-r2-r1-candidate` at `/Users/deniskopylov/.codex/worktrees/e02-r2-r1-candidate/polisyos`. Its exclusive write set is `policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py` and `policy-engine/tests/unit/scientist/orchestration/workflows/test_builder_pinning.py`; no other source, test, generated family, governed artifact, plan, register, or package document is leased. Root alone integrates a reviewed candidate.
+- Property: a workflow-created default FileSystemCAS enforces the existing ambient tenant/cell ownership under `tenant_scope`, while unscoped candidate computation and supplied-store identity remain intact. Route through the existing artifact-store owner; do not rebuild a store from a root or change a supplied tenant-bound/guarded store. The property-removal probe must keep marker strings but make a foreign-tenant read succeed and the test red. Independent review must classify any escape using P40 before integration. This slice does not close generic namespaced storage or all of R13.
+- Pre-edit whole-file P41 for `test_builder_pinning.py` exists at all four bases with identical test blob and 15/15 passing in each; no common pass→fail. Its manifest is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T160220Z-64918/results.json@sha256:8d7013cc317f790a412e0924b633a85e48fb4991ffe7b35eaa04abd034f4a7b0`; resource verdict passed with approximately 611 MiB peak group RSS and 74% free RAM. Preserve the 8 GiB disk floor and 20–30% free RAM; never empty Trash.
+
+## Prior snapshot (2026-09-28; code/test HEAD `8b7b532dd`; docs HEAD `90eb7e4f8`)
 
 - B198/CAL-06 is integrated at `8b7b532dd`; its candidate source/test and public-surface owner-generation lease is released, with no active B198 writer. Owner sync: `/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/public-surface-owner-sync.log@sha256:3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8`.
 - Whole-file P41 for `test_propagate_welfare.py` is 4/4: execution 7/7, E02 7/7, Main 7/7, integration 8/8; no common pass→fail. The new identity is `CASE_SET_CHANGED` at the historical bases. Manifest `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T153723Z-58057/results.json@sha256:b9cf91ec5fe04714faeea84146d4c807d7ba9fc6e995836e1c9fddea8a97b5b7`.

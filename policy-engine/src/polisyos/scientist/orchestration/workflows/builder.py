@@ -178,19 +178,18 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     cell_id = get_current_cell_id()
     if cell_id is None and access_scope is not None:
         cell_id = access_scope.cell_id
-    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
-    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core import artifacts
 
-    if isinstance(store, FileSystemCAS):
+    if isinstance(store, artifacts.FileSystemCAS):
         return cast(
             "ArtifactStore",
             with_ambient_ownership_enforcement_if_supported(store),
         )
 
     target = getattr(store, "_target", None)
-    if isinstance(target, FileSystemCAS):
+    if isinstance(target, artifacts.FileSystemCAS):
         if not target._ownership_enforced:
-            raise ArtifactOwnershipError(
+            raise artifacts.ArtifactOwnershipError(
                 "Guarded filesystem artifact store requires ownership enforcement"
             )
         return store
@@ -214,11 +213,11 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
 def _is_content_addressed_filesystem_store(store: ArtifactStore) -> bool:
     """Return true when namespace prefixes would corrupt content-addressed CAS IDs."""
     try:
-        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core import artifacts
     except _WORKFLOW_BUILDER_IMPORT_ERRORS:  # pragma: no cover - optional dependency guard
         return False
     target = getattr(store, "_target", store)
-    return isinstance(target, FileSystemCAS)
+    return isinstance(target, artifacts.FileSystemCAS)
 
 
 def _maybe_create_provenance_dag(run_id: str) -> object | None:

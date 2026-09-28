@@ -104,6 +104,67 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
     assert loaded.proposal == proposal
     assert loaded.execution_band == "candidate"
     assert loaded.limitation_code == "cycle_substrate_context_unavailable"
+
+    from polisyos.core import canon
+    from polisyos.runtime.quality.generation_source import (
+        _SOURCE_CANON,
+        N4CandidateProposalSimulationDisposition,
+        N4CandidateProposalSimulationRecord,
+        _n4_candidate_proposal_v2_write_options,
+    )
+
+    v1_body = repository.store.get_bytes(proposal_ref)
+    assert v1_body == canon.to_canonical_bytes(loaded, _SOURCE_CANON)
+    simulation_ref = repository.persist_candidate_proposal(
+        job_id="job-n4-candidate",
+        run_id="run-n4-candidate",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        raw_request=problem.nl_provenance.raw_request,
+        problem=problem,
+        proposal=proposal,
+        simulation_disposition=N4CandidateProposalSimulationDisposition(),
+    )
+    simulation_record = repository.load_candidate_proposal_for_served_job(
+        simulation_ref,
+        job_id="job-n4-candidate",
+        run_id="run-n4-candidate",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        raw_request=problem.nl_provenance.raw_request,
+    )
+    assert isinstance(simulation_record, N4CandidateProposalSimulationRecord)
+    assert repository.store.get_bytes(simulation_ref) == canon.to_canonical_bytes(
+        simulation_record, _SOURCE_CANON
+    )
+    assert simulation_record.schema_version.endswith(".v2")
+    assert simulation_record.simulation_disposition.execution_intent_band == (
+        "simulate_only_attempt"
+    )
+    assert simulation_record.simulation_disposition.status == "simulation_unavailable"
+    assert simulation_record.simulation_disposition.reason_code == (
+        "cycle_substrate_context_not_established"
+    )
+    assert simulation_record.n5_status == simulation_record.s8_status == "not_run"
+
+    altered = simulation_record.model_dump(mode="python")
+    altered["job_id"] = "job-other"
+    forged_ref = repository.store.put_bytes(
+        canon.to_canonical_bytes(altered, _SOURCE_CANON),
+        _n4_candidate_proposal_v2_write_options(),
+    )
+    with pytest.raises(
+        ValueError, match="n4_candidate_proposal_content_hash_mismatch"
+    ):
+        repository.load_candidate_proposal_for_served_job(
+            forged_ref,
+            job_id="job-n4-candidate",
+            run_id="run-n4-candidate",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            raw_request=problem.nl_provenance.raw_request,
+        )
+
     with pytest.raises(ValueError, match="tenant"):
         repository.load_candidate_proposal(
             proposal_ref,

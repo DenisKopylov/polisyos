@@ -709,9 +709,244 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Persist real N4 output with an unavailable simulation, not a fake run."""
+    import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import nl_pipeline
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateProposalSimulationRecord,
+    )
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _design_problem_tool_args,
+        _DeterministicSpanSupportClient,
+        _FakeDesignProblemGateway,
+        _intent_context,
+    )
+    from tests.unit.runtime.quality.test_design_generation import (
+        RecordedClientWithCatalog,
+        _recording_with_successful_first_response,
+    )
+
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    compiler_gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=_design_problem_tool_args(),
+    )
+    generation_gateway = RecordedClientWithCatalog(recording, model_ids=[model_id])
+    original_compiler = nl_pipeline.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs):
+        kwargs["gateway_client"] = compiler_gateway
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    monkeypatch.setattr(
+        nl_pipeline,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    monkeypatch.setattr(
+        __import__("polisyos.scientist.orchestration.llm.factory", fromlist=["factory"]),
+        "create_traced_gateway_client",
+        lambda **_kwargs: generation_gateway,
+    )
+
     service = _build_control_service(tmp_path)
+    context = _intent_context(as_of="2026-05-15")
+    context["evaluation_safety_attempt"] = _valid_intake_for_mode(
+        "simulate_only"
+    ).model_dump(mode="json")
     request = NaturalLanguageRunRequest(
-        request="Simulate a candidate without requesting deployment authority.",
+        request="Design a wartime MSME credit guarantee for Ukraine within the stated "
+        "UAH 10b budget cap. Simulate this candidate while carrying unknown "
+        "world scope.",
+        llm_model=model_id,
+        context=context,
+    )
+    try:
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+            authorization_proof=bound_nl_authorization_proof(
+                _fixture_claims(), request
+            ),
+        )
+        job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert job is not None and job.run_id is not None
+
+        compiler_calls: list[tuple[object, object, object]] = []
+        original_compile = service.compile_and_run_recursive_generation_cycle
+
+        async def record_compiler_route(**kwargs):
+            compiler_calls.append(
+                (
+                    kwargs["execution_intent"],
+                    kwargs["n4_proposal_only"],
+                    kwargs["root_evaluation_context"],
+                )
+            )
+            return await original_compile(**kwargs)
+
+        monkeypatch.setattr(
+            service,
+            "compile_and_run_recursive_generation_cycle",
+            record_compiler_route,
+        )
+
+        # Removal probe: removing the served selector leaves persisted markers
+        # intact but sends simulate_only into generic N6, which this guard rejects.
+        def forbidden_recursive_controller(**_kwargs: object) -> object:
+            pytest.fail("no-context simulate_only entered N6 instead of stopping after N4")
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_default_recursive_generation_cycle_controller",
+            forbidden_recursive_controller,
+        )
+        monkeypatch.setattr(
+            service,
+            "resolve_generation_value_choices",
+            lambda **_kwargs: pytest.fail("simulate_only reached normative S8"),
+        )
+        monkeypatch.setattr(
+            service,
+            "_publish_generation_run",
+            lambda **_kwargs: pytest.fail("simulate_only published a recursive run"),
+        )
+
+        service._process_control_job(job)  # noqa: SLF001
+
+        completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert completed is not None and completed.state == "completed"
+        progress = completed.progress
+        assert compiler_calls == [("simulate_only", True, None)]
+        assert progress["execution_intent_band"] == "simulate_only_attempt"
+        assert progress["candidate_computation_status"] == "completed"
+        assert progress["simulation_status"] == "simulation_unavailable"
+        assert progress["simulation_limitation_code"] == (
+            "cycle_substrate_context_not_established"
+        )
+        assert {
+            progress["n5_status"],
+            progress["n8_status"],
+            progress["n9_status"],
+            progress["s8_status"],
+        } == {"not_run"}
+        assert "publication_status" not in progress
+        assert "compiled_recursive_generation_cycle_ref" not in progress
+        assert "normative_disposition_ref" not in progress
+        assert "manifest_ref" not in progress
+        assert progress["candidate_proposal_ref"]
+
+        repository = GenerationSourceRepository(service._artifact_store)
+        proposal = repository.load_candidate_proposal_for_served_job(
+            progress["candidate_proposal_ref"],
+            job_id=launch.job_id,
+            run_id=str(job.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            raw_request=request.request,
+        )
+        assert isinstance(proposal, N4CandidateProposalSimulationRecord)
+        assert proposal.proposal.trinity_bundle.policy_spec.interventions
+        assert proposal.simulation_disposition.execution_intent_band == (
+            "simulate_only_attempt"
+        )
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_simulate_only_n4_selector_refuses_an_owner_bound_cycle_context(
+    tmp_path,
+) -> None:
+    """An admitted cycle context cannot be silently reduced to an N4 proposal."""
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        compile_and_run_recursive_generation_cycle,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _cyc01_owner_bound_n5_case,
+    )
+
+    problem, substrate_context, _candidate = _cyc01_owner_bound_n5_case()
+    revalidate_cycle_substrate_context(substrate_context)
+    service = _build_control_service(tmp_path)
+    try:
+        with pytest.raises(DesignProblemAuthorityError) as exc_info:
+            await compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={},
+                model_name="fixture-model",
+                execution_intent="simulate_only",
+                n4_proposal_only=True,
+                compiler_gateway=object(),  # type: ignore[arg-type]
+                budget_state=_budget(),
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=0,
+                    max_nodes=1,
+                    min_cycles_per_leaf=1,
+                    max_cycles_per_leaf=1,
+                ),
+                root_evaluation_context=None,
+                eval_safety_verifier=service._evaluation_safety_admission_verifier,  # noqa: SLF001
+                cycle_substrate_context=substrate_context,
+                promotion_runtime=service._promotion_runtime,  # noqa: SLF001
+            )
+        assert exc_info.value.code == "n4_proposal_only_context_conflict"
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_simulate_only_n4_terminal_failure_is_not_simulation_unavailable(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A terminal N4 failure stays distinct from a persisted proposal outcome."""
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        N4CandidateProposalExecution,
+    )
+    from polisyos.runtime.quality import design_generation as n4
+    from tests.unit.runtime.quality.test_design_generation import (
+        _bundle,
+        _test_design_problem,
+    )
+
+    service = _build_control_service(tmp_path)
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable",
+            model_id="synthetic-c2",
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+    terminal_n4 = result.as_organ_run(trinity_bundle=_bundle([]))
+    compiled = N4CandidateProposalExecution(
+        design_problem=problem,
+        proposal=terminal_n4,
+    )
+    request = NaturalLanguageRunRequest(
+        request="Simulate candidate options with unavailable N4 generation.",
         llm_model="simulated-qwen",
         context={
             "evaluation_safety_attempt": _valid_intake_for_mode(
@@ -723,54 +958,32 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
+            authorization_proof=bound_nl_authorization_proof(
+                _fixture_claims(), request
+            ),
         )
-        record = service._control_store.get_job(launch.job_id)  # noqa: SLF001
-        assert record is not None
-        compiled_payload = {
-            "schema_version": "test.simulation_only.compiled_run.v1",
-            "execution_band": "candidate",
-            "evaluation_mode": "simulate_only",
-            "simulation_status": "joint_simulated",
-            "promotion_status": "not_promoted",
-        }
+        job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert job is not None
 
-        class CompiledSimulationFixture:
-            def model_dump(self, *, mode: str) -> dict[str, object]:
-                assert mode == "json"
-                return compiled_payload
+        async def terminal_n4_compiler(**_kwargs: object) -> object:
+            return compiled
 
-        async def compile_simulation(**kwargs: object) -> object:
-            assert kwargs.get("execution_intent") == "simulate_only"
-            assert kwargs.get("root_evaluation_context") is None
-            return CompiledSimulationFixture()
-
-        authority_calls: list[str] = []
-
-        def forbidden_authority_consumer(**_kwargs: object) -> object:
-            authority_calls.append("authority_consumer")
-            raise AssertionError("simulate_only reached normative S8 or publication")
-
-        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compile_simulation)
-        monkeypatch.setattr(service, "resolve_generation_value_choices", forbidden_authority_consumer)
-        monkeypatch.setattr(service, "_publish_generation_run", forbidden_authority_consumer)
-
-        service._process_control_job(record)  # noqa: SLF001
+        monkeypatch.setattr(
+            service,
+            "compile_and_run_recursive_generation_cycle",
+            terminal_n4_compiler,
+        )
+        service._process_control_job(job)  # noqa: SLF001
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
-        assert completed is not None
-        assert completed.state == "completed"
-        progress = completed.progress
-        assert progress["execution_band"] == "candidate"
-        assert progress["execution_intent_band"] == "simulate_only_attempt"
-        assert progress["candidate_computation_status"] == "completed"
-        assert progress["s8_status"] == "not_run"
-        assert progress["normative_disposition_status"] == "not_run"
-        assert progress["publication_status"] == "not_run"
-        assert isinstance(progress["compiled_recursive_generation_cycle_ref"], str)
-        assert "manifest_ref" not in progress
-        assert "normative_disposition_ref" not in progress
-        assert authority_calls == []
+        assert completed is not None and completed.state == "completed"
+        assert completed.progress["n4_status"] == "generation_unavailable"
+        assert completed.progress["simulation_status"] == "not_run"
+        assert completed.progress["simulation_limitation_code"] == (
+            "n4_generation_unavailable"
+        )
+        assert completed.progress["candidate_proposal_ref"] is None
+        assert completed.progress["n5_status"] == completed.progress["s8_status"] == "not_run"
     finally:
         service.close()
 

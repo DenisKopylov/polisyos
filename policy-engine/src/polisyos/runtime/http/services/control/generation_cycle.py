@@ -513,6 +513,7 @@ async def compile_and_run_recursive_generation_cycle(
     model_name: str,
     trusted_source_context: Mapping[str, object | None] | None = None,
     execution_intent: ExecutionIntent | None = None,
+    n4_proposal_only: bool = False,
     compiler_gateway: _DesignProblemGatewayClient | None,
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
@@ -599,6 +600,18 @@ async def compile_and_run_recursive_generation_cycle(
             "Candidate-only execution cannot carry an attempted EvalSafety context.",
         )
     intent_band = execution_intent_band_for_mode(execution_intent)
+    if n4_proposal_only and (
+        execution_intent != "simulate_only"
+        or controller is not None
+        or root_evaluation_context is not None
+        or cycle_substrate_context is not None
+        or root_n4_generation_port is not None
+    ):
+        raise DesignProblemAuthorityError(
+            "n4_proposal_only_context_conflict",
+            "The N4-only selector requires simulate_only and no admitted EvalSafety "
+            "context, CycleSubstrateContext, recursive controller, or explicit N4 port.",
+        )
     if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED:
         raise DesignProblemAuthorityError(
             "data_trust_owner_not_established",
@@ -656,11 +669,12 @@ async def compile_and_run_recursive_generation_cycle(
         )
     else:
         scope_selection = None
-    if (
+    candidate_only_n4_route = (
         cycle_substrate_context is None
         and execution_intent == "candidate_only"
         and root_n4_generation_port is None
-    ):
+    )
+    if candidate_only_n4_route or n4_proposal_only:
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_proposal_under_a,
         )
@@ -682,10 +696,8 @@ async def compile_and_run_recursive_generation_cycle(
             ),
             target_world_model_record_ref=None,
         )
-    # A candidate-only ordinary request with unknown scope returned its typed
-    # N4 proposal above. Other invocations never infer missing owner context;
-    # the explicit N4 override remains rejected below, and no caller-owned
-    # context or WMR is minted here.
+    # Generic simulate_only calls retain the recursive route unless the served
+    # owner explicitly selects its N4-only subcomputation after intent replay.
     if cycle_substrate_context is None and root_n4_generation_port is not None:
         raise DesignProblemAuthorityError(
             "cycle_substrate_context_not_established",

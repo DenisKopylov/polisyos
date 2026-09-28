@@ -2177,6 +2177,7 @@ class ControlPlaneService(
         model_name: str,
         trusted_source_context: Mapping[str, object | None] | None = None,
         execution_intent: ExecutionIntent | None = None,
+        n4_proposal_only: bool = False,
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
@@ -2196,6 +2197,7 @@ class ControlPlaneService(
             trusted_source_context=trusted_source_context,
             model_name=model_name,
             execution_intent=execution_intent,
+            n4_proposal_only=n4_proposal_only,
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
@@ -4193,6 +4195,14 @@ class ControlPlaneService(
                             context=compiler_context,
                             model_name=model_name,
                             execution_intent=execution_intent,
+                            # This replay-validated served owner has no
+                            # CycleSubstrateContext admission route. Keep the
+                            # persisted simulate_only intent; this selector only
+                            # bounds the subcomputation to N4 and records the
+                            # missing owner context as a typed limitation.
+                            n4_proposal_only=(
+                                intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            ),
                             compiler_gateway=None,
                             budget_state=BudgetState.model_validate(
                                 {
@@ -4297,6 +4307,15 @@ class ControlPlaneService(
                                 },
                                 artifact_refs=[str(capability_manifest_ref)],
                             )
+                            simulation_failure = (
+                                {
+                                    "simulation_status": "not_run",
+                                    "simulation_limitation_code": limitation_code,
+                                }
+                                if intent_band
+                                is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                                else {}
+                            )
                             progress = {
                                 "state": "completed",
                                 "phase": "natural_language_run",
@@ -4318,6 +4337,7 @@ class ControlPlaneService(
                                 "n8_status": "not_run",
                                 "n9_status": "not_run",
                                 "s8_status": "not_run",
+                                **simulation_failure,
                                 **target_scope_progress,
                             }
                             if event_id is None:
@@ -4335,6 +4355,8 @@ class ControlPlaneService(
                         from polisyos.runtime.quality.generation_source import (
                             GenerationSourceRepository,
                             N4CandidateProposalLocator,
+                            N4CandidateProposalSimulationDisposition,
+                            N4CandidateProposalSimulationRecord,
                         )
 
                         run_id = str(job.run_id or payload.get("run_id") or "")
@@ -4374,6 +4396,11 @@ class ControlPlaneService(
                             )
                             return
                         repository = GenerationSourceRepository(self._artifact_store)
+                        simulation_disposition = (
+                            N4CandidateProposalSimulationDisposition()
+                            if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            else None
+                        )
                         proposal_ref = repository.persist_candidate_proposal(
                             job_id=job.job_id,
                             run_id=run_id,
@@ -4382,6 +4409,7 @@ class ControlPlaneService(
                             raw_request=raw_request,
                             problem=compiled.design_problem,
                             proposal=proposal_result,
+                            simulation_disposition=simulation_disposition,
                         )
                         proposal_locator = N4CandidateProposalLocator(
                             artifact_ref=proposal_ref
@@ -4394,6 +4422,24 @@ class ControlPlaneService(
                             cell_id=cell_id,
                             raw_request=raw_request,
                         )
+                        if (
+                            intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and not isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "simulate_only_n4_proposal_disposition_missing"
+                            )
+                        if (
+                            intent_band is not ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "non_simulation_job_received_simulation_disposition"
+                            )
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
@@ -4419,6 +4465,15 @@ class ControlPlaneService(
                             "s8_status": proposal_record.s8_status,
                             **target_scope_progress,
                         }
+                        if isinstance(
+                            proposal_record, N4CandidateProposalSimulationRecord
+                        ):
+                            progress["simulation_status"] = (
+                                proposal_record.simulation_disposition.status
+                            )
+                            progress["simulation_limitation_code"] = (
+                                proposal_record.simulation_disposition.reason_code
+                            )
                         self._control_store.complete_job(
                             job_id=job.job_id,
                             run_id=run_id,

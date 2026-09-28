@@ -35,6 +35,7 @@ SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
 SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
 N4_CANDIDATE_PROPOSAL_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v1"
+N4_CANDIDATE_PROPOSAL_V2_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v2"
 N4_CANDIDATE_PROPOSAL_KIND = "runtime.quality.n4_candidate_proposal"
 N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA = (
     "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
@@ -66,8 +67,23 @@ def _n4_candidate_proposal_write_options() -> artifacts.ArtifactWriteOptions:
     )
 
 
+def _n4_candidate_proposal_v2_write_options() -> artifacts.ArtifactWriteOptions:
+    return artifacts.ArtifactWriteOptions(
+        kind=N4_CANDIDATE_PROPOSAL_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_V2_SCHEMA, version="2.0"),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+    )
+
+
 def _has_n4_candidate_proposal_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
     return _has_owner_profile(manifest, _n4_candidate_proposal_write_options())
+
+
+def _has_n4_candidate_proposal_v2_owner_profile(
+    manifest: artifacts.ArtifactManifest,
+) -> bool:
+    return _has_owner_profile(manifest, _n4_candidate_proposal_v2_write_options())
 
 
 def _has_owner_profile(
@@ -146,6 +162,25 @@ class N4CandidateProposalRecord(_StrictModel):
         ):
             raise ValueError("n4_candidate_proposal_crossed_unrun_stage")
         return self
+
+
+class N4CandidateProposalSimulationDisposition(_StrictModel):
+    """Bind a simulate-only attempt to its unavailable cycle-context outcome."""
+
+    execution_intent_band: Literal["simulate_only_attempt"] = "simulate_only_attempt"
+    status: Literal["simulation_unavailable"] = "simulation_unavailable"
+    reason_code: Literal["cycle_substrate_context_not_established"] = (
+        "cycle_substrate_context_not_established"
+    )
+
+
+class N4CandidateProposalSimulationRecord(N4CandidateProposalRecord):
+    """Versioned N4 proposal carrying a content-bound simulation disposition."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_proposal_record.v2"
+    ] = N4_CANDIDATE_PROPOSAL_V2_SCHEMA
+    simulation_disposition: N4CandidateProposalSimulationDisposition
 
 
 class N4CandidateProposalLocator(_StrictModel):
@@ -431,8 +466,13 @@ class GenerationSourceRepository:
         raw_request: str,
         problem: DesignProblem,
         proposal: n4.N4CandidateProposalSource,
+        simulation_disposition: N4CandidateProposalSimulationDisposition | None = None,
     ) -> artifacts.ArtifactRef:
-        """Persist a candidate-only N4 proposal through the runtime-supplied CAS."""
+        """Persist N4 output through the runtime-supplied CAS and its typed outcome."""
+        if simulation_disposition is not None:
+            simulation_disposition = N4CandidateProposalSimulationDisposition.model_validate(
+                simulation_disposition.model_dump(mode="python")
+            )
         if problem.nl_provenance.raw_request != raw_request:
             raise ValueError("n4_candidate_proposal_request_mismatch")
         _assert_n4_candidate_problem_owner_context(
@@ -455,14 +495,27 @@ class GenerationSourceRepository:
             "problem": problem,
             "proposal": proposal,
         }
-        draft = N4CandidateProposalRecord.model_construct(
-            **payload,
-            content_hash="sha256:" + "0" * 64,
-        ).model_dump(mode="python", exclude={"content_hash"})
+        if simulation_disposition is None:
+            draft = N4CandidateProposalRecord.model_construct(
+                **payload,
+                content_hash="sha256:" + "0" * 64,
+            ).model_dump(mode="python", exclude={"content_hash"})
+            write_options = _n4_candidate_proposal_write_options()
+        else:
+            payload["simulation_disposition"] = simulation_disposition
+            draft = N4CandidateProposalSimulationRecord.model_construct(
+                **payload,
+                content_hash="sha256:" + "0" * 64,
+            ).model_dump(mode="python", exclude={"content_hash"})
+            write_options = _n4_candidate_proposal_v2_write_options()
         draft["content_hash"] = _source_content_hash(draft)
-        artifact = N4CandidateProposalRecord.model_validate(draft)
+        artifact = (
+            N4CandidateProposalRecord.model_validate(draft)
+            if simulation_disposition is None
+            else N4CandidateProposalSimulationRecord.model_validate(draft)
+        )
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
-        return self.store.put_bytes(body, _n4_candidate_proposal_write_options())
+        return self.store.put_bytes(body, write_options)
 
     def load_candidate_proposal(
         self,
@@ -473,7 +526,7 @@ class GenerationSourceRepository:
         tenant_id: str,
         cell_id: str,
         raw_request: str,
-    ) -> N4CandidateProposalRecord:
+    ) -> N4CandidateProposalRecord | N4CandidateProposalSimulationRecord:
         """Verify exact bytes, owner profile, and served job/tenant identity."""
         locator = (
             ref
@@ -493,12 +546,21 @@ class GenerationSourceRepository:
         )
         if not self.store.verify(selected_ref).ok:
             raise ValueError("n4_candidate_proposal_cas_integrity_failed")
-        if not _has_n4_candidate_proposal_owner_profile(self.store.get_manifest(selected_ref)):
+        manifest = self.store.get_manifest(selected_ref)
+        v1_owner_profile = _has_n4_candidate_proposal_owner_profile(manifest)
+        v2_owner_profile = _has_n4_candidate_proposal_v2_owner_profile(manifest)
+        if v1_owner_profile == v2_owner_profile:
             raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
         body = self.store.get_bytes(selected_ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(artifact_ref.artifact_id):
             raise ValueError("n4_candidate_proposal_cas_content_mismatch")
-        artifact = N4CandidateProposalRecord.model_validate(canon.from_canonical_bytes(body))
+        payload = canon.from_canonical_bytes(body)
+        record_type = (
+            N4CandidateProposalRecord
+            if v1_owner_profile
+            else N4CandidateProposalSimulationRecord
+        )
+        artifact = record_type.model_validate(payload)
         expected = {
             "job_id": job_id,
             "run_id": run_id,
@@ -521,11 +583,11 @@ class GenerationSourceRepository:
         tenant_id: str,
         cell_id: str,
         raw_request: str,
-    ) -> N4CandidateProposalRecord:
+    ) -> N4CandidateProposalRecord | N4CandidateProposalSimulationRecord:
         """Admit a current served proposal only when inner provenance matches its owner.
 
-        ``load_candidate_proposal`` remains the byte-exact historical v1 decoder;
-        current workers use this owner-reconciling boundary before consuming N4.
+        Historical v1 proposals remain byte-exact; current workers use this
+        owner-reconciling boundary before consuming either proposal schema.
         """
         artifact = self.load_candidate_proposal(
             ref,

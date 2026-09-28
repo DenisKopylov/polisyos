@@ -3060,7 +3060,7 @@
         "relation": "disagrees",
         "detail": "Appendix C says closed_bounded, but R2 verifies historical replay separately while the live StrangleReceipt currentness path remains source-checkout and complete-src-byte bound. Unrelated-edit reuse versus significant-dependency invalidation has not been distinguished at the loaded-deployment identity boundary; full currentness/P41 is UNRUN."
       },
-      "residual": "R2 now separates historical replay from currentness: the 22/22 history suite replays current and pinned historical runs byte-exactly (2,883 tracked JSON/JSONL inputs), verifies history replay does not consult current source, and preserves the saved historical status when currentness is unknown. This closes the prior historical-replay break only. The live `StrangleReceipt.verify_current` path still requires a source checkout and recomputes the direct AST census/content hash over `src/polisyos`; its own contract declares deployment identity unavailable, so unrelated source-byte changes can still stale live currentness. The remaining B30 property is currentness keyed to canonical loaded-deployment identity with significant-dependency invalidation and unrelated-edit reuse, including source-less packaged use. That distinction and the full four-base P41 remain UNRUN; keep partial. At R2 commit a877f8abc, the full test_generation_cycle.py file collected 149 cases: 145 passed and 4 failed, with no errors or skips. Against 154, 148 identities were common: 139 pass→pass, 5 fail→pass, 4 fail→fail, 0 pass→fail, plus one new passing removal/control case. The complete test_generation_cycle_history.py file passed 26/26 at a877. A later 782 focused R13 fixture correction passed 1/1; the full generation-cycle file was not rerun at 782. These results bound R2 behavior but do not close B30 currentness or four-base P41.",
+      "residual": "R2 now separates historical replay from currentness: the 22/22 history suite replays current and pinned historical runs byte-exactly (2,883 tracked JSON/JSONL inputs), verifies history replay does not consult current source, and preserves the saved historical status when currentness is unknown. This closes the prior historical-replay break only. The live `StrangleReceipt.verify_current` path still requires a source checkout and recomputes the direct AST census/content hash over `src/polisyos`; its own contract declares deployment identity unavailable, so unrelated source-byte changes can still stale live currentness. The remaining B30 property is currentness keyed to canonical loaded-deployment identity with significant-dependency invalidation and unrelated-edit reuse, including source-less packaged use. That distinction and the full four-base P41 remain UNRUN; keep partial. At R2 commit a877f8abc, the full test_generation_cycle.py file collected 149 cases: 145 passed and 4 failed, with no errors or skips. Against 154, 148 identities were common: 139 pass→pass, 5 fail→pass, 4 fail→fail, 0 pass→fail, plus one new passing removal/control case. The complete test_generation_cycle_history.py file passed 26/26 at a877. A later 782 focused R13 fixture correction passed 1/1; the full generation-cycle file was not rerun at 782. These results bound R2 behavior but do not close B30 currentness or four-base P41. At commit a59107f3885895324792d47f0d639e136603bd8a, the selected R2 final-target JUnit group passed 18/18 and the final source-free wheel semantic-mutation replay passed 1/1; the independent V6 review is bounded GO. The standalone governed GY-N6 check returned typed UNRUN (exit 2), with a complete 2,696/2,696 Python census, no production callers, canonical identity not established, and zero N9 callback attempts. These bounded results do not establish packaged strict currentness, an authorized identity issuer/reissue, or the full four-base P41; B30 remains partial.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "CYC-05 scope owner for broader capability; E02-R2 baseline broker for current four-base replay",
@@ -3159,6 +3159,46 @@
           "comparison_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/full/compare-to-154.json@sha256:b8dcc3b3876d5f33e68dc3ac70efb6713a53204ae638f67f8ae3aa83ecceea33",
           "history_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/history/test.junit.xml@sha256:bf2fac94bb6a40e11f5de981c0972b0ab2b8a7a793c0f48753b0dff7b8b519e7",
           "scope": "One-base integration evidence only. The separate 782 focused fixture correction was not followed by a full generation-cycle file rerun. R2/B30 remain partial and exact four-base P41 remains UNRUN."
+        },
+        "r2_packaged_wheel_replay_2026_09_28": {
+          "identity": "R2 source-free packaged-history follow-up at a59107f3885895324792d47f0d639e136603bd8a",
+          "kind": "bounded_packaged_historical_replay_and_typed_currentness_verdict",
+          "source_head": "a59107f3885895324792d47f0d639e136603bd8a",
+          "selected_final_targets": {
+            "collected": 18,
+            "passed": 18,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "exit_code": 0,
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-v6-integrated-dfaa-20260928/r2-v6-final-targets.junit.xml@sha256:62e04d80feb365f07a1d3e7afe17cdd5d3812e4b45c28e769a45927ddb28d716",
+            "scope": "Selected final-target group only; not a full test file or four-base P41 run."
+          },
+          "source_free_wheel_semantic_mutation": {
+            "test_identity": "test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation",
+            "collected": 1,
+            "passed": 1,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "exit_code": 0,
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-v6-integrated-dfaa-20260928/r2-v6-final-wheel.junit.xml@sha256:fe9894a64a7f3f1fc0335fa519525231a26c537f7bc10dfc4ed2568ba17c894f",
+            "scope": "Bounded replay of enumerated historical N6 projections from the built wheel without a live source checkout; this does not establish strict currentness."
+          },
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R2_V6_DELTA_REVIEW_20260928.md@sha256:4b137aabc073b45331d5094edf2b049c810d5c736306b3b09b2ca434d372ad90",
+          "import_boundary_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R2_V6_GX_IMPORT_BOUNDARY_REVIEW_20260928.md@sha256:040e48f7bc086f9cdbf752d0a871a9e5eecae152ae936d3ad371bd7ba2546dd1",
+          "governed_gy_n6_check": {
+            "identity": "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py --check --output-format json",
+            "exit_code": 2,
+            "status": "UNRUN",
+            "issue": "generation_cycle_currentness_reissue_required",
+            "source_census": "2,696/2,696 Python files; denominator complete",
+            "production_callers": [],
+            "canonical_identity": "not_established",
+            "n9_callback_attempt_count": 0,
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-gy-n6-a591-20260928/check.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069"
+          },
+          "residual": "Production-issued canonical deployment identity, authorized reissue path, strict packaged currentness, unrelated-edit reuse versus significant-dependency invalidation, and four-base P41 remain UNRUN. No positive N9 authority or governed epoch reissue is claimed; B30 remains partial."
         }
       }
     },

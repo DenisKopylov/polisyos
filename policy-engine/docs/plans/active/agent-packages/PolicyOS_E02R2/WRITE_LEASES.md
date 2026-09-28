@@ -1,10 +1,12 @@
 # E02-R2 write leases
 
-## Current snapshot addendum (2026-09-28; code/test HEAD dfaa31c7a)
+## Current snapshot addendum (2026-09-28; latest code/test HEAD `a59107f3885895324792d47f0d639e136603bd8a`)
 
-- B88 is integrated at dfaa31c7a with a bounded 19/19 two-file served replay witness; it remains partial. R13 source changes remain in scratch/review. The 8 GiB free-disk floor remains active; recheck available space with df -k before resource-bearing work.
+- B88 is integrated at `dfaa31c7a78d9e1f1afcc849d03f3e294981ea27` with a bounded 19/19 two-file served replay witness; it remains partial pending R13 tenant custody, replay lineage, and four-base P41.
+- R2 is integrated at `a59107f3885895324792d47f0d639e136603bd8a`: the selected final-target group passed 18/18 and the final source-free wheel semantic-mutation replay passed 1/1. B30/R2 remains partial; the GY-N6 gate is typed `UNRUN` / exit 2, and packaged deployment identity issuer/reissue plus four-base P41 remain unresolved. Receipts are recorded in `BASELINES.md` and the B30 ledger row.
+- R13 source changes remain in scratch/review. The 8 GiB free-disk floor remains active; recheck available space with `df -k` before resource-bearing work. Pinned coordination and lease snapshots below refer to earlier heads and are historical.
 
-## Active source leases (2026-09-28; branch HEAD `15c5c40a1`)
+## Historical source-lease snapshot (2026-09-28; branch HEAD `15c5c40a1`; superseded by current snapshot)
 
 - Root alone writes `codex/e02-r2`; the branch was clean at this snapshot. Scratch candidate authors must not edit the integration tree. The 8 GiB free-disk floor supersedes the historical 10 GiB thresholds below. At this snapshot only 8,443,340 KiB were free, so resource-bearing tests and wheel builds wait for measured margin; source stays frozen during every run. The user may clear Trash after checking it; agents may only move verified disposable items there via terminal `mv`.
 - **B88 served replay:** frozen candidate writes `src/polisyos/fabric/connectors/testing/simulator.py` and a new `tests/unit/runtime/http/test_b88_served_replay.py`. No other writer owns these paths. Root will rerun the exact final test plus the complete `tests/unit/fabric/data_plane/test_modes.py` before a B88 commit. This is a bounded served witness; tenant custody remains R13.
@@ -13,7 +15,7 @@
 - **R1 candidate/authority bridge:** read-only design may proceed now. Any new R1 patch that touches `run_lifecycle.py` waits for the R13 handoff; any disjoint `runtime/quality/generation_cycle.py`, `recursive_generation_cycle.py`, or mirrored tests need an exact write-set amendment before a scratch writer starts. Existing positive N4→N5→S8 is not established, so candidate-band work may not assert S8 authority.
 - Governed artifact generators, epochs/receipts, the integration branch, and exclusive native handles remain serialized. B88 and R2 candidate patches have disjoint source/test paths, but their resource-bearing verification runs sequentially while disk margin is narrow. Four-base P41 cells still marked `UNRUN` remain `UNRUN`; the user authorized proceeding with repair while preserving that status.
 
-## Current coordination (2026-09-28, integration HEAD `0c2910581018642e9f27077d625e9309f5ad84ec`)
+## Historical coordination snapshot (2026-09-28, integration HEAD `0c2910581018642e9f27077d625e9309f5ad84ec`)
 
 - Root is the sole writer of `codex/e02-r2`. The branch was clean at this HEAD. Commits `bac6996df` and `3cc111aa9` landed bounded B73 and STA-01 repairs; `0c2910581` recorded B73 evidence in the 282-row ledger. B73 and STA-01 remain partial; the latter has a confirmed direct `AsyncWorkflowExecutor` timeout-configuration residual. STA-01's exact JUnit and falsifier receipts are in `STA_01_REPAIR.md`; B73's are in `FINAL_REPORT.md` and the current ledger.
 - R1's five complete touched test files have a frozen prepatch current-head comparison at `bac6996df`: 356 cases, 325 pass, 20 fail, 11 error. The receipt is `/Users/deniskopylov/.codex/scratch/e02-r1-current-bac-prepatch-20260928/R1_FIVE_FILE_BAC_BASELINE.md@sha256:aea8c52c37c93eeb4e25183bdbbc68428f4257e63f33b4289e104702fd3cacfb`. V2 N4 outcome was blocked on contextless `pass/evaluated` admission; V3 owner-bound outcome and a separate served bridge are in isolated scratch work. Do not edit or test the canonical R1 files until the frozen candidate is reviewed and admitted.

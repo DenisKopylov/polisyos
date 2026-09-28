@@ -1357,3 +1357,15 @@ This is a one-base whole-file witness for the bounded served replay fixture path
 | **Total** | **19** | **19** | **0** |
 
 JUnit: /Users/deniskopylov/.codex/scratch/e02-b88-integrated-6ca-20260928/b88.junit.xml@sha256:1b927d2dd8f977dcdd905bdb0f858ce283b52a8dd0a7f977e415c240dd0c76ac. Ruff was reported clean (exit 0) by the integrator; no standalone raw Ruff log/hash was supplied. B88 remains partial: this witness binds output evidence for selected served replay fixtures, while production runtime-supplied tenant custody and exact persisted replay lineage remain R13 residuals. Finding-specific four-base P41 is UNRUN; BASELINES_DONE remains unclaimed.
+
+## R2 source-free wheel follow-up at a59107f (2026-09-28; bounded, not four-base P41)
+
+The selected R2 final-target group passed 18/18 (0 failed, errored, or skipped). The final built-wheel semantic-mutation replay passed 1/1 for `test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation`. These are bounded selected-target and packaged historical-replay witnesses; they do not establish whole-file currentness or fill any of the 21 × 4 strict Appendix A/B cells.
+
+- Selected-target JUnit: `/Users/deniskopylov/.codex/scratch/e02-r2-v6-integrated-dfaa-20260928/r2-v6-final-targets.junit.xml@sha256:62e04d80feb365f07a1d3e7afe17cdd5d3812e4b45c28e769a45927ddb28d716`
+- Final wheel JUnit: `/Users/deniskopylov/.codex/scratch/e02-r2-v6-integrated-dfaa-20260928/r2-v6-final-wheel.junit.xml@sha256:fe9894a64a7f3f1fc0335fa519525231a26c537f7bc10dfc4ed2568ba17c894f`
+- Independent V6 delta review: `/Users/deniskopylov/.codex/scratch/E02R2_R2_V6_DELTA_REVIEW_20260928.md@sha256:4b137aabc073b45331d5094edf2b049c810d5c736306b3b09b2ca434d372ad90` (bounded GO; the final 1/1 wheel-strengthening run followed the review with unchanged substantive source)
+- Import-boundary review: `/Users/deniskopylov/.codex/scratch/E02R2_R2_V6_GX_IMPORT_BOUNDARY_REVIEW_20260928.md@sha256:040e48f7bc086f9cdbf752d0a871a9e5eecae152ae936d3ad371bd7ba2546dd1`
+- Standalone governed GY-N6 `--check --output-format json`: exit 2, typed `UNRUN`, issue `generation_cycle_currentness_reissue_required`; source census complete at 2,696/2,696 Python files, no production callers, canonical identity `not_established`, and N9 callback attempts 0. Output: `/Users/deniskopylov/.codex/scratch/e02-r2-gy-n6-a591-20260928/check.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`
+
+B30 remains partial. The production deployment-identity issuer and authorized reissue path, strict packaged currentness, positive N9 authority, and four-base P41 remain `UNRUN`. `BASELINES_DONE` remains unclaimed.

@@ -3787,6 +3787,22 @@
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. Complete tracked production-source denominator is 2,696 Python files; no production callsite of _value_outer_set_from_foundry_result was found. The marker-free projection counterexamples are prior bounded diagnostics, not a served positive consumer. No test or four-base replay ran in this audit."
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "owner_decision",
+          "named_blocker": "Unappointed public-IR semantic owner must adopt/version the separation of identification bounds from statistical/model uncertainty.",
+          "owner_refinement": "Atlas DS16 is a downstream consumer/code touch only; no individual or institutional appointment is inferred.",
+          "residual_refinement": "Keep ValueOuterSet identification-only; a separate statistical/model uncertainty channel bound to estimand and unit, with a served producer/consumer, remains unestablished. P37 is not_established; P38 projection can collapse or alter native intervals.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b",
@@ -5837,6 +5853,22 @@
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. Across the complete 2,696-source / 2,732-test tracked Python denominators, ResolveParametersNode is served and registered, but consumes a live SKG query before recording version/ref; a separate SourceSnapshot path does not wrap it. No mutation/removal/control behavior or P41 ran in this audit."
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "data_record",
+          "named_blocker": "SKG source owner must issue an immutable same-run snapshot/read-handle record binding exact selected/consumed bytes, live query, and ResolveParametersNode idempotency identity.",
+          "owner_refinement": "The separate SourceSnapshot bridge is not accepted by ResolveParametersNode and does not bind this live query.",
+          "residual_refinement": "A path-stable key can outlive same-path byte replacement; version/ref is read after selection. Mutation, removal, preserving control, and P41 remain UNRUN.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -14397,6 +14429,22 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "smallest_missing_capability",
+          "named_blocker": "Served simulation evaluator → source/deployment-bound per-draw support → persisted result → shared verified authority intake consumed by ConfidencePass, normative arbitration, and decision-packet enrichment.",
+          "owner_refinement": "The only direct production PropagationDispatcher caller is affine PropagateUncertaintyNode; the served evaluator and shared source-verifying intake are not established.",
+          "residual_refinement": "The integrated fixed-draw producer repair is bounded evidence only. Keep results candidate-only until the served chain is bound/persisted/consumed. Adaptive/sequential stopping remains candidate-only as a bounded limitation, not a second blocker.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@git-blob:ef85325624efa365cd716b9633dc7ed6f1fe4e56#L127,L130,L320",
@@ -14682,6 +14730,22 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "smallest_missing_capability",
+          "named_blocker": "Production Calibrator → persisted CalibrationReport carrying optimizer group-to-field projection → existing PropagateWelfareNode consumer.",
+          "owner_refinement": "The registered welfare consumer exists; no production Calibrator construction or put_calibration_report caller establishes the served writer route.",
+          "residual_refinement": "Persist the optimizer-produced group-to-field/Jacobian mapping and project covariance axes in the existing report/adapter. Removal, report round-trip, served path, and P41 remain UNRUN.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -14997,6 +15061,22 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "owner_decision",
+          "named_blocker": "Public-IR semantic owner must version the point functional independently from equal-tail interval semantics and define replay for standing v1.1 records.",
+          "owner_refinement": "The owner appointment and schema ruling are pending; this does not request broad caller compatibility.",
+          "residual_refinement": "The current envelope validator rejects a valid skewed posterior mean outside its equal-tail interval. Do not change the public contract before the owner ruling; persistence, historical replay, and a production consumer remain UNRUN.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -15136,6 +15216,22 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "owner_decision",
+          "named_blocker": "Public-IR semantic owner must choose the existing PosteriorSamplesCarrier or a content-bound persisted reference, and version axes, weights, and ordered joint-draw identity.",
+          "owner_refinement": "The owner decision is pending; prefer reuse of the existing carrier over a parallel carrier.",
+          "residual_refinement": "The summary omits the source law, so distinct joint pairings can collapse to the same marginals. Persistence/reload, content binding, historical replay, and production consumption remain UNRUN.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -16146,6 +16242,22 @@
           "identity": "Prior 2026-09-27 H/N review before implementation commit",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B219",
           "scope": "Historical source review predating commit 077147d86; its missing-capability/open classification is superseded by the committed implementation. Its finding that the sole production caller discards the conversion remains relevant; no downstream impact is established."
+        },
+        "held_current_head_recheck_20260928": {
+          "audit_head": "28023d69c24d8a5c89fdcd4739b98938370118e9",
+          "current_canonical_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+          "status_before": "held",
+          "status_after": "held",
+          "blocker_kind": "data_record",
+          "named_blocker": "Pinned NetworkX 3.6.1 wheel/runtime must be available offline to execute the direct multiedge permutation, round-trip, and removal witnesses.",
+          "owner_refinement": "The exporter owner change is committed/reviewed; the current project venv lacks NetworkX and no install was attempted.",
+          "residual_refinement": "The exporter behavior/removal probes and P41 remain UNRUN. The sole production caller discards the converted graph, so no downstream consumer effect is claimed; this is not a second blocker for the narrower exporter property.",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
+          "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
+          "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
+          "behavioral_verdict": "UNRUN",
+          "current_recheck_tests_run": false,
+          "four_base_p41": "UNRUN"
         }
       },
       "h_current_add75_audit_20260927": {

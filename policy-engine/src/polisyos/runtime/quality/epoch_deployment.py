@@ -17,6 +17,10 @@ from weakref import WeakKeyDictionary
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import FileSystemSignedArtifactEvidenceRepository, artifacts, contracts, security
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -117,7 +121,7 @@ class EpochDeploymentConfig(BaseModel):
 class _EpochDeploymentState:
     config: EpochDeploymentConfig
     keys: tuple[tuple[str, bytes, tuple[EpochTrustRole, ...]], ...]
-    store: artifacts.FileSystemCAS | None
+    store: artifacts.ArtifactStore | None
     registry: _ChronologyPersistenceRegistry
     native_policy_verifier: contract.PredicatePolicyOwnerProvenanceVerifier | None
     native_policy_operation: (
@@ -246,10 +250,7 @@ class EpochDeployment:
         return FileSystemSignedArtifactEvidenceRepository(store)
 
     def _repository(self) -> FileSystemSignedArtifactEvidenceRepository:
-        store = self._state().store
-        if store is None:
-            raise ValueError("epoch evidence repository is not configured")
-        return FileSystemSignedArtifactEvidenceRepository(store)
+        return self._runtime_repository()
 
     def _verifier(self, role: EpochTrustRole) -> artifacts.Ed25519Verifier:
         state = self._state()
@@ -490,7 +491,12 @@ def build_epoch_deployment(
     state = _EpochDeploymentState(
         config=config,
         keys=keys,
-        store=artifacts.FileSystemCAS(config.evidence_cas_root)
+        store=build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(config.evidence_cas_root),
+            )
+        )
         if config.evidence_cas_root is not None
         else None,
         registry=registry,

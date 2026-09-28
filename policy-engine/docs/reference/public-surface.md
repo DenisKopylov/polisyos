@@ -2292,12 +2292,12 @@ world
 ## `polisyos.foundry`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.execute`
+- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.execute`, `polisyos.foundry.uncertainty`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Stable lazy facade over compile/execute and three generic text-embedding surfaces. Phase 6 keeps public exports on declared facades; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
+- Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
 ### Resolved supported entrypoints
@@ -2308,6 +2308,7 @@ world
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 12 |
 
 #### `polisyos.foundry`
 
@@ -2391,6 +2392,31 @@ compile
 ResolvedExecutionPosture
 execute
 resolve_execution_posture
+```
+
+</details>
+
+#### `polisyos.foundry.uncertainty`
+
+- Source: `src/polisyos/foundry/uncertainty/__init__.py`
+- Facade: `eager_exports`
+- Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
+
+<details><summary>Entrypoint exports (12)</summary>
+
+```text
+AdaptiveStoppingConfig
+AggregationStrategy
+FabricUncertaintyContext
+PropagationConfig
+PropagationDispatcher
+PropagationResult
+PropagationStrategy
+QuasiMCSampler
+aggregate_envelopes
+compute_first_order_indices
+extract_std
+fabric_uncertainty_context_from_decision_data
 ```
 
 </details>

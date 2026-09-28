@@ -1,0 +1,34 @@
+id = "2026-09-28-e02-r2-b198-public-uncertainty-facade"
+title = "Expose typed uncertainty scale extraction through Foundry"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Foundry now exposes typed uncertainty scale extraction through its supported uncertainty entrypoint."
+evidence = [
+  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+  "src/polisyos/foundry/uncertainty/README.md",
+]
+compatibility = "Adds the stable polisyos.foundry.uncertainty entrypoint and extract_std helper; existing supported entrypoints are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry"
+migration = "Import extract_std from polisyos.foundry.uncertainty and pass an UncertaintyEnvelope from the declared IR analytics facade."
+api = "extract_std delegates scale extraction to Foundry's covariance owner; the welfare propagation node consumes the helper and reports unusable scale as an explicit node error."
+limitations = "Typed parametric extraction supports the implemented NORMAL and UNIFORM carrier forms and rejects invalid, inconsistent, or unsupported fits. Legacy interval-only envelopes retain the interval heuristic. The scale result does not establish gate eligibility or policy authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-uncertainty-scale-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Foundry exposes extract_std through polisyos.foundry.uncertainty and uses the shared typed covariance calculation for welfare propagation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

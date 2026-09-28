@@ -2328,7 +2328,8 @@
         "polisyos.foundry",
         "polisyos.foundry.api",
         "polisyos.foundry.compile",
-        "polisyos.foundry.execute"
+        "polisyos.foundry.execute",
+        "polisyos.foundry.uncertainty"
       ],
       "major_subsystem": true,
       "export_count": 27,
@@ -2365,7 +2366,7 @@
       "has___dir__": true,
       "source_file": "src/polisyos/foundry/__init__.py",
       "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports.",
-      "notes": "Stable lazy facade over compile/execute and three generic text-embedding surfaces. Phase 6 keeps public exports on declared facades; moved legacy FQN are compatibility shims registered in architecture/shims.toml.",
+      "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.",
       "entrypoints": [
         {
           "module": "polisyos.foundry",
@@ -2444,6 +2445,29 @@
           "has___dir__": true,
           "source_file": "src/polisyos/foundry/execute/__init__.py",
           "summary": "Stable execute facade for compiled Foundry plans."
+        },
+        {
+          "module": "polisyos.foundry.uncertainty",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 12,
+          "exports": [
+            "AdaptiveStoppingConfig",
+            "AggregationStrategy",
+            "FabricUncertaintyContext",
+            "PropagationConfig",
+            "PropagationDispatcher",
+            "PropagationResult",
+            "PropagationStrategy",
+            "QuasiMCSampler",
+            "aggregate_envelopes",
+            "compute_first_order_indices",
+            "extract_std",
+            "fabric_uncertainty_context_from_decision_data"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
+          "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs."
         }
       ]
     },

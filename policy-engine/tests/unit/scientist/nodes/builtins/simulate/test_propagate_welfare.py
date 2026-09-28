@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import math
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -21,6 +22,8 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.foundry.calibration.report import CalibrationReport, CalibrationUncertainty
+from polisyos.foundry.calibration.uncertainty_adapter import envelope_from_calibration_param
 from polisyos.ir.analytics.decision_layer import load_social_weight_manifest
 from polisyos.ir.analytics.dependence_structure import (
     build_dependence_structure,
@@ -29,18 +32,22 @@ from polisyos.ir.analytics.dependence_structure import (
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
 from polisyos.ir.analytics.welfare import (
+    GEUncertaintyBundle,
+    GEUncertaintyRepresentation,
     load_channel_decomposition_artifact,
     load_welfare_bundle,
     load_welfare_sample_bundle,
+    persist_ge_uncertainty_bundle,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
     PropagateWelfareNode,
 )
@@ -48,6 +55,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.policy_design.phase3 import (
+    Phase3CertificateStatus,
+    phase3_gate_reference_blockers,
+    resolve_phase3_gate,
 )
 
 
@@ -651,3 +665,310 @@ def test_propagate_welfare_node_supports_delta_and_dependence_sampling(tmp_path)
     assert bundle.diagnostics["dependence_applied"] is True
     assert bundle.diagnostics["dependence_sampling"]["strategy"].startswith("gaussian_copula")
     assert "dependence_structure_present_but_not_applied" not in bundle.warnings
+
+
+def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
+    tmp_path,
+) -> None:
+    report = CalibrationReport(
+        calibrated_params={"node.rate": 0.25},
+        total_loss=0.01,
+        uncertainties=CalibrationUncertainty(
+            method="laplace",
+            params=["node.rate"],
+            covariance=[[1.0]],
+            correlation=[[1.0]],
+            std=[1.0],
+        ),
+    )
+    envelope_80 = envelope_from_calibration_param(
+        report,
+        "node.rate",
+        confidence_level=0.8,
+    )
+    envelope_95 = envelope_from_calibration_param(
+        report,
+        "node.rate",
+        confidence_level=0.95,
+    )
+    assert envelope_80 is not None
+    assert envelope_95 is not None
+    display_envelopes: dict[float, UncertaintyEnvelope] = {
+        0.8: envelope_80,
+        0.95: envelope_95,
+    }
+
+    untyped_legacy_envelope = UncertaintyEnvelope(
+        point_estimate=0.25,
+        confidence_interval=display_envelopes[0.95].confidence_interval,
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        metadata={"param_name": "node.rate"},
+    )
+    untyped_heuristic_envelope = untyped_legacy_envelope.model_copy(
+        update={
+            "confidence_level": None,
+            "interval_semantics": IntervalSemantics.HEURISTIC_RANGE,
+            "is_heuristic_ci": True,
+            "gate_eligible": False,
+        }
+    )
+    envelopes = [
+        display_envelopes[0.8],
+        display_envelopes[0.95],
+        untyped_legacy_envelope,
+        untyped_heuristic_envelope,
+    ]
+
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"policy_value": 10.0}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    sim_result_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    ge_matrix_artifact_ref = store.put_json(
+        {"matrix": [[1.0]]},
+        PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    ge_matrix_ref = ArtifactRefModel.model_validate(
+        ge_matrix_artifact_ref.model_dump(mode="json")
+    )
+    ge_uncertainty_ref = persist_ge_uncertainty_bundle(
+        store,
+        GEUncertaintyBundle(
+            model_class="linearized_ge_io",
+            representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
+            multiplier_shape=(1, 1),
+            point_multiplier_ref=ge_matrix_ref,
+            lower_multiplier_ref=ge_matrix_ref,
+            upper_multiplier_ref=ge_matrix_ref,
+        ),
+    )
+
+    def _state_for_envelope(
+        run_id: str,
+        envelope_refs: dict[str, UncertaintyEnvelopeRef],
+    ) -> ExperimentState:
+        return ExperimentState(
+            run_id=run_id,
+            artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref},
+            params={
+                "welfare_metric_order": ["policy_value"],
+                "welfare_weights": {"policy_value": 1.0},
+                "welfare_pe_sensitivity": {
+                    "policy_value": dict.fromkeys(envelope_refs, 1.0)
+                },
+                "welfare_input_envelopes": {
+                    name: envelope_ref.model_dump(mode="json")
+                    for name, envelope_ref in envelope_refs.items()
+                },
+                "welfare_ge_multiplier_semantics": "leontief_inverse",
+                "welfare_ge_uncertainty_ref": ge_uncertainty_ref.model_dump(mode="json"),
+                "welfare_social_weight_manifest": {
+                    "ref": f"swr://phase3/{run_id}@1.0.0#weights",
+                    "method_fqn": "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+                    "normalization": "mean_one",
+                    "income_grid": [0.0, 1.0],
+                    "weights_on_grid": [1.2, 0.8],
+                    "state_keys": ["income"],
+                },
+                "welfare_credible_method": "monte_carlo",
+                "propagation_config": {
+                    "mc_n_samples": 100,
+                    "mc_min_valid_samples": 10,
+                    "mc_seed": 31415,
+                    "compute_sensitivity": False,
+                },
+            },
+        )
+
+    welfare_draws: list[tuple[float, ...]] = []
+    persisted_envelope_refs: list[UncertaintyEnvelopeRef] = []
+    status_observations: list[tuple[str, bool]] = []
+    phase3_observations: list[tuple[bool, bool]] = []
+    persisted_gate_observations: list[bool] = []
+    for index, envelope in enumerate(envelopes):
+        if index < 2:
+            assert isinstance(envelope.distribution_payload, ParametricFitCarrier)
+            assert envelope.distribution_payload.parameters["std"] == 1.0
+        else:
+            assert envelope.distribution_payload is None
+        if not envelope.gate_eligible:
+            assert envelope.confidence_level is None
+            assert envelope.is_heuristic_ci is True
+
+        envelope_ref = persist_uncertainty_envelope(store, envelope)
+        persisted_envelope_refs.append(envelope_ref)
+        persisted_source = load_uncertainty_envelope(store, envelope_ref)
+        if index < 2:
+            assert isinstance(persisted_source.distribution_payload, ParametricFitCarrier)
+        if not persisted_source.gate_eligible:
+            assert persisted_source.confidence_level is None
+            assert persisted_source.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+            assert persisted_source.is_heuristic_ci is True
+            assert persisted_source.gate_eligible is False
+
+        run_id = f"R_welfare_typed_scale_{index}"
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_bundle,
+            run_id=run_id,
+        )
+        ctx = ExecutionContext(
+            store=store,
+            run=run,
+            logger=logging.getLogger("test.welfare.typed_scale"),
+        )
+        state = _state_for_envelope(run_id, {"node.rate": envelope_ref})
+        if index == 2:
+            state.params["welfare_input_envelopes"]["node.unused"] = (
+                persisted_envelope_refs[0].model_dump(mode="json")
+            )
+        outcome = PropagateWelfareNode().execute(ctx, state)
+        assert outcome.status == "ok"
+        bundle = load_welfare_bundle(
+            store,
+            outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
+        )
+        status_observations.append(
+            (
+                bundle.status.value,
+                "input_uncertainty_not_gate_eligible" in bundle.warnings,
+            )
+        )
+        assert bundle.sample_bundle_ref is not None
+        persisted_draws = load_welfare_sample_bundle(store, bundle.sample_bundle_ref)
+        welfare_draws.append(persisted_draws.welfare_draws)
+
+        phase3_gate = resolve_phase3_gate(ctx, outcome.state)
+        phase3_observations.append(
+            (
+                phase3_gate.gate_passed,
+                "phase3.welfare_not_ok" in phase3_gate.blocking_reasons,
+            )
+        )
+
+        forged_pass = Phase3CertificateStatus.model_validate(
+            {
+                **phase3_gate.model_dump(mode="python"),
+                "gate_passed": True,
+                "blocking_reasons": [],
+            }
+        )
+        persisted_gate_blockers = phase3_gate_reference_blockers(store, forged_pass)
+        persisted_gate_observations.append(
+            "phase3.welfare_not_ok" in persisted_gate_blockers
+        )
+
+    assert all(
+        math.isclose(left, right, rel_tol=1e-12, abs_tol=1e-12)
+        for left, right in zip(welfare_draws[0], welfare_draws[1], strict=True)
+    )
+    assert all(
+        math.isclose(left, right, rel_tol=1e-12, abs_tol=1e-12)
+        for left, right in zip(welfare_draws[1], welfare_draws[2], strict=True)
+    )
+    observed = {
+        "bundle_status_and_non_gate_warning": status_observations,
+        "phase3_gate_pass_and_welfare_block": phase3_observations,
+        "persisted_phase3_welfare_block": persisted_gate_observations,
+    }
+    assert observed == {
+        "bundle_status_and_non_gate_warning": [
+            ("degraded", True),
+            ("degraded", True),
+            ("ok", False),
+            ("degraded", True),
+        ],
+        "phase3_gate_pass_and_welfare_block": [
+            (False, True),
+            (False, True),
+            (True, False),
+            (False, True),
+        ],
+        "persisted_phase3_welfare_block": [True, True, False, True],
+    }, observed
+
+    malformed_carrier = ParametricFitCarrier(
+        family=DistributionFamily.NORMAL,
+        parameters={"mean": 0.25},
+    )
+    malformed_envelope = display_envelopes[0.95].model_copy(
+        update={"distribution_payload": malformed_carrier}
+    )
+    malformed_ref = persist_uncertainty_envelope(store, malformed_envelope)
+    malformed_run_id = "R_welfare_malformed_typed_scale"
+    malformed_run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id=malformed_run_id,
+    )
+    malformed_ctx = ExecutionContext(
+        store=store,
+        run=malformed_run,
+        logger=logging.getLogger("test.welfare.malformed_typed_scale"),
+    )
+    malformed_outcome = PropagateWelfareNode().execute(
+        malformed_ctx,
+        _state_for_envelope(malformed_run_id, {"node.rate": malformed_ref}),
+    )
+    assert malformed_outcome.status == "fail"
+    assert malformed_outcome.error is not None
+    assert malformed_outcome.error.code == "ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID"
+
+    mixed_run_id = "R_welfare_typed_scale_mixed_inputs"
+    mixed_run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id=mixed_run_id,
+    )
+    mixed_ctx = ExecutionContext(
+        store=store,
+        run=mixed_run,
+        logger=logging.getLogger("test.welfare.mixed_typed_scale"),
+    )
+    mixed_outcome = PropagateWelfareNode().execute(
+        mixed_ctx,
+        _state_for_envelope(
+            mixed_run_id,
+            {
+                "node.rate": persisted_envelope_refs[1],
+                "node.other": persisted_envelope_refs[2],
+            },
+        ),
+    )
+    assert mixed_outcome.status == "ok"
+    mixed_bundle = load_welfare_bundle(
+        store,
+        mixed_outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
+    )
+    assert mixed_bundle.status.value == "degraded"
+    assert "input_uncertainty_not_gate_eligible" in mixed_bundle.warnings
+    assert "dependence_assumed_independent" in mixed_bundle.warnings

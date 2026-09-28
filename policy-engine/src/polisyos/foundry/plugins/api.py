@@ -10,6 +10,11 @@ from typing import Any, Literal
 import jax
 import jax.numpy as jnp
 
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
@@ -235,6 +240,18 @@ class PolisySimulator:
                 n_episodes=n_episodes,
                 learning_rate=3e-4,
             )
+        training_store = artifact_store
+        if training_store is None and output_dir is not None:
+            local_store = build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(output_dir / "artifacts"),
+                )
+            )
+            training_store = with_ambient_ownership_enforcement_if_supported(
+                local_store
+            )
+
         obs_dim = adapter.observation_dim(training_config)
 
         policy = self._agent_policy
@@ -251,8 +268,7 @@ class PolisySimulator:
                 policy,
                 training_config,
                 seed=seed,
-                output_dir=output_dir,
-                artifact_store=artifact_store,
+                artifact_store=training_store,
             )
         except TrainingBridgeError as exc:
             assert self._state is not None

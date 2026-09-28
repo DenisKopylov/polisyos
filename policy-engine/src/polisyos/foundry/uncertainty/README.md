@@ -28,6 +28,7 @@ output metric uncertainty in Foundry simulations.
 | `QuasiMCSampler`                | Quasi-Monte-Carlo sampler for sampling-based propagation. |
 | `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
+| `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 

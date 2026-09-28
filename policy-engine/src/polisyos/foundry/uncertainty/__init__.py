@@ -1,6 +1,6 @@
 """Expose uncertainty propagation helpers used around Foundry simulation outputs."""
 
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics import UncertaintyEnvelope
 
 from .config import AdaptiveStoppingConfig, PropagationConfig
 from .fabric_quality import FabricUncertaintyContext, fabric_uncertainty_context_from_decision_data

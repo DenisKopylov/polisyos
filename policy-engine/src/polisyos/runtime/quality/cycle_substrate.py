@@ -15,6 +15,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PrivateAttr,
     ValidationError,
     field_validator,
     model_validator,
@@ -73,6 +74,7 @@ _REQUIRED_CONTEXT_JOB_LIMITATIONS = frozenset(
         "s8_current_value_authority_missing",
     }
 )
+_VERIFIED_NL_EXECUTION_OWNER_ISSUER = object()
 # This v1 artifact embeds only model versions whose field trees are frozen
 # below. The L6 owner explicitly supports both its v1 and v2 bundle formats.
 _CONTEXT_JOB_V1_SUPPORTED_MODEL_VERSIONS: dict[str, frozenset[str]] = {
@@ -607,11 +609,48 @@ class CycleSubstrateContextOwnerError(ValueError):
         super().__init__(f"{code}: {message or code}")
 
 
+class VerifiedNLJobScope(_StrictModel):
+    """Ephemeral, purpose-limited scope for replayed simulate-only NL work.
+
+    This is not an ``AccessScope`` and is never serialized into the v1 context
+    artifact. The owner still reconciles its identities to the active persisted
+    worker lease and ambient tenant/cell before it writes or reads any bytes.
+    """
+
+    authority_purpose: Literal["cycle_input_candidate_only"] = (
+        "cycle_input_candidate_only"
+    )
+    admission_status: Literal["established"]
+    intent_band: Literal["simulate_only_attempt"]
+    canonical_mode: Literal["simulate_only"]
+    route_id: Literal["POST /api/v1/control/runs/nl"]
+    route_action: Literal["control.launch_nl_run"]
+    admission_surface: Literal["served_route"]
+    actor_subject: str = Field(..., min_length=1)
+    actor_authenticated: Literal[True]
+    intent_digest: str = Field(..., pattern=_HASH_PATTERN)
+    job_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    tenant_id: str = Field(..., min_length=1)
+    cell_id: str = Field(..., min_length=1)
+    worker_id: str = Field(..., min_length=1)
+    attempt: int = Field(..., ge=1)
+    _issuer: object = PrivateAttr(default=None)
+
+    @property
+    def _was_issued_by_verified_nl_execution_owner(self) -> bool:
+        return self._issuer is _VERIFIED_NL_EXECUTION_OWNER_ISSUER
+
+
 class _CurrentControlJobRecord(Protocol):
     """Minimal persisted job identity exposed by the control-store owner."""
 
     job_id: str
     run_id: str | None
+    submitted_by: str | None
+    state: str
+    lease_owner: str | None
+    attempt: int
 
 
 class _CurrentControlJobExecutionOwner(Protocol):
@@ -706,17 +745,52 @@ def _validate_problem_world_match(
         )
 
 
-def _current_job_scope() -> tuple[str, str]:
-    """Resolve tenant and cell only from the authenticated request context."""
+def _current_job_scope(
+    *,
+    current_job: _CurrentControlJobRecord,
+    verified_nl_job_scope: VerifiedNLJobScope | None = None,
+) -> tuple[str, str]:
+    """Resolve the authenticated request scope or a replayed NL worker scope."""
 
-    scope = get_current_access_scope_or_none()
     tenant_id = get_current_tenant_id_or_none()
     cell_id = get_current_cell_id()
-    if scope is None or not tenant_id or not cell_id:
-        raise CycleSubstrateContextOwnerError(
-            "cycle_substrate_context_job_authenticated_scope_not_established"
-        )
-    if scope.tenant_id != tenant_id or scope.cell_id != cell_id:
+    access_scope = get_current_access_scope_or_none()
+    if verified_nl_job_scope is None:
+        if access_scope is None or not tenant_id or not cell_id:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_authenticated_scope_not_established"
+            )
+        if access_scope.tenant_id != tenant_id or access_scope.cell_id != cell_id:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_authenticated_scope_mismatch"
+            )
+        return tenant_id, cell_id
+
+    if (
+        not tenant_id
+        or not cell_id
+        or verified_nl_job_scope.tenant_id != tenant_id
+        or verified_nl_job_scope.cell_id != cell_id
+        or current_job.job_id != verified_nl_job_scope.job_id
+        or current_job.run_id != verified_nl_job_scope.run_id
+        or current_job.submitted_by != verified_nl_job_scope.actor_subject
+        or current_job.state != "running"
+        or current_job.lease_owner != verified_nl_job_scope.worker_id
+        or current_job.attempt != verified_nl_job_scope.attempt
+        or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+        or verified_nl_job_scope.authority_purpose != "cycle_input_candidate_only"
+        or verified_nl_job_scope.admission_status != "established"
+        or verified_nl_job_scope.intent_band != "simulate_only_attempt"
+        or verified_nl_job_scope.canonical_mode != "simulate_only"
+        or verified_nl_job_scope.route_id != "POST /api/v1/control/runs/nl"
+        or verified_nl_job_scope.route_action != "control.launch_nl_run"
+        or verified_nl_job_scope.admission_surface != "served_route"
+        or verified_nl_job_scope.actor_authenticated is not True
+    ):
+        raise CycleSubstrateContextOwnerError("cycle_substrate_context_job_verified_scope_mismatch")
+    if access_scope is not None and (
+        access_scope.tenant_id != tenant_id or access_scope.cell_id != cell_id
+    ):
         raise CycleSubstrateContextOwnerError(
             "cycle_substrate_context_job_authenticated_scope_mismatch"
         )
@@ -811,6 +885,7 @@ def _build_cycle_substrate_context_job_artifact(
     *,
     problem: DesignProblem,
     current_job: _CurrentControlJobRecord,
+    verified_nl_job_scope: VerifiedNLJobScope | None = None,
 ) -> CycleSubstrateContextJobArtifact:
     """Build candidate handoff from the current persisted control-job record.
 
@@ -823,7 +898,10 @@ def _build_cycle_substrate_context_job_artifact(
         raise CycleSubstrateContextOwnerError(
             "cycle_substrate_context_job_persisted_identity_missing"
         )
-    tenant_id, cell_id = _current_job_scope()
+    tenant_id, cell_id = _current_job_scope(
+        current_job=current_job,
+        verified_nl_job_scope=verified_nl_job_scope,
+    )
     verified_context = revalidate_cycle_substrate_context(context)
     problem_ref = _cycle_job_v1_design_problem_ref(problem)
     if verified_context.design_problem_ref != problem_ref:
@@ -896,6 +974,7 @@ class CycleSubstrateContextArtifactOwner:
         context: CycleSubstrateContext,
         *,
         problem: DesignProblem,
+        verified_nl_job_scope: VerifiedNLJobScope | None = None,
     ) -> artifacts.ArtifactRef:
         """Persist through the runtime store under the current persisted job lease."""
 
@@ -904,6 +983,7 @@ class CycleSubstrateContextArtifactOwner:
             context,
             problem=problem,
             current_job=current_job,
+            verified_nl_job_scope=verified_nl_job_scope,
         )
         return self._store.put_json(
             _serialize_cycle_substrate_context_job_artifact(artifact),
@@ -916,6 +996,7 @@ class CycleSubstrateContextArtifactOwner:
         ref: artifacts.ArtifactRef,
         *,
         problem: DesignProblem,
+        verified_nl_job_scope: VerifiedNLJobScope | None = None,
     ) -> CycleSubstrateContextJobArtifact:
         """Verify a ref against the persisted job authorized by the active lease."""
 
@@ -924,7 +1005,10 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_persisted_identity_missing"
             )
-        tenant_id, cell_id = _current_job_scope()
+        tenant_id, cell_id = _current_job_scope(
+            current_job=current_job,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
         if not self._store.verify(ref).ok:
             raise CycleSubstrateContextOwnerError(

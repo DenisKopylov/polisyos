@@ -1807,13 +1807,17 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    """A served, fixture-admitted context reaches the existing N5 owner path."""
-    from polisyos.core.security import tenant_scope
+    """A labeled test fixture reaches N5 without establishing profile or S8 authority."""
+    from polisyos.core.security import (
+        get_current_access_scope_or_none,
+        tenant_scope,
+    )
     from polisyos.ir.analytics.ncm import persist_ncm_spec
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
         CycleSubstrateContextArtifactOwner,
         CycleSubstrateContextJobArtifact,
+        CycleSubstrateContextOwnerError,
         build_cycle_substrate_context,
     )
     from polisyos.runtime.quality.design_problem import DesignProblem
@@ -1890,7 +1894,12 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
                 update={
                     "candidate_lever_space": base_problem.candidate_lever_space.model_copy(
                         update={"candidate_levers": problem_levers}
-                    )
+                    ),
+                    "schema_version": "policyos.runtime.design_problem.v2",
+                    "runtime_hints": {
+                        **base_problem.runtime_hints,
+                        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+                    },
                 }
             )
             problem_ref = generation_cycle_service.gy_content_hash(
@@ -1939,9 +1948,11 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             raise
     owner_refs = []
     owner_replays = []
+    verified_scope_observations = []
     n5_port_observations = []
     n5_engine_requests = []
     compiler_calls = []
+    compiled_runs = []
 
     async def compile_fixture_problem(**kwargs):
         compiler_calls.append(kwargs)
@@ -1956,15 +1967,49 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
 
-    def record_persist(owner, context, *, problem):
+    def record_persist(owner, context, *, problem, verified_nl_job_scope=None):
         assert owner._store is service._artifact_store
-        ref = original_persist(owner, context, problem=problem)
+        assert verified_nl_job_scope is not None
+        assert get_current_access_scope_or_none() is None
+        for changed_scope in (
+            verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+            verified_nl_job_scope.model_copy(
+                update={"attempt": verified_nl_job_scope.attempt + 1}
+            ),
+            verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+        ):
+            assert changed_scope._was_issued_by_verified_nl_execution_owner
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_verified_scope_mismatch",
+            ):
+                original_persist(
+                    owner,
+                    context,
+                    problem=problem,
+                    verified_nl_job_scope=changed_scope,
+                )
+        verified_scope_observations.append(verified_nl_job_scope)
+        ref = original_persist(
+            owner,
+            context,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         owner_refs.append(ref)
         return ref
 
-    def record_resolve(owner, ref, *, problem):
+    def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
         assert owner._store is service._artifact_store
-        artifact = original_resolve(owner, ref, problem=problem)
+        assert verified_nl_job_scope is not None
+        assert get_current_access_scope_or_none() is None
+        verified_scope_observations.append(verified_nl_job_scope)
+        artifact = original_resolve(
+            owner,
+            ref,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         owner_replays.append(artifact)
         return artifact
 
@@ -2048,7 +2093,9 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
                     eval_safety_verifier=recursive._eval_safety_verifier,
                 )
             )
-            return await original_run(*args, **run_kwargs)
+            compiled = await original_run(*args, **run_kwargs)
+            compiled_runs.append(compiled)
+            return compiled
 
         recursive.run = run_with_fixture_generation
         return recursive
@@ -2101,7 +2148,7 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert progress["publication_status"] == "not_run"
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
-        assert compiler_calls[0]["raw_request"] == problem.nl_provenance.raw_request
+        assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
         assert len(source_owner.calls) == 1
         admission_call = source_owner.calls[0]
         assert admission_call["target_world_scope_profile_id"] == profile_id
@@ -2111,6 +2158,15 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert admission_call["tenant_id"] == "tenant-fixture"
         assert admission_call["cell_id"] == "cell-fixture"
         assert len(owner_refs) == len(owner_replays) == 1
+        assert len(verified_scope_observations) == 2
+        assert verified_scope_observations[0] is verified_scope_observations[1]
+        assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
+        assert verified_scope_observations[0].job_id == launch.job_id
+        assert verified_scope_observations[0].run_id == str(job.run_id)
+        assert verified_scope_observations[0].tenant_id == "tenant-fixture"
+        assert verified_scope_observations[0].cell_id == "cell-fixture"
+        assert verified_scope_observations[0].worker_id == leased.lease_owner
+        assert verified_scope_observations[0].attempt == leased.attempt
         assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
 
         context_artifact = CycleSubstrateContextJobArtifact.model_validate(
@@ -2137,6 +2193,22 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert n5_engine_requests[0].world_model_record.content_hash == (
             context_artifact.context.world_model_record.content_hash
         )
+        assert len(compiled_runs) == 1
+        recursive_run = compiled_runs[0]
+        assert len(recursive_run.leaf_nodes) == 1
+        leaf_run = recursive_run.leaf_nodes[0].cycle_run
+        assert leaf_run is not None
+        assert leaf_run.cycles
+        assert leaf_run.cycles[-1].simulation.status == "joint_simulated"
+        assert leaf_run.promotion_port.status == "not_promoted"
+        assert leaf_run.promotion_port.certified_candidate_ids == ()
+        assert leaf_run.promotion_port.receipts == ()
+        assert leaf_run.fronts.decision.candidate_ids == ()
+        assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
+        assert "n9_receipt_ref" not in progress
+        assert progress["normative_disposition_status"] == "not_run"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
 
     finally:
         service.close()

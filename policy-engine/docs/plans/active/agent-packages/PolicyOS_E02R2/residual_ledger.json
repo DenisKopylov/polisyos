@@ -3904,7 +3904,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "Public-IR semantic-owner decision — versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:776e05d669a51b8d8e0dc4e9cd18b6a443572e45e8607f1d6c1c93efebd92cad#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "current_frontier_recheck": {
@@ -15460,7 +15460,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:776e05d669a51b8d8e0dc4e9cd18b6a443572e45e8607f1d6c1c93efebd92cad#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {
@@ -15614,7 +15614,7 @@
         "decision_record_draft": {
           "kind": "section_9_7_owner_decision_draft",
           "identity": "DS16 / IR versioned public uncertainty representation: B31/B201/B202",
-          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:fb6942e55a1285979d59e1c8d7fcbcf20e9abab35c56648c2a74bf051079e507#public-IR-owner-decision-B31-B201-B202",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md@sha256:776e05d669a51b8d8e0dc4e9cd18b6a443572e45e8607f1d6c1c93efebd92cad#public-IR-owner-decision-B31-B201-B202",
           "scope": "Draft only, not adopted; one owner decision per row. Full options, costs, premises, remainder, falsifier and binding seam are in DECISION_RECORDS.md."
         },
         "h14_source_review": {

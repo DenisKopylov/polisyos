@@ -1572,3 +1572,49 @@ def test_public_projection_reuses_public_revision_state_silent_upgrade_firewall(
                 }
             ),
         )
+
+
+@pytest.mark.asyncio
+async def test_identity_current_v4_source_limited_run_is_refused_by_public_pre_n9_projection(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from tests.unit.runtime.quality.test_s8_blocked_generation_owner import (
+        _owner_source_harness,
+        _track_currentness_observations,
+    )
+
+    harness = await _owner_source_harness(
+        tmp_path,
+        disposition="stop",
+        runtime_source_store=False,
+        identity_current=True,
+        monkeypatch=monkeypatch,
+    )
+    run = harness["run"]
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    observations = _track_currentness_observations(monkeypatch)
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "projection-resolver"))
+    # The currentness witness and exact source marker isolate the custody gate.
+    # If that gate is removed, projection proceeds to the downstream open-world
+    # checks and returns a different refusal, so this exact assertion turns red.
+    with pytest.raises(PublicExportRedactionError) as refused:
+        public_export_module.project_pre_n9_open_world_limitations(
+            run=run,
+            design_problem=harness["problem"],
+            resolver=runtime.resolver,
+            repo_root=harness["source_root"],
+        )
+    assert refused.value.code == "generation_cycle_source_custody_not_established"
+    assert observations
+    assert all(
+        item
+        == {
+            "recorded_identity_status": "established",
+            "recorded_deployment_identity": run.deployment_identity,
+        }
+        for item in observations
+    )

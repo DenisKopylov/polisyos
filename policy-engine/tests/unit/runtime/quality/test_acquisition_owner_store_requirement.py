@@ -50,6 +50,22 @@ def test_skg_capture_without_supplied_store_does_not_rebuild_local_cas(
     assert not (repo_root / ".n7-live-cas").exists()
 
 
+def test_real_gateway_rejects_private_store_configuration_route(tmp_path: Path) -> None:
+    """Live owner gateways cannot replace the runtime's exact store with a root config."""
+    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
+
+    private_root = tmp_path / "private-owner-cas"
+    with pytest.raises(TypeError):
+        RealAcquisitionOwnerGateway(
+            repo_root=tmp_path,
+            artifact_store_config=ArtifactStoreConfig(
+                backend="filesystem", root=str(private_root)
+            ),
+        )
+
+    assert not private_root.exists()
+
+
 def test_default_production_gateway_requires_runtime_store(tmp_path: Path) -> None:
     from polisyos.runtime.quality.generation_cycle import GenerationCycleController
     from polisyos.runtime.quality.design_problem import DesignProblem
@@ -95,9 +111,11 @@ def test_default_gateway_uses_exact_tenant_store_for_skg_produce_and_replay(
             )
             assert tenant_store.get_bytes(ref)
 
-        with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
-            with pytest.raises(ArtifactOwnershipError):
-                foreign_store.get_bytes(ref)
+        with (
+            tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            foreign_store.get_bytes(ref)
 
         assert not (repo_root / ".n7-live-cas").exists()
     finally:

@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02r2.residual-ledger.v1",
-  "census_head": "782652222cece9899adea0a171c08166544901b9",
+  "census_head": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e",
   "denominator": {
     "B": 225,
     "LA": 57,
@@ -8,10 +8,10 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 3,
-    "partial": 267,
+    "closed": 5,
+    "partial": 264,
     "held": 12,
-    "open": 0
+    "open": 1
   },
   "appendix_c_counts": {
     "closed_bounded": 132,
@@ -26,8 +26,8 @@
   },
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Complete four-base P41 status remains UNRUN unless a row cites a complete four-base receipt; current-head finding-specific witnesses do not fill that matrix. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
-    "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. The complete ledger status census is 3 closed / 267 partial / 12 held / 0 open across 282 findings.",
-    "The 18 Appendix-C no-record items now have individual finding-level audit records, but none is newly closed: all 18 are now partial after B72 advances on bounded post-code evidence. B09 remains partial: the add75 audit confirms synthetic same-candidate history/unchanged-input refusal, but no new admitted Data Forge bytes drive a real second N6 evaluation. The add75 source/test audits for CYC-03 (B09/B27/B28) and OPT-01 (B108/B109/B111) ran no tests and leave four-base P41 UNRUN. SIM-03 is 14/14 at ff07e89 and OPT-01 is 88/88 at 679f096e3 as historical focused receipts; the current add75 OPT-01 whole file is 35/35, but its other three bases remain UNRUN. B57-B59 have an add75 read-only audit with current four-base replay UNRUN; B72/B73 have integrated add75 finding tests (unit 6/6, checkpoint-resume 8/8) but retain real-CAS/distributed residuals; B88 has a 15/15 owner-only test_modes.py run at 84ac with served real-owner/output-evidence binding still absent; B72 is now partial after the Ray/non-Temporal status-loss path received a bounded typed-admission repair; the Temporal collection remained skipped because temporalio is unavailable, and the persisted width-one/width-two resume discriminator remains UNRUN. B111 typed-omission evidence remains scratch-candidate-only; current whole-file 35/35 does not exercise mixed typed omission/partial projection. The candidate does not reach sibling legacy projections or PolicyArtifactBuilder/PolicyFrontierReport consumers, and a static duplicate-omission-identity escape is not yet executed. Native CAS rejection and in-memory Pareto omission are distinct properties; P40 now requires widening the same class, not another instance patch. LA-021's 7,761-record receipts stop at earlier ledger blobs; the current 43d ledger blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both inventories. Latest-ledger input parity, the exact 418-input selector and the 140-file caller replay remain UNRUN. Appendix-C labels stay no_finding_level_record; no finding status promotion is inferred. Current add75 read-only audits: /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc03-opt01-20260927/CYC03_OPT01_CURRENT_HEAD_BEHAVIOR_AUDIT.md@sha256:46b165619181cf3558a25dd36f34c6d9b6a70a4e7e09be32ee935cf79ebc465f; /Users/deniskopylov/.codex/scratch/e02-r2-n-sim03-sta01-20260927/N_SIM03_STA01_CURRENT_HEAD_AUDIT.md@sha256:faab27c1d265e4a17a938d17a54661e90e8e6f6c839622db44c03e9f6363a5d0; current OPT-01 JUnit /Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/corrected.junit.xml@sha256:eaefc862f168da2ed9974da131e417fc728b2eb2a7e7758087cd4070fbae84a6; Sources: /Users/deniskopylov/.codex/scratch/e02-r2-report-audit-20260927/REPORT_AUDIT.md@sha256:5d25e18302596a88eed69377b81aa1b13654f40e9987c2d1bd9d2bef01554080; /Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e; /Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67",
+    "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. That 782-pinned census predates the 2026-09-28 N and LA-021 reconciliation. The current combined row census at 93affc59 is 5 closed / 264 partial / 12 held / 1 open across 282 findings.",
+    "The 18 Appendix-C no-record IDs retain their historical Appendix-C label. The 2026-09-28 finding-level reconciliation covers 13 rows from CYC-03, RES-02, STA-01, and SIM-03: B59 is closed bounded to declared-leaf isolation; B09 is open because a positive newly admitted-evidence discriminator is absent; the other 11 are partial. LA-021 is separately closed bounded after a complete 7,762-record tracked JSON/JSONL corpus comparison and owner behavioral tests. That adds a second closed row, yielding current statuses among the 18 historical no-record IDs of 2 closed / 15 partial / 1 open. The CYC/SIM tests retain their recorded 9e0/031e execution snapshots; the LA-021 JUnits ran at 031e and its 12 owner plus five test source blobs are unchanged through 93aff (receipt cited in the LA-021 row). This is not a full four-base P41 run. Exact 418-input architect selector and 140 shared caller-file replay remain UNRUN. See row-specific source and test evidence; package acceptance and source inference are not current test passes.",
     "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 87 engineering / 13 principal decision drafts / 18 typed blockers, as summarized in FINAL_REPORT.md. This reclassification does not change finding status or provide implementation evidence. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
     "H14 current add75 row walk (14 IDs): status=12 held, 2 bounded closed (LA-010, LA-049), 0 open; blocker kinds among the 12 held are owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027), data_record=3 (B61, B219, LA-031), smallest_missing_capability=3 (B194, B197, LA-032). The LA-only migration audit memo's 6/2/4 partition places B219 in smallest_missing_capability; the separate B219 current audit and ledger row establish data_record because the pinned NetworkX 3.6.1 runtime artifact is unavailable while the implementation owner exists. This disagreement is explicit and resolved from the complete 14-row current ledger plus B219 owner audit. Current head add75e473; source census receipts: /Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b; /Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4. The two LA closures are bounded to in-repository owner/caller contracts; external/history compatibility is not blanket-scoped. No four-base P41 is claimed.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
@@ -431,9 +431,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "R1/R5 now give bounded owner-object and served candidate-band results, but the card-level ordinary request → actual N5 result-derived context path is still unmeasured. Keep current partial status; no finding-level verdict is inferred."
+        "detail": "R1/R5 now give bounded owner-object and served candidate-band results, but the card-level ordinary request → actual N5 result-derived context path is still unmeasured. Keep current partial status; no finding-level verdict is inferred. The R1 031e witness is bounded N4 candidate work only and does not measure the card’s served N5 result-derived-context discriminator; the finding-level relation remains not_measured."
       },
-      "residual": "The ordinary served candidate band is now exercised: R5 persists a plain-language N4 candidate without requiring N6/S8 or publication, and protected non-simulation intent still requires current EvalSafety. R1 adds a context artifact owner bound to the guarded current job. The remaining B01 discriminator is the same served request reaching allowed N5 computation with an actual N5 result-derived context from a compatible candidate-grade WMR; explicit N4 without a context still refuses. The source builder exists for UA/fiscal_credit/2021–2023, but the current served social/2024–2026/credit_access problem is incompatible and no tenant-store WMR or positive HTTP→N5→CAS chain is established. Keep candidate work available with typed unknown scope; retain authority gates. Finding-level four-base replay remains UNRUN. The untested time relation is the same R1/P38 scope-binding class one level deeper under P40, not a new interval-specific class; widen the generic owner predicate instead of patching one fixture.",
+      "residual": "The ordinary served candidate band is now exercised: R5 persists a plain-language N4 candidate without requiring N6/S8 or publication, and protected non-simulation intent still requires current EvalSafety. R1 adds a context artifact owner bound to the guarded current job. The remaining B01 discriminator is the same served request reaching allowed N5 computation with an actual N5 result-derived context from a compatible candidate-grade WMR; explicit N4 without a context still refuses. The source builder exists for UA/fiscal_credit/2021–2023, but the current served social/2024–2026/credit_access problem is incompatible and no tenant-store WMR or positive HTTP→N5→CAS chain is established. Keep candidate work available with typed unknown scope; retain authority gates. Finding-level four-base replay remains UNRUN. The untested time relation is the same R1/P38 scope-binding class one level deeper under P40, not a new interval-specific class; widen the generic owner predicate instead of patching one fixture. Bounded R1 evidence at code commit 031e2133c: a served persisted `simulate_only_attempt` with no CycleSubstrateContext takes the N4-only route, persists and reopens a content-bound `N4CandidateProposalSimulationRecord.v2`, and records `simulation_unavailable/cycle_substrate_context_not_established` with N5/N8/N9/S8 `not_run`. This does not establish B01’s allowed N5 computation with a context derived from an actual N5 result. A positive served N4→N5→S8 path over compatible tenant-store WMR/context and currentness remains unestablished.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Runtime HTTP composition and generation-cycle owner; AcquisitionWorldGrowthBridge owner for canonical post-growth/store witness",
@@ -528,7 +528,36 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
           "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
-        }
+        },
+          "r1_031e_served_candidate_fallback": {
+            "identity": "R1 served no-context simulate-only N4 proposal fallback at 031e2133c",
+            "kind": "bounded_served_candidate_proposal_without_simulation",
+            "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+            "behavioral_verdict": "PASS_BOUNDED",
+            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
+            "p41_comparison": {
+              "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "cohort_count": 7,
+              "common_identity_count": 144,
+              "common_pass_to_nonpass_count": 0,
+              "limitation": "Exact same-environment pre-R1 comparison for the listed cohorts; not the full four-base 21-file matrix.",
+              "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/R1_POST_STRUCTURAL_P41.json@sha256:01573aee7a89896bcbce52cc977b3501cf3dacafdb2da4234d4ee636b44f2aed"
+            },
+            "witness_refs": [
+              "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
+              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
+              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+              "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
+              "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
+              "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/intent-final.junit.xml@sha256:b7b41469a93900b5025f41583fb40ca487202b7b8280a649220d12bb81cc59d2",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/http.junit.xml@sha256:597ebccf595c7e72b11b81c29373773952c04c5a1511778320eeff98402f06c8",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/nl-acq.junit.xml@sha256:6f18bc2b29bbc8fe7d56f878152081fc800d66f406dd597346f2902f33656eb6",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/source.junit.xml@sha256:d68b72024d5bb6e7d8b307bbf5dc69cc134096475f13d9f66c2772cbc4ef3a9f",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
+            ]
+          }
       }
     },
     {
@@ -546,9 +575,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "R1 proves job-scoped context persistence/resolve at the owner seam; it does not measure served continuity from a compatible candidate-grade WMR through the HTTP/N6/N5 consumer chain. The builder and source exist, but the current served problem does not match their time/domain/slot scope and no tenant-store WMR is established. Keep partial."
+        "detail": "R1 proves job-scoped context persistence/resolve at the owner seam; it does not measure served continuity from a compatible candidate-grade WMR through the HTTP/N6/N5 consumer chain. The builder and source exist, but the current served problem does not match their time/domain/slot scope and no tenant-store WMR is established. Keep partial. The R1 031e witness does not exercise context continuity across recursion/N6/N5; the finding-level relation remains not_measured."
       },
-      "residual": "R1 now supplies a typed context artifact owner that binds the test-built context to the active persisted job, tenant/cell and DesignProblem through the guarded control store and runtime-provided artifact-store interface. The 27/27 receipt is owner-level behavior, not a served production bridge: it does not show the same owner-issued context resolved by the HTTP composition and consumed across recursion, N6 and N4/N5 using a compatible candidate-grade WMR resolved through the runtime-store owner; profile admission is required only for S8/authority. The current candidate route and owner unit tests do not establish production source/WMR provenance or post-admission re-entry. Keep partial; served end-to-end context continuity and four-base replay remain UNRUN. The untested time relation is the same R1/P38 scope-binding class one level deeper under P40, not a new interval-specific class; widen the generic owner predicate instead of patching one fixture.",
+      "residual": "R1 now supplies a typed context artifact owner that binds the test-built context to the active persisted job, tenant/cell and DesignProblem through the guarded control store and runtime-provided artifact-store interface. The 27/27 receipt is owner-level behavior, not a served production bridge: it does not show the same owner-issued context resolved by the HTTP composition and consumed across recursion, N6 and N4/N5 using a compatible candidate-grade WMR resolved through the runtime-store owner; profile admission is required only for S8/authority. The current candidate route and owner unit tests do not establish production source/WMR provenance or post-admission re-entry. Keep partial; served end-to-end context continuity and four-base replay remain UNRUN. The untested time relation is the same R1/P38 scope-binding class one level deeper under P40, not a new interval-specific class; widen the generic owner predicate instead of patching one fixture. Bounded R1 evidence at code commit 031e2133c persists/reopens the no-context served N4 proposal as v2 with typed `simulation_unavailable`; N5/N8/N9/S8 stay `not_run`. This intentionally does not claim continuity through recursion, N6, or N5. The positive same-owner context crossing the served HTTP→N5 chain remains unestablished.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Runtime HTTP composition and generation-cycle owner; AcquisitionWorldGrowthBridge owner for canonical post-growth/store witness",
@@ -643,7 +672,36 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
           "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
-        }
+        },
+          "r1_031e_served_candidate_fallback": {
+            "identity": "R1 served no-context simulate-only N4 proposal fallback at 031e2133c",
+            "kind": "bounded_served_candidate_proposal_without_simulation",
+            "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+            "behavioral_verdict": "PASS_BOUNDED",
+            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
+            "p41_comparison": {
+              "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "cohort_count": 7,
+              "common_identity_count": 144,
+              "common_pass_to_nonpass_count": 0,
+              "limitation": "Exact same-environment pre-R1 comparison for the listed cohorts; not the full four-base 21-file matrix.",
+              "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/R1_POST_STRUCTURAL_P41.json@sha256:01573aee7a89896bcbce52cc977b3501cf3dacafdb2da4234d4ee636b44f2aed"
+            },
+            "witness_refs": [
+              "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
+              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
+              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+              "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
+              "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
+              "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/intent-final.junit.xml@sha256:b7b41469a93900b5025f41583fb40ca487202b7b8280a649220d12bb81cc59d2",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/http.junit.xml@sha256:597ebccf595c7e72b11b81c29373773952c04c5a1511778320eeff98402f06c8",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/nl-acq.junit.xml@sha256:6f18bc2b29bbc8fe7d56f878152081fc800d66f406dd597346f2902f33656eb6",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/source.junit.xml@sha256:d68b72024d5bb6e7d8b307bbf5dc69cc134096475f13d9f66c2772cbc4ef3a9f",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
+            ]
+          }
       }
     },
     {
@@ -661,9 +719,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "R1/R5 measure owner-context integrity and N4 candidate handling, not normal N5 request construction, method execution and CAS readback. Keep partial."
+        "detail": "R1/R5 measure owner-context integrity and N4 candidate handling, not normal N5 request construction, method execution and CAS readback. Keep partial. The R1 031e witness explicitly records simulation_unavailable and does not exercise the N5 request/result discriminator; the finding-level relation remains not_measured."
       },
-      "residual": "The served ordinary route now persists an N4 candidate, and R1 verifies a content-bound context owner; neither constructs and executes the normal N5 request from the actual candidate, intervention atoms, WMR, outcomes, horizon and authorized resources. No cited run reaches a production simulation method and verifies the numeric result through the runtime CAS readback. Keep partial until a served request-builder/consumer witness proves that path and rejects a changed material binding; finding-level four-base replay remains UNRUN.",
+      "residual": "The served ordinary route now persists an N4 candidate, and R1 verifies a content-bound context owner; neither constructs and executes the normal N5 request from the actual candidate, intervention atoms, WMR, outcomes, horizon and authorized resources. No cited run reaches a production simulation method and verifies the numeric result through the runtime CAS readback. Keep partial until a served request-builder/consumer witness proves that path and rejects a changed material binding; finding-level four-base replay remains UNRUN. Bounded R1 evidence at code commit 031e2133c persists/reopens the served N4 candidate as v2 with typed `simulation_unavailable`; it does not construct or run an N5 request, produce a numerical result, or read that result back from runtime CAS. Keep the N5 request-builder/consumer witness and finding-level four-base replay open.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Runtime HTTP composition and generation-cycle owner; AcquisitionWorldGrowthBridge owner for canonical post-growth/store witness",
@@ -758,7 +816,36 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
           "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
-        }
+        },
+          "r1_031e_served_candidate_fallback": {
+            "identity": "R1 served no-context simulate-only N4 proposal fallback at 031e2133c",
+            "kind": "bounded_served_candidate_proposal_without_simulation",
+            "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+            "behavioral_verdict": "PASS_BOUNDED",
+            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
+            "p41_comparison": {
+              "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "cohort_count": 7,
+              "common_identity_count": 144,
+              "common_pass_to_nonpass_count": 0,
+              "limitation": "Exact same-environment pre-R1 comparison for the listed cohorts; not the full four-base 21-file matrix.",
+              "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/R1_POST_STRUCTURAL_P41.json@sha256:01573aee7a89896bcbce52cc977b3501cf3dacafdb2da4234d4ee636b44f2aed"
+            },
+            "witness_refs": [
+              "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
+              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
+              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+              "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
+              "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
+              "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/intent-final.junit.xml@sha256:b7b41469a93900b5025f41583fb40ca487202b7b8280a649220d12bb81cc59d2",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/http.junit.xml@sha256:597ebccf595c7e72b11b81c29373773952c04c5a1511778320eeff98402f06c8",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/nl-acq.junit.xml@sha256:6f18bc2b29bbc8fe7d56f878152081fc800d66f406dd597346f2902f33656eb6",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/source.junit.xml@sha256:d68b72024d5bb6e7d8b307bbf5dc69cc134096475f13d9f66c2772cbc4ef3a9f",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
+              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
+            ]
+          }
       }
     },
     {
@@ -1068,12 +1155,12 @@
       "closure_owner": "CYC-03",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "partial",
+      "status": "open",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records that E02 had no finding-level record. The current row now has a discriminator-level source audit and retained negative-control tests. The audit recommends open because the card’s required newly admitted-evidence positive is absent; the passing retry controls do not establish it. Appendix C remains a historical package/finding-record classification, not a contradictory behavior verdict."
       },
-      "residual": "At the 95f082b snapshot, five listed selectors passed and the promotion selector failed before the owner callback with KeyError summaries. This does not show a changed Data Forge basis reaching a second N5 cycle. An active overlay re-entry route exists, so the N audit's provisional open classification is not supported. Keep partial. Current post-R5 replay and four-base P41 are UNRUN.",
+      "residual": "The source audit identifies a P38 mismatch: the repeat gate measures grammar growth rather than newly admitted and consumed evidence. The retained 9e0 test record passes `test_controller_refuses_live_retry_without_new_grammar` and `test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress`; these are negative controls only. No owner-admitted Data Forge evidence for the same candidate with unchanged grammar has been shown to trigger a second N4/N5 evaluation. The separate active-overlay N7 re-entry route is not generalized by this finding. Current exact-head served behavior and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -1168,6 +1255,32 @@
           "residual": "At the 95f082b snapshot, five listed selectors passed and the promotion selector failed before the owner callback with KeyError summaries. This does not show a changed Data Forge basis reaching a second N5 cycle. An active overlay re-entry route exists, so the N audit's provisional open classification is not supported. Keep partial. Current post-R5 replay and four-base P41 are UNRUN.",
           "residual_owner": "GenerationCycleController plus Data Forge overlay/passport/native-epoch admission owners",
           "next_step": "After R5 source freeze, run a genuinely changed Data Forge-admitted overlay/passport/native epoch through a second N5 cycle with grammar and stable subject fixed. Preserve immutable old history and the next validator; pair with UUID/time-only and unchanged-overlay no-progress controls, then record the whole-file four-base replay."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "CYC-03 finding audit:B09",
+          "classification": "open",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_controller_refuses_live_retry_without_new_grammar; test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress",
+              "result": "PASS; negative/control only",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The four-case current-head JUnit includes both controls. It does not exercise newly admitted evidence causing a second N4/N5 evaluation."
+            }
+          ],
+          "unrun": [
+            "positive same-subject/new-admitted-evidence/unchanged-grammar second N4/N5 cycle",
+            "exact 031e served-caller replay",
+            "four-base P41"
+          ],
+          "evidence_summary": "The status is open on the source-level discriminator gap, not because a negative control failed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -1878,9 +1991,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
       },
-      "residual": "14/14 SIM-03 tests passed, including the three selectors. This proves local comparator/baseline arithmetic only; comparator_refs are not established as bound to the same model, horizon and scope as independent factual evidence in the served horizon caller. Keep partial; served binding and four-base P41 remain UNRUN.",
+      "residual": "The retained 14/14 SIM-03 run includes explicit comparator arithmetic and distinguishes absent from explicit-empty evidence. The production N6 request builder still supplies baseline/comparator without a separately bound factual evidence state; comparator refs remain not_established. A numeric zero-effect helper test does not prove comparator/model/horizon/scope binding. Keep partial; served factual-evidence independence and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -1960,6 +2073,31 @@
           "residual": "14/14 SIM-03 tests passed, including the three selectors. This proves local comparator/baseline arithmetic only; comparator_refs are not established as bound to the same model, horizon and scope as independent factual evidence in the served horizon caller. Keep partial; served binding and four-base P41 remain UNRUN.",
           "residual_owner": "JointSimulationHorizonController and NCM evidence-baseline owner",
           "next_step": "Exercise a served joint request where comparator and factual evidence independently bind to the same declared model, horizon and scope, including a coherent interaction baseline; then run four-base P41."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "SIM-03 finding audit:B19",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/SIM03_RECONCILIATION.md@sha256:7ac63ef6d1ea2b9a25163421166801e5b421c8406aba3b0cc2b7f65df4c32130",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "The focused JUnit and source memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The SIM-03 test and cited N5/Foundry owner files are content-identical at target 031e2133, but the audit did not rerun them there. This is a retained 14/14 test record plus source analysis, not current exact-head or four-base P41.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_ncm_evidence_none_and_explicit_empty_are_distinct; test_joint_simulation_requires_explicit_selected_outcome_baseline; test_explicit_comparator_makes_equal_scenarios_zero_effect",
+              "result": "PASS within 14/14 focused file",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/sim03-current.junit.xml@sha256:bd58a056b41a4d8cffa0120e43d270bedadbb27842d69806e216cc61def80465",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The memo maps these exact selectors to the card property. Retained test run is at the ancestor snapshot, not freshly rerun on 031e."
+            }
+          ],
+          "unrun": [
+            "served comparator resolves and content-binds to the same WMR/horizon/scope while factual evidence remains independent",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2064,9 +2202,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
       },
-      "residual": "14/14 SIM-03 tests passed, including requested replication count, distinct-seed refusal and the one-draw unestimated-standard-error case. N5 returns count/seeds but does not persist per-outcome/per-step sampling error. Keep partial; served request-to-method execution and separate world-model uncertainty remain UNRUN.",
+      "residual": "The retained 14/14 run proves requested replication counts and distinct seeds in the controller fixture, and the Foundry helper marks a one-draw standard error unestimated. N5 aggregates means/count/seeds but does not persist per-outcome/per-step sampling error; world-model uncertainty is distinct. Keep partial; served request-to-selected-method/result persistence and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2146,6 +2284,32 @@
           "residual": "14/14 SIM-03 tests passed, including requested replication count, distinct-seed refusal and the one-draw unestimated-standard-error case. N5 returns count/seeds but does not persist per-outcome/per-step sampling error. Keep partial; served request-to-method execution and separate world-model uncertainty remain UNRUN.",
           "residual_owner": "N5 replication planner/executor plus Foundry paired-estimation owner",
           "next_step": "Trace a served request through the selected method to actual count, distinct seeds and numerical error, persist sampling error and carry world-model uncertainty separately; run four-base P41."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "SIM-03 finding audit:B21",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/SIM03_RECONCILIATION.md@sha256:7ac63ef6d1ea2b9a25163421166801e5b421c8406aba3b0cc2b7f65df4c32130",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "The focused JUnit and source memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The SIM-03 test and cited N5/Foundry owner files are content-identical at target 031e2133, but the audit did not rerun them there. This is a retained 14/14 test record plus source analysis, not current exact-head or four-base P41.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_joint_request_runs_each_requested_replication_with_distinct_seeds; test_paired_replicates_require_distinct_seeds; test_single_paired_draw_has_unestimated_standard_error",
+              "result": "PASS within 14/14 focused file",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/sim03-current.junit.xml@sha256:bd58a056b41a4d8cffa0120e43d270bedadbb27842d69806e216cc61def80465",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The memo maps these exact selectors to the card property. Retained test run is at the ancestor snapshot, not freshly rerun on 031e."
+            }
+          ],
+          "unrun": [
+            "served selected-method result persistence with per-outcome/per-step sampling error or typed unestimated status",
+            "world-model uncertainty carried separately in persisted result",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2250,9 +2414,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
       },
-      "residual": "14/14 SIM-03 tests passed, including same physical-spec reuse across roles and binding the run reference to effective evidence/source mode. Changed-seed and meaningful-plan-parameter false-hit negatives have not been run through the same cache lifetime and both real role consumers. Keep partial; cross-invocation cache behavior is not claimed.",
+      "residual": "The retained 14/14 run proves same physical-spec reuse across semantic roles and changes the run ref for changed evidence/source mode. The cache is request-local. No same-cache-lifetime negative varies seed and a meaning-changing method/plan input while observing both role consumers. Keep partial; four-base P41 is UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2331,6 +2495,31 @@
           "residual": "14/14 SIM-03 tests passed, including same physical-spec reuse across roles and binding the run reference to effective evidence/source mode. Changed-seed and meaningful-plan-parameter false-hit negatives have not been run through the same cache lifetime and both real role consumers. Keep partial; cross-invocation cache behavior is not claimed.",
           "residual_owner": "JointSimulationHorizonController physical-spec cache and role-reference consumers",
           "next_step": "Add changed-seed and meaningful-plan-parameter negatives through one cache lifetime and both role consumers, retaining the same-spec reuse control; run four-base P41."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "SIM-03 finding audit:B23",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/SIM03_RECONCILIATION.md@sha256:7ac63ef6d1ea2b9a25163421166801e5b421c8406aba3b0cc2b7f65df4c32130",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "The focused JUnit and source memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The SIM-03 test and cited N5/Foundry owner files are content-identical at target 031e2133, but the audit did not rerun them there. This is a retained 14/14 test record plus source analysis, not current exact-head or four-base P41.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_joint_simulation_reuses_physical_spec_across_roles; test_physical_run_ref_binds_effective_evidence_and_source_mode",
+              "result": "PASS within 14/14 focused file",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/sim03-current.junit.xml@sha256:bd58a056b41a4d8cffa0120e43d270bedadbb27842d69806e216cc61def80465",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The memo maps these exact selectors to the card property. Retained test run is at the ancestor snapshot, not freshly rerun on 031e."
+            }
+          ],
+          "unrun": [
+            "same-cache-lifetime changed seed and meaningful method/plan parameter negative observed through both roles",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2440,9 +2629,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
       },
-      "residual": "14/14 SIM-03 tests passed, including required-moment non-improvement and explicit all-incomparable blocking. Optional moments can still be averaged only over runs where present; moment_counts covers required names. Persisted metric-set identity and production producer/selection binding are not established. Keep partial.",
+      "residual": "The retained 14/14 run proves missing required moments cannot win and all-incomparable candidates block. Optional moments are still averaged over whichever runs contain them without a denominator, and persisted metric-set identity/production selection binding is not established. Keep partial; served producer-to-selection/readback and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2522,6 +2711,31 @@
           "residual": "14/14 SIM-03 tests passed, including required-moment non-improvement and explicit all-incomparable blocking. Optional moments can still be averaged only over runs where present; moment_counts covers required names. Persisted metric-set identity and production producer/selection binding are not established. Keep partial.",
           "residual_owner": "Existing SMM result producer and candidate-selection consumer",
           "next_step": "Carry metric-set identity from the real SMM result producer through persistence into candidate selection; add the optional-moment denominator witness and four-base P41."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "SIM-03 finding audit:B25",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/SIM03_RECONCILIATION.md@sha256:7ac63ef6d1ea2b9a25163421166801e5b421c8406aba3b0cc2b7f65df4c32130",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "The focused JUnit and source memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The SIM-03 test and cited N5/Foundry owner files are content-identical at target 031e2133, but the audit did not rerun them there. This is a retained 14/14 test record plus source analysis, not current exact-head or four-base P41.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_summary_distance_requires_one_declared_metric_set; test_smm_missing_required_moment_cannot_win_calibration; test_smm_all_incomparable_candidates_are_explicitly_blocked",
+              "result": "PASS within 14/14 focused file",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/sim03-current.junit.xml@sha256:bd58a056b41a4d8cffa0120e43d270bedadbb27842d69806e216cc61def80465",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The memo maps these exact selectors to the card property. Retained test run is at the ancestor snapshot, not freshly rerun on 031e."
+            }
+          ],
+          "unrun": [
+            "production estimator persistence/readback with per-metric denominators and exact metric-set binding",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2572,9 +2786,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
       },
-      "residual": "14/14 SIM-03 tests passed, including the triple-only non-additive residual and checked interaction order. No independent additive zero-residual control or production consumer/surface consuming interaction order and residual is established. Keep partial; do not infer global additivity.",
+      "residual": "The retained 14/14 run demonstrates a triple-only non-additive residual and reports checked interaction order; the two-atom order control is present. There is no independent additive three-atom control or partial-trajectory negative preventing an unqualified additive label; no production consumer/surface use is established. Keep partial; four-base P41 is UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2654,6 +2868,33 @@
           "residual": "14/14 SIM-03 tests passed, including the triple-only non-additive residual and checked interaction order. No independent additive zero-residual control or production consumer/surface consuming interaction order and residual is established. Keep partial; do not infer global additivity.",
           "residual_owner": "N5 interaction-residual producer; board/consumer bridge and appointment not established",
           "next_step": "Pair the triple-interaction case with an independent additive control and name/test the served consumer or surface that preserves both order and residual. Board/consumer appointment remains not established."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "SIM-03 finding audit:B26",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/SIM03_RECONCILIATION.md@sha256:7ac63ef6d1ea2b9a25163421166801e5b421c8406aba3b0cc2b7f65df4c32130",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "The focused JUnit and source memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The SIM-03 test and cited N5/Foundry owner files are content-identical at target 031e2133, but the audit did not rerun them there. This is a retained 14/14 test record plus source analysis, not current exact-head or four-base P41.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_three_atom_controller_reports_real_higher_order_residual_and_order; test_joint_residual_keeps_higher_order_interaction_visible; test_checked_interaction_orders_include_pairwise_two_atom_run",
+              "result": "PASS within 14/14 focused file",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sim03-20260928/sim03-current.junit.xml@sha256:bd58a056b41a4d8cffa0120e43d270bedadbb27842d69806e216cc61def80465",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "The memo maps these exact selectors to the card property. Retained test run is at the ancestor snapshot, not freshly rerun on 031e."
+            }
+          ],
+          "unrun": [
+            "independent additive three-atom control",
+            "partial-trajectory negative requiring typed limitation/refusal",
+            "persisted consumer/surface preserving checked order and residual",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2704,9 +2945,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s original absence of finding-level records. The present source/test audit adds bounded evidence but retains partial because the stated current-head positive remains unestablished."
       },
-      "residual": "At 95f082b, the two direct in-memory history/front and population/model rebinding selectors passed; the promotion selector failed before its owner callback. No actual recursive N5 re-entry with a newly owner-issued revised context is established. R5 changes the recursive context gates, so current replay after source freeze and four-base P41 remain UNRUN. Keep partial.",
+      "residual": "Stable subject and revised basis are separately recorded, and exact context/problem hash validation correctly rejects stale reuse. The retained 9e0 run passes the history-binding selector, but that test uses a contract-testing leaf without CycleSubstrateContext; the changed-population/model check is an N9 negative control, not a second served N4/N5 cycle. No owner-qualified context reissue for a permitted revised basis is established. Current exact-head served replay and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2798,6 +3039,41 @@
           "residual": "At 95f082b, the two direct in-memory history/front and population/model rebinding selectors passed; the promotion selector failed before its owner callback. No actual recursive N5 re-entry with a newly owner-issued revised context is established. R5 changes the recursive context gates, so current replay after source freeze and four-base P41 remain UNRUN. Keep partial.",
           "residual_owner": "GenerationCycleController plus owner-issued revised-context producer",
           "next_step": "After R5 source freeze, exercise two actual recursive iterations with a changed owner-issued revised context; reject a stale-context graft and prove both bases remain in replayable history. Run four-base file replay."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "CYC-03 finding audit:B27",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_recursive_leaf_preserves_history_and_current_problem_binding",
+              "result": "PASS; contract-testing leaf without CycleSubstrateContext",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head-recursive.junit.xml@sha256:7076bc9a86d9aed3fe7d39eba788129326d043a4bd3f5f54830485abb8837966",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "Proves stable subject/history binding only; no owner-bound context is consumed."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
+              "result": "PASS; in-memory history/front only",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "Does not create an owner-qualified second-cycle context."
+            }
+          ],
+          "unrun": [
+            "served owner-bound context reissue for the revised basis",
+            "second N4/N5 cycle against qualified context",
+            "exact 031e replay",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial: the equality gate is recomputed and appropriate; the missing capability is owner-mediated requalification/reissue on the served second-cycle path.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -2848,9 +3124,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s original absence of finding-level records. The present source/test audit adds bounded evidence but retains partial because the stated current-head positive remains unestablished."
       },
-      "residual": "At 95f082b, same-candidate occurrence/history and current-front checks passed, including distinct occurrence references; the downstream promotion callback selector failed before N9 preparation. No successful N9/OWR/epoch consumer binding to the second occurrence is shown. Keep partial; current post-R5 replay and four-base P41 remain UNRUN.",
+      "residual": "The retained 9e0 run passes same-subject history/front and the conditional latest-occurrence selector. The latter can pass through its UNRUN-currentness branch, which asserts no positive N9 observation; therefore it does not prove the current N9 owner received exactly the latest occurrence and revised basis. Historical E02 promotion receipts are not a current 031e witness. Current positive N9 binding and four-base P41 are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -2942,6 +3218,41 @@
           "residual": "At 95f082b, same-candidate occurrence/history and current-front checks passed, including distinct occurrence references; the downstream promotion callback selector failed before N9 preparation. No successful N9/OWR/epoch consumer binding to the second occurrence is shown. Keep partial; current post-R5 replay and four-base P41 remain UNRUN.",
           "residual_owner": "N6 occurrence/front writer plus promotion, OWR and epoch consumers",
           "next_step": "Add persisted/reopened non-blocked two-occurrence history and prove N9 plus downstream consumers bind the second occurrence while the first remains unchanged; preserve the principal rule that every blocked N6 is terminal for N9."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "CYC-03 finding audit:B28",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/CYC03_FINDING_WITNESS.md@sha256:f33a90e77073964020f712385f3796ea8c7dde10be6f28273b8f8008ebc8e9fe",
+          "source_audit_snapshot_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+          "source_inference_limit": "Memo snapshot is 9e0bb0d342ae704f17773ca2c815ef620a309af3. The audited quality generation-cycle/context modules and selected test modules have identical Git blobs at target 031e2133; the HTTP composition files changed between those commits. Treat the served-caller trace as source inference, not a fresh 031e behavioral run. The two retained JUnits are 9e0 snapshot tests; current exact-head and four-base P41 replay are UNRUN.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
+              "result": "PASS; history retained and one current-front subject",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "Does not assert which exact occurrence reaches N9."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness_unrun",
+              "result": "PASS; branch may be currentness=UNRUN",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-20260928/current-head.junit.xml@sha256:2feeaca9a312b380e721b64ea8b9f39583fab8fe0fd8210c8efd148cae3b4ecb",
+              "executed_at_commit": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+              "scope": "JUnit pass alone does not establish the guarded positive N9 assertions."
+            }
+          ],
+          "unrun": [
+            "non-UNRUN currentness fixture with two same-subject occurrences and exact latest-summary N9 assertion",
+            "stale earlier occurrence presented as current must be rejected",
+            "exact 031e replay",
+            "four-base P41"
+          ],
+          "evidence_summary": "Partial: latest-summary projection is present in source, but the current test’s positive currentness branch is not established and the front exposes subject IDs rather than occurrence refs.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -4741,9 +5052,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. Current-head importer tests and source tracing add a bounded finding-level record, while the distributed journal/replay discriminator remains open; status remains partial."
       },
-      "residual": "The historical 88-case wave established synchronous cache-hit preservation and same-value write intent. At integrated commit 3cc111aa, the five-file executor/checkpoint/distributed importer suite passed 72/72, including asynchronous cache-boundary/replay cases. No case combines a broad cached result with same-value intent and deletion/non-resurrection or binds it to production-node history. Four-base P41 remains UNRUN. Keep partial.",
+      "residual": "The exact-head 36/36 run includes a real synchronous WorkflowExecutor/FileSystemCAS cache hit preserving an independently changed unrelated value and a separate merge witness for same-value write intent. The async 1/1 selector proves incompatible cached replay is discarded, not the B57 same-value/unrelated-value case. Distributed/Temporal NodeOutcome serialization omits the StateMutationJournal and falls back to outcome-vs-base diffs, so unrelated state can still be mistaken for a write. Keep partial; combined actual cache-hit + same-value write + deletion/non-resurrection, async variant and distributed wire replay are UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -4831,6 +5142,41 @@
           "scope": "Complete 72/72 importer replay at 3cc111aa; includes async cache boundary/replay tests. It does not exercise the combined broad-cache + same-value + deletion/non-resurrection finding discriminator. Finding status remains partial; four-base P41 is UNRUN.",
           "status_retained": "partial",
           "four_base_p41": "UNRUN"
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "STA-01 exact-head finding audit:B57",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/N_STA01_B57_B59_CURRENT_HEAD.md@sha256:8ce8089f8393dbcd39d597e3b7a4a8869935041e9e8bcf2361d580a063f5a707",
+          "source_audit_snapshot_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_inference_limit": "Read-only audit and tests target committed 031e2133. The focused three-file JUnit is a fresh exact-head run (36/36); the async adjacent control is a separate fresh exact-head selector (1/1). No four-base P41 was run.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "three-file state merge / branching / sync executor importer group",
+              "result": "36/36 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "executed_at_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "scope": "Includes named finding selectors; the audit’s row-level memo identifies which selectors witness which property."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "TestAsyncCacheBoundaries::test_incompatible_cached_replay_is_discarded_and_recomputed",
+              "result": "1/1 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-async-replay.junit.xml@sha256:310742e72b65e40f568bc11773d5bdbb007463b6b2e9c40fd9386b0f8e91d08c",
+              "executed_at_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "scope": "Adjacent async cache invalidation control only; it is not the missing async same-value/unrelated-current-state B57 witness."
+            }
+          ],
+          "unrun": [
+            "one actual warm-cache executor witness combining same-value intent with broad cached output, independent unrelated update and deleted stale field",
+            "async equivalent of that combined B57 case",
+            "distributed/Temporal operation-journal wire replay",
+            "four-base P41"
+          ],
+          "evidence_summary": "PASS_BOUNDED_PARTIAL: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -4880,9 +5226,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. Current-head importer tests and source tracing add a bounded finding-level record, while the distributed journal/replay discriminator remains open; status remains partial."
       },
-      "residual": "The helper-level tombstone/null/no-write distinction and protected-index refusal remain bounded. The integrated 3cc111aa five-file importer suite passed 72/72, including distributed-tier merge/checkpoint cases, but does not establish allowed deletion through parallel execution and warm-cache serialize/rehydrate, absent-field behavior, or delete-conflict semantics. Four-base P41 remains UNRUN. Keep partial.",
+      "residual": "The exact-head 36/36 run includes merge-helper controls that distinguish delete, null and no-write, reject protected artifacts_index deletion, and exercise parent/child operation order. This does not show allowed deletion through parallel execution or warm-cache serialization/readback. Distributed/Temporal serialization carries no delete journal; an absent outcome key reaches the journal-less fallback and produces no delete. Keep partial; cached allowed-delete replay, absent/repeated deletion and distributed removal remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -4970,6 +5316,33 @@
           "scope": "Complete 72/72 importer replay at 3cc111aa; includes distributed-tier merge/checkpoint cases. It does not exercise allowed deletion through parallel execution and warm-cache serialization/rehydration. Finding status remains partial; four-base P41 is UNRUN.",
           "status_retained": "partial",
           "four_base_p41": "UNRUN"
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "STA-01 exact-head finding audit:B58",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/N_STA01_B57_B59_CURRENT_HEAD.md@sha256:8ce8089f8393dbcd39d597e3b7a4a8869935041e9e8bcf2361d580a063f5a707",
+          "source_audit_snapshot_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_inference_limit": "Read-only audit and tests target committed 031e2133. The focused three-file JUnit is a fresh exact-head run (36/36); the async adjacent control is a separate fresh exact-head selector (1/1). No four-base P41 was run.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "three-file state merge / branching / sync executor importer group",
+              "result": "36/36 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "executed_at_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "scope": "Includes named finding selectors; the audit’s row-level memo identifies which selectors witness which property."
+            }
+          ],
+          "unrun": [
+            "allowed delete/null/no-write through one parallel registered node and warm-cache serialize/rehydrate",
+            "absent-field/repeated-delete/competing parent-child delete-set controls through that boundary",
+            "distributed/Temporal delete journal transport",
+            "four-base P41"
+          ],
+          "evidence_summary": "PASS_BOUNDED_PARTIAL: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -5016,12 +5389,12 @@
       "closure_owner": "STA-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The exact-head behavioral evidence closes only the declared-leaf isolation property; it does not claim full workflow abort/sibling or universal object-graph coverage."
       },
-      "residual": "Bounded helper tests establish deep isolation for a declared leaf, nested path and Pydantic overlay. At integrated commit 3cc111aa, `test_engine_executor_v0::test_executor_branch_state_isolates_declared_nested_writes` passed within the 72/72 importer wave: the returned nested write changed while the base remained unchanged. This is a successful-path witness only; failed/cancelled sibling isolation and alias/import completeness remain unestablished. The earlier census found 78 literal branch_state( call lines across 2,696 source files, not complete alias coverage. Four-base P41 remains UNRUN. Keep partial.",
+      "residual": "The exact-head 36/36 run includes the deep nested-list-of-dicts mutation witness: changing an element inside the declared leaf changes the returned branch while the base remains unchanged; a neighboring control keeps unrelated state shared. Production sync and async executors call this branch-state owner. Close bounded to declared-leaf isolation for supported dict/list/Pydantic values. Full-workflow failed/cancelled sibling behavior, alias/cycle/custom-mutable coverage and four-base P41 remain UNRUN; the source census is not complete alias proof.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5111,6 +5484,32 @@
           "scope": "Complete 72/72 importer replay at 3cc111aa includes tests.unit.scientist.orchestration.engine.test_engine_executor_v0::test_executor_branch_state_isolates_declared_nested_writes. This is a bounded successful nested-write control, not failed/cancelled sibling isolation or complete alias census. Finding status remains partial; four-base P41 is UNRUN.",
           "status_retained": "partial",
           "four_base_p41": "UNRUN"
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "STA-01 exact-head finding audit:B59",
+          "classification": "closed",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/N_STA01_B57_B59_CURRENT_HEAD.md@sha256:8ce8089f8393dbcd39d597e3b7a4a8869935041e9e8bcf2361d580a063f5a707",
+          "source_audit_snapshot_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_inference_limit": "Read-only audit and tests target committed 031e2133. The focused three-file JUnit is a fresh exact-head run (36/36); the async adjacent control is a separate fresh exact-head selector (1/1). No four-base P41 was run.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "three-file state merge / branching / sync executor importer group",
+              "result": "36/36 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-sta01-20260928/sta01-focused.junit.xml@sha256:992d3014cb367994e2ec0865ce688d175c5f50b5874827640d09207207eb90ec",
+              "executed_at_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+              "scope": "Includes named finding selectors; the audit’s row-level memo identifies which selectors witness which property."
+            }
+          ],
+          "unrun": [
+            "full-workflow failed/cancelled sibling isolation witness",
+            "alias/cycle/custom mutable coverage if admitted by ExperimentState contract",
+            "four-base P41"
+          ],
+          "evidence_summary": "PASS_BOUNDED_CLOSED: tests and source inference are scoped in the memo; complete four-base P41 remains UNRUN.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -5866,10 +6265,10 @@
       "appendix_c_status": "no_finding_level_record",
       "status": "partial",
       "appendix_c_comparison": {
-        "relation": "disagrees",
-        "detail": "Appendix C classifies B72 as lacking a finding-level record. Current post-code evidence now supports a bounded distributed status repair, so the ledger advances from open to partial; it does not close the full finding because Temporal runtime/event-history replay and the complete persisted width-one/width-two resume discriminator remain UNRUN. B73 atomic checkpoint consistency is a separate residual."
+        "relation": "source_review_refines_no_record",
+        "detail": "Appendix C records E02’s absence of a finding-level record. The later distributed status repair and its bounded receipts supply a finding-level record, but not the complete persisted resume, Temporal, or output-sufficiency witnesses; status remains partial."
       },
-      "residual": "The bounded distributed status repair transports native ok/skip/fail outcomes through the worker and tier merge, admits only typed ok as successful cache/frontier evidence, and rejects out-of-tier aliases before merge/checkpoint. The integrated RES-02 whole unit file passed 6/6 and checkpoint-resume integration file passed 8/8 at the add75 test commit; the skipped peer is absent from published completed-node lists while the successful peer and successor remain. This is scheduler-level evidence only. Real CAS skip-width resume remains unmeasured; Temporal history, four-base replay and a removal mutation remain UNRUN. B72 stays partial; B73 residuals are separate.",
+      "residual": "Source audit at 031e confirms typed ok/skip/fail transport and ok-only admission for the Ray/non-Temporal route; the retained six-file comparison records 67 common identities, zero pass-to-fail, one fail-to-pass and 13 new cases, with one unchanged Temporal skip. A marker-retaining status-removal probe made semantic tests red. This does not establish persisted width-one/width-two skip plus independent-success close/reopen/resume. Temporal history, exact 031e behavioral replay and four-base P41 are UNRUN; the card’s dependent-output sufficiency check is also not established.",
       "residual_owner": {
         "appointment_status": "Owner role identified by the changed runtime paths and independent bounded review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -5995,6 +6394,45 @@
             "/Users/deniskopylov/.codex/scratch/e02-b72-distributed-status-20260927/B72-removal-probe.xml@sha256:ade1e8b8fc3040e477f6ca9706c1fd28c1f4c9c2405dfbef3f4124ccf83e9df6",
             "/Users/deniskopylov/.codex/scratch/e02-b72-distributed-status-20260927/B72_INDEPENDENT_REVIEW_FINAL_20260927.md@sha256:c17075da938a45b131e4e9db4c7f196f100755643e3eb330983633ee4409fee6"
           ]
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "RES-02 finding audit:B72",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-res02-current-head-20260928/RES02_CURRENT_HEAD_AUDIT.md@sha256:6068857739d53456c67188f063fc3350623856a322a552aa461822e4922f2b1a",
+          "source_audit_snapshot_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_inference_limit": "The source/card audit targeted committed 031e2133 and ran no tests in the shared mutable tree. Behavioral records below are explicitly retained results from their named historical commits, not fresh 031e test outcomes.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "six-file pre/post comparison; 67 common identities",
+              "result": "67 common; 0 pass→fail; 1 fail→pass; 13 new postpatch; 79 runnable postpatch pass; one unchanged Temporal skip",
+              "junit_paths_at_sha": [
+                "/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/prepatch/whole-six.junit.xml@sha256:4bb58a920f11f796c12db6e4f303b33d5f06553c0a193b9e9b6f2802e996fc5b",
+                "/Users/deniskopylov/.codex/scratch/e02-b72-integration-20260927/postpatch/whole-six.junit.xml@sha256:40657aa78583fa8613372495c959eaefd354b121d431aaec5720e7b133bb35c4"
+              ],
+              "executed_at_commit": "6c7168566d51b22a4de8c0895c18291b3c697ca4",
+              "scope": "Historical repair comparison, not a fresh exact-031e run."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "status-admission removal probe",
+              "result": "RED on semantic skip/fail admission controls; successful exact-tier control remains green",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b72-distributed-status-20260927/B72-removal-probe.xml@sha256:ade1e8b8fc3040e477f6ca9706c1fd28c1f4c9c2405dfbef3f4124ccf83e9df6",
+              "executed_at_commit": "6c7168566d51b22a4de8c0895c18291b3c697ca4",
+              "scope": "Marker-retaining predicate mutation; Temporal remains unavailable/skipped."
+            }
+          ],
+          "unrun": [
+            "persisted width-one and width-two skip + successful peer close/reopen/resume discriminator",
+            "Temporal event-history behavior",
+            "exact 031e replay",
+            "four-base P41",
+            "dependent outputs resolved for each consumer"
+          ],
+          "evidence_summary": "Status remains partial. JUnits establish a bounded status-admission repair at the historical integrated source, while current 031e source trace and all unrun dimensions are stated separately.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED_TEMPORAL_UNRUN",
@@ -6049,9 +6487,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C records E02’s absence of a finding-level record. The bounded expected-red probe and integrated CAS reopen/resume evidence add a finding-level record; the wider durable-head matrix remains open, so status is partial."
       },
-      "residual": "At clean 782 the expected-red real-CAS legacy callback probe showed `completed_nodes=[\"left\"]` while persisted merged state already included `right=2`. Integrated commit `bac6996dfaf3a6fedce16c8afb1009b5114b84de` removes the unsafe per-node fallback when an explicit checkpoint hook is supplied for a multi-node tier, requiring the existing sync/async tier-completion contract before node execution. The frozen candidate focused group passed 11/11 (8 complete RES-02 unit cases plus 3 real-checkpoint integration selectors), and the complete `test_checkpoint_resume.py` passed 9/9. The focused JUnit was generated before a mechanical Ruff import-order-only correction; the integration receipt records unchanged behavior/assertions and subsequent Ruff/diff-check success. The integrated commit source/test file hashes match the frozen candidate memo. Keep partial: four-base replay, fail-fast/continue durable-head behavior, and arbitrary custom-hook persistence semantics remain UNRUN.",
+      "residual": "Current source audit confirms the built-in CAS tier boundary requires an atomic tier-completion hook before a multi-node tier can run and publishes state plus its full completion set together. Historical integrated witnesses include the clean-782 expected-red legacy split (state right=2 with completed_nodes=[left]), 11/11 focused checkpoint cases and 9/9 checkpoint-resume whole file at the integrated candidate. Exact 031e replay, four-base P41, wider fail-fast/continue durable-head behavior, and arbitrary custom-hook atomic persistence remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -6198,6 +6636,49 @@
           },
           "behavioral_verdict": "PASS_BOUNDED",
           "scope": "The receipt ran against the frozen candidate applied to clean base 4ef6dbc0c; all final integrated source/test file hashes match the frozen memo. The focused JUnit preceded a Ruff-only import-order correction, with no behavior/assertion change; the receipt records Ruff and git diff --check success. B73 remains partial: four-base replay and wider fail-fast/continue durable-head behavior remain UNRUN, and arbitrary hook persistence internals are not established."
+        },
+        "n_finding_audit_2026_09_28": {
+          "identity": "RES-02 finding audit:B73",
+          "classification": "partial",
+          "target_committed_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_audit_kind": "read_only_source_and_card_audit",
+          "source_audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-res02-current-head-20260928/RES02_CURRENT_HEAD_AUDIT.md@sha256:6068857739d53456c67188f063fc3350623856a322a552aa461822e4922f2b1a",
+          "source_audit_snapshot_head": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_inference_limit": "The source/card audit targeted committed 031e2133 and ran no tests in the shared mutable tree. Behavioral records below are explicitly retained results from their named historical commits, not fresh 031e test outcomes.",
+          "behavioral_records": [
+            {
+              "kind": "retained_test_record",
+              "identity": "real-CAS legacy callback expected-red probe",
+              "result": "RED reproduced persisted state right=2 with completed_nodes=[left]",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-res02-can01-current-7826522-20260928/legacy-probe.junit.xml@sha256:41aa778b3f607a7e214145e487b3fdd489c80a6cb876d5b83260a68367ce0606",
+              "executed_at_commit": "782652222cece9899adea0a171c08166544901b9",
+              "scope": "Copied probe on the clean pre-repair base; it reproduces the card counterexample."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "integrated focused checkpoint cases",
+              "result": "11/11 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/test.junit.xml@sha256:ba9613a920812054c99bd9b3044ba3d025188b96737c49eee860c9d22b89a3ca",
+              "executed_at_commit": "bac6996dfaf3a6fedce16c8afb1009b5114b84de",
+              "scope": "8 RES-02 unit cases plus 3 real-checkpoint integration selectors; frozen candidate."
+            },
+            {
+              "kind": "retained_test_record",
+              "identity": "checkpoint resume whole file",
+              "result": "9/9 PASS",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-integrated-4ef6-20260928/full/test.junit.xml@sha256:ee2d8a5e7ed309571e880c80aae62773188405d3c668777ab39e43b2125ade85",
+              "executed_at_commit": "bac6996dfaf3a6fedce16c8afb1009b5114b84de",
+              "scope": "Historical integrated candidate; not a fresh exact-031e replay."
+            }
+          ],
+          "unrun": [
+            "exact 031e behavioral replay",
+            "four-base P41",
+            "fail-fast/continue durable-head matrix",
+            "arbitrary custom-hook atomic persistence semantics"
+          ],
+          "evidence_summary": "The expected-red probe and integrated CAS receipt establish bounded behavior on their named snapshots. Current 031e behavior is source-reviewed only.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -17081,12 +17562,12 @@
       "closure_owner": "CAN-01",
       "mapping_ref": "legacy_to_bundles",
       "appendix_c_status": "no_finding_level_record",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
-        "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "relation": "disagrees",
+        "detail": "Appendix C records LA-021 as lacking a finding-level record, and its cited architect confirmation uses an exact 418-input selector that is not retained. The independent 2026-09-28 recheck supplies a finding-level behavioral record and complete tracked JSON/JSONL corpus comparison: 7,762 current/main input records with zero unexpected byte differences, plus the selected Core/IR owner tests. This supports bounded closure for the declared tracked JSON/JSONL and owner contract profile. It does not reproduce the exact 418 selector, 140 caller files, CAS/runtime-generated/non-JSON/production_data inputs, or other environments."
       },
-      "residual": "The 12c typed projection and 59c9 whole-tree outcome replay each report zero differences across their stated 7,761-record Main/current JSON+JSONL profiles; they are separate bounded receipts, not one combined input set. The 43d4 residual_ledger.json blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both measured inventories, so latest-input parity is UNRUN. The exact 418-input selector, 140 shared caller-file four-base replay, broad typed-tag/error/depth/import acceptance, persisted/runtime/production-data inputs and alternate formats/environments remain unresolved. Keep partial.",
+      "residual": "Closed bounded to the complete tracked current/main JSON path/blob and shared JSONL-line corpus (7,762 input records) and the exercised Core/IR public owner contract. The exact architect 418-input selector and 140 shared caller-file four-base replay remain UNRUN; CAS objects, runtime-generated values, production_data, non-JSON formats, and alternate Python/dependency environments were not included. Do not extend this closure beyond the measured profile.",
       "residual_owner": {
         "appointment_status": "Owner roles are identified; no individual appointment is claimed.",
         "kind": "verification_owner",
@@ -17249,6 +17730,27 @@
           "residual": "The 12c typed projection and 59c9 whole-tree outcome replay each report zero differences across their stated 7,761-record Main/current JSON+JSONL profiles; they are separate bounded receipts, not one combined input set. The 43d4 residual_ledger.json blob a92dcaf28f49e6575299bf85276ab99763df99dd is outside both measured inventories, so latest-input parity is UNRUN. The exact 418-input selector, 140 shared caller-file four-base replay, broad typed-tag/error/depth/import acceptance, persisted/runtime/production-data inputs and alternate formats/environments remain unresolved. Keep partial.",
           "residual_owner": "CAN-01 canonicalization owner for the exact historical selector; E02-R2 broker for the 140-file four-base replay",
           "next_step": "Re-run/incrementally extend the corpus instrument with the exact current ledger input, recover the 418 selector, enumerate typed-tag/error/depth/import cases, and run all 140 shared caller test files at four bases."
+        },
+        "own_current_recheck_20260928": {
+          "identity": "LA-021 complete tracked-corpus and owner behavior recheck",
+          "classification": "closed_bounded",
+          "target_code_commit": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e",
+          "execution_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "source_identity_bridge_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-ledger-r1-n-compose-20260928/LA021_SOURCE_IDENTITY_031E_TO_93AFF.json@sha256:404b79fb3aa3892eb9090928d540c4f1ef3aac39dccea44c95fc115529fb8fbd",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/LA021_RECHECK.md@sha256:55bdf6126e1c4e3f44d946c983b16ed3fad77484ed9edb8a1d998d467d14566f",
+          "complete_corpus_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/complete_tracked_corpus_receipt.json@sha256:d066cae31ed7899f10167c2a8a20716d47da932d941604a73c3ba0aa12c5c981",
+          "owner_identity_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/owner_identity_receipt.json@sha256:ca56cb3f67fe54f33cff7fddd55288f6d2b5c5fde8d3d3c3e17a02e83b13bf94",
+          "current_phase0_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/phase0-current.junit.xml@sha256:22f7e08e603c8c2ff660ee818adff7695e537b6471c62c6601e5138ee90907b6",
+          "main_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/main.junit.xml@sha256:ea7fbe81faa28612f5620d49a43887d89abe7b9373a8da583719d4432687b48b",
+          "scope": "The memo enumerates 2,888 current/main tracked JSON path/blob versions and 4,874 physical records across 13 shared tracked JSONL files, 7,762 total records. The overlap replay compares 35,592 directly encoded byte outputs over 7,757 records; five current extension versions add 36 byte outputs, with zero unexpected differences. The five changed/current extension versions and all 12 relevant owner source blobs are byte-checked. Behavioral suites passed 43/43 current-versus-Phase0 and 24/24 shared-main; their JUnits were run on source commit 031e, not rerun at 93aff. The 12 owner and five test files are unchanged from 031e to 93aff per the cited source-identity receipt.",
+          "unrun": [
+            "exact architect 418-input selector/manifest",
+            "140 shared public caller test files across all four bases",
+            "CAS objects, runtime-generated values, production_data, non-JSON formats, and alternate environments",
+            "fresh pytest execution at 93aff; retained JUnit is pinned to 031e"
+          ],
+          "appendix_c_disagreement": "Appendix C no-finding-record status is superseded for this bounded CAN-01 profile by the finding-level recheck. The architect 418-input exact selector remains UNRUN.",
+          "p41_four_base": "UNRUN"
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -17275,6 +17777,22 @@
         "latest_integration_commit_at_patch_base": "411a45e90d312b9a6ea4820b90c90a03a7611658",
         "latest_integration_whole_file_four_base": "not established by this audit; no fresh run claimed",
         "scope": "The witness text is pinned to the 624a5f1 map. Later R9 source changes require a source refresh before treating its owner details as current."
+      },
+      "n_finding_audit_2026_09_28": {
+        "identity": "N finding audit:LA-021",
+        "classification": "closed_bounded",
+        "target_committed_head": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e",
+        "source_audit_kind": "complete_tracked_json_jsonl_corpus_and_owner_behavioral_recheck",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-la021-own-recheck-20260928/LA021_RECHECK.md@sha256:55bdf6126e1c4e3f44d946c983b16ed3fad77484ed9edb8a1d998d467d14566f",
+        "source_identity_bridge_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-ledger-r1-n-compose-20260928/LA021_SOURCE_IDENTITY_031E_TO_93AFF.json@sha256:404b79fb3aa3892eb9090928d540c4f1ef3aac39dccea44c95fc115529fb8fbd",
+        "finding_test_status": "PASS_BOUNDED",
+        "unrun": [
+          "architect exact 418-input selector",
+          "140 caller-file four-base replay",
+          "CAS/runtime-generated/non-JSON/production_data inputs and alternate environments",
+          "fresh execution at 93aff (tests were run at 031e; owner/test source blobs remained identical)"
+        ],
+        "p41_four_base": "UNRUN"
       }
     },
     {

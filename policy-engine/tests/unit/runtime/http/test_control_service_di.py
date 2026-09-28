@@ -109,7 +109,11 @@ def _fixture_claims() -> UserIdentityClaims:
     )
 
 
-def _build_control_service(tmp_path) -> ControlPlaneService:
+def _build_control_service(
+    tmp_path,
+    *,
+    cycle_substrate_context_admission_owner=None,
+) -> ControlPlaneService:
     store = FileSystemCAS(tmp_path / ".polisyos")
     resolver = RuntimeExecutionPolicyResolver(
         default_profile="dev",
@@ -125,6 +129,9 @@ def _build_control_service(tmp_path) -> ControlPlaneService:
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,
         registry_providers=_build_registry_providers(),
+        cycle_substrate_context_admission_owner=(
+            cycle_substrate_context_admission_owner
+        ),
     )
 
 
@@ -1791,6 +1798,346 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
         assert service._promotion_runtime.store is service._artifact_store
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A served, fixture-admitted context reaches the existing N5 owner path."""
+    from polisyos.core.security import tenant_scope
+    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        CycleSubstrateContextArtifactOwner,
+        CycleSubstrateContextJobArtifact,
+        build_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        JointSimulationPort,
+        PendingN8ValuePort,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tests.unit.runtime.http.test_control_job_execution_intent import (
+        _valid_intake_for_mode,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _CurrentValidGrounding,
+        _cyc01_owner_bound_n5_case,
+        _record_with_selected_ncm_ref,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+        _ncm_with_cross_term,
+    )
+
+    profile_id = "fixture.controlled.profile"
+
+    class _FixtureControlledProfileOwner:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+            self.context: CycleSubstrateContext | None = None
+
+        def admit_context(
+            self,
+            *,
+            target_world_scope_profile_id: str,
+            problem: DesignProblem,
+            job_id: str,
+            run_id: str,
+            tenant_id: str,
+            cell_id: str,
+        ) -> CycleSubstrateContext | None:
+            self.calls.append(
+                {
+                    "target_world_scope_profile_id": target_world_scope_profile_id,
+                    "problem": problem,
+                    "job_id": job_id,
+                    "run_id": run_id,
+                    "tenant_id": tenant_id,
+                    "cell_id": cell_id,
+                }
+            )
+            return self.context
+
+    source_owner = _FixtureControlledProfileOwner()
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        service = _build_control_service(
+            tmp_path,
+            cycle_substrate_context_admission_owner=source_owner,
+        )
+        try:
+            ncm_ref = persist_ncm_spec(
+                service._artifact_store,
+                _ncm_with_cross_term(),
+            )
+            base_problem, base_context, base_candidate = _cyc01_owner_bound_n5_case()
+            problem_levers = [
+                lever.model_copy(update={"target_slot": "government.balance"})
+                for lever in base_problem.candidate_lever_space.candidate_levers
+            ]
+            problem = base_problem.model_copy(
+                update={
+                    "candidate_lever_space": base_problem.candidate_lever_space.model_copy(
+                        update={"candidate_levers": problem_levers}
+                    )
+                }
+            )
+            problem_ref = generation_cycle_service.gy_content_hash(
+                problem.model_dump(mode="json")
+            )
+            world_record = _record_with_selected_ncm_ref(
+                base_context.world_model_record,
+                str(ncm_ref.artifact_id),
+            )
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=base_context.domain,
+                substrate_registry=base_context.substrate_registry,
+                selected_registry_entry_hashes=(
+                    base_context.selected_registry_entry_hashes
+                ),
+                world_model_record=world_record,
+                intervention_substrate=base_context.intervention_substrate,
+                candidate_levers=base_context.candidate_levers,
+                transport_context=base_context.transport_context,
+                source_pack_content_hash=base_context.source_pack_content_hash,
+                substrate_input_content_hash=base_context.substrate_input_content_hash,
+            )
+            source_owner.context = context
+            base_atom = base_candidate.intervention_atoms[1]
+            atom_draft = base_atom.model_copy(
+                update={
+                    "problem_frame_ref": problem_ref,
+                    "world_model_record_ref": world_record.world_model_record_id,
+                }
+            )
+            atom_draft = atom_draft.model_copy(
+                update={"content_hash": intervention_atom_content_hash(atom_draft)}
+            )
+            atom = InterventionAtomBinding.model_validate(
+                atom_draft.model_dump(mode="python")
+            )
+            candidate = SimpleNamespace(
+                candidate_id="candidate_fixture_controlled_profile",
+                atom=atom,
+                diversity_key=("fixture", "controlled", "profile", "n5"),
+                status="candidate_unverified",
+            )
+        except Exception:
+            service.close()
+            raise
+    owner_refs = []
+    owner_replays = []
+    n5_port_observations = []
+    n5_engine_requests = []
+    compiler_calls = []
+
+    async def compile_fixture_problem(**kwargs):
+        compiler_calls.append(kwargs)
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_fixture_problem,
+    )
+
+    original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+    original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
+
+    def record_persist(owner, context, *, problem):
+        assert owner._store is service._artifact_store
+        ref = original_persist(owner, context, problem=problem)
+        owner_refs.append(ref)
+        return ref
+
+    def record_resolve(owner, ref, *, problem):
+        assert owner._store is service._artifact_store
+        artifact = original_resolve(owner, ref, problem=problem)
+        owner_replays.append(artifact)
+        return artifact
+
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "persist_for_current_job",
+        record_persist,
+    )
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "resolve_for_current_job",
+        record_resolve,
+    )
+
+    original_n5_port = JointSimulationPort.__call__
+    original_n5_engine = JointSimulationHorizonController.run
+
+    def record_n5_port(port, *, candidate, problem, cycle_index):
+        observation = original_n5_port(
+            port,
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+        )
+        n5_port_observations.append((problem, port._cycle_substrate_context, observation))
+        return observation
+
+    def record_n5_engine(controller, request):
+        n5_engine_requests.append(request)
+        return original_n5_engine(controller, request)
+
+    monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
+
+    original_controller_builder = (
+        generation_cycle_service.build_default_recursive_generation_cycle_controller
+    )
+
+    def build_fixture_recursive_controller(**kwargs):
+        recursive = original_controller_builder(**kwargs)
+        original_run = recursive.run
+
+        async def run_with_fixture_generation(*args, **run_kwargs):
+            contexts = run_kwargs["cycle_substrate_contexts_by_node"]
+            assert contexts is not None and len(contexts) == 1
+            resolved_context = next(iter(contexts.values()))
+            class _FixtureGenerationPort:
+                def __init__(self) -> None:
+                    self.problems: list[object] = []
+
+                async def __call__(self, problem_for_cycle, *, cycle_index):
+                    del cycle_index
+                    self.problems.append(problem_for_cycle)
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.8,
+                                voi_estimate=0.2,
+                                trust_level="search_guiding",
+                                promotion_allowed=False,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+
+            generator = _FixtureGenerationPort()
+
+            recursive._cycle_controller_factory = lambda _node_ref, _problem: (
+                GenerationCycleController(
+                    generation_port=generator,
+                    grounding_port=_CurrentValidGrounding(),
+                    value_port=PendingN8ValuePort(),
+                    repo_root=kwargs["repo_root"],
+                    model_id=kwargs["model_id"],
+                    cycle_substrate_context=resolved_context,
+                    promotion_runtime=recursive._promotion_runtime,
+                    artifact_store=recursive._artifact_store,
+                    eval_safety_verifier=recursive._eval_safety_verifier,
+                )
+            )
+            return await original_run(*args, **run_kwargs)
+
+        recursive.run = run_with_fixture_generation
+        return recursive
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_default_recursive_generation_cycle_controller",
+        build_fixture_recursive_controller,
+    )
+
+    try:
+        context_payload = {
+            "evaluation_safety_attempt": _valid_intake_for_mode(
+                "simulate_only"
+            ).model_dump(mode="json")
+        }
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="fixture-controlled-profile",
+            context=context_payload,
+            target_world_scope_profile_id=profile_id,
+            max_iterations=1,
+        )
+        claims = _fixture_claims()
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
+        )
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None and job.run_id is not None
+        leased = service._control_store.lease_next_job(
+            worker_id="r1-fixture-worker",
+            lease_seconds=60,
+        )
+        assert leased is not None and leased.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=leased.job_id,
+            worker_id=leased.lease_owner,
+            attempt=leased.attempt,
+        ):
+            service._process_control_job(leased)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None and completed.state == "completed"
+        progress = completed.progress
+        assert progress["status"] == "simulation_only"
+        assert progress["execution_intent_band"] == "simulate_only_attempt"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
+        assert progress["cycle_substrate_context_job_ref"]
+        assert len(compiler_calls) == 1
+        assert compiler_calls[0]["raw_request"] == problem.nl_provenance.raw_request
+        assert len(source_owner.calls) == 1
+        admission_call = source_owner.calls[0]
+        assert admission_call["target_world_scope_profile_id"] == profile_id
+        assert admission_call["problem"] is problem
+        assert admission_call["job_id"] == launch.job_id
+        assert admission_call["run_id"] == str(job.run_id)
+        assert admission_call["tenant_id"] == "tenant-fixture"
+        assert admission_call["cell_id"] == "cell-fixture"
+        assert len(owner_refs) == len(owner_replays) == 1
+        assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
+
+        context_artifact = CycleSubstrateContextJobArtifact.model_validate(
+            canon.from_canonical_bytes(
+                service._artifact_store.get_bytes(owner_refs[0].artifact_id)
+            )
+        )
+        assert context_artifact.job_id == launch.job_id
+        assert context_artifact.run_id == str(job.run_id)
+        assert context_artifact.tenant_id == "tenant-fixture"
+        assert context_artifact.cell_id == "cell-fixture"
+        assert context_artifact.problem == problem
+        assert context_artifact.context.content_hash == owner_replays[0].context.content_hash
+        assert context_artifact.profile_admission_status == "not_established"
+        assert context_artifact.s8_status == "blocked"
+        assert len(n5_port_observations) == len(n5_engine_requests) == 1
+        n5_problem, n5_context, n5_observation = n5_port_observations[0]
+        assert n5_problem == problem
+        assert n5_context.content_hash == context_artifact.context.content_hash
+        assert (
+            n5_observation.world_model_record.content_hash
+            == context_artifact.context.world_model_record.content_hash
+        )
+        assert n5_engine_requests[0].world_model_record.content_hash == (
+            context_artifact.context.world_model_record.content_hash
+        )
+
     finally:
         service.close()
 

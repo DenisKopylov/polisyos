@@ -47,7 +47,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Callable, Mapping
     from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -525,6 +525,10 @@ async def compile_and_run_recursive_generation_cycle(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    cycle_substrate_context_resolver: Callable[
+        [DesignProblem], CycleSubstrateContext | None
+    ]
+    | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
     target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
@@ -612,6 +616,13 @@ async def compile_and_run_recursive_generation_cycle(
             "The N4-only selector requires simulate_only and no admitted EvalSafety "
             "context, CycleSubstrateContext, recursive controller, or explicit N4 port.",
         )
+    if cycle_substrate_context_resolver is not None and (
+        not n4_proposal_only or execution_intent != "simulate_only"
+    ):
+        raise DesignProblemAuthorityError(
+            "cycle_substrate_context_resolver_scope_mismatch",
+            "The served context resolver is restricted to the simulate_only N4 handoff.",
+        )
     if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED:
         raise DesignProblemAuthorityError(
             "data_trust_owner_not_established",
@@ -663,6 +674,16 @@ async def compile_and_run_recursive_generation_cycle(
             "compiled DesignProblem does not preserve the caller's raw request",
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if cycle_substrate_context_resolver is not None:
+        cycle_substrate_context = cycle_substrate_context_resolver(problem)
+        if cycle_substrate_context is not None:
+            from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+
+            if type(cycle_substrate_context) is not CycleSubstrateContext:
+                raise DesignProblemAuthorityError(
+                    "cycle_substrate_context_resolver_returned_untyped",
+                    "The served context resolver must return the canonical typed artifact.",
+                )
     if cycle_substrate_context is None:
         scope_selection = _classify_target_world_scope_profile(
             target_world_scope_profile_id
@@ -674,7 +695,9 @@ async def compile_and_run_recursive_generation_cycle(
         and execution_intent == "candidate_only"
         and root_n4_generation_port is None
     )
-    if candidate_only_n4_route or n4_proposal_only:
+    if candidate_only_n4_route or (
+        n4_proposal_only and cycle_substrate_context is None
+    ):
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_proposal_under_a,
         )

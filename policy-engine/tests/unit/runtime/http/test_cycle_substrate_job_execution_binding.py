@@ -91,6 +91,21 @@ def test_cycle_substrate_context_owner_uses_guarded_current_job_execution(
             ):
                 ref_a = owner.persist_for_current_job(context, problem=problem)
                 resolved_a = owner.resolve_for_current_job(ref_a, problem=problem)
+                assert resolved_a.profile_admission_status == "not_established"
+                assert resolved_a.s8_status == "blocked"
+
+                changed_problem = problem.model_copy(
+                    update={
+                        "problem_statement": (
+                            problem.problem_statement + " Preserve the same display identity."
+                        )
+                    }
+                )
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="cycle_substrate_context_job_binding_mismatch",
+                ):
+                    owner.resolve_for_current_job(ref_a, problem=changed_problem)
 
             with control_store.job_execution_fence(
                 job_id=lease_b.job_id,

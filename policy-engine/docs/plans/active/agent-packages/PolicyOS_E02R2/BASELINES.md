@@ -1,5 +1,19 @@
 # Four-base P41 test baselines
 
+## R1/R13 queued owner-bridge files — bounded pre-edit admission (2026-09-28)
+
+The five queued whole test files require **5 × 4 = 20** four-base cells. A complete Git-tree census found **9 `MISSING`** and **11 present but `UNRUN`** cells at the pinned execution, E02-head, Main, and integration source snapshot `2cd18f45a`. Five historical JUnits remain cited as evidence, but the current environment/cell-identity reuse verifier accepts **0/11** present cells; none is treated as a current pass, fail, or inherited red. No candidate test was launched in this admission. The bounded record contains the exact file-by-base table and blob identities: `/Users/deniskopylov/.codex/scratch/e02-p41-r1-r13-unrun-20260928/ADMISSION.md@sha256:a1981fe4e90849bc1035754dcfe851497039163e6ef7032a928f7549cc3f0701`.
+
+| Complete test file under `tests/` | Execution | E02 head | Main | Integration `2cd18f45a` |
+|---|---|---|---|---|
+| `unit/runtime/http/test_control_service_di.py` | `UNRUN` | `UNRUN` | `UNRUN` | `UNRUN` |
+| `unit/runtime/http/test_cycle_substrate_job_execution_binding.py` | `MISSING` | `MISSING` | `MISSING` | `UNRUN` |
+| `unit/runtime/quality/test_epoch_deployment.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+| `unit/runtime/quality/test_semantic_epoch_native_qualification.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+| `integration/core_runtime/test_acquisition_world_growth_chain.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+
+The preceding one-process P41 wave stopped at its 10-GiB scratch admission floor: minimum measured free scratch **9.93 GiB**, peak RSS **1,601,104 KiB**, minimum free RAM **48%**, and no swap growth. Its guarded execution trust-posture cell ended `UNRUN`, not fail. Receipt: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T185454Z-42604/results.json@sha256:13401c2cefa587e9e37ee2b69103b1b84e71fe54e75cd3a4d55179ffd5012378`. Under Denis's recorded contingency, R1/R13 engineering proceeds in isolated candidates; the full changed-file replay remains required after adequate scratch capacity is measured.
+
 ## R1 NL schema/parse repair — post-R1/R13 four-base P41 at `d103d234c` (2026-09-28)
 
 **Discrepancy first.** The whole-file replay completed **4/4 present cells** for

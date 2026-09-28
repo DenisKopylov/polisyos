@@ -68,8 +68,28 @@ class CachingArtifactStore:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or artifact_id
         artifact_label = _artifact_label(aid)
+        owner_selected_ref: ArtifactRef | None = None
+        owner_default_ref: ArtifactRef | ArtifactID | None = None
+        if self._write_through and _is_selector_free_default(ref):
+            # A selector-free ref is relative to the durable owner's default, not
+            # whichever profile happens to be first in the local cache. Pin that
+            # owner-resolved view before either store reads so a divergent local
+            # default is a cache miss rather than a type/integrity failure.
+            owner_manifest = self._default_manifest_owner().get_manifest(selected)
+            owner_selected_ref = _manifest_view_ref(owner_manifest)
+            owner_default_ref = ref or aid
+            selected = owner_selected_ref
         try:
-            return bytes(self._local.get_bytes(selected))
+            if owner_selected_ref is not None and not _has_manifest_view(
+                self._local,
+                owner_selected_ref,
+            ):
+                logger.debug(
+                    "Local artifact cache miss for unadmitted manifest view %s",
+                    artifact_label,
+                )
+            else:
+                return bytes(self._local.get_bytes(selected))
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact cache miss for %s", artifact_label)
         except PermissionError:
@@ -115,6 +135,42 @@ class CachingArtifactStore:
                         candidate_signature_bytes = signature_reader(selected)
                     except FileNotFoundError:
                         candidate_signature_bytes = None
+                        default_manifest_reader = getattr(
+                            self._remote,
+                            "get_manifest_bytes",
+                            None,
+                        )
+                        if (
+                            owner_selected_ref is not None
+                            and owner_default_ref is not None
+                            and callable(default_manifest_reader)
+                        ):
+                            # Some owners sign the selector-free default and do
+                            # not duplicate its sidecar under the exact profile
+                            # selector. Reuse those exact signature bytes only
+                            # while the durable default still resolves to the
+                            # manifest bytes already pinned for this read. The
+                            # importer independently checks the signature's
+                            # manifest digest before persisting it.
+                            try:
+                                current_default_bytes = default_manifest_reader(
+                                    owner_default_ref
+                                )
+                            except (FileNotFoundError, KeyError):
+                                current_default_bytes = None
+                            if current_default_bytes == raw_manifest_bytes:
+                                try:
+                                    candidate_signature_bytes = signature_reader(
+                                        owner_default_ref
+                                    )
+                                except FileNotFoundError:
+                                    candidate_signature_bytes = None
+                            else:
+                                logger.warning(
+                                    "Not copying a default signature for %s: "
+                                    "the durable default no longer matches the pinned view",
+                                    artifact_label,
+                                )
                     if isinstance(candidate_signature_bytes, bytes):
                         signature_bytes = candidate_signature_bytes
                 imported_ref = exact_view_importer(
@@ -341,3 +397,24 @@ def _manifest_view_identity(manifest: ArtifactManifest) -> tuple[str, str, str, 
         manifest.media_type,
         ManifestLifecycle.profile_sha256(manifest),
     )
+
+
+def _manifest_view_ref(manifest: ArtifactManifest) -> ArtifactRef:
+    """Address one owner-resolved manifest profile without using its default alias."""
+    return ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=ManifestLifecycle.profile_sha256(manifest),
+    )
+
+
+def _has_manifest_view(store: ArtifactStore, ref: ArtifactRef) -> bool:
+    """Return whether the local cache admits this exact selected manifest view."""
+    profile_sha256 = ref.manifest_profile_sha256
+    if profile_sha256 is None:
+        return bool(store.has(ref))
+    exact_view_probe = getattr(store, "has_manifest_view", None)
+    if callable(exact_view_probe):
+        return bool(exact_view_probe(ref.artifact_id, profile_sha256))
+    return bool(store.has(ref))

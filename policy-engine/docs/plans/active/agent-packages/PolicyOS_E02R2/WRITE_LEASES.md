@@ -1,6 +1,13 @@
 # E02-R2 write leases
 
-## Current snapshot (2026-09-28; code/test HEAD `6a31548ea`)
+## Current snapshot (2026-09-28; code/test HEAD `10315b7b2`)
+
+- Root remains the sole writer of `codex/e02-r2`. The reviewed R13 tenant-custody fixture is committed at `10315b7b2`; its two-file write lease is released. The exact integrated two-file run passed 12/12. The current R7 live-executor file passed 49/49. The full generation-cycle file ran 153 cases with three reds already present in the earlier 149-case parent snapshot; it added four passing cases and no common pass-to-nonpass outcomes. These are bounded current-head observations, not four-base P41 closure.
+- R13-G's isolated writer found no served production caller for the root-CAS composed-WMR helper in a complete 2,696-file Python AST census. The writer made no code changes and released its source lease. A served WMR/context owner and owner-issued NCM remain missing; root will correct the R13-G residual record before closeout. A marker-only helper injection is not authorized.
+- The only new isolated write lease is for R12/R13 N7 grounding re-entry in the managed `e02-r2-n7` checkout at `10315b7b2`: `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py` only. The writer must diagnose both same-class failed expectations together, preserve same-cycle re-entry and honest typed unavailable-grounding semantics, and hand off a test-only patch, removal/control receipt and principal decision draft if changing Appendix-A expectations. If source behavior must change, stop for a new lease; do not weaken the Data Forge overlay/passport/epoch route. Root integrates only after independent review and P41 comparison. This candidate uses the shared `.venv` by symlink and read-only `production_data` by symlink; no copy.
+- Generated families, governed epochs/receipts, plans, register and E02 records have no writer. At most four to five measured light processes may run while RAM has at least 20–30% free and disk at least 8 GiB. Completed scratch may move to Trash after verification; no one empties Trash.
+
+## Prior snapshot (2026-09-28; code/test HEAD `6a31548ea`)
 
 - Root is the sole writer of `codex/e02-r2`. R13 N6 source-store custody landed at `065929f51`; the world-growth bridge store-identity fence landed at `6a31548ea`. Those source leases are released. R13 remains open on the served tenant-custody positive path, composed WMR/NCM owner, and full P41 replay.
 - The R3 historical test-contract correction landed at `17ba0b7eb` after independent review and a same-head selector/full-file replay. Its `test_generation_source.py` lease is released; the 25-case full file still has parent-present reds, recorded separately.

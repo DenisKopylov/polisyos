@@ -2245,7 +2245,28 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Controller evidence/absence/comparator arithmetic tests exist; comparator_refs are not bound to the same WMR, horizon and scope. Full current four-base replay UNRUN."
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B19",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L425-L437",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355#test_ncm_evidence_none_and_explicit_empty_are_distinct; test_joint_simulation_requires_explicit_selected_outcome_baseline; test_explicit_comparator_makes_equal_scenarios_zero_effect"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B19",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B20",
@@ -2457,7 +2478,28 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Distinct-seed and replication-count tests exist; per-outcome/per-step sampling error and separate world-model uncertainty are not established. Full current four-base replay UNRUN."
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B21",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L451-L475",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355#test_joint_request_runs_each_requested_replication_with_distinct_seeds; test_paired_replicates_require_distinct_seeds; test_single_paired_draw_has_unestimated_standard_error"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B21",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B22",
@@ -2667,7 +2709,28 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Same physical spec reuse and selected identity fields have tests; meaning-changing seed/method variation through one cache lifetime is not tested. Full current four-base replay UNRUN."
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B23",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L477-L502",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355#test_joint_simulation_reuses_physical_spec_across_roles; test_physical_run_ref_binds_effective_evidence_and_source_mode"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B23",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B24",
@@ -2883,7 +2946,29 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Missing-required-moment blocking tests exist; optional metric denominator and persisted metric-set identity remain unestablished. Full current four-base replay UNRUN."
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B25",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L503-L516",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355#test_summary_distance_requires_one_declared_metric_set; test_smm_missing_required_moment_cannot_win_calibration; test_smm_all_incomparable_candidates_are_explicitly_blocked",
+        "policy-engine/tests/unit/foundry/coupling/test_estimation.py@sha256:a5682a5257db97f289096c807c6db9929aa5b931c37df84ef58648f8aa27b57d#test_calibrate_coupled_smm_selects_best_summary_match"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B25",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B26",
@@ -3042,7 +3127,28 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Three-atom non-additivity and checked-order tests exist; additive output can arise from only order-1/2 trajectories, and served reachability is UNRUN. Full current four-base replay UNRUN."
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B26",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L517-L530",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/remediation/test_sim_03.py@sha256:a383f21717bb4e15699a3ee23b6d241f91dd1d5fc7bd633bf800c03a7902b355#test_three_atom_controller_reports_real_higher_order_residual_and_order; test_joint_residual_keeps_higher_order_interaction_visible; test_checked_interaction_orders_include_pairwise_two_atom_run"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B26",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B27",
@@ -9258,7 +9364,7 @@
         "finding_test_or_probe": {
           "behavioral_verdict": "PASS_BOUNDED",
           "candidate_test_paths_at_sha": [
-            "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
+            "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6"
           ],
           "identity": "test_budget_deficit_normalizes_missing_null_alias_and_sign (five cases); missing-unusable metric case; NaN, positive/negative infinity and conflicting-alias cases",
           "kind": "bounded_behavioral_test_receipt_or_source_audit",
@@ -9268,7 +9374,7 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B108",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
+            "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6"
           ]
         },
         "package_record": "e02_package_projection",
@@ -9309,7 +9415,7 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B108",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
+            "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6"
           ]
         },
         "n18_reconciliation": {
@@ -9327,7 +9433,7 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B108",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
+            "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6"
           ],
           "residual": "All ten objective cases pass, including budget_deficit alias normalization, genuine zero, unusable absent/null values, conflicting aliases and non-finite inputs. The objective has no typed units input and a served search caller consuming BudgetDeficitObjective is not demonstrated. Keep partial; whole-file four-base replay remains UNRUN.",
           "residual_owner": "BudgetDeficitObjective extractor and optimizer candidate consumer",
@@ -9344,7 +9450,7 @@
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B108",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_objective.py@git-blob:5dd6e5b66ca2c5c95752e524d4f43185e17bade7"
+            "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6"
           ]
         }
       ],
@@ -9378,7 +9484,28 @@
         "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
         "status_retained": "partial",
         "four_base_replay": "UNRUN at other three bases"
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B108",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2897-L2910",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/scientist/methods/search/test_objective.py@sha256:962ea63170d67b09cd1c339f94f6a25d1752dee4b6ec0e4c100e1d53ceeecef6#test_budget_deficit_normalizes_missing_null_alias_and_sign; test_budget_deficit_marks_missing_metric_unusable; test_budget_deficit_keeps_non_finite_metric_unusable; test_budget_deficit_rejects_conflicting_balance_aliases"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B108",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B109",
@@ -9628,7 +9755,28 @@
         "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-opt01-current-add75-20260927/OPT01_CURRENT_RECEIPT.md@sha256:76257e1c308cf46d09a11fa5db02a2910353cdd3c48b98c5270f247ea4b2ca8a",
         "status_retained": "partial",
         "four_base_replay": "UNRUN at other three bases"
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B109",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "UNRUN",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2911-L2938",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties; test_fast_front_matches_independent_slow_oracle"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B109",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B110",
@@ -9946,7 +10094,30 @@
           "Adjacent distinct status residual: infeasible non-seed rows excluded before comparison can be labeled dominated and routed to VOI reject; see separate memo. Not the same omission class."
         ],
         "adjacent_infeasible_voi_status_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/OPT01_INFEASIBLE_VOI_STATUS_MEMO.md@sha256:56d9a8d0061086d1aa2c665b5747fe982ef4dfaec2ad1cdf41ca1607a903309f"
-      }
+      },
+    "n_card_audit_2026_09_28": {
+      "identity": "read-only N card/caller audit:B111",
+      "classification_retained": "partial",
+      "finding_test_status_retained": "PASS_BOUNDED",
+      "fresh_behavioral_verdict": "UNRUN",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2939-L2963",
+      "test_locators_at_source_test_snapshot": [
+        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_non_finite_and_missing_metrics_are_excluded_from_numeric_front; test_mixed_objective_coverage_is_typed_and_keeps_finite_front; test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+        "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py@sha256:4b3d7fd27b3384e4d3b5d669d806812fdee68f991f7c8bb52020b9f777f5f928#test_pareto_registry_keeps_missing_axis_typed_unassessed; test_pareto_registry_observed_axis_union_is_not_complete; test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_control_ranks",
+        "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py@sha256:38902e34984d7cf6c459ad97c06f657c4be6fc316e22132e031da8045146300b#test_voi_rejects_dominated_candidate; test_voi_keeps_unassessed_candidate_in_candidate_computation; test_limited_frontier_snapshot_does_not_receive_frontier_score; test_historical_registry_frontier_stays_unassessed_through_voi_scheduler"
+      ],
+      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+      "source_test_denominators": {
+        "source_python_files": 2696,
+        "test_python_files": 2743
+      },
+      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+      "tests_run_by_this_audit": false,
+      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B111",
+      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    }
     },
     {
       "id": "B112",

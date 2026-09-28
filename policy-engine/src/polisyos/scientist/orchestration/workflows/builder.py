@@ -171,15 +171,38 @@ def _maybe_enforce_quota(*, quota_registry: QuotaRegistry | None = None) -> Quot
 
 def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     """Wrap store with namespace isolation if tenant context is active."""
+    access_scope = get_current_access_scope_or_none()
     tenant_id = get_current_tenant_id_or_none()
+    if tenant_id is None and access_scope is not None:
+        tenant_id = access_scope.tenant_id
+    cell_id = get_current_cell_id()
+    if cell_id is None and access_scope is not None:
+        cell_id = access_scope.cell_id
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    if isinstance(store, FileSystemCAS):
+        return cast(
+            "ArtifactStore",
+            with_ambient_ownership_enforcement_if_supported(store),
+        )
+
+    target = getattr(store, "_target", None)
+    if isinstance(target, FileSystemCAS):
+        if not target._ownership_enforced:
+            raise ArtifactOwnershipError(
+                "Guarded filesystem artifact store requires ownership enforcement"
+            )
+        return store
+
     if tenant_id is None:
         return store
+
     if _is_content_addressed_filesystem_store(store):
         return store
     try:
         from polisyos.core.security import NamespacedArtifactStore
 
-        cell_id = get_current_cell_id()
         return cast(
             "ArtifactStore",
             NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id),

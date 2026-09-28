@@ -13,6 +13,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 from polisyos.ir.artifacts.contracts import StorePutOptions
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
@@ -73,6 +74,138 @@ def test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_r
     assert ref_b.artifact_id == ref_a.artifact_id
     assert store_b.has(ref_a.artifact_id) is True
     assert store_b.get_bytes(ref_a.artifact_id) == store_a.get_bytes(ref_a.artifact_id)
+
+
+def test_ambient_cas_rejects_foreign_tenant_and_cell_claims(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    ref = None
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ref = store.put_bytes(
+            b"tenant-a ambient artifact",
+            PutOptions(kind="test.ambient_payload", media_type="text/plain"),
+        )
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
+        assert store.has(ref.artifact_id) is False
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-b"):
+        assert store.has(ref.artifact_id) is False
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert store.get_bytes(ref.artifact_id) == b"tenant-a ambient artifact"
+
+
+def test_ambient_cas_unscoped_claim_check_covers_read_metadata_enumeration_and_paths(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    payload = b"tenant-owned selected-view artifact"
+    opts = PutOptions(kind="test.ambient_default", media_type="text/plain")
+    view_opts = PutOptions(kind="test.ambient_view", media_type="text/plain")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        default_ref = store.put_bytes(payload, opts)
+        view_ref = store.put_bytes(payload, view_opts)
+        assert view_ref.manifest_profile_sha256 is not None
+        archive = store.export_subgraph(
+            [view_ref],
+            tmp_path / "tenant-view.tar.gz",
+            compress=True,
+        )
+
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_bytes(default_ref.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_manifest(default_ref.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_manifest_bytes(view_ref)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_signature(view_ref)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_paths(view_ref)
+    assert store.has(default_ref.artifact_id) is False
+    assert store.has_manifest_view(
+        view_ref.artifact_id,
+        view_ref.manifest_profile_sha256,
+    ) is False
+    assert default_ref.artifact_id not in store.iter_artifact_ids()
+    with pytest.raises(ArtifactOwnershipError):
+        store.export_subgraph(
+            [view_ref],
+            tmp_path / "unscoped-export.tar.gz",
+            compress=True,
+        )
+    assert not (tmp_path / "unscoped-export.tar.gz").exists()
+    assert archive.output_path.exists()
+
+
+def test_ambient_cas_unscoped_candidate_is_preserved_but_claimed_targets_and_inputs_are_denied(
+    tmp_path,
+) -> None:
+    shared_root = tmp_path / "shared"
+    store = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    owned_data = b"tenant-owned immutable target"
+    owned_opts = PutOptions(kind="test.owned_default", media_type="text/plain")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        owned_ref = store.put_bytes(owned_data, owned_opts)
+        owned_manifest_bytes = store.get_manifest_bytes(owned_ref)
+        owner_export = store.export_subgraph(
+            [owned_ref],
+            tmp_path / "owner-export.tar.gz",
+            compress=True,
+        )
+
+    candidate_ref = store.put_bytes(
+        b"unclaimed candidate bytes",
+        PutOptions(kind="test.candidate", media_type="text/plain"),
+    )
+    assert store.get_bytes(candidate_ref.artifact_id) == b"unclaimed candidate bytes"
+    assert store.has(candidate_ref.artifact_id)
+    assert candidate_ref.artifact_id in store.iter_artifact_ids()
+
+    with pytest.raises(ArtifactOwnershipError):
+        store.put_bytes(
+            owned_data,
+            PutOptions(kind="test.unscoped_second_view", media_type="text/plain"),
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.put_bytes(
+            b"candidate with foreign lineage",
+            PutOptions(
+                kind="test.foreign_lineage",
+                media_type="text/plain",
+                inputs=[{"artifact_id": str(owned_ref.artifact_id), "role": "source"}],
+            ),
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_exact_view(
+            owned_data,
+            owned_manifest_bytes,
+            artifact_id=owned_ref,
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_subgraph(owner_export.output_path, verify_integrity=True)
+
+    archive_source = FileSystemCAS(tmp_path / "archive-source")
+    child = archive_source.put_bytes(
+        b"child with claimed input",
+        PutOptions(
+            kind="test.imported_child",
+            media_type="text/plain",
+            inputs=[{"artifact_id": str(owned_ref.artifact_id), "role": "source"}],
+        ),
+    )
+    child_export = archive_source.export_subgraph(
+        [child],
+        tmp_path / "child-export.tar.gz",
+        compress=True,
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_subgraph(child_export.output_path, verify_integrity=True)
+    assert not store.has(child.artifact_id)
 
 
 def test_tenant_scoped_cas_accepts_ir_dict_lineage_inputs(tmp_path) -> None:

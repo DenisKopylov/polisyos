@@ -334,6 +334,25 @@ class ArtifactOwnershipIndex:
         records = _artifacts_mapping(payload).get(str(aid), [])
         return [dict(record) for record in records]
 
+    def has_any_tenant_claim(self, artifact_id: ArtifactID | str) -> bool:
+        """Return whether any tenant claim covers this artifact or its blob.
+
+        This is a read-only aggregate query for ambient callers without an
+        established owner. It validates every signed v1/v2 claim row before
+        returning a negative result, so malformed rows cannot become an
+        unclaimed-candidate classification. Historical index and signature
+        bytes are never rewritten by this query.
+        """
+        aid = _coerce_artifact_id(artifact_id)
+        return str(aid) in self.claimed_artifact_ids()
+
+    def claimed_artifact_ids(self) -> set[str]:
+        """Return every artifact ID covered by any validated tenant claim."""
+        payload = self._load_payload()
+        artifacts = _artifacts_mapping(payload)
+        blob_readers = _blob_readers_mapping(payload)
+        return set(artifacts).union(blob_readers)
+
     def is_owned_by(
         self,
         artifact_id: ArtifactID | str,
@@ -449,15 +468,25 @@ class ArtifactOwnershipIndex:
         raw.setdefault("artifacts", {})
         schema_version = raw.get("schema_version")
         if schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
-            if "blob_readers" in raw:
+            if "blob_readers" in raw or not set(raw).issubset(
+                {"schema_version", "mode", "artifacts"}
+            ):
                 raise ValueError("ownership_index_signature_invalid")
         elif schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
-            if not isinstance(raw.get("blob_readers"), dict):
+            if not isinstance(raw.get("blob_readers"), dict) or not set(raw).issubset(
+                {"schema_version", "mode", "artifacts", "blob_readers"}
+            ):
                 raise ValueError("ownership_index_signature_invalid")
         else:
             raise ValueError("ownership_index_signature_invalid")
         if raw.get("mode") != OWNERSHIP_MODE_SHARED_CAS:
             raise ValueError("ownership_index_signature_invalid")
+        try:
+            _artifacts_mapping(raw)
+            if schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+                _blob_readers_mapping(raw)
+        except (TypeError, ValueError):
+            raise ValueError("ownership_index_signature_invalid") from None
         signature = _load_json_file(self.signature_path)
         expected_signature = self._signature_payload(raw, digest=_digest_payload(raw))
         if not isinstance(signature, dict) or signature != expected_signature:
@@ -505,35 +534,71 @@ def _coerce_artifact_id(value: ArtifactID | str) -> ArtifactID:
 
 
 def _artifacts_mapping(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    raw = payload.get("artifacts")
-    if not isinstance(raw, dict):
-        return {}
-    result: dict[str, list[dict[str, Any]]] = {}
-    for key, value in raw.items():
-        try:
-            artifact_id = str(_coerce_artifact_id(str(key)))
-        except (TypeError, ValueError):
-            continue
-        if not isinstance(value, list):
-            continue
-        records = [dict(item) for item in value if isinstance(item, dict)]
-        result[artifact_id] = records
-    return result
+    return _validated_claim_mapping(
+        payload.get("artifacts"),
+        allow_manifest_views=True,
+    )
 
 
 def _blob_readers_mapping(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    raw = payload.get("blob_readers")
-    if not isinstance(raw, dict):
+    if payload.get("schema_version") == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
         return {}
+    return _validated_claim_mapping(
+        payload.get("blob_readers"),
+        allow_manifest_views=False,
+    )
+
+
+def _validated_claim_mapping(
+    raw: Any,
+    *,
+    allow_manifest_views: bool,
+) -> dict[str, list[dict[str, Any]]]:
+    if not isinstance(raw, dict):
+        raise ValueError("ownership_index_signature_invalid")
     result: dict[str, list[dict[str, Any]]] = {}
     for key, value in raw.items():
+        if not isinstance(key, str):
+            raise ValueError("ownership_index_signature_invalid")
         try:
-            artifact_id = str(_coerce_artifact_id(str(key)))
+            artifact_id = str(_coerce_artifact_id(key))
         except (TypeError, ValueError):
-            continue
-        if not isinstance(value, list):
-            continue
-        result[artifact_id] = [dict(item) for item in value if isinstance(item, dict)]
+            raise ValueError("ownership_index_signature_invalid") from None
+        if artifact_id != key or not isinstance(value, list) or not value:
+            raise ValueError("ownership_index_signature_invalid")
+        records: list[dict[str, Any]] = []
+        for record in value:
+            if not isinstance(record, dict):
+                raise ValueError("ownership_index_signature_invalid")
+            allowed_fields = {"tenant_id", "claimed_at", "cell_id", "writer"}
+            if allow_manifest_views:
+                allowed_fields.add("manifest_profile_sha256")
+            if set(record).difference(allowed_fields):
+                raise ValueError("ownership_index_signature_invalid")
+            tenant_id = record.get("tenant_id")
+            claimed_at = record.get("claimed_at")
+            if (
+                not isinstance(tenant_id, str)
+                or not tenant_id.strip()
+                or not isinstance(claimed_at, str)
+                or not claimed_at.strip()
+            ):
+                raise ValueError("ownership_index_signature_invalid")
+            if "cell_id" in record and (
+                not isinstance(record["cell_id"], str) or not record["cell_id"].strip()
+            ):
+                raise ValueError("ownership_index_signature_invalid")
+            if "writer" in record and (
+                not isinstance(record["writer"], str) or not record["writer"].strip()
+            ):
+                raise ValueError("ownership_index_signature_invalid")
+            if "manifest_profile_sha256" in record:
+                try:
+                    _validate_profile_sha256(record["manifest_profile_sha256"])
+                except (TypeError, ValueError):
+                    raise ValueError("ownership_index_signature_invalid") from None
+            records.append(dict(record))
+        result[artifact_id] = records
     return result
 
 

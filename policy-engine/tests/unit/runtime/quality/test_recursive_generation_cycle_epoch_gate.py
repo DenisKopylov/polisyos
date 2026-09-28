@@ -1437,14 +1437,17 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
 
 @pytest.mark.asyncio
-async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle(
+async def test_http_contextless_explicit_n4_refuses_before_n4(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Appendix-A identity: contextless synthetic N4 parity is a typed pre-N4 refusal.
+    """Retired Appendix-A selector:
+    ``test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle``.
 
-    This fixture cannot establish the owner-bound N4→N5→S8 path. A caller-supplied
-    ``simulate_only`` string does not substitute for the missing served context.
+    This HTTP-only fixture tests refusal before N4; it cannot establish HTTP/direct
+    parity or owner-bound N4→N5→S8. A caller-supplied ``simulate_only`` string does not
+    substitute for the missing served context. The direct-controller candidate path
+    remains a separate residual and is not covered by this test.
     """
 
     from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError

@@ -149,6 +149,16 @@ Census source blobs at `2cd18f45a`: `residual_ledger.json@git-blob:bc21056d72c16
 - **Safe engineering now:** enumerate the seven Core consumer roots and classify each symbol as already-covered, narrow-ABI candidate, or owner-operation candidate; rewrite imports already served by an approved facade; prepare an owner-reviewed contract diff and behavioral test plan. Keep Runtime→Data Forge permission bans in force. Do not sync the baseline or generated public surfaces to hide unresolved edges, and do not claim the historical 107 are the current exact-head count.
 - **Evidence:** `/Users/deniskopylov/.codex/scratch/architecture_deep_import_edges_triage_e0c6623_20260928.md@sha256:5042c5dd6f7f1022db99f7dd6d1f9289c78867abb057a37f07e29ec87c8c25d4`. The memo states it is a historical read-only triage, did not rerun the current gate, and that current exact-head gate remains `UNRUN`.
 
+### OP-LA021-418 — unavailable exact CAN-01 input selector
+
+- **Kind / IDs:** `data_record`; LA-021. Supplementary premise only; it changes no finding status or ledger count.
+- **Question / missing evidence:** the architect’s exact immutable 418-input selector/manifest and its cryptographic hash have not been recovered. Equivalence for that exact selection is `UNRUN`; no reconstructed or sampled set substitutes for it.
+- **Claim affected:** Core/IR byte equivalence on that exact historical input selection only. The independent tracked current/main JSON/JSONL union has 7,762 records: the earlier complete replay covers the prior union, the current owner identities were rechecked, and the two new records were replayed. The current-head `test_can_01.py` owner suite passed 19/19. This bounded evidence does not stand in for the exact 418 inputs.
+- **Owner state:** E02/architect record custodian owns recovery of the source record; this names a role, not an individual appointment.
+- **Minimum closure:** recover and hash the immutable selector/manifest, verify its denominator and source-revision assumptions, then replay exactly those 418 payloads through the specified Core/IR revisions and preserve byte, hash, profile, and error outcomes. Until that replay is recorded, exact-selector equivalence remains `UNRUN`.
+- **Safe engineering now:** use the independently enumerated corpus and the existing Core/IR owners for current behavior and regression tests; keep exact-418 claims explicitly unmeasured until the record is recovered.
+- **Evidence at canonical head `3ec377af6f0be281f0e5ad6ec080a859fead9105`:** `/Users/deniskopylov/.codex/scratch/e02-r2-la021-currenthead-20260928/LA021_CURRENT_HEAD_WITNESS.md@sha256:af4a80ad6ced4f40d4eac6fadff281f9001eae6c4a0eff38fe431be01db870ef`; independent review `/Users/deniskopylov/.codex/scratch/e02-r2-la021-currenthead-20260928/INDEPENDENT_LA021_REVIEW.md@sha256:08808d337ad2a6e8adc5a2e4623114d6299c07e5f19f788b0cfe552e97ec569f`; machine receipt `/Users/deniskopylov/.codex/scratch/e02-r2-la021-currenthead-20260928/receipt.json@sha256:526003452c55e069315145109eea1b9598101318ed7ae28d46b9d76858cfbf85`.
+
 ## Complete typed blocker catalog
 
 These grouped rows cover every one of the 56 census-selected IDs. Their full per-ID residual, status, owner state, and UNRUN/record verdict are preserved in the census JSON. Grouping is navigational; it does not merge finding semantics.

@@ -45,6 +45,16 @@ no worker remained after completion. Receipt:
 The separate durable measurement note is
 `/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/R1-R13-focused-wave-193429.md@sha256:744b6c6641bb1b9667368ab6e2cdb2c19b50bcc0f18f4bdb8ce0be745e4ebaa1`.
 
+## R1 cycle-substrate test — current strict pre-edit admission (2026-09-28)
+
+This separate proposed test file has a **4-cell** denominator at execution `78187878e`, E02 head `00d946c2b`, Main `5fd3ebcc1`, and integration `9bd9e8556`. The first three exact historical JUnits each report **22/22 pass** on test blob `e951dfdf7652ff930bfa381c890862e81f561d5c`; the current integration file has blob `5d4d75969f95757bf696758df00ef3064087c50b`, no exact JUnit, and is **UNRUN**. Historical receipts are evidence of those earlier runs only, not strict reuse in the current invocation: their manifests do not satisfy current numeric-thread/source-policy reuse admission, and they do not pin the current integration revision. No current pass/fail or regression attribution is inferred.
+
+| Complete test file | Execution `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Current integration `9bd9e8556` |
+|---|---:|---:|---:|---:|
+| `tests/unit/runtime/quality/test_cycle_substrate.py` | historical PASS 22/22 | historical PASS 22/22 | historical PASS 22/22 | UNRUN (no exact JUnit) |
+
+Historical JUnits: execution `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/e02_execution_base/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:cf9999c77a01679f2031d2b935952ce2bc93daeeed97a6de40ddc52aa925317d`; E02 head `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/e02_head/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:a59eb00f32cdba298d1bafecf39547c0db2d2034c62cc33be6f29c05c2f5fd75`; Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/main/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:c82a47c668fb3bbc38cf5d9efd55065e0b19e20325808212399ddbcee4d654e6`. The full read-only Git-tree census and reuse decision are at `/Users/deniskopylov/.codex/scratch/e02-p41-preedit-admission-9bd9-20260928/admission.md@sha256:d7c6b2f6119505fe8893ff38069bd548a944d5e7c98ecbe84c98004ab6f9a00f`. The capture's machine census records `worktree_clean=false`; the capture did not retain path-level status.
+
 ## R1 NL schema/parse repair — post-R1/R13 four-base P41 at `d103d234c` (2026-09-28)
 
 **Discrepancy first.** The whole-file replay completed **4/4 present cells** for

@@ -729,6 +729,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
             grounding_port=_CurrentValidGrounding(),
             value_port=PendingN8ValuePort(),
             repo_root=REPO_ROOT,
+            promotion_runtime=runtime,
         )
         owner_run = recursive.run
 
@@ -739,6 +740,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
             expected_terminal_status = "blocked" if action == "blocked" else "completed"
             assert leaf.cycle_run.terminal_status == expected_terminal_status
             assert leaf.cycle_run.promotion_port.receipts == ()
+            assert leaf.cycle_run.source_custody_limitation is None
 
             # Treat the served projection input as a re-hashed persisted artifact:
             # its real owner N6 run is preserved while an N9 receipt is grafted.

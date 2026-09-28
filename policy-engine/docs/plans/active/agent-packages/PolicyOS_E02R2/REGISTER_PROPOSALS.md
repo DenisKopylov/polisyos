@@ -108,6 +108,35 @@ Do not propose a register append until a measured predicate and its exact owner 
 - Closure signal: historical run remains byte-exact replayable after an unrelated source edit; currentness uses owner-issued canonical loaded-code manifest and lock identity; a deployment without owner evidence reports typed `not_established`; production N6 source/deploy census finds no route through `run_fixture`.
 - The source census denominator is tracked `*.py` source only. The bounded dynamic/import-indirection divergence must be named; source scanning does not prove arbitrary runtime call behavior.
 
+#### Proposal-only B30 / CYC-05 / R2 residual supplement
+
+The current crosswalk admits B30→GY-N6 only as “touches code named by”; other B30 target cells are
+`not_established`, and it admits no R2→DEBT-REGISTER edge. Crosswalk:
+`/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:ebfab092b124bee8edcdead7f9aefdbc485d778e64d3f353221a5430a5a96af9`.
+This is a finding-level residual supplement only. No register append/closure or GY/Atlas closure is
+proposed; B30/R2 stays partial and currentness `UNRUN`.
+
+- Capability labels: `producer_missing: package-build identity issuer`; `bridge_missing: N6
+census/run currentness to N9 signer`; `verification_missing: source-free positive currentness and
+changed-byte removal proof`. No appointment is inferred.
+
+- Proposed closure-signal identities (not present/run):
+`tests/unit/runtime/quality/test_generation_cycle_run_history.py::test_marker_retaining_n6_guard_byte_mutation_invalidates_packaged_identity`;
+`tests/unit/runtime/quality/test_generation_cycle_run_history.py::test_n9_signer_requires_run_bound_n6_currentness_evidence`;
+`tests/unit/runtime/quality/test_generation_cycle_run_history.py::test_candidate_computation_preserves_unknown_deployment_currentness`.
+Require packaged positive, marker-retaining byte-removal negative, candidate non-refusal control,
+source-free historical replay, and full touched-file four-base replay before changing status.
+
+- Residual roles: package-build producer (appointment pending), confidence-ledger verifier, N6
+census/bridge owner and N9 signer owner; these are roles, not appointments.
+
+- Evidence: memo
+`/Users/deniskopylov/.codex/scratch/e02-r2-loaded-closure-investigation-20260928/R2_LOADED_CLOSURE_GAP.md@sha256:413633ca15921dc30b577b69a6bec33a6247286f643954fbbd33d802b231c890`.
+Frozen removal receipt
+`/Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-head-20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:99c72d9fe759bd1f17b331d8c94ec5a53eea51866a8d652ee4d519503a863206`
+records snapshot `44a7441eba7ad92eb6b95a767e14f0dbe61f27b3`, not the documentation input head `6ffa3e63d`; its
+sentinel fires before source bytes are read.
+
 ### R4 — governed GY-N6 validator verdict
 
 R4 may touch `_VerificationN9PromotionPort` in `promotion_sequence.py`; if so, it runs after R3 and takes the same file lease. The checker/tests are independent only if that private port is not edited.

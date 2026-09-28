@@ -996,6 +996,57 @@ comment probe remains unmeasured for import-closure effect. The P41 four-base JU
 receipt for this regression class is pending the broker; this draft does not claim
 the base-passing test set has been replayed or restored.
 
+### R2 loaded-code closure follow-up — principal choice pending (2026-09-28)
+
+**Proposed by / decision status.** Proposed by E02-R2 for Denis. Date: 2026-09-28. Status: PENDING;
+neither option is selected or recommended, and this draft appoints no owner.
+
+**Measured P38 gap.** The confidence-ledger resolver follows forward imports from the ledger root,
+structurally omitting importing N6 module `generation_cycle.py`. This is expected from the current
+algorithm but a P38 gap if that closure is used for N6 deployment currentness. N6 currentness and
+canonical identity binding remain `UNRUN` / `not_established`; the ordinary controller withholds N9.
+The sole production caller/path in `src/` is the GenerationCycleController route; direct test
+construction exists. No production bypass was observed. The signer itself checks a supplied ledger
+identity but no N6-currentness proof. The removal receipt records source snapshot
+`44a7441eba7ad92eb6b95a767e14f0dbe61f27b3`, not the documentation input head `6ffa3e63d`; its
+mutant stops before changed bytes are read and is not a byte-binding witness. Memo:
+`/Users/deniskopylov/.codex/scratch/e02-r2-loaded-closure-investigation-20260928/R2_LOADED_CLOSURE_GAP.md@sha256:413633ca15921dc30b577b69a6bec33a6247286f643954fbbd33d802b231c890`.
+Full frozen receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-head-20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:99c72d9fe759bd1f17b331d8c94ec5a53eea51866a8d652ee4d519503a863206`.
+
+**Costed options (unselected).** A: authorize appointment of a package-build identity producer and
+implement the chain by reusing the confidence-ledger identity owner; bind the served N6→N9 closure,
+lock, loaded-code evidence and passing census, then require exact run-bound currentness at signer
+intake. Package/deployment pays for issuance; confidence-ledger for canonical verification/API; N6
+for census and pre-N9 bridge; N9 for signer enforcement; test/release for mutation,
+positive/control, history and four-base evidence; authorized identity/epoch owners for any approved
+reissue. B: retain typed `UNRUN`, allow candidate computation under declared unknown, and withhold
+N9. N6/N9 and deployment owners carry the limitation and later measurement cost. Neither option is
+adopted or recommended here.
+
+**Premises.** A deployment identity binds loaded deployment code, not checkout presence; historical
+replay stays byte-exact without a live checkout; candidate work under declared unknown remains
+available while N9 authority is withheld. These premises follow
+`/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md@sha256:f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce`
+and the memo above.
+
+**Remainder.** If A is later selected, dynamic/aliased source classes still need a declared
+denominator, and the N9 signer owner must refuse every caller without exact run-bound N6 proof. No
+package-build issuer is appointed. If B is selected, packaged currentness remains `UNRUN` and N9
+remains withheld.
+
+**Revisit trigger / falsifier.** Revisit after Denis rules on A/B and the package-build
+issuer/production caller can be named. Under A, retain census markers and nominal PASS, mutate N6
+pre-N9 guard bytes after manifest issuance, and require identity change or strict refusal before N9;
+the unchanged package is the positive control. Candidate computation under `UNRUN` must remain
+available and unrelated source edits must not invalidate historical replay. Full four-base R2
+evidence remains `UNRUN`.
+
+**Where it binds.** Confidence-ledger identity owner; unappointed package-build/deployment producer;
+N6 census and pre-N9 bridge; `CanonicalN9PromotionPort` signer intake; strict run/public/value
+consumers; and any separately authorized identity/epoch transition. This decision draft changes none
+of those owners or records.
+
 ### R2 issuer policy — N9 current authority (principal decision draft)
 
 **Status.** Drafted by the E02-R2 lane on 2026-09-25 for Denis and the authorized

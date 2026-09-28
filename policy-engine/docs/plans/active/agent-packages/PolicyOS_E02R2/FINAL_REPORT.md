@@ -1,21 +1,42 @@
 # E02-R2 final report draft
 
-Latest source/test snapshot measured by the incorporated P41 receipts is `d103d234cc114ef9a5b725de1d9a460b61ebeea0`. Later branch movement through `a477fd88f` and `2cd18f45a` is documented as report/lease documentation only; it adds no fresh test result. Each receipt retains its exact execution commit. The latest reviewed 282-row ledger snapshot is **6 closed / 263 partial / 12 held / 1 open**; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@sha256:afb6f9475fa4dab1acdae3b1b2c48df7e6c5a4c22da50c186132742880d04197` was last updated at `7be417be9`. Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; dated sections below retain their historical execution snapshots.
+The latest exact-revision P41 receipt is the bounded two-file wave at `df5188a7435cbd0394da33979eab7482c754c249`: 3 whole-file JUnit cells passed, 3 historical cells are verified `MISSING`, and 2 present cells are `UNRUN` after a resource-guard failure. It is not a full Appendix matrix result. The corrected strict 21-file / 84-cell matrix remains pinned to `d103d234cc114ef9a5b725de1d9a460b61ebeea0` and has **24 PASS / 20 FAIL / 20 MISSING / 20 UNRUN / 0 PENDING**; attribution is unresolved where stated below. The df5188a commit changes no `src/`, `tests/`, or `tools/` path relative to d103. Each receipt retains its exact execution commit. The latest reviewed 282-row ledger snapshot is **6 closed / 263 partial / 12 held / 1 open**; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@sha256:afb6f9475fa4dab1acdae3b1b2c48df7e6c5a4c22da50c186132742880d04197` was last updated at `7be417be9`. Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; dated sections below retain their historical execution snapshots.
 
 ## Discrepancies first
 
 ### Strict P41 census selection mismatch at d103
 
-The preliminary strict coverage memo
-(/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:24e2b512d358d5916c41c0fa9b5e42f3216dff72a33142b979d01fdb5f20ee26)
-records four NL cells as PENDING at 18:36:54Z, although the exact four-base NL
-manifest was created at 18:34:37Z and already contains the completed outcomes.
-Those PENDING labels are an instrument selection/override error, not in-flight
-work. The memo's aggregate 84-cell distribution is superseded and is not used
-as the current total. The exact NL outcomes and remaining d103 UNRUN scope are
-reconciled in BASELINES.md; no corrected full-matrix aggregate is claimed.
+The preliminary matrix had four incorrect NL `PENDING` labels: its selected
+18:25:41Z explicit-UNRUN receipt was superseded by a verified exact-cell
+four-base manifest created at 18:34:37Z, already present in the 18:36:54Z
+inventory. The corrected 84-cell counts are **24 PASS / 20 FAIL / 20 MISSING /
+20 UNRUN / 0 PENDING**. The corrected memo and exact matrix are
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:518d034919ae0ccb5179578603c224b309cddcfa2399a0e5f8d5d044952d0faa` and
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/current_matrix.json@sha256:4c24c0b6126ca63e5c293364cbcd89004a4c12f746efb4075cb111413987ebdd`.
+This corrects a P41 selection/reporting discrepancy only; it changes no finding
+status. The NL Main→d103 selected pass→fail identity remains owner-attribution
+`UNRESOLVED` pending input-closure reconciliation.
 
+### R1/R13 focused pre-edit P41 wave at `df5188a` (2026-09-28)
 
+This separate eight-cell wave covers control-service DI and the current cycle
+substrate job-execution binding test. Three verified JUnit cells passed, three
+historical cells are `MISSING`, and two present cells are `UNRUN`; the aggregate
+harness/resource verdict is FAIL. Control-service DI passed 30/30 at the E02
+execution base and Main, but the E02-head cell was hard-guarded and the
+integration cell was not dispatched after that guard. The four Appendix-A
+control-service tenant-scope identities therefore remain unresolved by this
+wave. The new current cycle-substrate test passes 1/1; that current-only witness
+does not substitute for historical cells or close R13.
+
+The E02-head hard guard stopped after 35.86s when swap grew **1,409,883,832
+bytes** against the **268,435,456-byte** limit. Minimum free RAM was 30%, minimum
+scratch free space was 14,849,966,080 bytes, and the scheduler left no process
+running. The complete receipt is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/results.json@sha256:e27e0116ffbdea45968576b941094c38db374e4dea5d023fd4eafd4c0a4ce263`;
+the cell table and JUnit citations are in `BASELINES.md`. No pass→fail owner,
+R1/R13 closure, or ledger status promotion is inferred from the incomplete
+cells.
 ### R1 NL schema/parse repair — exact post-R1/R13 P41 at `d103d234c` (2026-09-28)
 
 **Discrepancy first.** The complete NL test file now has a post-R1/R13 four-base

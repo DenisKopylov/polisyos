@@ -14,6 +14,37 @@ The five queued whole test files require **5 × 4 = 20** four-base cells. A comp
 
 The preceding one-process P41 wave stopped at its 10-GiB scratch admission floor: minimum measured free scratch **9.93 GiB**, peak RSS **1,601,104 KiB**, minimum free RAM **48%**, and no swap growth. Its guarded execution trust-posture cell ended `UNRUN`, not fail. Receipt: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T185454Z-42604/results.json@sha256:13401c2cefa587e9e37ee2b69103b1b84e71fe54e75cd3a4d55179ffd5012378`. Under Denis's recorded contingency, R1/R13 engineering proceeds in isolated candidates; the full changed-file replay remains required after adequate scratch capacity is measured.
 
+## R1/R13 focused pre-edit P41 at `df5188a` (2026-09-28)
+
+The bounded denominator is **2 whole test files × 4 revisions = 8 cells**. Three
+exact whole-file JUnits completed and passed, three paths are verified `MISSING`
+from the historical Git trees, and two present cells are `UNRUN`. The exact
+`df5188a7435cbd0394da33979eab7482c754c249` integration commit differs from
+`d103d234cc114ef9a5b725de1d9a460b61ebeea0` in no `src/`, `tests/`, or `tools/`
+paths; the receipt nevertheless preserves its exact commit key.
+
+| Complete test file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Integration `df5188a` |
+|---|---|---|---|---|
+| `tests/unit/runtime/http/test_control_service_di.py` | PASS, 30/30 | `UNRUN` after hard resource guard; no JUnit | PASS, 30/30 | `UNRUN`; scheduler paused after preceding guard; no JUnit |
+| `tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py` | `MISSING` | `MISSING` | `MISSING` | PASS, 1/1 |
+
+The three verified PASS JUnits are execution-base `test_control_service_di`
+(`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/e02_execution_base/test_control_service_di-ded2d4e59426.junit.xml@sha256:13fd9b76b22cbecc89a673c3b0e1f0361fbd6251d4be0a3f14a10ccd13a034ca`), Main
+control-service (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/main/test_control_service_di-ded2d4e59426.junit.xml@sha256:c90b1b132c2c371684e838d07f015c16951186ff7d268e6cf338f45b6100c7e3`), and
+current cycle-substrate (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/integration_head/test_cycle_substrate_job_execution_binding-083e942aeb5e.junit.xml@sha256:2be1fabf7904143f5877a8ddcc4492c2ccdf7bace022737b438730f002268cf3`). The four selected Appendix-A tenant-scope identities in control-service remain unresolved because the E02-head and integration whole-file cells are `UNRUN`; this wave assigns no pass→fail owner and makes no R1/R13 closure claim.
+
+The harness exited 2 because its aggregate resource guard failed, not because
+any completed JUnit failed. The guard stopped E02-head control-service after
+35.86s when swap grew **1,409,883,832 bytes**, exceeding the **268,435,456-byte**
+limit; the later integration control-service cell was not dispatched. Summary:
+2 guarded cells, 1/5 present non-skipped cells with incomplete resource
+coverage, minimum free RAM **30%**, minimum scratch free **14,849,966,080 bytes**,
+peak process-group RSS **1,886,560 KiB**, peak process-group CPU **324.5%**, and
+no worker remained after completion. Receipt:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/results.json@sha256:e27e0116ffbdea45968576b941094c38db374e4dea5d023fd4eafd4c0a4ce263`.
+The separate durable measurement note is
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/R1-R13-focused-wave-193429.md@sha256:744b6c6641bb1b9667368ab6e2cdb2c19b50bcc0f18f4bdb8ce0be745e4ebaa1`.
+
 ## R1 NL schema/parse repair — post-R1/R13 four-base P41 at `d103d234c` (2026-09-28)
 
 **Discrepancy first.** The whole-file replay completed **4/4 present cells** for
@@ -72,20 +103,35 @@ Pre-fix four-base manifest:
 pre-fix integration JUnit:
 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/integration_head/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:c34d5d635de6e7706db43404a5c309a0937f84ea38735e5b547a702c6e45721a`.
 
-**Strict-census snapshot update.** The preliminary strict coverage memo
-(/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:24e2b512d358d5916c41c0fa9b5e42f3216dff72a33142b979d01fdb5f20ee26)
-records its matrix snapshot at 2026-09-28T18:36:54.394053Z with four NL cells
-marked PENDING and 20 d103 suites marked UNRUN. The exact NL manifest already
-had created_at_utc=2026-09-28T18:34:37.857738Z and records all four completed
-cells. Thus the PENDING classification is a selection/override instrument
-discrepancy, not work still in flight. The exact four-base NL receipt above
-reports 35 pass/11 fail at execution, E02 and Main, and 37 pass/12 fail at
-d103. Its receipt completes one d103 whole-file suite; the other 20 d103 paths
-remain present-but-UNRUN in the preliminary census. The memo's aggregate
-84-cell distribution is superseded and is not repeated as current; a corrected
-whole-matrix aggregate has not been recomputed. No outcomes are transferred
-from older source-equivalent snapshots. The strict Appendix matrix remains
-incomplete.
+## Corrected strict 21-file Appendix-A/B census at `d103d234c`
+
+The preliminary matrix memo labeled the four NL cells `PENDING` even though
+the exact four-base manifest at 18:34:37Z was already in its 18:36:54Z raw
+inventory. This was a receipt-selection error. The later verified manifest
+supersedes the older explicit-UNRUN rows for matching commits and test blobs.
+Corrected memo:
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:518d034919ae0ccb5179578603c224b309cddcfa2399a0e5f8d5d044952d0faa`;
+complete cell matrix:
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/current_matrix.json@sha256:4c24c0b6126ca63e5c293364cbcd89004a4c12f746efb4075cb111413987ebdd`.
+The strict denominator remains 21 paths, 74 named cases, and 84 cells.
+
+| Exact revision | PASS cells | FAIL cells | MISSING | UNRUN | PENDING |
+|---|---:|---:|---:|---:|---:|
+| Execution base `78187878e` | 7 | 4 | 10 | 0 | 0 |
+| E02 head `00d946c2b` | 1 | 10 | 10 | 0 | 0 |
+| Main `5fd3ebcc1` | 16 | 5 | 0 | 0 | 0 |
+| Integration `d103d234c` | 0 | 1 | 0 | 20 | 0 |
+| **Total** | **24** | **20** | **20** | **20** | **0** |
+
+The four NL JUnits are exact-commit/test-blob verified and all four whole-file
+suites have failures. The d103 current column therefore has one completed-fail
+cell and 20 present-but-UNRUN cells. `MISSING` remains limited to the 10 Git-tree
+absences at each of the two older E02 revisions. The NL receipt is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182622Z-29866/results.json@sha256:aa7609e634389ed6c4c3dc7afb140950199a2bf910b4080cdf7205cd403bfd29`.
+Its selected Main→d103 test-level pass→fail remains attribution-`UNRESOLVED`; no
+ledger status promotion or class closure follows from this census. The separate
+`df5188a` two-file focused wave above does not enlarge the strict 84-cell
+matrix.
 
 ## B198 welfare whole-file P41 at `8b7b532dd` (2026-09-28)
 

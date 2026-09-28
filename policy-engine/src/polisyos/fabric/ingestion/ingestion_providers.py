@@ -8,14 +8,19 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.protocol import RootedArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.storage.tenant_cas import (
+    TenantSidecarScope,
+    tenant_scoped_cas_root,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
-ArtifactStoreFactory = Callable[[Path], FileSystemCAS]
+ArtifactStoreFactory = Callable[[Path], RootedArtifactStore]
 IngestionRegistryFactory = Callable[[], ConnectorRegistry]
 
 
@@ -27,6 +32,69 @@ def build_filesystem_artifact_store(root: Path) -> FileSystemCAS:
             ArtifactStoreConfig(backend="filesystem", root=str(root)),
         ),
     )
+
+
+class IngestionStoreBindingError(ValueError):
+    """Raised when a supplied ingestion store cannot bind the requested CAS root."""
+
+
+def resolve_ingestion_sidecar_scope(
+    cas_root: Path,
+    *,
+    sidecar_scope: TenantSidecarScope | None = None,
+    tenant_id: str | None = None,
+) -> TenantSidecarScope:
+    """Resolve and validate per-invocation sidecar scope without changing providers."""
+    from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+
+    requested_root = Path(cas_root)
+    active_tenant_id = get_current_tenant_id_or_none()
+    if sidecar_scope is not None:
+        if requested_root.resolve() != sidecar_scope.base_root.resolve():
+            raise IngestionStoreBindingError("ingestion_sidecar_base_root_mismatch")
+        if tenant_id is not None and tenant_id != sidecar_scope.tenant_id:
+            raise IngestionStoreBindingError("ingestion_sidecar_tenant_mismatch")
+        if active_tenant_id is not None and active_tenant_id != sidecar_scope.tenant_id:
+            raise IngestionStoreBindingError("ingestion_sidecar_tenant_mismatch")
+        return sidecar_scope
+
+    if tenant_id is not None:
+        if active_tenant_id is not None and active_tenant_id != tenant_id:
+            raise IngestionStoreBindingError("ingestion_sidecar_tenant_mismatch")
+        store_root = tenant_scoped_cas_root(requested_root, tenant_id)
+        return TenantSidecarScope.for_pre_scoped_store_root(store_root, tenant_id)
+
+    return TenantSidecarScope.from_current_context(requested_root)
+
+
+def resolve_ingestion_store(
+    cas_root: Path,
+    dependencies: IngestionDependencies,
+    *,
+    sidecar_scope: TenantSidecarScope | None = None,
+) -> RootedArtifactStore:
+    """Resolve the owner's store and verify its root against the invocation scope."""
+    scope = resolve_ingestion_sidecar_scope(
+        cas_root,
+        sidecar_scope=sidecar_scope,
+    )
+    store = dependencies.store_factory(scope.base_root)
+    store_root = getattr(store, "root", None)
+    if (
+        not isinstance(store_root, (str, Path))
+        or Path(store_root).resolve() != scope.base_root.resolve()
+    ):
+        raise IngestionStoreBindingError("ingestion_store_root_mismatch")
+    return store
+
+
+def resolve_ingestion_cache_namespace(
+    namespace: str | None,
+    *,
+    sidecar_scope: TenantSidecarScope,
+) -> str:
+    """Qualify one logical cache namespace using its explicit scope object."""
+    return sidecar_scope.cache_namespace(namespace or "connector_cache")
 
 
 @dataclass(frozen=True, slots=True)

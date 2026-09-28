@@ -17,10 +17,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.backends.config import (
-    ArtifactStoreConfig,
-    build_artifact_store,
-)
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
@@ -31,13 +27,19 @@ from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchReques
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.fabric.connectors.contracts import DataSchema
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.streaming import StreamSchemaBinding
     from polisyos.fabric.ingestion import IngestionDependencies
+    from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
 logger = get_logger(__name__)
+
+
+class RecordModeCaptureError(RuntimeError):
+    """Raised when recorded ingestion fails without retrying through a live path."""
+
 
 _VERSION_STRATEGY_BY_WATERMARK: dict[WatermarkType, VersionStrategy] = {
     WatermarkType.TIMESTAMP: VersionStrategy.TIMESTAMP,
@@ -46,18 +48,49 @@ _VERSION_STRATEGY_BY_WATERMARK: dict[WatermarkType, VersionStrategy] = {
 }
 
 
-def _build_filesystem_store(cas_root: Path) -> FileSystemCAS:
-    return cast(
-        "FileSystemCAS",
-        build_artifact_store(
-            ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
-        ),
+def _resolve_ingestion_dependencies(
+    dependencies: IngestionDependencies | None,
+) -> IngestionDependencies:
+    """Resolve providers once while preserving a caller-supplied bundle unchanged."""
+    if dependencies is not None:
+        return dependencies
+    from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+
+    return resolve_ingestion_dependencies()
+
+
+def _resolve_mode_sidecar_scope(
+    cas_root: Path,
+    sidecar_scope: TenantSidecarScope | None,
+) -> TenantSidecarScope:
+    """Resolve tenant-local sidecar paths as invocation context, not provider state."""
+    from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_sidecar_scope
+
+    return resolve_ingestion_sidecar_scope(
+        Path(cas_root),
+        sidecar_scope=sidecar_scope,
+    )
+
+
+def _resolve_mode_store(
+    cas_root: Path,
+    dependencies: IngestionDependencies,
+    *,
+    sidecar_scope: TenantSidecarScope,
+) -> ArtifactStore:
+    """Resolve the same owner-supplied store used by connector ingestion."""
+    from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_store
+
+    return resolve_ingestion_store(
+        Path(cas_root),
+        dependencies,
+        sidecar_scope=sidecar_scope,
     )
 
 
 async def _persist_streaming_manifest_async(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     manifest_payload: dict[str, Any],
     source_refs: list[Any],
 ) -> Any:
@@ -83,7 +116,7 @@ async def _persist_streaming_manifest_async(
 
 async def _persist_streaming_snapshot_async(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     snapshot_payload: dict[str, Any],
     manifest_ref: Any,
     evidence_ref: Any,
@@ -265,14 +298,10 @@ def _cursor_version(cursor: CursorState, connector: Any) -> DataVersion | None:
 
 
 def _cursor_aware_dependencies(
-    dependencies: IngestionDependencies | None,
+    dependencies: IngestionDependencies,
     cursor_versions: dict[tuple[str, str], DataVersion],
 ) -> IngestionDependencies:
     """Build ingestion dependencies whose registry injects supported cursors."""
-    if dependencies is None:
-        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
-
-        dependencies = resolve_ingestion_dependencies()
     return replace(
         dependencies,
         registry=_CursorAwareRegistry(dependencies.registry, cursor_versions),
@@ -402,6 +431,7 @@ def run_batch_incremental(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
 ) -> Any:
     """Run ingestion in batch_incremental mode.
 
@@ -414,14 +444,12 @@ def run_batch_incremental(
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
 
-    store = _build_filesystem_store(cas_root)
-    cursor_store = CursorStore(store, index_root=cas_root)
-
-    effective_input_dependencies = ingestion_dependencies
-    if effective_input_dependencies is None:
-        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
-
-        effective_input_dependencies = resolve_ingestion_dependencies()
+    effective_input_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
+    invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
+    store = _resolve_mode_store(
+        Path(cas_root), effective_input_dependencies, sidecar_scope=invocation_scope
+    )
+    cursor_store = CursorStore(store, index_root=invocation_scope.cursor_index_root)
 
     datasets = _extract_datasets(connector_manifest)
     dataset_connectors = _resolve_dataset_connectors(effective_input_dependencies, datasets)
@@ -469,6 +497,7 @@ def run_batch_incremental(
         connection_config=connection_config,
         produce_snapshot=produce_snapshot,
         ingestion_dependencies=effective_dependencies,
+        sidecar_scope=invocation_scope,
         raw_result_sink=_capture_result,
     )
 
@@ -497,6 +526,7 @@ def run_record_mode(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
 ) -> tuple[Any, str]:
     """Run ingestion with HTTP recording enabled.
 
@@ -509,13 +539,16 @@ def run_record_mode(
     import tempfile
     import uuid
 
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.core.security import TenantIsolationError
     from polisyos.fabric.connectors.testing.simulator import APISimulator, SimulatorMode
-    from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
     from polisyos.fabric.data_plane.replay_store import (
         ReplayStore,
         make_record_session,
     )
 
+    effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
+    invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
     session_id = uuid.uuid4().hex
 
     # Extract connector/dataset info for the session metadata
@@ -551,39 +584,21 @@ def run_record_mode(
                     license_name=license_name,
                     cas_root=cas_root,
                     connection_config=connection_config,
-                    dependencies=ingestion_dependencies,
+                    dependencies=effective_dependencies,
+                    sidecar_scope=invocation_scope,
                 )
                 return evidence_ref
 
         try:
             evidence_ref = run_coro_sync(_record_ingestion())
-        except Exception:
-            logger.debug(
-                "Async record ingestion failed, falling back to sync path",
-                exc_info=True,
+        except (ArtifactOwnershipError, TenantIsolationError):
+            raise
+        except Exception as exc:
+            logger.warning(
+                "Record-mode capture failed; refusing an unrecorded retry",
+                exception_type=type(exc).__name__,
             )
-            # Fall back to sync path if async context isn't needed
-            result = run_orchestrated_ingestion(
-                connector_manifest=connector_manifest,
-                source=source,
-                license_name=license_name,
-                cas_root=cas_root,
-                connection_config=connection_config,
-                produce_snapshot=produce_snapshot,
-                ingestion_dependencies=ingestion_dependencies,
-            )
-
-            # Still try to collect any fixtures that were captured
-            session = make_record_session(
-                session_id=session_id,
-                fixture_root=fixture_root,
-                connector_datasets=connector_datasets,
-            )
-            store = _build_filesystem_store(cas_root)
-            replay_store = ReplayStore(store)
-            ref = replay_store.save_record_session(session)
-            result.mode_effective = "record"
-            return result, str(ref.artifact_id.hex)
+            raise RecordModeCaptureError("record_mode_capture_failed") from exc
 
         # Build result from evidence_ref
         from polisyos.fabric.data_plane.orchestrator import IngestionResult
@@ -601,7 +616,9 @@ def run_record_mode(
             fixture_root=fixture_root,
             connector_datasets=connector_datasets,
         )
-        store = _build_filesystem_store(cas_root)
+        store = _resolve_mode_store(
+            Path(cas_root), effective_dependencies, sidecar_scope=invocation_scope
+        )
         replay_store = ReplayStore(store)
         ref = replay_store.save_record_session(session)
 
@@ -623,6 +640,7 @@ def run_replay_mode(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
 ) -> Any:
     """Run ingestion using recorded HTTP responses (no network).
 
@@ -636,7 +654,11 @@ def run_replay_mode(
     from polisyos.core.artifacts.manifest import ArtifactID
     from polisyos.fabric.data_plane.replay_store import ReplayStore
 
-    store = _build_filesystem_store(cas_root)
+    effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
+    invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
+    store = _resolve_mode_store(
+        Path(cas_root), effective_dependencies, sidecar_scope=invocation_scope
+    )
     replay_store = ReplayStore(store)
 
     # Load session from CAS
@@ -675,7 +697,8 @@ def run_replay_mode(
                     license_name=license_name,
                     cas_root=cas_root,
                     connection_config=connection_config,
-                    dependencies=ingestion_dependencies,
+                    dependencies=effective_dependencies,
+                    sidecar_scope=invocation_scope,
                 )
 
         evidence_ref = run_coro_sync(_replay_ingestion())
@@ -821,6 +844,7 @@ def run_streaming_windowed(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
 ) -> Any:
     return run_coro_sync(
         _run_streaming_windowed_async(
@@ -831,6 +855,7 @@ def run_streaming_windowed(
             connection_config=connection_config,
             produce_snapshot=produce_snapshot,
             ingestion_dependencies=ingestion_dependencies,
+            sidecar_scope=sidecar_scope,
         )
     )
 
@@ -844,6 +869,7 @@ async def _run_streaming_windowed_async(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
 ) -> Any:
     """Run ingestion in streaming_windowed mode.
 
@@ -863,12 +889,14 @@ async def _run_streaming_windowed_async(
     )
     from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 
-    store = _build_filesystem_store(cas_root)
-    cursor_store = CursorStore(store, index_root=cas_root)
-    datasets = _extract_datasets(connector_manifest)
-    connector_registry = (
-        ingestion_dependencies.registry if ingestion_dependencies is not None else None
+    ingestion_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
+    invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
+    store = _resolve_mode_store(
+        Path(cas_root), ingestion_dependencies, sidecar_scope=invocation_scope
     )
+    cursor_store = CursorStore(store, index_root=invocation_scope.cursor_index_root)
+    datasets = _extract_datasets(connector_manifest)
+    connector_registry = ingestion_dependencies.registry
 
     source_refs: list[Any] = []
     warnings: list[str] = []

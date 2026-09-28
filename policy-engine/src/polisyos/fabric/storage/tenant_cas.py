@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -41,6 +42,90 @@ def infer_tenant_id_from_cas_root(root: str | Path) -> str | None:
             continue
         return candidate
     return None
+
+
+@dataclass(frozen=True, slots=True)
+class TenantSidecarScope:
+    """Bind an artifact-store root to the explicit tenant sidecar location.
+
+    ``base_root`` is always the exact root expected by the artifact-store
+    factory. Sidecar locality follows the explicit tenant identity and root
+    mode; no tenant identity is inferred from filesystem path components.
+    """
+
+    base_root: Path
+    tenant_id: str | None
+    store_root_is_tenant_scoped: bool = False
+
+    def __post_init__(self) -> None:
+        base_root = Path(self.base_root)
+        object.__setattr__(self, "base_root", base_root)
+        if self.tenant_id is not None:
+            validate_tenant_id(self.tenant_id)
+        if not isinstance(self.store_root_is_tenant_scoped, bool):
+            raise ValueError("tenant_sidecar_root_mode_invalid")
+        if self.store_root_is_tenant_scoped and self.tenant_id is None:
+            raise ValueError("tenant_scoped_store_requires_tenant_id")
+
+    @classmethod
+    def for_base_root(
+        cls,
+        base_root: str | Path,
+        tenant_id: str | None,
+    ) -> TenantSidecarScope:
+        """Build sidecar paths from a known unscoped base root and tenant."""
+        return cls(base_root=Path(base_root), tenant_id=tenant_id)
+
+    @classmethod
+    def from_current_context(cls, base_root: str | Path) -> TenantSidecarScope:
+        """Bind a base root to the authenticated tenant in the current context."""
+        from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+
+        return cls.for_base_root(base_root, get_current_tenant_id_or_none())
+
+    @classmethod
+    def for_pre_scoped_store_root(
+        cls,
+        store_root: str | Path,
+        tenant_id: str,
+    ) -> TenantSidecarScope:
+        """Bind a root explicitly configured as tenant-local already.
+
+        This supports existing callers that deliberately pass a root produced
+        by ``tenant_scoped_cas_root``. The caller supplies the identity; the
+        helper never attempts to recover it from the path.
+        """
+        root = Path(store_root)
+        return cls(
+            base_root=root,
+            tenant_id=tenant_id,
+            store_root_is_tenant_scoped=True,
+        )
+
+    @property
+    def sidecar_root(self) -> Path:
+        """Return this invocation's cursor/cache sidecar root."""
+        if self.tenant_id is None or self.store_root_is_tenant_scoped:
+            return self.base_root
+        return tenant_scoped_cas_root(self.base_root, self.tenant_id)
+
+    @property
+    def cursor_index_root(self) -> Path:
+        """Return the exact local root for cursor SQLite indices."""
+        return self.sidecar_root
+
+    def cache_namespace(self, logical_namespace: str) -> str:
+        """Return a validated connector-cache namespace under this scope."""
+        namespace = Path(logical_namespace)
+        if (
+            namespace.is_absolute()
+            or ".." in namespace.parts
+            or not namespace.parts
+            or namespace.parts[0] == "tenants"
+        ):
+            raise ValueError("ingestion_cache_namespace_invalid")
+        prefix = self.sidecar_root.relative_to(self.base_root)
+        return (prefix / namespace).as_posix() if prefix.parts else namespace.as_posix()
 
 
 class TenantScopedCAS:
@@ -183,6 +268,7 @@ def resolve_cas_store(
 
 __all__ = [
     "TenantScopedCAS",
+    "TenantSidecarScope",
     "infer_tenant_id_from_cas_root",
     "resolve_cas_store",
     "tenant_scoped_cas_root",

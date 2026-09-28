@@ -952,7 +952,11 @@ if TYPE_CHECKING:
     from typing import Literal, Protocol
 
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore,
+        AsyncArtifactStore,
+        RootedArtifactStore,
+    )
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -5461,11 +5465,17 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
+        from polisyos.core.artifacts import ArtifactOwnershipError
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
             IngestionDependencies,
         )
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            IngestionStoreBindingError,
+        )
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
+        from polisyos.runtime.http.errors import forbidden
 
         datasets = [
             DatasetFetchSpec(
@@ -5515,10 +5525,26 @@ class ControlPlaneService(
             if profile:
                 connection_config = resolve_connection_config(profile)
 
+        def _served_ingestion_store(root: Path) -> RootedArtifactStore:
+            requested_root = Path(root).resolve()
+            service_root = Path(self._cas_root).resolve()
+            store_root = getattr(self._artifact_store, "root", None)
+            if (
+                requested_root != service_root
+                or not isinstance(store_root, (str, Path))
+                or Path(store_root).resolve() != service_root
+            ):
+                raise IngestionStoreBindingError(
+                    "served_ingestion_store_root_mismatch"
+                )
+            return cast("RootedArtifactStore", self._artifact_store)
+
+        sidecar_scope = TenantSidecarScope.from_current_context(self._cas_root)
         ingestion_dependencies = IngestionDependencies(
             registry=cast("Any", self._registry_providers.connectors),
             tracer=self._tracer,
             metrics=self._metrics,
+            store_factory=_served_ingestion_store,
         )
 
         mode = request.execution_mode
@@ -5539,6 +5565,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif request.record_mode:
                 from polisyos.fabric.data_plane.modes import run_record_mode
@@ -5551,6 +5578,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif mode == "streaming_windowed":
                 from polisyos.fabric.data_plane.modes import run_streaming_windowed
@@ -5563,6 +5591,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif mode == "batch_incremental":
                 from polisyos.fabric.data_plane.modes import run_batch_incremental
@@ -5575,6 +5604,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             else:
                 from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
@@ -5587,6 +5617,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
 
             # Post-ingestion: produce input bindings if requested
@@ -5622,6 +5653,11 @@ class ControlPlaneService(
                 record_ref=record_ref,
                 input_bindings_ref=input_bindings_ref,
             )
+        except ArtifactOwnershipError as exc:
+            raise forbidden(
+                "Ingestion artifact is not accessible in the current tenant scope",
+                code="ingestion_artifact_ownership_denied",
+            ) from exc
         except (LookupError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.exception("Data ingestion failed: %s", exc)
             return IngestResponse(

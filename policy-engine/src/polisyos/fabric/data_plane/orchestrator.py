@@ -36,7 +36,7 @@ from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
 )
-from polisyos.fabric.storage.tenant_cas import tenant_scoped_cas_root
+from polisyos.fabric.storage.tenant_cas import TenantSidecarScope, tenant_scoped_cas_root
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -516,6 +516,7 @@ def run_orchestrated_ingestion(
     produce_snapshot: bool = True,
     tenant_id: str | None = None,
     ingestion_dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
@@ -527,11 +528,22 @@ def run_orchestrated_ingestion(
     ingestion, cached in CAS, and the snapshot is built from cached
     artifacts. ``cache_namespace`` scopes the index without changing the CAS writer.
     """
-    from polisyos.fabric.ingestion import run_connectors_ingestion
-
-    resolved_cas_root = (
-        tenant_scoped_cas_root(cas_root, tenant_id) if tenant_id is not None else Path(cas_root)
+    from polisyos.fabric.ingestion import (
+        resolve_ingestion_dependencies,
+        run_connectors_ingestion,
     )
+    from polisyos.fabric.ingestion.ingestion_providers import (
+        resolve_ingestion_sidecar_scope,
+        resolve_ingestion_store,
+    )
+
+    dependencies = ingestion_dependencies or resolve_ingestion_dependencies()
+    scope = resolve_ingestion_sidecar_scope(
+        Path(cas_root),
+        sidecar_scope=sidecar_scope,
+        tenant_id=tenant_id,
+    )
+    resolved_cas_root = scope.base_root
 
     evidence_ref = run_connectors_ingestion(
         connector_manifest=connector_manifest,
@@ -539,7 +551,8 @@ def run_orchestrated_ingestion(
         license_name=license_name,
         cas_root=resolved_cas_root,
         connection_config=connection_config,
-        dependencies=ingestion_dependencies,
+        dependencies=dependencies,
+        sidecar_scope=scope,
         raw_result_sink=raw_result_sink,
         raw_http_response_observer=raw_http_response_observer,
         _live_acquire_permit=_live_acquire_permit,
@@ -559,10 +572,10 @@ def run_orchestrated_ingestion(
             datasets_fetched=datasets_fetched,
         )
 
-    cas_store = (
-        ingestion_dependencies.store_factory(resolved_cas_root)
-        if ingestion_dependencies is not None
-        else _build_filesystem_artifact_store(resolved_cas_root)
+    cas_store = resolve_ingestion_store(
+        resolved_cas_root,
+        dependencies,
+        sidecar_scope=scope,
     )
     snapshot_ref = run_coro_sync(
         _build_snapshot_from_evidence_async(

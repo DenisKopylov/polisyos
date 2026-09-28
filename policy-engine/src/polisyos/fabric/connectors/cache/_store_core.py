@@ -13,11 +13,11 @@ import time
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactID, FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import ArtifactID, PutOptions, SchemaInfo
+from polisyos.core.artifacts.protocol import RootedArtifactStore
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.security import DataClassification, RetentionScope, resolve_artifact_governance
-from polisyos.fabric.storage.tenant_cas import infer_tenant_id_from_cas_root
 
 from ._store_index import CacheIndex
 from ._store_models import (
@@ -64,7 +64,7 @@ class ConnectorCacheStore:
     """
     Content-addressable cache for connector fetch results.
 
-    Delegates all storage to FileSystemCAS while adding:
+    Delegates all artifact storage to the supplied rooted store while adding:
     - TTL-based expiration
     - Policy-driven eviction
     - Invalidation tracking
@@ -73,10 +73,11 @@ class ConnectorCacheStore:
 
     def __init__(
         self,
-        cas: FileSystemCAS,
+        cas: RootedArtifactStore,
         policy: CachePolicy | PolicyRegistry,
         namespace: str = "connector_cache",
         *,
+        tenant_id: str | None = None,
         metrics: MetricsRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
     ) -> None:
@@ -85,7 +86,11 @@ class ConnectorCacheStore:
             policy if isinstance(policy, PolicyRegistry) else PolicyRegistry(default_policy=policy)
         )
         self._namespace = namespace
-        self._tenant_id = infer_tenant_id_from_cas_root(cas.root)
+        if tenant_id is None:
+            from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+
+            tenant_id = get_current_tenant_id_or_none()
+        self._tenant_id = tenant_id
         self._cache_root = cas.root / namespace
         self._cache_root.mkdir(parents=True, exist_ok=True)
         self._index = CacheIndex(self._cache_root / "cache_index.sqlite3")

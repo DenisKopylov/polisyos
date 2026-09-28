@@ -9,10 +9,11 @@ from typing import Any, ClassVar
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceBundle
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -124,7 +125,7 @@ def _register_connector() -> ConnectorRegistry:
     return registry
 
 
-def _persist_session(cas_root, *, response_body: bytes | None) -> tuple[str, str]:
+def _persist_session(store: ArtifactStore, *, response_body: bytes | None) -> tuple[str, str]:
     request_url = _canonicalize_url(_URL, None)
     request_hash = _request_hash("GET", request_url, "none", b"")
     fixtures: list[dict[str, Any]] = []
@@ -141,7 +142,7 @@ def _persist_session(cas_root, *, response_body: bytes | None) -> tuple[str, str
             dataset_id=_DATASET_ID,
         )
         fixtures.append(fixture.to_dict())
-    ref = ReplayStore(FileSystemCAS(cas_root)).save_record_session(
+    ref = ReplayStore(store).save_record_session(
         RecordSession(
             session_id="b88-served-replay-session",
             fixtures=fixtures,
@@ -193,8 +194,9 @@ def _post_ingest(client, headers, *, replay_ref: str | None):
     )
 
 
-def _assert_evidence_contains_source_bytes(cas_root, evidence_bundle_ref: str, marker: bytes) -> None:
-    store = FileSystemCAS(cas_root)
+def _assert_evidence_contains_source_bytes(
+    store: ArtifactStore, evidence_bundle_ref: str, marker: bytes
+) -> None:
     bundle_ref = evidence_bundle_ref
     if not bundle_ref.startswith("sha256:"):
         bundle_ref = f"sha256:{bundle_ref}"
@@ -220,10 +222,7 @@ def test_served_replay_loads_the_cas_session_and_binds_fixture_output_to_evidenc
     registry = _register_connector()
     del registry
     fixture_body = b'[{"value":714,"marker":"b88-served-replay-positive"}]'
-    replay_ref, request_hash = _persist_session(
-        runtime_api_env["cas_root"], response_body=fixture_body
-    )
-    client, _cell_id, headers = _secure_control_client(
+    client, cell_id, headers = _secure_control_client(
         runtime_api_env,
         role=PolicyOSRole.ANALYST,
         case_id="b88-served-replay-positive",
@@ -244,33 +243,43 @@ def test_served_replay_loads_the_cas_session_and_binds_fixture_output_to_evidenc
         observe_ordinary,
     )
     with client:
+        store = client.app.state.runtime_container.runtime_api_context.store
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
+        ):
+            replay_ref, request_hash = _persist_session(
+                store, response_body=fixture_body
+            )
         response = _post_ingest(client, headers, replay_ref=replay_ref)
 
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "completed"
-    assert body["mode_effective"] == "replay"
-    assert body["datasets_fetched"] == 1
-    assert body["evidence_bundle_ref"] is not None
-    assert len(simulators) == 1
-    assert simulators[0].call_count == 1
-    assert simulators[0].call_log[0]["method"] == "GET"
-    assert simulators[0].call_log[0]["url"] == _canonicalize_url(_URL, None)
-    assert simulators[0].call_log[0]["hash"] == request_hash
-    assert native_requests == []
-    assert ordinary_calls == []
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == "completed"
+        assert body["mode_effective"] == "replay"
+        assert body["datasets_fetched"] == 1
+        assert body["evidence_bundle_ref"] is not None
+        assert len(simulators) == 1
+        assert simulators[0].call_count == 1
+        assert simulators[0].call_log[0]["method"] == "GET"
+        assert simulators[0].call_log[0]["url"] == _canonicalize_url(_URL, None)
+        assert simulators[0].call_log[0]["hash"] == request_hash
+        assert native_requests == []
+        assert ordinary_calls == []
 
-    replayed = ReplayStore(FileSystemCAS(runtime_api_env["cas_root"])).load_record_session(
-        ArtifactID.model_validate(replay_ref)
-    )
-    assert len(replayed.fixtures) == 1
-    assert replayed.fixtures[0]["request_hash"] == request_hash
-    assert base64.b64decode(replayed.fixtures[0]["body"]) == fixture_body
-    _assert_evidence_contains_source_bytes(
-        runtime_api_env["cas_root"],
-        body["evidence_bundle_ref"],
-        b"b88-served-replay-positive",
-    )
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
+        ):
+            replayed = ReplayStore(store).load_record_session(
+                ArtifactID.model_validate(replay_ref)
+            )
+            assert len(replayed.fixtures) == 1
+            assert replayed.fixtures[0]["request_hash"] == request_hash
+            assert base64.b64decode(replayed.fixtures[0]["body"]) == fixture_body
+            _assert_evidence_contains_source_bytes(
+                store,
+                body["evidence_bundle_ref"],
+                b"b88-served-replay-positive",
+            )
 
 
 @pytest.mark.parametrize(
@@ -285,10 +294,7 @@ def test_served_replay_fixture_failures_do_not_fall_back_to_ordinary_ingestion(
     expected_error: str,
 ) -> None:
     _register_connector()
-    replay_ref, _request_hash = _persist_session(
-        runtime_api_env["cas_root"], response_body=fixture_body
-    )
-    client, _cell_id, headers = _secure_control_client(
+    client, cell_id, headers = _secure_control_client(
         runtime_api_env,
         role=PolicyOSRole.ANALYST,
         case_id=f"b88-served-replay-{expected_error}",
@@ -308,6 +314,13 @@ def test_served_replay_fixture_failures_do_not_fall_back_to_ordinary_ingestion(
         forbidden_ordinary,
     )
     with client:
+        store = client.app.state.runtime_container.runtime_api_context.store
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
+        ):
+            replay_ref, _request_hash = _persist_session(
+                store, response_body=fixture_body
+            )
         response = _post_ingest(client, headers, replay_ref=replay_ref)
 
     assert len(simulators) == 1
@@ -355,7 +368,7 @@ def test_served_ordinary_ingestion_remains_available_without_replay_reference(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _register_connector()
-    client, _cell_id, headers = _secure_control_client(
+    client, cell_id, headers = _secure_control_client(
         runtime_api_env,
         role=PolicyOSRole.ANALYST,
         case_id="b88-served-replay-ordinary-control",
@@ -398,18 +411,21 @@ def test_served_ordinary_ingestion_remains_available_without_replay_reference(
     )
     with client:
         response = _post_ingest(client, headers, replay_ref=None)
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "completed"
-    assert body["mode_effective"] == "batch_full"
-    assert body["datasets_fetched"] == 1
-    assert body["evidence_bundle_ref"] is not None
-    assert ordinary_calls == [True]
-    assert simulators == []
-    assert observed_requests == [("GET", _canonicalize_url(_URL, None))]
-    _assert_evidence_contains_source_bytes(
-        runtime_api_env["cas_root"],
-        body["evidence_bundle_ref"],
-        b"b88-ordinary-control",
-    )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == "completed"
+        assert body["mode_effective"] == "batch_full"
+        assert body["datasets_fetched"] == 1
+        assert body["evidence_bundle_ref"] is not None
+        assert ordinary_calls == [True]
+        assert simulators == []
+        assert observed_requests == [("GET", _canonicalize_url(_URL, None))]
+        store = client.app.state.runtime_container.runtime_api_context.store
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
+        ):
+            _assert_evidence_contains_source_bytes(
+                store,
+                body["evidence_bundle_ref"],
+                b"b88-ordinary-control",
+            )

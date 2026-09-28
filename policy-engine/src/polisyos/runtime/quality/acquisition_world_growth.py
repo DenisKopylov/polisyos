@@ -52,6 +52,17 @@ _DEFERRAL_KIND = "runtime_quality.acquisition_world_growth_deferral"
 _REENTRY_KIND = "runtime_quality.acquisition_overlay_reentry_receipt"
 
 
+def _require_promotion_runtime_store_binding(
+    promotion_runtime: PromotionRuntime | None,
+    artifact_store: artifacts.ArtifactStore,
+) -> None:
+    if (
+        promotion_runtime is not None
+        and getattr(promotion_runtime, "store", None) is not artifact_store
+    ):
+        raise ValueError("acquisition_world_growth_promotion_runtime_store_mismatch")
+
+
 class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -198,6 +209,7 @@ class AcquisitionWorldGrowthBridge:
     ) -> None:
         if type(config) is not AcquisitionWorldGrowthConfig:
             raise TypeError("acquisition world growth selection must be typed")
+        _require_promotion_runtime_store_binding(promotion_runtime, artifact_store)
         self.config = config
         self.repo_root = repo_root
         self.runtime_root = runtime_root
@@ -739,6 +751,7 @@ class AcquisitionWorldGrowthBridge:
 
     def resume(self, closure: VerifiedAcquisitionRouteClosure, refs: tuple[str, ...]) -> str:
         """Read verified native activation and enter the original case at the next cycle."""
+        _require_promotion_runtime_store_binding(self.promotion_runtime, self.artifact_store)
         growth_refs = tuple(
             ref for ref in refs if self.artifact_store.get_manifest(ref).kind == _GROWTH_KIND
         )

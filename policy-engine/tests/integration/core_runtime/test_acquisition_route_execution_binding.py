@@ -11,9 +11,10 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
-from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 from polisyos.runtime.http.services import (
     acquisition_surface_execution as acquisition_surface_execution_module,
 )
@@ -28,11 +29,11 @@ from polisyos.runtime.http.services.acquisition_surface_execution import (
 )
 from polisyos.runtime.quality import acquisition_executor as acquisition_executor_module
 from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
-from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthBridge,
     AcquisitionWorldGrowthConfig,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority import (
     _entry,
     _resolver,
@@ -248,6 +249,140 @@ def test_production_factory_owns_authority_files_runtime_root_and_executor(
         acquisition_surface_execution_module._connector_cache_namespace(foreign_binding)
         != expected_cache_namespace
     )
+
+
+def _production_factory_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    foreign_promotion_store: bool = False,
+) -> tuple[SimpleNamespace, FileSystemCAS, PromotionRuntime]:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt_provisions = (
+        _write_family_receipt(
+            repo_root,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            receipt=_family_receipt(),
+        ),
+    )
+    _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=receipt_provisions,
+    )
+    runtime_state_root = tmp_path / "runtime-state"
+    artifact_store = FileSystemCAS(runtime_state_root)
+    promotion_store = (
+        FileSystemCAS(tmp_path / "foreign-promotion-cas")
+        if foreign_promotion_store
+        else artifact_store
+    )
+    promotion_runtime = PromotionRuntime(store=promotion_store)
+    monkeypatch.setattr(
+        acquisition_surface_execution_module,
+        "__file__",
+        str(repo_root / "src/polisyos/runtime/http/services/acquisition_surface_execution.py"),
+    )
+    control_service = SimpleNamespace(
+        _policy_resolver=SimpleNamespace(default_profile="production"),
+        _cas_root=runtime_state_root,
+        _artifact_store=artifact_store,
+        _diagnostic_event_log=object(),
+        _promotion_runtime=promotion_runtime,
+    )
+    return control_service, artifact_store, promotion_runtime
+
+
+@pytest.mark.parametrize("foreign_promotion_store", [False, True])
+def test_production_factory_binds_world_growth_promotion_store(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    foreign_promotion_store: bool,
+) -> None:
+    control_service, artifact_store, promotion_runtime = _production_factory_context(
+        tmp_path,
+        monkeypatch,
+        foreign_promotion_store=foreign_promotion_store,
+    )
+
+    if foreign_promotion_store:
+        with pytest.raises(
+            ValueError,
+            match="acquisition_world_growth_promotion_runtime_store_mismatch",
+        ):
+            build_production_world_bank_wdi_execution_port(
+                control_service=control_service,
+                world_growth_config=AcquisitionWorldGrowthConfig(),
+            )
+        return
+
+    port = build_production_world_bank_wdi_execution_port(
+        control_service=control_service,
+        world_growth_config=AcquisitionWorldGrowthConfig(),
+    )
+
+    assert type(port) is WorldBankWDIAcquisitionExecutionPort
+    assert port._world_growth_bridge is not None
+    assert port._world_growth_bridge.artifact_store is artifact_store
+    assert port._world_growth_bridge.promotion_runtime is promotion_runtime
+    assert promotion_runtime.store is artifact_store
+
+
+def test_bridge_resume_rechecks_mutated_promotion_store_before_reentry_effects(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    control_service, artifact_store, promotion_runtime = _production_factory_context(
+        tmp_path,
+        monkeypatch,
+    )
+    port = build_production_world_bank_wdi_execution_port(
+        control_service=control_service,
+        world_growth_config=AcquisitionWorldGrowthConfig(),
+    )
+
+    assert type(port) is WorldBankWDIAcquisitionExecutionPort
+    bridge = port._world_growth_bridge
+    assert bridge is not None
+    assert bridge.artifact_store is artifact_store
+    assert promotion_runtime.store is artifact_store
+
+    promotion_runtime.store = FileSystemCAS(tmp_path / "foreign-after-composition-cas")
+    store_reads: list[str] = []
+    n6_calls: list[str] = []
+
+    def record_store_read(ref: str) -> SimpleNamespace:
+        store_reads.append(ref)
+        return SimpleNamespace(kind="runtime_quality.acquisition_world_growth_receipt")
+
+    async def record_n6_reentry(_controller: object, **_kwargs: object) -> object:
+        n6_calls.append("reentry")
+        raise AssertionError("N6 re-entry must not start with a foreign runtime store")
+
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+    monkeypatch.setattr(artifact_store, "get_manifest", record_store_read)
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "reenter_after_active_acquisition_overlay",
+        record_n6_reentry,
+    )
+    before_store_files = tuple(
+        sorted(path.relative_to(artifact_store.root).as_posix() for path in artifact_store.root.rglob("*") if path.is_file())
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        bridge.resume(_route_closure(), ("sha256:" + "a" * 64,))
+
+    after_store_files = tuple(
+        sorted(path.relative_to(artifact_store.root).as_posix() for path in artifact_store.root.rglob("*") if path.is_file())
+    )
+    assert store_reads == []
+    assert str(exc_info.value) == "acquisition_world_growth_promotion_runtime_store_mismatch"
+    assert n6_calls == []
+    assert after_store_files == before_store_files
 
 
 def test_port_rejects_world_growth_bridge_with_foreign_artifact_store(

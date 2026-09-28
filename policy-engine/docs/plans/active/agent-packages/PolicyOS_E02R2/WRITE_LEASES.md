@@ -1,5 +1,12 @@
 # E02-R2 write leases
 
+## Current integration coordination (2026-09-28)
+
+- Root is the sole writer of `codex/e02-r2`. The DDM lazy-facade contract and its owner-rendered inventory/public-surface projection are integrated; no DDM writer lease remains.
+- R13/P31 source/test candidate is frozen on `codex/e02-r2-r1-candidate` for independent review. Its six-path aggregate write set is `core/artifacts/{ownership.py,store.py}`, `scientist/orchestration/workflows/builder.py`, and their three mirrored test files. Root alone applies a reviewed patch; no candidate or reviewer edits canonical. R13 remains open after this bounded custody slice.
+- R1 simulated NL candidate is frozen on `codex/e02-r2-r1-sim-gateway` for independent review. Its write set is `runtime/http/services/control/nl_pipeline.py`, `scientist/orchestration/llm/simulated_gateway.py`, and `tests/unit/scientist/orchestration/llm/test_factory.py`. It does not touch the R13 owner files. The explicit N4 context/S8 authority case is outside that candidate and remains open.
+- Package ledger, baselines, reports, and decision drafts are root-only canonical writes. Four-base P41 runs freeze the canonical checkout for their entire lifetime; scratch read-only analysis and isolated candidate tests may continue. Limit active test work to measured resource groups, keep at least 8 GiB free and 20–30% RAM free, use the read-only production-data symlink, and never empty Trash.
+
 ## R13/P31 owner-level custody slice (2026-09-28; canonical HEAD `e55012e22`)
 
 - Root alone writes `codex/e02-r2`. The clean isolated `codex/e02-r2-r1-candidate` worktree at `/Users/deniskopylov/.codex/worktrees/e02-r2-r1-candidate/polisyos` has the exclusive R13/P31 candidate lease for `policy-engine/src/polisyos/core/artifacts/ownership.py`, `policy-engine/src/polisyos/core/artifacts/store.py`, `policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py`, `policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py`, `policy-engine/tests/unit/core/artifacts/test_ownership_history.py`, and `policy-engine/tests/unit/scientist/orchestration/workflows/test_builder_pinning.py`. No other source, test, governed artifact, generated family, plan, register, or package document is leased. The earlier default-store lease is complete at `e55012e22`; this is its owner-level follow-up.

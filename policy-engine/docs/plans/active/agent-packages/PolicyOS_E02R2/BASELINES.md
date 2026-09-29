@@ -1,5 +1,28 @@
 # Four-base P41 test baselines
 
+## R1 source-bound controlled N4→N5 test at `9bb2e349c` (2026-09-30)
+
+**Discrepancy and verdict.** The former controlled fixture supplied a synthetic
+candidate from a test double and could report `joint_simulated` without a
+persisted typed N4 source. Commit `9bb2e349c06987d00381558b688bc25a94a2f0c8`
+replaces that fixture with a recorded N4 owner call and adds the selector
+`tests/unit/runtime/http/test_control_service_di.py::test_served_simulate_only_replays_source_bound_n4_candidate_into_joint_n5`.
+It checks every observed N5 candidate against the same-run reopened source
+handoff, requires an actual matching horizon-engine request and
+`joint_simulated` cycle, and checks a source-read removal with the original
+nonempty refs retained. This is test construction, **not** a passed behavior
+claim: focused pytest, the marker-retaining mutant run, the complete changed
+file and its four-base P41 cells are all `UNRUN` at this source/test head.
+
+The file is `test_control_service_di.py@git-blob:9b3d3502763114ab7811be4f628db00fd78d0d94`.
+Independent delta review is design **GO**, behavioral **UNRUN** at
+`/Users/deniskopylov/.codex/scratch/e02-r1-controlled-owner-bridge-audit-20260930/R1_CONTROLLED_OWNER_BRIDGE_PATCH_DELTA_REVIEW.md@sha256:6af894b1b2d5ada6457ada8e1c4879f699f90debbe5e5841195e34d8c9bae57a`.
+`ruff check` and `git diff --check` exited 0 on the frozen file; the writer's
+`py_compile` exited 0. Disk was approximately 6.6 GiB available against the
+agreed 8 GiB floor, so no test process was admitted. The test's synthetic
+profile and recorded N4 response do not establish production source-time,
+admitted WDI state, S8, N9 or publication authority; R1 remains partial.
+
 ## R1/R13 queued owner-bridge files — bounded pre-edit admission (2026-09-28)
 
 The five queued whole test files require **5 × 4 = 20** four-base cells. A complete Git-tree census found **9 `MISSING`** and **11 present but `UNRUN`** cells at the pinned execution, E02-head, Main, and integration source snapshot `2cd18f45a`. Five historical JUnits remain cited as evidence, but the current environment/cell-identity reuse verifier accepts **0/11** present cells; none is treated as a current pass, fail, or inherited red. No candidate test was launched in this admission. The bounded record contains the exact file-by-base table and blob identities: `/Users/deniskopylov/.codex/scratch/e02-p41-r1-r13-unrun-20260928/ADMISSION.md@sha256:a1981fe4e90849bc1035754dcfe851497039163e6ef7032a928f7549cc3f0701`.

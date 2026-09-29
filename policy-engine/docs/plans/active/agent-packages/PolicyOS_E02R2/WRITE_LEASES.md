@@ -1,5 +1,119 @@
 # E02-R2 write leases
 
+## Active owner corrections at `20b110f7b` (2026-09-29)
+
+Root committed the bounded R2 historical `ArtifactID` scalar-wire repair at
+`6eac18ccc`; its temporary `generation_cycle.py` and history-test lease is
+released. The R1 and R13 candidates may merge the current canonical branch
+append-only before their next tests. The R2 repair does not claim a served R1
+N6/N5 positive or current authority.
+
+The R1 candidate writer retains the three-file lease listed below and may
+also edit `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`
+and its mirrored `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+for one owner-level historical completed-candidate replay operation. This
+extension is limited to the same R1 class: fail-closed invalid-intent
+sanitation, positive served N6/N5 readback, and a foreign-tenant negative
+through the runtime-supplied guarded/ambient-owned store. It must reuse the
+N6/N5 validation and artifact owners, not duplicate their rules in the HTTP
+reader. The current a037 candidate remains review NO-GO until a complete
+positive, marker-retaining removal red, preserving candidate control, and
+independent delta review. Do not edit the R13 `generation_cycle.py` owner.
+
+The R13 selected-row writer retains the correction lease below and its saved
+WIP recovery patch. Qualified DesignProblem outcome grammar, the frozen N6
+history predicate, provider schema, and generated families have the bounded
+lease below. The shared canonical-variable contract premise is recorded
+separately in `OPEN_PREMISES.md` and does not block the exact WDI candidate
+route. Root alone writes canonical files and package documents. Keep at least
+8 GiB disk and 20–30% RAM free.
+
+## R13 exact WDI qualified-outcome lease (2026-09-29)
+
+After independent design review
+`/Users/deniskopylov/.codex/scratch/e02-r13-qualified-outcome-v3-review-20260929/QUALIFIED_OUTCOME_V3_REVIEW.md@sha256:2f1113ddbf4a622d60d26f67beeb9937b6d1f40799000c341828478db8139cdf`,
+the one R13 selected-row candidate writer may additionally edit these exact
+paths on its attached candidate branch:
+`policy-engine/src/polisyos/runtime/quality/design_problem.py`,
+`policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py`,
+`policy-engine/tests/unit/runtime/quality/test_design_problem.py`,
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`,
+`policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py`,
+and the already-leased served WDI test
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`.
+Its existing `generation_cycle.py` source lease covers only a necessary
+version-aware historical typed-edge adaptation and N8 source-time propagation;
+do not rewrite frozen v1/v2/v3 graphs or the R2 scalar RootModel repair.
+
+The v1 default and byte history remain intact; v2 retains qualified
+`target_slot` but strict unqualified outcome; v3 admits the exact qualified
+outcome, while standalone `OutcomeOfInterest` remains strict in runtime and
+JSON Schema. Keep v2 projection decoding. Test runtime/schema parity and a
+marker-retaining version-gate removal, replay every pinned historical N6
+record, and exercise a served WDI row whose `government.balance` identity is
+set before problem hashes and reaches N8 by exact admitted row content.
+Syntactically valid but unbound variables remain typed data gaps; source update
+time remains `not_established`. The candidate may regenerate only the
+DesignProblem contract and changed registered OpenAPI/client dependents through
+their owner commands, inspecting every delta before committing. A nonempty
+public schema/client delta needs a release fragment; no governed receipt, epoch,
+or trust pin may be restamped. The generated-artifact family is serialized:
+the R1 writer must not run its owner in parallel. Freeze candidate source/tests
+and obtain independent full-delta review before root integrates it.
+
+## Sequential R2 historical N6 projector lease (2026-09-29)
+
+The R13 candidate writer has frozen `generation_cycle.py` at SHA-256
+`f974c1144b92fcf496cbb6947ea086ffc07b0d33ed862086ad9aca8dc905383f`
+and released that source path temporarily; no R13 test process is running.
+Root alone may edit the canonical branch's
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py` and mirrored
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`
+for R2's historical `ArtifactID` RootModel scalar-wire replay defect. The
+property is byte-exact persisted N6 history replay, including a non-null N5
+result reference, without a live checkout or authority/currentness upgrade.
+Root must run a failing behavioral test first, then a preserving historical
+control and a marker-retaining removal probe. The R13 writer keeps its current
+WIP in its separate candidate worktree but does not edit `generation_cycle.py`
+until root commits this R2 slice and the candidate merges canonical append-only.
+The two branches' tests must never edit either tree during an in-flight run.
+
+This lease is a temporary sequencing override to the R13 source lease below.
+R1 continues on its frozen candidate branch; its N6/N5 positive path is not
+claimed until the corrected history owner and guarded CAS replay are tested.
+
+## Current R13 correction lease at `36bc65858` (2026-09-29)
+
+Root remains the sole writer of `codex/e02-r2`. Independent review found the
+frozen R13 candidate `04fe512bc` NO-GO for its selected-row-to-N8 claim: the
+read-only Data Forge route is owner-bound, but the served WDI test does not
+prove that its selected row enters N8, and the source-update/currentness
+limitation disappears after the gateway. The same R13 writer retains the clean
+attached `codex/e02-r2-r13-selected-row-candidate` worktree for the correction.
+Its exact additional write set is
+`policy-engine/tests/unit/runtime/quality/test_value_gate.py` and
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`;
+the original seven-file R13 source/test write set below stays leased. No
+Foundry selection-owner file, generated family, plan, register, or other test
+is leased. Request a new lease before changing one.
+
+The correction keeps hashed `ValueDataProfile` v1 and the Foundry v4 selection
+receipt unchanged: the latter binds observed owner rows and the effective
+query, and makes no source-update/currentness claim. WDI observation-year
+coordinates may still support candidate panel shape. The existing N8
+production result must carry `source_update_time_not_established` as a typed
+additional authority blocker, without hiding its treatment-assignment blocker
+or claiming current N8 authority. The served test must bind the exact admitted
+WDI row's value/content to the N8 profile/result through the existing runtime
+store and a real catalog owner; a marker-retaining removal of either row
+consumption or status propagation must turn red, while ordinary candidate
+selection remains allowed. If the selected route starts making a currentness
+claim, the Foundry receipt owner needs a separately versioned context/receipt
+transition with historical replay; a new unbound runtime hint is not accepted.
+
+The R1 candidate writer exclusively owns the three files in the next section;
+R13 does not edit them. Keep at least 8 GiB free disk and 20–30% free RAM.
+
 ## Active leases after integration `686ecfcfa` (2026-09-29)
 
 Root alone writes the attached `codex/e02-r2` branch. The R2 S8 history-owner
@@ -10,10 +124,12 @@ entries below describe their historical snapshots, not current ownership.
 
 | Work | Exact writable surface | Current owner and boundary |
 |---|---|---|
-| R1 candidate-intent gate | Reused `codex/e02-r2-r1-candidate` worktree; `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py` and `policy-engine/tests/unit/runtime/http/test_control_service_di.py` | One direct candidate writer; root will review and integrate only a tested, independently reviewed slice. No other writer may edit these candidate files concurrently. |
+| R1 candidate-intent gate | Reused `codex/e02-r2-r1-candidate` worktree; `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`, and `policy-engine/tests/unit/runtime/http/test_control_service_di.py` | One direct candidate writer. The third file is leased only for an owner read of the exact `job_completed` outbox fact: the completed simulate-only reader must rebind its candidate compiled ref and stage statuses from immutable completion evidence, not mutable progress or strict N6 currentness. Preserve the existing store fence and event semantics. Root integrates only after a forged-progress negative, valid completion control, and independent full-delta review. No other writer may edit these candidate files concurrently. |
+| R13 selected-row-to-N8 candidate | Reused `codex/e02-r2-r13-selected-row-candidate` worktree; `policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py`, `policy-engine/src/polisyos/data_forge/read_api/catalog.py`, `policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py`, `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`, and mirrored `test_overlay.py`, `test_acquisition_executor.py`, `test_acquisition_overlay_visibility.py`, `test_generation_cycle.py` | One direct candidate writer. Selected active rows may reach the existing N8 value owner only after full Data Forge admission readback through the runtime-supplied tenant store. The served WDI control and marker-retaining row-removal probe precede independent review. This lease makes no DataState/S1→WMR→N5, source-time, S8, or authority claim. |
 | R4 governed-check same-subject basis witness | `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py` on canonical; root only | Independently reviewed V2 test patch is admitted for one focused test and marker-retaining owner-guard removal probe. N9 production owner/checker source remains read-only. Do not claim governed N6 currentness or N9 callback was reached by the typed `UNRUN` gate. |
 | R4 guard-removal probe | Reused clean detached `e02-r7-r8-probes` checkout at `6ad734ffc`; temporary copies of the reviewed R4 test and `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py` only | One probe writer may disable the full-scope equality guard while preserving the mismatch marker, run the stale/matching controls, then restore both source blobs exactly. No mutant commit or canonical source edit. |
-| R9 typed views and R13 selected-row-to-N5 | Read-only source census and scratch design memo | No code lease or authorization to duplicate an owner. |
+| R2 S8 byte-history removal probe | Reused detached `e02-r7-r8-probes` checkout fast-forwarded to `ce286a67f`; temporary mutation of `policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` only | One probe writer may bypass the raw-byte equality guard while retaining its marker, run the direct owner byte-variant negative and canonical positive, then restore the source blob exactly. No mutant commit or canonical source edit; full served S8/currentness remain separate. |
+| R9 typed views and R13 selected-row-to-N5 | Read-only source census and scratch design memo | The R13-to-N8 slice above is the only active R13 writer; selected-row-to-N5 remains a separate typed residual. No code lease or authorization to duplicate the world-growth owner. |
 | P41 fixed-base replay | Pinned historical worktrees and scratch JUnit/receipts | One broker, at most four profiled light groups; no source edit in a tree under test. Integration-head cells wait for the next source freeze. |
 | Premises and reports | Scratch-only patch against the current package documents | One docs preparer, then an independent reviewer; root alone applies and commits on the canonical branch. `OPEN_PREMISES.md` is the separate durable source for missing data, contracts, owner appointments and decisions. |
 

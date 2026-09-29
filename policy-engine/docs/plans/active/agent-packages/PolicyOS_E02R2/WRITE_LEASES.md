@@ -1,5 +1,40 @@
 # E02-R2 write leases
 
+## R13/B12 controlled WMR state consumption by N5 (2026-09-30)
+
+Root may write exactly four files in the clean attached `codex/e02-r2`
+integration worktree after independent design review:
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py`,
+`policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py`,
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`, and
+`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py`.
+No other writer holds these paths; R2's temporal lease on the first file was
+released at `977943ed9`. The reviewed design target is
+`/Users/deniskopylov/.codex/scratch/e02-r13-candidate-n5-lease-design-20260930/R13_N5_CANDIDATE_LEASE_DESIGN.md@sha256:e6eeaca2d66ab36de409e4072ceb0663f147391b6fa98bc5a8bc35047d390fc6`.
+
+The property is numerical consumption of the WMR-bound Foundry StateSnapshot
+through the injected tenant store by the existing ProgramGraph N5 runner.
+Require a WMR-listed graph, load and compare the controlled candidate plan,
+override caller-provided state/store runtime fields, and persist a versioned,
+typed content-bound consumption record. Plan provenance and horizon time
+alignment remain `not_established`; N8 may only carry candidate-grade value.
+All N5 request ingress (factory, explicit request and hint-built request) must
+pass through the same WMR-bound resolver. Check the selected graph and plan
+manifest profiles and the plan-to-graph binding before execution. N8 derives
+both limitations from the persisted consumption record and returns them
+explicitly; review every consumer of `_SIMULATION_AUTHORITY_LIMITATIONS` so
+the wider allowlist cannot turn either unknown into authority.
+V1 N5 result bytes require frozen historical replay, not reserialization with
+new fields. A marker-retaining removal of only the state handoff must turn
+the two-state positive red; the ordinary NCM candidate is a preserving
+control. No served graph producer/selector, WDI unit/time/SKG admission,
+S8/N9/publication claim, Foundry implementation, generated family, plan or
+register is leased. If actual guarded-store use proves a Foundry runtime
+defect, stop and review an expanded owner write set before touching it.
+All behavior, removal and four-base P41 cells are `UNRUN` below the 8 GiB
+free-disk floor. The unedited recursive N5 writer and N8/importer test files
+remain in the post-integration replay denominator.
+
 ## B111 required evaluation status at every registry intake (2026-09-30)
 
 The B111 candidate `edb05ed7de7ae9de441e76a2c9009e6d24233dec` is frozen

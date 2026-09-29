@@ -292,13 +292,14 @@ def test_refreshed_cycle_substrate_context_job_v2_binds_source_context_lineage(
             serialized,
             cycle_substrate_owner._CONTEXT_JOB_CANON,
         )
+        persisted_bytes = store.get_bytes(ref)
 
     assert resolved.schema_version == (
         "policyos.runtime.cycle_substrate_context_job_artifact.v2"
     )
     assert resolved.source_context_job_ref == source_context_job_ref
     assert serialized["source_context_job_ref"] == source_context_job_ref
-    assert store.get_bytes(ref) == serialized_bytes
+    assert persisted_bytes == serialized_bytes
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == (
         "policyos.runtime.cycle_substrate_context_job_artifact.v2"

@@ -25,6 +25,21 @@ logic used by policy-design and promotion workflows.
 - Rollout helpers in [`adversarial.py`](adversarial.py), [`latent_governance.py`](latent_governance.py), [`promotion_evidence.py`](promotion_evidence.py), and [`compliance_audit.py`](compliance_audit.py)
 - Search strategies in [`strategies/`](strategies/): random, grid, Bayesian, multi-objective, neural, and arbitration helpers
 
+## Pareto Assessment Projection (B111)
+
+The registry's typed `view_assessments` supplies assessment status for each
+projection; `eligible_candidate_hashes` identifies that projection's
+assessment denominator. The v3 `PolicyFrontierReport` DTO validator checks
+caller-supplied source-feasible and unknown-eligibility identities against the
+projection. However, the ordinary `PolicyArtifactBuilder._build_frontier_report`
+path sets the report's source identities from the same projection and leaves
+the unknown set empty. That self-derived equality is not an independent source
+observation: it cannot detect a candidate omitted before registry projection
+or establish upstream population completeness. The independent producer input
+and bridge are not established. A missing registry remains basis-limited and
+unranked. See the [policy-design package README](../../policy_design/README.md#persisted-frontier-artifacts)
+for artifact versions and rollout limits.
+
 ## Depends On / Depended On By
 
 - Depends on: [`../../governance/README.md`](../../governance/README.md), `doe`, policy-design/search-specific runtime helpers, and artifact persistence surfaces

@@ -1272,3 +1272,56 @@ The writer must enumerate 3,000 deterministic ArtifactIDs and returned lock iden
 Root owns only `policy-engine/tests/integration/scientist/test_checkpoint_resume.py` for this RES-02/B73 witness. The `AsyncWorkflowExecutor` and checkpoint owners are read-only here. The strict pre-edit four-base whole-file replay at clean `4be6d38e6` is `raw/p41-custom-20260929T163814Z-57383/results.json@sha256:5ff7925882ee9f6cc7dedf16bba29f0441a3c65346857cc758984bed6508d782`: Execution, E02 and Main each pass their seven cases; integration passes nine, including two current-only cases, with no common pass-to-fail. The exact target is `test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer`.
 
 The first same-process fresh-store variant was independently rejected as redundant: the old test already read the disk and checked the complete frontier. After the simulated stop, spawn a fresh child process that constructs its own `FileSystemCAS` from the root path, reads the persisted merged peer state and completion frontier, and resumes from that head. Require zero peer reapplications in the child and one final-node execution. A marker-retaining mutation of `_handle_tier_checkpoint` must persist merged state with only one completed peer and make the child observer red; source files stay frozen during tests. This proves the built-in CAS producer and local process-boundary reader/consumer. Remote workers, externally exactly-once effects, arbitrary hooks and B72's outcome transport remain residuals. Review the final one-file patch independently before commit, then rerun all four whole-file cells. Keep the 8 GiB disk floor and at least 25% free RAM.
+
+## B111 persisted-artifact v1→v3 documentation supersession (2026-09-29)
+
+This dated amendment supersedes only the initial B111 lease's v2 schema
+target. The implementation at `fdd65e889` changes the ordinary persisted
+`PolicyFrontierReport` and `RejectedAlternativesSummary` path directly from
+v1 to v3. V1 remains byte-exact historical replay; schema v2 was an
+unintegrated draft and is unsupported/rejected. Do not document a v2 writer,
+reader, serializer, or replay path.
+
+The docs rebase uses candidate commits `5b2e45ffb` and `23edf1ab5` as
+material and may update only these B111-owned surfaces: this file,
+`policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b111-frontier-v3.toml`,
+`policy-engine/ops/migrations/ir/README.md`,
+`policy-engine/docs/runbooks/migration-release-promotion.md`,
+`policy-engine/src/polisyos/scientist/policy_design/README.md`,
+`policy-engine/src/polisyos/scientist/methods/search/README.md`, and
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md`.
+Root alone integrates. Do not edit source/tests, migration-class or promotion-gate
+contracts, generated families, DEBT-REGISTER, LEDGER, or GY/Atlas plans.
+
+The v3 DTO validator checks the source-feasible and eligibility-unknown
+identities supplied by its caller against the registry projection. The ordinary
+`PolicyArtifactBuilder._build_frontier_report` path does not receive an
+independent source population or unknown-eligibility input: it copies
+`projection.eligible_candidate_hashes` into `source_feasible_candidate_hashes`
+and leaves `eligibility_unknown_candidate_hashes` at its empty default. The
+resulting equality is self-derived, not a served observation of the source
+population; it cannot detect a candidate omitted before registry projection.
+Do not claim a served source/registry reconciliation or external completeness.
+A missing registry remains basis-limited and unranked. The external candidate
+universe and deployed artifact/reader inventory remain not established.
+
+No-rewrite compatibility evidence has not been accepted by the current
+`ir_migration_review` owner contract, so promotion stays held. B111 also retains
+separate numerical/selector engineering residuals and the source-bound
+objective-basis/served-registry residual; it remains `partial`.
+
+**Pattern pass.** The stale v2 wording is one P40 class; correct every owned
+B111 surface together. P04/P07 preserve basis-vs-denominator status and v1-only
+history. P10/P37/P38 state the property/code divergence: the property is
+coverage of the external source universe; the DTO validates supplied values,
+while the ordinary builder supplies the registry set as its own source set and
+no unknown set. An eligible upstream candidate omitted before that projection
+is the divergent case. P01/P02 keep owner approval and operational rollout
+evidence open. Missing capability labels are `producer_missing` and
+`bridge_missing` for an independent source/eligibility input, `surface_missing`
+for external candidate and deployment/reader inventories,
+`verification_missing` for no-rewrite gate acceptance, and
+`semantic_test_missing` for the producer-input omission falsifier. Acceptance
+is v1/v3-only language, no served-observation or global-completeness claim,
+explicit held promotion, and separate source-population, deployment, and owner
+contract premises. B111 remains `partial`.

@@ -1325,3 +1325,68 @@ for external candidate and deployment/reader inventories,
 is v1/v3-only language, no served-observation or global-completeness claim,
 explicit held promotion, and separate source-population, deployment, and owner
 contract premises. B111 remains `partial`.
+
+## B111 finite ranking and no-fallback champion lease (2026-09-29)
+
+The earlier broad registry-to-result B111 lease is complete at its reviewed
+v3 boundary. This amendment gives one direct B111 writer the next, disjoint
+numerical slice. No other writer may edit its five paths until root reviews
+and integrates or rejects the candidate. The exclusive source write set is
+`policy-engine/src/polisyos/scientist/policy_design/objectives.py`,
+`policy-engine/src/polisyos/scientist/policy_design/search.py`, and
+`policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`.
+The exclusive test write set is
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py`
+and
+`policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`.
+These five paths are released from any older B111 lease only for this ordered
+slice; a wider registry or report edit needs another explicit lease.
+
+Reuse the existing clean `codex/e02-r2-b111-candidate` worktree at
+`/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/tree`.
+First merge current `codex/e02-r2` into its attached candidate branch
+append-only; stop if that merge has conflicts. Its `.venv` and
+`production_data` are symlinks; neither may be copied. Verify `git status -sb`
+before each commit. Root alone integrates the reviewed candidate. Do not edit
+generated families, epochs, receipts, debt register, GY/Atlas plans, or
+`PolicyOS_E02R2/` records from the candidate.
+
+**Property.** Recompute finite validity at the shared ranking intake for all
+decision coordinates and derived rank expressions, including welfare plus
+employment. An evaluated invalid row is typed unassessed with its identity and
+reason; it cannot win via NaN, infinity, a zero sentinel, or input order. A
+mixed set ranks only finite rows and carries a candidate-band limitation. If
+evaluated rows exist but all are invalid, emit a typed no-champion result and
+persist no champion ID, Trinity ref, or frontier artifact. Zero evaluated rows
+is distinct and may retain its existing fallback behavior. Preserve finite
+permutation controls. Use the existing node status vocabulary; do not imply
+authority or make an unsupported global Pareto claim.
+
+Write behavioral tests first. A marker-retaining removal of the finite
+assessment must turn the real selector test red with positive infinity and
+NaN before/after a finite row. A property-preserving finite input permutation
+must stay green. The first class finding is raw non-finite selection; the
+derived welfare-plus-employment overflow is the same class one level deeper
+(P40), so the shared intake must cover both. For P37/P38, the desired property
+is finite-only champion election; raw tuple ordering is the current proxy,
+and positive infinity winning or NaN order-dependence is the divergent case.
+The production source of non-finite vectors and N9 promotion path remain
+`not_established`; do not claim served or authority-grade closure.
+
+The separate finite-coordinate hypervolume overflow requires a typed
+indicator through persisted registry/report readers and a deployed-version
+inventory. It is a bounded no-code residual in this slice; do not encode
+unavailable as zero, clamp, or infinity. The objective basis and independent
+source-population bridge remain open premises. B111 stays `partial`.
+
+The design record is
+`/Users/deniskopylov/.codex/scratch/e02-b111-docs-rebase-20260929/B111_NUMERICAL_CLASS_DESIGN.md@sha256:45f1249f29608a0b7928f15fb24e3262a35906a591df6316097338d5289b8386`.
+The pre-edit two-file whole-file P41 replay is eight requested cells across
+Execution, E02 head, Main, and integration. All eight are `UNRUN` while disk
+free is below Denis's 8 GiB floor; this is not an inherited-red claim. The
+separately recorded three-file B111 cohort is 12/12 cells, not this two-file
+set or the full Appendix A/B denominator of 21 files and 74 selectors. No
+heavy tests or fresh environment may start below the floor. Static lint and
+compile are allowed if free space remains stable. Freeze source before any
+test, run only the smallest informative checks once admitted, and obtain an
+independent patch review before root integration.

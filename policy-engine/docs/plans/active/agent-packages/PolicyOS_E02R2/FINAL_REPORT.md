@@ -673,3 +673,15 @@ Candidate `25f01088d` uses source/test blobs identical to canonical `5034ede60`.
 - Baseline JUnit: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/baseline-logged.junit.xml@sha256:e893fae5433c4a2a80f2812c52f65efc2b772a988e7aa0d706f3a699b83c9716`
 - Mutant JUnit: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/mutant.junit.xml@sha256:171302e69d19cdc7ac6d36bdda68cc743d405a76e7582d7d3be92ccdc4450239`
 - Restored JUnit: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/restored.junit.xml@sha256:a718725d38f83955d47d68dec6518910ad436a19bf4efb8d3e728a52a882d210`
+
+## B111 Pareto omission-index DTO integrity — bounded, `partial` retained (2026-09-29)
+
+**Discrepancies first.** The DTO now rejects duplicate and out-of-range omission positions within declared `input_count`, and freezes the validated omission sequence. It still does not bind positions to original evaluation bytes/order. The adjacent importer pair retained the exact same four failures on edited and reverted source (49 cases each, 45 pass / 4 fail); that is not a four-base owner attribution. Whole-file four-base P41, durable occurrence identity, served registry construction, and downstream coverage propagation remain UNRUN or open.
+
+The reviewed owner run passed `test_pareto.py` 35/35 and `test_voi_scheduler.py` 13/13. Test-first red, marker-retaining removal red, preserving controls, and byte-exact restoration are captured in the B111 receipts and JUnit hashes in `BASELINES.md`. The source/test blobs at the reviewed code commit `a3b432027` are also present at this report pin. Independent review is GO for this two-file DTO invariant only. Commit `f30ad4097` records the bounded evidence while keeping B111 `partial`; no ledger status or 282-row total changes.
+
+## Runtime OpenAPI owner preview — scalar-only difference; no reissue or current gate claim
+
+**Discrepancy first.** At the pinned `5034ede60` owner-preview comparison, tracked and preview JSON each contained 58,835 nodes and 37,707 scalar leaves: zero path/type/shape changes and nine scalar changes in the existing confidence-ledger default example. The receipt says the preview file was already present and the exporter was not rerun. The preview did not run the registered freshness gate, so that gate result is UNRUN for this measurement. A separate precommit R14 gate invocation returned exit 1 for measured OpenAPI drift; the exact `913bf82db` gate has not been rerun. The nine-leaf comparison does not prove why the values changed.
+
+The preview left its pinned tracked snapshot untouched and grants no basis to regenerate or reissue it. The command's inherited `POLISYOS_GOVERNED_ARTIFACT_ROOT` value is unrecorded, and the dependency/validation identity basis remains `not_established`. A later ten-leaf measurement at `eb173375` is separately recorded in OPEN_PREMISES; these observations are not reconciled by count. Evidence and exact citations are in `BASELINES.md`. No OpenAPI gate or finding is closed by this preview.

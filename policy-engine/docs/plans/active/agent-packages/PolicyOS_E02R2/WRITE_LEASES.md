@@ -1,5 +1,27 @@
 # E02-R2 write leases
 
+## Active leases after integration `686ecfcfa` (2026-09-29)
+
+Root alone writes the attached `codex/e02-r2` branch. The R2 S8 history-owner
+candidate was reviewed, integrated at `686ecfcfa`, and its source/test lease
+is released. The independent R7/R8 exact-source removal-probe worktree is
+restored and clean; those source leases are released. The prior dated lease
+entries below describe their historical snapshots, not current ownership.
+
+| Work | Exact writable surface | Current owner and boundary |
+|---|---|---|
+| R1 candidate-intent gate | Reused `codex/e02-r2-r1-candidate` worktree; `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py` and `policy-engine/tests/unit/runtime/http/test_control_service_di.py` | One direct candidate writer; root will review and integrate only a tested, independently reviewed slice. No other writer may edit these candidate files concurrently. |
+| R4 governed-check diagnosis | Scratch patch and memo only | Read-only candidate; no canonical or candidate-worktree source lease. |
+| R9 typed views and R13 selected-row-to-N5 | Read-only source census and scratch design memo | No code lease or authorization to duplicate an owner. |
+| P41 fixed-base replay | Pinned historical worktrees and scratch JUnit/receipts | One broker, at most four profiled light groups; no source edit in a tree under test. Integration-head cells wait for the next source freeze. |
+| Premises and reports | Scratch-only patch against the current package documents | One docs preparer, then an independent reviewer; root alone applies and commits on the canonical branch. `OPEN_PREMISES.md` is the separate durable source for missing data, contracts, owner appointments and decisions. |
+
+Keep at least 8 GiB free disk and roughly 20–30% free RAM, with no new swap
+pressure; run heavy native jobs alone. A file crossing a listed write set
+requires a new lease entry before editing. Root verifies `git status -sb`
+before every commit. No historical base, governed receipt, epoch, plan, or
+register is restamped to make a gate green.
+
 ## Active handoff (2026-09-29; canonical `c0cb70b88`)
 
 Root alone writes `codex/e02-r2`. The R13 selected-row candidate was reviewed,

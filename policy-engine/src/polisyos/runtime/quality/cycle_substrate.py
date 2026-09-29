@@ -16,8 +16,10 @@ from pydantic import (
     ConfigDict,
     Field,
     PrivateAttr,
+    SerializerFunctionWrapHandler,
     ValidationError,
     field_validator,
+    model_serializer,
     model_validator,
 )
 from pydantic_core import to_jsonable_python
@@ -55,8 +57,12 @@ CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_conte
 CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA = (
     "policyos.runtime.cycle_substrate_context_job_artifact.v1"
 )
+CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2 = (
+    "policyos.runtime.cycle_substrate_context_job_artifact.v2"
+)
 CYCLE_SUBSTRATE_CONTEXT_JOB_KIND = "runtime.quality.cycle_substrate_context_job"
 CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION = "1.0"
+CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION_V2 = "2.0"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _CONTEXT_JOB_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _REQUIRED_AUTHORITY_DENIALS = frozenset(
@@ -396,6 +402,15 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "content_hash",
     ),
 }
+_CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
+    **_CONTEXT_JOB_V1_MODEL_FIELDS,
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextJobArtifact": (
+        *_CONTEXT_JOB_V1_MODEL_FIELDS[
+            "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextJobArtifact"
+        ],
+        "source_context_job_ref",
+    ),
+}
 
 
 class _StrictModel(BaseModel):
@@ -668,7 +683,8 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
     """
 
     schema_version: Literal[
-        "policyos.runtime.cycle_substrate_context_job_artifact.v1"
+        "policyos.runtime.cycle_substrate_context_job_artifact.v1",
+        "policyos.runtime.cycle_substrate_context_job_artifact.v2",
     ] = CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
     authority_purpose: Literal["cycle_input_candidate_only"] = (
         "cycle_input_candidate_only"
@@ -684,6 +700,10 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
     problem: DesignProblem
     context: CycleSubstrateContext
     limitation_codes: tuple[str, ...]
+    source_context_job_ref: str | None = Field(
+        default=None,
+        pattern=_HASH_PATTERN,
+    )
     content_hash: str = Field(..., pattern=_HASH_PATTERN)
 
     @field_validator("limitation_codes")
@@ -701,6 +721,14 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
 
     @model_validator(mode="after")
     def _validate_job_artifact(self) -> CycleSubstrateContextJobArtifact:
+        if self.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA and (
+            self.source_context_job_ref is not None
+        ):
+            raise ValueError("cycle_substrate_context_job_v1_source_lineage_present")
+        if self.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2 and (
+            self.source_context_job_ref is None
+        ):
+            raise ValueError("cycle_substrate_context_job_v2_source_context_lineage_required")
         problem_ref = _cycle_job_v1_design_problem_ref(self.problem)
         if self.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
@@ -716,6 +744,16 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
         if self.profile_admission_status != "not_established" or self.s8_status != "blocked":
             raise ValueError("cycle_substrate_context_job_authority_limit_removed")
         return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_schema(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA:
+            payload.pop("source_context_job_ref", None)
+        return payload
 
 
 def _validate_problem_world_match(
@@ -849,12 +887,20 @@ def _serialize_cycle_substrate_context_job_artifact(
         if isinstance(artifact, CycleSubstrateContextJobArtifact)
         else artifact.get("schema_version")
     )
-    if schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA:
+    if schema_version not in {
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2,
+    }:
         raise CycleSubstrateContextOwnerError(
             "cycle_substrate_context_job_schema_version_unsupported",
             str(schema_version),
         )
-    fields = _CONTEXT_JOB_V1_MODEL_FIELDS[
+    model_fields = (
+        _CONTEXT_JOB_V1_MODEL_FIELDS
+        if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
+        else _CONTEXT_JOB_V2_MODEL_FIELDS
+    )
+    fields = model_fields[
         "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextJobArtifact"
     ]
     if isinstance(artifact, BaseModel):
@@ -886,6 +932,7 @@ def _build_cycle_substrate_context_job_artifact(
     problem: DesignProblem,
     current_job: _CurrentControlJobRecord,
     verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    source_context_job_ref: str | None = None,
 ) -> CycleSubstrateContextJobArtifact:
     """Build candidate handoff from the current persisted control-job record.
 
@@ -910,7 +957,11 @@ def _build_cycle_substrate_context_job_artifact(
         )
     _validate_problem_world_match(problem, verified_context)
     payload: dict[str, Any] = {
-        "schema_version": CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+        "schema_version": (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2
+            if source_context_job_ref is not None
+            else CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
+        ),
         "authority_purpose": "cycle_input_candidate_only",
         "status": "candidate_limited",
         "profile_admission_status": "not_established",
@@ -924,6 +975,8 @@ def _build_cycle_substrate_context_job_artifact(
         "context": verified_context,
         "limitation_codes": tuple(sorted(_REQUIRED_CONTEXT_JOB_LIMITATIONS)),
     }
+    if source_context_job_ref is not None:
+        payload["source_context_job_ref"] = source_context_job_ref
     payload["content_hash"] = cycle_substrate_context_job_content_hash(payload)
     return CycleSubstrateContextJobArtifact.model_validate(payload)
 
@@ -933,12 +986,22 @@ def _context_job_write_options(
 ) -> artifacts.ArtifactWriteOptions:
     """Build the exact tenant and job manifest profile for this artifact."""
 
+    schema_name = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2
+        if artifact.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2
+        else CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
+    )
+    schema_version = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION_V2
+        if artifact.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_V2
+        else CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION
+    )
     return artifacts.ArtifactWriteOptions(
         kind=CYCLE_SUBSTRATE_CONTEXT_JOB_KIND,
         media_type="application/json",
         schema=artifacts.SchemaInfo(
-            name=CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
-            version=CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION,
+            name=schema_name,
+            version=schema_version,
         ),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
         canon=artifacts.CanonInfo.from_spec(_CONTEXT_JOB_CANON),
@@ -975,6 +1038,7 @@ class CycleSubstrateContextArtifactOwner:
         *,
         problem: DesignProblem,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
+        source_context_job_ref: str | None = None,
     ) -> artifacts.ArtifactRef:
         """Persist through the runtime store under the current persisted job lease."""
 
@@ -984,6 +1048,7 @@ class CycleSubstrateContextArtifactOwner:
             problem=problem,
             current_job=current_job,
             verified_nl_job_scope=verified_nl_job_scope,
+            source_context_job_ref=source_context_job_ref,
         )
         return self._store.put_json(
             _serialize_cycle_substrate_context_job_artifact(artifact),
@@ -997,6 +1062,7 @@ class CycleSubstrateContextArtifactOwner:
         *,
         problem: DesignProblem,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
+        expected_source_context_job_ref: str | None = None,
     ) -> CycleSubstrateContextJobArtifact:
         """Verify a ref against the persisted job authorized by the active lease."""
 
@@ -1039,6 +1105,7 @@ class CycleSubstrateContextArtifactOwner:
             artifact.tenant_id != tenant_id
             or artifact.cell_id != cell_id
             or artifact.design_problem_ref != expected_problem_ref
+            or artifact.source_context_job_ref != expected_source_context_job_ref
         ):
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_binding_mismatch"

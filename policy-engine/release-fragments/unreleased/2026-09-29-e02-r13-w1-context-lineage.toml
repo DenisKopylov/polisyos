@@ -1,0 +1,32 @@
+id = "2026-09-29-e02-r13-w1-context-lineage"
+title = "Version refreshed candidate context lineage"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Refreshed candidate context-job artifacts can bind the completed source context while preserving the historical v1 wire projection."
+evidence = [
+  "tests/unit/runtime/quality/test_cycle_substrate.py",
+]
+compatibility = "Context-job v1 artifacts retain their frozen serialized bytes and reader behavior. Context-job v2 adds a required source-context artifact ref and uses the v2 manifest schema profile."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: candidate-only context-job CAS artifact"
+migration = "Deploy readers that support context-job v2 before any writer persists v2 artifacts. Existing v1 artifacts remain readable and are not rewritten or restamped."
+api = "No Runtime HTTP request, response, or generated client schema changes."
+limitations = "The lineage ref does not itself verify the historical source artifact or establish a production context-admission owner, publisher time, unit conversion, N5 use, or S8 authority. Those remain separate owner and bridge predicates."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "cycle-substrate-context-job-v2-lineage"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: candidate-only context-job CAS artifact"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Refreshed context-job v2 records bind the source context ref; historical v1 bytes remain replayable and existing artifacts are not restamped."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

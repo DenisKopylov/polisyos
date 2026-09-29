@@ -240,6 +240,81 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
     assert manifest.same_input_closure.cell_id == "cell-context-owner"
 
 
+def test_refreshed_cycle_substrate_context_job_v2_binds_source_context_lineage(
+    tmp_path: Any,
+) -> None:
+    """Refreshed contexts bind their source ref while v1 remains separately frozen."""
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    source_context_job_ref = _hash("completed-source-context-job")
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-cas-v2",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-refreshed-context", "run-refreshed-context"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-refreshed-context", cell_id="cell-refreshed-context"
+    ):
+        ref = owner.persist_for_current_job(
+            context,
+            problem=problem,
+            source_context_job_ref=source_context_job_ref,
+        )
+        resolved = owner.resolve_for_current_job(
+            ref,
+            problem=problem,
+            expected_source_context_job_ref=source_context_job_ref,
+        )
+        manifest = store.get_manifest(ref)
+        serialized = cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
+            resolved
+        )
+        serialized_bytes = canon.to_canonical_bytes(
+            serialized,
+            cycle_substrate_owner._CONTEXT_JOB_CANON,
+        )
+
+    assert resolved.schema_version == (
+        "policyos.runtime.cycle_substrate_context_job_artifact.v2"
+    )
+    assert resolved.source_context_job_ref == source_context_job_ref
+    assert serialized["source_context_job_ref"] == source_context_job_ref
+    assert store.get_bytes(ref) == serialized_bytes
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == (
+        "policyos.runtime.cycle_substrate_context_job_artifact.v2"
+    )
+    assert manifest.artifact_schema.version == "2.0"
+
+    tampered = serialized | {"source_context_job_ref": _hash("different-source-context")}
+    tampered.pop("content_hash")
+    tampered["content_hash"] = cycle_substrate_owner.cycle_substrate_context_job_content_hash(
+        tampered
+    )
+    tampered["source_context_job_ref"] = None
+    with pytest.raises(ValueError, match="source_context_lineage_required"):
+        CycleSubstrateContextJobArtifact.model_validate(tampered)
+
+
 def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(tmp_path: Any) -> None:
     """A content ref cannot be replayed for another compiled problem or job."""
 

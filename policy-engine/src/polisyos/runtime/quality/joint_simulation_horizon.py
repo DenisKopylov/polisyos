@@ -282,9 +282,18 @@ class SimulationTrajectory(_StrictModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
 
 
+@dataclass(frozen=True, slots=True)
+class _InteractionCoverage:
+    """One request-wide, engine-qualified census reused by every projection."""
+
+    by_scope: Mapping[tuple[str, tuple[str, ...]], SimulationTrajectory]
+    issues: tuple[str, ...]
+    expected_steps: tuple[int, ...]
+
+
 def _higher_order_residuals(
-    trajectories: Sequence[SimulationTrajectory],
-    selected_outcomes: Sequence[str],
+    request: JointSimulationRequest,
+    coverage: _InteractionCoverage,
 ) -> dict[str, dict[int, float]]:
     """Return joint residuals after individual and pairwise effects.
 
@@ -293,107 +302,150 @@ def _higher_order_residuals(
     without enumerating any additional powerset of interventions.
     """
 
-    individual = {
-        trajectory.atom_ids[0]: trajectory
-        for trajectory in trajectories
-        if trajectory.run_level == "individual" and len(trajectory.atom_ids) == 1
-    }
-    pairwise = [
-        trajectory
-        for trajectory in trajectories
-        if trajectory.run_level == "pairwise" and len(trajectory.atom_ids) == 2
-    ]
-    joint_candidates = [
-        trajectory
-        for trajectory in trajectories
-        if trajectory.run_level == "joint" and len(trajectory.atom_ids) >= 3
-    ]
-    if not joint_candidates:
+    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    if len(atom_ids) < 3:
         return {}
-    joint = max(joint_candidates, key=lambda trajectory: len(trajectory.atom_ids))
+    scope_index = coverage.by_scope
+    if coverage.issues:
+        return {}
+    individual = {
+        atom_id: scope_index.get(("individual", (atom_id,)))
+        for atom_id in atom_ids
+    }
+    pairwise = {
+        tuple(pair): scope_index.get(("pairwise", tuple(pair)))
+        for pair in itertools.combinations(atom_ids, 2)
+    }
+    joint = scope_index.get(("joint", atom_ids))
+    if joint is None or any(item is None for item in (*individual.values(), *pairwise.values())):
+        return {}
     residuals: dict[str, dict[int, float]] = {}
-    for outcome in selected_outcomes:
+    for outcome in request.selected_outcomes:
         by_step: dict[int, float] = {}
-        for point in joint.points:
-            pairwise_sum = 0.0
-            for pair in pairwise:
-                if not set(pair.atom_ids).issubset(joint.atom_ids):
-                    continue
-                pair_point = next((item for item in pair.points if item.step == point.step), None)
-                if pair_point is None:
-                    continue
-                pair_effect = pair_point.effect[outcome]
-                pair_individual_sum = sum(
-                    next(
-                        item.effect[outcome]
-                        for item in individual[atom_id].points
-                        if item.step == point.step
-                    )
-                    for atom_id in pair.atom_ids
-                    if atom_id in individual
-                )
-                pairwise_sum += pair_effect - pair_individual_sum
+        joint_points = {point.step: point for point in joint.points}
+        individual_points = {
+            atom_id: {point.step: point for point in trajectory.points}
+            for atom_id, trajectory in individual.items()
+            if trajectory is not None
+        }
+        pairwise_points = {
+            pair: {point.step: point for point in trajectory.points}
+            for pair, trajectory in pairwise.items()
+            if trajectory is not None
+        }
+        for step in coverage.expected_steps:
+            pair_interaction_sum = 0.0
             individual_sum = sum(
-                next(
-                    item.effect[outcome]
-                    for item in individual[atom_id].points
-                    if item.step == point.step
-                )
-                for atom_id in joint.atom_ids
-                if atom_id in individual
+                individual_points[atom_id][step].effect[outcome]
+                for atom_id in atom_ids
             )
-            by_step[point.step] = float(
-                point.effect[outcome] - individual_sum - pairwise_sum
+            for pair in pairwise:
+                pair_effect = pairwise_points[pair][step].effect[outcome]
+                pair_interaction_sum += pair_effect - sum(
+                    individual_points[atom_id][step].effect[outcome]
+                    for atom_id in pair
+                )
+            by_step[step] = float(
+                joint_points[step].effect[outcome]
+                - individual_sum
+                - pair_interaction_sum
             )
         residuals[outcome] = by_step
     return residuals
 
 
 def _checked_interaction_orders(
-    trajectories: Sequence[SimulationTrajectory],
+    request: JointSimulationRequest,
+    coverage: _InteractionCoverage,
 ) -> tuple[int, ...]:
     """Return interaction orders fully backed by the executed trajectory set."""
-
-    individuals = {
-        trajectory.atom_ids[0]
-        for trajectory in trajectories
-        if trajectory.run_level == "individual" and len(trajectory.atom_ids) == 1
-    }
-    pairwise = {
-        tuple(trajectory.atom_ids)
-        for trajectory in trajectories
-        if trajectory.run_level == "pairwise" and len(trajectory.atom_ids) == 2
-    }
-    joints = [
-        trajectory
-        for trajectory in trajectories
-        if trajectory.run_level == "joint" and len(trajectory.atom_ids) >= 3
-    ]
-    if not joints:
-        checked: list[int] = [1] if individuals else []
-        pairwise_atoms = tuple(
-            sorted({atom_id for pair in pairwise for atom_id in pair})
-        )
-        complete_pairwise = (
-            len(pairwise_atoms) >= 2
-            and set(pairwise_atoms).issubset(individuals)
-            and {
-                tuple(sorted(pair))
-                for pair in pairwise
-            }
-            == set(itertools.combinations(pairwise_atoms, 2))
-        )
-        if complete_pairwise:
-            checked.append(2)
-        return tuple(checked)
-    joint = max(joints, key=lambda trajectory: len(trajectory.atom_ids))
-    atom_ids = tuple(joint.atom_ids)
-    checked: list[int] = [1] if set(atom_ids).issubset(individuals) else []
-    if all(tuple(combo) in pairwise for combo in itertools.combinations(atom_ids, 2)):
+    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    scope_index = coverage.by_scope
+    checked: list[int] = []
+    complete_individuals = all(
+        ("individual", (atom_id,)) in scope_index for atom_id in atom_ids
+    )
+    if complete_individuals:
+        checked.append(1)
+    complete_pairs = all(
+        ("pairwise", tuple(pair)) in scope_index
+        for pair in itertools.combinations(atom_ids, 2)
+    )
+    if complete_individuals and complete_pairs:
         checked.append(2)
-    if len(atom_ids) == 3:
+    if (
+        len(atom_ids) == 3
+        and complete_individuals
+        and complete_pairs
+        and ("joint", atom_ids) in scope_index
+    ):
         checked.append(3)
     return tuple(checked)
+
+
+def _interaction_coverage(
+    request: JointSimulationRequest,
+    trajectories: Sequence[SimulationTrajectory],
+) -> _InteractionCoverage:
+    """Index only exact, complete request scopes and return typed coverage issues."""
+
+    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    expected_steps = request.horizon.steps()
+    expected = {
+        (level, tuple(atom.intervention_id for atom in subset))
+        for level, subset in _atom_subsets(request.intervention_atoms)
+    }
+    observed: dict[tuple[str, tuple[str, ...]], list[SimulationTrajectory]] = {}
+    for trajectory in trajectories:
+        key = (trajectory.run_level, tuple(trajectory.atom_ids))
+        observed.setdefault(key, []).append(trajectory)
+
+    issues: list[str] = []
+    if len(set(atom_ids)) != len(atom_ids):
+        issues.append("requested_atom_ids_not_unique")
+    index: dict[tuple[str, tuple[str, ...]], SimulationTrajectory] = {}
+    for key in sorted(expected):
+        matches = observed.get(key, [])
+        if len(matches) != 1:
+            issues.append(
+                "trajectory_missing:" + key[0] + ":" + ",".join(key[1])
+                if not matches
+                else "trajectory_duplicate:" + key[0] + ":" + ",".join(key[1])
+            )
+            continue
+        trajectory = matches[0]
+        point_steps = tuple(point.step for point in trajectory.points)
+        if len(point_steps) != len(set(point_steps)) or set(point_steps) != set(expected_steps):
+            issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
+            continue
+        valid_points = True
+        for point in trajectory.points:
+            for outcome in request.selected_outcomes:
+                if outcome not in point.outcomes or outcome not in point.effect:
+                    valid_points = False
+                    break
+                try:
+                    finite = np.isfinite(float(point.outcomes[outcome])) and np.isfinite(
+                        float(point.effect[outcome])
+                    )
+                except (TypeError, ValueError, OverflowError):
+                    finite = False
+                if not finite:
+                    valid_points = False
+                    break
+            if not valid_points:
+                break
+        if not valid_points:
+            issues.append("selected_outcome_incomplete:" + key[0] + ":" + ",".join(key[1]))
+            continue
+        index[key] = trajectory
+    for key in observed.keys() - expected:
+        issues.append("trajectory_scope_unrequested:" + key[0] + ":" + ",".join(key[1]))
+    return _InteractionCoverage(
+        by_scope=index,
+        issues=tuple(sorted(issues)),
+        expected_steps=tuple(expected_steps),
+    )
 
 
 def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
@@ -852,6 +904,7 @@ class JointSimulationHorizonController:
         interaction_terms: tuple[InteractionTerm, ...] = ()
         higher_order_residuals: dict[str, dict[int, float]] = {}
         checked_interaction_orders: tuple[int, ...] = ()
+        interaction_evidence_issues: tuple[str, ...] = ()
         diagnostics: dict[str, Any] = {
             "world_model_record_id": request.world_model_record.world_model_record_id,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -914,15 +967,29 @@ class JointSimulationHorizonController:
 
         if trajectories:
             marginal_effects = _marginal_effects(trajectories)
-            interaction_terms = tuple(_interaction_terms(trajectories, request.selected_outcomes))
-            higher_order_residuals = _higher_order_residuals(
+            coverage = _interaction_coverage(
+                request,
                 trajectories,
-                request.selected_outcomes,
             )
-            checked_interaction_orders = _checked_interaction_orders(trajectories)
+            interaction_evidence_issues = coverage.issues
+            interaction_terms = tuple(
+                _interaction_terms(request, coverage)
+            )
+            higher_order_residuals = _higher_order_residuals(
+                request,
+                coverage,
+            )
+            checked_interaction_orders = _checked_interaction_orders(
+                request,
+                coverage,
+            )
             diagnostics["checked_interaction_orders"] = list(checked_interaction_orders)
+            diagnostics["interaction_evidence_issues"] = list(interaction_evidence_issues)
             if self._settings.fabricate_interaction_terms:
                 interaction_terms = _contract_testing_fabricated_interactions(interaction_terms)
+        elif decision.decision == "selected":
+            interaction_evidence_issues = ("trajectories_missing",)
+            diagnostics["interaction_evidence_issues"] = list(interaction_evidence_issues)
 
         feedback = _feedback_classification(
             request=request,
@@ -934,6 +1001,8 @@ class JointSimulationHorizonController:
             decision_blockers=tuple(
                 blocker for item in decisions for blocker in item.blockers
             ),
+            interaction_evidence_issues=interaction_evidence_issues,
+            aggregate_order_three_plus=len(request.intervention_atoms) >= 4,
         )
         value_packet = {
             "world_model_record_ref": request.world_model_record_ref,
@@ -2232,34 +2301,32 @@ def _effect_for_outcome(
 
 
 def _interaction_terms(
-    trajectories: Sequence[SimulationTrajectory],
-    selected_outcomes: Sequence[str],
+    request: JointSimulationRequest,
+    coverage: _InteractionCoverage,
 ) -> list[InteractionTerm]:
-    individual = {
-        trajectory.atom_ids[0]: trajectory
-        for trajectory in trajectories
-        if trajectory.run_level == "individual" and len(trajectory.atom_ids) == 1
-    }
-    pairwise = [trajectory for trajectory in trajectories if trajectory.run_level == "pairwise"]
+    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    scope_index = coverage.by_scope
     terms: list[InteractionTerm] = []
-    for trajectory in pairwise:
-        if len(trajectory.atom_ids) != 2:
+    for pair in itertools.combinations(atom_ids, 2):
+        trajectory = scope_index.get(("pairwise", tuple(pair)))
+        left = scope_index.get(("individual", (pair[0],)))
+        right = scope_index.get(("individual", (pair[1],)))
+        if trajectory is None or left is None or right is None:
             continue
-        left = individual[trajectory.atom_ids[0]]
-        right = individual[trajectory.atom_ids[1]]
         left_by_step = {point.step: point for point in left.points}
         right_by_step = {point.step: point for point in right.points}
-        for outcome in selected_outcomes:
+        pair_by_step = {point.step: point for point in trajectory.points}
+        for outcome in request.selected_outcomes:
             by_step: dict[int, float] = {}
-            for point in trajectory.points:
-                by_step[point.step] = (
-                    point.effect[outcome]
-                    - left_by_step[point.step].effect[outcome]
-                    - right_by_step[point.step].effect[outcome]
+            for step in coverage.expected_steps:
+                by_step[step] = (
+                    pair_by_step[step].effect[outcome]
+                    - left_by_step[step].effect[outcome]
+                    - right_by_step[step].effect[outcome]
                 )
             terms.append(
                 InteractionTerm(
-                    atom_ids=(trajectory.atom_ids[0], trajectory.atom_ids[1]),
+                    atom_ids=pair,
                     outcome=outcome,
                     by_step=by_step,
                 )
@@ -2276,6 +2343,8 @@ def _feedback_classification(
     unsupported: bool,
     coupling_support: _CouplingSupportDecision,
     decision_blockers: Sequence[str] = (),
+    interaction_evidence_issues: Sequence[str] = (),
+    aggregate_order_three_plus: bool = False,
 ) -> FeedbackClassification:
     classification = coupling_support.classification
     coupling_verdict = None
@@ -2330,8 +2399,21 @@ def _feedback_classification(
         for by_step in higher_order_residuals.values()
         for value in by_step.values()
     )
+    if any_nonzero:
+        numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] = (
+            "non_additive"
+        )
+    elif interaction_evidence_issues or aggregate_order_three_plus:
+        numeric_interaction = "unsupported"
+    else:
+        numeric_interaction = "additive"
+    evidence_limitations: list[str] = []
+    if interaction_evidence_issues:
+        evidence_limitations.append("interaction_evidence_incomplete")
+    if aggregate_order_three_plus:
+        evidence_limitations.append("aggregate_order_3_plus_not_identified")
     return FeedbackClassification(
-        numeric_interaction="non_additive" if any_nonzero else "additive",
+        numeric_interaction=numeric_interaction,
         higher_order_residuals={
             str(outcome): {int(step): float(value) for step, value in by_step.items()}
             for outcome, by_step in higher_order_residuals.items()
@@ -2347,7 +2429,7 @@ def _feedback_classification(
         feedback=feedback,
         shared_resource=shared,
         general_equilibrium=coupling_support.general_equilibrium,
-        limitations=tuple(limitations),
+        limitations=tuple(dict.fromkeys((*limitations, *evidence_limitations))),
     )
 
 

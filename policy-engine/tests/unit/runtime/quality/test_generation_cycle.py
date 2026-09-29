@@ -2629,14 +2629,18 @@ def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
     return type(record).model_validate(payload)
 
 
-def _owner_n5_case_with_selected_ncm_ref(ncm_ref: str) -> tuple[Any, Any, Any]:
+def _owner_n5_case_with_selected_ncm_ref(
+    ncm_ref: str,
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[Any, Any, Any]:
     """Build a content-valid owner context and candidate naming one selected NCM."""
 
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
     )
 
-    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    problem, context, candidate = _cyc01_owner_bound_n5_case(runtime_hints=runtime_hints)
     world_record = _record_with_selected_ncm_ref(context.world_model_record, ncm_ref)
     context = build_cycle_substrate_context(
         design_problem_ref=context.design_problem_ref,
@@ -2747,6 +2751,105 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
             expected.model_dump(mode="json")
         )
         assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
+async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
+    tmp_path: Path,
+) -> None:
+    """B26: the ordinary N6 run reaches N5, persists it, and N8 reads that exact result."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints=hints,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert isinstance(controller._simulation_port, JointSimulationPort)
+    assert controller._simulation_port._artifact_store is store
+    assert controller._value_port.artifact_store is store
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert run.synthetic is True
+            cycle = run.cycles[0]
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.simulation.simulation_result_ref is not None
+            assert cycle.value_port.status == "value_conditional"
+            assert cycle.value_port.evaluation_mode == "simulate_only"
+            assert cycle.value_port.decision_grade == "low"
+            assert "simulation_only_k_sim_not_world_evidence" in (
+                cycle.value_port.authority_blockers
+            )
+            persisted = load_joint_simulation_result(
+                cycle.simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    context.world_model_record.content_hash
+                ),
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+
+        assert persisted.atom_ids == tuple(
+            atom.intervention_id for atom in candidate.intervention_atoms
+        )
+        assert persisted.selected_outcomes == ("firm_survival",)
+        assert persisted.world_model_record_content_hash == context.world_model_record.content_hash
+        assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
     finally:
         store.close()
 

@@ -16,16 +16,25 @@ from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import contracts as core_contracts
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactStore,
+    FileSystemCAS,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+)
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import (
+    DataSnapshot,
+    EvidenceBundle,
+    EvidenceBundleRef,
+    EvidenceStep,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
@@ -56,11 +65,19 @@ from polisyos.runtime.quality.world_model_record import (
     consume_world_model_record_for_simulation,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from polisyos.data_forge.read_api.catalog import ActivatedAcquisitionObservationProjection
+
 L5SchemaRegimeDenominatorReceipt = core_contracts.L5SchemaRegimeDenominatorReceipt
 ScopedSchemaRegimeProjection = core_contracts.ScopedSchemaRegimeProjection
 canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
+ACQUISITION_CANDIDATE_SNAPSHOT_SCHEMA_VERSION = (
+    "policyos.runtime.acquisition_candidate_data_snapshot.v1"
+)
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
 DEFAULT_DATA_STATE_PERIOD_START = "2021-12"
 DEFAULT_DATA_STATE_PERIOD_END = "2023-07"
@@ -175,6 +192,19 @@ class DataStateMaterializationResult:
 
 
 @dataclass(frozen=True)
+class AcquisitionCandidateDataStateMaterializationResult:
+    """Candidate DataSnapshot carrying an admitted overlay projection as evidence."""
+
+    candidate_projection_ref: ArtifactRef
+    data_snapshot_ref: ArtifactRef
+    data_forge_snapshot_binding_path: Path
+    snapshot_id: str
+    projection_content_hash: str
+    row_content_hashes: tuple[str, ...]
+    source_time_status: Literal["not_established"]
+
+
+@dataclass(frozen=True)
 class ProductionDataStateWorldBuildResult:
     """End-to-end S1 world build result with the N3/Foundry outputs."""
 
@@ -202,6 +232,271 @@ class _DataStatePaths:
     budget_flows_monthly_sparse: Path
     corrected_firm_panels: Path
     calibrated_household_cells: Path
+
+
+def materialize_acquisition_candidate_data_snapshot(
+    store: ArtifactStore,
+    *,
+    baseline_data_snapshot_ref: ArtifactRef,
+    projection: ActivatedAcquisitionObservationProjection,
+    workspace_dir: Path,
+) -> AcquisitionCandidateDataStateMaterializationResult:
+    """Attach one owner-verified Data Forge projection as candidate evidence.
+
+    The baseline DataSnapshot's data payload remains unchanged. This function
+    does not interpret projection values as simulation-slot values or infer
+    source time.
+    """
+
+    from polisyos.data_forge.read_api.catalog import ActivatedAcquisitionObservationProjection
+
+    if not isinstance(projection, ActivatedAcquisitionObservationProjection):
+        raise DataStateSubstrateError("acquisition_candidate_projection_type_invalid")
+    validated_projection = ActivatedAcquisitionObservationProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
+    _verify_candidate_source_artifact(
+        store,
+        validated_projection.receipt_ref,
+        expected_content_sha256=validated_projection.receipt_content_sha256,
+        error_prefix="acquisition_candidate_receipt",
+    )
+    _verify_candidate_source_artifact(
+        store,
+        validated_projection.passport_ref,
+        expected_content_sha256=validated_projection.passport_content_sha256,
+        error_prefix="acquisition_candidate_passport",
+    )
+    if baseline_data_snapshot_ref.kind != "fabric.data_snapshot":
+        raise DataStateSubstrateError("acquisition_candidate_baseline_kind_invalid")
+    integrity = store.verify(baseline_data_snapshot_ref.artifact_id)
+    if not integrity.ok:
+        raise DataStateSubstrateError("acquisition_candidate_baseline_integrity_failed")
+    manifest = store.get_manifest(baseline_data_snapshot_ref.artifact_id)
+    if (
+        manifest.artifact_id != baseline_data_snapshot_ref.artifact_id
+        or manifest.kind != baseline_data_snapshot_ref.kind
+        or manifest.media_type != baseline_data_snapshot_ref.media_type
+    ):
+        raise DataStateSubstrateError("acquisition_candidate_baseline_manifest_mismatch")
+    baseline_snapshot_payload = from_canonical_bytes(
+        store.get_bytes(baseline_data_snapshot_ref.artifact_id)
+    )
+    try:
+        baseline_snapshot = DataSnapshot.model_validate(baseline_snapshot_payload)
+    except Exception as exc:
+        raise DataStateSubstrateError(
+            "acquisition_candidate_baseline_snapshot_invalid"
+        ) from exc
+    payload_integrity = store.verify(baseline_snapshot.data_ref.artifact_id)
+    if not payload_integrity.ok:
+        raise DataStateSubstrateError("acquisition_candidate_baseline_payload_integrity_failed")
+    payload_manifest = store.get_manifest(baseline_snapshot.data_ref.artifact_id)
+    if (
+        payload_manifest.artifact_id != baseline_snapshot.data_ref.artifact_id
+        or payload_manifest.kind != baseline_snapshot.data_ref.kind
+        or payload_manifest.media_type != baseline_snapshot.data_ref.media_type
+    ):
+        raise DataStateSubstrateError("acquisition_candidate_baseline_payload_manifest_mismatch")
+
+    candidate_identity = {
+        "schema_version": ACQUISITION_CANDIDATE_SNAPSHOT_SCHEMA_VERSION,
+        "baseline_data_snapshot_ref": str(baseline_data_snapshot_ref.artifact_id),
+        "projection_content_sha256": validated_projection.projection_content_sha256,
+    }
+    snapshot_id = (
+        "acquisition-candidate-"
+        + gy_content_hash(candidate_identity).removeprefix("sha256:")[:24]
+    )
+    row_content_hashes = tuple(
+        row.row_content_sha256 for row in validated_projection.observations
+    )
+    projection_ref = store.put_json(
+        validated_projection,
+        PutOptions(
+            kind="data_forge.activated_acquisition_observation_projection",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.data_forge.ActivatedAcquisitionObservationProjection",
+                version=validated_projection.schema_version,
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=validated_projection.receipt_ref.artifact_id,
+                    role="activated_overlay_admission_receipt",
+                ),
+                InputRef(
+                    artifact_id=validated_projection.passport_ref.artifact_id,
+                    role="acquisition_admission_passport",
+                ),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    prior_evidence = EvidenceBundle()
+    if baseline_snapshot.evidence_ref is not None:
+        prior_ref = baseline_snapshot.evidence_ref
+        prior_integrity = store.verify(prior_ref.artifact_id)
+        if not prior_integrity.ok:
+            raise DataStateSubstrateError(
+                "acquisition_candidate_baseline_evidence_integrity_failed"
+            )
+        prior_manifest = store.get_manifest(prior_ref.artifact_id)
+        if (
+            prior_manifest.artifact_id != prior_ref.artifact_id
+            or prior_manifest.kind != prior_ref.kind
+            or prior_manifest.media_type != prior_ref.media_type
+        ):
+            raise DataStateSubstrateError(
+                "acquisition_candidate_baseline_evidence_manifest_mismatch"
+            )
+        try:
+            prior_evidence = EvidenceBundle.model_validate(
+                from_canonical_bytes(store.get_bytes(prior_ref.artifact_id))
+            )
+        except Exception as exc:
+            raise DataStateSubstrateError(
+                "acquisition_candidate_baseline_evidence_invalid"
+            ) from exc
+    evidence_sources = list(prior_evidence.sources)
+    if all(
+        source.artifact_id != projection_ref.artifact_id for source in evidence_sources
+    ):
+        evidence_sources.append(projection_ref)
+    candidate_evidence = EvidenceBundle(
+        sources=evidence_sources,
+        transforms=[
+            *prior_evidence.transforms,
+            EvidenceStep(
+                op="data_forge.activated_acquisition_candidate_projection",
+                details={
+                    "projection_content_sha256": validated_projection.projection_content_sha256,
+                    "selected_row_count": len(row_content_hashes),
+                    "source_time_status": "not_established",
+                    "profile_admission_status": "not_established",
+                    "variable_unit_mapping_status": "not_established",
+                },
+            )
+        ],
+        notes=[
+            *prior_evidence.notes,
+            "authority_status:candidate_limited",
+            "candidate_projection_is_not_a_simulation_slot_input",
+            f"source_time_status:{validated_projection.source_time_status}",
+            "profile_admission_status:not_established",
+            "variable_unit_mapping_status:not_established",
+        ],
+        trust_policy_id=prior_evidence.trust_policy_id,
+        provenance_ref=prior_evidence.provenance_ref,
+        quality_indicators=prior_evidence.quality_indicators,
+    )
+    evidence_ref = store.put_json(
+        candidate_evidence,
+        PutOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.EvidenceBundle", version="1.0.0"),
+            inputs=[
+                *(
+                    [
+                        InputRef(
+                            artifact_id=baseline_snapshot.evidence_ref.artifact_id,
+                            role="candidate.baseline_evidence_bundle",
+                        )
+                    ]
+                    if baseline_snapshot.evidence_ref is not None
+                    else []
+                ),
+                InputRef(artifact_id=projection_ref.artifact_id, role="candidate.projection"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    snapshot_notes = list(baseline_snapshot.notes)
+    snapshot_notes.extend(
+        (
+            "acquisition_candidate_overlay_projection",
+            f"source_time_status:{validated_projection.source_time_status}",
+            "profile_admission_status:not_established",
+            "variable_unit_mapping_status:not_established",
+        )
+    )
+    data_snapshot = baseline_snapshot.model_copy(
+        update={
+            "evidence_ref": EvidenceBundleRef.model_validate(evidence_ref.model_dump()),
+            "stats": {
+                **baseline_snapshot.stats,
+                "snapshot_id": snapshot_id,
+                "source_mode": "acquisition_candidate_overlay",
+                "source_time_status": validated_projection.source_time_status,
+                "profile_admission_status": "not_established",
+            },
+            "notes": snapshot_notes,
+        }
+    )
+    data_snapshot_ref = store.put_json(
+        data_snapshot,
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[
+                InputRef(
+                    artifact_id=baseline_data_snapshot_ref.artifact_id,
+                    role="candidate.baseline_data_snapshot",
+                ),
+                InputRef(artifact_id=evidence_ref.artifact_id, role="candidate.evidence_bundle"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    binding_path = _write_acquisition_candidate_snapshot_binding(
+        workspace_dir=workspace_dir,
+        snapshot_id=snapshot_id,
+        projection=validated_projection,
+        baseline_data_snapshot_ref=baseline_data_snapshot_ref,
+        candidate_projection_ref=projection_ref,
+        data_snapshot_ref=data_snapshot_ref,
+    )
+    return AcquisitionCandidateDataStateMaterializationResult(
+        candidate_projection_ref=projection_ref,
+        data_snapshot_ref=data_snapshot_ref,
+        data_forge_snapshot_binding_path=binding_path,
+        snapshot_id=snapshot_id,
+        projection_content_hash=validated_projection.projection_content_sha256,
+        row_content_hashes=row_content_hashes,
+        source_time_status=validated_projection.source_time_status,
+    )
+
+
+def _verify_candidate_source_artifact(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    expected_content_sha256: str,
+    error_prefix: str,
+) -> None:
+    """Verify a projection's source ref and canonical content digest."""
+
+    from polisyos.fabric.data_plane import content_sha256
+
+    integrity = store.verify(ref)
+    if not integrity.ok:
+        raise DataStateSubstrateError(f"{error_prefix}_integrity_failed")
+    manifest = store.get_manifest(ref)
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+    ):
+        raise DataStateSubstrateError(f"{error_prefix}_manifest_mismatch")
+    try:
+        payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        observed_content_sha256 = content_sha256(payload)
+    except Exception as exc:
+        raise DataStateSubstrateError(f"{error_prefix}_payload_invalid") from exc
+    if observed_content_sha256 != expected_content_sha256:
+        raise DataStateSubstrateError(f"{error_prefix}_content_hash_mismatch")
 
 
 def l1_dcat_variable_availability(
@@ -1271,6 +1566,75 @@ def _write_data_forge_snapshot_binding(
     return snapshot_root / "data_forge_snapshot_binding.json"
 
 
+def _write_acquisition_candidate_snapshot_binding(
+    *,
+    workspace_dir: Path,
+    snapshot_id: str,
+    projection: ActivatedAcquisitionObservationProjection,
+    baseline_data_snapshot_ref: ArtifactRef,
+    candidate_projection_ref: ArtifactRef,
+    data_snapshot_ref: ArtifactRef,
+) -> Path:
+    """Issue a candidate-limited Data Forge snapshot binding through its owner."""
+
+    snapshot_root = workspace_dir / snapshot_id
+    catalog_root = snapshot_root / "catalog"
+    projection_path = catalog_root / "activated_acquisition_projection.json"
+    projection_path.parent.mkdir(parents=True, exist_ok=True)
+    projection_payload = projection.model_dump(mode="json")
+    projection_path.write_text(
+        json.dumps(projection_payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    receipt_ref = projection_payload["receipt_ref"]
+    passport_ref = projection_payload["passport_ref"]
+    write_publish_manifest(
+        manifest_path=catalog_root / "publish" / "manifest.json",
+        pipeline="catalog",
+        artifacts=(projection_path,),
+        extra={
+            "corpus_id": "catalog-acquisition-candidate-overlay",
+            "builder_revision": (
+                "polisyos.runtime.quality.data_state_substrate."
+                "materialize_acquisition_candidate_data_snapshot"
+            ),
+            "source_time_status": "not_established",
+            "profile_admission_status": "not_established",
+            "lineage_refs": [
+                str(baseline_data_snapshot_ref.artifact_id),
+                str(candidate_projection_ref.artifact_id),
+                str(data_snapshot_ref.artifact_id),
+                str(receipt_ref["artifact_id"]),
+                str(passport_ref["artifact_id"]),
+                str(projection_payload["projection_content_sha256"]),
+            ],
+            "claim_requirement_bindings": [
+                {
+                    "claim_id": "acquisition-candidate-data-snapshot",
+                    "requirement_id": "active-overlay-row-lineage",
+                    "requirement_kind": "candidate_data_snapshot_evidence",
+                    "authority_level": "candidate_limited",
+                    "time_role": "source_time_not_established",
+                    "supported_by": [
+                        str(candidate_projection_ref.artifact_id),
+                        str(receipt_ref["artifact_id"]),
+                        str(passport_ref["artifact_id"]),
+                    ],
+                    "lifecycle_dependency_refs": [
+                        str(receipt_ref["artifact_id"]),
+                    ],
+                },
+            ],
+        },
+    )
+    finalize_snapshot(
+        snapshot_root,
+        update_latest_symlink=False,
+        pipelines=("catalog",),
+    )
+    return snapshot_root / "data_forge_snapshot_binding.json"
+
+
 def _write_fabric_world_snapshot(
     *,
     workspace_dir: Path,
@@ -1590,7 +1954,9 @@ def _mean_or_zero(values: object) -> float:
 
 
 __all__ = [
+    "ACQUISITION_CANDIDATE_SNAPSHOT_SCHEMA_VERSION",
     "DATA_STATE_SUBSTRATE_SCHEMA_VERSION",
+    "AcquisitionCandidateDataStateMaterializationResult",
     "DataStateMaterializationResult",
     "DataStateSubstrateError",
     "L1VariableAvailability",
@@ -1600,5 +1966,6 @@ __all__ = [
     "build_l5_family_binding_profile",
     "build_production_data_state_world_model_record",
     "l1_dcat_variable_availability",
+    "materialize_acquisition_candidate_data_snapshot",
     "materialize_l4_data_state_snapshot",
 ]

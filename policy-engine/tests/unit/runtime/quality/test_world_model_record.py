@@ -7,7 +7,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -69,6 +69,7 @@ from polisyos.runtime.quality.world_model_record import (
     BranchMode,
     FabricWorldRef,
     SkgCausalPriorRef,
+    WorldModelLimitations,
     WorldModelRecord,
     WorldModelRecordError,
     build_world_model_record,
@@ -1048,3 +1049,210 @@ def test_world_model_record_source_does_not_create_parallel_world_store() -> Non
     assert "class WorldStore" not in source
     assert "class WorldStateEngine" not in source
     assert not list(src_root.rglob("gy_n3_*.py"))
+
+
+def test_active_acquisition_row_is_bound_to_limited_data_snapshot_and_wmr(
+    tmp_path: Path,
+) -> None:
+    from polisyos.data_forge.read_api.catalog import (
+        ActivatedAcquisitionObservationProjection,
+        CanonicalAcquisitionObservation,
+        ObservationProvenanceClass,
+    )
+    from polisyos.fabric.data_plane import content_sha256
+    from polisyos.runtime.quality import data_state_substrate
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateCoverage,
+        SubstrateLayer,
+        SubstrateRegistration,
+        SubstrateSchemaRegime,
+        SubstrateTrustTier,
+        register_substrate_entry,
+    )
+
+    store = FileSystemCAS(tmp_path / "candidate-cas")
+    receipt_payload = {"activation": "active", "epoch_id": 19}
+    receipt_ref = _put_json(
+        store,
+        receipt_payload,
+        kind="epoch.activated_overlay_admission_receipt",
+    )
+    passport_payload = {"passport_id": "passport:wdi:19", "dataset_id": "worldbank_wdi"}
+    passport_ref = _put_json(
+        store,
+        passport_payload,
+        kind="epoch.acquisition_passport_snapshot",
+    )
+    source_observation = CanonicalAcquisitionObservation(
+        observation_id="wdi:ukr:2024:gc-bal-cash",
+        dataset_id="worldbank_wdi",
+        raw_variable="GC.BAL.CASH.GD.ZS",
+        canonical_var="government.balance",
+        country_code="UKR",
+        year=2024,
+        value=-17.1,
+        condition_json='{"unit":"percent_gdp"}',
+        acquisition_method="wdi_fixture",
+        source_watermark="source-watermark-wdi-2024",
+        dataset_version="wdi-dataset-v2024",
+        observation_class=ObservationProvenanceClass.OBSERVED,
+    )
+    projection = ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=receipt_ref,
+        receipt_content_sha256=content_sha256(receipt_payload),
+        passport_ref=passport_ref,
+        passport_content_sha256=content_sha256(passport_payload),
+        variable_id="government.balance",
+        epoch_id=19,
+        passport_id="passport:sha256:" + "5" * 64,
+        admission_content_sha256="sha256:" + "6" * 64,
+        observations=(source_observation,),
+    )
+    baseline_data_snapshot_ref = _data_snapshot_ref(store)
+
+    candidate = data_state_substrate.materialize_acquisition_candidate_data_snapshot(
+        store,
+        baseline_data_snapshot_ref=baseline_data_snapshot_ref,
+        projection=projection,
+        workspace_dir=tmp_path / "candidate-data-forge",
+    )
+
+    baseline_snapshot = DataSnapshot.model_validate(
+        json.loads(store.get_bytes(baseline_data_snapshot_ref.artifact_id))
+    )
+    candidate_snapshot = DataSnapshot.model_validate(
+        json.loads(store.get_bytes(candidate.data_snapshot_ref.artifact_id))
+    )
+    assert candidate_snapshot.data_ref.artifact_id == baseline_snapshot.data_ref.artifact_id
+    assert candidate_snapshot.evidence_ref is not None
+    evidence = json.loads(store.get_bytes(candidate_snapshot.evidence_ref.artifact_id))
+    assert evidence["notes"] == [
+        "authority_status:candidate_limited",
+        "candidate_projection_is_not_a_simulation_slot_input",
+        "source_time_status:not_established",
+        "profile_admission_status:not_established",
+        "variable_unit_mapping_status:not_established",
+    ]
+    assert evidence["sources"][0]["artifact_id"] == str(
+        candidate.candidate_projection_ref.artifact_id
+    )
+    stored_projection = json.loads(
+        store.get_bytes(candidate.candidate_projection_ref.artifact_id)
+    )
+    assert stored_projection["projection_content_sha256"] == (
+        projection.projection_content_sha256
+    )
+    assert stored_projection["observations"][0]["row_content_sha256"] == (
+        projection.observations[0].row_content_sha256
+    )
+
+    baseline_registry = _substrate_registry()
+    baseline_registry_ref = persist_substrate_registry(store, baseline_registry)
+    candidate_family_id = "candidate_observation:government.balance"
+    registration = SubstrateRegistration(
+        source_id="acquisition:worldbank_wdi",
+        family_id=candidate_family_id,
+        layer=SubstrateLayer.L4,
+        coverage=SubstrateCoverage(
+            coverage_score=0.0,
+            coverage_kind="acquisition.candidate_profile_not_established",
+            coverage_rule_ref=str(projection.passport_ref.artifact_id),
+            observation_count=1,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="not_established",
+            trust_cap=0.0,
+            trust_multiplier=0.0,
+            authority_ref=str(projection.passport_ref.artifact_id),
+        ),
+        identification_mode="not_established",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id="not_established",
+            authority_ref=str(projection.passport_ref.artifact_id),
+            source_version=source_observation.dataset_version,
+        ),
+        data_version=source_observation.dataset_version,
+        snapshot_id=candidate.snapshot_id,
+        source_snapshot_id=source_observation.source_watermark,
+        provenance_refs=(
+            projection.projection_content_sha256,
+            projection.observations[0].row_content_sha256,
+            str(projection.receipt_ref.artifact_id),
+        ),
+        authority_refs=(
+            str(projection.passport_ref.artifact_id),
+            str(projection.receipt_ref.artifact_id),
+        ),
+    )
+    registry = register_substrate_entry(
+        baseline_registry,
+        registration,
+    )
+    registry_ref = persist_substrate_registry(
+        store,
+        registry,
+        inputs=[
+            InputRef(
+                artifact_id=baseline_registry_ref.artifact_id,
+                role="candidate.baseline_substrate_registry",
+            ),
+            InputRef(
+                artifact_id=candidate.data_snapshot_ref.artifact_id,
+                role="candidate.data_snapshot",
+            ),
+            InputRef(
+                artifact_id=candidate.candidate_projection_ref.artifact_id,
+                role="candidate.acquisition_projection",
+            ),
+        ],
+    )
+    registry_bundle = build_default_registry_bundle(store)
+    model_spec = _model_spec(candidate.data_snapshot_ref, registry_bundle.bundle_ref)
+    _write_fabric_world_snapshot(tmp_path, snapshot_id=candidate.snapshot_id)
+    candidate_record = build_world_model_record(
+        store,
+        fabric_world_ref=_fabric_ref(
+            tmp_path,
+            snapshot_id=candidate.snapshot_id,
+            as_of_valid_time=None,
+            as_of_tx_time=None,
+        ),
+        data_forge_snapshot_binding_path=candidate.data_forge_snapshot_binding_path,
+        data_snapshot_ref=candidate.data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=_skg_ref(tmp_path, snapshot_id=candidate.snapshot_id),
+        substrate_registry=registry,
+        region_or_jurisdiction="UA-30",
+        population_scope="candidate-acquisition-observation",
+        policy_domain="fiscal_credit",
+        valid_time_scope="not_established",
+        tx_time_scope="not_established",
+        resolution="candidate_observation",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.acquisition_candidate_data_state",
+        data_forge_role="catalog",
+        required_substrate_families=(candidate_family_id,),
+        substrate_registry_artifact_ref=registry_ref,
+        limitations=WorldModelLimitations(
+            admissibility_blockers=(
+                "acquisition_profile_not_established",
+                "acquisition_source_time_not_established",
+                "acquisition_variable_unit_mapping_not_established",
+            ),
+        ),
+        authority_status="limited",
+    ).record
+    baseline_record = _build_record(tmp_path / "baseline")[1].record
+
+    assert candidate.data_snapshot_ref.artifact_id != baseline_record.simulation_model_ref.data_snapshot_ref
+    assert candidate_record.world_model_record_id != baseline_record.world_model_record_id
+    assert candidate_record.authority_status == "limited"
+    assert candidate_record.substrate_registry_ref.content_hash == registry.content_hash
+    assert candidate_record.simulation_model_ref.data_snapshot_ref == str(
+        candidate.data_snapshot_ref.artifact_id
+    )
+    candidate_entry = registry.resolve(family_id=candidate_family_id)[0]
+    assert candidate_entry.data_version == source_observation.dataset_version
+    assert candidate_entry.snapshot_id == candidate.snapshot_id
+    assert candidate_entry.source_snapshot_id == source_observation.source_watermark

@@ -12,7 +12,7 @@ import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import (
     BaseModel,
@@ -24,7 +24,7 @@ from pydantic import (
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
-    FileSystemCAS,
+    ArtifactStore,
     InputRef,
     PutOptions,
     SchemaInfo,
@@ -177,7 +177,7 @@ class _FabricQueryFrame(Protocol):
 
 
 def build_world_model_record(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     fabric_world_ref: FabricWorldRef,
     data_forge_snapshot_binding_path: str | Path,
@@ -206,6 +206,9 @@ def build_world_model_record(
     program_graph_refs: Sequence[str] = (),
     limitations: WorldModelLimitations | None = None,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
+    authority_status: Literal[
+        "candidate_unverified", "bound", "limited", "contested", "blocked", "publishable"
+    ] = "bound",
 ) -> WorldModelBuildResult:
     """Build and persist one versioned world record from existing substrates.
 
@@ -245,6 +248,9 @@ def build_world_model_record(
         program_graph_refs: Existing program graph refs to name.
         limitations: Explicit limitation record, if already known.
         deployment_update_refs: Phase-6 forward hooks, not write-back logic.
+        authority_status: Typed status of this world version. Candidate builders
+            must pass ``limited`` or ``candidate_unverified`` when their source
+            semantics have not been established.
 
     Raises:
         WorldModelRecordError: If any required substrate is missing or versions
@@ -337,7 +343,7 @@ def build_world_model_record(
     )
     fields: dict[str, Any] = {
         "schema_version": WORLD_MODEL_RECORD_SCHEMA_VERSION,
-        "authority_status": "bound",
+        "authority_status": authority_status,
         "producer_ref": producer_ref,
         "region_or_jurisdiction": region_or_jurisdiction,
         "population_scope": population_scope,
@@ -508,7 +514,7 @@ def resolve_intervention_atom_world_binding(
 
 
 def persist_world_model_record(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     record: WorldModelRecord,
     *,
     inputs: Sequence[InputRef] | None = None,
@@ -531,7 +537,7 @@ def persist_world_model_record(
     )
 
 
-def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> WorldModelRecord:
+def load_world_model_record(store: ArtifactStore, ref: ArtifactRef | str) -> WorldModelRecord:
     """Load a persisted ``WorldModelRecord`` from CAS and verify its hash."""
 
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
@@ -539,7 +545,7 @@ def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> Wor
     return WorldModelRecord.model_validate(payload)
 
 
-def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:
+def _load_data_snapshot(store: ArtifactStore, ref: ArtifactRef) -> DataSnapshot:
     from polisyos.core.contracts import DataSnapshot
 
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
@@ -836,7 +842,7 @@ def _resolve_skg_causal_prior_ref(skg_causal_prior_ref: SkgCausalPriorRef) -> No
 
 
 def _load_substrate_registry_artifact_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef | str,
     *,
     loaded_registry: SubstrateRegistry | None = None,
@@ -892,7 +898,7 @@ def _substrate_registry_entries_for_comparison(
 
 
 def _resolve_substrate_registry_ref(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     substrate_registry: SubstrateRegistry,
     *,
     required_sources: Sequence[str],

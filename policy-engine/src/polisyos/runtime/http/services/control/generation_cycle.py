@@ -76,7 +76,55 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v1"
 )
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
-NORMATIVE_RUN_DISPOSITION_SCHEMA = "policyos.normative_generation_composition.v1"
+NORMATIVE_RUN_DISPOSITION_V1_SCHEMA = "policyos.normative_generation_composition.v1"
+NORMATIVE_RUN_DISPOSITION_SCHEMA = NORMATIVE_RUN_DISPOSITION_V1_SCHEMA
+_NORMATIVE_OUTER_V1_CANON = canon.CanonSpec(
+    name="polisyos.canon.json",
+    version="0.2.0",
+    forbid_floats=True,
+    forbid_nan_inf=True,
+    exclude_none=True,
+    max_depth=128,
+    sort_keys=True,
+    separators=(",", ":"),
+    ensure_ascii=False,
+)
+_NORMATIVE_OUTER_V1_FIELDS = (
+    "schema_version",
+    "compiled_run_ref",
+    "leaf_disposition_refs",
+    "leaf_dispositions",
+    "authorization_status",
+    "ranked_recommendations",
+    "strangle_receipt",
+)
+_NORMATIVE_LEAF_V1_FIELDS = (
+    "schema_version",
+    "generation_binding",
+    "compiled_membership_status",
+    "case_id",
+    "candidate_fronts",
+    "dominance_status",
+    "evidence",
+    "input_limitation",
+    "authorization_status",
+    "ranked_recommendations",
+    "decision_request",
+    "ranking_bundle_ref",
+    "admitted_at",
+    "trust_epoch",
+    "authoritative_for",
+    "may_not_use_for",
+)
+_NORMATIVE_STRANGLE_V1_FIELDS = (
+    "status",
+    "default_entrypoint",
+    "predecessor",
+    "default_flipped",
+    "compiled_run_ref",
+    "source_node_refs",
+    "disposition_node_refs",
+)
 _ROOT_EVALUATION_CONTEXT_UNSET = object()
 _HTTP_RECURSIVE_MAX_DEPTH = 0
 _HTTP_RECURSIVE_MAX_NODES = 1
@@ -242,11 +290,11 @@ class NormativeRunStrangleReceipt(BaseModel):
 
 
 class NormativeRunDisposition(BaseModel):
-    """Current compiled-owner projection; subordinate S8 leaves claim no compiled membership."""
+    """Frozen outer-v1 projection; future schemas require a separate model."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     schema_version: Literal["policyos.normative_generation_composition.v1"] = (
-        NORMATIVE_RUN_DISPOSITION_SCHEMA
+        NORMATIVE_RUN_DISPOSITION_V1_SCHEMA
     )
     compiled_run_ref: str
     leaf_disposition_refs: dict[str, str]
@@ -274,6 +322,108 @@ class NormativeRunDispositionHistory:
             observation is not None and observation.status == "current"
             for observation in self.admission_currentness_by_node.values()
         )
+
+
+def _normative_run_disposition_v1_payload(
+    disposition: NormativeRunDisposition,
+) -> dict[str, object]:
+    """Freeze the persisted v1 fields independently of future model additions."""
+
+    receipt = disposition.strangle_receipt
+    return {
+        "schema_version": NORMATIVE_RUN_DISPOSITION_V1_SCHEMA,
+        "compiled_run_ref": disposition.compiled_run_ref,
+        "leaf_disposition_refs": disposition.leaf_disposition_refs,
+        "leaf_dispositions": {
+            node_ref: leaf.model_dump(mode="json", include=set(_NORMATIVE_LEAF_V1_FIELDS))
+            for node_ref, leaf in disposition.leaf_dispositions.items()
+        },
+        "authorization_status": disposition.authorization_status,
+        "ranked_recommendations": list(disposition.ranked_recommendations),
+        "strangle_receipt": {
+            "status": receipt.status,
+            "default_entrypoint": receipt.default_entrypoint,
+            "predecessor": receipt.predecessor,
+            "default_flipped": receipt.default_flipped,
+            "compiled_run_ref": receipt.compiled_run_ref,
+            "source_node_refs": list(receipt.source_node_refs),
+            "disposition_node_refs": list(receipt.disposition_node_refs),
+        },
+    }
+
+
+def _assert_normative_run_disposition_v1_shape(
+    payload: object, *, producer: bool = False
+) -> None:
+    """Reject a post-v1 outer or embedded field before v1 admission."""
+
+    if not isinstance(payload, dict):
+        raise P20NormativeChoiceError("p20_normative_outer_v1_shape_mismatch")
+    leaves = payload.get("leaf_dispositions")
+    receipt = payload.get("strangle_receipt")
+    outer_keys = set(payload)
+    expected_outer = set(_NORMATIVE_OUTER_V1_FIELDS)
+    expected_leaf = set(_NORMATIVE_LEAF_V1_FIELDS)
+    expected_receipt = set(_NORMATIVE_STRANGLE_V1_FIELDS)
+    if (
+        (outer_keys != expected_outer if producer else not outer_keys <= expected_outer)
+        or not isinstance(leaves, dict)
+        or any(
+            not isinstance(leaf, dict)
+            or (
+                set(leaf) != expected_leaf if producer else not set(leaf) <= expected_leaf
+            )
+            for leaf in leaves.values()
+        )
+        or not isinstance(receipt, dict)
+        or (
+            set(receipt) != expected_receipt
+            if producer
+            else not set(receipt) <= expected_receipt
+        )
+    ):
+        raise P20NormativeChoiceError("p20_normative_outer_v1_shape_mismatch")
+
+
+def _read_normative_run_disposition_v1(
+    store: artifacts.ArtifactStore, ref: str
+) -> NormativeRunDisposition:
+    """Resolve the exact historical outer-v1 bytes and manifest profile."""
+
+    try:
+        artifact_id = artifacts.ArtifactID.model_validate(ref)
+        raw = store.get_bytes(artifact_id)
+        manifest = store.get_manifest(artifact_id)
+    except (TypeError, ValueError, KeyError, OSError) as exc:
+        raise P20NormativeChoiceError("p20_normative_outer_v1_unavailable") from exc
+    if (
+        str(artifact_id) != ref
+        or ref != f"sha256:{canon.content_hash(raw)}"
+        or manifest.artifact_id != artifact_id
+    ):
+        raise P20NormativeChoiceError("p20_normative_outer_v1_content_mismatch")
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != NORMATIVE_RUN_DISPOSITION_KIND
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != NORMATIVE_RUN_DISPOSITION_KIND
+        or schema.version != NORMATIVE_RUN_DISPOSITION_V1_SCHEMA
+    ):
+        raise P20NormativeChoiceError("p20_normative_outer_v1_schema_mismatch")
+    try:
+        payload = canon.from_canonical_bytes(raw)
+        _assert_normative_run_disposition_v1_shape(payload)
+        recorded = NormativeRunDisposition.model_validate(payload)
+    except P20NormativeChoiceError:
+        raise
+    except (TypeError, ValueError) as exc:
+        raise P20NormativeChoiceError("p20_normative_outer_v1_invalid") from exc
+    if raw != canon.to_canonical_bytes(
+        _normative_run_disposition_v1_payload(recorded), _NORMATIVE_OUTER_V1_CANON
+    ):
+        raise P20NormativeChoiceError("p20_normative_outer_v1_bytes_mismatch")
+    return recorded
 
 
 def normative_owner_for_runtime_store(
@@ -423,8 +573,11 @@ def produce_normative_run_disposition(
         leaf_refs=leaf_refs,
         evaluated_at=evaluated_at,
     )
+    _assert_normative_run_disposition_v1_shape(
+        projection.model_dump(mode="json"), producer=True
+    )
     ref = store.put_json(
-        projection.model_dump(mode="json"),
+        _normative_run_disposition_v1_payload(projection),
         artifacts.PutOptions(
             kind=NORMATIVE_RUN_DISPOSITION_KIND,
             media_type="application/json",
@@ -433,6 +586,7 @@ def produce_normative_run_disposition(
                 version=NORMATIVE_RUN_DISPOSITION_SCHEMA,
             ),
         ),
+        canon_spec=_NORMATIVE_OUTER_V1_CANON,
     )
     return project_normative_run_disposition(
         store=store,
@@ -476,9 +630,7 @@ def replay_normative_run_disposition(
     compiled_run_ref: str,
 ) -> NormativeRunDispositionHistory:
     """Replay stored S8 history without sampling the live Confidence Ledger."""
-    recorded = NormativeRunDisposition.model_validate(
-        _read_normative_source(store, disposition_ref, kind=NORMATIVE_RUN_DISPOSITION_KIND)
-    )
+    recorded = _read_normative_run_disposition_v1(store, disposition_ref)
     if recorded.compiled_run_ref != compiled_run_ref:
         raise P20NormativeChoiceError("p20_normative_compiled_run_substitution")
     historical_times = {leaf.admitted_at for leaf in recorded.leaf_dispositions.values()}

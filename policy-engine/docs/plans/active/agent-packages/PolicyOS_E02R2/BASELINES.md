@@ -2655,3 +2655,33 @@ There are 42 common case identities between integration and each historical ref,
 The smallest closure is an independent owner-produced source-feasible identity set plus an explicit unknown-eligibility set, bridged into the ordinary report builder, with a semantic negative test for an eligible candidate omitted before projection and a separate explicit-unknown control. Current capability labels: `producer_missing`, `bridge_missing`, `semantic_test_missing`, and `surface_missing`. B111 remains `partial`. The direct champion probe does not establish production non-finite emission. Next steps also include a typed finite-hypervolume overflow outcome, production producer→consumer/persistence evidence, and the complete 21-file P41 matrix.
 
 The architecture-guardrail attempt was interrupted with exit 143 before a verdict; its state is `UNRUN`, not pass or fail: /Users/deniskopylov/.codex/scratch/e02-r2-guardrails-interrupted-20260929/RECEIPT.md@sha256:ed431c3057b32d61a209af4210667d9e6ebbec7d9770295f89bde4c8599f8986. This bounded evidence update runs no tests or gates and changes no finding status or aggregate count. Reviews: bounded code review /Users/deniskopylov/.codex/scratch/e02-b111-independent-review-20260929/B111_FINAL_REVIEW.md@sha256:2581de4f8bbd783e841c6a5e3bbad640c4d2eb9edb2a5fa7b4807a1174a32ab4; independent docs review /Users/deniskopylov/.codex/scratch/e02-b111-docs-independent-review-20260929/B111_DOCS_INDEPENDENT_REVIEW.md@sha256:ae3d615a14df63507c4e0410d82e13c8d36d8159c1228a0966108559520ccc43. Relevant source pin: policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:5ac88b50c467d58bd44d76d3a7834aa0efe79940; ordinary report-builder pin: policy-engine/src/polisyos/scientist/policy_design/output.py@git-blob:f0d43b5762ba3388fdfc899069fb5ca48dc52534.
+
+## B153 exception-waiter test design after independent review (2026-09-29)
+
+**Input and denominator.** The only new test identity is
+`tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter`.
+Its current Git blob is
+`policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:aaf39987f1898f6bf5a4157dc0bec73867b30888`
+at `25c787698`. The complete file's pre-edit integrated result was 17/17 at
+`4be6d38e6`; Execution and Main lack the file, while E02 head passed 5/5
+at that older P41 cut. Those are historical cells, not results for the new
+selector or current test blob. The new selector, current complete file,
+marker-retaining no-release and lock-bypass mutants, and its four-base cells
+are each `UNRUN` because disk free is below the 8 GiB floor.
+
+**Review outcome and predicate.** Initial independent review was NO-GO:
+the test's own first-writer context wrapper supplied exception-safe release.
+The correction in `25c787698` leaves the failed holder on the raw production
+lock, observes the waiting writer's actual nonblocking contention on that
+same ID and lock object, bounds its acquire, and checks persisted bytes plus
+the exact waiting-view manifest and benign same-profile retry. The same
+reviewer independently gives GO for this corrected test design, not for a
+passing runtime property. Reviews:
+`/Users/deniskopylov/.codex/scratch/e02-b153-exception-review-20260929/REVIEW.md@sha256:0ae0b4f53b073feccb5e41e59e9c5a648f1ffb334ce095aaaa1028be13878310`
+and
+`/Users/deniskopylov/.codex/scratch/e02-b153-exception-review-20260929/REVIEW_ADDENDUM.md@sha256:acfb5e43f14fb86c0940a14b2f14ce6e9fc337f77c7b70cf3cb76b7f7f84a44f`.
+Scoped Ruff, AST parse, and `git diff --check` passed before each test commit;
+none exercises CAS behavior. B153 remains `partial` pending the run and
+removal probe. This is the same B153 lock-lifecycle class one level deeper
+under P40; a further escape calls for a declared bounded residual, not another
+instance patch.

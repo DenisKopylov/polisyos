@@ -1227,6 +1227,20 @@ The complete current-head `test_control_service_di.py` run at `0716402ea` has 41
 
 One R1 candidate writer may reuse the clean branch-attached `codex/e02-r2-r13-selected-row-candidate` worktree at `/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos`, first merging current `codex/e02-r2` append-only. Its **only initial editable path** is `policy-engine/tests/unit/runtime/http/test_control_service_di.py`. Restore the failing test's legitimate owner context without changing a production gate, using the existing context producer/resolver and retaining exact problem/run/store bindings. First confirm the red; then run the protected positive, foreign/missing-context negative and no-owner candidate preserving control. If production code or any additional test path proves necessary, stop editing and request an exact lease amendment. No same-file concurrent writer exists; B26's three-file lease is disjoint. The candidate needs independent delta review before integration, and a source-corrected selector is not R1 class closure or four-base P41 closure.
 
+**Superseded at the 2026-09-29 current-head reconciliation.** Commit
+`fba37baf1` already changed that exact selector into a protected no-context
+refusal; commit `7a2fd5f45` added the ordinary candidate control. The complete
+Control file passed 41/41 at both `8ca88499f` and `7a2fd5f45`; the latter
+has a marker-retaining eager-WMR removal probe. `OPEN_PREMISES.md` records the
+protected refusal and the separate served candidate N4→N5 witness. Thus the
+one-file fixture lease above is **released**, and nobody should restore its
+old protected-positive expectation. Its historic 40/41 result at `0716402ea`
+remains a valid earlier observation, not a current red. The served
+persist→resolve and protected source/S8 authority witnesses plus final-blob
+four-base P41 remain open under R1; they require a fresh exact lease. The
+candidate branch's append-only merge `44e35ecd9` is clean and has the same
+tree as canonical `acc4de867`; it made no R1 test edit.
+
 ## B111 assessment-index integrity lease (2026-09-29)
 
 Root alone owns `policy-engine/src/polisyos/scientist/methods/autotune/pareto.py` and `policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py` for the reviewed two-file slice. The B109 test-only change and its 31/31 whole-file result at `0cf4afa19` are the pre-edit current evidence; the post-B109 four-base replay remains `UNRUN` under the resource continuation. No other writer may edit these files until root commits and releases this lease. The exact write set excludes registry, output report, generated families, objective basis, and governed artifacts.
@@ -1266,6 +1280,24 @@ The LA-031 D3 test lease is released at `fcaa325a3967c5751b1d6e0493590c0c4c5f2b3
 Root owns only `policy-engine/tests/unit/remediation/test_cas_01.py` for the B153 bounded witness. The production `policy-engine/src/polisyos/core/artifacts/store.py` remains under R13/P31 ownership and must not be edited in this slice. At clean integration `e31b13bd3`, the strict four-base whole-file replay `raw/p41-custom-20260929T155325Z-48474/results.json@sha256:67d63a94fc404f38d4b0f594db5c0675ca2f20f78219fdf1f824de1d5b0d68f4` found the file missing at Execution and Main, E02 head 5/5 passing, integration 16/16 passing. The intervening LA-031 commit changes only the Ukraine orchestrator test, so the B153 test and store input blobs are unchanged. The reviewed owner-first design is `/Users/deniskopylov/.codex/scratch/e02-b153-immediate-candidate-20260929/B153_IMMEDIATE_CLOSURE_REVIEW.md@sha256:951583d6638bcf4d06a90556b6ba5ab408ff53a7808cf973c0b03826d1f32752`.
 
 The writer must enumerate 3,000 deterministic ArtifactIDs and returned lock identities, preserve same-ID live waiter exclusion, and read back distinct payload-derived IDs that collide on one stripe without aliasing bytes or manifests. In isolated scratch, marker-retaining removal of bounded residency and of same-key fencing must turn the exact witness red. A benign collision is a property-preserving control. No generated artifact or epoch is in the write set. Keep the 8 GiB disk floor and run no more than two light test process groups while R2/B111 writers are active. Review before integration, then repeat the four-base whole-file replay. B153 closure remains unclaimed until those receipts exist.
+
+**B153 exception-waiter follow-on (2026-09-29).** The first bounded lock
+witness is integrated and its complete current file passed 17/17 at the
+recorded `4be6d38e6` evidence cut. Root retains the same exclusive one-file
+test lease; the production CAS owner and all other files remain read-only.
+Add `test_exception_releases_same_id_lock_for_scoped_view_waiter` as the exact
+remaining source-card discriminator. Seed a default manifest, hold the first
+distinct-view writer inside the real same-ID CAS lock at a controlled I/O
+failure, observe the second distinct-view writer at its actual lock acquire
+attempt, then release the first to raise. Require the second to complete and
+read back its exact bytes and typed manifest; the failed first view must not
+be presented as persisted. A repeated same-profile put is the preserving
+control. A marker-retaining removal of the lock or of exception release must
+turn this test red. The four-base cells for the new selector are `UNRUN` until
+disk is above the 8 GiB floor; the existing 17/17 result is not a current-head
+or post-edit claim. Freeze the test and source during any run, then obtain
+independent review before treating B153 as closed. The detailed gap and
+receipts are in `BASELINES.md` under `B153 bounded progress`.
 
 ## B73 fresh-store checkpoint witness lease (2026-09-29)
 
@@ -1390,3 +1422,90 @@ heavy tests or fresh environment may start below the floor. Static lint and
 compile are allowed if free space remains stable. Freeze source before any
 test, run only the smallest informative checks once admitted, and obtain an
 independent patch review before root integration.
+
+## R2 outer v1 composition replay lease (2026-09-30)
+
+Root holds exactly these three paths for the next ordered R2 history slice:
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`,
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`, and
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`.
+The earlier R1 fixture lease was released at `32e036dc69`; the R13-W1 writer
+stopped with a clean separate candidate at `3c355bd0f` and owns none of these
+paths. No other candidate may edit them until root releases this lease. The
+source and two test blobs at clean pre-edit `acc4e7584` are respectively
+`a435a317c4050551ac9dd9f34a1ee41e75f64fce`,
+`4471c1a4a6c65d34606c017f36b1d55191d1528d`, and
+`f94ce5e006e93887dba28bb79ac1d2c6fcb5b4f4`.
+
+**Property and limit.** The existing outer `NormativeRunDisposition.v1`
+producer and historical reader must share one frozen v1 wire projection. The
+reader resolves raw CAS bytes and checks the ref hash, kind, schema name and
+version, internal v1 literal, typed payload, and exact v1 bytes before the
+existing leaf-membership/composition checks. Currentness remains a separate
+typed observation; historical replay grants no current S8/N9 authority. P38's
+divergent case is a decodable whitespace/key-order JSON variant with a valid
+new CAS ref and unchanged markers, or wrong outer manifest schema. P40 keeps
+this within R2's historical-replay class; P07 semantic rule-version replay
+remains a bounded residual. The reviewed design is
+`/Users/deniskopylov/.codex/scratch/e02r2-r2-next-slice-design-20260929.md@sha256:b1dacb9affe9426fca5af6a9ed96fd0e3fe2348c6191f9719147e3b29fb7d42c`
+and the independent bounded GO is
+`/Users/deniskopylov/.codex/scratch/e02r2-r2-next-slice-design-review-20260930.md@sha256:bcc2e1962ba2889f0d1453e0a4c28dd24ac1097990bf13682a798036b01f044b`.
+
+**Pre-edit P41 admission.** The two whole test files at four refs are eight
+slots. Git verifies three `MISSING` history-file slots (Execution, E02, Main)
+and five present slots (four bridge-file slots plus current history). All five
+present tests are `UNRUN` for this slice while disk is below Denis's 8 GiB
+floor; they are not inherited reds. Write the noncanonical and wrong-schema
+tests first, then owner code. A marker-retaining byte-guard removal must turn
+the noncanonical test red, while canonical v1 history replays without a live
+currentness call and fresh unknown-currentness projection stays blocked. The
+installed-wheel owner replay needs a valid compiled/leaf/outer fixture; a
+direct owner call in that child is not a served ControlPlaneService proof.
+Record any unavailable installed served witness as `UNRUN`. Do not edit N6,
+S8 leaf, RunLifecycle, generated families, epochs, plans or register. Static
+checks may run; no pytest/build below the disk floor.
+
+## B111 downstream finite-admission amendment (2026-09-30)
+
+The first five-file B111 candidate at `915c04497a1404cf5024efccadb06a38303ca5d0`
+is a clean, attached branch, but its independent review is **NO-GO**:
+`/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111-independent-review.md@sha256:5c431d4186c7ad540ab303eefd51ca3f0e029fd1bd4f7d07a6cd3bcc88de997d`.
+This amendment keeps its five existing leased paths and gives the same writer
+exclusive access to three additional source owners:
+`policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py`,
+`policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py`,
+and `policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py`;
+and four mirrored test paths:
+`policy-engine/tests/unit/scientist/search/strategies/test_adapter.py`,
+`policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py`,
+`policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py`, and
+`policy-engine/tests/unit/scientist/search/test_pareto_transfer.py`.
+These seven added paths have candidate-HEAD blobs, in the order just listed:
+`fa68d647f511abd5851224ca66b00678ce4eda11`,
+`75b53531047e43e31dd4d12e6991ee03f6da7a79`,
+`ba4244c0c904224a0fa73cb8d4d10feb4e8acf37`,
+`01f309e3242a156c9b65df3fbb4efe29c026cf6c`,
+`e3e47990c5279e2378ab3aeb784854a08181b694`,
+`72714f78c14adcff1f5ec83f570eb188cccfd1bf`, and
+`43f738fab66ab5ee6b48cd013fea2f13a5b26fb6`.
+The writer merges current `codex/e02-r2` append-only before editing and stops
+on conflicts. No other writer may touch these twelve paths during this lease.
+
+**P40 bucket and acceptance.** Non-finite raw values entering champion choice,
+strategy training, or either registry intake are the same downstream-bypass
+class; repair the shared admission/consumption mechanism, not one caller.
+Present-but-malformed stage-B evaluation collapsing to the zero-evaluation
+fallback is a separate P04 status-lattice class. Reuse `SearchIteration`'s
+existing `missing`, `valid`, `invalid`, `unassessed` vocabulary and retain
+identity/reason; only truly absent evaluations may take the zero-evaluated
+fallback. The missing `rank_assessment` test fixture is a test-interface
+regression: supply a typed assessment, not a permissive runtime default.
+Exercise both production `ParetoRegistry.update` callers through its shared
+owner intake. A finite rank key with another non-finite raw objective channel
+must stay unassessed; an all-invalid set must produce no champion, frontier,
+or training row. Keep finite mixed and zero-evaluation controls. Avoid a new
+schema or status enum where the existing owner fields carry the distinction.
+The six touched whole test files at four refs are 24 P41 slots, **UNRUN** while
+free disk is below the 8 GiB floor; no inherited-red inference is authorized.
+Use only static checks until the floor is restored, then run focused witnesses
+and marker-retaining removal probes before a new independent code review.

@@ -1,5 +1,24 @@
 # E02-R2 final report draft
 
+## B153 exception-waiter follow-on at `25c787698` (2026-09-29)
+
+**Discrepancies first.** The earlier section below says the same-ID
+exception-waiter selector was not authored; it is now committed in
+`test_cas_01.py`. It has not been run. The first independent review rejected
+the test because its helper released the failed writer's lock; the corrected
+test gives that writer the production lock unchanged, asserts exact same ID
+and lock identity for both writers, and bounds waiter acquisition. Independent
+delta review gives GO for this test design only. The selector, exception-release
+removal probe, post-edit complete file, and four-base cells all remain `UNRUN`
+while disk free is below the agreed 8 GiB floor. The previous 17/17 and
+selected-file P41 results remain pinned to their older source/test blobs.
+
+**Conclusion.** The new witness is reviewable but B153 remains `partial` until
+the actual CAS path and mutant are run. This does not establish a distributed
+lock service or change R9's separate custody residual. The 282-row ledger
+remains 7 closed / 262 partial / 12 held / 1 open. Exact test blob, review
+citations, and run limits are in the B153 `BASELINES.md` addendum.
+
 ## Current B153 evidence update at `ec7229e7d` (2026-09-29)
 
 **Discrepancies first.** Execution and Main have no `test_cas_01.py` path (`MISSING`/`UNRUN`); the full Appendix A/B and touched-file P41 matrix remains incomplete. E02 head passed 5/5 and integration passed 17/17, with 16 pre-edit integration identities unchanged and one new collision/readback case. The available tests do not yet prove that a waiting same-ID writer for a distinct scoped view proceeds and persists its own view after the holder raises inside the CAS write.

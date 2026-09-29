@@ -283,6 +283,7 @@ def test_active_projection_flows_through_n8_without_changing_panel_profile(
     projected_profile = RealValueOwnerGateway(
         repo_root=scenario.authority.repo_root,
         catalog_overlay_path=scenario.overlay.overlay_path,
+        artifact_store=scenario.store,
         activated_observation_projection=projection,
     ).load_value_data_profile(
         candidate=candidate,
@@ -334,6 +335,7 @@ def test_single_active_observation_does_not_satisfy_n8_panel_floor(
         outcome=scenario.passport.variable_id,
         owner_access_ref="test://active-profile",
         overlay_path=scenario.overlay.overlay_path,
+        artifact_store=scenario.store,
         activated_observation_projection=projection,
     )
 
@@ -408,6 +410,7 @@ def test_n8_refuses_changed_selected_row_with_active_markers_retained(
             owner_access_ref="test://active-profile",
             overlay_path=scenario.overlay.overlay_path,
             scope_region="UA",
+            artifact_store=scenario.store,
             activated_observation_projection=projection,
         )
 

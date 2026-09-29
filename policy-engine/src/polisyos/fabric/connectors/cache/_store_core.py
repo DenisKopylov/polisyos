@@ -87,7 +87,7 @@ class ConnectorCacheStore:
         )
         self._namespace = namespace
         if tenant_id is None:
-            from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+            from polisyos.core.security import get_current_tenant_id_or_none
 
             tenant_id = get_current_tenant_id_or_none()
         self._tenant_id = tenant_id

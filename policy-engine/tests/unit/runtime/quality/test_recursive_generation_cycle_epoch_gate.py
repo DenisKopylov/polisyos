@@ -420,14 +420,26 @@ async def test_data_trust_modes_report_their_missing_owner_separately_from_eval_
 
 
 @pytest.mark.parametrize("intent", ["sandbox_pilot", "field_pilot", "deployment"])
+@pytest.mark.parametrize("binding_case", ["missing", "extra", "wrong_key"])
 @pytest.mark.asyncio
 async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4(
     tmp_path: Path,
     intent: str,
+    binding_case: str,
 ) -> None:
-    """Each EvalSafety-owned intent requires its own exact leaf context."""
+    """Protected modes reject any incomplete or widened leaf context mapping."""
 
-    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget, _problem
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _Atom,
+        _budget,
+        _Candidate,
+        _problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _non_simulation_execution_context,
+        _world_record,
+    )
 
     problem = _problem(f"eval_safety_denominator_{intent}_{uuid4().hex}")
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
@@ -438,6 +450,42 @@ async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n
         parent_child_edges=(),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
+    candidate = _Candidate(
+        candidate_id="eval_safety_denominator_candidate",
+        atom=_Atom(
+            "eval_safety_denominator_candidate",
+            "sha256:" + "4" * 64,
+            target_world_slots=("firm_survival",),
+        ),
+        diversity_key=("grant", "firms", "eval_safety_denominator", "baseline"),
+    )
+    context = _non_simulation_execution_context(
+        mode=intent,
+        candidate=candidate,
+        world=_world_record("7"),
+        problem=problem,
+    )
+
+    context_bindings = {
+        "missing": {},
+        "extra": {
+            root_ref: context,
+            "design-problem://extra-leaf": context,
+        },
+        "wrong_key": {"design-problem://different-leaf": context},
+    }[binding_case]
+
+    class N4CallSpy(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="eval-safety-denominator-spy")
+            self.calls = 0
+
+        async def __call__(self, problem: object, *, cycle_index: int) -> object:
+            del problem, cycle_index
+            self.calls += 1
+            raise AssertionError("invalid EvalSafety context mapping reached N4")
+
+    n4_spy = N4CallSpy()
     controller = build_default_recursive_generation_cycle_controller(
         repo_root=REPO_ROOT,
         promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
@@ -457,9 +505,11 @@ async def test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n
                 min_cycles_per_leaf=1,
                 max_cycles_per_leaf=1,
             ),
-            evaluation_contexts_by_node={},
+            n4_generation_ports_by_node={root_ref: n4_spy},
+            evaluation_contexts_by_node=context_bindings,
             execution_intents_by_node={root_ref: intent},
         )
+    assert n4_spy.calls == 0
 
 
 @dataclass(frozen=True)
@@ -1296,6 +1346,7 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
             evaluation_contexts_by_node=(
                 {root_ref: context} if context_bindings is None else context_bindings
             ),
+            execution_intents_by_node={root_ref: "field_pilot"},
         )
 
     current = await run_leaf(
@@ -1403,11 +1454,13 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         "eval_safety_consumer_admission_blocked",
     )
     assert owner_calls == ["load_value_data_profile"]
+    n4_calls_before_invalid_bindings = n4_calls
     for invalid_bindings in (
         {},
         {root_ref: fixture.execution_context, "design-problem://extra": fixture.execution_context},
         {"design-problem://cross-leaf": fixture.execution_context},
     ):
+        n4_calls_before_case = n4_calls
         with pytest.raises(
             RecursiveGenerationCycleError,
             match="recursive_eval_safety_context_denominator_mismatch",
@@ -1417,6 +1470,8 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
                 verifier=concrete_verifier,
                 context_bindings=invalid_bindings,
             )
+        assert n4_calls == n4_calls_before_case
+    assert n4_calls == n4_calls_before_invalid_bindings
 
     # Removal probe: keep the same typed run markers but remove candidate-band
     # treatment at the recursive owner boundary. The strict currentness gate

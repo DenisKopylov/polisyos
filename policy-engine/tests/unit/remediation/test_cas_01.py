@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import threading
 from datetime import UTC, datetime
 from pathlib import Path
@@ -408,17 +409,25 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
 
 
 def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path) -> None:
-    """A bounded registry retains the same lock for a live holder and waiter."""
+    """Three thousand IDs retain bounded locks and same-ID exclusion."""
     store = FileSystemCAS(tmp_path / "cas")
     active_id = ArtifactID.from_sha256_hex("a" * 64)
+    initial_pool_ids = {id(lock) for lock in store._artifact_locks}
     held_lock = store._artifact_lock(active_id)
     held_lock.acquire()
     waiter_started = threading.Event()
+    waiter_probed = threading.Event()
     waiter_acquired = threading.Event()
 
     def _waiter() -> None:
         candidate = store._artifact_lock(active_id)
         waiter_started.set()
+        if candidate.acquire(blocking=False):
+            waiter_acquired.set()
+            candidate.release()
+            waiter_probed.set()
+            return
+        waiter_probed.set()
         candidate.acquire()
         try:
             waiter_acquired.set()
@@ -429,15 +438,20 @@ def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path
     waiter.start()
     try:
         assert waiter_started.wait(timeout=2)
+        assert waiter_probed.wait(timeout=2)
         assert not waiter_acquired.is_set()
 
-        # Artificial pressure cap: only lock objects are created; no files are written.
-        key_count = 128
-        for index in range(key_count):
-            store._artifact_lock(_synthetic_artifact_id(index))
+        # The source-card discriminator allocates lock keys without CAS writes.
+        # Count the lock objects actually returned, not the owner's tuple size.
+        key_count = 3_000
+        returned_lock_ids = {
+            id(store._artifact_lock(_synthetic_artifact_id(index)))
+            for index in range(key_count)
+        }
 
         assert store._artifact_lock(active_id) is held_lock
-        assert len(store._artifact_locks) <= key_count
+        assert len(returned_lock_ids) <= len(initial_pool_ids)
+        assert returned_lock_ids <= initial_pool_ids
         assert not waiter_acquired.is_set()
     finally:
         held_lock.release()
@@ -445,6 +459,46 @@ def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path
 
     assert not waiter.is_alive()
     assert waiter_acquired.is_set()
+
+
+def test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests(tmp_path: Path) -> None:
+    """A benign lock collision may serialize writes but cannot alias records."""
+    store = FileSystemCAS(tmp_path / "cas")
+    initial_pool_size = len(store._artifact_locks)
+    by_lock: dict[int, tuple[ArtifactID, bytes]] = {}
+    collision: tuple[tuple[ArtifactID, bytes], tuple[ArtifactID, bytes]] | None = None
+    for index in range(initial_pool_size + 1):
+        data = f"cas-01-collision-{index}".encode()
+        artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
+        lock_identity = id(store._artifact_lock(artifact_id))
+        prior = by_lock.get(lock_identity)
+        if prior is not None:
+            collision = prior, (artifact_id, data)
+            break
+        by_lock[lock_identity] = artifact_id, data
+
+    assert collision is not None
+    (first_id, first_bytes), (second_id, second_bytes) = collision
+    assert first_id != second_id
+    assert first_bytes != second_bytes
+    assert store._artifact_lock(first_id) is store._artifact_lock(second_id)
+
+    options = _options("cas.stripe.collision", "application/octet-stream")
+    first_ref = store.put_bytes(first_bytes, options)
+    second_ref = store.put_bytes(second_bytes, options)
+
+    assert first_ref.artifact_id == first_id
+    assert second_ref.artifact_id == second_id
+    assert store.get_bytes(first_ref) == first_bytes
+    assert store.get_bytes(second_ref) == second_bytes
+    first_manifest = store.get_manifest(first_ref)
+    second_manifest = store.get_manifest(second_ref)
+    assert first_manifest.artifact_id == first_id
+    assert second_manifest.artifact_id == second_id
+    _assert_manifest_profile(first_manifest, options, data=first_bytes)
+    _assert_manifest_profile(second_manifest, options, data=second_bytes)
+    assert store.get_manifest(first_ref) == first_manifest
+    assert store.get_manifest(second_ref) == second_manifest
 
 
 def _historical_profile_fixture(schema_version: str) -> ArtifactManifest:

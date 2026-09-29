@@ -8,8 +8,8 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 6,
-    "partial": 263,
+    "closed": 7,
+    "partial": 262,
     "held": 12,
     "open": 1
   },
@@ -27,7 +27,7 @@
   "measurement_limits": [
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Complete four-base P41 status remains UNRUN unless a row cites a complete four-base receipt; current-head finding-specific witnesses do not fill that matrix. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
     "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. That 782-pinned census predates the 2026-09-28 N and LA-021 reconciliation. The current combined row census at 93affc59 is 5 closed / 264 partial / 12 held / 1 open across 282 findings.",
-    "The 18 Appendix-C no-record IDs retain their historical Appendix-C label. The 2026-09-28 finding-level reconciliation covers 13 rows from CYC-03, RES-02, STA-01, and SIM-03: B59 is closed bounded to declared-leaf isolation; B09 is open because a positive newly admitted-evidence discriminator is absent; the other 11 are partial. LA-021 is separately closed bounded after a complete 7,762-record tracked JSON/JSONL corpus comparison and owner behavioral tests. That adds a second closed row, yielding current statuses among the 18 historical no-record IDs of 2 closed / 15 partial / 1 open. The CYC/SIM tests retain their recorded 9e0/031e execution snapshots; the LA-021 JUnits ran at 031e and its 12 owner plus five test source blobs are unchanged through 93aff (receipt cited in the LA-021 row). This is not a full four-base P41 run. Exact 418-input architect selector and 140 shared caller-file replay remain UNRUN. See row-specific source and test evidence; package acceptance and source inference are not current test passes.",
+    "The 18 Appendix-C no-record IDs retain their historical Appendix-C label. The 2026-09-28 finding-level reconciliation covers 13 rows from CYC-03, RES-02, STA-01, and SIM-03: B59 is closed bounded to declared-leaf isolation; B09 is open because a positive newly admitted-evidence discriminator is absent; the other 11 are partial. LA-021 is separately closed bounded after a complete 7,762-record tracked JSON/JSONL corpus comparison and owner behavioral tests. At the 2026-09-28 cutoff this added a second closed row (2 closed / 15 partial / 1 open among 18). The later B88 exact-card closure on 2026-09-29 moves that historical no-record group to 3 closed / 14 partial / 1 open; B09 remains the single open row. The CYC/SIM tests retain their recorded 9e0/031e execution snapshots; the LA-021 JUnits ran at 031e and its 12 owner plus five test source blobs are unchanged through 93aff (receipt cited in the LA-021 row). This is not a full four-base P41 run. Exact 418-input architect selector and 140 shared caller-file replay remain UNRUN. See row-specific source and test evidence; package acceptance and source inference are not current test passes.",
     "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 87 engineering / 13 principal decision drafts / 18 typed blockers, as summarized in FINAL_REPORT.md. This reclassification does not change finding status or provide implementation evidence. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
     "H14 current add75 row walk (14 IDs): status=12 held, 2 bounded closed (LA-010, LA-049), 0 open; blocker kinds among the 12 held are owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027), data_record=3 (B61, B219, LA-031), smallest_missing_capability=3 (B194, B197, LA-032). The LA-only migration audit memo's 6/2/4 partition places B219 in smallest_missing_capability; the separate B219 current audit and ledger row establish data_record because the pinned NetworkX 3.6.1 runtime artifact is unavailable while the implementation owner exists. This disagreement is explicit and resolved from the complete 14-row current ledger plus B219 owner audit. Current head add75e473; source census receipts: /Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b; /Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4. The two LA closures are bounded to in-repository owner/caller contracts; external/history compatibility is not blanket-scoped. No four-base P41 is claimed.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
@@ -8029,16 +8029,16 @@
       "closure_owner": "ING-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "no_finding_level_record",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
+        "detail": "Appendix C's no_finding_level_record label is historical. The 2026-09-29 card audit plus the exact 0d8 served whole-file receipt supports closed-bounded status for B88's stated replay discriminator. No fresh whole-file JUnit was run at patch cutoff 8ca88499; future transport families are outside this finding's closure scope."
       },
-      "residual": "Historical exact 44a whole-file served replay plus mode-owner run passed 19/19; those tests traversed the real route and ReplayStore/CAS/APISimulator, and missing/corrupt fixtures stayed in replay without ordinary fallback. At committed source/test head 0d8c7b9, the normal record_mode producer-to-served-replay ArtifactID handoff is now bounded PASS: the issuer returns canonical str(ArtifactID), and the served consumer parses that same ref through the runtime-supplied tenant store; the test confirms captured request/response and evidence-bundle identity. This closes only that handoff subclaim. Complete connector-transport egress coverage and publisher source-update-time semantics remain unestablished; the selected two-file P41 cohort is complete at 0d8 with 3 Git-MISSING and 5 PRESENT PASS slots and no common pass-to-fail. Keep B88 partial.",
+      "residual": "Closed bounded for the exact B88 source-card discriminator: missing/corrupt stored replay remains a truthful replay refusal with no ordinary-ingestion fallback or native egress, while successful served replay consumes the stored request binding and response bytes and binds the resulting evidence under the runtime-supplied tenant store. The normal record-mode producer returns the canonical ArtifactID consumed unchanged by served replay. The exact 0d8 whole-file receipt is 20/20; no fresh JUnit was run at patch cutoff 8ca88499. The selected two-file four-ref P41 result remains separate (3 Git-MISSING, 5 PRESENT PASS, no common pass-to-fail). No other B88-card residual is retained; hypothetical future transport families are outside this bounded claim.",
       "residual_owner": {
-        "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
+        "appointment_status": "The OP-R13 owner roles are named in OPEN_PREMISES.md; the source-side issuer/record and individual appointment are not established.",
         "kind": "implementation_owner",
-        "name": "ControlPlaneService replay dispatch/response owner plus replay evidence and connector transport owners"
+        "name": "No open owner action against the exact B88 card. Separate OP-R13-SOURCE-UPDATE owner roles: Data Forge acquisition/overlay types and verifies the source-time binding; source publisher or authorized custodian supplies update/as-of meaning."
       },
       "r_class": null,
       "p_triage": null,
@@ -8285,6 +8285,64 @@
             "inventory_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/B88_P41_FOUR_BASE_INVENTORY.md@sha256:352f5294fa92e09f2622d1f8f4e8bf000ac8ee6666d69a734becde86fdbec470",
             "scope": "The served B88 test file exists only at the current integration head; test_modes has no common pass-to-fail identities. This completes the selected two-file four-ref cohort, not finding closure or all-transport egress."
           }
+        },
+        "b88_exact_card_closure_20260929": {
+          "identity": "B88 exact source-card closure audit (bounded)",
+          "status": "closed",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L2275-L2288",
+          "audit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-ing01-audit-20260929/B88_ING01_AUDIT.md@sha256:a037e0072eecc91450be5c78bcc7dfc0764b75dd594c7d02ac9ae2bdb321965a#B88",
+          "execution_commit": "0d8c7b9cdecc06d46329f099af2f252438090a04",
+          "test_result": "20 tests, 20 passed, 0 failed, 0 errors, 0 skipped; exit 0 at the execution commit.",
+          "whole_file_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-modes-final.xml@sha256:6bdaf735c6dc782dad664d51026842eebab4616e35e0247ff1c1feda9c9d4967",
+          "card_discriminating_test_identities": [
+            "tests.unit.runtime.http.test_b88_served_replay::test_served_replay_fixture_failures_do_not_fall_back_to_ordinary_ingestion[missing-request-fixture]",
+            "tests.unit.runtime.http.test_b88_served_replay::test_served_replay_fixture_failures_do_not_fall_back_to_ordinary_ingestion[corrupt-response-bytes]",
+            "tests.unit.runtime.http.test_b88_served_replay::test_served_replay_loads_the_cas_session_and_binds_fixture_output_to_evidence",
+            "tests.unit.runtime.http.test_b88_served_replay::test_served_record_ref_replays_its_exact_response_and_evidence",
+            "tests.unit.runtime.http.test_b88_served_replay::test_served_ordinary_ingestion_remains_available_without_replay_reference",
+            "tests.unit.fabric.data_plane.test_modes::test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure",
+            "tests.unit.fabric.data_plane.test_modes::test_run_replay_mode_fixture_failure_stays_in_replay_transport[missing-fixture]",
+            "tests.unit.fabric.data_plane.test_modes::test_run_replay_mode_fixture_failure_stays_in_replay_transport[corrupt-fixture]",
+            "tests.unit.fabric.data_plane.test_modes::test_run_replay_mode_uses_recorded_bytes_without_native_transport"
+          ],
+          "marker_retaining_removal_probe_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-record-ref-removal-red.xml@sha256:c308e95e452cc3fae5469bc68139e3438a8e23fa8b513c150bf305495993e80a",
+          "test_first_red_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-served-record-replay-corrected.xml@sha256:a580fd2616f5a3f139fcce895407ee49a1c255c26a85c7ecfddd67af870d5384",
+          "preserving_control": "Ordinary served ingestion without a replay_ref passes in the 20/20 whole-file JUnit; adjacent importer and tenant-custody files pass 9/9 at the same candidate snapshot.",
+          "adjacent_importer_tenant_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-importer-custody.xml@sha256:afa7c57393eef058dd1954bce96c0bc4dc12ace687e2501b45ebca88903c0deb",
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/B88_INDEPENDENT_REVIEW.md@sha256:b1a8adec4dd50f076729cb8ab3a7aad7bf678576362cc5a330db5fbc2fb79ae9",
+          "review_scope": "GO for the record-ref producer-to-consumer slice only; the reviewer explicitly did not close B88. Exact-card closure is the separate read-only source-card audit cited above.",
+          "implementation_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/B88_IMPLEMENTATION_RECEIPT.md@sha256:bf8b9ef2062e35f224364ea8c82383dda7a6e074ac48ce616dcbe854f2eff5a5",
+          "source_test_blob_identity": {
+            "policy-engine/src/polisyos/fabric/data_plane/modes.py": {
+              "execution_git_blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+              "patch_cutoff_git_blob": "198ca13aac6a3edf29120f530b155cb9139d38da"
+            },
+            "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py": {
+              "execution_git_blob": "c5f8ea5baacb18bda96ea41925c69b554c3b890d",
+              "patch_cutoff_git_blob": "c5f8ea5baacb18bda96ea41925c69b554c3b890d"
+            },
+            "policy-engine/tests/unit/fabric/data_plane/test_modes.py": {
+              "execution_git_blob": "cbb2ca67709d4f3bcbb695945795cf6acabbe103",
+              "patch_cutoff_git_blob": "cbb2ca67709d4f3bcbb695945795cf6acabbe103"
+            },
+            "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+              "execution_git_blob": "be50a2752d210d299a4a9c92ca424f5888da8b28",
+              "patch_cutoff_git_blob": "44408ec780524453e39650070031f0c8a6875bc4",
+              "audit_note": "Blobs differ by a separate additive job_execution block after the unchanged ingestion-route block; see the cited audit memo. No fresh JUnit at patch cutoff 8ca88499 is claimed."
+            }
+          },
+          "patch_cutoff_head": "8ca88499f66e33876e4a79efa32c3c2afca974fd",
+          "patch_cutoff_junit": "UNRUN; no fresh whole-file test was executed at patch cutoff 8ca88499f66e33876e4a79efa32c3c2afca974fd.",
+          "four_base_p41": "Kept separate from finding closure: the selected two-file cohort at 0d8 has 3 Git-MISSING and 5 PRESENT PASS cells, with no common pass-to-fail; the lane-wide four-base matrix remains incomplete.",
+          "p41_manifest_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T050021Z-55812/results.json@sha256:1932f7265e9e8b5862e9183ce0f3d755891aa995b26e7132453078e144c4b4c1",
+          "outside_card_premise": {
+            "identity": "OP-R13-SOURCE-UPDATE",
+            "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:cfd6fe8e6418c658da44b8eed1d7ea1968fff9f1#OP-R13-SOURCE-UPDATE",
+            "owner": "Data Forge acquisition/overlay types and verifies the source-time binding; source publisher or authorized custodian supplies update/as-of meaning.",
+            "status": "not_established; separate from B88 and not a B88 closure condition."
+          },
+          "scope_boundary": "Closes the exact B88 card for the currently supported served replay path and observed aiohttp transport. It does not claim every hypothetical future connector transport."
         }
       },
       "finding_test_status": "PASS_BOUNDED",

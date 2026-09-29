@@ -1,5 +1,40 @@
 # E02-R2 write leases
 
+## Active handoff (2026-09-29; canonical `c0cb70b88`)
+
+Root alone writes `codex/e02-r2`. The R13 selected-row candidate was reviewed,
+integrated at `c0cb70b88`, and its source/test lease is released. Its four
+touched test files pass 64/64 on that exact head; the integrated JUnit is
+`/Users/deniskopylov/.codex/scratch/e02-r13-integrated-c0cb70b88-20260929.xml@sha256:a03f77a26a4b8a1dfb46056d7943203300052e55ce7a90435114cbd1b03ac3c6`.
+R13 remains partial because selected admitted values are not yet shown in the
+problem-bound WMR consumed by served N5.
+
+The R2 history writer now exclusively leases the clean, attached reusable
+`codex/e02-r2-r1-candidate` worktree at `fd9375ae4` for these four paths:
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`,
+`policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`,
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`,
+and `policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`.
+The independently reviewed narrow seam validates exact persisted N6 history
+before model normalization and keeps currentness separate; broad model
+extraction is not admitted. The writer must freeze a test-first candidate for
+independent review before root integrates it. No other writer may edit those
+four files meanwhile.
+
+R1's controlled-profile witness writer owns only a scratch patch to
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py`. R14's
+runtime-contract writer owns only a scratch patch to
+`policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py` and
+`policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py`.
+Neither may edit canonical files. Read-only P41 planning and the separate
+`OPEN_PREMISES.md` blocker addenda hold no source lease. The complete R1
+control-service four-cell reconciliation is pinned in
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-single-base-control-service-20260929T000807Z-47844/reconciliation.json@sha256:c2cddee57b8d4d6c73a368a94f8d3bc09a1c980699bdf69016d0f66fb7fac782`;
+its five Main-to-integration pass→fail identities require repair or a
+principal-level disposition. Source trees remain frozen while their tests run.
+Keep at least 8 GiB free disk, approximately 20–30% free RAM, and at most
+four to five light test groups; heavy native jobs run alone.
+
 ## R13 selected-row active-read integrity sublease (2026-09-29; canonical head `7dd9616dce28ab0892a9e76148f001db8ed7245a`)
 
 The first R13 Slice A design was not admitted: a selected-row projection used only by tests has no production consumer. Independent bounded review instead permits strengthening the existing Data Forge active-admission read, already called by `AcquisitionWorldGrowthBridge.resume` before served re-entry. The production property is that a selected active row's current value and decisive coordinates still match the source-derived admission content even if its ID, member keys, counts and receipt markers are unchanged. This slice must remain explicitly partial: it does not put the selected value into the problem-bound WMR or N5, does not qualify source-time semantics, and grants no S8/promotion/publication authority. Design and review: `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-n5-design-20260929.md@sha256:5cd9f2151f0231edcfcb1a07955513bd3aa74b582ce2622dd675c75fe6387673`; `/Users/deniskopylov/.codex/scratch/e02-r13-design-review-20260929/R13_SLICE_A_REVIEW.md@sha256:bfa9b09d9d1cd0f47bf27989ea68c30f032a0f210dcf164d0e0e38ba8c4cc182`.

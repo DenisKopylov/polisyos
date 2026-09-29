@@ -22,11 +22,44 @@ independent delta review. Do not edit the R13 `generation_cycle.py` owner.
 
 The R13 selected-row writer retains the correction lease below and its saved
 WIP recovery patch. Qualified DesignProblem outcome grammar, the frozen N6
-history predicate, provider schema, and generated families are under design
-review; no widened source lease is active yet. The shared canonical-variable
-contract premise is recorded separately in `OPEN_PREMISES.md` and does not
-block the exact WDI candidate route. Root alone writes canonical files and
-the package documents. Keep at least 8 GiB disk and 20–30% RAM free.
+history predicate, provider schema, and generated families have the bounded
+lease below. The shared canonical-variable contract premise is recorded
+separately in `OPEN_PREMISES.md` and does not block the exact WDI candidate
+route. Root alone writes canonical files and package documents. Keep at least
+8 GiB disk and 20–30% RAM free.
+
+## R13 exact WDI qualified-outcome lease (2026-09-29)
+
+After independent design review
+`/Users/deniskopylov/.codex/scratch/e02-r13-qualified-outcome-v3-review-20260929/QUALIFIED_OUTCOME_V3_REVIEW.md@sha256:2f1113ddbf4a622d60d26f67beeb9937b6d1f40799000c341828478db8139cdf`,
+the one R13 selected-row candidate writer may additionally edit these exact
+paths on its attached candidate branch:
+`policy-engine/src/polisyos/runtime/quality/design_problem.py`,
+`policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py`,
+`policy-engine/tests/unit/runtime/quality/test_design_problem.py`,
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`,
+`policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py`,
+and the already-leased served WDI test
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`.
+Its existing `generation_cycle.py` source lease covers only a necessary
+version-aware historical typed-edge adaptation and N8 source-time propagation;
+do not rewrite frozen v1/v2/v3 graphs or the R2 scalar RootModel repair.
+
+The v1 default and byte history remain intact; v2 retains qualified
+`target_slot` but strict unqualified outcome; v3 admits the exact qualified
+outcome, while standalone `OutcomeOfInterest` remains strict in runtime and
+JSON Schema. Keep v2 projection decoding. Test runtime/schema parity and a
+marker-retaining version-gate removal, replay every pinned historical N6
+record, and exercise a served WDI row whose `government.balance` identity is
+set before problem hashes and reaches N8 by exact admitted row content.
+Syntactically valid but unbound variables remain typed data gaps; source update
+time remains `not_established`. The candidate may regenerate only the
+DesignProblem contract and changed registered OpenAPI/client dependents through
+their owner commands, inspecting every delta before committing. A nonempty
+public schema/client delta needs a release fragment; no governed receipt, epoch,
+or trust pin may be restamped. The generated-artifact family is serialized:
+the R1 writer must not run its owner in parallel. Freeze candidate source/tests
+and obtain independent full-delta review before root integrates it.
 
 ## Sequential R2 historical N6 projector lease (2026-09-29)
 

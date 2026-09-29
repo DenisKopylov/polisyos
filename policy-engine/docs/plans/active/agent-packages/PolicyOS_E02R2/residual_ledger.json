@@ -8021,7 +8021,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "B88 remains partial. Exact integrated test commit 44a7441eb: complete test_b88_served_replay.py 4/4 plus test_modes.py 15/15 passed 19/19; direct source/test blobs are unchanged at 3ec377af. Current served tests traverse the real replay route and ReplayStore/CAS/APISimulator; success checks request hash and exact fixture response bytes, while missing/corrupt fixtures stay failed in replay with zero ordinary delegate calls and zero native aiohttp requests. R13 separately proves runtime-store tenant custody for fixture-issued identity, but is not a B88 replacement receipt. Production run_record_mode issuance provenance, complete connector-transport egress instrumentation and finding-specific four-base P41 remain UNRUN. Old 8ed1/624a5f1 “route tests stub run_replay_mode” statement is historical and superseded by the 44a witness.",
+      "residual": "Historical exact 44a whole-file served replay plus mode-owner run passed 19/19; those tests traversed the real route and ReplayStore/CAS/APISimulator, and missing/corrupt fixtures stayed in replay without ordinary fallback. At committed source/test head 0d8c7b9, the normal record_mode producer-to-served-replay ArtifactID handoff is now bounded PASS: the issuer returns canonical str(ArtifactID), and the served consumer parses that same ref through the runtime-supplied tenant store; the test confirms captured request/response and evidence-bundle identity. This closes only that handoff subclaim. Complete connector-transport egress coverage and publisher source-update-time semantics remain unestablished; the selected two-file P41 cohort is complete at 0d8 with 3 Git-MISSING and 5 PRESENT PASS slots and no common pass-to-fail. Keep B88 partial.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -8055,8 +8055,8 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "At exact test commit 44a7441eb, complete B88 served route and mode files pass 19/19. Tests traverse the real route, ReplayStore/CAS/APISimulator and response evidence for selected fixtures, superseding the old captured statement that served-route tests stubbed run_replay_mode. Normal record-mode issuance provenance, all-connector coverage and four-base P41 remain open. Keep partial.",
-          "next_step": "Exercise normal run_record_mode issuance followed by runtime-store served replay with missing/corrupt no-fallback controls, census connector transports, and run finding-specific four-base P41."
+          "summary": "At exact test commit 44a7441eb, complete B88 served route and mode files pass 19/19. Tests traverse the real route, ReplayStore/CAS/APISimulator and response evidence for selected fixtures, superseding the old captured statement that served-route tests stubbed run_replay_mode. Normal record-mode issuance provenance, all-connector coverage and four-base P41 remain open. Keep partial. Later exact 0d8 evidence below supersedes only the normal record-reference producer-to-served-consumer gap; it does not close B88.",
+          "next_step": "With normal record-mode issuance and served replay of the returned ArtifactID witnessed at 0d8, the remaining B88 residuals are complete connector-transport egress coverage and publisher source-update-time semantics where claimed."
         },
         "r2_ledger_reconciliation_additions": [
           {
@@ -8151,6 +8151,127 @@
           "residual_owner": "ControlPlaneService replay dispatch and record/replay provenance owners; connector transport owners",
           "next_signal": "Exercise normal run_record_mode issuance followed by runtime-store served replay with missing/corrupt no-fallback controls, census connector transports, and run finding-specific four-base P41.",
           "four_base_p41": "UNRUN"
+        },
+        "b88_prechange_baseline_607": {
+          "identity": "B88 exact integration-head prechange whole-file baseline",
+          "source_revision": "6078721758bada9a67d73bd5856471e4497a0336",
+          "behavioral_verdict": "PASS_BASELINE",
+          "denominator": "two complete test files: test_b88_served_replay.py and test_modes.py",
+          "result": "19/19 PASS, 0 failures/errors/skips",
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/RECEIPT.md@sha256:a846c001d40892294887c42915f67e9236d7835e0c0520cf5fdec089454c887d",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-modes.junit.xml@sha256:4c615c4038e1244ee6f904d7697aaeffcdb5d2605e0c11c1c722393688ce8aab",
+          "scope": "One integration-head prechange observation; not a four-base P41 comparison."
+        },
+        "b88_normal_record_ref_handoff_0d8": {
+          "identity": "B88 normal record-mode ArtifactID is consumed unchanged by served replay",
+          "source_revision": "0d8c7b9cdecc06d46329f099af2f252438090a04",
+          "reviewed_candidate_base": "6078721758bada9a67d73bd5856471e4497a0336",
+          "status_retained": "partial",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "whole_file_results": [
+            {
+              "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+              "passed": 4,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            {
+              "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+              "passed": 16,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          ],
+          "total": {
+            "passed": 20,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-modes-final.xml@sha256:6bdaf735c6dc782dad664d51026842eebab4616e35e0247ff1c1feda9c9d4967",
+          "adjacent_importer_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-importer-custody.xml@sha256:afa7c57393eef058dd1954bce96c0bc4dc12ace687e2501b45ebca88903c0deb",
+          "test_first_red_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-served-record-replay-corrected.xml@sha256:a580fd2616f5a3f139fcce895407ee49a1c255c26a85c7ecfddd67af870d5384",
+          "marker_retaining_removal_red_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/b88-record-ref-removal-red.xml@sha256:c308e95e452cc3fae5469bc68139e3438a8e23fa8b513c150bf305495993e80a",
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/B88_INDEPENDENT_REVIEW.md@sha256:b1a8adec4dd50f076729cb8ab3a7aad7bf678576362cc5a330db5fbc2fb79ae9",
+          "implementation_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b88-exact-607872175-20260929/B88_IMPLEMENTATION_RECEIPT.md@sha256:bf8b9ef2062e35f224364ea8c82383dda7a6e074ac48ce616dcbe854f2eff5a5",
+          "source_test_release_blob_refs_at_0d8": [
+            "policy-engine/src/polisyos/fabric/data_plane/modes.py@git-blob:198ca13aac6a3edf29120f530b155cb9139d38da",
+            "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py@git-blob:c5f8ea5baacb18bda96ea41925c69b554c3b890d",
+            "policy-engine/tests/unit/fabric/data_plane/test_modes.py@git-blob:cbb2ca67709d4f3bcbb695945795cf6acabbe103",
+            "policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b88-record-ref.toml@git-blob:4060bb6ae9e55d8bb02d4f0d512e434df6e16dc1"
+          ],
+          "scope": "Normal served record_mode=True issuance returns canonical str(ArtifactID); the served replay consumes that returned ID without translation from the runtime-supplied tenant-bound store. The test checks one authorized native GET during record, no replay GET, the stored session request hash/body, normalized evidence rows/content hash, one replay call, and foreign-tenant refusal. Ordinary ingestion is a separate positive control.",
+          "residual": "This proves the selected normal producer-to-served-consumer ID handoff only. The egress probe covers the tested aiohttp seam and selected request, not every connector transport; publisher source-update-time semantics remain unestablished. The two-file P41 cohort is measured separately and does not close B88.",
+          "four_base_p41": "Two complete test files × four refs: 3 Git-MISSING, 5 PRESENT PASS, 0 PRESENT FAIL/UNRUN, and 0 common pass-to-fail; bounded selected cohort, not B88 closure.",
+          "p41_four_base_0d8": {
+            "identity": "B88 exact four-ref whole-file replay at 0d8c7b9",
+            "source_revision": "0d8c7b9cdecc06d46329f099af2f252438090a04",
+            "denominator": "2 complete test files × 4 refs = 8 cells",
+            "git_presence": {
+              "missing": 3,
+              "present": 5
+            },
+            "present_outcomes": {
+              "pass": 5,
+              "fail": 0,
+              "unrun": 0
+            },
+            "common_identity_pass_to_fail": 0,
+            "cells": [
+              {
+                "ref": "78187878ee188ff6d27442ba1498bd094da9785b",
+                "test_file": "tests/unit/runtime/http/test_b88_served_replay.py",
+                "status": "MISSING"
+              },
+              {
+                "ref": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+                "test_file": "tests/unit/runtime/http/test_b88_served_replay.py",
+                "status": "MISSING"
+              },
+              {
+                "ref": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+                "test_file": "tests/unit/runtime/http/test_b88_served_replay.py",
+                "status": "MISSING"
+              },
+              {
+                "ref": "0d8c7b9cdecc06d46329f099af2f252438090a04",
+                "test_file": "tests/unit/runtime/http/test_b88_served_replay.py",
+                "status": "PASS",
+                "passed": 5
+              },
+              {
+                "ref": "78187878ee188ff6d27442ba1498bd094da9785b",
+                "test_file": "tests/unit/fabric/data_plane/test_modes.py",
+                "status": "PASS",
+                "passed": 6
+              },
+              {
+                "ref": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+                "test_file": "tests/unit/fabric/data_plane/test_modes.py",
+                "status": "PASS",
+                "passed": 12
+              },
+              {
+                "ref": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+                "test_file": "tests/unit/fabric/data_plane/test_modes.py",
+                "status": "PASS",
+                "passed": 6
+              },
+              {
+                "ref": "0d8c7b9cdecc06d46329f099af2f252438090a04",
+                "test_file": "tests/unit/fabric/data_plane/test_modes.py",
+                "status": "PASS",
+                "passed": 15
+              }
+            ],
+            "harness_exit_code": 2,
+            "exit_explanation": "The harness classified three verified Git-MISSING placeholders as suite_status=UNRUN; all five present pytest children exited 0.",
+            "manifest_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T050021Z-55812/results.json@sha256:1932f7265e9e8b5862e9183ce0f3d755891aa995b26e7132453078e144c4b4c1",
+            "inventory_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/B88_P41_FOUR_BASE_INVENTORY.md@sha256:352f5294fa92e09f2622d1f8f4e8bf000ac8ee6666d69a734becde86fdbec470",
+            "scope": "The served B88 test file exists only at the current integration head; test_modes has no common pass-to-fail identities. This completes the selected two-file four-ref cohort, not finding closure or all-transport egress."
+          }
         }
       },
       "finding_test_status": "PASS_BOUNDED",

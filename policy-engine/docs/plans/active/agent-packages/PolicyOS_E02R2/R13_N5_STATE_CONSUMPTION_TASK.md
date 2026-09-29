@@ -25,19 +25,45 @@ the WMR can change N5's numerical input. This is the P38 divergent case.
 
 ## Owner-first work that can proceed now
 
-1. Enumerate the actual selected engine runners and their typed state inputs.
-   Name the existing Foundry state-snapshot reader and the policy-slot mapping
-   owner for each proposed engine. Do not flatten an arbitrary `GlobalState`
-   into model variables or introduce a second world-growth writer.
-2. At the N5 request owner, consume the verified WMR's
-   `bound_state_snapshot_ref` through that Foundry reader on the runtime-supplied
-   tenant-bound store. For one engine with an admitted typed mapping, bind the
-   exact state field, source state hash, slot rule/version, and engine input in
-   the run evidence. An engine without such a mapping retains a typed
-   candidate limitation; ordinary no-acquisition candidate computation remains
-   available on explicitly declared inputs. Any hashed DTO extension needs a
-   schema bump and historical serializer.
-3. Keep the canonical Data Forge overlay → passport → native-epoch admission
+1. Use the existing N5 `program_graph` runner as the first controlled engine.
+   It already calls Foundry's `execute_program_graph` for each horizon step.
+   Resolve the WMR's exact `bound_state_snapshot_ref` through Foundry's
+   `load_state_snapshot` on N5's injected tenant-bound `ArtifactStore`. Supply
+   that state as `program_base_state` and its typed `StateSnapshotRef` as
+   `program_base_ref`; do not accept a caller-supplied state or store in their
+   place. `WorldModelSimulationInput.to_execute_request` and Foundry's public
+   `execute` own whole-plan execution, but they are not drop-in replacements
+   for this N5 horizon loop.
+2. Require `program_graph_ref` in the WMR's
+   `simulation_model_ref.program_graph_refs`, load the `ExecPlan` through the
+   injected store, verify its `program_ref` matches that graph, and resolve
+   registry/runtime objects through WMR-bound Foundry owners. The WMR v1 has
+   no `exec_plan_ref`: graph association does not establish the plan's order
+   or provenance. Persist `exec_plan_provenance=not_established` as a typed
+   candidate limitation and prevent N9, S8 and publication from treating this
+   run as authority. A foreign graph or tenant must refuse; an unresolvable
+   plan cannot run. Hold the exact plan fixed across the
+   two-state numerical probe. The controlled fixture must establish that every
+   WMR input uses a selector-free primary CAS view *before* WMR v1 reduces its
+   refs to bare IDs. WMR v1 cannot replay an
+   `ArtifactRef.manifest_profile_sha256` selected view. Multi-view source
+   custody stays in the existing R9/P07 residual and cannot gain authority
+   through this slice. Do not use caller hint objects to claim WMR plan
+   authority. Keep the ordinary no-acquisition candidate path on its
+   explicitly declared inputs. Owner-bound plan issuance is a separate
+   capability/decision, with a versioned WMR transition if it adds a field.
+3. Persist the actual consumption in the content-bound N5 result: typed state
+   snapshot wrapper ref, loaded state blob hash, graph/plan identities, and
+   the typed `PolicySlotBinding` state path with the WMR's `state_slot_digest` relevant
+   to the observed output. The binding DTO has no independent rule-version
+   field today; any rule-version requirement remains an explicit owner premise.
+   New writes require a bumped result version; v1 artifacts must dispatch to
+   a historical DTO and receipt projection preserving their original payload
+   semantics and bytes. A marker-only receipt does not establish that the
+   engine used the state. Other N5 engines need their own owner-approved
+   typed state mappings before they may claim WMR consumption; do not flatten
+   arbitrary `GlobalState` into NCM evidence or system-dynamics stocks.
+4. Keep the canonical Data Forge overlay → passport → native-epoch admission
    as the only world-growth path. Once a source-approved row-to-state rule
    exists, have the DataState/S1 owner emit new payload bytes behind
    `DataSnapshot.data_ref`, then call existing WMR/Foundry binding owners. The
@@ -59,6 +85,14 @@ as that bounded engineering result, not as proof that WDI changed the world.
 - The SKG owner must establish whether its prior was derived from the changed
   snapshot, or carry an explicit unchanged-prior limitation. Copying a new
   snapshot ID onto the old prior is not derivation evidence.
+- The WMR/Foundry plan owner must bind an exact `ExecPlanRef` and its execution
+  order to the graph and registry before an authority-grade N5 claim can use
+  this route. WMR v1 records only graph refs and the registry bundle; the
+  controlled slice therefore remains candidate-grade with explicit plan
+  provenance `not_established`.
+- The core CAS/WMR owners must carry a selected manifest-view identity through
+  persisted references before this route may claim multi-view replay. The
+  current WMR v1 bare IDs do not establish it (existing R9/P07 class).
 - The serving-scope owner must bind a refreshed context to the active job lease
   and authenticated tenant/cell. A context marker without a live scope check
   is insufficient. These premises are recorded in `OPEN_PREMISES.md` under
@@ -67,11 +101,13 @@ as that bounded engineering result, not as proof that WDI changed the world.
 ## Acceptance and falsifiers
 
 - **Controlled positive:** two owner-produced WMR/Foundry state snapshots have
-  different values at one declared engine slot while runtime hints and markers
-  remain identical. The selected N5 engine input and persisted receipt change
-  with the state, and a reader reopens the exact consumed bytes. Remove only
-  the state-to-engine handoff while leaving WMR/receipt markers; this test must
-  turn red. A no-acquisition candidate route remains usable.
+  different values at one declared `program_graph` slot while runtime hints,
+  graph, exact loaded plan and markers remain identical. The actual Foundry runner receives
+  the changed `base_state`, its numerical N5 output changes, and a reader
+  reopens the content-bound consumption receipt with the typed plan limitation.
+  Remove only the state-to-engine
+  handoff while leaving WMR/receipt markers; this test must turn red. A
+  no-acquisition candidate route remains usable.
 - **Served acquisition positive, later:** one admitted physical row changes
   the S1 payload, DataSnapshot, Foundry state, refreshed context, and N5 engine
   input under a current tenant/job lease. Its output stays candidate-grade
@@ -81,15 +117,18 @@ as that bounded engineering result, not as proof that WDI changed the world.
   changed state. A source with unsupported unit/time or no declared slot emits
   a typed limitation and does not masquerade as the USD slot.
 
-The exact source/test write lease must be proposed and independently reviewed
-before code changes. Likely owners include `runtime/quality/generation_cycle.py`,
-`runtime/quality/joint_simulation_horizon.py`, the existing Foundry state reader,
-`runtime/quality/data_state_substrate.py`, and
-`runtime/quality/acquisition_world_growth.py`; these are a census target, not
-permission to edit every file. Candidate tests belong in the mirrored unit
-files and `tests/integration/core_runtime/test_acquisition_world_growth_chain.py`
-and `test_acquisition_tenant_custody.py`. Four-base whole-file P41 and the
-served removal probe are `UNRUN`. Use the existing linked read-only
+The exact source/test write lease must be independently reviewed before code
+changes. The first lease should cover N5 request construction in
+`runtime/quality/generation_cycle.py`, the Foundry snapshot/plan/registry
+readers and `execute_program_graph` write path needed to accept the injected
+`ArtifactStore` without unwrapping or rebuilding it, and N5's existing
+`runtime/quality/joint_simulation_horizon.py` runner and versioned result
+reader/persistence, and mirrored controlled-profile tests. DataState, WDI,
+SKG, and served lease refresh are a separate follow-on after their owner
+contracts are known. The served acquisition tests belong in
+`tests/integration/core_runtime/test_acquisition_world_growth_chain.py` and
+`test_acquisition_tenant_custody.py`; they cannot be claimed by the controlled
+slice. Four-base whole-file P41 and the removal probe are `UNRUN`. Use the existing linked read-only
 `production_data`, `JAX_PLATFORMS=cpu`, a measured native-resource budget, and
 the 8 GiB free-disk floor. No GY/Atlas plan or debt-register row is changed by
 this task draft.

@@ -386,21 +386,11 @@ def _checked_interaction_orders(
 def _interaction_coverage(
     request: JointSimulationRequest,
     trajectories: Sequence[SimulationTrajectory],
-    *,
-    temporal_capability: TemporalCapability | None = None,
 ) -> _InteractionCoverage:
     """Index only exact, complete request scopes and return typed coverage issues."""
 
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
-    # Only the selected registry decision may narrow a multi-step request to
-    # one static point. Producer trajectory diagnostics are content, not proof
-    # of the engine's temporal capability.
-    temporal = temporal_capability
-    expected_steps = (
-        (request.horizon.start,)
-        if temporal == "static"
-        else request.horizon.steps()
-    )
+    expected_steps = request.horizon.steps()
     expected = {
         (level, tuple(atom.intervention_id for atom in subset))
         for level, subset in _atom_subsets(request.intervention_atoms)
@@ -980,7 +970,6 @@ class JointSimulationHorizonController:
             coverage = _interaction_coverage(
                 request,
                 trajectories,
-                temporal_capability=decision.temporal_capability,
             )
             interaction_evidence_issues = coverage.issues
             interaction_terms = tuple(
@@ -1091,9 +1080,23 @@ class JointSimulationHorizonController:
         selectors = self._engine_selectors(request.world_model_record)
         decisions: list[EngineDecision] = []
         fallback_plan = request.engine_plan[0]
+        requested_step_count = len(request.horizon.steps())
         for plan in request.engine_plan:
             selector = selectors.get(plan.engine_kind, self._select_registry_method_engine)
             decision = selector(plan)
+            if (
+                decision.decision == "selected"
+                and decision.temporal_capability == "static"
+                and requested_step_count > 1
+            ):
+                decision = _unsupported(
+                    plan,
+                    "static_engine_cannot_ground_dynamic_horizon",
+                    (
+                        "static_engine_temporal_capability",
+                        "requested_horizon_has_multiple_steps",
+                    ),
+                )
             decision = self._resolve_engine_semantics(plan, decision)
             if decision.decision == "selected":
                 coupling_support = _resolve_coupling_support(

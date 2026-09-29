@@ -445,6 +445,68 @@ def test_selected_outcome_and_engine_horizon_are_part_of_the_basis(
     assert result.higher_order_residuals == {}
 
 
+def test_static_ncm_cannot_shrink_a_multi_step_requested_horizon(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B26: a static engine cannot turn an unmeasured requested horizon additive."""
+
+    calls: list[None] = []
+
+    def fixed_outcome(state: Any, params: Any) -> dict[str, Any]:
+        del state, params
+        calls.append(None)
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
+    request = _request_with_atom_count(2)
+    request = request.model_copy(
+        update={
+            "horizon": request.horizon.model_copy(update={"end": 3})
+        }
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert result.feedback_classification.numeric_interaction == "unsupported"
+    assert result.engine_decisions[0].decision == "unsupported"
+    assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
+    assert result.trajectories == ()
+    assert calls == []
+    assert "static_engine_temporal_capability" in result.engine_decisions[0].blockers
+
+
+def test_static_ncm_single_step_horizon_remains_additive(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B26: a genuinely single-point NCM request retains its measured result."""
+
+    def fixed_outcome(state: Any, params: Any) -> dict[str, Any]:
+        del state, params
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
+    request = _request_with_atom_count(2)
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert request.horizon.steps() == (0,)
+    assert result.engine_decisions[0].decision == "selected"
+    assert result.feedback_classification.numeric_interaction == "additive"
+    assert result.feedback_classification.checked_interaction_orders == (1, 2)
+
+
 def test_four_atom_cancellation_is_bounded_aggregate_not_additive(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

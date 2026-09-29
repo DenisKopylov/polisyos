@@ -2461,3 +2461,15 @@ At exact integration HEAD `0cf4afa19fb52b4b4e84b4f8bd5e76732639eedf`, the post-e
 **Discrepancy first.** The whole `test_acquisition_world_growth_chain.py` file passed 12/12, but its served WDI admission/readback path reaches N5 and then returns a typed refusal before N8. A successful second N5 evaluation of the same candidate against a refreshed problem-bound WMR remains UNRUN. This witness therefore does not close B09's positive world-growth/re-entry behavior.
 
 The exact-source receipt is `/Users/deniskopylov/.codex/scratch/e02-r13-integrated-20260929/INTEGRATED_R1_R13_RECEIPT.md@sha256:ae77faf57bbf32604c35b006e9515a95885ff06ad4424d9b201e1cc64a6fd898`; whole-file JUnit `/Users/deniskopylov/.codex/scratch/e02-r13-integrated-20260929/world/junit.xml@sha256:dcdb0faef056dde1020bd44f26a9971454ab6364e37b1a26abeef2d14b812430`. This is one pinned integration witness; exact-current and four-base P41 for the positive refreshed-WMR path remain UNRUN. The B09 residual stays open in the ledger.
+
+## R7 current-source active-probe removal probe — bounded (2026-09-29)
+
+**Scope limits.** This selected probe is not R7 class closure, four-base P41 attribution, or proof of all-transport/public-network egress closure. Candidate `25f01088d` runtime and test blobs match canonical `5034ede60`: executor `399fc8d459ebb71169ded1da375e59c9dc24ecea`, live acquisition tests `820984b7ebbb1d00aac728d6d8dd087d29541899`, and ordinary partition control `dafe1d5d9ca0491991d21c1abf90a38e276f1545`.
+
+Baseline and restored runs each passed 3/3. The marker-retaining permit-removal mutant ran the governed intercepted-transport and ordinary partition selectors: 1 failed / 1 passed. The governed test observed an unauthorized US `NY.GDP.MKTP.CD` health request before the authorized UKR request; the ordinary active-health control remained green. Transport was intercepted and sockets were forbidden; no real network request was made.
+
+- Baseline: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/baseline-logged.junit.xml@sha256:e893fae5433c4a2a80f2812c52f65efc2b772a988e7aa0d706f3a699b83c9716`
+- Mutant: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/mutant.junit.xml@sha256:171302e69d19cdc7ac6d36bdda68cc743d405a76e7582d7d3be92ccdc4450239`
+- Restored: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/restored.junit.xml@sha256:a718725d38f83955d47d68dec6518910ad436a19bf4efb8d3e728a52a882d210`
+- Full receipt: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/R7_ACTIVE_PROBE_CURRENT_SOURCE_RECEIPT.md@sha256:8d0a1e667699e76b85dbe5b9424fac824840c7ec2a76a9a0523c2d6e3d6acec0`
+- Independent current-source review: `/Users/deniskopylov/.codex/scratch/e02-r7-current-probe-20260929/R7_ACTIVE_PROBE_INDEPENDENT_REVIEW.md@sha256:91d23fc2027fa11dbb5b625d6704be13f805d7860a09cb717cc0335bc464c8b5` — GO for this bounded property/removal witness; not class closure.

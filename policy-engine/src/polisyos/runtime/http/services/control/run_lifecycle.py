@@ -3080,6 +3080,54 @@ class ControlPlaneService(
         """Replay normative authority once for every outward job-record reader."""
         if record.kind == "natural_language_run" and record.state == "completed":
             progress = dict(record.progress)
+            try:
+                if not record.payload_ref:
+                    raise RuntimeError("nl_job_execution_intent_not_established")
+                intent_binding = self._require_nl_job_execution_intent_binding(
+                    job=record,
+                    payload=self._load_payload_ref(record.payload_ref),
+                )
+            except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+                # If persisted intent cannot be replayed, keep the normative
+                # reader's existing fail-closed path below.
+                intent_binding = None
+            if (
+                intent_binding is not None
+                and intent_binding.get("admission_status") == "established"
+                and intent_binding.get("intent_band")
+                in {
+                    "candidate_only",
+                    "data_trust_required",
+                    "simulate_only_attempt",
+                }
+            ):
+                # These server-bound bands terminate before S8. Mutable progress
+                # cannot turn that terminal computation into a normative refusal
+                # or an authorized projection. Rebuild the outward S8 status from
+                # the replayed launch intent and drop any forged/stale projection.
+                progress["execution_intent_band"] = intent_binding["intent_band"]
+                progress["execution_intent_limitation_code"] = (
+                    "data_trust_owner_not_established"
+                    if intent_binding["intent_band"] == "data_trust_required"
+                    else None
+                )
+                progress["s8_status"] = "not_run"
+                progress["normative_disposition_status"] = "not_run"
+                progress["publication_status"] = "not_run"
+                for key in (
+                    "normative_disposition",
+                    "normative_disposition_ref",
+                    "normative_head_ref",
+                    "normative_head_strangle_receipt",
+                    "normative_head_limitation",
+                    "promotion_refusal_reasons",
+                    "ranked_recommendations",
+                    "authorization_status",
+                ):
+                    progress.pop(key, None)
+                if intent_binding["intent_band"] != "simulate_only_attempt":
+                    progress.pop("compiled_recursive_generation_cycle_ref", None)
+                return replace(record, progress=progress)
             stored_disposition_ref = progress.get("normative_disposition_ref")
             stored_compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
             copied_head_ref = progress.pop("normative_head_ref", None)
@@ -4512,6 +4560,90 @@ class ControlPlaneService(
                                 str(capability_manifest_ref),
                                 str(proposal_ref.artifact_id),
                             ],
+                        )
+                        return
+                    if intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        # The candidate route is allowed to compute without the
+                        # owner context needed by the recursive authority chain.
+                        # A compiler adapter returning the other union member
+                        # cannot upgrade that persisted intent into N5/N9/S8 or
+                        # publication.
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        limitation_code = (
+                            "candidate_only_compiled_result_not_admitted"
+                        )
+                        intent_limitation = execution_intent_limitation
+                        event_id = self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type=(
+                                "polisyos.runtime.diagnostic.phase_transition.v1"
+                            ),
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(
+                                    capability_manifest_ref
+                                ),
+                                "execution_band": "candidate",
+                                "candidate_computation_status": (
+                                    "not_established"
+                                ),
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": (
+                                    intent_limitation
+                                ),
+                                "limitation_code": limitation_code,
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_run",
+                                    "s8": "not_run",
+                                },
+                                "publication_status": "not_run",
+                            },
+                            artifact_refs=[str(capability_manifest_ref)],
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "not_established",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "not_established",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": intent_limitation,
+                            "limitation_code": limitation_code,
+                            "stage": "candidate_only_result_not_admitted",
+                            "proposal_persistence_status": "not_run",
+                            "candidate_proposal_ref": None,
+                            "n4_status": "not_established",
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_run",
+                            "s8_status": "not_run",
+                            "normative_disposition_status": "not_run",
+                            "publication_status": "not_run",
+                            "run_id": run_id,
+                            "runtime_diagnostic_event_status": (
+                                "persisted" if event_id is not None else "not_established"
+                            ),
+                        }
+                        if event_id is None:
+                            progress[
+                                "runtime_diagnostic_event_limitation_code"
+                            ] = "diagnostic_event_owner_scope_not_established"
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
                         )
                         return
                     if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:

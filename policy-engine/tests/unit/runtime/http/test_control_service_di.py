@@ -875,6 +875,124 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
 
 
 @pytest.mark.asyncio
+async def test_candidate_only_compiled_worker_result_stops_before_s8_or_publication(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A compiler adapter cannot upgrade candidate-only intent by changing result type."""
+
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+
+    service = _build_control_service(tmp_path)
+    try:
+        claims = _fixture_claims()
+        request = NaturalLanguageRunRequest(
+            request="Explore one ordinary policy option.",
+            llm_model="simulated-qwen",
+        )
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        adapter_result = CompiledRecursiveGenerationCycleRun.model_construct()
+        serializer_calls: list[dict[str, object]] = []
+
+        def serialize_adapter_result(
+            _self: CompiledRecursiveGenerationCycleRun,
+            **kwargs: object,
+        ) -> dict[str, object]:
+            serializer_calls.append(dict(kwargs))
+            return {"adapter_result": "compiled"}
+
+        monkeypatch.setattr(
+            CompiledRecursiveGenerationCycleRun,
+            "model_dump",
+            serialize_adapter_result,
+        )
+
+        async def return_compiled_adapter_result(**kwargs: object) -> object:
+            assert kwargs["execution_intent"] == "candidate_only"
+            assert kwargs["root_evaluation_context"] is None
+            return adapter_result
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "compile_and_run_recursive_generation_cycle",
+            return_compiled_adapter_result,
+        )
+
+        persisted_results: list[object] = []
+
+        def persist_result(payload: object, **kwargs: object) -> str:
+            persisted_results.append((payload, kwargs))
+            return "sha256:" + "a" * 64
+
+        monkeypatch.setattr(service, "_put_json_artifact", persist_result)
+        s8_calls: list[dict[str, object]] = []
+
+        def resolve_s8_forbidden_for_candidate_intent(
+            _self: ControlPlaneService,
+            **kwargs: object,
+        ) -> object:
+            s8_calls.append(dict(kwargs))
+            raise AssertionError("candidate-only compiled result entered S8")
+
+        publication_calls: list[dict[str, object]] = []
+
+        def publish_forbidden_for_candidate_intent(
+            _self: ControlPlaneService,
+            **kwargs: object,
+        ) -> str:
+            publication_calls.append(dict(kwargs))
+            raise AssertionError("candidate-only compiled result was published")
+
+        monkeypatch.setattr(
+            ControlPlaneService,
+            "resolve_generation_value_choices",
+            resolve_s8_forbidden_for_candidate_intent,
+        )
+        monkeypatch.setattr(
+            ControlPlaneService,
+            "_publish_generation_run",
+            publish_forbidden_for_candidate_intent,
+        )
+
+        service._process_control_job(record)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+        assert completed.progress["status"] == "not_established"
+        assert completed.progress["execution_band"] == "candidate"
+        assert completed.progress["candidate_computation_status"] == "not_established"
+        assert completed.progress["execution_intent_band"] == "candidate_only"
+        assert completed.progress["execution_intent_limitation_code"] is None
+        assert (
+            completed.progress["limitation_code"]
+            == "candidate_only_compiled_result_not_admitted"
+        )
+        assert completed.progress["candidate_proposal_ref"] is None
+        assert completed.progress["n5_status"] == "not_run"
+        assert completed.progress["n8_status"] == "not_run"
+        assert completed.progress["n9_status"] == "not_run"
+        assert completed.progress["s8_status"] == "not_run"
+        assert completed.progress["normative_disposition_status"] == "not_run"
+        assert completed.progress["publication_status"] == "not_run"
+        assert serializer_calls == []
+        assert persisted_results == []
+        assert s8_calls == []
+        assert publication_calls == []
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("normative_mode", ["missing", "authorized", "wrong_role", "wrong_source"])
 async def test_process_nl_job_enters_persisted_tenant_scope(
     monkeypatch: pytest.MonkeyPatch,
@@ -886,7 +1004,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         REPO_ROOT,
         _budget,
         _CgfGenerationPort,
-        _problem,
+        _lane0_cycle_context,
     )
 
     service = _build_control_service(tmp_path)
@@ -896,7 +1014,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             "_legacy_policy_promotion_callers",
             lambda repo_root: (),
         )
-        problem = _problem(f"worker_epoch_strangle_{uuid4().hex}")
+        problem, cycle_substrate_context = _lane0_cycle_context()
 
         async def compile_problem(**kwargs):
             del kwargs
@@ -930,6 +1048,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
                 budget_state=_budget(),
                 recursive_budget=recursive_budget,
                 root_n4_generation_port=_CanonicalFixtureN4Port(),
+                cycle_substrate_context=cycle_substrate_context,
                 promotion_runtime=service._promotion_runtime,
                 root_evaluation_context=_explicit_simulation_execution_context(problem),
                 eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
@@ -977,57 +1096,67 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
         assert completed.state == "completed"
-        assert completed.progress["promotion_refusal_reasons"] == [
-            "epoch_validity_refused:policy_admission_missing"
-        ]
-        compiled_ref = ArtifactID.model_validate(
-            completed.progress["compiled_recursive_generation_cycle_ref"]
+        assert completed.progress["status"] == "not_established"
+        assert completed.progress["execution_band"] == "candidate"
+        assert completed.progress["candidate_computation_status"] == "not_established"
+        assert completed.progress["execution_intent_band"] == "candidate_only"
+        assert completed.progress["execution_intent_limitation_code"] is None
+        assert (
+            completed.progress["limitation_code"]
+            == "candidate_only_compiled_result_not_admitted"
         )
-        assert service._artifact_store.get_manifest(compiled_ref).kind == (
-            "runtime.compiled_recursive_generation_cycle"
+        assert completed.progress["candidate_proposal_ref"] is None
+        assert completed.progress["n4_status"] == "not_established"
+        assert completed.progress["n5_status"] == "not_run"
+        assert completed.progress["n8_status"] == "not_run"
+        assert completed.progress["n9_status"] == "not_run"
+        assert completed.progress["s8_status"] == "not_run"
+        assert completed.progress["normative_disposition_status"] == "not_run"
+        assert completed.progress["publication_status"] == "not_run"
+        assert "promotion_refusal_reasons" not in completed.progress
+        assert "compiled_recursive_generation_cycle_ref" not in completed.progress
+        assert "normative_disposition_ref" not in completed.progress
+
+        # Mutable progress is not authority. Leave the persisted launch binding
+        # candidate-only while attempting to smuggle a protected intent and an
+        # apparently authorized S8 projection through the job reader.
+        forged_progress = dict(completed.progress)
+        forged_progress.update(
+            {
+                "execution_intent_band": "eval_safety_required",
+                "execution_intent_limitation_code": "forged",
+                "s8_status": "authorized",
+                "normative_disposition_status": "authorized",
+                "publication_status": "published",
+                "compiled_recursive_generation_cycle_ref": "sha256:" + "a" * 64,
+                "normative_disposition_ref": "sha256:" + "b" * 64,
+                "normative_disposition": {
+                    "authorization_status": "authorized",
+                    "ranked_recommendations": ["forged-candidate"],
+                },
+                "promotion_refusal_reasons": ["forged-refusal"],
+            }
         )
-        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
-        )
-        leaf = persisted.recursive_run.leaf_nodes[0]
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.promotion_port.reason == (
-            "epoch_validity_refused:policy_admission_missing"
-        )
-        # PA1: the real worker must persist an owner-replayable normative refusal.
-        assert completed.progress.get("normative_disposition_ref"), (
-            "default worker omitted the source-bound normative decision request"
+        service._control_store.update_progress_state(
+            job_id=launch.job_id,
+            state="completed",
+            progress=forged_progress,
         )
         status = service.get_job_status(launch.job_id)
-        disposition = status.progress["normative_disposition"]
-        projected_leaf = next(iter(disposition["leaf_dispositions"].values()))
-        assert projected_leaf["candidate_fronts"] == {
-            name: list(ids) for name, ids in leaf.cycle_run.fronts.candidate_ids_by_front().items()
-        }
-        assert projected_leaf["dominance_status"] == "not_established"
-        assert disposition["strangle_receipt"]["default_flipped"] is True
-        if normative_mode == "authorized":
-            assert disposition["authorization_status"] == "authorized"
-            assert disposition["ranked_recommendations"]
-            expired = service._current_normative_generation_projection(
-                disposition_ref=completed.progress["normative_disposition_ref"],
-                compiled_run_ref=str(compiled_ref),
-                evaluated_at=datetime.now(UTC) + timedelta(days=2),
-            )
-            assert expired["authorization_status"] == "blocked"
-            assert expired["ranked_recommendations"] == []
-            assert next(iter(expired["leaf_dispositions"].values()))["decision_request"][
-                "reason_codes"
-            ] == ["p20_normative_authorization_stale"]
-        else:
-            assert disposition["authorization_status"] == "blocked"
-            assert disposition["ranked_recommendations"] == []
-            expected = {
-                "missing": "p20_normative_authorization_missing",
-                "wrong_role": "p20_normative_authority_scope_mismatch",
-                "wrong_source": "p20_normative_generation_binding_mismatch",
-            }[normative_mode]
-            assert projected_leaf["decision_request"]["reason_codes"] == [expected]
+        assert status.progress["execution_intent_band"] == "candidate_only"
+        assert status.progress["execution_intent_limitation_code"] is None
+        assert status.progress["limitation_code"] == (
+            "candidate_only_compiled_result_not_admitted"
+        )
+        assert status.progress["n5_status"] == "not_run"
+        assert status.progress["s8_status"] == "not_run"
+        assert status.progress["publication_status"] == "not_run"
+        assert status.progress["normative_disposition_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in status.progress
+        assert "normative_disposition" not in status.progress
+        assert "normative_disposition_ref" not in status.progress
+        assert "ranked_recommendations" not in status.progress
+        assert "promotion_refusal_reasons" not in status.progress
     finally:
         service.close()
 

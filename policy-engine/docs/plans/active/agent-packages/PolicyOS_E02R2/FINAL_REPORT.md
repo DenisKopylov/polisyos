@@ -23,6 +23,12 @@ This corrects a P41 selection/reporting discrepancy only; it changes no finding
 status. The NL Main→d103 selected pass→fail identity remains owner-attribution
 `UNRESOLVED` pending input-closure reconciliation.
 
+### R13 one-base results: 49 cases pinned, 8 revision not established
+
+**Discrepancy first.** Four whole-file JUnits record 57/57 passes. Only 49 cases—overlay 40/40 and world-growth 9/9—are authenticated by the run receipt to pre-edit `73815191`. Activation/readback 2/2 and native qualification 6/6 are green, but their revision attribution is `not_established`. The complete four-file × four-base P41 replay remains **UNRUN** in the retained record; the earlier partial three-file matrix is recorded separately. The 738-pinned cases are pre-edit evidence; the other eight are not attributed to that revision. Neither proves post-change R13 behavior or class closure. Detailed rows and citations are in the R13 `BASELINES.md` section. R13 remains partial; no finding status or ledger count changes.
+
+The separate `OPEN_PREMISES.md` remains the durable source for unresolved data contracts, evidence and owner appointments; this addendum records test outcomes only. At the pinned parent its blob is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:c46212afdcf9374ea7ae372b0209d5ebab7db800`.
+
 ### R1/R13 focused pre-edit P41 wave at `df5188a` (2026-09-28)
 
 This separate eight-cell wave covers control-service DI and the current cycle

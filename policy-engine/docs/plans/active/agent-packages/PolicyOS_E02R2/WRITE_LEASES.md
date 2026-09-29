@@ -1247,3 +1247,17 @@ not authorize source/test changes, a ParetoRegistrySnapshot non-finite codec,
 canonical branch edits, migration-contract edits, or register/plan changes.
 Root alone integrates this separate documentation commit. Release/promotion
 remains blocked until the owning gate has reviewed the migration evidence.
+
+## B111 migration runbook precision follow-up (2026-09-29)
+
+After the docs commit `5b2e45ffb8b1dea6cc26e11e0efda08e4d616957`, one docs-only
+writer may add the B111 v3 no-old-reader-downgrade and hold/forward-repair rule
+to `policy-engine/docs/runbooks/migration-release-promotion.md`, and qualify
+the writer-version language in
+`policy-engine/ops/migrations/ir/README.md` and
+`policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b111-frontier-v3.toml`.
+The fourth and final editable path is this candidate `WRITE_LEASES.md` copy.
+No source/test, migration-contract, generated, debt-register, or plan path is
+leased. Preserve explicit v1/v2 historical serialization; do not imply a safe
+downgrade or a writer-disable switch. Root alone integrates the separate
+follow-up commit.

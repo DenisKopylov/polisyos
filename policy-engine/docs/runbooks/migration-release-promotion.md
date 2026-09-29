@@ -60,8 +60,26 @@ Record:
   incident owner both classify it as emergency rollback.
 - For runtime-state changes, prefer export/dual-read compatibility over
   destructive cleanup.
-- For API and IR schema changes, roll back generated clients/snapshots together
-  with the code that produced them.
+- For API/OpenAPI generated clients and IR schema snapshots, roll back those
+  generated surfaces together with the code that produced them. This applies
+  to generated clients and snapshots; it does not authorize rewriting
+  persisted artifact bytes. Follow the owning migration-class README for
+  persisted-artifact recovery.
+
+### B111 Scientist frontier artifact v3
+
+For `PolicyFrontierReport` and `RejectedAlternativesSummary`, follow the
+[IR migration guidance](../../ops/migrations/ir/README.md#scientist-frontier-artifact-v3).
+Before the first schema-v3 write, hold deployment until every consumer can read
+v3. This B111 slice adds no separate writer-disable switch, so the rollout must
+use a reader-only compatible release or a coordinated no-write interval before
+the v3 writer build is deployed. If neither can be established, hold release.
+
+After any v3 bytes exist, do not downgrade a consumer to a strict v1/v2-only
+reader. Do not delete, rewrite, restamp, or reissue v3 or historical artifacts
+as a rollback substitute. Keep a v1/v2/v3-compatible reader available; if that
+cannot be maintained, hold affected consumers and repair forward before
+resuming promotion.
 
 ## Escalation Owner
 

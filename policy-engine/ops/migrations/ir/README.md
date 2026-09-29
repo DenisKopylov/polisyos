@@ -39,7 +39,9 @@ artifact owner defines their payload semantics; the `ir_migration_review`
 class gate governs persisted-schema compatibility evidence. This section does
 not cover or claim closure of `ParetoRegistrySnapshot` serialization.
 
-Current writers emit schema `3.0`. Each v3 Pareto projection carries
+The default ordinary new-producer path emits schema `3.0`. Payloads explicitly
+versioned as `1.0` or `2.0` remain persistable through their historical
+serializers for replay. Each v3 Pareto projection carries
 `eligible_candidate_hashes`, the complete identity denominator used to bind
 assessment status to omitted candidates. The shared projection contract checks
 the denominator count and status-specific omission identities before either

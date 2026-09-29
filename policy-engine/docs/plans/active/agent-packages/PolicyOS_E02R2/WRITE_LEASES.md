@@ -1,6 +1,62 @@
 # E02-R2 write leases
 
+## R1 controlled N4 source identity in served candidate N5 (2026-09-30)
+
+One direct R1 writer may edit only
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py` in the
+canonical `codex/e02-r2` worktree after root confirms this lease. This
+supersedes the wider two-test-file R1 served-source lease below for this
+controlled slice; `test_normative_generation_bridge.py` is not included.
+Root owns commits and integration. B111's Scientist paths and R13's N5
+runtime paths do not overlap; no second writer edits this test concurrently.
+
+Use the existing typed N4 port and GenerationSourceRepository on the served
+controlled-profile fixture. Capture the candidate actually passed to N5,
+reopen the same-run GenerationSourceHandoff, resolve it for the exact problem
+and cycle, and require a nonempty equal expected/retained identity set plus
+candidate ID and atom-content-hash equality. Keep the fixture's synthetic
+candidate lineage and profile `not_established`; this does not prove N5
+resolves source custody, production profile admission, real data/time, S8,
+N9, or publication. A marker-retaining source-link removal must make the
+persisted-custody assertion red, while ordinary no-owner candidate work and
+direct explicit-N4-without-context refusal remain. Current exact-head
+four-base P41 and removal runs are `UNRUN` below the 8 GiB disk floor. The
+writer may perform static checks, but no resource-bearing test until the
+floor and RAM reserve are satisfied. Independent review precedes commit.
+
+Design: `/Users/deniskopylov/.codex/scratch/e02-r1-controlled-owner-bridge-audit-20260930/R1_CONTROLLED_OWNER_BRIDGE_AUDIT.md@sha256:4d8735c6e7de6725a5a627210a88c194e64c3f05aa54729ffa0aaa4d94259541`.
+
 ## B111 registry-to-result assessment propagation (queued 2026-09-29; `e17d550bb`)
+
+### Independent-review expansion (2026-09-30)
+
+The first candidate at `d11775516` is **NO-GO** under independent review
+`/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111-independent-review-final.md@sha256:1ee4143adc6741b3e9ea3c2651d65e014d3196a749ff98ed3a65e2b5f583ee56`.
+Its source lease also includes
+`policy-engine/src/polisyos/scientist/policy_design/objectives.py`, the shared
+typed rank-assessment owner. The writer may extend only these mirrored tests:
+`policy-engine/tests/unit/scientist/search/test_contracts.py`,
+`policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py`,
+`policy-engine/tests/unit/scientist/search/test_pareto_transfer.py`,
+`policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py`,
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_design.py`,
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py`,
+and `policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`.
+No second B111 writer shares the candidate worktree. The same P40 class is
+typed-but-unadmitted evaluation crossing best/acceptance/frontier/report
+boundaries. Fix the shared assessment and route both SearchController paths,
+the configured-objective producer, direct registry intake, hierarchy report,
+and registry-free legacy front through it. Preserve the distinct P04 rule:
+only genuinely absent typed data may use the legacy scalar path; present
+invalid/unassessed data may not. Strict JSON must retain non-finite invalid
+observations through a typed owner codec, without bare NaN/Infinity tokens or
+historical restamping. Review the expanded candidate independently before
+root cherry-picks any commit. The 8 GiB disk floor currently leaves tests and
+four-base P41 `UNRUN`; static checks may proceed. Mixed finite/unassessed
+input must still select a finite assessed candidate with typed partial
+coverage; all-invalid input emits no champion or global frontier. A
+registry-free legacy list has no coverage status and remains candidate-only
+until an owner-backed assessed projection replaces it.
 
 After the R14 candidate below is reviewed and integrated or rejected, one
 direct B111 writer may reuse its clean existing candidate worktree. Root alone

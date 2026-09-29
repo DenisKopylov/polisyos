@@ -1,5 +1,24 @@
 # E02-R2 write leases
 
+## B88 served record-ref replay slice (2026-09-29; canonical `607872175`)
+
+Root alone writes the canonical B88 slice while R1 and R13 remain isolated in
+their candidate worktrees. Complete direct caller census and test design:
+`/Users/deniskopylov/.codex/scratch/e02-b88-record-replay-design-607872175-20260929/B88_RECORD_REPLAY_WITNESS_DESIGN.md@sha256:b238b3b03abed1a2d1fe204fbdbf0f2a91b4cab81c1ec1bef39910db9e3ef6b2`.
+The exact writable set is `policy-engine/src/polisyos/fabric/data_plane/modes.py`,
+`policy-engine/tests/unit/fabric/data_plane/test_modes.py`, and
+`policy-engine/tests/unit/runtime/http/test_b88_served_replay.py`, plus this
+lease, `policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b88-record-ref.toml`,
+and later reviewed package reports. No `run_lifecycle.py` edit is leased;
+the R1 candidate retains it. The served test-first red proves that the normal
+record issuer returns bare hex while the replay reader requires a canonical
+`sha256:` ArtifactID. Repair the producer's public ref to the canonical ID,
+without rewriting retained sessions or trusting a mode label. Preserve the
+missing/corrupt-fixture no-egress negatives and ordinary-ingestion control;
+verify complete touched test files and a marker-retaining fallback removal
+probe. Do not infer publisher source time or all-transport egress coverage.
+Keep the 8 GiB disk floor and source frozen during every test run.
+
 ## Active owner corrections at `20b110f7b` (2026-09-29)
 
 Root committed the bounded R2 historical `ArtifactID` scalar-wire repair at

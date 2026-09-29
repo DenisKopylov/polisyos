@@ -9,6 +9,7 @@ from typing import Any, ClassVar
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactID
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceBundle
@@ -20,6 +21,7 @@ from polisyos.fabric.connectors.base import (
     ConnectionHandle,
     HealthStatus,
 )
+from polisyos.fabric.connectors.cache import ResultSerializer
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.testing.simulator import (
     APISimulator,
@@ -179,7 +181,7 @@ def _capture_replay(monkeypatch: pytest.MonkeyPatch):
     return simulators, native_requests
 
 
-def _post_ingest(client, headers, *, replay_ref: str | None):
+def _post_ingest(client, headers, *, replay_ref: str | None, record_mode: bool = False):
     return client.post(
         "/api/v1/control/data/ingest",
         headers=_with_fresh_step_up(client, headers),
@@ -190,6 +192,7 @@ def _post_ingest(client, headers, *, replay_ref: str | None):
             "execution_mode": "batch_full",
             "produce_data_snapshot": False,
             "replay_ref": replay_ref,
+            "record_mode": record_mode,
         },
     )
 
@@ -361,6 +364,127 @@ class _FakeResponse:
     async def __aexit__(self, exc_type, exc, tb) -> bool:
         del exc_type, exc, tb
         return False
+
+
+def test_served_record_ref_replays_its_exact_response_and_evidence(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The served record issuer and reader use the same tenant-bound store."""
+
+    _register_connector()
+    client, cell_id, headers = _secure_control_client(
+        runtime_api_env,
+        role=PolicyOSRole.ANALYST,
+        case_id="b88-served-record-to-replay",
+    )
+    import aiohttp
+
+    from polisyos.fabric.connectors.testing import simulator as simulator_module
+
+    raw_body = b'[{"value":716,"marker":"b88-issued-session"}]'
+    expected_rows = json.loads(raw_body)
+    expected_bytes = json.dumps(
+        expected_rows, sort_keys=True, separators=(",", ":")
+    ).encode()
+    expected_hash = "sha256:" + hashlib.sha256(expected_bytes).hexdigest()
+    canonical_url = _canonicalize_url(_URL, None)
+    request_hash = _request_hash("GET", canonical_url, "none", b"")
+    native_requests: list[tuple[str, str]] = []
+    simulators: list[APISimulator] = []
+    original_simulator = simulator_module.APISimulator
+
+    def capture_simulator(**kwargs: Any) -> APISimulator:
+        simulator = original_simulator(**kwargs)
+        simulators.append(simulator)
+        return simulator
+
+    def exact_record_request(self, method: str, url: str, **kwargs: Any):
+        del self, kwargs
+        normalized = _canonicalize_url(str(url), None)
+        native_requests.append((method, normalized))
+        assert (method, normalized) == ("GET", canonical_url)
+        return _FakeResponse(normalized, raw_body)
+
+    def forbid_replay_network(self, method: str, url: str, **kwargs: Any):
+        del self, kwargs
+        native_requests.append((method, str(url)))
+        raise AssertionError("replay attempted an unrecorded network request")
+
+    monkeypatch.setattr(simulator_module, "APISimulator", capture_simulator)
+    monkeypatch.setattr(aiohttp.ClientSession, "_request", exact_record_request)
+
+    with client:
+        container = client.app.state.runtime_container
+        store = container.runtime_api_context.store
+        assert container.control_service._artifact_store is store
+
+        recorded_response = _post_ingest(
+            client, headers, replay_ref=None, record_mode=True
+        )
+        assert recorded_response.status_code == 200
+        recorded = recorded_response.json()
+        assert recorded["status"] == "completed"
+        assert recorded["mode_effective"] == "record"
+        assert recorded["datasets_fetched"] == 1
+        record_ref = recorded["record_ref"]
+        assert record_ref is not None
+        assert record_ref.startswith("sha256:")
+        assert recorded["evidence_bundle_ref"] is not None
+        assert native_requests == [("GET", canonical_url)]
+
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
+            issued_session = ReplayStore(store).load_record_session(
+                ArtifactID.model_validate(record_ref)
+            )
+            assert len(issued_session.fixtures) == 1
+            fixture = issued_session.fixtures[0]
+            assert fixture["request_method"] == "GET"
+            assert fixture["request_url"] == canonical_url
+            assert fixture["request_hash"] == request_hash
+            assert base64.b64decode(fixture["body"]) == raw_body
+
+        monkeypatch.setattr(aiohttp.ClientSession, "_request", forbid_replay_network)
+        replay_response = _post_ingest(client, headers, replay_ref=record_ref)
+        assert replay_response.status_code == 200
+        replayed = replay_response.json()
+        assert replayed["status"] == "completed"
+        assert replayed["mode_effective"] == "replay"
+        assert replayed["datasets_fetched"] == 1
+        assert replayed["evidence_bundle_ref"] is not None
+        assert native_requests == [("GET", canonical_url)]
+        assert len(simulators) == 2
+        assert simulators[1].call_count == 1
+        assert simulators[1].call_log[0]["hash"] == request_hash
+
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
+            for bundle_ref in (
+                recorded["evidence_bundle_ref"],
+                replayed["evidence_bundle_ref"],
+            ):
+                bundle_id = ArtifactID.model_validate(
+                    bundle_ref
+                    if bundle_ref.startswith("sha256:")
+                    else f"sha256:{bundle_ref}"
+                )
+                bundle = EvidenceBundle.model_validate(
+                    from_canonical_bytes(store.get_bytes(bundle_id))
+                )
+                assert len(bundle.sources) == 1
+                assert bundle.provenance_ref is not None
+                source_id = ArtifactID.model_validate(bundle.sources[0].artifact_id)
+                result = ResultSerializer.deserialize(store.get_bytes(source_id))
+                assert result.data == expected_rows
+                assert result.row_count == 1
+                assert result.version.content_hash == expected_hash
+
+        with (
+            tenant_scope(None, tenant_id=runtime_api_env["tenant_b"], cell_id=cell_id),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            ReplayStore(store).load_record_session(
+                ArtifactID.model_validate(record_ref)
+            )
 
 
 def test_served_ordinary_ingestion_remains_available_without_replay_reference(

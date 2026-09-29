@@ -32,12 +32,22 @@ Design: `/Users/deniskopylov/.codex/scratch/e02-r1-controlled-owner-bridge-audit
 
 The first candidate at `d11775516` is **NO-GO** under independent review
 `/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111-independent-review-final.md@sha256:1ee4143adc6741b3e9ea3c2651d65e014d3196a749ff98ed3a65e2b5f583ee56`.
-Its source lease also includes
-`policy-engine/src/polisyos/scientist/policy_design/objectives.py`, the shared
-typed rank-assessment owner. The writer may extend only these mirrored tests:
+For this same candidate writer, this dated expansion supersedes the narrower
+"finite ranking" and "downstream finite-admission" write-set sentences below;
+those sections remain historical records of the prior slices. The exact
+current source lease under `policy-engine/src/polisyos/scientist/` is:
+`policy_design/objectives.py`, `policy_design/search.py`,
+`policy_design/output.py`, `methods/search/controller.py`,
+`methods/search/run_state.py`, `methods/search/contracts.py`,
+`methods/search/pareto_registry.py`,
+`methods/search/strategies/adapter.py`,
+`methods/search/strategies/multi_objective.py`, and
+`nodes/builtins/planning/run_hierarchical_policy_search.py`. The exact
+current mirrored test lease is:
 `policy-engine/tests/unit/scientist/search/test_contracts.py`,
 `policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py`,
 `policy-engine/tests/unit/scientist/search/test_pareto_transfer.py`,
+`policy-engine/tests/unit/scientist/search/strategies/test_adapter.py`,
 `policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py`,
 `policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_design.py`,
 `policy-engine/tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py`,

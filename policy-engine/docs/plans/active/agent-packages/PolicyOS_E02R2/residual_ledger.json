@@ -3013,13 +3013,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records E02’s absence of a finding-level record. The current SIM-03 audit records exact card-specific bounded test evidence from a 14/14 focused run; it does not establish the served consumer/property binding listed in the residual, so status remains partial."
+        "detail": "Appendix C records E02’s original lack of a finding-level record; the earlier 14/14 audit remains historical. Integrated cd9e935e5 adds bounded 21/21 controller evidence, a one-step served N5-to-N8 witness, and an expected-red horizon-removal falsifier. N8 remains an internal value port and drops checked-order/horizon scope; no current typed HTTP/audit consumer exposes these facts, so B26 stays partial. The proposed read-time per-job projection is described in the served bridge memo."
       },
-      "residual": "The retained 14/14 run demonstrates a triple-only non-additive residual and reports checked interaction order; the two-atom order control is present. There is no independent additive three-atom control or partial-trajectory negative preventing an unqualified additive label; no production consumer/surface use is established. Keep partial; four-base P41 is UNRUN.",
+      "residual": "At integrated head cd9e935e5, SIM-03 passes 21/21, including a triple-only non-additive residual, a complete additive three-atom control, missing-pair and incomplete-horizon negatives, and a four-atom cancellation bounded as aggregate order-3+ rather than additive. The one-step persisted N5-to-default-N8 witness and horizon-removal falsifier pass; the five pass-to-fail results at intermediate 053df9bc5 are restored. The current one-file P41 measured E02 head 14/14 and integration 21/21 (14 shared PASS-to-PASS, seven added PASS, zero removed, zero PASS-to-FAIL); execution-base and Main cells are Git-MISSING. Keep partial: N8 is an internal value port that retains a reference to N5 but drops numeric_interaction, checked_interaction_orders, interaction_evidence_issues, and residuals; no current typed HTTP/audit consumer exposes these facts. The next slice is a new typed, tenant-bound per-job N5 interaction-diagnostics read-time projection using the owner-recorded compiled run and verified N5 loader, with checked orders and requested-versus-observed horizon plus typed incomplete verdict, retaining candidate-only/simulate_only limits. It needs a bounded new lease and served negative, additive-control, removal, and non-refusal witnesses. The wider seven-importer P41 remains incomplete. Synthetic low-grade K_sim output is candidate evidence, not source-grounded world evidence or S8, promotion, or publication authority.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
-        "name": "N5 interaction-residual producer; board/consumer bridge and appointment not established"
+        "name": "N5 interaction-residual producer; N8 is an internal value port only; typed per-job HTTP/audit diagnostics consumer not established"
       },
       "r_class": null,
       "p_triage": null,
@@ -3122,6 +3122,69 @@
           ],
           "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
           "p41_four_base": "UNRUN"
+        },
+        "current_integrated_followup_2026_09_29": {
+          "identity": "B26 integrated SIM-03 current evidence at cd9e935e5",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "finding_status_retained": "partial",
+          "review": {
+            "verdict": "GO_BOUNDED_CODE_SLICE; B26 remains partial",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-independent-review-20260929/FINAL_REVIEW_44f4f9ba.md@sha256:fe55422342ed34f10ef48a48fc7d558a7ab34eeca105f08de58e29ca8c6039bc"
+          },
+          "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L517-L530",
+          "source_test_blobs": [
+            "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py@git-blob:348221095564e64cf3c76400e842db2457950789",
+            "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:f408bf1b082e8b3e7d52912fce54c199c3c7e9d7",
+            "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:523e6778ef2b3756fa1d87150153b3b598517986"
+          ],
+          "full_sim03": {
+            "result": "21 passed, 0 failed, 0 skipped",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-red-20260929/sim03-full-final-v3/junit.xml@sha256:547efe605f74c1b299ac8b93fef1bc9fdc4daa9bd9a2570954478a8dcd9c6a6b",
+            "historical_053_pass_to_fail": "B21 test_joint_request_runs_each_requested_replication_with_distinct_seeds; B19 test_ncm_evidence_none_and_explicit_empty_are_distinct; B19 test_joint_simulation_requires_explicit_selected_outcome_baseline; B23 test_physical_run_ref_binds_effective_evidence_and_source_mode; B23 test_joint_simulation_reuses_physical_spec_across_roles",
+            "current_corrected_state": "All five named identities pass in the integrated 21/21 file; P41 common set has 14 PASS-to-PASS, seven added PASS, zero removed, zero PASS-to-FAIL."
+          },
+          "served_n5_to_n8": {
+            "result": "1 passed",
+            "identity": "test_generation_cycle_serves_persisted_n5_into_default_n8_value_port",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-red-20260929/n6-served-final-v3/junit.xml@sha256:04c17f67ea9e397a81d4e86d13bf9e16cd507c01dd19b405d9a2b6a011b9a844",
+            "scope": "One-step synthetic candidate path reopens the exact N5 artifact; N8 returns value_conditional, low grade, simulate_only and the K_sim non-authority blocker. Does not establish served multi-step scope projection."
+          },
+          "removal_falsifier": {
+            "result": "expected RED under removed horizon-coverage property; probe test passes its assertion",
+            "script_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-red-20260929/static_horizon_marker_removal_probe.py@sha256:0a1ce4950322a77c777a9d936c392741f06797f51f64f7e540973920ffdfe23a",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-red-20260929/static-horizon-removal-final-v3/junit.xml@sha256:1d1ec9c87033f9834962dcdf2f13d6a8ec98654c7729f5fa568e8726983f8f11"
+          },
+          "strict_p41_single_file": {
+            "status": "INCOMPLETE: 2 PASS cells, 2 Git-MISSING cells",
+            "test_path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+            "manifest_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T111910Z-53708/results.json@sha256:dbe4ad1335391c9202b2b2e249d58bf8d0b345ef24df30dd69100c7300feb979",
+            "compact_receipt_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T111910Z-53708/BASELINES.md@sha256:267f218d35580eab122bc0dfd5d038db448ac4e5eb73441863777d38ee3b5d86",
+            "cells": [
+              {
+                "revision": "E02 execution base 78187878e",
+                "status": "Git-MISSING; exact test path absent"
+              },
+              {
+                "revision": "E02 head",
+                "status": "PASS 14/14",
+                "junit_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T111910Z-53708/cells/e02_head/test_sim_03-46f1330bc494.junit.xml@sha256:aae892e41b9a6ffb86fa4c28420348357fe9e794d7f908309c116aba9fcc0b68"
+              },
+              {
+                "revision": "Main 5fd3ebcc1",
+                "status": "Git-MISSING; exact test path absent"
+              },
+              {
+                "revision": "integration cd9e935e5",
+                "status": "PASS 21/21",
+                "junit_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T111910Z-53708/cells/integration_head/test_sim_03-46f1330bc494.junit.xml@sha256:c973325b763d80f3bda56a5e247c848a23fdf2b71031ea5dc8038e06c752d94d"
+              }
+            ],
+            "case_diff": "14 shared PASS-to-PASS; seven added PASS; zero removed; zero PASS-to-FAIL.",
+            "scope_limit": "This is one test file only; the wider seven-direct-importer P41 remains incomplete/UNRUN."
+          },
+          "remaining_b26_residual": "N8 reopens the exact N5 artifact internally but omits numeric_interaction, checked_interaction_orders, interaction_evidence_issues, and residuals. No current typed HTTP/audit consumer exposes these facts. The next slice is a new typed, tenant-bound per-job N5 interaction-diagnostics read-time projection using the owner-recorded compiled run and verified N5 loader; it reports checked orders and requested-versus-observed horizon with the typed incomplete verdict, retains candidate-only/simulate_only limits, and requires a bounded new lease plus served negative, additive-control, removal, and non-refusal witnesses. Keep B26 partial until that consumer exists and is verified. Do not add persisted N6/history fields for this projection. See /Users/deniskopylov/.codex/scratch/e02-b26-served-consumer-bridge-20260929/B26_SERVED_INTERACTION_PROJECTION.md@sha256:368f53fb720dd1f61540d19ee1d424ca04504c5616ee831f3d8cd2a5f60ef5af.",
+          "authority_limit": "The served fixture is synthetic, low-grade simulate_only/K_sim candidate evidence. It is not source-grounded world evidence and grants no S8, promotion or publication authority.",
+          "tests_run_by_this_audit": false
         }
       },
       "finding_test_status": "PASS_BOUNDED",

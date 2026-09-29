@@ -1,5 +1,37 @@
 # E02-R2 write leases
 
+## Current R13 correction lease at `36bc65858` (2026-09-29)
+
+Root remains the sole writer of `codex/e02-r2`. Independent review found the
+frozen R13 candidate `04fe512bc` NO-GO for its selected-row-to-N8 claim: the
+read-only Data Forge route is owner-bound, but the served WDI test does not
+prove that its selected row enters N8, and the source-update/currentness
+limitation disappears after the gateway. The same R13 writer retains the clean
+attached `codex/e02-r2-r13-selected-row-candidate` worktree for the correction.
+Its exact additional write set is
+`policy-engine/tests/unit/runtime/quality/test_value_gate.py` and
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`;
+the original seven-file R13 source/test write set below stays leased. No
+Foundry selection-owner file, generated family, plan, register, or other test
+is leased. Request a new lease before changing one.
+
+The correction keeps hashed `ValueDataProfile` v1 and the Foundry v4 selection
+receipt unchanged: the latter binds observed owner rows and the effective
+query, and makes no source-update/currentness claim. WDI observation-year
+coordinates may still support candidate panel shape. The existing N8
+production result must carry `source_update_time_not_established` as a typed
+additional authority blocker, without hiding its treatment-assignment blocker
+or claiming current N8 authority. The served test must bind the exact admitted
+WDI row's value/content to the N8 profile/result through the existing runtime
+store and a real catalog owner; a marker-retaining removal of either row
+consumption or status propagation must turn red, while ordinary candidate
+selection remains allowed. If the selected route starts making a currentness
+claim, the Foundry receipt owner needs a separately versioned context/receipt
+transition with historical replay; a new unbound runtime hint is not accepted.
+
+The R1 candidate writer exclusively owns the three files in the next section;
+R13 does not edit them. Keep at least 8 GiB free disk and 20–30% free RAM.
+
 ## Active leases after integration `686ecfcfa` (2026-09-29)
 
 Root alone writes the attached `codex/e02-r2` branch. The R2 S8 history-owner

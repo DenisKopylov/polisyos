@@ -18,8 +18,11 @@ to its existing leased paths below, the exact expanded write set is:
 `policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py`.
 The source contract, concrete update API, and entry DTO must require the
 status; existing direct test fixtures may supply `valid` only when they are
-deliberately constructing a fully assessed input, and historical fixtures
-must retain their limited status. No other writer owns these three paths
+deliberately constructing a fully assessed input. Historical v1/v2.0 wire
+fixtures remain field-absent and decode as `unassessed`. Schema 2.1 is needed
+to persist per-entry producer status/error across registry replay and transfer;
+the older per-view assessment does not retain a finite-but-invalid row's
+source status. This adds no status enum. No other writer owns these three paths
 during this amendment. The current candidate is unchanged until this lease
 is recorded. Behavior, four-base P41 and marker-retaining removal remain
 `UNRUN` below the 8 GiB free-disk floor; static review does not close B111.

@@ -79,7 +79,7 @@ class TenantSidecarScope:
     @classmethod
     def from_current_context(cls, base_root: str | Path) -> TenantSidecarScope:
         """Bind a base root to the authenticated tenant in the current context."""
-        from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+        from polisyos.core.security import get_current_tenant_id_or_none
 
         return cls.for_base_root(base_root, get_current_tenant_id_or_none())
 
